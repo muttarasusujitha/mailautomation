@@ -1,0 +1,41 @@
+{
+  "folders": [
+    { "name": "TrainerSync", "path": "." }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "python.defaultInterpreterPath": "./backend/venv/bin/python",
+    "emmet.includeLanguages": { "javascript": "javascriptreact" },
+    "tailwindCSS.includeLanguages": { "javascript": "javascript", "html": "HTML" }
+  },
+  "extensions": {
+    "recommendations": [
+      "esbenp.prettier-vscode",
+      "ms-python.python",
+      "bradlc.vscode-tailwindcss",
+      "dsznajder.es7-react-js-snippets",
+      "mongodb.mongodb-vscode"
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "FastAPI Backend",
+        "type": "python",
+        "request": "launch",
+        "module": "uvicorn",
+        "args": ["main:app", "--reload", "--port", "8000"],
+        "cwd": "${workspaceFolder}/backend",
+        "envFile": "${workspaceFolder}/backend/.env"
+      }
+    ],
+    "compounds": [
+      {
+        "name": "Full Stack",
+        "configurations": ["FastAPI Backend"]
+      }
+    ]
+  }
+}
