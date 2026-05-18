@@ -6,6 +6,7 @@ Fixed: uses correct env key GMAIL_APP_PASSWORD or GMAIL_PASS
 import smtplib
 import imaplib
 import email as email_lib
+from email.utils import parseaddr
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import List, Dict, Any
@@ -39,15 +40,18 @@ def get_from_email() -> str:
     return getattr(settings, 'from_email', '') or settings.gmail_user
 
 
-def send_email(to: str, subject: str, body: str) -> tuple:
-    gmail_user = settings.gmail_user
-    gmail_pass = get_gmail_password()
-    from_name  = get_from_name()
-    from_email = get_from_email()
+def send_email(to: str, subject: str, body: str, smtp_config: Dict[str, Any] = None, tracking_url: str = "") -> tuple:
+    smtp_config = smtp_config or {}
+    gmail_user = smtp_config.get("smtpUser") or settings.gmail_user
+    gmail_pass = (smtp_config.get("smtpPass") or get_gmail_password()).replace(" ", "")
+    from_name  = smtp_config.get("fromName") or get_from_name()
+    from_email = smtp_config.get("fromEmail") or get_from_email()
+    smtp_host  = smtp_config.get("smtpHost") or "smtp.gmail.com"
+    smtp_port  = int(smtp_config.get("smtpPort") or 587)
 
     if not gmail_user or not gmail_pass:
         err = "Gmail credentials not set in .env (GMAIL_USER + GMAIL_PASS)"
-        print(f"❌ {err}")
+        print(f"Email error: {err}")
         return False, err
 
     try:
@@ -60,6 +64,11 @@ def send_email(to: str, subject: str, body: str) -> tuple:
         msg_obj.attach(MIMEText(body, "plain"))
 
         html_body = body.replace('\n', '<br>')
+        tracking_pixel = (
+            f'<img src="{tracking_url}" width="1" height="1" alt="" '
+            'style="display:none;width:1px;height:1px;opacity:0;border:0;" />'
+            if tracking_url else ""
+        )
         html = f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#f8fafc;font-family:'Segoe UI',Arial,sans-serif;">
@@ -75,40 +84,43 @@ def send_email(to: str, subject: str, body: str) -> tuple:
 <p style="margin:0;color:#94a3b8;font-size:12px;">{from_name} &bull; {from_email}</p>
 </td></tr>
 </table></td></tr></table>
+{tracking_pixel}
 </body></html>"""
         msg_obj.attach(MIMEText(html, "html"))
 
         try:
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as server:
+            ssl_port = 465 if smtp_port == 587 else smtp_port
+            with smtplib.SMTP_SSL(smtp_host, ssl_port, timeout=15) as server:
                 server.login(gmail_user, gmail_pass)
                 server.sendmail(from_email, to, msg_obj.as_string())
         except Exception:
-            with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as server:
+            starttls_port = smtp_port if smtp_port != 465 else 587
+            with smtplib.SMTP(smtp_host, starttls_port, timeout=15) as server:
                 server.ehlo(); server.starttls()
                 server.login(gmail_user, gmail_pass)
                 server.sendmail(from_email, to, msg_obj.as_string())
 
-        print(f"✅ Email sent to {to}")
+        print(f"Email sent to {to}")
         return True, ""
 
     except smtplib.SMTPAuthenticationError:
-        err = "Gmail authentication failed — check GMAIL_USER and GMAIL_PASS"
-        print(f"❌ {err}")
+        err = "Gmail authentication failed - check GMAIL_USER and GMAIL_PASS"
+        print(f"Email error: {err}")
         return False, err
     except Exception as e:
-        print(f"❌ Email send failed to {to}: {e}")
+        print(f"Email send failed to {to}: {e}")
         return False, str(e)
 
 
-async def send_email_async(to: str, subject: str, body: str) -> tuple:
+async def send_email_async(to: str, subject: str, body: str, smtp_config: Dict[str, Any] = None, tracking_url: str = "") -> tuple:
     loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, send_email, to, subject, body)
+    return await loop.run_in_executor(None, send_email, to, subject, body, smtp_config, tracking_url)
 
 
-async def send_bulk_emails(payloads: List[Dict]) -> List[Dict]:
+async def send_bulk_emails(payloads: List[Dict], smtp_config: Dict[str, Any] = None) -> List[Dict]:
     results = []
     for p in payloads:
-        success, error = await send_email_async(p["to"], p["subject"], p["body"])
+        success, error = await send_email_async(p["to"], p["subject"], p["body"], smtp_config, p.get("tracking_url", ""))
         results.append({
             **p,
             "status": "sent" if success else "failed",
@@ -166,27 +178,57 @@ Warm regards,
 """
 
 
-def check_email_replies(since_days: int = 7) -> List[Dict[str, Any]]:
+def check_email_replies(
+    since_days: int = 7,
+    max_messages: int = 50,
+    from_emails: List[str] = None,
+    gmail_user: str = "",
+    gmail_pass: str = "",
+) -> List[Dict[str, Any]]:
     replies = []
+    mail = None
     try:
-        gmail_user = settings.gmail_user
-        gmail_pass = get_gmail_password()
+        gmail_user = gmail_user or settings.gmail_user
+        gmail_pass = (gmail_pass or get_gmail_password()).replace(" ", "")
         if not gmail_user or not gmail_pass:
             return []
 
-        mail = imaplib.IMAP4_SSL("imap.gmail.com")
+        mail = imaplib.IMAP4_SSL("imap.gmail.com", timeout=20)
         mail.login(gmail_user, gmail_pass)
         mail.select("inbox")
 
         since_date = (datetime.now() - timedelta(days=since_days)).strftime("%d-%b-%Y")
-        _, msg_ids = mail.search(None, f'(SINCE {since_date} UNSEEN)')
+        ids = []
+        seen_ids = set()
+        targeted = [
+            str(item or "").strip()
+            for item in (from_emails or [])
+            if str(item or "").strip() and "@" in str(item)
+        ]
+        for sender in targeted[:100]:
+            _, msg_ids = mail.search(None, f'(SINCE {since_date} FROM "{sender}")')
+            for msg_id in (msg_ids[0].split() if msg_ids and msg_ids[0] else []):
+                if msg_id not in seen_ids:
+                    seen_ids.add(msg_id)
+                    ids.append(msg_id)
 
-        for msg_id in (msg_ids[0].split() if msg_ids[0] else []):
+        if not ids and not targeted:
+            _, msg_ids = mail.search(None, f'(SINCE {since_date})')
+            ids = msg_ids[0].split() if msg_ids and msg_ids[0] else []
+        ids = ids[-max_messages:]
+
+        for msg_id in ids:
             _, msg_data = mail.fetch(msg_id, "(RFC822)")
+            if not msg_data or not isinstance(msg_data[0], tuple):
+                continue
             raw = msg_data[0][1]
             msg = email_lib.message_from_bytes(raw)
             from_addr = msg.get("From", "")
+            from_email = parseaddr(from_addr)[1] or from_addr.strip()
             subject   = msg.get("Subject", "")
+            message_id_header = msg.get("Message-ID", "") or msg.get("Message-Id", "")
+            in_reply_to = msg.get("In-Reply-To", "")
+            references = msg.get("References", "")
             body = ""
             if msg.is_multipart():
                 for part in msg.walk():
@@ -201,22 +243,68 @@ def check_email_replies(since_days: int = 7) -> List[Dict[str, Any]]:
             is_neg = any(s in body_lower for s in NEGATIVE_SIGNALS)
 
             replies.append({
-                "from_email": from_addr, "subject": subject, "body": body[:500],
+                "msg_id": msg_id.decode() if isinstance(msg_id, bytes) else str(msg_id),
+                "message_id_header": message_id_header,
+                "in_reply_to": in_reply_to,
+                "references": references,
+                "from_email": from_email,
+                "from_raw": from_addr,
+                "subject": subject,
+                "body": body[:2000],
                 "sentiment": "positive" if is_pos else ("negative" if is_neg else "neutral"),
                 "action": "mark_interested" if is_pos else ("mark_declined" if is_neg else "requires_review"),
                 "received_at": datetime.utcnow().isoformat(),
             })
-            mail.store(msg_id, "+FLAGS", "\\Seen")
 
-        mail.close(); mail.logout()
     except Exception as e:
-        print(f"❌ IMAP check failed: {e}")
+        print(f"IMAP check failed: {e}")
+    finally:
+        try:
+            if mail:
+                mail.close()
+        except Exception:
+            pass
+        try:
+            if mail:
+                mail.logout()
+        except Exception:
+            pass
     return replies
+
+
+def mark_emails_seen(msg_ids: List[str]) -> None:
+    if not msg_ids:
+        return
+    mail = None
+    try:
+        gmail_user = settings.gmail_user
+        gmail_pass = get_gmail_password()
+        if not gmail_user or not gmail_pass:
+            return
+        mail = imaplib.IMAP4_SSL("imap.gmail.com", timeout=20)
+        mail.login(gmail_user, gmail_pass)
+        mail.select("inbox")
+        for msg_id in msg_ids:
+            if str(msg_id).isdigit():
+                mail.store(str(msg_id), "+FLAGS", "\\Seen")
+    except Exception as e:
+        print(f"IMAP mark seen failed: {e}")
+    finally:
+        try:
+            if mail:
+                mail.close()
+        except Exception:
+            pass
+        try:
+            if mail:
+                mail.logout()
+        except Exception:
+            pass
 
 
 def compose_shortlist_first_email(trainer_name: str, domain: str, duration: str,
                                    mode: str, participants: str) -> str:
-    return f"""Dear Sir/Madam,
+    return f"""Dear {trainer_name or 'Trainer'},
 
 We have received a training requirement for {domain} and are looking for a trainer with relevant experience.
 
@@ -235,7 +323,7 @@ Regards,
 
 
 def compose_toc_request_email(trainer_name: str) -> str:
-    return f"""Dear Sir/Madam,
+    return f"""Dear {trainer_name or 'Trainer'},
 
 Congratulations on clearing the discussion round.
 

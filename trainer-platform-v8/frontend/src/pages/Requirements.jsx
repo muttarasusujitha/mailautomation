@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 import {
   Search, Plus, X, Star, MapPin, Mail,
   Phone, Linkedin, FileText, Award, Clock, Loader2, ChevronRight,
-  TrendingUp, Users, Trash2
+  TrendingUp, Users, Trash2, Eye, BriefcaseBusiness, BookOpenCheck
 } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -31,8 +31,214 @@ const ScoreBadge = ({ score }) => {
   )
 }
 
-const TrainerCard = ({ trainer, rank }) => (
-  <div className="card-hover p-5 animate-slide-up">
+function toList(value) {
+  if (Array.isArray(value)) return value.filter(Boolean)
+  if (!value) return []
+  return String(value).split(/[,;\n]/).map(item => item.trim()).filter(Boolean)
+}
+
+function textValue(value, fallback = 'Not available') {
+  if (Array.isArray(value)) return value.filter(Boolean).join(', ') || fallback
+  if (value === null || value === undefined || value === '') return fallback
+  return String(value)
+}
+
+function resumeExcerpt(value) {
+  if (!value) return ''
+  const raw = String(value).trim()
+  if (/^https?:\/\//i.test(raw)) return ''
+  return raw.length > 1200 ? `${raw.slice(0, 1200).trim()}...` : raw
+}
+
+function buildFitDescription(trainer, requirement) {
+  const tech = requirement?.technology_needed || 'this requirement'
+  const matchedSkills = trainer.score_breakdown?.skills?.matched_required || []
+  const preferred = trainer.score_breakdown?.skills?.matched_preferred || []
+  const parts = [
+    `${trainer.name} is shortlisted for ${tech} with a match score of ${trainer.match_score ?? 0}/100.`,
+  ]
+  if (trainer.experience_raw || trainer.experience_years) {
+    parts.push(`The profile shows ${trainer.experience_raw || `${trainer.experience_years}+ years`} of experience.`)
+  }
+  if (matchedSkills.length) {
+    parts.push(`Resume should clearly highlight hands-on work in ${matchedSkills.join(', ')}.`)
+  } else if (requirement?.required_skills?.length) {
+    parts.push(`Resume should explicitly mention the required skills: ${requirement.required_skills.join(', ')}.`)
+  }
+  if (preferred.length) {
+    parts.push(`Preferred strengths found include ${preferred.join(', ')}.`)
+  }
+  if (trainer.certifications?.length) {
+    parts.push(`Certifications to verify: ${toList(trainer.certifications).join(', ')}.`)
+  }
+  if (trainer.past_clients?.length) {
+    parts.push(`Past client/training evidence should include ${toList(trainer.past_clients).slice(0, 5).join(', ')}.`)
+  }
+  if (trainer.ai_match_reason) parts.push(`AI fit note: ${trainer.ai_match_reason}`)
+  return parts.join(' ')
+}
+
+function DetailSection({ title, icon: Icon, children }) {
+  return (
+    <section className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-800">
+        <Icon className="h-4 w-4 text-brand-500" /> {title}
+      </h4>
+      {children}
+    </section>
+  )
+}
+
+function TrainerDetailModal({ trainer, rank, requirement, onClose }) {
+  const skills = toList(trainer.skills)
+  const certs = toList(trainer.certifications)
+  const clients = toList(trainer.past_clients)
+  const secondary = toList(trainer.secondary_categories)
+  const industries = toList(trainer.industry_focus)
+  const languages = toList(trainer.language_of_delivery)
+  const excerpt = resumeExcerpt(trainer.resume)
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+      <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-bold text-brand-600">Rank #{rank}</span>
+              <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">{trainer.match_score ?? 0}/100 match</span>
+              {trainer.status && <span className="badge-slate">{trainer.status}</span>}
+            </div>
+            <h3 className="mt-2 font-display text-2xl font-bold text-slate-900">{trainer.name}</h3>
+            <p className="mt-1 text-sm text-slate-500">{textValue(trainer.technologies)}</p>
+          </div>
+          <button onClick={onClose} className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-5">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="space-y-4">
+              <DetailSection title="Profile Description" icon={BookOpenCheck}>
+                <p className="text-sm leading-6 text-slate-700">{buildFitDescription(trainer, requirement)}</p>
+                {trainer.summary && (
+                  <p className="mt-3 rounded-lg border border-slate-200 bg-white p-3 text-sm leading-6 text-slate-700">
+                    {trainer.summary}
+                  </p>
+                )}
+              </DetailSection>
+
+              <DetailSection title="Resume Evidence" icon={FileText}>
+                {excerpt ? (
+                  <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-white p-3 font-sans text-sm leading-6 text-slate-700">{excerpt}</pre>
+                ) : trainer.resume ? (
+                  <a href={trainer.resume} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:underline">
+                    <FileText className="h-4 w-4" /> Open resume
+                  </a>
+                ) : (
+                  <p className="text-sm text-slate-500">No resume text or link is stored for this trainer.</p>
+                )}
+              </DetailSection>
+
+              <DetailSection title="Skills & Technologies" icon={Star}>
+                <div className="flex flex-wrap gap-2">
+                  {skills.length ? skills.map(skill => <span key={skill} className="badge-blue text-xs">{skill}</span>) : <span className="text-sm text-slate-500">No skills listed</span>}
+                </div>
+                {secondary.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {secondary.map(item => <span key={item} className="badge-slate">{item}</span>)}
+                  </div>
+                )}
+              </DetailSection>
+            </div>
+
+            <div className="space-y-4">
+              <DetailSection title="Contact & Experience" icon={BriefcaseBusiness}>
+                <div className="space-y-2 text-sm text-slate-700">
+                  <p><strong>Experience:</strong> {trainer.experience_raw || `${trainer.experience_years || 0} years`}</p>
+                  <p><strong>Location:</strong> {textValue(trainer.location)}</p>
+                  <p><strong>Email:</strong> {textValue(trainer.email)}</p>
+                  <p><strong>Phone:</strong> {textValue(trainer.phone)}</p>
+                  <p><strong>LinkedIn:</strong> {trainer.linkedin ? <a className="text-brand-600 hover:underline" href={trainer.linkedin} target="_blank" rel="noreferrer">Open profile</a> : 'Not available'}</p>
+                  <p><strong>Trainings:</strong> {trainer.training_count ?? 'Not available'}</p>
+                  <p><strong>Day rate:</strong> {trainer.day_rate ? `INR ${Number(trainer.day_rate).toLocaleString('en-IN')}` : 'Not available'}</p>
+                </div>
+              </DetailSection>
+
+              <DetailSection title="Certifications & Clients" icon={Award}>
+                <div className="space-y-3">
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Certifications</p>
+                    <div className="flex flex-wrap gap-2">
+                      {certs.length ? certs.map(cert => <span key={cert} className="badge-blue text-xs">{cert}</span>) : <span className="text-sm text-slate-500">No certifications listed</span>}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Past Clients</p>
+                    <div className="flex flex-wrap gap-2">
+                      {clients.length ? clients.map(client => <span key={client} className="badge-slate">{client}</span>) : <span className="text-sm text-slate-500">No past clients listed</span>}
+                    </div>
+                  </div>
+                </div>
+              </DetailSection>
+
+              <DetailSection title="Match Breakdown" icon={TrendingUp}>
+                <div className="space-y-2">
+                  {[
+                    ['Technology', 'technology'],
+                    ['Skills', 'skills'],
+                    ['Experience', 'experience'],
+                    ['Certifications', 'certifications'],
+                    ['Location', 'location'],
+                  ].map(([label, key]) => {
+                    const item = trainer.score_breakdown?.[key] || {}
+                    const max = item.max || 1
+                    const score = item.score || 0
+                    return (
+                      <div key={key}>
+                        <div className="mb-1 flex justify-between text-xs font-semibold text-slate-500">
+                          <span>{label}</span><span>{score}/{max}</span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-slate-200">
+                          <div className="h-full rounded-full bg-brand-500" style={{ width: `${Math.min(100, Math.round((score / max) * 100))}%` }} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </DetailSection>
+
+              {(industries.length > 0 || languages.length > 0 || trainer.domain || trainer.primary_category) && (
+                <DetailSection title="Category Details" icon={Users}>
+                  <div className="space-y-2 text-sm text-slate-700">
+                    <p><strong>Primary:</strong> {textValue(trainer.primary_category || trainer.technology_category || trainer.category)}</p>
+                    <p><strong>Domain:</strong> {textValue(trainer.domain)}</p>
+                    {industries.length > 0 && <p><strong>Industry:</strong> {industries.join(', ')}</p>}
+                    {languages.length > 0 && <p><strong>Language:</strong> {languages.join(', ')}</p>}
+                  </div>
+                </DetailSection>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const TrainerCard = ({ trainer, rank, requirement, onOpen }) => (
+  <div
+    role="button"
+    tabIndex={0}
+    onClick={() => onOpen(trainer, rank)}
+    onKeyDown={e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        onOpen(trainer, rank)
+      }
+    }}
+    className="card-hover cursor-pointer p-5 animate-slide-up focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+  >
     <div className="flex items-start gap-4">
       <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0">
         <span className="font-display font-bold text-brand-600 text-sm">#{rank}</span>
@@ -42,6 +248,9 @@ const TrainerCard = ({ trainer, rank }) => (
           <div>
             <h3 className="font-display font-semibold text-slate-900">{trainer.name}</h3>
             <p className="text-sm text-slate-500 mt-0.5 line-clamp-1">{trainer.technologies?.substring(0, 80)}</p>
+            {trainer.ai_match_reason && (
+              <p className="mt-1 text-xs text-slate-500 line-clamp-1">{trainer.ai_match_reason}</p>
+            )}
           </div>
           <ScoreBadge score={trainer.match_score} />
         </div>
@@ -84,17 +293,20 @@ const TrainerCard = ({ trainer, rank }) => (
         )}
         <div className="mt-3 flex items-center gap-3">
           {trainer.has_linkedin && (
-            <a href={trainer.linkedin} target="_blank" rel="noreferrer"
+            <a href={trainer.linkedin} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
                className="flex items-center gap-1 text-xs text-brand-500 hover:underline">
               <Linkedin className="w-3.5 h-3.5" /> LinkedIn
             </a>
           )}
           {trainer.has_resume && (
-            <a href={trainer.resume} target="_blank" rel="noreferrer"
+            <a href={trainer.resume} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
                className="flex items-center gap-1 text-xs text-brand-500 hover:underline">
               <FileText className="w-3.5 h-3.5" /> Resume
             </a>
           )}
+          <span className="flex items-center gap-1 text-xs font-semibold text-brand-500">
+            <Eye className="w-3.5 h-3.5" /> View details
+          </span>
           <span className={clsx('ml-auto badge',
             trainer.status === 'interested' ? 'badge-green' :
             trainer.status === 'contacted'  ? 'badge-blue'  :
@@ -113,6 +325,7 @@ export default function Requirements() {
   const [loading, setLoading]   = useState(false)
   const [loadingMode, setLoadingMode] = useState('')
   const [result, setResult]     = useState(null)
+  const [selectedTrainer, setSelectedTrainer] = useState(null)
   const [skillInput, setSkillInput] = useState('')
   const [skillSuggestions, setSkillSuggestions] = useState([])
   const [form, setForm] = useState({
@@ -193,7 +406,7 @@ export default function Requirements() {
           <h1 className="page-title">Find Trainers</h1>
           <p className="text-sm text-slate-500 mt-0.5">Search and shortlist top trainers for your requirement</p>
         </div>
-        <button onClick={() => { setShowForm(true); setResult(null) }} className="btn-primary">
+        <button onClick={() => { setShowForm(true); setResult(null); setSelectedTrainer(null) }} className="btn-primary">
           <Plus className="w-4 h-4" /> New Search
         </button>
       </div>
@@ -380,10 +593,25 @@ export default function Requirements() {
           <h2 className="section-title">Top Matched Trainers</h2>
           <div className="space-y-3">
             {(result.top_trainers_list || []).map((t, i) => (
-              <TrainerCard key={t.trainer_id} trainer={t} rank={i + 1} />
+              <TrainerCard
+                key={t.trainer_id}
+                trainer={t}
+                rank={i + 1}
+                requirement={form}
+                onOpen={(trainer, rank) => setSelectedTrainer({ trainer, rank })}
+              />
             ))}
           </div>
         </div>
+      )}
+
+      {selectedTrainer && (
+        <TrainerDetailModal
+          trainer={selectedTrainer.trainer}
+          rank={selectedTrainer.rank}
+          requirement={form}
+          onClose={() => setSelectedTrainer(null)}
+        />
       )}
 
       {/* Past Requirements */}

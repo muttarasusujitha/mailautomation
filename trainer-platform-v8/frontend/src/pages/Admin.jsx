@@ -1,14 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
   User, Mail, Lock, Bell, Database, Key,
   Save, Eye, EyeOff, CheckCircle, Settings,
-  Trash2, RefreshCw, Shield, Globe, Building2
+  Trash2, RefreshCw, Shield, Globe, Building2,
+  MessageSquare, Phone, Clock
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 
-const Section = ({ icon: Icon, title, subtitle, children }) => (
-  <div className="card p-5 mb-5">
+const SETTINGS_STORAGE_KEY = 'admin_settings'
+
+const Section = ({ id, icon: Icon, title, subtitle, children }) => (
+  <div id={id} className="card p-5 mb-5 scroll-mt-24">
     <div className="flex items-start gap-3 mb-5 pb-4 border-b border-slate-100">
       <div className="w-9 h-9 rounded-xl bg-brand-50 flex items-center justify-center flex-shrink-0">
         <Icon className="w-5 h-5 text-brand-500" />
@@ -70,6 +74,7 @@ const Toggle = ({ checked, onChange, label, desc }) => (
 export default function Admin() {
   const [showPass, setShowPass]   = useState(false)
   const [saving,   setSaving]     = useState(false)
+  const location = useLocation()
 
   // Profile
   const [profile, setProfile] = useState({
@@ -89,6 +94,31 @@ export default function Admin() {
     fromName:  'Calhan Technologies',
     fromEmail: 'recruitment@calhantech.com',
   })
+
+  // Twilio WhatsApp config
+  const [twilioCfg, setTwilioCfg] = useState({
+    enabled: false,
+    accountSid: '',
+    authToken: '',
+    fromWhatsAppNumber: 'whatsapp:+14155238886',
+    vendorWhatsAppNumber: '',
+    defaultCountryCode: '+91',
+    statusCallbackUrl: '',
+  })
+
+  const [gmailStatus, setGmailStatus] = useState({ connected: false })
+  const [clientInboxCfg, setClientInboxCfg] = useState({
+    autoSendEnabled: false,
+    autoSendThreshold: 92,
+    clientDomainsWhitelist: '',
+    vendorWhatsAppNumber: '',
+    replySignature: 'Regards,\nRecruitment Team,\nCalhan Technologies',
+  })
+  const [teamsCfg, setTeamsCfg] = useState({
+    webhookUrl: '',
+  })
+  const [reminders, setReminders] = useState([])
+  const [loadingReminders, setLoadingReminders] = useState(false)
 
   // Notifications
   const [notif, setNotif] = useState({
@@ -115,25 +145,105 @@ export default function Admin() {
     openaiKey:         '',
   })
 
+  useEffect(() => {
+    const section = new URLSearchParams(location.search).get('section')
+    if (!section) return
+
+    const timer = setTimeout(() => {
+      document.getElementById(`admin-${section}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    }, 80)
+
+    return () => clearTimeout(timer)
+  }, [location.search])
+
+  // Load settings from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedSettings = localStorage.getItem('admin_settings')
+      if (savedSettings) {
+        const parsed = JSON.parse(savedSettings)
+        if (parsed.profile) setProfile({...profile, ...parsed.profile})
+        if (parsed.emailCfg) setEmailCfg({...emailCfg, ...parsed.emailCfg})
+        if (parsed.twilioCfg) setTwilioCfg({...twilioCfg, ...parsed.twilioCfg})
+        if (parsed.clientInboxCfg) setClientInboxCfg({...clientInboxCfg, ...parsed.clientInboxCfg})
+        if (parsed.teamsCfg) setTeamsCfg({...teamsCfg, ...parsed.teamsCfg})
+        if (parsed.notif) setNotif({...notif, ...parsed.notif})
+        if (parsed.pipeline) setPipeline({...pipeline, ...parsed.pipeline})
+        if (parsed.keys) setKeys({...keys, ...parsed.keys})
+      }
+    } catch (e) {
+      console.error('Failed to load admin settings:', e)
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    const applySettings = (settings) => {
+      if (!settings || cancelled) return
+      if (settings.profile) setProfile(prev => ({ ...prev, ...settings.profile }))
+      if (settings.emailCfg) setEmailCfg(prev => ({ ...prev, ...settings.emailCfg }))
+      if (settings.twilioCfg) setTwilioCfg(prev => ({ ...prev, ...settings.twilioCfg }))
+      if (settings.clientInboxCfg) setClientInboxCfg(prev => ({ ...prev, ...settings.clientInboxCfg }))
+      if (settings.teamsCfg) setTeamsCfg(prev => ({ ...prev, ...settings.teamsCfg }))
+      if (settings.notif) setNotif(prev => ({ ...prev, ...settings.notif }))
+      if (settings.pipeline) setPipeline(prev => ({ ...prev, ...settings.pipeline }))
+      if (settings.keys) setKeys(prev => ({ ...prev, ...settings.keys }))
+    }
+
+    const loadSettings = async () => {
+      try {
+        const cached = localStorage.getItem(SETTINGS_STORAGE_KEY)
+        if (cached) applySettings(JSON.parse(cached))
+      } catch {
+        localStorage.removeItem(SETTINGS_STORAGE_KEY)
+      }
+
+      try {
+        const res = await fetch('/api/admin/settings')
+        if (!res.ok) return
+        const settings = await res.json()
+        if (Object.keys(settings).length) {
+          applySettings(settings)
+          localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
+        }
+      } catch {
+        // Local cache above keeps the form persistent when the API is offline.
+      }
+
+      try {
+        const statusRes = await fetch('/api/gmail/auth-status')
+        if (statusRes.ok) setGmailStatus(await statusRes.json())
+      } catch {}
+      loadReminders()
+    }
+
+    loadSettings()
+    return () => { cancelled = true }
+  }, [])
+
   const save = async (section) => {
     setSaving(true)
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, notif, pipeline, keys }
     try {
-      const payload = { profile, emailCfg, notif, pipeline, keys }
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
       if (res.ok) {
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
         toast.success(`${section} settings saved!`)
       } else {
-        // Save to localStorage as fallback if backend doesn't have route yet
-        localStorage.setItem('admin_settings', JSON.stringify(payload))
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
         toast.success(`${section} settings saved locally!`)
       }
     } catch {
-      localStorage.setItem('admin_settings', JSON.stringify({ profile, emailCfg, notif, pipeline, keys }))
-      toast.success(`${section} settings saved!`)
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      toast.success(`${section} settings saved locally!`)
     }
     finally { setSaving(false) }
   }
@@ -145,9 +255,113 @@ export default function Admin() {
     toast.success('Test email sent successfully!')
   }
 
+  const testWhatsApp = async () => {
+    setSaving(true)
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, notif, pipeline, keys }
+    try {
+      const saveRes = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      if (!saveRes.ok) throw new Error('Could not save Twilio settings')
+
+      const testRes = await fetch('/api/admin/whatsapp/test', { method: 'POST' })
+      const data = await testRes.json().catch(() => ({}))
+      if (!testRes.ok) throw new Error(data.detail || 'WhatsApp test failed')
+      toast.success('WhatsApp test sent!')
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const testTeams = async () => {
+    setSaving(true)
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, notif, pipeline, keys }
+    try {
+      const saveRes = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      if (!saveRes.ok) throw new Error('Could not save Teams settings')
+
+      const testRes = await fetch('/api/admin/teams/test', { method: 'POST' })
+      const data = await testRes.json().catch(() => ({}))
+      if (!testRes.ok) throw new Error(data.detail?.error || data.detail || data.error || 'Teams test failed')
+      toast.success('Teams test card sent!')
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const connectGmail = async () => {
+    setSaving(true)
+    try {
+      const res = await fetch('/api/gmail/renew-watch', { method: 'POST' })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.detail || data.error || 'Gmail watch renewal failed')
+      setGmailStatus(prev => ({ ...prev, connected: true, valid: true, ...data }))
+      toast.success('Gmail connected and watch renewed!')
+    } catch (e) {
+      toast.error(e.message || 'Run backend/scripts/gmail_auth.py first')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const disconnectGmail = async () => {
+    setSaving(true)
+    try {
+      const res = await fetch('/api/gmail/disconnect', { method: 'POST' })
+      if (!res.ok) throw new Error('Could not disconnect Gmail')
+      setGmailStatus({ connected: false, valid: false })
+      toast.success('Gmail disconnected')
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const clearDatabase = () => {
     if (window.confirm('Are you sure? This will clear all trainer data.')) {
       toast.error('Database clear cancelled (demo mode)')
+    }
+  }
+
+  const loadReminders = async () => {
+    setLoadingReminders(true)
+    try {
+      const res = await fetch('/api/interview-reminders?limit=25')
+      if (!res.ok) throw new Error('Could not load reminders')
+      const data = await res.json()
+      setReminders(data.reminders || [])
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setLoadingReminders(false)
+    }
+  }
+
+  const cancelReminder = async (reminderId) => {
+    try {
+      const res = await fetch(`/api/interview-reminders/${reminderId}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'cancelled_from_admin' }),
+      })
+      if (!res.ok) throw new Error('Could not cancel reminder')
+      toast.success('Reminder cancelled')
+      loadReminders()
+    } catch (e) {
+      toast.error(e.message)
     }
   }
 
@@ -164,6 +378,27 @@ export default function Admin() {
       </div>
 
       {/* ── PROFILE ── */}
+      <Section id="admin-teams" icon={MessageSquare} title="Microsoft Teams" subtitle="Incoming webhook for pipeline cards">
+        <Field label="Teams Webhook URL" hint="Paste the Teams Incoming Webhook URL here">
+          <Input
+            icon={MessageSquare}
+            type="url"
+            value={teamsCfg.webhookUrl}
+            onChange={e => setTeamsCfg({...teamsCfg, webhookUrl: e.target.value})}
+            placeholder="https://outlook.office.com/webhook/..."
+          />
+        </Field>
+        <div className="flex gap-3 pt-2 flex-wrap">
+          <button className="btn-primary text-sm" onClick={() => save('Teams')} disabled={saving}>
+            {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save Teams
+          </button>
+          <button className="btn-secondary text-sm" onClick={testTeams} disabled={saving || !teamsCfg.webhookUrl.trim()}>
+            <MessageSquare className="w-4 h-4" /> Send Test Teams
+          </button>
+        </div>
+      </Section>
+
       <Section icon={User} title="Profile" subtitle="Your account information">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Full Name">
@@ -250,6 +485,170 @@ export default function Admin() {
       </Section>
 
       {/* ── PIPELINE DEFAULTS ── */}
+      <Section icon={Mail} title="Gmail Client Inbox" subtitle="Gmail OAuth, AI client email reading, and Calhan Technologies reply controls">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 p-4">
+          <div>
+            <p className="text-sm font-semibold text-slate-800">Gmail OAuth Status</p>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {gmailStatus.connected ? 'Gmail token is valid and ready for Pub/Sub webhooks' : 'Run backend/scripts/gmail_auth.py, then renew the Gmail watch'}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={clsx(
+              'inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold',
+              gmailStatus.connected ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'
+            )}>
+              <span className={clsx('h-2 w-2 rounded-full', gmailStatus.connected ? 'bg-emerald-500' : 'bg-red-500')} />
+              {gmailStatus.connected ? 'Connected' : 'Not Connected'}
+            </span>
+            <button className="btn-secondary text-sm" onClick={connectGmail} disabled={saving}>
+              <RefreshCw className="w-4 h-4" /> Connect / Renew
+            </button>
+            <button className="btn-secondary text-sm text-red-600" onClick={disconnectGmail} disabled={saving || !gmailStatus.connected}>
+              Disconnect
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-slate-50 rounded-xl p-4">
+          <Toggle checked={clientInboxCfg.autoSendEnabled} onChange={v => setClientInboxCfg({...clientInboxCfg, autoSendEnabled: v})}
+            label="Enable Client Auto-send" desc="Send Calhan Technologies replies automatically when confidence and domain rules pass" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label={`Auto-send Threshold (${clientInboxCfg.autoSendThreshold}%)`} hint="Only replies above this confidence can be auto-sent">
+            <input
+              type="range"
+              min="85"
+              max="99"
+              value={clientInboxCfg.autoSendThreshold}
+              onChange={e => setClientInboxCfg({...clientInboxCfg, autoSendThreshold: Number(e.target.value)})}
+              className="w-full"
+            />
+          </Field>
+          <Field label="Vendor WhatsApp Number" hint="Used for client inquiry notifications; falls back to Twilio settings if empty">
+            <Input icon={Phone} value={clientInboxCfg.vendorWhatsAppNumber} onChange={e => setClientInboxCfg({...clientInboxCfg, vendorWhatsAppNumber: e.target.value})} placeholder="whatsapp:+91XXXXXXXXXX" />
+          </Field>
+        </div>
+
+        <Field label="Client Email Domains Whitelist" hint="Comma separated domains. Non-whitelisted domains stay pending even when confidence is high">
+          <textarea
+            value={clientInboxCfg.clientDomainsWhitelist}
+            onChange={e => setClientInboxCfg({...clientInboxCfg, clientDomainsWhitelist: e.target.value})}
+            placeholder="infosys.com, wipro.com, tcs.com"
+            className="w-full min-h-20 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400"
+          />
+        </Field>
+
+        <Field label="Reply Signature" hint="Appended to every Calhan Technologies client reply">
+          <textarea
+            value={clientInboxCfg.replySignature}
+            onChange={e => setClientInboxCfg({...clientInboxCfg, replySignature: e.target.value})}
+            className="w-full min-h-28 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400"
+          />
+        </Field>
+
+        <button className="btn-primary text-sm" onClick={() => save('Gmail Client Inbox')} disabled={saving}>
+          {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          Save Gmail Settings
+        </button>
+      </Section>
+
+      <Section id="admin-whatsapp" icon={MessageSquare} title="WhatsApp Notifications" subtitle="Twilio WhatsApp settings for trainer and vendor alerts">
+        <div className="bg-slate-50 rounded-xl p-4">
+          <Toggle checked={twilioCfg.enabled} onChange={v => setTwilioCfg({...twilioCfg, enabled: v})}
+            label="Enable WhatsApp Automation" desc="Send WhatsApp alongside emails, reply alerts, and interview reminders" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Twilio Account SID">
+            <Input icon={Key} value={twilioCfg.accountSid} onChange={e => setTwilioCfg({...twilioCfg, accountSid: e.target.value})} placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+          </Field>
+          <Field label="Twilio Auth Token">
+            <Input icon={Lock} type="password" value={twilioCfg.authToken} onChange={e => setTwilioCfg({...twilioCfg, authToken: e.target.value})} placeholder="Auth token" />
+          </Field>
+          <Field label="Twilio WhatsApp Sender" hint="Use your approved Twilio WhatsApp sender or sandbox number">
+            <Input icon={MessageSquare} value={twilioCfg.fromWhatsAppNumber} onChange={e => setTwilioCfg({...twilioCfg, fromWhatsAppNumber: e.target.value})} placeholder="whatsapp:+14155238886" />
+          </Field>
+          <Field label="Vendor WhatsApp Number" hint="Your WhatsApp number for trainer reply alerts">
+            <Input icon={Phone} value={twilioCfg.vendorWhatsAppNumber} onChange={e => setTwilioCfg({...twilioCfg, vendorWhatsAppNumber: e.target.value})} placeholder="whatsapp:+91XXXXXXXXXX" />
+          </Field>
+          <Field label="Default Country Code" hint="Used when trainer phone numbers are saved without country code">
+            <Input value={twilioCfg.defaultCountryCode} onChange={e => setTwilioCfg({...twilioCfg, defaultCountryCode: e.target.value})} placeholder="+91" />
+          </Field>
+          <Field label="Status Callback URL" hint="Optional. Leave blank to use /api/whatsapp/status-callback automatically">
+            <Input value={twilioCfg.statusCallbackUrl} onChange={e => setTwilioCfg({...twilioCfg, statusCallbackUrl: e.target.value})} placeholder="https://your-domain.com/api/whatsapp/status-callback" />
+          </Field>
+        </div>
+        <div className="flex gap-3 pt-2 flex-wrap">
+          <button className="btn-primary text-sm" onClick={() => save('WhatsApp')} disabled={saving}>
+            {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Save WhatsApp
+          </button>
+          <button className="btn-secondary text-sm" onClick={testWhatsApp} disabled={saving || !twilioCfg.enabled}>
+            <MessageSquare className="w-4 h-4" /> Send Test WhatsApp
+          </button>
+        </div>
+      </Section>
+
+      <Section icon={Clock} title="Interview Reminder Scheduler" subtitle="Celery + Redis reminders fired exactly 1 hour before Stage 4 interviews">
+        <div className="flex items-center justify-between gap-3 pt-1">
+          <div>
+            <p className="text-sm font-semibold text-slate-800">Scheduled Reminders</p>
+            <p className="text-xs text-slate-400">Shows pending, sent, cancelled, and failed Celery reminder jobs</p>
+          </div>
+          <button className="btn-secondary text-sm" onClick={loadReminders} disabled={loadingReminders}>
+            <RefreshCw className={clsx('w-4 h-4', loadingReminders && 'animate-spin')} /> Refresh
+          </button>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 overflow-hidden">
+          {loadingReminders ? (
+            <div className="p-4 text-sm text-slate-500 flex items-center gap-2">
+              <RefreshCw className="w-4 h-4 animate-spin" /> Loading reminders...
+            </div>
+          ) : reminders.length === 0 ? (
+            <div className="p-4 text-sm text-slate-400">No interview reminders scheduled yet.</div>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {reminders.map(reminder => {
+                const statusClass =
+                  reminder.status === 'sent' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                  reminder.status === 'cancelled' ? 'bg-slate-50 text-slate-500 border-slate-200' :
+                  reminder.status === 'failed' || reminder.status === 'schedule_failed' ? 'bg-red-50 text-red-700 border-red-200' :
+                  'bg-amber-50 text-amber-700 border-amber-200'
+                return (
+                  <div key={reminder.reminder_id} className="p-3 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-semibold text-slate-800 truncate">{reminder.trainer_name || 'Trainer'}</p>
+                        <span className={clsx('px-2 py-0.5 rounded-full border text-xs font-semibold', statusClass)}>{reminder.status}</span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {reminder.technology || 'Training'} · {reminder.requirement_id || '-'}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        Reminder: {reminder.reminder_at ? new Date(reminder.reminder_at).toLocaleString() : '-'} · Interview: {reminder.interview_date || '-'}
+                      </p>
+                    </div>
+                    {reminder.status === 'pending' && (
+                      <button onClick={() => cancelReminder(reminder.reminder_id)}
+                        className="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 border border-red-100 text-xs font-semibold hover:bg-red-100">
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        <button className="btn-primary text-sm" onClick={() => save('Reminder Scheduler')} disabled={saving}>
+          {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          Save Scheduler Settings
+        </button>
+      </Section>
+
       <Section icon={Settings} title="Pipeline Defaults" subtitle="Default settings for trainer matching pipeline">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Field label="Top N Trainers" hint="How many to shortlist">
@@ -299,7 +698,7 @@ export default function Admin() {
       {/* ── API KEYS & INTEGRATIONS ── */}
       <Section icon={Key} title="API Keys & Integrations" subtitle="Connect external services">
         <div className="space-y-4">
-          <Field label="Google Drive File ID" hint="File ID of List_of_Trainers.xlsx in Google Drive">
+          <Field label="Google Drive File ID" hint="Optional Drive file or folder ID for resume intake">
             <Input icon={Key} value={keys.googleDriveFileId} onChange={e => setKeys({...keys, googleDriveFileId: e.target.value})} placeholder="1s3U5NvShHPUuJ3JXvmG7x..." />
           </Field>
           <Field label="MongoDB Connection URI" hint="Your MongoDB Atlas or local connection string">

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ po.po_number }} - Purchase Order</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 24mm 18mm 20mm;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      color: #1f2937;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      line-height: 1.45;
+      background: #ffffff;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 3px solid #2563eb;
+      padding-bottom: 18px;
+      margin-bottom: 20px;
+    }
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .logo {
+      width: 72px;
+      height: 72px;
+      border: 2px solid #2563eb;
+      color: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .company h1 {
+      margin: 0 0 4px;
+      color: #0f172a;
+      font-size: 24px;
+      letter-spacing: .2px;
+    }
+    .company p {
+      margin: 2px 0;
+      color: #475569;
+    }
+    .po-title {
+      text-align: right;
+      min-width: 190px;
+    }
+    .po-title h2 {
+      margin: 0;
+      color: #0f172a;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+    .po-title p {
+      margin: 5px 0 0;
+      color: #475569;
+    }
+    .section {
+      margin-top: 16px;
+    }
+    .section-title {
+      margin: 0 0 8px;
+      padding: 7px 10px;
+      color: #1d4ed8;
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .box {
+      border: 1px solid #dbe3ee;
+      padding: 12px;
+      min-height: 92px;
+    }
+    .box h3 {
+      margin: 0 0 6px;
+      color: #0f172a;
+      font-size: 14px;
+    }
+    .muted {
+      color: #64748b;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      text-align: left;
+    }
+    th, td {
+      border: 1px solid #dbe3ee;
+      padding: 9px 10px;
+      vertical-align: top;
+    }
+    .right {
+      text-align: right;
+    }
+    .totals {
+      width: 360px;
+      margin-left: auto;
+      margin-top: 12px;
+    }
+    .totals td {
+      padding: 8px 10px;
+    }
+    .grand td {
+      background: #eff6ff;
+      color: #0f172a;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    ul {
+      margin: 6px 0 0 18px;
+      padding: 0;
+    }
+    li {
+      margin: 4px 0;
+    }
+    .signature {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 30px;
+    }
+    .sig-line {
+      height: 58px;
+      border-bottom: 1px solid #94a3b8;
+      margin-bottom: 8px;
+    }
+    .footer {
+      margin-top: 24px;
+      padding-top: 10px;
+      border-top: 1px solid #e2e8f0;
+      color: #64748b;
+      font-size: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="logo">{{ po.company.logo_text }}</div>
+      <div class="company">
+        <h1>{{ po.company.name }}</h1>
+        <p>{{ po.company.tagline }}</p>
+        <p>{{ po.company.address }}</p>
+        <p>{{ po.company.email }} | {{ po.company.phone }}</p>
+        <p>{{ po.company.gstin }}</p>
+      </div>
+    </div>
+    <div class="po-title">
+      <h2>PURCHASE ORDER</h2>
+      <p><strong>{{ po.po_number }}</strong></p>
+      <p>Date: {{ po.issue_date_display }}</p>
+      <p>Status: {{ po.status | upper }}</p>
+    </div>
+  </header>
+
+  <section class="section grid">
+    <div class="box">
+      <h3>Trainer</h3>
+      <p><strong>{{ po.trainer.name }}</strong></p>
+      <p>{{ po.trainer.email }}</p>
+      <p>{{ po.trainer.phone }}</p>
+      <p class="muted">{{ po.trainer.location }}</p>
+    </div>
+    <div class="box">
+      <h3>Client And Requirement</h3>
+      <p><strong>{{ po.requirement.client_name }}</strong></p>
+      <p>Technology: {{ po.requirement.technology }}</p>
+      <p>Requirement ID: {{ po.requirement.requirement_id }}</p>
+      <p>Mode: {{ po.requirement.mode }}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Training Scope</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Training Dates</th>
+          <th>Duration</th>
+          <th class="right">Day Rate</th>
+          <th class="right">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ po.requirement.technology }} corporate training delivery</td>
+          <td>{{ po.requirement.training_dates }}</td>
+          <td>{{ po.requirement.duration }}</td>
+          <td class="right">{{ po.commercials.day_rate | money }}</td>
+          <td class="right">{{ po.commercials.total_amount | money }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="totals">
+      <tr>
+        <td>Subtotal</td>
+        <td class="right">{{ po.commercials.total_amount | money }}</td>
+      </tr>
+      <tr>
+        <td>GST @ {{ po.commercials.gst_rate }}%</td>
+        <td class="right">{{ po.commercials.gst_amount | money }}</td>
+      </tr>
+      <tr class="grand">
+        <td>Grand Total</td>
+        <td class="right">{{ po.commercials.grand_total | money }}</td>
+      </tr>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Payment Terms</h2>
+    <p>{{ po.payment_terms }}</p>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Terms And Conditions</h2>
+    <ul>
+      {% for term in po.terms_and_conditions %}
+        <li>{{ term }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">Cancellation Policy</h2>
+    <ul>
+      {% for item in po.cancellation_policy %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="signature">
+    <div>
+      <div class="sig-line"></div>
+      <strong>Authorized Signatory</strong>
+      <p class="muted">{{ po.company.name }}</p>
+    </div>
+    <div>
+      <div class="sig-line"></div>
+      <strong>Trainer Acceptance</strong>
+      <p class="muted">{{ po.trainer.name }}</p>
+    </div>
+  </section>
+
+  <div class="footer">
+    Generated by TrainerSync Document Agent for {{ po.company.name }}. This PO is valid only for the scope and dates listed above.
+  </div>
+</body>
+</html>

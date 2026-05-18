@@ -1,0 +1,34 @@
+# Environment and local secrets
+.env
+*.env
+!.env.example
+config/credentials.json
+config/token.json
+**/config/credentials.json
+**/config/token.json
+**/config/token*.bak
+**/config/*.secret.json
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.vite/
+
+# Local/editor files
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# Accidental sibling copy outside the app folder
+/frontend/

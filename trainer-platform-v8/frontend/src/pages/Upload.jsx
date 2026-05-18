@@ -1,177 +1,326 @@
-import { useState, useCallback } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { uploadTrainers } from '../utils/api'
 import toast from 'react-hot-toast'
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, X, ArrowRight } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
+import {
+  AlertCircle,
+  Archive,
+  CheckCircle2,
+  Database,
+  DollarSign,
+  FileText,
+  Loader2,
+  Mail,
+  Phone,
+  Trash2,
+  UploadCloud,
+  X,
+} from 'lucide-react'
+import { uploadResumes } from '../utils/api'
 
-export default function UploadPage() {
-  const [file, setFile]       = useState(null)
-  const [result, setResult]   = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState(null)
-  const navigate = useNavigate()
+const CATEGORY_STYLES = {
+  DevOps: 'bg-blue-100 text-blue-700 border-blue-200',
+  'Gen AI': 'bg-purple-100 text-purple-700 border-purple-200',
+  'Data Engineering': 'bg-teal-100 text-teal-700 border-teal-200',
+  'Agentic AI': 'bg-violet-100 text-violet-700 border-violet-200',
+  'Full Stack': 'bg-green-100 text-green-700 border-green-200',
+}
 
-  const onDrop = useCallback((accepted) => {
-    if (accepted[0]) { setFile(accepted[0]); setResult(null); setError(null) }
-  }, [])
+function formatSize(bytes = 0) {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
 
+function categoryClass(category) {
+  return CATEGORY_STYLES[category] || 'bg-slate-100 text-slate-600 border-slate-200'
+}
+
+function FileList({ files, progress, onRemove }) {
+  if (!files.length) return null
+
+  return (
+    <div className="mt-3 divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white">
+      {files.map(file => (
+        <div key={`${file.name}-${file.lastModified}`} className="p-3">
+          <div className="flex items-center gap-3">
+            <FileText className="w-4 h-4 text-slate-400 flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-slate-800 truncate">{file.name}</p>
+              <p className="text-xs text-slate-400">{formatSize(file.size)}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onRemove(file)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          {progress[file.name] != null && (
+            <div className="mt-2 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+              <div className="h-full rounded-full bg-blue-500 transition-all" style={{ width: `${progress[file.name]}%` }} />
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function DropArea({ title, hint, icon: Icon, accept, files, onDrop, progress, onRemove }) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept,
+    multiple: true,
     onDrop,
-    accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
-               'application/vnd.ms-excel': ['.xls'] },
-    maxFiles: 1,
   })
 
-  const handleUpload = async () => {
-    if (!file) return
-    setLoading(true); setError(null)
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+          <Icon className="w-5 h-5 text-blue-600" />
+        </div>
+        <div>
+          <h2 className="font-semibold text-slate-900">{title}</h2>
+          <p className="text-xs text-slate-500">{hint}</p>
+        </div>
+      </div>
+
+      <div
+        {...getRootProps()}
+        className={clsx(
+          'rounded-xl border-2 border-dashed p-8 text-center cursor-pointer transition-colors',
+          isDragActive ? 'border-blue-400 bg-blue-50' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+        )}
+      >
+        <input {...getInputProps()} />
+        <UploadCloud className="w-9 h-9 text-blue-500 mx-auto mb-2" />
+        <p className="font-semibold text-slate-700">{isDragActive ? 'Drop files here' : 'Drag files here or browse'}</p>
+      </div>
+
+      <FileList files={files} progress={progress} onRemove={onRemove} />
+    </section>
+  )
+}
+
+function PreviewCard({ item }) {
+  if (!item.success) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+        <div className="flex gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <div>
+            <p className="font-semibold text-red-800">{item.filename}</p>
+            <p className="text-sm text-red-700 mt-1">{item.error || 'Extraction failed'}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs text-slate-400 truncate">{item.filename}</p>
+          <h3 className="font-semibold text-slate-900 text-lg">{item.name || 'Unnamed trainer'}</h3>
+        </div>
+        <span className={clsx('px-2.5 py-1 rounded-full border text-xs font-semibold whitespace-nowrap', categoryClass(item.technology_category))}>
+          {item.technology_category || 'Multi-Skillset'}
+        </span>
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-600">
+        {item.email && <span className="flex items-center gap-2"><Mail className="w-4 h-4 text-slate-400" />{item.email}</span>}
+        {item.phone && <span className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-400" />{item.phone}</span>}
+        <span>{item.experience_years || 0} yrs experience</span>
+        <span className="flex items-center gap-1"><DollarSign className="w-4 h-4 text-slate-400" />{item.day_rate ? `Day rate ${item.day_rate}` : 'Day rate not found'}</span>
+      </div>
+
+      {item.skills?.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {item.skills.slice(0, 10).map(skill => (
+            <span key={skill} className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs">{skill}</span>
+          ))}
+          {item.skills.length > 10 && <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-xs">+{item.skills.length - 10}</span>}
+        </div>
+      )}
+
+      {item.summary && <p className="mt-3 text-sm text-slate-600 leading-relaxed">{item.summary}</p>}
+      {item.extraction_source === 'local_fallback' && (
+        <div className="mt-3 flex gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+          <AlertCircle className="h-4 w-4 flex-shrink-0" />
+          <span>AI extraction was unavailable, so a local preview was generated. Please review before saving.</span>
+        </div>
+      )}
+      <p className="mt-3 text-xs text-slate-400">Confidence: {Math.round((item.confidence_score || 0) * 100)}%</p>
+    </div>
+  )
+}
+
+export default function UploadPage() {
+  const [resumeFiles, setResumeFiles] = useState([])
+  const [zipFiles, setZipFiles] = useState([])
+  const [progress, setProgress] = useState({})
+  const [preview, setPreview] = useState(null)
+  const [saveSummary, setSaveSummary] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  const allFiles = useMemo(() => [...resumeFiles, ...zipFiles], [resumeFiles, zipFiles])
+  const successfulPreviewCount = preview?.results?.filter(item => item.success).length || 0
+
+  const addUniqueFiles = (current, incoming) => {
+    const seen = new Set(current.map(file => `${file.name}-${file.size}`))
+    return [...current, ...incoming.filter(file => !seen.has(`${file.name}-${file.size}`))]
+  }
+
+  const onDropResumes = useCallback(files => {
+    setResumeFiles(current => addUniqueFiles(current, files))
+    setPreview(null)
+    setSaveSummary(null)
+  }, [])
+
+  const onDropZip = useCallback(files => {
+    setZipFiles(current => addUniqueFiles(current, files))
+    setPreview(null)
+    setSaveSummary(null)
+  }, [])
+
+  const removeFile = file => {
+    setResumeFiles(current => current.filter(item => item !== file))
+    setZipFiles(current => current.filter(item => item !== file))
+    setPreview(null)
+    setSaveSummary(null)
+  }
+
+  const setAllProgress = percent => {
+    setProgress(Object.fromEntries(allFiles.map(file => [file.name, percent])))
+  }
+
+  const handleUpload = async confirm => {
+    if (!allFiles.length) {
+      toast.error('Select PDF, DOCX, or ZIP files first')
+      return
+    }
+
+    confirm ? setSaving(true) : setLoading(true)
+    setSaveSummary(null)
+    setAllProgress(0)
+
     try {
-      const res = await uploadTrainers(file)
-      setResult(res.data)
-      toast.success(`✅ ${res.data.total} trainers loaded!`)
+      const res = await uploadResumes(allFiles, confirm, event => {
+        const percent = event.total ? Math.round((event.loaded * 100) / event.total) : 0
+        setAllProgress(percent)
+      })
+      if (confirm) {
+        setSaveSummary(res.data)
+        toast.success(`${res.data.saved_count || 0} trainer profiles saved`)
+      } else {
+        setPreview(res.data)
+        toast.success(`${res.data.success_count || 0} resume previews extracted`)
+      }
+      setAllProgress(100)
     } catch (e) {
-      setError(e.message)
       toast.error(e.message)
     } finally {
-      setLoading(false)
+      confirm ? setSaving(false) : setLoading(false)
     }
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
-      <div>
-        <h1 className="page-title">Upload Trainer Database</h1>
-        <p className="text-sm text-slate-500 mt-1">Upload your Excel file (.xlsx) — all sheets will be parsed automatically</p>
-      </div>
-
-      {/* Format guide */}
-      <div className="card p-5">
-        <h2 className="font-display font-semibold text-slate-800 mb-3">Expected Excel Columns</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {['Trainers Name','Technologies','Skills','Experience','Certifications',
-            'Contact No','Email','Location','Linkedin Profile','Resumes'].map(col => (
-            <div key={col} className="flex items-center gap-2 text-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand-500 flex-shrink-0" />
-              <span className="text-slate-600 font-mono text-xs">{col}</span>
-            </div>
-          ))}
+    <div className="space-y-5 animate-fade-in">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="page-title">Upload Trainer Resumes</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Upload PDF or DOCX resumes, preview extracted profiles, then save them to MongoDB.</p>
         </div>
-        <p className="text-xs text-slate-400 mt-3">Multiple sheets supported — duplicates are auto-removed</p>
-      </div>
-
-      {/* Dropzone */}
-      <div
-        {...getRootProps()}
-        className={clsx(
-          'border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all duration-200',
-          isDragActive
-            ? 'border-brand-500 bg-brand-50'
-            : file
-            ? 'border-emerald-400 bg-emerald-50'
-            : 'border-slate-200 bg-white hover:border-brand-400 hover:bg-slate-25'
-        )}
-      >
-        <input {...getInputProps()} />
-        <div className="flex flex-col items-center gap-3">
-          {file ? (
-            <>
-              <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center">
-                <FileSpreadsheet className="w-7 h-7 text-emerald-600" />
-              </div>
-              <div>
-                <p className="font-semibold text-slate-800">{file.name}</p>
-                <p className="text-sm text-slate-500">{(file.size / 1024).toFixed(1)} KB</p>
-              </div>
-              <button
-                type="button"
-                onClick={e => { e.stopPropagation(); setFile(null); setResult(null) }}
-                className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600"
-              >
-                <X className="w-3.5 h-3.5" /> Remove file
-              </button>
-            </>
-          ) : (
-            <>
-              <div className={clsx(
-                'w-14 h-14 rounded-2xl flex items-center justify-center transition-colors',
-                isDragActive ? 'bg-brand-100' : 'bg-slate-100'
-              )}>
-                <Upload className={clsx('w-7 h-7', isDragActive ? 'text-brand-500' : 'text-slate-400')} />
-              </div>
-              <div>
-                <p className="font-semibold text-slate-700">
-                  {isDragActive ? 'Drop your file here' : 'Drag & drop your Excel file'}
-                </p>
-                <p className="text-sm text-slate-400 mt-1">or <span className="text-brand-500">browse to upload</span></p>
-              </div>
-              <p className="text-xs text-slate-400">.xlsx or .xls • All sheets will be parsed</p>
-            </>
-          )}
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-50 text-blue-700 text-sm font-semibold">
+          <Database className="w-4 h-4" /> Resume database import
         </div>
       </div>
 
-      {/* Upload button */}
-      {file && !result && (
-        <button
-          onClick={handleUpload}
-          disabled={loading}
-          className="btn-primary w-full justify-center py-3 text-base"
-        >
-          {loading ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Parsing Excel...
-            </>
-          ) : (
-            <>
-              <Upload className="w-4 h-4" />
-              Upload & Parse Trainers
-            </>
-          )}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <DropArea
+          title="Resume Files"
+          hint="PDF and DOCX files only"
+          icon={FileText}
+          accept={{
+            'application/pdf': ['.pdf'],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+          }}
+          files={resumeFiles}
+          progress={progress}
+          onDrop={onDropResumes}
+          onRemove={removeFile}
+        />
+        <DropArea
+          title="Bulk Upload"
+          hint="ZIP files containing PDF or DOCX resumes"
+          icon={Archive}
+          accept={{
+            'application/zip': ['.zip'],
+            'application/x-zip-compressed': ['.zip'],
+          }}
+          files={zipFiles}
+          progress={progress}
+          onDrop={onDropZip}
+          onRemove={removeFile}
+        />
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <button onClick={() => handleUpload(false)} disabled={loading || saving || !allFiles.length} className="btn-primary disabled:opacity-50">
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
+          Extract Preview
         </button>
+        <button
+          onClick={() => handleUpload(true)}
+          disabled={saving || loading || !successfulPreviewCount}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition-all disabled:opacity-50"
+        >
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+          Confirm and Save
+        </button>
+        {!!allFiles.length && (
+          <button
+            onClick={() => { setResumeFiles([]); setZipFiles([]); setPreview(null); setSaveSummary(null); setProgress({}) }}
+            className="btn-secondary"
+          >
+            <Trash2 className="w-4 h-4" /> Clear
+          </button>
+        )}
+      </div>
+
+      {preview && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <h2 className="font-semibold text-slate-900">Extracted Preview</h2>
+            <p className="text-sm text-slate-500">{preview.success_count} success · {preview.error_count} errors</p>
+          </div>
+          {!!preview.archive_resume_count && (
+            <p className="text-xs text-slate-500">
+              Found {preview.archive_resume_count} resume file{preview.archive_resume_count === 1 ? '' : 's'} inside {preview.archive_count || 1} ZIP archive{preview.archive_count === 1 ? '' : 's'}.
+            </p>
+          )}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {preview.results.map((item, index) => <PreviewCard key={`${item.filename}-${index}`} item={item} />)}
+          </div>
+        </section>
       )}
 
-      {/* Error */}
-      {error && (
-        <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-100 rounded-xl text-sm text-red-700">
-          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-          {error}
-        </div>
-      )}
-
-      {/* Success result */}
-      {result && (
-        <div className="card p-6 border-emerald-100 bg-emerald-50 animate-slide-up">
-          <div className="flex items-center gap-3 mb-4">
-            <CheckCircle className="w-6 h-6 text-emerald-600" />
-            <h3 className="font-display font-semibold text-emerald-800">Upload Successful!</h3>
-          </div>
-          <div className="grid grid-cols-3 gap-4 mb-5">
-            {[
-              { label: 'Total Parsed', value: result.total },
-              { label: 'Inserted',     value: result.inserted },
-              { label: 'Updated',      value: result.updated },
-            ].map(s => (
-              <div key={s.label} className="bg-white rounded-xl p-3 text-center border border-emerald-100">
-                <p className="font-display text-2xl font-bold text-emerald-700">{s.value}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mb-5">
-            <p className="text-sm text-slate-600 mb-2">Sheets parsed:</p>
-            <div className="flex flex-wrap gap-2">
-              {(result.sheets_parsed || []).map(s => (
-                <span key={s} className="badge-blue">{s}</span>
-              ))}
+      {saveSummary && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+            <div>
+              <h2 className="font-semibold text-emerald-900">Save complete</h2>
+              <p className="text-sm text-emerald-700 mt-1">
+                {saveSummary.saved_count} saved · {saveSummary.inserted} inserted · {saveSummary.updated} updated · {saveSummary.error_count} errors
+              </p>
             </div>
           </div>
-          <button onClick={() => navigate('/requirements')} className="btn-primary w-full justify-center">
-            Find Trainers Now
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </div>
       )}
     </div>

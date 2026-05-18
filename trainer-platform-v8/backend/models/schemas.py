@@ -17,6 +17,14 @@ class EmailStatus(str, Enum):
     FAILED = "failed"
     REPLIED = "replied"
 
+class ResumeProcessingStatus(str, Enum):
+    UPLOADED = "uploaded"
+    EXTRACTING = "extracting"
+    EXTRACTED = "extracted"
+    REVIEW_PENDING = "review_pending"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
 class Trainer(BaseModel):
     trainer_id: str
     name: str
@@ -24,13 +32,32 @@ class Trainer(BaseModel):
     skills: List[str] = []
     experience_years: float = 0
     experience_raw: str = ""
-    certifications: str = ""
+    certifications: List[str] = []
     phone: str = ""
     email: str = ""
     location: str = ""
     linkedin: str = ""
     resume: str = ""
     source_sheet: str = ""
+    primary_category: str = ""
+    technology_category: str = "Multi-Skillset"
+    secondary_categories: List[str] = []
+    domain: str = ""
+    category: str = "Multi-Skillset"
+    summary: str = ""
+    past_clients: List[str] = []
+    training_count: Optional[int] = None
+    day_rate: Optional[float] = None
+    hourly_rate: Optional[float] = None
+    specialisation_tags: List[str] = []
+    specialty_tags: List[str] = []
+    industry_focus: List[str] = []
+    skill_level_map: Dict[str, str] = {}
+    language_of_delivery: List[str] = []
+    confidence_score: float = 0
+    confidence: float = 0
+    needs_review: bool = False
+    reasoning: str = ""
     status: TrainerStatus = TrainerStatus.NEW
     match_score: Optional[float] = None
     rank: Optional[int] = None
@@ -70,6 +97,16 @@ class ShortlistedTrainer(BaseModel):
     resume: str = ""
     location: str = ""
     source_sheet: str = ""
+    primary_category: str = ""
+    technology_category: str = "Multi-Skillset"
+    secondary_categories: List[str] = []
+    domain: str = ""
+    specialisation_tags: List[str] = []
+    specialty_tags: List[str] = []
+    industry_focus: List[str] = []
+    skill_level_map: Dict[str, str] = {}
+    language_of_delivery: List[str] = []
+    summary: str = ""
     status: TrainerStatus = TrainerStatus.NEW
 
 class Shortlist(BaseModel):
@@ -106,3 +143,30 @@ class DashboardStats(BaseModel):
     pending_review: int = 0
     reply_rate: float = 0.0
     interest_rate: float = 0.0
+
+
+# ─── Resume Upload Schemas ───────────────────────────────────────────────────
+
+class ResumeUpload(BaseModel):
+    upload_id: str
+    trainer_id: str
+    filename: str
+    file_size: int  # in bytes
+    upload_source: str  # "direct" or "gmail"
+    processing_status: ResumeProcessingStatus = ResumeProcessingStatus.UPLOADED
+    extracted_text: str = ""
+    extracted_data: Dict[str, Any] = {}
+    extraction_error: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    processed_at: Optional[datetime] = None
+
+
+class ResumeExtractionResponse(BaseModel):
+    upload_id: str
+    trainer_id: str
+    status: ResumeProcessingStatus
+    filename: str
+    extracted_data: Dict[str, Any]
+    extraction_error: Optional[str] = None
+    created_at: datetime
+    processed_at: Optional[datetime] = None
