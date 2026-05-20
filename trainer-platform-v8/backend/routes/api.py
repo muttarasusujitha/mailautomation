@@ -20,6 +20,7 @@ from email.mime.text import MIMEText
 
 import fitz
 from pymongo import ReturnDocument
+from pymongo.errors import ExecutionTimeout
 
 from database import get_db
 from config import get_settings
@@ -4666,6 +4667,69 @@ async def get_client_inbox(status: Optional[str] = None, page: int = 1, limit: i
         "stats": stats,
         "whatsapp_logs": whatsapp_logs,
     }
+
+
+@router.get("/client-updates")
+async def get_client_updates(requirement_id: Optional[str] = None, limit: int = 30):
+    db = get_db()
+    query = {}
+    if requirement_id:
+        query["requirement_id"] = requirement_id
+
+    limit = max(1, min(int(limit or 30), 100))
+    try:
+        docs = await db["client_slot_emails"].find(query, {"_id": 0}).sort(
+            "_id", -1
+        ).limit(limit).max_time_ms(3000).to_list(limit)
+    except ExecutionTimeout:
+        return {
+            "updates": [],
+            "total": 0,
+            "warning": "Client updates are still loading. Please try again.",
+        }
+
+    requirement_ids = sorted({doc.get("requirement_id") for doc in docs if doc.get("requirement_id")})
+    requirements = {}
+    if requirement_ids:
+        req_docs = await db["requirements"].find(
+            {"requirement_id": {"$in": requirement_ids}},
+            {"_id": 0, "requirement_id": 1, "technology_needed": 1, "client_company": 1, "client_name": 1},
+        ).to_list(len(requirement_ids))
+        requirements = {doc.get("requirement_id"): doc for doc in req_docs}
+
+    email_ids = sorted({doc.get("email_id") for doc in docs if doc.get("email_id")})
+    confirmations = {}
+    if email_ids:
+        try:
+            conf_docs = await db["client_slot_confirmations"].find(
+                {"client_slot_email_id": {"$in": email_ids}},
+                {"_id": 0},
+            ).sort("_id", -1).max_time_ms(3000).to_list(len(email_ids) * 2)
+            for confirmation in conf_docs:
+                confirmations.setdefault(confirmation.get("client_slot_email_id"), confirmation)
+        except ExecutionTimeout:
+            confirmations = {}
+
+    updates = []
+    for doc in docs:
+        req = requirements.get(doc.get("requirement_id")) or {}
+        confirmation = confirmations.get(doc.get("email_id")) or {}
+        parsed_slot = doc.get("client_confirmed_slot") or confirmation.get("parsed_slot") or {}
+        calendar_event = doc.get("calendar_event") or confirmation.get("calendar_event") or {}
+        trainer_schedule_email = doc.get("trainer_schedule_email") or confirmation.get("trainer_schedule_email") or {}
+        updates.append({
+            **doc,
+            "technology": req.get("technology_needed") or doc.get("technology") or "Training",
+            "client_company": req.get("client_company") or doc.get("client_name") or req.get("client_name"),
+            "confirmation_status": confirmation.get("status") or doc.get("status"),
+            "confirmed_slot": parsed_slot,
+            "meet_link": calendar_event.get("meet_link") or calendar_event.get("html_link") or "",
+            "calendar_event_id": calendar_event.get("event_id"),
+            "trainer_email_sent": bool(trainer_schedule_email.get("success")),
+            "last_error": doc.get("calendar_error") or confirmation.get("error") or trainer_schedule_email.get("error") or doc.get("error_message") or "",
+        })
+
+    return {"updates": [_public_doc(update) for update in updates], "total": len(updates)}
 
 
 @router.post("/inbox/{email_id}/approve")

@@ -367,9 +367,9 @@ export default function Dashboard() {
           </div>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <QuickAction icon={BarChart2} label="Admin Dashboard" to="/admin-dashboard" tone="brand" />
-            <QuickAction icon={MessageSquare} label="Feedback" to="/feedback" tone="emerald" />
-            <QuickAction icon={Mail} label="Contact" to="/contact" tone="amber" />
+            <QuickAction icon={BriefcaseBusiness} label="Client Requests" to="/client-requests" tone="brand" />
+            <QuickAction icon={FileSearch} label="Find Trainers" to="/requirements" tone="emerald" />
+            <QuickAction icon={Clock} label="Interviews" to="/interviews" tone="amber" />
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-3">
@@ -523,29 +523,29 @@ export default function Dashboard() {
 
         <Panel title="Next Best Actions" eyebrow="Shortcuts">
           <div className="space-y-3">
-            <button onClick={() => navigate('/admin-dashboard')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
+            <button onClick={() => navigate('/client-requests')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
               <span className="flex items-center justify-between gap-3">
                 <span>
-                  <span className="block text-sm font-semibold text-slate-800">Admin Dashboard</span>
-                  <span className="text-xs text-slate-400">Open analytics and admin insights</span>
+                  <span className="block text-sm font-semibold text-slate-800">Review client updates</span>
+                  <span className="text-xs text-slate-400">Check new requests, slot replies, and scheduling status</span>
                 </span>
                 <ArrowUpRight className="h-4 w-4 text-brand-500" />
               </span>
             </button>
-            <button onClick={() => navigate('/feedback')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
+            <button onClick={() => navigate('/requirements')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
               <span className="flex items-center justify-between gap-3">
                 <span>
-                  <span className="block text-sm font-semibold text-slate-800">Feedback</span>
-                  <span className="text-xs text-slate-400">View recruiter reviews and feedback</span>
+                  <span className="block text-sm font-semibold text-slate-800">Find matching trainers</span>
+                  <span className="text-xs text-slate-400">Open requirements and shortlist suitable profiles</span>
                 </span>
                 <ArrowUpRight className="h-4 w-4 text-brand-500" />
               </span>
             </button>
-            <button onClick={() => navigate('/contact')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
+            <button onClick={() => navigate('/interviews')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
               <span className="flex items-center justify-between gap-3">
                 <span>
-                  <span className="block text-sm font-semibold text-slate-800">Contact</span>
-                  <span className="text-xs text-slate-400">Open support and contact details</span>
+                  <span className="block text-sm font-semibold text-slate-800">Check interview schedule</span>
+                  <span className="text-xs text-slate-400">Follow confirmed client slots and trainer meetings</span>
                 </span>
                 <ArrowUpRight className="h-4 w-4 text-brand-500" />
               </span>

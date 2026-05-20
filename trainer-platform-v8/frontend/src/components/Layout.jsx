@@ -1,287 +1,293 @@
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Users, FileSearch, Mail, Upload, Zap, Search, Settings, Calendar, ListChecks, LogOut, Home, MessageSquare, ChevronDown, Sparkles } from 'lucide-react'
-import { useState, useEffect, useRef } from 'react'
+import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
+import {
+  Bell,
+  BriefcaseBusiness,
+  Calendar,
+  ChevronRight,
+  Database,
+  FileSearch,
+  Home,
+  Inbox,
+  LayoutDashboard,
+  LogOut,
+  Mail,
+  Menu,
+  Search,
+  Settings,
+  Upload,
+  UserCircle,
+  Users,
+  X,
+  Zap,
+} from 'lucide-react'
 
-const NAV = [
-  { to: '/home',        label: 'Home' },
-  { to: '/dashboard',   label: 'Dashboard' },
-  { to: '/resume-upload', label: 'Upload Resumes' },
-  { to: '/requirements', label: 'Find Trainers' },
-  { to: '/shortlist',   label: 'Shortlist' },
-  { to: '/shortlist1',  label: 'Shortlist1' },
-  { to: '/inbox',       label: 'Client Inbox' },
-  { to: '/client-requests', label: 'Client Requests' },
-  { to: '/trainers',    label: 'All Trainers' },
-  { to: '/emails',      label: 'Email Logs' },
+const NAV_GROUPS = [
+  {
+    label: 'Client Work',
+    items: [
+      { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, keywords: ['dashboard', 'stats', 'overview'] },
+      { to: '/client-requests', label: 'Client Requests', icon: BriefcaseBusiness, keywords: ['client', 'requests', 'requirements'] },
+      { to: '/inbox', label: 'Client Inbox', icon: Inbox, keywords: ['inbox', 'approval', 'gmail'] },
+    ],
+  },
+  {
+    label: 'Trainer Pipeline',
+    items: [
+      { to: '/resume-upload', label: 'Upload Resumes', icon: Upload, keywords: ['upload', 'resume', 'import'] },
+      { to: '/requirements', label: 'Find Trainers', icon: FileSearch, keywords: ['find', 'requirement', 'match'] },
+      { to: '/shortlist', label: 'Shortlist', icon: Zap, keywords: ['shortlist', 'pipeline'] },
+      { to: '/shortlist1', label: 'Advanced Shortlist', icon: Database, keywords: ['advanced', 'shortlist1'] },
+      { to: '/trainers', label: 'Trainer Database', icon: Users, keywords: ['trainers', 'database'] },
+      { to: '/interviews', label: 'Interviews', icon: Calendar, keywords: ['interview', 'meeting', 'schedule'] },
+    ],
+  },
+  {
+    label: 'Operations',
+    items: [
+      { to: '/emails', label: 'Email Logs', icon: Mail, keywords: ['email', 'logs', 'mail'] },
+      { to: '/admin', label: 'Settings', icon: Settings, keywords: ['admin', 'settings', 'gmail', 'whatsapp'] },
+    ],
+  },
 ]
 
-const PAGE_SEARCH_TARGETS = [
-  { path: '/home', keywords: ['home', 'main page', 'landing page', 'about', 'about page', 'overview'] },
-  { path: '/dashboard', keywords: ['dashboard', 'dash board', 'stats', 'statistics', 'analytics', 'report'] },
-  { path: '/admin-dashboard', keywords: ['admin dashboard', 'advanced dashboard', 'analytics dashboard', 'admin analytics', 'analytics report'] },
-  { path: '/resume-upload', keywords: ['upload', 'upload resumes', 'resume upload', 'resume', 'resumes', 'pdf', 'docx', 'zip', 'upload resume', 'trainer resume', 'import trainers'] },
-  { path: '/requirements', keywords: ['find trainers', 'requirements', 'requirement', 'search requirement', 'new search'] },
-  { path: '/shortlist', keywords: ['shortlist', 'short list', 'pipeline', 'selected trainers'] },
-  { path: '/shortlist1', keywords: ['shortlist1', 'shortlist 1', 'advanced shortlist', 'ai shortlist', 'new shortlist'] },
-  { path: '/inbox', keywords: ['inbox', 'client inbox', 'client email', 'approvals', 'pending approval'] },
-  { path: '/client-requests', keywords: ['client requests', 'client request', 'all client requests', 'client requirements', 'client enquiries', 'client inquiries'] },
-  { path: '/trainers', keywords: ['trainers', 'all trainers', 'trainer list', 'trainer database'] },
-  { path: '/emails', keywords: ['emails', 'email logs', 'mail logs', 'mail', 'sent mail'] },
-  { path: '/interviews', keywords: ['interviews', 'interview', 'schedule', 'meeting'] },
-  { path: '/admin', keywords: ['admin', 'settings', 'admin settings', 'smtp', 'configuration'] },
-  { path: '/admin?section=whatsapp', keywords: ['whatsapp', 'twilio', 'whatsapp settings', 'whatsapp notifications'] },
-  { path: '/admin?section=teams', keywords: ['teams', 'microsoft teams', 'teams webhook', 'teams settings'] },
-  { path: '/profile', keywords: ['profile', 'account', 'my profile'] },
-  { path: '/feedback', keywords: ['feedback', 'reviews', 'review'] },
-  { path: '/contact', keywords: ['contact', 'contact us', 'support', 'help'] },
-]
+const ALL_NAV_ITEMS = NAV_GROUPS.flatMap(group => group.items)
 
-const normalizeSearch = (value) =>
-  value.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim()
-
-const findPageRoute = (query) => {
-  const normalized = normalizeSearch(query)
-  if (!normalized) return null
-
-  const exact = PAGE_SEARCH_TARGETS.find(({ keywords }) =>
-    keywords.some(keyword => normalized === keyword)
-  )
-  if (exact) return exact.path
-
-  const partial = PAGE_SEARCH_TARGETS.find(({ keywords }) =>
-    keywords.some(keyword => normalized.includes(keyword))
-  )
-  return partial?.path || null
+function normalise(value) {
+  return String(value || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
-/* ── Spark animation component ───────────────────────────── */
-function SparkEffect({ x, y, duration = 600 }) {
-  const sparkElements = Array.from({ length: 6 }, (_, i) => {
-    const angle = (i / 6) * Math.PI * 2
-    const distance = 40
-    const tx = Math.cos(angle) * distance
-    const ty = Math.sin(angle) * distance
-    return { tx, ty, delay: i * 30 }
-  })
+function routeForQuery(query) {
+  const q = normalise(query)
+  if (!q) return null
+  return ALL_NAV_ITEMS.find(item =>
+    item.keywords.some(keyword => q === normalise(keyword) || q.includes(normalise(keyword)))
+  )?.to || null
+}
 
+function pageTitle(pathname) {
+  if (pathname === '/dashboard') return 'Dashboard'
+  const item = ALL_NAV_ITEMS.find(entry => pathname === entry.to || pathname.startsWith(`${entry.to}/`))
+  return item?.label || 'TrainerSync'
+}
+
+function SidebarLink({ item, pendingInbox, onNavigate }) {
+  const Icon = item.icon
   return (
-    <>
-      {sparkElements.map((spark, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'fixed',
-            left: x,
-            top: y,
-            width: '6px',
-            height: '6px',
-            borderRadius: '50%',
-            background: `linear-gradient(135deg, #60a5fa, #06b6d4)`,
-            pointerEvents: 'none',
-            zIndex: 9999,
-            animation: `spark-burst ${duration}ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards`,
-            animationDelay: `${spark.delay}ms`,
-            '--tx': `${spark.tx}px`,
-            '--ty': `${spark.ty}px`,
-          }}
-        />
-      ))}
-      <style>{`
-        @keyframes spark-burst {
-          0% {
-            transform: translate(0, 0) scale(1);
-            opacity: 1;
-          }
-          100% {
-            transform: translate(var(--tx), var(--ty)) scale(0);
-            opacity: 0;
-          }
-        }
-      `}</style>
-    </>
+    <NavLink
+      to={item.to}
+      onClick={onNavigate}
+      className={({ isActive }) => clsx(
+        'group flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold transition',
+        isActive
+          ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-100'
+          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+      )}
+    >
+      <Icon className="h-4 w-4 shrink-0" />
+      <span className="min-w-0 flex-1 truncate">{item.label}</span>
+      {(item.to === '/inbox' || item.to === '/client-requests') && pendingInbox > 0 && (
+        <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+          {pendingInbox > 99 ? '99+' : pendingInbox}
+        </span>
+      )}
+    </NavLink>
+  )
+}
+
+function Sidebar({ pendingInbox, onLogout, onNavigate }) {
+  return (
+    <aside className="flex h-full w-72 flex-col border-r border-slate-200 bg-white">
+      <div className="border-b border-slate-200 px-5 py-4">
+        <NavLink to="/home" onClick={onNavigate} className="flex items-center gap-3 text-left">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+            <Zap className="h-5 w-5" />
+          </span>
+          <span>
+            <span className="block text-base font-bold text-slate-950">TrainerSync</span>
+            <span className="block text-xs font-medium text-slate-500">Recruitment Operations</span>
+          </span>
+        </NavLink>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-3 py-4">
+        <NavLink
+          to="/home"
+          onClick={onNavigate}
+          className="mb-4 flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+        >
+          <Home className="h-4 w-4" /> Home
+        </NavLink>
+
+        <div className="space-y-5">
+          {NAV_GROUPS.map(group => (
+            <div key={group.label}>
+              <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wide text-slate-400">{group.label}</p>
+              <div className="space-y-1">
+                {group.items.map(item => (
+                  <SidebarLink key={item.to} item={item} pendingInbox={pendingInbox} onNavigate={onNavigate} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="border-t border-slate-200 p-3">
+        <NavLink
+          to="/profile"
+          onClick={onNavigate}
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+        >
+          <UserCircle className="h-4 w-4" />
+          Recruiter Profile
+        </NavLink>
+        {onLogout && (
+          <button
+            type="button"
+            onClick={onLogout}
+            className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
+        )}
+      </div>
+    </aside>
   )
 }
 
 export default function Layout({ onLogout }) {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [profileOpen, setProfileOpen] = useState(false)
-  const [pipelineActive, setPipelineActive] = useState(true)
+  const [query, setQuery] = useState('')
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [pendingInbox, setPendingInbox] = useState(0)
-  const [sparks, setSparks] = useState([])
+  const [connected, setConnected] = useState(false)
   const navigate = useNavigate()
-  const navRef = useRef(null)
+  const location = useLocation()
+  const title = useMemo(() => pageTitle(location.pathname), [location.pathname])
 
   useEffect(() => {
-    const check = async () => {
+    let cancelled = false
+    const loadStatus = async () => {
       try {
-        const res = await fetch('/api/dashboard/stats')
-        setPipelineActive(res.ok)
-      } catch { setPipelineActive(false) }
+        const [inboxRes, gmailRes] = await Promise.allSettled([
+          fetch('/api/inbox?status=pending_approval&limit=1'),
+          fetch('/api/gmail/auth-status'),
+        ])
+        if (cancelled) return
+        if (inboxRes.status === 'fulfilled' && inboxRes.value.ok) {
+          const data = await inboxRes.value.json()
+          if (!cancelled) setPendingInbox(data.stats?.pending_approval || data.total || 0)
+        }
+        if (gmailRes.status === 'fulfilled' && gmailRes.value.ok) {
+          const data = await gmailRes.value.json()
+          if (!cancelled) setConnected(!!data.connected)
+        }
+      } catch {
+        if (!cancelled) setConnected(false)
+      }
     }
-    check()
-    const interval = setInterval(check, 30000)
-    return () => clearInterval(interval)
+    loadStatus()
+    const interval = setInterval(loadStatus, 30000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
   }, [])
 
-  useEffect(() => {
-    const checkInbox = async () => {
-      try {
-        const res = await fetch('/api/inbox?status=pending_approval&limit=1')
-        if (!res.ok) return
-        const data = await res.json()
-        setPendingInbox(data.stats?.pending_approval || data.total || 0)
-      } catch {}
-    }
-    checkInbox()
-    const interval = setInterval(checkInbox, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    const query = searchQuery.trim()
-    if (!query) return
-
-    const pageRoute = findPageRoute(query)
-    navigate(pageRoute || `/trainers?search=${encodeURIComponent(query)}`)
-    setSearchQuery('')
+  const submitSearch = (event) => {
+    event.preventDefault()
+    const trimmed = query.trim()
+    if (!trimmed) return
+    navigate(routeForQuery(trimmed) || `/trainers?search=${encodeURIComponent(trimmed)}`)
+    setQuery('')
+    setMobileOpen(false)
   }
 
-  const createSparkEffect = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = rect.left + rect.width / 2
-    const y = rect.top + rect.height / 2
-    const id = Math.random()
-    setSparks(s => [...s, { id, x, y }])
-    setTimeout(() => setSparks(s => s.filter(sp => sp.id !== id)), 700)
-  }
-
-  const handleNavClick = (e) => {
-    createSparkEffect(e)
-  }
+  const closeMobile = () => setMobileOpen(false)
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-slate-50">
-      {/* Top Navigation Bar */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-sm">
-        <div className="max-w-full px-4 lg:px-8 py-3 flex items-center gap-4">
-          {/* Logo with Click Animation */}
-          <button
-            onClick={(e) => { navigate('/home'); createSparkEffect(e) }}
-            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity flex-shrink-0 group"
-          >
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-slate-900 text-base hidden sm:block cursor-pointer hover:text-blue-600 transition-colors" style={{ fontFamily:"'Sora',sans-serif" }}>TrainerSync</span>
-          </button>
-
-          {/* Navigation Links */}
-          <nav ref={navRef} className="hidden lg:flex items-center gap-1 flex-1">
-            {NAV.map(({ to, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                onClick={handleNavClick}
-                className={({ isActive }) => clsx(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative group',
-                  isActive
-                    ? 'text-blue-600 bg-blue-50 border-b-2 border-blue-600'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                )}>
-                {label}
-                {(to === '/inbox' || to === '/client-requests') && pendingInbox > 0 && (
-                  <span className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                    {pendingInbox > 99 ? '99+' : pendingInbox}
-                  </span>
-                )}
-                {/* Underline animation on hover */}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-blue-400 to-blue-600 group-hover:w-full transition-all duration-300 rounded-full"></span>
-              </NavLink>
-            ))}
-          </nav>
-
-          {/* Expanded Search Bar */}
-          <form onSubmit={handleSearch} className="flex items-center flex-1 min-w-[180px] mx-2 lg:mx-4">
-            <div className="relative w-full max-w-sm xl:max-w-xl">
-              <input
-                type="text"
-                placeholder="Search pages or trainers..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2.5 pl-10 rounded-xl bg-slate-100 border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all duration-300"
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            </div>
-          </form>
-
-          {/* Right Section - Status Indicator & Profile */}
-          <div className="flex items-center gap-4 ml-auto">
-            {/* Status Indicator */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50">
-              <div className={clsx('w-2 h-2 rounded-full', pipelineActive ? 'bg-emerald-400 animate-pulse' : 'bg-red-400')} />
-              <span className={clsx('text-xs font-medium', pipelineActive ? 'text-emerald-600' : 'text-red-500')}>
-                {pipelineActive ? 'Active' : 'Inactive'}
-              </span>
-            </div>
-
-            {/* User Profile Dropdown - Top Right */}
-            <div className="relative">
-              <button
-                onClick={(e) => { setProfileOpen(!profileOpen); createSparkEffect(e) }}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 transition-all group"
-              >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold group-hover:scale-110 transition-transform">
-                  R
-                </div>
-                <ChevronDown className={clsx('w-4 h-4 text-slate-600 group-hover:text-slate-900 transition-all duration-300', profileOpen && 'rotate-180')} />
-              </button>
-
-              {/* Profile Dropdown Menu */}
-              {profileOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-slate-200 py-2 z-50">
-                  <div className="px-4 py-3 border-b border-slate-100">
-                    <p className="font-semibold text-slate-900">Recruiter Name</p>
-                    <p className="text-xs text-slate-500">recruiter@company.com</p>
-                  </div>
-                  <button onClick={() => { navigate('/profile'); setProfileOpen(false) }} className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                    <Settings className="w-4 h-4" />
-                    Settings & Profile
-                  </button>
-                  <button onClick={() => { navigate('/feedback'); setProfileOpen(false) }} className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4" />
-                    Feedback
-                  </button>
-                  <div className="border-t border-slate-100 pt-2">
-                    {onLogout && (
-                      <button
-                        onClick={() => { setProfileOpen(false); onLogout() }}
-                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Logout
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden pt-16">
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
-          <Outlet />
-        </main>
+    <div className="flex h-screen overflow-hidden bg-slate-100">
+      <div className="hidden lg:block">
+        <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => {}} />
       </div>
 
-      {/* Spark effects */}
-      {sparks.map(spark => (
-        <SparkEffect key={spark.id} x={spark.x} y={spark.y} />
-      ))}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button className="absolute inset-0 bg-slate-950/40" onClick={closeMobile} aria-label="Close navigation" />
+          <div className="absolute inset-y-0 left-0 w-72 shadow-xl">
+            <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={closeMobile} />
+          </div>
+        </div>
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="border-b border-slate-200 bg-white">
+          <div className="flex min-h-16 items-center gap-3 px-4 lg:px-6">
+            <button
+              type="button"
+              onClick={() => setMobileOpen(true)}
+              className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 lg:hidden"
+              aria-label="Open navigation"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-1 text-xs font-medium text-slate-400">
+                Workspace <ChevronRight className="h-3 w-3" /> {title}
+              </div>
+              <h1 className="truncate text-lg font-bold text-slate-950">{title}</h1>
+            </div>
+
+            <form onSubmit={submitSearch} className="ml-auto hidden w-full max-w-md md:block">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  value={query}
+                  onChange={event => setQuery(event.target.value)}
+                  placeholder="Search pages, clients, trainers..."
+                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-500/10"
+                />
+              </div>
+            </form>
+
+            <button
+              type="button"
+              onClick={() => navigate('/inbox')}
+              className="relative rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
+              aria-label="Client inbox"
+            >
+              <Bell className="h-5 w-5" />
+              {pendingInbox > 0 && <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-red-500 ring-2 ring-white" />}
+            </button>
+
+            <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600 sm:flex">
+              <span className={clsx('h-2 w-2 rounded-full', connected ? 'bg-emerald-500' : 'bg-amber-500')} />
+              {connected ? 'Gmail Ready' : 'Connect Gmail'}
+            </div>
+          </div>
+
+          <form onSubmit={submitSearch} className="border-t border-slate-100 px-4 py-3 md:hidden">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                value={query}
+                onChange={event => setQuery(event.target.value)}
+                placeholder="Search..."
+                className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none focus:border-blue-400 focus:bg-white"
+              />
+            </div>
+          </form>
+        </header>
+
+        <main className="min-w-0 flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-[1500px] px-4 py-5 lg:px-6">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   )
 }

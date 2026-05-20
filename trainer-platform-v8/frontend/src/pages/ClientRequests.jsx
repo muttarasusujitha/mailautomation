@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import {
-  AlertTriangle, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock,
-  ExternalLink, FileText, IndianRupee, Loader2, Mail, MapPin, RefreshCw,
-  Search, Send, Users, X
+  AlertTriangle, BriefcaseBusiness, CalendarCheck, CalendarDays, CheckCircle2, Clock,
+  ExternalLink, FileText, IndianRupee, Link2, Loader2, Mail, MapPin, RefreshCw,
+  Search, Send, Users, Video, X
 } from 'lucide-react'
 import api from '../utils/api'
 
@@ -52,6 +52,13 @@ function statusClass(tone = 'slate') {
   return tones[tone] || tones.slate
 }
 
+function updateStatusClass(status = '') {
+  if (status === 'confirmed_scheduled') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
+  if (status === 'trainer_email_failed' || status === 'calendar_failed') return 'border-red-200 bg-red-50 text-red-700'
+  if (status === 'needs_manual_review' || status === 'trainer_email_missing') return 'border-amber-200 bg-amber-50 text-amber-700'
+  return 'border-slate-200 bg-slate-50 text-slate-600'
+}
+
 function valueOrDash(value) {
   return value === undefined || value === null || value === '' ? '-' : value
 }
@@ -73,6 +80,97 @@ function Stat({ icon: Icon, label, value, tone = 'blue' }) {
       </div>
       <p className="mt-2 text-2xl font-bold text-slate-900">{value}</p>
     </div>
+  )
+}
+
+function ClientUpdatePanel({ updates = [], loading }) {
+  const latest = updates.slice(0, 5)
+  const scheduled = updates.filter(item => item.confirmation_status === 'confirmed_scheduled').length
+  const waiting = updates.filter(item => ['sent', 'auto_sent'].includes(item.confirmation_status)).length
+  const review = updates.filter(item =>
+    ['needs_manual_review', 'calendar_failed', 'trainer_email_failed', 'trainer_email_missing'].includes(item.confirmation_status)
+  ).length
+
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-200 p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Client Updates</p>
+            <h2 className="mt-1 text-lg font-bold text-slate-950">Slot confirmation and Meet scheduling</h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Track the handoff after trainer slots are shared with each client.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-lg border border-slate-200 px-3 py-2">
+              <p className="text-lg font-bold text-slate-950">{waiting}</p>
+              <p className="text-[11px] font-semibold uppercase text-slate-400">Waiting</p>
+            </div>
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2">
+              <p className="text-lg font-bold text-emerald-700">{scheduled}</p>
+              <p className="text-[11px] font-semibold uppercase text-emerald-600">Scheduled</p>
+            </div>
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+              <p className="text-lg font-bold text-amber-700">{review}</p>
+              <p className="text-[11px] font-semibold uppercase text-amber-600">Review</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center gap-2 p-4 text-sm text-slate-500">
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading client updates
+        </div>
+      ) : latest.length === 0 ? (
+        <div className="p-4 text-sm text-slate-500">
+          No client slot updates yet. Once trainer slots are sent to clients, they will appear here.
+        </div>
+      ) : (
+        <div className="divide-y divide-slate-100">
+          {latest.map(item => (
+            <div key={item.email_id} className="grid gap-3 p-4 lg:grid-cols-[1.2fr_1fr_auto] lg:items-center">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-semibold text-slate-950">{item.technology || 'Training'}</p>
+                  {item.slot_ref && (
+                    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-600">{item.slot_ref}</span>
+                  )}
+                </div>
+                <p className="mt-1 text-sm text-slate-500">
+                  {item.client_company || item.client_name || item.to_email || 'Client'} {'->'} {item.trainer_name || 'Trainer'}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                  <CalendarCheck className="h-3.5 w-3.5" />
+                  {item.confirmed_slot?.date_time_text || item.confirmed_slot?.start_iso || 'Awaiting client time'}
+                </span>
+                {item.meet_link && (
+                  <a
+                    href={item.meet_link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700"
+                  >
+                    <Video className="h-3.5 w-3.5" /> Meet
+                  </a>
+                )}
+                {item.requirement_id && (
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                    <Link2 className="h-3.5 w-3.5" /> {item.requirement_id}
+                  </span>
+                )}
+              </div>
+              <span className={clsx('w-fit rounded-lg border px-2.5 py-1 text-xs font-bold capitalize', updateStatusClass(item.confirmation_status))}>
+                {(item.confirmation_status || 'sent').replaceAll('_', ' ')}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   )
 }
 
@@ -259,6 +357,7 @@ function DetailModal({ request, onClose }) {
 export default function ClientRequests() {
   const navigate = useNavigate()
   const [requests, setRequests] = useState([])
+  const [clientUpdates, setClientUpdates] = useState([])
   const [stats, setStats] = useState({})
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
@@ -269,11 +368,15 @@ export default function ClientRequests() {
   const loadRequests = async () => {
     setLoading(true)
     try {
-      const res = await api.get('/inbox', {
-        params: { status: filter === 'all' ? '' : filter, limit: 200 },
-      })
-      setRequests(res.data.emails || [])
-      setStats(res.data.stats || {})
+      const [requestsRes, updatesRes] = await Promise.all([
+        api.get('/inbox', {
+          params: { status: filter === 'all' ? '' : filter, limit: 200 },
+        }),
+        api.get('/client-updates', { params: { limit: 25 } }),
+      ])
+      setRequests(requestsRes.data.emails || [])
+      setStats(requestsRes.data.stats || {})
+      setClientUpdates(updatesRes.data.updates || [])
     } catch (e) {
       toast.error(e.message || 'Could not load client requests')
     } finally {
@@ -354,6 +457,8 @@ export default function ClientRequests() {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {statValues.map(item => <Stat key={item.label} {...item} />)}
       </div>
+
+      <ClientUpdatePanel updates={clientUpdates} loading={loading} />
 
       <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap gap-2">
