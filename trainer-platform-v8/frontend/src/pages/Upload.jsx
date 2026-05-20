@@ -16,7 +16,7 @@ import {
   UploadCloud,
   X,
 } from 'lucide-react'
-import { uploadResumes } from '../utils/api'
+import { confirmResumePreviews, uploadResumes } from '../utils/api'
 
 const CATEGORY_STYLES = {
   DevOps: 'bg-blue-100 text-blue-700 border-blue-200',
@@ -170,6 +170,10 @@ export default function UploadPage() {
 
   const allFiles = useMemo(() => [...resumeFiles, ...zipFiles], [resumeFiles, zipFiles])
   const successfulPreviewCount = preview?.results?.filter(item => item.success).length || 0
+  const previewUploadIds = useMemo(
+    () => preview?.results?.filter(item => item.success && item.upload_id).map(item => item.upload_id) || [],
+    [preview]
+  )
 
   const addUniqueFiles = (current, incoming) => {
     const seen = new Set(current.map(file => `${file.name}-${file.size}`))
@@ -210,6 +214,15 @@ export default function UploadPage() {
     setAllProgress(0)
 
     try {
+      if (confirm && previewUploadIds.length) {
+        setAllProgress(35)
+        const res = await confirmResumePreviews(previewUploadIds)
+        setSaveSummary(res.data)
+        setAllProgress(100)
+        toast.success(`${res.data.saved_count || 0} trainer profiles saved`)
+        return
+      }
+
       const res = await uploadResumes(allFiles, confirm, event => {
         const percent = event.total ? Math.round((event.loaded * 100) / event.total) : 0
         setAllProgress(percent)

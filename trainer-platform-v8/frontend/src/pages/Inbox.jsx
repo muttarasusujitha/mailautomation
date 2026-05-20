@@ -221,9 +221,10 @@ export default function Inbox() {
   const [logs, setLogs] = useState([])
   const [gmailStatus, setGmailStatus] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [syncingNow, setSyncingNow] = useState(false)
   const [clientInboxCfg, setClientInboxCfg] = useState({})
-  const [autoSendEnabled, setAutoSendEnabled] = useState(false)
-  const [autoSendThreshold, setAutoSendThreshold] = useState(92)
+  const [autoSendEnabled, setAutoSendEnabled] = useState(true)
+  const [autoSendThreshold, setAutoSendThreshold] = useState(70)
 
   const queryStatus = filter === 'all' ? '' : filter
   const connected = !!gmailStatus?.connected
@@ -256,8 +257,8 @@ export default function Inbox() {
       const res = await api.get('/admin/settings')
       const cfg = res.data.clientInboxCfg || {}
       setClientInboxCfg(cfg)
-      setAutoSendEnabled(!!cfg.autoSendEnabled)
-      setAutoSendThreshold(Number(cfg.autoSendThreshold || 92))
+      setAutoSendEnabled(cfg.autoSendEnabled !== false)
+      setAutoSendThreshold(Number(cfg.autoSendThreshold || 70))
     } catch {}
   }
 
@@ -324,6 +325,23 @@ export default function Inbox() {
     }
   }
 
+  const syncNow = async () => {
+    setSyncingNow(true)
+    try {
+      const res = await api.post('/gmail/sync-now?limit=50')
+      const count = res.data?.processed_count || 0
+      const autoSentExisting = res.data?.auto_sent_existing_count || 0
+      const skipped = res.data?.skipped || 0
+      toast.success(`Inbox checked: ${count} processed, ${autoSentExisting} auto-sent, ${skipped} skipped`)
+      await fetchStatus()
+      await fetchInbox()
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Inbox sync failed')
+    } finally {
+      setSyncingNow(false)
+    }
+  }
+
   const statItems = useMemo(() => [
     { label: 'Today', value: stats.today || 0, icon: Clock },
     { label: 'Pending Approval', value: stats.pending_approval || 0, icon: AlertTriangle },
@@ -352,6 +370,9 @@ export default function Inbox() {
           <button onClick={connectGmail} className="btn-secondary text-sm">
             <RefreshCw className="h-4 w-4" /> {connected ? 'Renew Watch' : 'Connect Gmail'}
           </button>
+          <button onClick={syncNow} disabled={!connected || syncingNow} className="btn-secondary text-sm disabled:opacity-50">
+            <RefreshCw className={clsx('h-4 w-4', syncingNow && 'animate-spin')} /> Check Inbox Now
+          </button>
           <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2">
             <SlidersHorizontal className="h-4 w-4 text-slate-400" />
             <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
@@ -364,7 +385,7 @@ export default function Inbox() {
             </label>
             <input
               type="range"
-              min="85"
+              min="50"
               max="99"
               value={autoSendThreshold}
               onChange={e => setAutoSendThreshold(Number(e.target.value))}

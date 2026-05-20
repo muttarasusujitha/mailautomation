@@ -71,9 +71,14 @@ def _format_whatsapp_number(number: Any, default_country_code: str = "+91") -> s
 
 def _callback_url(config: Dict[str, Any], request_base_url: str = "") -> str:
     if config.get("statusCallbackUrl"):
-        return config["statusCallbackUrl"]
+        configured = str(config["statusCallbackUrl"]).strip()
+        if configured.startswith("https://") and "localhost" not in configured and "127.0.0.1" not in configured:
+            return configured
+        return ""
     if request_base_url:
-        return f"{request_base_url.rstrip('/')}/api/whatsapp/status-callback"
+        base = request_base_url.rstrip("/")
+        if base.startswith("https://") and "localhost" not in base and "127.0.0.1" not in base:
+            return f"{base}/api/whatsapp/status-callback"
     return ""
 
 

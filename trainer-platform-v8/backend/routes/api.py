@@ -10,12 +10,14 @@ import zipfile
 import os
 import html as _html
 import smtplib
+import asyncio
+import hashlib
 from email.utils import parseaddr as _parseaddr
+from email.header import decode_header as _decode_header, make_header as _make_header
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-import anthropic as _anthropic
 import fitz
 from pymongo import ReturnDocument
 
@@ -51,7 +53,10 @@ from agents.teams_agent import send_teams_stage_notification
 from agents.client_intelligence_agent import (
     check_if_duplicate,
     create_requirement_from_email,
+    extract_client_slot_confirmation,
+    fetch_gmail_email,
     generate_calhan_reply,
+    get_calendar_service,
     get_gmail_auth_status,
     get_gmail_oauth_url,
     get_gmail_service,
@@ -87,6 +92,18 @@ TRACKING_PIXEL = (
     b"\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01"
     b"\x00\x00\x02\x02D\x01\x00;"
 )
+
+def _norm_subject(value: str = "") -> str:
+    try:
+        value = str(_make_header(_decode_header(str(value or ""))))
+    except Exception:
+        value = str(value or "")
+    value = value.lower()
+    value = _re.sub(r"=\?[^?]+\?[bq]\?[^?]+\?=", " ", value)
+    value = value.replace("re:", "").replace("fw:", "").replace("fwd:", "")
+    value = value.replace("[reminder 1]", "").replace("[reminder 2]", "").replace("[reminder 3]", "")
+    value = _re.sub(r"[^a-z0-9]+", " ", value)
+    return " ".join(value.split())
 
 
 def build_tracking_url(request: Request, email_id: str) -> str:
@@ -136,6 +153,38 @@ async def _trainer_phone(db, trainer_id: str, fallback: str = "") -> str:
     return (trainer or {}).get("phone", "")
 
 
+def _strip_quoted_reply_text(text: str) -> str:
+    value = str(text or "")
+    value = _re.split(r"\nOn .+wrote:\s*", value, maxsplit=1, flags=_re.IGNORECASE)[0]
+    value = _re.split(r"\n-{2,}\s*Original Message\s*-{2,}", value, maxsplit=1, flags=_re.IGNORECASE)[0]
+    lines = [line for line in value.splitlines() if not line.strip().startswith(">")]
+    return "\n".join(lines).strip()
+
+
+async def _client_contact_for_requirement(db, requirement_id: str, payload: dict) -> tuple:
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+
+    email = (payload.get("client_email") or requirement.get("client_email") or "").strip()
+    name = (
+        payload.get("client_name")
+        or requirement.get("client_name")
+        or requirement.get("client_company")
+        or "Client"
+    )
+
+    if not email:
+        inbox_docs = await db["client_emails"].find(
+            {"requirement_id": requirement_id},
+            {"_id": 0},
+        ).sort("created_at", -1).limit(1).to_list(1)
+        inbox_doc = inbox_docs[0] if inbox_docs else {}
+        extracted = inbox_doc.get("extracted") or {}
+        email = (inbox_doc.get("from_email") or extracted.get("client_email") or "").strip()
+        name = inbox_doc.get("from_name") or extracted.get("client_name") or name
+
+    return requirement, email, name
+
+
 @router.post("/assistant/chat")
 async def assistant_chat(payload: dict):
     system_prompt = str(payload.get("system") or "").strip()
@@ -144,22 +193,48 @@ async def assistant_chat(payload: dict):
         raise HTTPException(400, "Send at least one user message")
 
     settings = get_settings()
-    api_key = (os.getenv("ANTHROPIC_API_KEY", "") or getattr(settings, "anthropic_api_key", "")).strip()
+    api_key = (os.getenv("GEMINI_API_KEY", "") or getattr(settings, "gemini_api_key", "")).strip()
     if not api_key:
-        raise HTTPException(503, "Anthropic API key is not configured on the backend")
+        raise HTTPException(503, "GEMINI_API_KEY is not configured on the backend")
 
     try:
-        client = _anthropic.AsyncAnthropic(api_key=api_key)
-        response = await client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=1000,
-            system=system_prompt or "You are a concise, helpful assistant for the TrainerSync platform.",
-            messages=messages,
-        )
-        reply = "\n".join(
-            block.text for block in response.content
-            if getattr(block, "type", "") == "text" and getattr(block, "text", "")
-        ).strip()
+        import httpx as _httpx
+        full_prompt = (system_prompt + "\n\n") if system_prompt else ""
+        for m in messages:
+            role = "User" if m["role"] == "user" else "Assistant"
+            full_prompt += f"{role}: {m['content']}\n"
+        full_prompt += "Assistant:"
+        gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        async with _httpx.AsyncClient(timeout=30) as http_client:
+            res = await http_client.post(gemini_url, json={
+                "contents": [{"parts": [{"text": full_prompt}]}],
+                "generationConfig": {"temperature": 0.5, "maxOutputTokens": 1000},
+            })
+            res.raise_for_status()
+            data = res.json()
+        reply = (data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")).strip()
+        try:
+            db = get_db()
+            rates = await _dashboard_cost_rates(db)
+            input_tokens = max(1, int(len(full_prompt) / 4))
+            output_tokens = max(1, int(len(reply) / 4))
+            cost_inr = (
+                (input_tokens / 1000) * rates["gemini_input_1k_tokens"]
+                + (output_tokens / 1000) * rates["gemini_output_1k_tokens"]
+            )
+            await db["ai_usage_logs"].insert_one({
+                "usage_id": f"AI-{uuid.uuid4().hex[:10].upper()}",
+                "provider": "gemini",
+                "model": "gemini-1.5-flash",
+                "feature": payload.get("feature") or "assistant_chat",
+                "input_tokens": input_tokens,
+                "output_tokens": output_tokens,
+                "cost_inr": _money(cost_inr),
+                "metadata": payload.get("metadata") or {},
+                "created_at": datetime.utcnow(),
+            })
+        except Exception as log_exc:
+            print(f"[AI usage log] failed: {log_exc}")
         return {"reply": reply or "I could not generate a response."}
     except HTTPException:
         raise
@@ -179,8 +254,8 @@ async def _client_inbox_settings(db) -> dict:
     cfg = (settings_doc or {}).get("clientInboxCfg") or {}
     twilio = (settings_doc or {}).get("twilioCfg") or {}
     return {
-        "autoSendEnabled": bool(cfg.get("autoSendEnabled", False)),
-        "autoSendThreshold": float(cfg.get("autoSendThreshold", 92)),
+        "autoSendEnabled": bool(cfg.get("autoSendEnabled", True)),
+        "autoSendThreshold": float(cfg.get("autoSendThreshold", 70)),
         "clientDomainsWhitelist": cfg.get("clientDomainsWhitelist", ""),
         "replySignature": cfg.get("replySignature") or "Regards,\nRecruitment Team,\nCalhan Technologies",
         "vendorWhatsAppNumber": cfg.get("vendorWhatsAppNumber") or twilio.get("vendorWhatsAppNumber", ""),
@@ -223,16 +298,25 @@ def _gmail_metadata(gmail_service, message_id: str) -> dict:
         userId="me",
         id=message_id,
         format="metadata",
-        metadataHeaders=["From", "Reply-To", "Subject"],
+        metadataHeaders=["From", "Reply-To", "Subject", "Message-ID"],
     ).execute()
     headers = {h.get("name", "").lower(): h.get("value", "") for h in (msg.get("payload") or {}).get("headers", [])}
     from_name, from_email = _parseaddr(headers.get("reply-to") or headers.get("from", ""))
+    received_at = None
+    if msg.get("internalDate"):
+        try:
+            received_at = datetime.utcfromtimestamp(int(msg["internalDate"]) / 1000)
+        except Exception:
+            received_at = None
     return {
         "email_id": message_id,
         "thread_id": msg.get("threadId"),
+        "received_at": received_at or datetime.utcnow(),
         "from_name": from_name,
         "from_email": from_email,
         "subject": headers.get("subject", ""),
+        "message_id_header": headers.get("message-id", ""),
+        "snippet": msg.get("snippet", ""),
     }
 
 
@@ -290,12 +374,12 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
         duplicate = await check_if_duplicate(extracted, db)
         requirement_id = None if duplicate else await create_requirement_from_email(extracted, message_id, db)
         confidence = float(extracted.get("confidence") or 0)
-        threshold = float(settings.get("autoSendThreshold") or 92) / 100
+        threshold = float(settings.get("autoSendThreshold") or 70) / 100
         auto_send_eligible = confidence >= threshold and domain_is_allowed
         status = "auto_sent" if auto_send_eligible and settings.get("autoSendEnabled") else "pending_approval"
 
     confidence = float(extracted.get("confidence") or 0)
-    auto_send_eligible = confidence >= (float(settings.get("autoSendThreshold") or 92) / 100) and domain_is_allowed
+    auto_send_eligible = confidence >= (float(settings.get("autoSendThreshold") or 70) / 100) and domain_is_allowed
     inbox_doc = {
         "email_id": processed.get("email_id"),
         "thread_id": processed.get("thread_id"),
@@ -349,6 +433,657 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
             context={"source": "client_inbox", "email_id": inbox_doc["email_id"]},
         )
     return {"status": inbox_doc["status"], "email_id": inbox_doc["email_id"], "requirement_id": requirement_id}
+
+
+async def _auto_send_pending_client_reply(db, inbox_doc: dict, gmail_service, settings: dict) -> Optional[dict]:
+    if not settings.get("autoSendEnabled"):
+        return None
+    if inbox_doc.get("status") != "pending_approval" or inbox_doc.get("sent_at"):
+        return None
+
+    extracted = inbox_doc.get("extracted") or {}
+    domain = sender_domain(inbox_doc.get("from_email", ""))
+    whitelist = set(_parse_domain_csv(settings.get("clientDomainsWhitelist", "")))
+    domain_is_allowed = not whitelist or domain in whitelist
+    confidence = float(inbox_doc.get("confidence") or extracted.get("confidence") or 0)
+    threshold = float(settings.get("autoSendThreshold") or 70) / 100
+    if not domain_is_allowed or confidence < threshold:
+        return None
+
+    generated_reply = inbox_doc.get("generated_reply") or {}
+    if not inbox_doc.get("from_email") or not generated_reply.get("body"):
+        return None
+
+    send_result = send_gmail_reply(
+        gmail_service,
+        to_email=inbox_doc["from_email"],
+        subject=generated_reply.get("subject") or f"Re: {inbox_doc.get('subject') or 'Training Requirement'}",
+        body=generated_reply.get("body", ""),
+        thread_id=inbox_doc.get("thread_id") or "",
+        in_reply_to=inbox_doc.get("message_id_header") or "",
+    )
+    await db["client_emails"].update_one(
+        {"email_id": inbox_doc["email_id"], "status": "pending_approval", "sent_at": None},
+        {"$set": {
+            "status": "auto_sent",
+            "gmail_send_result": send_result,
+            "sent_at": datetime.utcnow(),
+            "sent_by": "auto",
+        }},
+    )
+    return {
+        "status": "auto_sent",
+        "email_id": inbox_doc["email_id"],
+        "requirement_id": inbox_doc.get("requirement_id"),
+    }
+
+
+def _parse_calendar_datetime(value: str) -> Optional[datetime]:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except Exception:
+        return None
+
+
+def _calendar_datetime_text(start_iso: str, end_iso: str = "") -> tuple[str, str]:
+    start_dt = _parse_calendar_datetime(start_iso)
+    end_dt = _parse_calendar_datetime(end_iso)
+    if start_dt and not end_dt:
+        end_dt = start_dt + timedelta(minutes=30)
+    return (
+        start_dt.isoformat() if start_dt else str(start_iso or "").strip(),
+        end_dt.isoformat() if end_dt else str(end_iso or "").strip(),
+    )
+
+
+def _meet_link_from_event(event: dict) -> str:
+    if event.get("hangoutLink"):
+        return event["hangoutLink"]
+    conference = event.get("conferenceData") or {}
+    for entry in conference.get("entryPoints") or []:
+        if entry.get("entryPointType") == "video" and entry.get("uri"):
+            return entry["uri"]
+    return ""
+
+
+def _slot_reference_from_text(*values: str) -> str:
+    text = "\n".join(str(value or "") for value in values)
+    match = _re.search(r"\bSLOT-[A-Z0-9]{8,12}\b", text, flags=_re.IGNORECASE)
+    return match.group(0).upper() if match else ""
+
+
+async def _create_google_meet_event(
+    *,
+    trainer_email: str,
+    trainer_name: str,
+    client_email: str,
+    client_name: str,
+    requirement: dict,
+    start_iso: str,
+    end_iso: str = "",
+    timezone_name: str = "Asia/Kolkata",
+    slot_reply: str = "",
+) -> dict:
+    start_text, end_text = _calendar_datetime_text(start_iso, end_iso)
+    if not start_text:
+        raise RuntimeError("Client confirmed a slot, but no start date/time could be extracted")
+    if not end_text:
+        raise RuntimeError("Client confirmed a slot, but no end date/time could be prepared")
+
+    technology = requirement.get("technology_needed") or "Training"
+    requirement_id = requirement.get("requirement_id") or ""
+    attendees = []
+    if trainer_email:
+        attendees.append({"email": trainer_email, "displayName": trainer_name or "Trainer"})
+    if client_email:
+        attendees.append({"email": client_email, "displayName": client_name or "Client"})
+
+    event_body = {
+        "summary": f"{technology} Trainer Discussion - {trainer_name or 'Trainer'}",
+        "description": (
+            f"Calhan Technologies trainer discussion/interview.\n\n"
+            f"Requirement ID: {requirement_id}\n"
+            f"Technology: {technology}\n"
+            f"Trainer: {trainer_name or '-'}\n"
+            f"Client: {client_name or client_email or '-'}\n\n"
+            f"Client confirmed slot from reply:\n{slot_reply[:2000]}"
+        ),
+        "start": {"dateTime": start_text, "timeZone": timezone_name},
+        "end": {"dateTime": end_text, "timeZone": timezone_name},
+        "attendees": attendees,
+        "conferenceData": {
+            "createRequest": {
+                "requestId": f"calhan-{uuid.uuid4().hex[:24]}",
+                "conferenceSolutionKey": {"type": "hangoutsMeet"},
+            }
+        },
+    }
+
+    def _insert_event():
+        service = get_calendar_service()
+        return service.events().insert(
+            calendarId="primary",
+            body=event_body,
+            conferenceDataVersion=1,
+            sendUpdates="all",
+        ).execute()
+
+    event = await asyncio.to_thread(_insert_event)
+    meet_link = _meet_link_from_event(event)
+    return {
+        "event_id": event.get("id"),
+        "html_link": event.get("htmlLink"),
+        "meet_link": meet_link,
+        "start": start_text,
+        "end": end_text,
+        "timezone": timezone_name,
+        "raw_event": event,
+    }
+
+
+async def _trainer_contact_for_interview(db, trainer_id: str, requirement_id: str, fallback_name: str = "") -> dict:
+    trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or {}
+    email = (trainer.get("email") or "").strip()
+    if not email:
+        latest_log = await db["email_logs"].find_one(
+            {
+                "trainer_id": trainer_id,
+                "requirement_id": requirement_id,
+                "to_email": {"$nin": [None, ""]},
+            },
+            {"_id": 0, "to_email": 1},
+            sort=[("sent_at", -1), ("created_at", -1)],
+        )
+        email = (latest_log or {}).get("to_email", "")
+    return {
+        "trainer": trainer,
+        "email": email,
+        "name": trainer.get("name") or fallback_name or "Trainer",
+        "phone": trainer.get("phone") or "",
+    }
+
+
+async def _send_trainer_interview_schedule(
+    db,
+    request: Optional[Request],
+    *,
+    trainer_id: str,
+    trainer_name: str,
+    to_email: str,
+    trainer_phone: str,
+    requirement_id: str,
+    date_time: str,
+    interview_link: str,
+    platform: str = "Google Meet",
+    source: str = "client_slot_confirmation",
+    calendar_event: Optional[dict] = None,
+) -> dict:
+    if not to_email:
+        return {"success": False, "error": "Trainer email not found"}
+
+    req = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    technology = req.get("technology_needed", "Training") if req else "Training"
+    subject = f"Interview Schedule Confirmation - {technology}"
+    body = (
+        f"Dear {trainer_name or 'Trainer'},\n\n"
+        f"The client has confirmed the interview/discussion slot. Please find the final details below:\n\n"
+        f"Date & Time : {date_time or '[Date & Time]'}\n"
+        f"Platform    : {platform}\n"
+        f"Meeting Link: {interview_link or '[Meeting Link]'}\n\n"
+        f"Please join on time. Let us know if you need any assistance.\n\n"
+        f"Regards,\nRecruitment Team,\nCalhan Technologies"
+    )
+
+    email_id = f"EMAIL-{uuid.uuid4().hex[:8].upper()}"
+    tracking_url = build_tracking_url(request, email_id) if request else ""
+    smtp_config = await get_admin_email_config(db)
+    trainer_phone = await _trainer_phone(db, trainer_id, trainer_phone)
+
+    email_result, whatsapp_result = await asyncio.gather(
+        send_email_async(to_email, subject, body, smtp_config, tracking_url),
+        send_interview_whatsapp(
+            db,
+            trainer_phone=trainer_phone,
+            trainer_name=trainer_name,
+            requirement_id=requirement_id,
+            technology=technology,
+            date_time=date_time,
+            platform=platform,
+            interview_link=interview_link,
+            email_id=email_id,
+            request_base_url=_request_base_url(request) if request else "",
+        ),
+    )
+    success, error = email_result
+    now = datetime.utcnow()
+
+    await db["conversations"].insert_one({
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_name,
+        "to_email": to_email,
+        "requirement_id": requirement_id,
+        "subject": subject,
+        "body": body,
+        "mail_type": "mail4",
+        "direction": "sent",
+        "status": "sent" if success else "failed",
+        "error": error if not success else "",
+        "sent_at": now,
+        "platform": platform,
+        "interview_link": interview_link,
+        "date_time": date_time,
+        "source": source,
+        "calendar_event": calendar_event or {},
+    })
+
+    email_log_doc = {
+        "email_id": email_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_name,
+        "requirement_id": requirement_id,
+        "to_email": to_email,
+        "subject": subject,
+        "body": body,
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "sent_at": now if success else None,
+        "reply_received": False,
+        "opened": False,
+        "open_count": 0,
+        "tracking_url": tracking_url,
+        "retry_count": 0,
+        "mail_type": "mail4",
+        "interview_scheduled": success,
+        "interview_date": date_time,
+        "interview_link": interview_link,
+        "platform": platform,
+        "technology": technology,
+        "trainer_phone": trainer_phone,
+        "calendar_event": calendar_event or {},
+        **interview_reminder_fields(date_time),
+        "interview_reminder_status": "not_scheduled",
+        "whatsapp_reminder_status": "not_scheduled",
+        "created_at": now,
+    }
+    await db["email_logs"].insert_one(email_log_doc)
+
+    if success:
+        await db["trainers"].update_one(
+            {"trainer_id": trainer_id},
+            {"$set": {"status": "interview_scheduled"}},
+        )
+        reminder_schedule = await schedule_interview_reminder(
+            db,
+            email_log=email_log_doc,
+            request_base_url=_request_base_url(request) if request else "",
+        )
+        teams_result = await send_teams_stage_notification(
+            db,
+            stage="interview_scheduled",
+            trainer_name=trainer_name,
+            requirement=req or {"requirement_id": requirement_id, "technology_needed": technology},
+            request_base_url=_request_base_url(request) if request else "",
+            context={"source": source, "email_id": email_id, "interview_date": date_time},
+        )
+    else:
+        reminder_schedule = {"scheduled": False, "status": "email_failed", "error": error}
+        teams_result = {"status": "not_sent", "error": "email_failed"}
+
+    return {
+        "success": success,
+        "error": error,
+        "email_id": email_id,
+        "whatsapp": whatsapp_result,
+        "teams": teams_result,
+        "reminder_schedule": reminder_schedule,
+    }
+
+
+def _recent_enough(sent_at, received_at, days: int = 21) -> bool:
+    if not sent_at or not received_at:
+        return True
+    try:
+        if isinstance(sent_at, str):
+            sent_at = datetime.fromisoformat(sent_at.replace("Z", "+00:00")).replace(tzinfo=None)
+        if isinstance(received_at, str):
+            received_at = datetime.fromisoformat(received_at.replace("Z", "+00:00")).replace(tzinfo=None)
+        return timedelta(0) <= (received_at - sent_at) <= timedelta(days=days)
+    except Exception:
+        return True
+
+
+async def _matching_client_slot_email(db, meta: dict, clean_body: str = "") -> Optional[dict]:
+    from_email = (meta.get("from_email") or "").strip()
+    if not from_email:
+        return None
+
+    slot_ref = _slot_reference_from_text(meta.get("subject", ""), meta.get("snippet", ""), clean_body)
+    if slot_ref:
+        exact = await db["client_slot_emails"].find_one(
+            {
+                "slot_ref": slot_ref,
+                "to_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"},
+            },
+            {"_id": 0},
+        )
+        if exact:
+            return exact
+
+    received_at = meta.get("received_at") or datetime.utcnow()
+    candidates = await db["client_slot_emails"].find(
+        {
+            "to_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"},
+            "status": {"$in": ["sent", "confirmed_scheduled", "calendar_failed", "trainer_email_failed"]},
+            "$or": [{"sent_at": {"$lte": received_at}}, {"sent_at": None}],
+        },
+        {"_id": 0},
+    ).sort("sent_at", -1).limit(25).to_list(25)
+    if not candidates:
+        return None
+
+    subject_norm = _norm_subject(meta.get("subject", ""))
+    body_norm = _re.sub(r"\s+", " ", (clean_body or meta.get("snippet") or "").lower())
+    scored = []
+    for item in candidates:
+        if not _recent_enough(item.get("sent_at"), received_at):
+            continue
+        slot_subject = _norm_subject(item.get("subject", ""))
+        trainer_name = str(item.get("trainer_name") or "").lower()
+        requirement_id = str(item.get("requirement_id") or "").lower()
+        score = 0
+        if slot_subject and (slot_subject in subject_norm or subject_norm in slot_subject):
+            score += 140
+        if "slot" in subject_norm or "availability" in subject_norm:
+            score += 60
+        if requirement_id and (requirement_id in subject_norm or requirement_id in body_norm):
+            score += 50
+        if trainer_name and trainer_name in body_norm:
+            score += 40
+        if _re.search(r"\b(confirm|confirmed|works|okay|ok|fine|available|schedule|book)\b", body_norm):
+            score += 35
+        if _re.search(r"\b(\d{1,2}(:\d{2})?\s*(am|pm)?|today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b", body_norm):
+            score += 35
+        scored.append((score, item))
+
+    if not scored:
+        return None
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+    return scored[0][1] if scored[0][0] >= 100 else None
+
+
+async def _process_client_slot_reply(
+    db,
+    message_id: str,
+    gmail_service,
+    request: Optional[Request] = None,
+    meta_hint: Optional[dict] = None,
+    slot_doc: Optional[dict] = None,
+) -> Optional[dict]:
+    existing = await db["client_slot_confirmations"].find_one({"gmail_message_id": message_id}, {"_id": 0})
+    if existing and existing.get("status") not in {"calendar_failed", "trainer_email_failed"}:
+        return {
+            "status": "already_processed_client_slot_reply",
+            "email_id": message_id,
+            "requirement_id": existing.get("requirement_id"),
+            "trainer_id": existing.get("trainer_id"),
+        }
+
+    meta = fetch_gmail_email(message_id, gmail_service)
+    if meta_hint:
+        meta = {**meta_hint, **meta}
+    clean_body = _strip_quoted_reply_text(meta.get("clean_body") or meta.get("raw_body") or meta.get("snippet") or "")
+    slot_doc = slot_doc or await _matching_client_slot_email(db, meta, clean_body)
+    if not slot_doc:
+        return None
+
+    requirement_id = slot_doc.get("requirement_id", "")
+    trainer_id = slot_doc.get("trainer_id", "")
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    trainer_contact = await _trainer_contact_for_interview(
+        db,
+        trainer_id,
+        requirement_id,
+        slot_doc.get("trainer_name", ""),
+    )
+    client_name = slot_doc.get("client_name") or meta.get("from_name") or "Client"
+    timezone_name = requirement.get("timezone") or "Asia/Kolkata"
+
+    parsed = await extract_client_slot_confirmation(
+        clean_body,
+        slot_doc.get("slot_text", ""),
+        {
+            "timezone": timezone_name,
+            "requirement_id": requirement_id,
+            "technology": requirement.get("technology_needed") or "",
+            "trainer_name": trainer_contact.get("name") or slot_doc.get("trainer_name", ""),
+            "client_email": meta.get("from_email") or slot_doc.get("to_email"),
+        },
+    )
+
+    now = datetime.utcnow()
+    confirmation_id = existing.get("confirmation_id") if existing else f"CLIENT-CONF-{uuid.uuid4().hex[:8].upper()}"
+    base_doc = {
+        "confirmation_id": confirmation_id,
+        "gmail_message_id": message_id,
+        "thread_id": meta.get("thread_id"),
+        "client_slot_email_id": slot_doc.get("email_id"),
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_contact.get("name") or slot_doc.get("trainer_name"),
+        "trainer_email": trainer_contact.get("email"),
+        "client_email": meta.get("from_email") or slot_doc.get("to_email"),
+        "client_name": client_name,
+        "subject": meta.get("subject"),
+        "reply_text": clean_body,
+        "parsed_slot": parsed,
+        "updated_at": now,
+    }
+    if not existing:
+        base_doc["created_at"] = now
+
+    if not parsed.get("confirmed") or not parsed.get("start_iso") or float(parsed.get("confidence") or 0) < 0.5:
+        await db["client_slot_confirmations"].update_one(
+            {"confirmation_id": confirmation_id},
+            {"$set": {**base_doc, "status": "needs_manual_review", "error": parsed.get("reason") or ""}},
+            upsert=True,
+        )
+        await db["client_slot_emails"].update_one(
+            {"email_id": slot_doc.get("email_id")},
+            {"$set": {
+                "last_client_reply_at": now,
+                "last_client_reply_text": clean_body,
+                "last_client_reply_parse": parsed,
+            }},
+        )
+        return {
+            "status": "client_slot_needs_review",
+            "email_id": message_id,
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "reason": parsed.get("reason"),
+        }
+
+    if not trainer_contact.get("email"):
+        await db["client_slot_confirmations"].update_one(
+            {"confirmation_id": confirmation_id},
+            {"$set": {**base_doc, "status": "trainer_email_missing", "error": "Trainer email not found"}},
+            upsert=True,
+        )
+        return {
+            "status": "trainer_email_missing",
+            "email_id": message_id,
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+        }
+
+    try:
+        calendar_event = await _create_google_meet_event(
+            trainer_email=trainer_contact["email"],
+            trainer_name=trainer_contact["name"],
+            client_email=meta.get("from_email") or slot_doc.get("to_email") or "",
+            client_name=client_name,
+            requirement=requirement or {"requirement_id": requirement_id},
+            start_iso=parsed.get("start_iso", ""),
+            end_iso=parsed.get("end_iso", ""),
+            timezone_name=parsed.get("timezone") or timezone_name,
+            slot_reply=clean_body,
+        )
+    except Exception as exc:
+        error = str(exc)
+        await db["client_slot_confirmations"].update_one(
+            {"confirmation_id": confirmation_id},
+            {"$set": {**base_doc, "status": "calendar_failed", "error": error}},
+            upsert=True,
+        )
+        await db["client_slot_emails"].update_one(
+            {"email_id": slot_doc.get("email_id")},
+            {"$set": {
+                "status": "calendar_failed",
+                "client_confirmed_at": now,
+                "client_confirmed_slot": parsed,
+                "calendar_error": error,
+            }},
+        )
+        return {
+            "status": "calendar_failed",
+            "email_id": message_id,
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "error": error,
+        }
+
+    meet_link = calendar_event.get("meet_link") or calendar_event.get("html_link") or ""
+    date_time = parsed.get("start_iso") or calendar_event.get("start") or parsed.get("date_time_text")
+    send_result = await _send_trainer_interview_schedule(
+        db,
+        request,
+        trainer_id=trainer_id,
+        trainer_name=trainer_contact["name"],
+        to_email=trainer_contact["email"],
+        trainer_phone=trainer_contact.get("phone", ""),
+        requirement_id=requirement_id,
+        date_time=date_time,
+        interview_link=meet_link,
+        platform="Google Meet",
+        source="client_slot_confirmation",
+        calendar_event=calendar_event,
+    )
+    final_status = "confirmed_scheduled" if send_result.get("success") else "trainer_email_failed"
+    await db["client_slot_confirmations"].update_one(
+        {"confirmation_id": confirmation_id},
+        {"$set": {
+            **base_doc,
+            "status": final_status,
+            "calendar_event": calendar_event,
+            "trainer_schedule_email": send_result,
+            "scheduled_at": now,
+            "error": send_result.get("error") or "",
+        }},
+        upsert=True,
+    )
+    await db["client_slot_emails"].update_one(
+        {"email_id": slot_doc.get("email_id")},
+        {"$set": {
+            "status": final_status,
+            "client_confirmed_at": now,
+            "client_confirmed_slot": parsed,
+            "client_reply_message_id": message_id,
+            "calendar_event": calendar_event,
+            "trainer_schedule_email": send_result,
+        }},
+    )
+    return {
+        "status": final_status,
+        "email_id": message_id,
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_email_sent": bool(send_result.get("success")),
+        "meet_link": meet_link,
+        "calendar_event_id": calendar_event.get("event_id"),
+    }
+
+
+async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_results: int = 25) -> dict:
+    service = get_gmail_service()
+    settings = await _client_inbox_settings(db)
+    whitelist = _parse_domain_csv(settings.get("clientDomainsWhitelist", ""))
+    listed = service.users().messages().list(
+        userId="me",
+        labelIds=["INBOX"],
+        q="newer_than:7d",
+        maxResults=max(1, min(int(max_results or 25), 100)),
+    ).execute()
+
+    processed = []
+    skipped = 0
+    already_processed = 0
+    auto_sent_existing = []
+    errors = []
+
+    for item in listed.get("messages", []) or []:
+        message_id = item.get("id")
+        if not message_id:
+            continue
+        existing = await db["client_emails"].find_one({"email_id": message_id}, {"_id": 0})
+        if existing:
+            auto_sent = await _auto_send_pending_client_reply(db, existing, service, settings)
+            if auto_sent:
+                auto_sent_existing.append(auto_sent)
+            already_processed += 1
+            continue
+        try:
+            meta = _gmail_metadata(service, message_id)
+            slot_doc = await _matching_client_slot_email(db, meta)
+            if slot_doc:
+                slot_result = await _process_client_slot_reply(
+                    db,
+                    message_id,
+                    service,
+                    request,
+                    meta_hint=meta,
+                    slot_doc=slot_doc,
+                )
+                if slot_result:
+                    processed.append(slot_result)
+                    continue
+            known_domain = await _known_client_domain(db, meta.get("from_email", ""))
+            likely_training = known_domain or is_likely_training_email(
+                meta.get("subject", ""),
+                meta.get("from_email", ""),
+                whitelist,
+                meta.get("snippet", ""),
+            )
+            if not likely_training:
+                skipped += 1
+                continue
+            processed.append(await _process_and_store_client_message(db, message_id, service, request))
+        except Exception as exc:
+            errors.append({"email_id": message_id, "error": str(exc)})
+
+    await db["gmail_sync"].update_one(
+        {"sync_id": "default"},
+        {"$set": {
+            "last_manual_sync_at": datetime.utcnow(),
+            "last_manual_sync_processed": len(processed),
+            "last_manual_sync_skipped": skipped,
+            "last_manual_sync_auto_sent_existing": len(auto_sent_existing),
+            "last_manual_sync_errors": errors[-5:],
+        }},
+        upsert=True,
+    )
+    return {
+        "success": True,
+        "processed": processed,
+        "processed_count": len(processed),
+        "auto_sent_existing": auto_sent_existing,
+        "auto_sent_existing_count": len(auto_sent_existing),
+        "skipped": skipped,
+        "already_processed": already_processed,
+        "errors": errors,
+    }
 
 
 TOC_SYSTEM_PROMPT = """You are an expert curriculum designer and corporate trainer with 15+ years of experience
@@ -439,20 +1174,26 @@ Do not add extra topics beyond what's specified, but you can add sub-topics and 
 
 
 async def _generate_toc_with_claude(payload: dict) -> dict:
+    import httpx as _httpx
     settings = get_settings()
-    api_key = os.getenv("ANTHROPIC_API_KEY", "") or getattr(settings, "anthropic_api_key", "")
-    client = _anthropic.AsyncAnthropic(api_key=api_key) if api_key else _anthropic.AsyncAnthropic()
-    message = await client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=8000,
-        temperature=0.2,
-        system=TOC_SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": _toc_user_prompt(payload)}],
-    )
-    raw = message.content[0].text.strip()
+    api_key = os.getenv("GEMINI_API_KEY", "") or getattr(settings, "gemini_api_key", "")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY is not configured")
+    full_prompt = TOC_SYSTEM_PROMPT + "\n\n" + _toc_user_prompt(payload)
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    async with _httpx.AsyncClient(timeout=120) as client:
+        res = await client.post(url, json={
+            "contents": [{"parts": [{"text": full_prompt}]}],
+            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 8000},
+        })
+        res.raise_for_status()
+        data = res.json()
+    raw = (data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")).strip()
+    raw = _re.sub(r"^```(?:json)?\s*", "", raw)
+    raw = _re.sub(r"\s*```$", "", raw).strip()
     match = _re.search(r"\{.*\}", raw, _re.DOTALL)
     if not match:
-        raise ValueError("Claude did not return valid JSON")
+        raise ValueError(f"Gemini did not return valid JSON for TOC. Response: {raw[:300]}")
     return _json.loads(match.group())
 
 
@@ -710,6 +1451,21 @@ async def _categorise_trainer_by_id(db, trainer_id: str) -> dict:
     return await _categorise_and_update_trainer(db, trainer)
 
 
+async def _categorise_trainers_background(trainer_ids: List[str]):
+    db = get_db()
+    for trainer_id in dict.fromkeys(trainer_ids):
+        try:
+            await _categorise_trainer_by_id(db, trainer_id)
+        except Exception as exc:
+            await db["trainers"].update_one(
+                {"trainer_id": trainer_id},
+                {"$set": {
+                    "categorisation_error": str(exc),
+                    "categorisation_failed_at": datetime.utcnow(),
+                }},
+            )
+
+
 async def _run_categorisation_job(job_id: str):
     db = get_db()
     CATEGORISATION_JOBS[job_id].update({
@@ -860,6 +1616,40 @@ async def whatsapp_status_callback(request: Request):
     form = await request.form()
     payload = dict(form)
     return await update_whatsapp_status(db, payload)
+
+
+@router.post("/whatsapp/inbound-callback")
+async def whatsapp_inbound_callback(request: Request):
+    db = get_db()
+    form = await request.form()
+    payload = dict(form)
+    from_number = payload.get("From", "")
+    to_number = payload.get("To", "")
+    body = payload.get("Body", "")
+    message_sid = payload.get("MessageSid") or payload.get("SmsSid") or ""
+    existing = await db["whatsapp_logs"].find_one({"twilio_sid": message_sid}, {"_id": 1}) if message_sid else None
+    if not existing:
+        await db["whatsapp_logs"].insert_one({
+            "whatsapp_id": f"WA-{uuid.uuid4().hex[:10].upper()}",
+            "direction": "inbound",
+            "event_type": "whatsapp_reply",
+            "recipient_type": "trainer",
+            "to_number": to_number,
+            "from_number": from_number,
+            "body": body,
+            "status": "received",
+            "twilio_sid": message_sid,
+            "twilio_response": payload,
+            "context": {"source": "twilio_inbound"},
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
+        })
+    reply_text = "Thanks for your response. TrainerSync has received your WhatsApp message and will update the trainer pipeline shortly."
+    twiml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        f"<Response><Message>{_html.escape(reply_text)}</Message></Response>"
+    )
+    return Response(content=twiml, media_type="application/xml")
 
 
 # --- AI Training TOC Generator ---------------------------------------------
@@ -1307,8 +2097,118 @@ async def _collect_resume_files(uploaded_files: List[UploadFile]) -> List[dict]:
     return collected
 
 
+def _resume_processing_concurrency() -> int:
+    try:
+        return max(1, min(5, int(os.getenv("RESUME_UPLOAD_CONCURRENCY", "3"))))
+    except ValueError:
+        return 3
+
+
+async def _cache_resume_preview(db, processed: dict, item: dict) -> str:
+    now = datetime.utcnow()
+    upload_id = processed.get("upload_id") or f"RES-{uuid.uuid4().hex[:12].upper()}"
+    processed["upload_id"] = upload_id
+
+    upload_doc = {
+        "upload_id": upload_id,
+        "trainer_id": processed.get("trainer_id"),
+        "filename": processed.get("filename"),
+        "file_size": len(processed.get("raw_text", "")),
+        "processing_status": "previewed",
+        "extracted_data": public_resume_result(processed),
+        "extracted_text": processed.get("raw_text", "")[:50000],
+        "confidence_score": processed.get("confidence_score", 0),
+        "created_at": now,
+        "processed_at": now,
+        "previewed_at": now,
+    }
+    for key in ("source_archive", "archive_path", "archive_resume_count", "archive_unsupported_count"):
+        if item.get(key) is not None:
+            upload_doc[key] = item.get(key)
+
+    await db["resume_uploads"].update_one(
+        {"upload_id": upload_id},
+        {"$set": upload_doc},
+        upsert=True,
+    )
+    return upload_id
+
+
+def _profile_from_resume_upload(upload: dict, corrections: Optional[dict] = None) -> dict:
+    extracted = dict(upload.get("extracted_data") or {})
+    if corrections:
+        extracted.update(corrections)
+
+    return {
+        **extracted,
+        "success": True,
+        "upload_id": upload.get("upload_id"),
+        "trainer_id": extracted.get("trainer_id") or upload.get("trainer_id"),
+        "filename": extracted.get("filename") or upload.get("filename"),
+        "raw_text": upload.get("extracted_text") or upload.get("raw_text") or "",
+        "source_archive": upload.get("source_archive") or extracted.get("source_archive"),
+        "archive_path": upload.get("archive_path") or extracted.get("archive_path"),
+        "confidence_score": extracted.get("confidence_score") or upload.get("confidence_score") or 0,
+    }
+
+
+def _resume_upload_corrections(corrections: Optional[dict], upload_id: str) -> dict:
+    if not isinstance(corrections, dict):
+        return {}
+    scoped = corrections.get(upload_id)
+    if isinstance(scoped, dict):
+        return scoped
+    known_profile_fields = {
+        "name", "email", "phone", "location", "linkedin", "experience_years",
+        "experience_raw", "role_designation", "education", "skills", "technologies",
+        "certifications", "past_clients", "training_count", "day_rate", "hourly_rate",
+        "technology_category", "secondary_categories", "category", "summary",
+    }
+    if any(key in known_profile_fields for key in corrections):
+        return corrections
+    return {}
+
+
+async def _handle_resume_upload_item(db, item: dict, confirm: bool) -> tuple[dict, Optional[str]]:
+    if item.get("error"):
+        return {
+            "filename": item["filename"],
+            "success": False,
+            "error": item["error"],
+            "saved": False,
+        }, None
+
+    try:
+        processed = await process_resume(item["bytes"], item["filename"], db)
+        for key in ("source_archive", "archive_path", "archive_resume_count", "archive_unsupported_count"):
+            if item.get(key) is not None:
+                processed[key] = item.get(key)
+
+        save_result = {"saved": False}
+        saved_trainer_id = None
+        if processed.get("success"):
+            if confirm:
+                save_result = await save_trainer_from_resume(processed, db, use_ai_tags=False)
+                saved_trainer_id = save_result.get("trainer_id") if save_result.get("saved") else None
+            else:
+                await _cache_resume_preview(db, processed, item)
+
+        return {
+            **public_resume_result(processed),
+            **save_result,
+        }, saved_trainer_id
+    except Exception as exc:
+        return {
+            "filename": item.get("filename", "resume"),
+            "success": False,
+            "error": str(exc),
+            "saved": False,
+        }, None
+
+
 @router.post("/trainers/upload-resume")
 async def upload_resume(
+    background_tasks: BackgroundTasks,
     files: Optional[List[UploadFile]] = File(None),
     file: Optional[UploadFile] = File(None),
     confirm: bool = False,
@@ -1323,48 +2223,23 @@ async def upload_resume(
 
     db = get_db()
     collected = await _collect_resume_files(uploaded_files)
-    results = []
-    saved_count = error_count = inserted = updated = 0
+    semaphore = asyncio.Semaphore(_resume_processing_concurrency())
 
-    for item in collected:
-        if item.get("error"):
-            error_count += 1
-            results.append({
-                "filename": item["filename"],
-                "success": False,
-                "error": item["error"],
-                "saved": False,
-            })
-            continue
+    async def run_item(item: dict):
+        async with semaphore:
+            return await _handle_resume_upload_item(db, item, confirm)
 
-        processed = await process_resume(item["bytes"], item["filename"], db)
-        if item.get("source_archive"):
-            processed["source_archive"] = item["source_archive"]
-
-        save_result = {"saved": False}
-        if confirm and processed.get("success"):
-            save_result = await save_trainer_from_resume(processed, db)
-            if save_result.get("saved"):
-                saved_count += 1
-                if save_result.get("action") == "updated":
-                    updated += 1
-                else:
-                    inserted += 1
-                try:
-                    categorised = await _categorise_trainer_by_id(db, save_result["trainer_id"])
-                    save_result["categorisation"] = categorised["category"]
-                except Exception as exc:
-                    save_result["categorisation_error"] = str(exc)
-
-        if not processed.get("success"):
-            error_count += 1
-
-        results.append({
-            **public_resume_result(processed),
-            **save_result,
-        })
+    item_results = await asyncio.gather(*(run_item(item) for item in collected))
+    results = [result for result, _trainer_id in item_results]
+    saved_trainer_ids = [trainer_id for _result, trainer_id in item_results if trainer_id]
+    if confirm and saved_trainer_ids:
+        background_tasks.add_task(_categorise_trainers_background, saved_trainer_ids)
 
     success_count = sum(1 for r in results if r.get("success"))
+    error_count = sum(1 for r in results if not r.get("success"))
+    saved_count = sum(1 for r in results if r.get("saved"))
+    inserted = sum(1 for r in results if r.get("saved") and r.get("action") == "inserted")
+    updated = sum(1 for r in results if r.get("saved") and r.get("action") == "updated")
     archive_resume_count = sum(1 for item in collected if item.get("source_archive") and item.get("bytes"))
     archive_names = sorted({item["source_archive"] for item in collected if item.get("source_archive")})
     return {
@@ -1383,6 +2258,71 @@ async def upload_resume(
 
 
 # ─── Clear Database ───────────────────────────────────────────────────────────
+
+@router.post("/trainers/confirm-resumes")
+async def confirm_resume_previews(payload: dict, background_tasks: BackgroundTasks):
+    upload_ids = payload.get("upload_ids") or payload.get("uploadIds") or []
+    if isinstance(upload_ids, str):
+        upload_ids = [upload_ids]
+    upload_ids = [str(upload_id).strip() for upload_id in upload_ids if str(upload_id).strip()]
+    if not upload_ids:
+        raise HTTPException(400, "Provide at least one preview upload_id to confirm")
+
+    db = get_db()
+    corrections = payload.get("corrections") or {}
+    results = []
+    saved_trainer_ids = []
+
+    for upload_id in upload_ids:
+        try:
+            upload = await db["resume_uploads"].find_one({"upload_id": upload_id})
+            if not upload:
+                results.append({
+                    "upload_id": upload_id,
+                    "success": False,
+                    "saved": False,
+                    "error": "Resume preview not found. Please extract preview again.",
+                })
+                continue
+
+            profile = _profile_from_resume_upload(
+                upload,
+                _resume_upload_corrections(corrections, upload_id),
+            )
+            save_result = await save_trainer_from_resume(profile, db, use_ai_tags=False)
+            if save_result.get("saved") and save_result.get("trainer_id"):
+                saved_trainer_ids.append(save_result["trainer_id"])
+
+            results.append({
+                "upload_id": upload_id,
+                "filename": upload.get("filename"),
+                "success": bool(save_result.get("saved")),
+                **save_result,
+            })
+        except Exception as exc:
+            results.append({
+                "upload_id": upload_id,
+                "success": False,
+                "saved": False,
+                "error": str(exc),
+            })
+
+    if saved_trainer_ids:
+        background_tasks.add_task(_categorise_trainers_background, saved_trainer_ids)
+
+    saved_count = sum(1 for r in results if r.get("saved"))
+    return {
+        "confirm": True,
+        "total": len(results),
+        "success_count": saved_count,
+        "error_count": sum(1 for r in results if not r.get("saved")),
+        "saved_count": saved_count,
+        "inserted": sum(1 for r in results if r.get("saved") and r.get("action") == "inserted"),
+        "updated": sum(1 for r in results if r.get("saved") and r.get("action") == "updated"),
+        "background_categorisation": bool(saved_trainer_ids),
+        "results": results,
+    }
+
 
 @router.delete("/database/clear")
 async def clear_database():
@@ -1675,24 +2615,28 @@ async def retry_email(email_id: str, request: Request):
         raise HTTPException(400, "Max retry attempts (3) reached")
 
     smtp_config = await get_admin_email_config(db)
-    success, error = await send_email_async(
-        log["to_email"],
-        log["subject"],
-        log["body"],
-        smtp_config,
-        build_tracking_url(request, email_id),
+    trainer_phone = await _trainer_phone(db, log.get("trainer_id", ""), log.get("trainer_phone", ""))
+    email_result, whatsapp_result = await asyncio.gather(
+        send_email_async(
+            log["to_email"],
+            log["subject"],
+            log["body"],
+            smtp_config,
+            build_tracking_url(request, email_id),
+        ),
+        send_shortlist_whatsapp(
+            db,
+            trainer_phone=trainer_phone,
+            trainer_name=log.get("trainer_name", ""),
+            subject=log.get("subject", ""),
+            body=log.get("body", ""),
+            mail_type=log.get("mail_type", "mail1_reminder"),
+            requirement_id=log.get("requirement_id", ""),
+            email_id=email_id,
+            request_base_url=_request_base_url(request),
+        ),
     )
-    whatsapp_result = await send_shortlist_whatsapp(
-        db,
-        trainer_phone=await _trainer_phone(db, log.get("trainer_id", ""), log.get("trainer_phone", "")),
-        trainer_name=log.get("trainer_name", ""),
-        subject=log.get("subject", ""),
-        body=log.get("body", ""),
-        mail_type=log.get("mail_type", "mail1_reminder"),
-        requirement_id=log.get("requirement_id", ""),
-        email_id=email_id,
-        request_base_url=_request_base_url(request),
-    )
+    success, error = email_result
     await db["email_logs"].update_one(
         {"email_id": email_id},
         {"$set": {
@@ -1828,8 +2772,24 @@ async def send_interview_link_auto(payload: dict, request: Request):
     email_id = f"EMAIL-{uuid.uuid4().hex[:8].upper()}"
     tracking_url = build_tracking_url(request, email_id)
     smtp_config = await get_admin_email_config(db)
-    success, error = await send_email_async(to_email, subject, body, smtp_config, tracking_url)
     trainer_phone = await _trainer_phone(db, trainer_id, trainer_phone)
+
+    email_result, whatsapp_result = await asyncio.gather(
+        send_email_async(to_email, subject, body, smtp_config, tracking_url),
+        send_interview_whatsapp(
+            db,
+            trainer_phone=trainer_phone,
+            trainer_name=trainer_name,
+            requirement_id=requirement_id,
+            technology=technology,
+            date_time=date_time,
+            platform=platform,
+            interview_link=interview_link,
+            email_id=email_id,
+            request_base_url=_request_base_url(request),
+        ),
+    )
+    success, error = email_result
 
     await db["conversations"].insert_one({
         "trainer_id": trainer_id, "trainer_name": trainer_name,
@@ -1860,19 +2820,6 @@ async def send_interview_link_auto(payload: dict, request: Request):
     }
     await db["email_logs"].insert_one(email_log_doc)
 
-    whatsapp_result = await send_interview_whatsapp(
-        db,
-        trainer_phone=trainer_phone,
-        trainer_name=trainer_name,
-        requirement_id=requirement_id,
-        technology=technology,
-        date_time=date_time,
-        platform=platform,
-        interview_link=interview_link,
-        email_id=email_id,
-        request_base_url=_request_base_url(request),
-    )
-
     if success:
         await db["trainers"].update_one(
             {"trainer_id": trainer_id},
@@ -1883,7 +2830,7 @@ async def send_interview_link_auto(payload: dict, request: Request):
             email_log=email_log_doc,
             request_base_url=_request_base_url(request),
         )
-        await send_teams_stage_notification(
+        teams_result = await send_teams_stage_notification(
             db,
             stage="interview_scheduled",
             trainer_name=trainer_name,
@@ -1893,8 +2840,10 @@ async def send_interview_link_auto(payload: dict, request: Request):
         )
     else:
         reminder_schedule = {"scheduled": False, "status": "email_failed", "error": error}
+        teams_result = {"status": "not_sent", "error": "email_failed"}
 
     return {"success": success, "error": error, "email_id": email_id, "whatsapp": whatsapp_result,
+            "teams": teams_result,
             "reminder_schedule": reminder_schedule,
             "message": f"Interview link email {'sent' if success else 'failed'} to {trainer_name}"}
 
@@ -2039,19 +2988,23 @@ async def send_shortlist_mail(payload: dict, request: Request):
     email_id = f"EMAIL-{uuid.uuid4().hex[:8].upper()}"
     tracking_url = build_tracking_url(request, email_id)
     smtp_config = await get_admin_email_config(db)
-    success, error = await send_email_async(to_email, subject, body, smtp_config, tracking_url)
     trainer_phone = await _trainer_phone(db, trainer_id, trainer_phone)
-    whatsapp_result = await send_shortlist_whatsapp(
-        db,
-        trainer_phone=trainer_phone,
-        trainer_name=trainer_name,
-        subject=subject,
-        body=body,
-        mail_type=mail_type,
-        requirement_id=requirement_id,
-        email_id=email_id,
-        request_base_url=_request_base_url(request),
+
+    email_result, whatsapp_result = await asyncio.gather(
+        send_email_async(to_email, subject, body, smtp_config, tracking_url),
+        send_shortlist_whatsapp(
+            db,
+            trainer_phone=trainer_phone,
+            trainer_name=trainer_name,
+            subject=subject,
+            body=body,
+            mail_type=mail_type,
+            requirement_id=requirement_id,
+            email_id=email_id,
+            request_base_url=_request_base_url(request),
+        ),
     )
+    success, error = email_result
 
     sent_at = datetime.utcnow()
     await db["conversations"].insert_one({
@@ -2077,6 +3030,7 @@ async def send_shortlist_mail(payload: dict, request: Request):
         "created_at": datetime.utcnow(),
     })
 
+    teams_result = {"status": "not_applicable"}
     if success:
         new_status = "contacted" if mail_type in {"first", "mail1"} else "pending_review"
         await db["trainers"].update_one({"trainer_id": trainer_id}, {"$set": {"status": new_status}})
@@ -2087,7 +3041,7 @@ async def send_shortlist_mail(payload: dict, request: Request):
             teams_stage = "trainer_selected"
         if teams_stage:
             requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
-            await send_teams_stage_notification(
+            teams_result = await send_teams_stage_notification(
                 db,
                 stage=teams_stage,
                 trainer_name=trainer_name,
@@ -2096,10 +3050,123 @@ async def send_shortlist_mail(payload: dict, request: Request):
                 context={"source": "shortlist_send_mail", "email_id": email_id, "mail_type": mail_type, "trainer_id": trainer_id},
             )
 
-    return {"success": success, "error": error, "email_id": email_id, "whatsapp": whatsapp_result}
+    return {"success": success, "error": error, "email_id": email_id, "whatsapp": whatsapp_result, "teams": teams_result}
 
 
 # ─── Get Conversation Thread ──────────────────────────────────────────────────
+
+@router.post("/shortlists/send-client-slots")
+async def send_client_slot_options(payload: dict, request: Request):
+    db = get_db()
+    trainer_id = payload.get("trainer_id", "")
+    trainer_name = payload.get("trainer_name") or "the trainer"
+    requirement_id = payload.get("requirement_id", "")
+    force = bool(payload.get("force", False))
+
+    if not requirement_id:
+        raise HTTPException(400, "requirement_id is required")
+
+    requirement, client_email, client_name = await _client_contact_for_requirement(db, requirement_id, payload)
+    if not client_email:
+        raise HTTPException(400, "Client email not found for this requirement")
+
+    technology = requirement.get("technology_needed") or payload.get("technology") or "training"
+    slot_text = _strip_quoted_reply_text(
+        payload.get("slot_text") or payload.get("slots") or payload.get("trainer_reply") or ""
+    )
+    if not slot_text:
+        slot_text = "The trainer has confirmed availability. Please reply with a convenient slot or share alternate timings."
+
+    normalised_slots = _re.sub(r"\s+", " ", slot_text.lower()).strip()
+    slot_hash = hashlib.sha256(f"{requirement_id}|{trainer_id}|{normalised_slots}".encode("utf-8")).hexdigest()
+
+    if not force:
+        existing = await db["client_slot_emails"].find_one({
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "slot_hash": slot_hash,
+            "status": "sent",
+        }, {"_id": 0})
+        if existing:
+            return {
+                "success": True,
+                "already_sent": True,
+                "email_id": existing.get("email_id"),
+                "to_email": existing.get("to_email"),
+                "slot_ref": existing.get("slot_ref"),
+            }
+
+    slot_ref = payload.get("slot_ref") or f"SLOT-{uuid.uuid4().hex[:8].upper()}"
+    subject = payload.get("subject") or f"Trainer Slot Availability - {technology} | {requirement_id} | {slot_ref}"
+    body = payload.get("body") or (
+        f"Hi {client_name or 'Team'},\n\n"
+        f"The trainer {trainer_name} has shared availability for the {technology} discussion/interview.\n\n"
+        f"Reference: {requirement_id} / {slot_ref}\n\n"
+        f"Trainer available slot(s):\n{slot_text}\n\n"
+        "Please confirm which slot works for your team, or share alternate timings if these are not convenient.\n"
+        "Once you confirm, we will schedule the meeting and share the final link with everyone.\n\n"
+        "Regards,\nRecruitment Team,\nCalhan Technologies"
+    )
+    if slot_ref not in subject:
+        subject = f"{subject} | {slot_ref}"
+    if slot_ref not in body:
+        body = f"{body.rstrip()}\n\nReference: {requirement_id} / {slot_ref}"
+
+    email_id = f"CLIENT-SLOT-{uuid.uuid4().hex[:8].upper()}"
+    tracking_url = build_tracking_url(request, email_id)
+    smtp_config = await get_admin_email_config(db)
+    success, error = await send_email_async(client_email, subject, body, smtp_config, tracking_url)
+
+    now = datetime.utcnow()
+    doc = {
+        "email_id": email_id,
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_name,
+        "to_email": client_email,
+        "client_name": client_name,
+        "subject": subject,
+        "body": body,
+        "slot_text": slot_text,
+        "slot_ref": slot_ref,
+        "slot_hash": slot_hash,
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "sent_at": now if success else None,
+        "created_at": now,
+        "force": force,
+    }
+    await db["client_slot_emails"].insert_one(doc)
+
+    await db["email_logs"].insert_one({
+        "email_id": email_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_name,
+        "requirement_id": requirement_id,
+        "to_email": client_email,
+        "subject": subject,
+        "body": body,
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "sent_at": now if success else None,
+        "reply_received": False,
+        "opened": False,
+        "open_count": 0,
+        "tracking_url": tracking_url,
+        "retry_count": 0,
+        "mail_type": "client_slot_options",
+        "created_at": now,
+    })
+
+    return {
+        "success": success,
+        "error": error,
+        "email_id": email_id,
+        "to_email": client_email,
+        "slot_ref": slot_ref,
+        "already_sent": False,
+    }
+
 
 @router.get("/shortlists/thread")
 async def get_conversation_thread(trainer_id: str, requirement_id: str):
@@ -2108,12 +3175,15 @@ async def get_conversation_thread(trainer_id: str, requirement_id: str):
     all_msgs = await db["conversations"].find(
         {"trainer_id": trainer_id, "requirement_id": requirement_id},
         {"_id": 0}
-    ).to_list(200)
+    ).sort("sent_at", 1).to_list(200)
 
     email_replies = await db["email_logs"].find(
         {"trainer_id": trainer_id, "requirement_id": requirement_id, "reply_received": True},
-        {"_id": 0}
-    ).to_list(100)
+        {
+            "_id": 0, "trainer_id": 1, "trainer_name": 1, "requirement_id": 1,
+            "subject": 1, "reply_text": 1, "replied_at": 1, "created_at": 1,
+        }
+    ).sort("replied_at", 1).to_list(100)
 
     messages = []
     for m in all_msgs:
@@ -2150,6 +3220,57 @@ async def get_conversation_thread(trainer_id: str, requirement_id: str):
 
     messages.sort(key=sort_key)
     return {"messages": messages, "total": len(messages)}
+
+
+@router.get("/shortlists/thread-states")
+async def get_shortlist_thread_states(requirement_id: str):
+    db = get_db()
+
+    conversation_docs = await db["conversations"].find(
+        {"requirement_id": requirement_id},
+        {"_id": 0, "trainer_id": 1, "direction": 1, "mail_type": 1, "sent_at": 1, "body": 1},
+    ).sort("sent_at", 1).to_list(1000)
+
+    reply_docs = await db["email_logs"].find(
+        {"requirement_id": requirement_id, "reply_received": True},
+        {
+            "_id": 0, "trainer_id": 1, "mail_type": 1,
+            "reply_text": 1, "replied_at": 1, "created_at": 1,
+        },
+    ).sort("replied_at", 1).to_list(500)
+
+    threads = {}
+    seen_replies = set()
+    for msg in conversation_docs:
+        trainer_id = msg.get("trainer_id")
+        if not trainer_id:
+            continue
+        item = {
+            "direction": msg.get("direction") or "sent",
+            "mail_type": msg.get("mail_type"),
+            "sent_at": msg.get("sent_at"),
+            "body": msg.get("body", ""),
+        }
+        threads.setdefault(str(trainer_id), []).append(item)
+        if item["direction"] == "received" and item["body"]:
+            seen_replies.add((str(trainer_id), item["body"]))
+
+    for reply in reply_docs:
+        trainer_id = reply.get("trainer_id")
+        body = reply.get("reply_text", "")
+        if not trainer_id or not body:
+            continue
+        key = (str(trainer_id), body)
+        if key in seen_replies:
+            continue
+        threads.setdefault(str(trainer_id), []).append({
+            "direction": "received",
+            "mail_type": "reply",
+            "sent_at": reply.get("replied_at") or reply.get("created_at"),
+            "body": body,
+        })
+
+    return {"threads": threads}
 
 
 # ─── Get Shortlists ───────────────────────────────────────────────────────────
@@ -2211,33 +3332,70 @@ async def manual_reply_check(request: Request):
         from_email_clean = m.group(1) if m else from_raw.strip()
         message_id_header = reply.get("message_id_header", "")
 
+        duplicate_or = [{"subject": reply["subject"], "body": reply["body"]}]
         if message_id_header:
-            existing_reply = await db["conversations"].find_one(
-                {"direction": "received", "message_id_header": message_id_header},
-                {"_id": 1},
-            )
-            if existing_reply:
-                skipped_duplicates += 1
-                continue
-
-        log = await db["email_logs"].find_one(
-            {"to_email": {"$regex": from_email_clean, "$options": "i"}, "status": "sent"},
-            sort=[("created_at", -1)]
+            duplicate_or.insert(0, {"message_id_header": message_id_header})
+        existing_reply = await db["conversations"].find_one(
+            {
+                "direction": "received",
+                "to_email": {"$regex": f"^{_re.escape(from_email_clean)}$", "$options": "i"},
+                "$or": duplicate_or,
+            },
+            {"_id": 1},
         )
+        if existing_reply:
+            skipped_duplicates += 1
+            continue
+
+        replied_at = datetime.utcnow()
+        try:
+            if reply.get("received_at"):
+                replied_at = datetime.fromisoformat(str(reply["received_at"]).replace("Z", "+00:00")).replace(tzinfo=None)
+        except Exception:
+            replied_at = datetime.utcnow()
+
+        reply_subject_norm = _norm_subject(reply.get("subject", ""))
+        candidate_logs = await db["email_logs"].find(
+            {
+                "to_email": {"$regex": f"^{_re.escape(from_email_clean)}$", "$options": "i"},
+                "status": "sent",
+                "sent_at": {"$lte": replied_at},
+            },
+            {"_id": 0},
+        ).sort("sent_at", -1).limit(25).to_list(25)
+
+        def candidate_score(item):
+            subject_norm = _norm_subject(item.get("subject", ""))
+            reply_body_norm = str(reply.get("body", "")).lower()
+            trainer_name_norm = str(item.get("trainer_name", "")).strip().lower()
+            score = 0
+            if subject_norm and (subject_norm in reply_subject_norm or reply_subject_norm in subject_norm):
+                score += 100
+            if trainer_name_norm and trainer_name_norm in reply_body_norm:
+                score += 200
+            if item.get("mail_type") == "mail2" and "additional details required" in reply_subject_norm:
+                score += 80
+            if item.get("mail_type") == "mail2_followup" and "details required" in reply_subject_norm:
+                score += 70
+            if item.get("mail_type") == "mail3" and "interview slot booking" in reply_subject_norm:
+                score += 150
+            if item.get("mail_type") == "mail4" and "interview schedule" in reply_subject_norm:
+                score += 120
+            if item.get("mail_type") == "mail1_reminder" and "reminder" in reply_subject_norm:
+                score += 30
+            if item.get("reply_received"):
+                score -= 40
+            return score
+
+        log = sorted(candidate_logs, key=candidate_score, reverse=True)[0] if candidate_logs else None
         if not log:
             log = await db["conversations"].find_one(
-                {"to_email": {"$regex": from_email_clean, "$options": "i"}, "direction": "sent"},
+                {"to_email": {"$regex": f"^{_re.escape(from_email_clean)}$", "$options": "i"}, "direction": "sent", "sent_at": {"$lte": replied_at}},
                 sort=[("sent_at", -1)]
             )
         if log:
             trainer_id_matched     = log.get("trainer_id")
             requirement_id_matched = log.get("requirement_id")
-            replied_at             = datetime.utcnow()
-            try:
-                if reply.get("received_at"):
-                    replied_at = datetime.fromisoformat(str(reply["received_at"]).replace("Z", "+00:00")).replace(tzinfo=None)
-            except Exception:
-                replied_at = datetime.utcnow()
             status_map = {"mark_interested": "interested", "mark_declined": "declined", "requires_review": "pending_review"}
 
             await db["email_logs"].update_one(
@@ -2358,6 +3516,12 @@ async def get_dashboard_stats():
     interest_rate = round((interested / total_replies * 100) if total_replies > 0 else 0, 1)
 
     recent_emails = await db["email_logs"].find({}, {"_id": 0}).sort("created_at", -1).limit(5).to_list(5)
+    recent_whatsapp = await db["whatsapp_logs"].find({}, {"_id": 0}).sort("created_at", -1).limit(8).to_list(8)
+    whatsapp_total = await db["whatsapp_logs"].count_documents({})
+    whatsapp_sent = await db["whatsapp_logs"].count_documents({"status": {"$in": ["queued", "sent", "delivered", "read"]}})
+    whatsapp_delivered = await db["whatsapp_logs"].count_documents({"status": {"$in": ["delivered", "read"]}})
+    whatsapp_failed = await db["whatsapp_logs"].count_documents({"status": {"$in": ["failed", "undelivered", "skipped"]}})
+    whatsapp_replies = await db["whatsapp_logs"].count_documents({"direction": "inbound"})
 
     today = datetime.utcnow().date()
     activity = []
@@ -2401,6 +3565,15 @@ async def get_dashboard_stats():
         "reply_rate": reply_rate, "interest_rate": interest_rate,
         "recent_emails": recent_emails, "score_distribution": score_dist,
         "email_activity": activity,
+        "whatsapp": {
+            "total": whatsapp_total,
+            "sent": whatsapp_sent,
+            "delivered": whatsapp_delivered,
+            "failed": whatsapp_failed,
+            "replies": whatsapp_replies,
+            "delivery_rate": round((whatsapp_delivered / whatsapp_total * 100) if whatsapp_total else 0, 1),
+        },
+        "recent_whatsapp": recent_whatsapp,
     }
 
 
@@ -2520,6 +3693,257 @@ async def _distinct_values(db, collection: str, field: str, match: dict) -> set:
         {"$match": {"_id": {"$nin": [None, ""]}}},
     ]).to_list(10000)
     return {doc["_id"] for doc in docs if doc.get("_id")}
+
+
+DEFAULT_COST_RATES_INR = {
+    # These are estimator defaults. Override by saving admin_settings.costCfg.
+    "whatsapp_outbound_message": 0.75,
+    "whatsapp_inbound_message": 0.0,
+    "teams_notification": 0.0,
+    "gemini_input_1k_tokens": 0.0063,
+    "gemini_output_1k_tokens": 0.0252,
+    "gemini_input_tokens_per_call": 1800,
+    "gemini_output_tokens_per_call": 700,
+    "client_inbox_storage_gb_month": 20.0,
+}
+
+
+def _money(value: float) -> float:
+    return round(float(value or 0), 2)
+
+
+def _cost_number(value, default: float) -> float:
+    try:
+        if value in (None, ""):
+            return float(default)
+        return float(value)
+    except Exception:
+        return float(default)
+
+
+async def _dashboard_cost_rates(db) -> dict:
+    settings_doc = await db["admin_settings"].find_one(
+        {"settings_id": "default"},
+        {"_id": 0, "costCfg": 1},
+    )
+    cfg = (settings_doc or {}).get("costCfg") or {}
+    return {
+        key: _cost_number(cfg.get(key), default)
+        for key, default in DEFAULT_COST_RATES_INR.items()
+    }
+
+
+async def _estimated_collection_bytes(db, collection: str, match: dict, limit: int = 5000) -> tuple[int, int]:
+    total_bytes = 0
+    count = 0
+    async for doc in db[collection].find(match, {"_id": 0}).limit(limit):
+        count += 1
+        try:
+            total_bytes += len(_json.dumps(doc, default=str).encode("utf-8"))
+        except Exception:
+            total_bytes += len(str(doc).encode("utf-8"))
+    return total_bytes, count
+
+
+async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks: list[dict]) -> dict:
+    rates = await _dashboard_cost_rates(db)
+    period_days = max((end - start).total_seconds() / 86400, 1)
+    period_months = period_days / 30.44
+
+    whatsapp_match = _range_match("created_at", start, end)
+    whatsapp_outbound = await db["whatsapp_logs"].count_documents({
+        **whatsapp_match,
+        "direction": "outbound",
+        "status": {"$in": ["queued", "sent", "delivered", "read"]},
+    })
+    whatsapp_inbound = await db["whatsapp_logs"].count_documents({
+        **whatsapp_match,
+        "direction": "inbound",
+    })
+    whatsapp_failed = await db["whatsapp_logs"].count_documents({
+        **whatsapp_match,
+        "status": {"$in": ["failed", "undelivered", "skipped"]},
+    })
+
+    teams_sent = await db["teams_logs"].count_documents({
+        **_range_match("created_at", start, end),
+        "status": "sent",
+    })
+    teams_failed = await db["teams_logs"].count_documents({
+        **_range_match("created_at", start, end),
+        "status": "failed",
+    })
+
+    client_processed = await db["client_emails"].count_documents(_range_match("received_at", start, end))
+    client_auto_sent = await db["client_emails"].count_documents({
+        **_range_match("received_at", start, end),
+        "status": "auto_sent",
+    })
+    resume_gemini = await db["trainers"].count_documents({
+        **_range_match("created_at", start, end),
+        "extraction_source": "gemini",
+    })
+
+    usage_docs = await db["ai_usage_logs"].aggregate([
+        {"$match": _range_match("created_at", start, end)},
+        {"$group": {
+            "_id": None,
+            "calls": {"$sum": 1},
+            "input_tokens": {"$sum": {"$ifNull": ["$input_tokens", 0]}},
+            "output_tokens": {"$sum": {"$ifNull": ["$output_tokens", 0]}},
+            "cost_inr": {"$sum": {"$ifNull": ["$cost_inr", 0]}},
+        }},
+    ]).to_list(1)
+    actual_ai = usage_docs[0] if usage_docs else {}
+    estimated_gemini_calls = (client_processed * 2) + resume_gemini
+    estimated_input_tokens = estimated_gemini_calls * rates["gemini_input_tokens_per_call"]
+    estimated_output_tokens = estimated_gemini_calls * rates["gemini_output_tokens_per_call"]
+    logged_input_tokens = int(actual_ai.get("input_tokens") or 0)
+    logged_output_tokens = int(actual_ai.get("output_tokens") or 0)
+    logged_cost = float(actual_ai.get("cost_inr") or 0)
+    if not logged_cost and (logged_input_tokens or logged_output_tokens):
+        logged_cost = (
+            (logged_input_tokens / 1000) * rates["gemini_input_1k_tokens"]
+            + (logged_output_tokens / 1000) * rates["gemini_output_1k_tokens"]
+        )
+    estimated_unlogged_cost = (
+        (estimated_input_tokens / 1000) * rates["gemini_input_1k_tokens"]
+        + (estimated_output_tokens / 1000) * rates["gemini_output_1k_tokens"]
+    )
+    gemini_cost = logged_cost + estimated_unlogged_cost
+
+    client_storage_bytes, client_storage_docs = await _estimated_collection_bytes(
+        db,
+        "client_emails",
+        _range_match("received_at", start, end),
+    )
+    storage_gb = client_storage_bytes / (1024 ** 3)
+    storage_cost = storage_gb * rates["client_inbox_storage_gb_month"] * period_months
+
+    whatsapp_cost = (
+        whatsapp_outbound * rates["whatsapp_outbound_message"]
+        + whatsapp_inbound * rates["whatsapp_inbound_message"]
+    )
+    teams_cost = teams_sent * rates["teams_notification"]
+    communication_total = whatsapp_cost + teams_cost
+    ai_total = gemini_cost
+    storage_total = storage_cost
+    total = communication_total + ai_total + storage_total
+
+    weekly_expenses = []
+    current = _week_start(start)
+    guard = 0
+    week_lookup = {item["key"]: item for item in weeks}
+    while current < end and guard < 80:
+        week_end = min(current + timedelta(days=7), end)
+        if week_end > start:
+            w_start = max(current, start)
+            iso = current.isocalendar()
+            key = _week_key(iso.year, iso.week)
+
+            w_whatsapp_outbound = await db["whatsapp_logs"].count_documents({
+                **_range_match("created_at", w_start, week_end),
+                "direction": "outbound",
+                "status": {"$in": ["queued", "sent", "delivered", "read"]},
+            })
+            w_whatsapp_inbound = await db["whatsapp_logs"].count_documents({
+                **_range_match("created_at", w_start, week_end),
+                "direction": "inbound",
+            })
+            w_teams_sent = await db["teams_logs"].count_documents({
+                **_range_match("created_at", w_start, week_end),
+                "status": "sent",
+            })
+            w_client_processed = await db["client_emails"].count_documents(_range_match("received_at", w_start, week_end))
+            w_resume_gemini = await db["trainers"].count_documents({
+                **_range_match("created_at", w_start, week_end),
+                "extraction_source": "gemini",
+            })
+            w_gemini_calls = (w_client_processed * 2) + w_resume_gemini
+            w_gemini = (
+                (w_gemini_calls * rates["gemini_input_tokens_per_call"] / 1000) * rates["gemini_input_1k_tokens"]
+                + (w_gemini_calls * rates["gemini_output_tokens_per_call"] / 1000) * rates["gemini_output_1k_tokens"]
+            )
+            w_bytes, _ = await _estimated_collection_bytes(db, "client_emails", _range_match("received_at", w_start, week_end))
+            w_months = max((week_end - w_start).total_seconds() / 86400, 1) / 30.44
+            w_storage = (w_bytes / (1024 ** 3)) * rates["client_inbox_storage_gb_month"] * w_months
+            w_whatsapp = (
+                w_whatsapp_outbound * rates["whatsapp_outbound_message"]
+                + w_whatsapp_inbound * rates["whatsapp_inbound_message"]
+            )
+            w_teams = w_teams_sent * rates["teams_notification"]
+            weekly_expenses.append({
+                "key": key,
+                "week": (week_lookup.get(key) or {}).get("week") or current.strftime("%d %b"),
+                "whatsapp": _money(w_whatsapp),
+                "teams": _money(w_teams),
+                "gemini": _money(w_gemini),
+                "storage": _money(w_storage),
+                "total": _money(w_whatsapp + w_teams + w_gemini + w_storage),
+            })
+        current += timedelta(days=7)
+        guard += 1
+
+    return {
+        "currency": "INR",
+        "estimated": True,
+        "total": _money(total),
+        "communication_total": _money(communication_total),
+        "ai_total": _money(ai_total),
+        "storage_total": _money(storage_total),
+        "items": [
+            {
+                "key": "whatsapp",
+                "label": "WhatsApp Communication",
+                "cost": _money(whatsapp_cost),
+                "count": whatsapp_outbound + whatsapp_inbound,
+                "unit": "messages",
+                "note": f"{whatsapp_outbound} billable outbound, {whatsapp_inbound} inbound, {whatsapp_failed} failed/skipped",
+            },
+            {
+                "key": "teams",
+                "label": "Teams Communication",
+                "cost": _money(teams_cost),
+                "count": teams_sent,
+                "unit": "notifications",
+                "note": f"{teams_failed} failed webhook posts. Default Teams webhook cost is 0 unless you set a rate.",
+            },
+            {
+                "key": "gemini",
+                "label": "Gemini Text Generation",
+                "cost": _money(gemini_cost),
+                "count": int(actual_ai.get("calls") or 0) + estimated_gemini_calls,
+                "unit": "AI calls",
+                "note": f"{int(actual_ai.get('calls') or 0)} logged calls, {client_processed} client emails, {client_auto_sent} auto-sent replies, {resume_gemini} resume AI parses",
+            },
+            {
+                "key": "client_storage",
+                "label": "Client Inbox Cloud Storage",
+                "cost": _money(storage_cost),
+                "count": client_storage_docs,
+                "unit": "stored emails",
+                "note": f"{round(client_storage_bytes / 1024, 1)} KB stored in selected range",
+            },
+        ],
+        "usage": {
+            "whatsapp_outbound": whatsapp_outbound,
+            "whatsapp_inbound": whatsapp_inbound,
+            "whatsapp_failed": whatsapp_failed,
+            "teams_sent": teams_sent,
+            "teams_failed": teams_failed,
+            "client_processed": client_processed,
+            "client_auto_sent": client_auto_sent,
+            "estimated_gemini_calls": estimated_gemini_calls,
+            "logged_gemini_calls": int(actual_ai.get("calls") or 0),
+            "logged_input_tokens": logged_input_tokens,
+            "logged_output_tokens": logged_output_tokens,
+            "estimated_input_tokens": int(estimated_input_tokens),
+            "estimated_output_tokens": int(estimated_output_tokens),
+            "client_storage_bytes": client_storage_bytes,
+        },
+        "rates": rates,
+        "weekly": weekly_expenses,
+    }
 
 
 @router.get("/dashboard/analytics")
@@ -2707,6 +4131,7 @@ async def get_dashboard_analytics(
     whatsapp_total = int(whatsapp.get("total", 0))
     whatsapp_delivered = int(whatsapp.get("delivered", 0))
     whatsapp_delivery_rate = round((whatsapp_delivered / whatsapp_total * 100) if whatsapp_total else 0, 1)
+    expenses = await _estimate_dashboard_expenses(db, start, end, weeks)
 
     return {
         "range": {"preset": preset, "start": start.isoformat(), "end": end.isoformat()},
@@ -2728,6 +4153,7 @@ async def get_dashboard_analytics(
             "failed": int(whatsapp.get("failed", 0)),
             "delivery_rate": whatsapp_delivery_rate,
         },
+        "expenses": expenses,
     }
 
 
@@ -2755,24 +4181,28 @@ async def send_email_to_one(email_id: str, request: Request, body: dict = {}):
         email_body = f"{custom_msg}\n\n---\n{email_body}"
 
     smtp_config = await get_admin_email_config(db)
-    success, error = await send_email_async(
-        log["to_email"],
-        log["subject"],
-        email_body,
-        smtp_config,
-        build_tracking_url(request, email_id),
+    trainer_phone = await _trainer_phone(db, log.get("trainer_id", ""), log.get("trainer_phone", ""))
+    email_result, whatsapp_result = await asyncio.gather(
+        send_email_async(
+            log["to_email"],
+            log["subject"],
+            email_body,
+            smtp_config,
+            build_tracking_url(request, email_id),
+        ),
+        send_shortlist_whatsapp(
+            db,
+            trainer_phone=trainer_phone,
+            trainer_name=log.get("trainer_name", ""),
+            subject=log.get("subject", ""),
+            body=email_body,
+            mail_type=log.get("mail_type", ""),
+            requirement_id=log.get("requirement_id", ""),
+            email_id=email_id,
+            request_base_url=_request_base_url(request),
+        ),
     )
-    whatsapp_result = await send_shortlist_whatsapp(
-        db,
-        trainer_phone=await _trainer_phone(db, log.get("trainer_id", ""), log.get("trainer_phone", "")),
-        trainer_name=log.get("trainer_name", ""),
-        subject=log.get("subject", ""),
-        body=email_body,
-        mail_type=log.get("mail_type", ""),
-        requirement_id=log.get("requirement_id", ""),
-        email_id=email_id,
-        request_base_url=_request_base_url(request),
-    )
+    success, error = email_result
     if success:
         await db["email_logs"].update_one(
             {"email_id": email_id},
@@ -2796,7 +4226,7 @@ async def delete_requirement(requirement_id: str):
 
 # ─── AI Reply Intent Analyzer ─────────────────────────────────────────────────
 #
-# Uses Claude claude-sonnet-4-20250514 to accurately classify trainer reply intent.
+# Uses Gemini gemini-1.5-flash to accurately classify trainer reply intent.
 # CRITICAL: negative phrases are matched FIRST before positive to avoid
 # "not interested" being classified as positive due to "interested" substring.
 #
@@ -2851,16 +4281,20 @@ async def analyze_reply_intent(payload: dict):
     clean_lines = [l for l in reply_body.splitlines() if not l.strip().startswith(">")]
     clean_body  = "\n".join(clean_lines).strip() or reply_body
 
-    # Try Claude AI first
+    # Try Gemini AI first
     try:
-        import anthropic as _anthropic
-        client = _anthropic.Anthropic()
+        import httpx as _httpx
+        from config import get_settings as _get_settings
+        _settings = _get_settings()
+        _api_key = os.getenv("GEMINI_API_KEY", "") or getattr(_settings, "gemini_api_key", "")
+        if not _api_key:
+            raise ValueError("GEMINI_API_KEY not set")
         prompt = f"""You are an expert email intent classifier for a trainer recruitment platform.
 
 Trainer "{trainer_name}" replied to our email at pipeline stage: "{stage}".
 Training requirement: "{requirement}".
 
-Their reply (quoted history already stripped — only their own words below):
+Their reply:
 ---
 {clean_body[:1500]}
 ---
@@ -2870,26 +4304,25 @@ Classify intent as exactly one of:
 - "negative"  : NOT interested, NOT available, declining, withdrawing, saying no
 - "neutral"   : unclear, asking question without committing, out-of-office auto-reply
 
-CRITICAL RULES — follow strictly:
-1. "I am not interested" = NEGATIVE always. Never positive.
+CRITICAL RULES:
+1. "I am not interested" = NEGATIVE always.
 2. "Not available" = NEGATIVE always.
 3. Polite thank-you + decline = NEGATIVE.
-4. Sharing experience/details/CV = POSITIVE (they are engaging).
+4. Sharing experience/details/CV = POSITIVE.
 5. Confirming slot/meeting = POSITIVE.
-6. Question without declining (e.g. "what are the dates?") = NEUTRAL.
+6. Question without declining = NEUTRAL.
 7. Out-of-office / auto-reply = NEUTRAL.
-8. When between negative and neutral → choose NEGATIVE.
-9. A reply that only quotes our email with no new content = NEUTRAL.
 
-Respond ONLY as valid JSON, no extra text:
-{{"intent": "positive"|"negative"|"neutral", "reason": "one sentence", "confidence": 0.0-1.0}}"""
-
-        message = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=150,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        raw = message.content[0].text.strip()
+Respond ONLY as valid JSON:
+{{"intent": "positive or negative or neutral", "reason": "one sentence", "confidence": 0.0}}"""
+        _url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={_api_key}"
+        import asyncio as _asyncio
+        async def _call():
+            async with _httpx.AsyncClient(timeout=20) as _c:
+                _r = await _c.post(_url, json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0, "maxOutputTokens": 150}})
+                return _r.json()
+        data = _asyncio.get_event_loop().run_until_complete(_call())
+        raw = (data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")).strip()
         json_match = _re.search(r'\{.*\}', raw, _re.DOTALL)
         if json_match:
             result = _json.loads(json_match.group())
@@ -2903,10 +4336,41 @@ Respond ONLY as valid JSON, no extra text:
                 "ai_used":    True,
             }
     except Exception as e:
-        print(f"[AI analyze-reply] Claude API error: {e} — falling back to keyword matching")
+        print(f"[AI analyze-reply] Gemini API error: {e} — falling back to keyword matching")
 
     # Fallback — deterministic keyword classifier
     return _keyword_intent(clean_body)
+
+
+@router.post("/ai/log-usage")
+async def log_ai_usage(payload: dict):
+    db = get_db()
+    rates = await _dashboard_cost_rates(db)
+
+    input_tokens = int(_cost_number(payload.get("input_tokens"), 0))
+    output_tokens = int(_cost_number(payload.get("output_tokens"), 0))
+    if not input_tokens:
+        input_tokens = max(1, int(len(str(payload.get("prompt") or "")) / 4))
+    if not output_tokens:
+        output_tokens = max(1, int(len(str(payload.get("output") or "")) / 4))
+
+    cost_inr = (
+        (input_tokens / 1000) * rates["gemini_input_1k_tokens"]
+        + (output_tokens / 1000) * rates["gemini_output_1k_tokens"]
+    )
+    doc = {
+        "usage_id": f"AI-{uuid.uuid4().hex[:10].upper()}",
+        "provider": payload.get("provider") or "gemini",
+        "model": payload.get("model") or get_settings().gemini_model or "gemini-1.5-flash",
+        "feature": payload.get("feature") or "text_generation",
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "cost_inr": _money(cost_inr),
+        "metadata": payload.get("metadata") or {},
+        "created_at": datetime.utcnow(),
+    }
+    await db["ai_usage_logs"].insert_one(doc)
+    return {k: v for k, v in doc.items() if k != "_id"}
 
 
 @router.get("/trainers/resume-status/{upload_id}")
@@ -2954,7 +4418,7 @@ async def get_trainer_by_upload(upload_id: str):
 
 
 @router.post("/trainers/confirm-resume/{upload_id}")
-async def confirm_resume_data(upload_id: str, corrections: dict = {}):
+async def confirm_resume_data(upload_id: str, background_tasks: BackgroundTasks, corrections: dict = {}):
     """
     Confirm extracted resume data and optionally apply corrections.
     Updates trainer record with confirmed data.
@@ -2964,57 +4428,20 @@ async def confirm_resume_data(upload_id: str, corrections: dict = {}):
     if not upload:
         raise HTTPException(404, "Resume upload not found")
 
-    trainer_id = upload["trainer_id"]
-    extracted_data = upload.get("extracted_data", {})
+    profile = _profile_from_resume_upload(upload, corrections)
+    save_result = await save_trainer_from_resume(profile, db, use_ai_tags=False)
+    trainer_id = save_result.get("trainer_id")
+    if trainer_id:
+        background_tasks.add_task(_categorise_trainers_background, [trainer_id])
 
-    # Apply corrections if provided
-    if corrections:
-        extracted_data.update(corrections)
-
-    # Update trainer record
-    update_fields = {
-        "name": extracted_data.get("name", ""),
-        "email": extracted_data.get("email", ""),
-        "phone": extracted_data.get("phone", ""),
-        "location": extracted_data.get("location", ""),
-        "experience_years": extracted_data.get("experience_years", 0),
-        "experience_raw": extracted_data.get("experience_raw", ""),
-        "skills": extracted_data.get("skills", []),
-        "technologies": extracted_data.get("technologies", ""),
-        "certifications": extracted_data.get("certifications", []),
-        "linkedin": extracted_data.get("linkedin_url", ""),
-        "category": extracted_data.get("category", "Unclassified"),
-        "training_count": extracted_data.get("training_count", 0),
-        "past_clients": extracted_data.get("past_clients", []),
-        "day_rate": extracted_data.get("day_rate", 0),
-        "hourly_rate": extracted_data.get("hourly_rate", 0),
-        "status": "new",  # Set to new status for matching
-        "confirmed_at": datetime.utcnow(),
+    return {
+        "message": "Resume data confirmed and trainer updated",
+        "upload_id": upload_id,
+        "trainer_id": trainer_id,
+        "extracted_data": profile,
+        "background_categorisation": bool(trainer_id),
+        **save_result,
     }
-
-    await db["trainers"].update_one(
-        {"trainer_id": trainer_id},
-        {"$set": update_fields}
-    )
-
-    categorisation = None
-    categorisation_error = None
-    try:
-        categorised = await _categorise_trainer_by_id(db, trainer_id)
-        categorisation = categorised["category"]
-        extracted_data.update(categorisation)
-    except Exception as exc:
-        categorisation_error = str(exc)
-
-    # Update upload record
-    await db["resume_uploads"].update_one(
-        {"upload_id": upload_id},
-        {"$set": {
-            "processing_status": "completed",
-            "extracted_data": extracted_data,
-            "confirmed_at": datetime.utcnow(),
-        }}
-    )
 
     return {
         "message": "✅ Resume data confirmed and trainer updated",
@@ -3134,11 +4561,25 @@ async def gmail_webhook(request: Request):
         for message_id in message_ids:
             try:
                 meta = _gmail_metadata(service, message_id)
+                slot_doc = await _matching_client_slot_email(db, meta)
+                if slot_doc:
+                    slot_result = await _process_client_slot_reply(
+                        db,
+                        message_id,
+                        service,
+                        request,
+                        meta_hint=meta,
+                        slot_doc=slot_doc,
+                    )
+                    if slot_result:
+                        processed.append(slot_result)
+                        continue
                 known_domain = await _known_client_domain(db, meta.get("from_email", ""))
                 likely_training = known_domain or is_likely_training_email(
                     meta.get("subject", ""),
                     meta.get("from_email", ""),
                     whitelist,
+                    meta.get("snippet", ""),
                 )
                 if not likely_training:
                     await db["client_emails"].update_one(
@@ -3186,6 +4627,15 @@ async def gmail_webhook(request: Request):
     except Exception as exc:
         print(f"Gmail webhook error: {exc}")
         return {"status": "ok", "error": str(exc)}
+
+
+@router.post("/gmail/sync-now")
+async def gmail_sync_now(request: Request, limit: int = 25):
+    db = get_db()
+    try:
+        return await _sync_recent_client_inbox(db, request, limit)
+    except Exception as exc:
+        raise HTTPException(500, f"Gmail sync failed: {exc}") from exc
 
 
 @router.get("/inbox")

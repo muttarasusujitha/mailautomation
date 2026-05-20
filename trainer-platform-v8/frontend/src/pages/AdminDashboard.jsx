@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import {
   ArrowDownUp,
   BarChart3,
+  Bot,
   CalendarDays,
   CheckCircle2,
   Clock3,
+  Cloud,
   Download,
   GitBranch,
   IndianRupee,
@@ -13,6 +15,7 @@ import {
   MessageCircle,
   PieChart as PieChartIcon,
   RefreshCw,
+  ReceiptText,
   Target,
   TrendingUp,
   Workflow,
@@ -70,6 +73,14 @@ const currency = (value, code = 'INR') =>
     style: 'currency',
     currency: code,
     maximumFractionDigits: 0,
+  }).format(Number(value || 0))
+
+const expenseCurrency = (value, code = 'INR') =>
+  new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: code,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(Number(value || 0))
 
 function ChartTooltip({ active, payload, label }) {
@@ -148,6 +159,20 @@ function EmptyChart({ label = 'No data for this range' }) {
   )
 }
 
+const EXPENSE_ICON = {
+  whatsapp: MessageCircle,
+  teams: Workflow,
+  gemini: Bot,
+  client_storage: Cloud,
+}
+
+const EXPENSE_TONE = {
+  whatsapp: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+  teams: 'border-blue-100 bg-blue-50 text-blue-700',
+  gemini: 'border-violet-100 bg-violet-50 text-violet-700',
+  client_storage: 'border-cyan-100 bg-cyan-50 text-cyan-700',
+}
+
 export default function Dashboard() {
   const navigate = useNavigate()
   const [data, setData] = useState(null)
@@ -201,6 +226,10 @@ export default function Dashboard() {
   const trend = data?.reply_rate_trend || []
   const whatsapp = data?.whatsapp || {}
   const poMonth = data?.po_month || {}
+  const expenses = data?.expenses || {}
+  const expenseItems = expenses.items || []
+  const expenseWeekly = expenses.weekly || []
+  const expenseCurrencyCode = expenses.currency || 'INR'
 
   return (
     <div className="space-y-5" id="dashboard-report">
@@ -338,6 +367,91 @@ export default function Dashboard() {
               onClick={() => navigate('/admin?section=whatsapp')}
             />
           </div>
+
+          <Panel
+            title="Expense Monitor"
+            subtitle="Estimated cost by selected range. Update provider rates in admin settings/costCfg when your billing rates change."
+            icon={ReceiptText}
+            className="print-break"
+          >
+            <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total estimated expense</p>
+                <p className="mt-2 text-3xl font-bold text-slate-900">
+                  {expenseCurrency(expenses.total, expenseCurrencyCode)}
+                </p>
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-lg bg-white px-2 py-2">
+                    <p className="text-[11px] font-semibold text-slate-400">Communication</p>
+                    <p className="text-sm font-bold text-slate-800">{expenseCurrency(expenses.communication_total, expenseCurrencyCode)}</p>
+                  </div>
+                  <div className="rounded-lg bg-white px-2 py-2">
+                    <p className="text-[11px] font-semibold text-slate-400">Gemini AI</p>
+                    <p className="text-sm font-bold text-slate-800">{expenseCurrency(expenses.ai_total, expenseCurrencyCode)}</p>
+                  </div>
+                  <div className="rounded-lg bg-white px-2 py-2">
+                    <p className="text-[11px] font-semibold text-slate-400">Storage</p>
+                    <p className="text-sm font-bold text-slate-800">{expenseCurrency(expenses.storage_total, expenseCurrencyCode)}</p>
+                  </div>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-slate-500">
+                  These values are estimates from application logs. Twilio, Gemini, Microsoft, and cloud invoices remain the final billing source.
+                </p>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                {expenseItems.map(item => {
+                  const Icon = EXPENSE_ICON[item.key] || IndianRupee
+                  return (
+                    <div key={item.key} className="rounded-xl border border-slate-200 bg-white p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className={clsx('flex h-9 w-9 items-center justify-center rounded-lg border', EXPENSE_TONE[item.key] || 'border-slate-200 bg-slate-50 text-slate-600')}>
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-500">
+                          {number(item.count)} {item.unit}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm font-bold text-slate-800">{item.label}</p>
+                      <p className="mt-1 text-2xl font-bold text-slate-900">{expenseCurrency(item.cost, expenseCurrencyCode)}</p>
+                      <p className="mt-2 line-clamp-3 text-xs leading-5 text-slate-500">{item.note}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-bold text-slate-900">Weekly expense trend</p>
+                  <p className="text-xs text-slate-500">Changes automatically for Today, Week, Month, and Custom ranges.</p>
+                </div>
+                {expenses.estimated && (
+                  <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+                    Estimated
+                  </span>
+                )}
+              </div>
+              {expenseWeekly.length ? (
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={expenseWeekly}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="week" tick={{ fontSize: 12, fill: '#64748b' }} />
+                    <YAxis tick={{ fontSize: 12, fill: '#64748b' }} />
+                    <Tooltip content={<ChartTooltip />} />
+                    <Legend />
+                    <Bar dataKey="whatsapp" name="WhatsApp" stackId="cost" fill="#10b981" radius={[0, 0, 0, 0]} />
+                    <Bar dataKey="teams" name="Teams" stackId="cost" fill="#2563eb" radius={[0, 0, 0, 0]} />
+                    <Bar dataKey="gemini" name="Gemini" stackId="cost" fill="#8b5cf6" radius={[0, 0, 0, 0]} />
+                    <Bar dataKey="storage" name="Client Inbox Storage" stackId="cost" fill="#06b6d4" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <EmptyChart label="No expense usage for this range" />
+              )}
+            </div>
+          </Panel>
 
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
             <Panel

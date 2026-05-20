@@ -6,15 +6,14 @@ import clsx from 'clsx'
 const NAV = [
   { to: '/home',        label: 'Home' },
   { to: '/dashboard',   label: 'Dashboard' },
-  { to: '/admin-dashboard', label: 'Admin Dashboard' },
   { to: '/resume-upload', label: 'Upload Resumes' },
   { to: '/requirements', label: 'Find Trainers' },
   { to: '/shortlist',   label: 'Shortlist' },
+  { to: '/shortlist1',  label: 'Shortlist1' },
   { to: '/inbox',       label: 'Client Inbox' },
+  { to: '/client-requests', label: 'Client Requests' },
   { to: '/trainers',    label: 'All Trainers' },
   { to: '/emails',      label: 'Email Logs' },
-  { to: '/feedback',    label: 'Feedback' },
-  { to: '/contact',     label: 'Contact' },
 ]
 
 const PAGE_SEARCH_TARGETS = [
@@ -24,7 +23,9 @@ const PAGE_SEARCH_TARGETS = [
   { path: '/resume-upload', keywords: ['upload', 'upload resumes', 'resume upload', 'resume', 'resumes', 'pdf', 'docx', 'zip', 'upload resume', 'trainer resume', 'import trainers'] },
   { path: '/requirements', keywords: ['find trainers', 'requirements', 'requirement', 'search requirement', 'new search'] },
   { path: '/shortlist', keywords: ['shortlist', 'short list', 'pipeline', 'selected trainers'] },
+  { path: '/shortlist1', keywords: ['shortlist1', 'shortlist 1', 'advanced shortlist', 'ai shortlist', 'new shortlist'] },
   { path: '/inbox', keywords: ['inbox', 'client inbox', 'client email', 'approvals', 'pending approval'] },
+  { path: '/client-requests', keywords: ['client requests', 'client request', 'all client requests', 'client requirements', 'client enquiries', 'client inquiries'] },
   { path: '/trainers', keywords: ['trainers', 'all trainers', 'trainer list', 'trainer database'] },
   { path: '/emails', keywords: ['emails', 'email logs', 'mail logs', 'mail', 'sent mail'] },
   { path: '/interviews', keywords: ['interviews', 'interview', 'schedule', 'meeting'] },
@@ -190,7 +191,7 @@ export default function Layout({ onLogout }) {
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 )}>
                 {label}
-                {to === '/inbox' && pendingInbox > 0 && (
+                {(to === '/inbox' || to === '/client-requests') && pendingInbox > 0 && (
                   <span className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
                     {pendingInbox > 99 ? '99+' : pendingInbox}
                   </span>

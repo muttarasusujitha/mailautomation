@@ -7,6 +7,7 @@ import smtplib
 import imaplib
 import email as email_lib
 from email.utils import parseaddr
+from email.utils import parsedate_to_datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import List, Dict, Any
@@ -50,7 +51,7 @@ def send_email(to: str, subject: str, body: str, smtp_config: Dict[str, Any] = N
     smtp_port  = int(smtp_config.get("smtpPort") or 587)
 
     if not gmail_user or not gmail_pass:
-        err = "Gmail credentials not set in .env (GMAIL_USER + GMAIL_PASS)"
+        err = "Gmail SMTP credentials not set in Admin Email Configuration"
         print(f"Email error: {err}")
         return False, err
 
@@ -93,6 +94,8 @@ def send_email(to: str, subject: str, body: str, smtp_config: Dict[str, Any] = N
             with smtplib.SMTP_SSL(smtp_host, ssl_port, timeout=15) as server:
                 server.login(gmail_user, gmail_pass)
                 server.sendmail(from_email, to, msg_obj.as_string())
+        except smtplib.SMTPAuthenticationError:
+            raise
         except Exception:
             starttls_port = smtp_port if smtp_port != 465 else 587
             with smtplib.SMTP(smtp_host, starttls_port, timeout=15) as server:
@@ -226,6 +229,17 @@ def check_email_replies(
             from_addr = msg.get("From", "")
             from_email = parseaddr(from_addr)[1] or from_addr.strip()
             subject   = msg.get("Subject", "")
+            received_at = datetime.utcnow()
+            try:
+                date_header = msg.get("Date", "")
+                if date_header:
+                    parsed_date = parsedate_to_datetime(date_header)
+                    if parsed_date:
+                        if parsed_date.tzinfo is not None:
+                            parsed_date = parsed_date.astimezone().replace(tzinfo=None)
+                        received_at = parsed_date
+            except Exception:
+                received_at = datetime.utcnow()
             message_id_header = msg.get("Message-ID", "") or msg.get("Message-Id", "")
             in_reply_to = msg.get("In-Reply-To", "")
             references = msg.get("References", "")
@@ -253,7 +267,7 @@ def check_email_replies(
                 "body": body[:2000],
                 "sentiment": "positive" if is_pos else ("negative" if is_neg else "neutral"),
                 "action": "mark_interested" if is_pos else ("mark_declined" if is_neg else "requires_review"),
-                "received_at": datetime.utcnow().isoformat(),
+                "received_at": received_at.isoformat(),
             })
 
     except Exception as e:

@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     google_credentials_file: str = ""
     google_token_file: str = ""
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-1.5-flash"
+    gemini_model: str = "gemini-2.0-flash"
     openai_api_key: str = ""
     anthropic_api_key: str = ""
     secret_key: str = "changeme_use_random_string"

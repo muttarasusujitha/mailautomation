@@ -14,11 +14,13 @@ import Trainers from './pages/Trainers'
 import Requirements from './pages/Requirements'
 import Emails from './pages/Emails'
 import Inbox from './pages/Inbox'
+import ClientRequests from './pages/ClientRequests'
 import ResumeUpload from './pages/ResumeUpload'
 import GmailCallback from './pages/GmailCallback'
 import Admin from './pages/Admin'
 import Interviews from './pages/Interviews'
 import Shortlist from './pages/Shortlist'
+import Shortlist1 from './pages/Shortlist1'
 import Profile from './pages/Profile'
 
 function PrivateRoute({ children, isLoggedIn }) {
@@ -68,11 +70,13 @@ export default function App() {
           <Route path="requirements" element={<Requirements />} />
           <Route path="emails"       element={<Emails />} />
           <Route path="inbox"        element={<Inbox />} />
+          <Route path="client-requests" element={<ClientRequests />} />
           <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
           <Route path="resume-upload" element={<ResumeUpload />} />
           <Route path="admin"        element={<Admin />} />
           <Route path="interviews"   element={<Interviews />} />
           <Route path="shortlist"    element={<Shortlist />} />
+          <Route path="shortlist1"   element={<Shortlist1 />} />
           <Route path="profile"      element={<Profile />} />
         </Route>
         <Route path="*" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} />

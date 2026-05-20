@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getDashboardStats, clearDatabase } from '../utils/api'
+import api, { getDashboardStats, clearDatabase } from '../utils/api'
 import {
   Users, Mail, TrendingUp, CheckCircle, XCircle, Clock,
   RefreshCw, BarChart2, Activity, Trash2, AlertTriangle, Star, Zap,
   ArrowUpRight, Database, Send, FileSearch, UploadCloud, ShieldCheck,
+  BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -50,6 +51,34 @@ function normaliseRate(value) {
 function formatPercent(value) {
   const n = Math.max(0, Math.min(100, Number(value || 0)))
   return `${n.toFixed(n % 1 ? 1 : 0)}%`
+}
+
+function formatDateTime(value) {
+  if (!value) return ''
+  try {
+    return new Date(value).toLocaleString()
+  } catch {
+    return String(value)
+  }
+}
+
+function clientStatusLabel(status = '') {
+  const labels = {
+    pending_approval: 'Pending Approval',
+    auto_sent: 'Auto Sent',
+    approved: 'Approved',
+    rejected: 'Rejected',
+    spam: 'Spam',
+  }
+  return labels[status] || status || 'New'
+}
+
+function clientStatusClass(status = '') {
+  if (status === 'pending_approval') return 'badge-amber'
+  if (status === 'auto_sent') return 'badge-green'
+  if (status === 'approved') return 'badge-blue'
+  if (status === 'rejected' || status === 'spam') return 'badge-red'
+  return 'badge-slate'
 }
 
 function TooltipBox({ active, payload, label }) {
@@ -182,8 +211,11 @@ function StatCard({ icon: Icon, label, value, sub, tone, loading, linkTo, delay 
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null)
+  const [clientInbox, setClientInbox] = useState({ emails: [], stats: {}, whatsapp_logs: [] })
+  const [gmailStatus, setGmailStatus] = useState(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [syncingInbox, setSyncingInbox] = useState(false)
   const [showClear, setShowClear] = useState(false)
   const [clearing, setClearing] = useState(false)
   const navigate = useNavigate()
@@ -192,10 +224,29 @@ export default function Dashboard() {
     if (isRefresh) setRefreshing(true)
     else setLoading(true)
     try {
-      const res = await getDashboardStats()
-      setStats(res.data)
-    } catch (e) {
-      toast.error(e.message)
+      const [statsRes, inboxRes, gmailRes] = await Promise.allSettled([
+        getDashboardStats(),
+        api.get('/inbox', { params: { limit: 5 } }),
+        api.get('/gmail/auth-status'),
+      ])
+
+      if (statsRes.status === 'fulfilled') {
+        setStats(statsRes.value.data)
+      } else {
+        toast.error(statsRes.reason?.message || 'Could not load dashboard stats')
+      }
+
+      if (inboxRes.status === 'fulfilled') {
+        setClientInbox(inboxRes.value.data || { emails: [], stats: {}, whatsapp_logs: [] })
+      } else {
+        setClientInbox({ emails: [], stats: {}, whatsapp_logs: [] })
+      }
+
+      if (gmailRes.status === 'fulfilled') {
+        setGmailStatus(gmailRes.value.data)
+      } else {
+        setGmailStatus({ connected: false })
+      }
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -218,12 +269,40 @@ export default function Dashboard() {
     }
   }
 
+  const syncClientInbox = async () => {
+    if (syncingInbox) return
+    setSyncingInbox(true)
+    try {
+      const res = await api.post('/gmail/sync-now?limit=50')
+      const processed = Number(res.data?.processed_count || 0)
+      const skipped = Number(res.data?.skipped || 0)
+      toast.success(`Client inbox checked: ${processed} processed, ${skipped} skipped`)
+      await load(true)
+    } catch (e) {
+      toast.error(e.message || 'Client inbox sync failed')
+    } finally {
+      setSyncingInbox(false)
+    }
+  }
+
   const totalEmails = Number(stats?.total_emails_sent || 0)
   const failedEmails = Number(stats?.total_emails_failed || 0)
   const totalReplies = Number(stats?.total_replies || 0)
   const totalTrainers = Number(stats?.total_trainers || 0)
   const pendingReview = Number(stats?.pending_review || 0)
   const interested = Number(stats?.interested_count || 0)
+  const whatsapp = stats?.whatsapp || {}
+  const whatsappSent = Number(whatsapp.sent || 0)
+  const whatsappFailed = Number(whatsapp.failed || 0)
+  const whatsappReplies = Number(whatsapp.replies || 0)
+  const clientStats = clientInbox?.stats || {}
+  const recentClientEmails = clientInbox?.emails || []
+  const clientToday = Number(clientStats.today || 0)
+  const clientPending = Number(clientStats.pending_approval || 0)
+  const clientAutoSent = Number(clientStats.auto_sent || 0)
+  const clientRequirements = Number(clientStats.requirements_created || 0)
+  const gmailConnected = !!gmailStatus?.connected
+  const gmailUser = gmailStatus?.gmail_user || gmailStatus?.configured_user || ''
   const replyRate = normaliseRate(stats?.reply_rate || (totalEmails ? (totalReplies / totalEmails) * 100 : 0))
   const interestRate = normaliseRate(stats?.interest_rate || (totalTrainers ? (interested / totalTrainers) * 100 : 0))
   const deliveryRate = totalEmails + failedEmails ? (totalEmails / (totalEmails + failedEmails)) * 100 : 100
@@ -253,6 +332,10 @@ export default function Dashboard() {
   ]
 
   const statCards = [
+    { icon: BriefcaseBusiness, label: 'Client Requests', value: clientToday, sub: 'Received today', tone: 'blue', linkTo: '/client-requests' },
+    { icon: Inbox, label: 'Client Pending', value: clientPending, sub: 'Needs approval', tone: 'amber', linkTo: '/client-requests' },
+    { icon: ShieldCheck, label: 'Client Auto Sent', value: clientAutoSent, sub: 'Replies sent by AI rules', tone: 'emerald', linkTo: '/client-requests' },
+    { icon: CheckCircle, label: 'Client Requirements', value: clientRequirements, sub: 'Created from inbox', tone: 'green', linkTo: '/client-requests' },
     { icon: Users, label: 'Total Trainers', value: stats?.total_trainers ?? 0, sub: 'In database', tone: 'blue', linkTo: '/trainers' },
     { icon: Mail, label: 'Emails Sent', value: stats?.total_emails_sent ?? 0, sub: 'Outreach emails', tone: 'purple', linkTo: '/emails' },
     { icon: TrendingUp, label: 'Replies', value: stats?.total_replies ?? 0, sub: 'Trainer replies', tone: 'emerald', linkTo: '/emails' },
@@ -261,6 +344,9 @@ export default function Dashboard() {
     { icon: Activity, label: 'Confirmed', value: stats?.confirmed_count ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist' },
     { icon: Clock, label: 'Pending Review', value: stats?.pending_review ?? 0, sub: 'Needs attention', tone: 'amber', linkTo: '/trainers' },
     { icon: XCircle, label: 'Emails Failed', value: stats?.total_emails_failed ?? 0, sub: 'Need retry', tone: 'red', linkTo: '/emails' },
+    { icon: Send, label: 'WhatsApp Sent', value: whatsappSent, sub: 'Queued/sent/delivered', tone: 'green' },
+    { icon: TrendingUp, label: 'WhatsApp Replies', value: whatsappReplies, sub: 'Inbound messages', tone: 'emerald' },
+    { icon: XCircle, label: 'WhatsApp Failed', value: whatsappFailed, sub: 'Failed/skipped', tone: 'red' },
   ]
 
   return (
@@ -280,11 +366,10 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <QuickAction icon={UploadCloud} label="Upload Resumes" to="/resume-upload" tone="brand" />
-            <QuickAction icon={FileSearch} label="Find Trainers" to="/requirements" tone="emerald" />
-            <QuickAction icon={ShieldCheck} label="Client Inbox" to="/inbox" tone="amber" />
-            <QuickAction icon={Send} label="Email Logs" to="/emails" tone="slate" />
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <QuickAction icon={BarChart2} label="Admin Dashboard" to="/admin-dashboard" tone="brand" />
+            <QuickAction icon={MessageSquare} label="Feedback" to="/feedback" tone="emerald" />
+            <QuickAction icon={Mail} label="Contact" to="/contact" tone="amber" />
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-3">
@@ -328,6 +413,148 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_380px]">
+        <Panel
+          title="Client Request Flow"
+          eyebrow="Client automation"
+          badge={gmailConnected ? 'Gmail connected' : 'Gmail not connected'}
+        >
+          <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-bold text-slate-900">Client inbox status</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {gmailConnected
+                      ? `Connected${gmailUser ? ` as ${gmailUser}` : ''}. Use Check Inbox Now to pull latest client requests.`
+                      : 'Connect the client Gmail account before testing client request automation.'}
+                  </p>
+                </div>
+                <span className={clsx(
+                  'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold',
+                  gmailConnected
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                    : 'border-red-200 bg-red-50 text-red-700'
+                )}>
+                  <span className={clsx('h-2 w-2 rounded-full', gmailConnected ? 'bg-emerald-500' : 'bg-red-500')} />
+                  {gmailConnected ? 'Ready' : 'Action needed'}
+                </span>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {[
+                  ['Today', clientToday],
+                  ['Pending', clientPending],
+                  ['Auto Sent', clientAutoSent],
+                  ['Requirements', clientRequirements],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-lg bg-white px-3 py-2">
+                    <p className="text-xs font-semibold text-slate-400">{label}</p>
+                    <p className="mt-1 text-xl font-bold text-slate-900">
+                      {loading ? '-' : Number(value || 0).toLocaleString('en-IN')}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  onClick={syncClientInbox}
+                  disabled={!gmailConnected || syncingInbox}
+                  className="btn-primary text-sm disabled:opacity-50"
+                >
+                  {syncingInbox ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                  Check Inbox Now
+                </button>
+                <button onClick={() => navigate('/client-requests')} className="btn-secondary text-sm">
+                  <BriefcaseBusiness className="h-4 w-4" /> Open Client Requests
+                </button>
+                <button onClick={() => navigate('/admin')} className="btn-secondary text-sm">
+                  <Settings className="h-4 w-4" /> Gmail Settings
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-white p-4">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <p className="text-sm font-bold text-slate-900">Latest requests</p>
+                <button onClick={() => navigate('/client-requests')} className="text-xs font-bold text-brand-500 hover:text-brand-600">
+                  View all
+                </button>
+              </div>
+              {loading ? (
+                <div className="space-y-2">
+                  {[0, 1, 2].map(i => <div key={i} className="h-14 animate-pulse rounded-lg bg-slate-100" />)}
+                </div>
+              ) : recentClientEmails.length ? (
+                <div className="space-y-2">
+                  {recentClientEmails.slice(0, 4).map(item => {
+                    const extracted = item.extracted || {}
+                    return (
+                      <button
+                        key={item.email_id}
+                        onClick={() => navigate('/client-requests')}
+                        className="w-full rounded-lg border border-slate-100 px-3 py-2 text-left transition hover:border-brand-100 hover:bg-brand-50"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="truncate text-sm font-semibold text-slate-800">
+                            {extracted.technology_needed || item.subject || 'Client request'}
+                          </p>
+                          <span className={clsx('badge text-[11px]', clientStatusClass(item.status))}>
+                            {clientStatusLabel(item.status)}
+                          </span>
+                        </div>
+                        <p className="mt-1 truncate text-xs text-slate-400">
+                          {item.from_name || item.from_email || 'Client'} {item.received_at ? `- ${formatDateTime(item.received_at)}` : ''}
+                        </p>
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-lg bg-slate-50 px-3 py-6 text-center">
+                  <MessageSquare className="mx-auto mb-2 h-8 w-8 text-slate-300" />
+                  <p className="text-sm font-medium text-slate-500">No client requests yet</p>
+                  <p className="mt-1 text-xs text-slate-400">Connect Gmail and click Check Inbox Now.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </Panel>
+
+        <Panel title="Next Best Actions" eyebrow="Shortcuts">
+          <div className="space-y-3">
+            <button onClick={() => navigate('/admin-dashboard')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
+              <span className="flex items-center justify-between gap-3">
+                <span>
+                  <span className="block text-sm font-semibold text-slate-800">Admin Dashboard</span>
+                  <span className="text-xs text-slate-400">Open analytics and admin insights</span>
+                </span>
+                <ArrowUpRight className="h-4 w-4 text-brand-500" />
+              </span>
+            </button>
+            <button onClick={() => navigate('/feedback')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
+              <span className="flex items-center justify-between gap-3">
+                <span>
+                  <span className="block text-sm font-semibold text-slate-800">Feedback</span>
+                  <span className="text-xs text-slate-400">View recruiter reviews and feedback</span>
+                </span>
+                <ArrowUpRight className="h-4 w-4 text-brand-500" />
+              </span>
+            </button>
+            <button onClick={() => navigate('/contact')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
+              <span className="flex items-center justify-between gap-3">
+                <span>
+                  <span className="block text-sm font-semibold text-slate-800">Contact</span>
+                  <span className="text-xs text-slate-400">Open support and contact details</span>
+                </span>
+                <ArrowUpRight className="h-4 w-4 text-brand-500" />
+              </span>
+            </button>
+          </div>
+        </Panel>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_380px]">
         <Panel title="Pipeline Pulse" eyebrow="Health metrics" badge="Current">
           <div className="grid gap-5 sm:grid-cols-2">
             <PulseMetric label="Reply rate" value={replyRate} sub="Replies against outreach" color="bg-emerald-500" />
@@ -336,27 +563,15 @@ export default function Dashboard() {
             <PulseMetric label="Review load" value={reviewLoad} sub="Pending review share" color="bg-amber-500" />
           </div>
         </Panel>
-
-        <Panel title="Next Best Actions" eyebrow="Shortcuts">
-          <div className="space-y-3">
-            <button onClick={() => navigate('/requirements')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
-              <span className="flex items-center justify-between gap-3">
-                <span>
-                  <span className="block text-sm font-semibold text-slate-800">Create a trainer search</span>
-                  <span className="text-xs text-slate-400">Run matching against resume data</span>
-                </span>
-                <ArrowUpRight className="h-4 w-4 text-brand-500" />
-              </span>
-            </button>
-            <button onClick={() => navigate('/emails')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
-              <span className="flex items-center justify-between gap-3">
-                <span>
-                  <span className="block text-sm font-semibold text-slate-800">Review failed emails</span>
-                  <span className="text-xs text-slate-400">{failedEmails.toLocaleString('en-IN')} need retry attention</span>
-                </span>
-                <ArrowUpRight className="h-4 w-4 text-brand-500" />
-              </span>
-            </button>
+        <Panel title="Channel Health" eyebrow="Email + WhatsApp">
+          <div className="space-y-4">
+            <PulseMetric label="Email delivery" value={deliveryRate} sub={`${failedEmails.toLocaleString('en-IN')} failed emails`} color="bg-sky-500" />
+            <PulseMetric
+              label="WhatsApp health"
+              value={whatsappSent + whatsappFailed ? (whatsappSent / (whatsappSent + whatsappFailed)) * 100 : 100}
+              sub={`${whatsappReplies.toLocaleString('en-IN')} WhatsApp replies`}
+              color="bg-emerald-500"
+            />
           </div>
         </Panel>
       </div>
@@ -506,6 +721,41 @@ export default function Dashboard() {
                 {email.reply_received && <span className="badge-green text-xs">Replied</span>}
               </button>
             ))}
+          </div>
+        </Panel>
+      )}
+
+      {stats?.recent_whatsapp?.length > 0 && (
+        <Panel title="Recent WhatsApp Messages" badge={`${stats.recent_whatsapp.length} latest`}>
+          <div className="space-y-2">
+            {stats.recent_whatsapp.map((msg, i) => {
+              const ctx = msg.context || {}
+              return (
+                <div
+                  key={`${msg.whatsapp_id || msg.twilio_sid || i}-${i}`}
+                  style={{ animationDelay: `${i * 45}ms` }}
+                  className="flex w-full animate-fade-in-up items-start gap-4 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5"
+                >
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-emerald-50">
+                    <Send className="h-4 w-4 text-emerald-500" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-slate-800">
+                      {ctx.trainer_name || msg.from_number || msg.to_number || 'WhatsApp message'}
+                    </p>
+                    <p className="truncate text-xs text-slate-400">{msg.event_type} · {ctx.mail_type || msg.direction || 'message'}</p>
+                    <p className="mt-1 line-clamp-2 text-xs text-slate-500">{msg.body}</p>
+                    {msg.error_message && <p className="mt-1 text-xs font-semibold text-red-500">{msg.error_message}</p>}
+                  </div>
+                  <span className={clsx('badge text-xs',
+                    ['queued', 'sent', 'delivered', 'read', 'received'].includes(msg.status) ? 'badge-green' :
+                    ['failed', 'undelivered', 'skipped'].includes(msg.status) ? 'badge-red' : 'badge-slate'
+                  )}>
+                    {msg.status}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         </Panel>
       )}

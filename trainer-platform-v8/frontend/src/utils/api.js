@@ -41,6 +41,8 @@ export const uploadResumes     = (files, confirm = false, onUploadProgress) => {
   fileList.forEach(file => form.append(fieldName, file))
   return api.post(`/trainers/upload-resume?confirm=${confirm ? 'true' : 'false'}`, form, { onUploadProgress })
 }
+export const confirmResumePreviews = (uploadIds, corrections = {}) =>
+  api.post('/trainers/confirm-resumes', { upload_ids: uploadIds, corrections })
 export const getTrainers       = (params) => api.get('/trainers', { params })
 export const getTrainerCategories = ()    => api.get('/trainers/categories')
 export const getTrainerDomains    = ()    => api.get('/trainers/domains')

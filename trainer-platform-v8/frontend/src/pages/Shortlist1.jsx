@@ -7,9 +7,156 @@ import {
   ChevronRight, ChevronLeft, Loader2, Send, AlertCircle,
   RefreshCw, Star, MessageSquare, X, Eye,
   Calendar, PartyPopper, ThumbsDown, ClipboardList, Info,
-  FileText, CheckCircle2, Bell, PhoneCall, Download, Wand2
+  FileText, CheckCircle2, Bell, PhoneCall, Download, Wand2,
+  Sparkles, Bot
 } from 'lucide-react'
 import clsx from 'clsx'
+
+// ─── Gemini AI Helper ─────────────────────────────────────────────────────────
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ''
+
+async function generateAIReply({ trainerName, domain, stage, trainerReply, previousMails, fallback }) {
+  const templateGuide = `
+Mail 1 First Contact:
+Subject: Training Requirement - {Domain}
+Body asks if trainer is interested/available and requests updated trainer profile with relevant experience.
+
+Mail 1 Reminder:
+Subject: [Reminder {Number}] Training Requirement - {Domain}
+Body gently follows up because no reply was received.
+
+Mail 2 Details Request:
+Subject: Training Requirement - {Domain} | Additional Details Required
+Body asks for total experience, trainings conducted, certifications, preferred mode, full-day/half-day availability, charges, location, and date availability.
+
+Mail 2 Follow-Up:
+Subject: Re: Training Requirement - {Domain} | Details Required
+Body asks again for the above details if the reply was incomplete.
+
+Mail 3 Slot Booking:
+Subject: Interview Slot Booking - {Domain}
+Body asks trainer to confirm one interview slot.
+
+Mail 4 Interview Schedule:
+Subject: Interview Schedule Confirmation - {Domain}
+Body shares date/time, platform, and meeting link.
+
+Mail 5A Selection:
+Subject: Congratulations! You have been Selected - {Domain}
+Body confirms selection and asks for ToC/course agenda and prerequisites.
+
+Mail 5B Rejection:
+Subject: Update on Training Requirement - {Domain}
+Body politely says another trainer was selected and profile will be kept for future.
+
+Mail 6 ToC Request:
+Subject: Action Required: ToC / Course Agenda - {Domain}
+Body asks for detailed ToC, day-wise breakdown, tools/prerequisites, and prep needs.
+
+Mail 7 Training Confirmation:
+Subject: Training Schedule Confirmed - {Domain}
+Body confirms final date, venue/platform, action items, and contact details.
+`
+
+  const prompt = `Generate the next email for the trainer pipeline.
+
+Use the mail template rules below as the source of truth, but write the email naturally and professionally.
+
+Trainer name: ${trainerName}
+Domain: ${domain}
+Current stage/mail type: ${stage}
+
+Latest trainer reply:
+${trainerReply || 'No trainer reply yet.'}
+
+Recent thread:
+${(previousMails || []).slice(-4).map(m => `${m.direction === 'sent' ? 'We sent' : 'Trainer replied'}: ${m.subject || ''}\n${(m.body || '').slice(0, 500)}`).join('\n\n') || 'No previous thread context.'}
+
+Template/rules:
+${templateGuide}
+
+Strict output rules:
+- Address trainer by name: Dear ${trainerName || 'Trainer'},
+- Do not use Dear Sir/Madam.
+- End with exactly:
+Regards,
+TrainerSync Team
+- Generate only subject and body.
+- Format exactly:
+SUBJECT: <subject>
+BODY:
+<body>`
+
+  const response = await api.post('/assistant/chat', {
+    system: 'You generate concise professional trainer outreach emails for Calhan Technologies / TrainerSync.',
+    messages: [{ role: 'user', content: prompt }],
+    feature: 'shortlist_email_generation',
+    metadata: { trainerName, domain, stage },
+  })
+  const text = response.data?.reply || ''
+  const subjectMatch = text.match(/SUBJECT:\s*(.+)/i)
+  const bodyMatch = text.match(/BODY:\s*([\s\S]+)/i)
+  return {
+    subject: subjectMatch?.[1]?.trim() || fallback?.subject || '',
+    body: bodyMatch?.[1]?.trim() || text.trim() || fallback?.body || '',
+  }
+
+  const stageDescriptions = {
+    mail1:         'First contact mail asking if trainer is interested in a training requirement',
+    mail2:         'Requesting trainer details (experience, certifications, rate, availability)',
+    mail2_followup:'Follow-up asking trainer to share the requested details again',
+    mail3:         'Booking interview slot — asking trainer to confirm availability',
+    mail4:         'Sending interview schedule with platform link and date/time',
+    mail5_ok:      'Congratulating trainer on selection and requesting ToC/agenda',
+    mail5_no:      'Informing trainer they were not selected this time',
+    mail7_confirm: 'Confirming training schedule with all final details',
+  }
+
+  const legacyPrompt = `You are an AI email assistant for Calhan Technologies, a training consultancy.
+
+Generate a professional email to send to trainer "${trainerName}" for a "${domain}" training requirement.
+
+Current pipeline stage: ${stageDescriptions[stage] || stage}
+
+${trainerReply ? `Trainer's latest reply:
+"""
+${trainerReply}
+"""` : ''}
+
+${previousMails?.length ? `Previous email context (summary):
+${previousMails.slice(-2).map(m => `- ${m.direction === 'sent' ? 'We sent' : 'Trainer replied'}: ${m.subject || ''} — ${(m.body || '').slice(0, 120)}...`).join('\n')}` : ''}
+
+Rules:
+- Sound professional, warm and human — NOT robotic
+- Address trainer by name: Dear ${trainerName},
+- Keep it concise and to the point
+- End with: Regards,\nCalhan Technologies Team
+- Generate ONLY the email subject and body — no explanation
+- Format your response EXACTLY as:
+SUBJECT: <subject here>
+BODY:
+<body here>`
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: legacyPrompt }] }],
+      generationConfig: { temperature: 0.7, maxOutputTokens: 600 }
+    })
+  })
+  if (!res.ok) throw new Error(`Gemini API error: ${res.status}`)
+  const data = await res.json()
+  const legacyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
+
+  const legacySubjectMatch = legacyText.match(/SUBJECT:\s*(.+)/i)
+  const legacyBodyMatch    = legacyText.match(/BODY:\s*([\s\S]+)/i)
+  return {
+    subject: legacySubjectMatch?.[1]?.trim() || '',
+    body:    legacyBodyMatch?.[1]?.trim()    || legacyText.trim(),
+  }
+}
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 function getLS(k) { try { return JSON.parse(localStorage.getItem(k) || 'null') } catch { return null } }
@@ -17,6 +164,110 @@ function setLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch 
 function money(v) {
   const n = Number(v || 0)
   return `INR ${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
+
+function channelStatus(label, result, successLabel = 'sent') {
+  if (!result) return { label, value: 'Not returned', tone: 'warn', detail: '' }
+  if (result.success === true) return { label, value: result.status || successLabel, tone: 'ok', detail: result.twilio_sid || result.email_id || '' }
+  if (result.status === 'not_applicable') return { label, value: 'Not applicable', tone: 'muted', detail: '' }
+  if (result.status === 'skipped') return { label, value: 'Skipped', tone: 'warn', detail: result.error || 'Not configured' }
+  return { label, value: 'Failed', tone: 'bad', detail: result.error || result.status || 'Unknown error' }
+}
+
+function channelStatusLine(label, result, successLabel = 'sent') {
+  const status = channelStatus(label, result, successLabel)
+  return `${status.label}: ${status.value}${status.detail ? ` - ${status.detail}` : ''}`
+}
+
+function showSendStatusToast({ trainerName, result, title = 'Message sent' }) {
+  const email = {
+    label: 'Email',
+    value: result?.success ? 'sent' : 'failed',
+    tone: result?.success ? 'ok' : 'bad',
+    detail: result?.success ? (result?.email_id || '') : (result?.error || 'Unknown error'),
+  }
+  const channels = [
+    email,
+    channelStatus('WhatsApp', result?.whatsapp, 'queued'),
+    channelStatus('Teams', result?.teams, 'sent'),
+  ]
+  const toneClass = {
+    ok: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    bad: 'bg-red-50 text-red-700 border-red-200',
+    warn: 'bg-amber-50 text-amber-700 border-amber-200',
+    muted: 'bg-slate-50 text-slate-500 border-slate-200',
+  }
+
+  toast.custom((t) => (
+    <div className={clsx(
+      'w-[360px] max-w-[calc(100vw-32px)] rounded-xl border border-slate-200 bg-white shadow-xl p-4 transition-all',
+      t.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+    )}>
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <p className="text-sm font-bold text-slate-900">{title}</p>
+          <p className="text-xs text-slate-500 mt-0.5">{trainerName || 'Trainer'}</p>
+        </div>
+        <button onClick={() => toast.dismiss(t.id)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="space-y-2">
+        {channels.map(item => (
+          <div key={item.label} className={clsx('rounded-lg border px-3 py-2', toneClass[item.tone] || toneClass.muted)}>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold">{item.label}</span>
+              <span className="text-xs font-bold capitalize">{item.value}</span>
+            </div>
+            {item.detail && <p className="text-[11px] mt-1 break-words opacity-80">{item.detail}</p>}
+          </div>
+        ))}
+      </div>
+    </div>
+  ), { duration: 10000 })
+}
+
+function showBulkSendStatusToast({ title = 'Bulk messages sent', results = [] }) {
+  const countOk = (items, pick) => items.filter(item => pick(item)?.success === true).length
+  const emailOk = results.filter(item => item.result?.success).length
+  const whatsappOk = countOk(results, item => item.result?.whatsapp)
+  const teamsOk = countOk(results, item => item.result?.teams)
+  const rows = [
+    { label: 'Trainers', value: results.length, tone: 'muted' },
+    { label: 'Email sent', value: `${emailOk}/${results.length}`, tone: emailOk === results.length ? 'ok' : 'warn' },
+    { label: 'WhatsApp queued', value: `${whatsappOk}/${results.length}`, tone: whatsappOk === results.length ? 'ok' : 'warn' },
+    { label: 'Teams sent', value: `${teamsOk}/${results.length}`, tone: teamsOk ? 'ok' : 'muted' },
+  ]
+  const toneClass = {
+    ok: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    warn: 'bg-amber-50 text-amber-700 border-amber-200',
+    muted: 'bg-slate-50 text-slate-600 border-slate-200',
+  }
+
+  toast.custom((t) => (
+    <div className={clsx(
+      'w-[360px] max-w-[calc(100vw-32px)] rounded-xl border border-slate-200 bg-white shadow-xl p-4 transition-all',
+      t.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+    )}>
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <p className="text-sm font-bold text-slate-900">{title}</p>
+          <p className="text-xs text-slate-500 mt-0.5">Email and WhatsApp status summary</p>
+        </div>
+        <button onClick={() => toast.dismiss(t.id)} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400">
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {rows.map(item => (
+          <div key={item.label} className={clsx('rounded-lg border px-3 py-2', toneClass[item.tone] || toneClass.muted)}>
+            <p className="text-[11px] font-semibold">{item.label}</p>
+            <p className="text-sm font-bold mt-0.5">{item.value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  ), { duration: 10000 })
 }
 
 // ─── Pipeline stages ──────────────────────────────────────────────────────────
@@ -45,6 +296,34 @@ const REMINDER_INTERVALS = [
 ]
 
 const SHORTLIST_REFRESH_INTERVAL_MS = 10000
+const THREAD_REFRESH_INTERVAL_MS = 5000
+let inboxSyncPromise = null
+const sentGuard = new Set()
+
+function syncInboxReplies() {
+  if (!inboxSyncPromise) {
+    inboxSyncPromise = api.post('/emails/check-replies')
+      .catch(() => null)
+      .finally(() => { inboxSyncPromise = null })
+  }
+  return inboxSyncPromise
+}
+
+function shouldSendOnce(key) {
+  if (sentGuard.has(key)) return false
+  sentGuard.add(key)
+  return true
+}
+
+const ACTIVE_PIPELINE_STAGES = [
+  'waiting_reply2',
+  'details_received',
+  'slot_booked',
+  'interview_scheduled',
+  'selected',
+  'toc_requested',
+  'toc_received_pending',
+]
 
 function greeting(trainer) {
   const name = (trainer?.name || trainer?.trainer_name || '').trim()
@@ -184,9 +463,23 @@ function hasRequestedTrainerDetails(text = '') {
   const t = stripQuotedEmail(text).toLowerCase()
   if (!t) return false
 
+  const fieldSignals = [
+    'total years of experience',
+    'number of trainings conducted',
+    'relevant certifications',
+    'preferred training mode',
+    'availability for full-day',
+    'availability for half-day',
+    'expected commercial charges',
+    'current location',
+    'availability for the mentioned dates',
+  ]
+  const fieldHits = fieldSignals.filter(s => t.includes(s)).length
+  if (fieldHits >= 4) return true
+
   const checks = [
-    /\b\d{1,2}\+?\s*(years|yrs|year|yr)\b/.test(t) || /\bexperience\s*[:\-]/.test(t),
-    /(training|trainings|session|sessions|batch|batches|conducted)\s*[:\-]?\s*\d+/i.test(t) || /\b\d+\s*(training|trainings|session|sessions|batch|batches)\b/.test(t),
+    /\b\d{1,2}\+?\s*(years|yrs|year|yr)\b/.test(t) || /\bexperience\s*[:\-]/.test(t) || t.includes('years of experience'),
+    /(training|trainings|session|sessions|batch|batches|conducted)\s*[:\-]?\s*\d+/i.test(t) || /\b\d+\+?\s*(training|trainings|session|sessions|batch|batches)\b/.test(t) || t.includes('trainings conducted'),
     /certification|certified|certificate|certifications|not certified|no certification|none/i.test(t),
     /\b(online|offline|hybrid|classroom|remote)\b/.test(t),
     /\b(full[-\s]?day|half[-\s]?day|full day|half day)\b/.test(t),
@@ -208,19 +501,85 @@ function latestReplyAfter(messages, sentTypes = []) {
     .at(-1) || null
 }
 
-// ─── Send Mail Modal ──────────────────────────────────────────────────────────
-async function sendSlotsToClient({ trainer, req, slotText = '', force = false }) {
-  const res = await api.post('/shortlists/send-client-slots', {
-    trainer_id: trainer.trainer_id,
-    trainer_name: trainer.name,
-    requirement_id: req.requirement_id,
-    slot_text: stripQuotedEmail(slotText),
-    force,
-  })
-  return res.data
+function inferPipelineStateFromThread(messages = []) {
+  if (!messages.length) return null
+
+  const sorted = [...messages].sort((a, b) => new Date(a.sent_at || 0).getTime() - new Date(b.sent_at || 0).getTime())
+  const sentTypes = new Set(sorted.filter(m => m.direction === 'sent').map(m => m.mail_type))
+  const ts = msg => new Date(msg?.sent_at || Date.now()).getTime()
+
+  if (sentTypes.has('mail5_no')) return { status: 'rejected' }
+  if (sentTypes.has('mail7_confirm')) return { status: 'training_confirmed' }
+
+  if (sentTypes.has('mail6_toc')) {
+    const tocReply = latestReplyAfter(sorted, ['mail6_toc'])
+    if (tocReply) {
+      return { status: 'toc_received_pending', tocReplyAt: ts(tocReply) }
+    }
+    return { status: 'toc_requested' }
+  }
+
+  if (sentTypes.has('mail5_ok')) return { status: 'selected' }
+  if (sentTypes.has('mail4')) return { status: 'interview_scheduled' }
+
+  if (sentTypes.has('mail3')) {
+    const slotReply = latestReplyAfter(sorted, ['mail3'])
+    return slotReply
+      ? { status: 'slot_booked', slotReplyAt: ts(slotReply), slotConfirmed: true }
+      : { status: 'slot_booked' }
+  }
+
+  if (sentTypes.has('mail2') || sentTypes.has('mail2_followup')) {
+    const detailsReply = latestReplyAfter(sorted, ['mail2', 'mail2_followup'])
+    if (detailsReply && detectIntent(detailsReply.body) === 'negative') {
+      return { status: 'rejected' }
+    }
+    if (detailsReply && hasRequestedTrainerDetails(detailsReply.body)) {
+      return { status: 'details_received', detailsAcceptedAt: ts(detailsReply) }
+    }
+    return { status: 'waiting_reply2' }
+  }
+
+  if (sentTypes.has('mail1') || sentTypes.has('mail1_reminder')) {
+    const mail1Reply = latestReplyAfter(sorted, ['mail1', 'mail1_reminder'])
+    if (mail1Reply && detectIntent(mail1Reply.body) === 'negative') {
+      return { status: 'rejected' }
+    }
+    if (mail1Reply) {
+      return { status: 'mail1_replied', mail1ReplyAt: ts(mail1Reply) }
+    }
+    return { status: 'waiting_reply1' }
+  }
+
+  return null
 }
 
-function MailModal({ trainer, req, mailType, onClose, onSent }) {
+function inferPipelineStateFromEmailLogs(logs = []) {
+  if (!logs.length) return null
+
+  const messages = []
+  for (const log of logs) {
+    messages.push({
+      direction: 'sent',
+      mail_type: log.mail_type,
+      sent_at: log.sent_at || log.created_at,
+      body: log.body || '',
+    })
+    if (log.reply_received && log.reply_text) {
+      messages.push({
+        direction: 'received',
+        mail_type: 'reply',
+        sent_at: log.replied_at || log.created_at,
+        body: log.reply_text,
+      })
+    }
+  }
+
+  return inferPipelineStateFromThread(messages)
+}
+
+// ─── Send Mail Modal ──────────────────────────────────────────────────────────
+function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages }) {
   const [loading, setLoading]           = useState(false)
   const [hasDetails, setHasDetails]     = useState(false)
   const [details, setDetails]           = useState({ domain: req?.technology_needed || '', duration: '', mode: 'Online', participants: '' })
@@ -233,8 +592,13 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
   const [contactName, setContactName]   = useState('')
   const [contactPhone, setContactPhone] = useState('')
   const [contactEmail, setContactEmail] = useState('')
+  // ── AI state ──
+  const [aiGenerating, setAiGenerating] = useState(false)
+  const [aiSubject, setAiSubject]       = useState('')
+  const [aiBody, setAiBody]             = useState('')
+  const [aiUsed, setAiUsed]             = useState(false)
 
-  const getPreview = () => {
+  const getTemplatePreview = () => {
     switch (mailType) {
       case 'mail1':          return mail1Template(trainer, req, hasDetails, details)
       case 'mail2':          return mail2Template(trainer, req)
@@ -248,7 +612,77 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
     }
   }
 
+  const getPreview = () => {
+    if (aiUsed && aiSubject && aiBody) return { subject: aiSubject, body: aiBody }
+    return getTemplatePreview()
+  }
+
   const preview = getPreview()
+
+  const handleAIGenerate = async () => {
+    setAiGenerating(true)
+    try {
+      const latestReply = threadMessages?.filter(m => m.direction === 'received').at(-1)
+      const result = await generateAIReply({
+        trainerName:   trainer.name,
+        domain:        req.technology_needed,
+        stage:         mailType,
+        trainerReply:  latestReply?.body || '',
+        previousMails: threadMessages || [],
+        fallback:      getTemplatePreview(),
+      })
+      setAiSubject(result.subject)
+      setAiBody(result.body)
+      setAiUsed(true)
+      toast.success('✨ AI email generated!')
+    } catch (e) {
+      toast.error('AI generation failed: ' + (e.message || 'Unknown error'))
+    } finally {
+      setAiGenerating(false)
+    }
+  }
+
+  useEffect(() => {
+    let cancelled = false
+    const latestReply = threadMessages?.filter(m => m.direction === 'received').at(-1)
+    setAiGenerating(true)
+    setAiUsed(false)
+    Promise.resolve(generateAIReply({
+      trainerName:   trainer.name,
+      domain:        req.technology_needed,
+      stage:         mailType,
+      trainerReply:  latestReply?.body || '',
+      previousMails: threadMessages || [],
+      fallback:      getTemplatePreview(),
+    })).then(result => {
+      if (cancelled) return
+      setAiSubject(result.subject)
+      setAiBody(result.body)
+      setAiUsed(true)
+    }).catch(() => {
+      if (!cancelled) toast.error('AI email generation failed')
+    }).finally(() => {
+      if (!cancelled) setAiGenerating(false)
+    })
+    return () => { cancelled = true }
+  }, [
+    mailType,
+    trainer.trainer_id,
+    req.requirement_id,
+    details.domain,
+    details.duration,
+    details.mode,
+    details.participants,
+    trainerDates,
+    interviewLink,
+    platform,
+    dateTime,
+    trainingDate,
+    venue,
+    contactName,
+    contactPhone,
+    contactEmail,
+  ])
 
   const TITLES = {
     mail1:         '📧 Send Shortlist Mail',
@@ -275,8 +709,11 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
   const handleSend = async () => {
     setLoading(true)
     try {
+      const finalSubject = aiUsed ? aiSubject : preview.subject
+      const finalBody    = aiUsed ? aiBody    : preview.body
+      let res
       if (mailType === 'mail4') {
-        await api.post('/shortlists/send-interview-link', {
+        res = await api.post('/shortlists/send-interview-link', {
           trainer_id:     trainer.trainer_id,
           trainer_name:   trainer.name,
           to_email:       trainer.email,
@@ -286,17 +723,18 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
           interview_link: interviewLink,
         })
       } else {
-        await api.post('/shortlists/send-mail', {
+        res = await api.post('/shortlists/send-mail', {
           trainer_id:     trainer.trainer_id,
           trainer_name:   trainer.name,
           to_email:       trainer.email,
           requirement_id: req.requirement_id,
-          subject:        preview.subject,
-          body:           preview.body,
+          subject:        finalSubject,
+          body:           finalBody,
           mail_type:      mailType,
         })
       }
-      toast.success(`✅ Email sent to ${trainer.name}!`)
+      const result = res?.data || {}
+      showSendStatusToast({ trainerName: trainer.name, result, title: 'Pipeline mail sent' })
       onSent(
         NEXT_STAGES[mailType],
         mailType === 'mail7_confirm'
@@ -313,11 +751,16 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-5 border-b border-slate-100 sticky top-0 bg-white z-10">
-          <div>
-            <h3 className="font-bold text-lg text-slate-900">{TITLES[mailType]}</h3>
-            <p className="text-sm text-slate-500 mt-0.5">To: <strong>{trainer.name}</strong> · {trainer.email}</p>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-violet-100 text-violet-700 flex items-center justify-center">
+              <Bot className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg text-slate-900">{TITLES[mailType]}</h3>
+              <p className="text-sm text-slate-500 mt-0.5">AI-generated mail for <strong>{trainer.name}</strong> · {trainer.email}</p>
+            </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
             <X className="w-4 h-4 text-slate-500" />
@@ -325,7 +768,17 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
         </div>
 
         <div className="p-5 space-y-4">
-          {mailType === 'mail1' && (
+          <div className="rounded-xl border border-violet-200 bg-violet-50 p-4">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-violet-600 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-violet-900">TrainerSync AI writes this mail from your 7-stage pipeline rules.</p>
+                <p className="text-xs text-violet-700 mt-0.5">It uses trainer name, domain, stage, latest reply, and thread context. The message is not manually edited.</p>
+              </div>
+            </div>
+          </div>
+
+          {false && mailType === 'mail1' && (
             <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-200">
               <div className="flex items-center gap-3">
                 <input type="checkbox" id="hasDetails" checked={hasDetails} onChange={e => setHasDetails(e.target.checked)} className="w-4 h-4" />
@@ -346,7 +799,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
             </div>
           )}
 
-          {mailType === 'mail3' && (
+          {false && mailType === 'mail3' && (
             <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
               <label className="label">Trainer's Available Dates (from their reply)</label>
               <textarea className="input resize-none" rows={3}
@@ -357,6 +810,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
 
           {mailType === 'mail4' && (
             <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-200">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Interview details for AI mail</p>
               <div className="grid grid-cols-3 gap-2">
                 {['Zoom', 'MS Teams', 'Google Meet'].map(p => (
                   <button key={p} type="button" onClick={() => setPlatform(p)}
@@ -391,17 +845,75 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
             </div>
           )}
 
-          <div>
-            <p className="label mb-1">Email Preview</p>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-              <p className="text-xs text-slate-400 mb-1 font-semibold">Subject: <span className="text-slate-700 font-normal">{preview.subject}</span></p>
-              <pre className="text-sm text-slate-700 whitespace-pre-wrap font-sans leading-relaxed mt-2">{preview.body}</pre>
+          {/* ── AI Generate Button ── */}
+          <div className="hidden">
+            <Bot className="w-5 h-5 text-violet-500 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-violet-700">Rule-Based AI Email</p>
+              <p className="text-xs text-violet-500">Generated automatically from pipeline rules and trainer context</p>
             </div>
+            <button
+              onClick={handleAIGenerate}
+              disabled={aiGenerating}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold transition-all disabled:opacity-60 flex-shrink-0"
+            >
+              {aiGenerating
+                ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating...</>
+                : <><Sparkles className="w-3.5 h-3.5" /> Regenerate</>
+              }
+            </button>
+          </div>
+
+          {/* AI email preview */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <p className="label">AI Generated Email</p>
+              {aiUsed && (
+                <span className="flex items-center gap-1 text-xs text-violet-600 font-semibold">
+                  <Sparkles className="w-3 h-3" /> Auto Generated
+                </span>
+              )}
+            </div>
+
+            {aiGenerating ? (
+              <div className="flex items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 p-6 text-sm font-semibold text-violet-700">
+                <Loader2 className="h-4 w-4 animate-spin" /> Generating email from AI rules...
+              </div>
+            ) : aiUsed ? (
+              <div className="space-y-2">
+                <div>
+                  <label className="label text-xs">Subject</label>
+                  <input
+                    className="input text-sm bg-white"
+                    value={aiSubject}
+                    onChange={e => setAiSubject(e.target.value)}
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className="label text-xs">Body</label>
+                  <textarea
+                    className="input resize-none text-sm font-sans leading-relaxed bg-white"
+                    rows={12}
+                    value={aiBody}
+                    onChange={e => setAiBody(e.target.value)}
+                    readOnly
+                  />
+                </div>
+                <p className="text-xs text-slate-400 flex items-center gap-1">
+                  <Info className="w-3 h-3" /> Generated automatically from your 7-stage mail rules
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+                AI email is not ready yet. Please wait a moment.
+              </div>
+            )}
           </div>
         </div>
 
         <div className="flex gap-3 p-5 border-t border-slate-100 sticky bottom-0 bg-white">
-          <button onClick={handleSend} disabled={loading}
+          <button onClick={handleSend} disabled={loading || aiGenerating || !aiUsed}
             className="flex items-center gap-2 justify-center flex-1 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all disabled:opacity-60">
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : <><Send className="w-4 h-4" /> Send Email</>}
           </button>
@@ -861,6 +1373,7 @@ function PurchaseOrderModal({ trainer, req, state, onClose }) {
 function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
   const [thread, setThread] = useState([])
   const [loading, setLoading] = useState(true)
+  const [syncing, setSyncing] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -868,7 +1381,9 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
     const loadThread = async (silent = false) => {
       if (!silent) setLoading(true)
       try {
-        const r = await api.get(`/shortlists/thread?trainer_id=${trainer.trainer_id}&requirement_id=${req.requirement_id}`)
+        if (!silent) setSyncing(true)
+        await syncInboxReplies()
+        const r = await api.get(`/shortlists/thread?trainer_id=${trainer.trainer_id}&requirement_id=${req.requirement_id}&_ts=${Date.now()}`)
         if (cancelled) return
         const all = r.data.messages || []
         const filtered = all.filter(m => {
@@ -882,12 +1397,13 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
       } catch {
         if (!cancelled) setThread([])
       } finally {
+        if (!cancelled) setSyncing(false)
         if (!cancelled) setLoading(false)
       }
     }
 
     loadThread()
-    const interval = setInterval(() => loadThread(true), SHORTLIST_REFRESH_INTERVAL_MS)
+    const interval = setInterval(() => loadThread(true), THREAD_REFRESH_INTERVAL_MS)
     return () => {
       cancelled = true
       clearInterval(interval)
@@ -914,6 +1430,11 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
           <div>
             <h3 className="font-bold text-lg text-slate-900">💬 Conversation Thread</h3>
             <p className="text-sm text-slate-500">{trainer.name} · {req.technology_needed}</p>
+            {syncing && (
+              <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-violet-600">
+                <Loader2 className="h-3 w-3 animate-spin" /> Checking latest inbox replies...
+              </p>
+            )}
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-lg">
             <X className="w-4 h-4 text-slate-500" />
@@ -1054,7 +1575,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
 
           if (st === 'selected') {
             const { subject, body } = mailTocAutoTemplate(trainer, req)
-            await api.post('/shortlists/send-mail', {
+            const res = await api.post('/shortlists/send-mail', {
               trainer_id:     trainer.trainer_id,
               trainer_name:   trainer.name,
               to_email:       trainer.email,
@@ -1062,6 +1583,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
               subject, body,
               mail_type: 'mail6_toc',
             })
+            showSendStatusToast({ trainerName: trainer.name, result: res.data, title: 'ToC request sent' })
             toast(`🤖 Auto: ToC request sent to ${trainer.name} 📄`, { icon: '🤖', duration: 4000 })
             onStatusUpdate(trainer.trainer_id, 'toc_requested')
             runningRef.current = false
@@ -1069,7 +1591,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
           }
 
           if (st === 'toc_requested') {
-            try { await api.post('/emails/check-replies') } catch {}
+            await syncInboxReplies()
             const messages = await getThread(trainer)
             const sentMails = messages.filter(m => m.direction === 'sent')
             if (!sentMails.length) continue
@@ -1083,7 +1605,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
             const intent = detectIntent(latest.body)
             if (intent === 'toc_received' || intent === 'positive') {
               toast(
-                `🤖 Auto: ${trainer.name} sent the ToC/Agenda ✅ — now send Training Confirmation manually`,
+                `Auto: ${trainer.name} sent the ToC/Agenda. Training Confirmation is ready for AI generation.`,
                 { icon: '📄', duration: 6000 }
               )
               onStatusUpdate(trainer.trainer_id, 'toc_received_pending')
@@ -1101,9 +1623,10 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
         // First outreach is now a broadcast: every shortlisted trainer gets Mail 1.
         const pendingTrainers = trainers.filter(t => getStage(t) === 'pending')
         if (pendingTrainers.length) {
+          const sentResults = []
           for (const trainer of pendingTrainers) {
             const { subject, body } = mail1Template(trainer, req, false, {})
-            await api.post('/shortlists/send-mail', {
+            const res = await api.post('/shortlists/send-mail', {
               trainer_id:     trainer.trainer_id,
               trainer_name:   trainer.name,
               to_email:       trainer.email,
@@ -1111,8 +1634,10 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
               subject, body,
               mail_type: 'mail1',
             })
+            sentResults.push({ trainer, result: res.data })
             setStage(trainer, 'waiting_reply1', { mail1SentAt: Date.now(), reminders: 0 })
           }
+          showBulkSendStatusToast({ title: 'Mail 1 batch sent', results: sentResults })
           toast(`🤖 Auto: Mail 1 sent to all ${pendingTrainers.length} shortlisted trainers`, { icon: '📧', duration: 5000 })
           runningRef.current = false
           return
@@ -1120,7 +1645,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
 
         // Check all Mail 1 recipients for replies and reminders. Positive
         // replies join the queue; Mail 2 is still sent to only one trainer.
-        try { await api.post('/emails/check-replies') } catch {}
+        await syncInboxReplies()
         for (const trainer of trainers) {
           if (getStage(trainer) !== 'waiting_reply1') continue
 
@@ -1160,7 +1685,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
             const { hours, label } = REMINDER_INTERVALS[i]
             if (hoursSinceLastSent >= hours) {
               const { subject, body } = mail1Template(trainer, req, false, {}, true, i + 1)
-              await api.post('/shortlists/send-mail', {
+              const res = await api.post('/shortlists/send-mail', {
                 trainer_id:     trainer.trainer_id,
                 trainer_name:   trainer.name,
                 to_email:       trainer.email,
@@ -1168,6 +1693,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
                 subject, body,
                 mail_type: 'mail1_reminder',
               })
+              showSendStatusToast({ trainerName: trainer.name, result: res.data, title: 'Reminder sent' })
               const rank = trainers.indexOf(trainer) + 1
               toast(`🤖 Auto: ${label} sent to ${trainer.name} (Rank ${rank}) 🔔`, { icon: '⏰', duration: 4000 })
               break
@@ -1178,11 +1704,32 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
         // If one trainer is already past Mail 1, keep that trainer's pipeline
         // exclusive until manual selection/rejection completes.
         const activeTrainer = trainers.find(t =>
-          ['waiting_reply2', 'slot_booked', 'interview_scheduled'].includes(getStage(t))
+          ACTIVE_PIPELINE_STAGES.includes(getStage(t))
         )
         const activeStage = activeTrainer ? getStage(activeTrainer) : null
 
-        if (activeStage === 'interview_scheduled') {
+        if (['interview_scheduled', 'selected', 'toc_requested', 'toc_received_pending'].includes(activeStage)) {
+          runningRef.current = false
+          return
+        }
+
+        if (activeStage === 'details_received') {
+          const messages = await getThread(activeTrainer)
+          const mail3AlreadySent = messages.some(m => m.direction === 'sent' && m.mail_type === 'mail3')
+          if (!mail3AlreadySent) {
+            const { subject, body } = mail3Template(activeTrainer, req, '')
+            const res = await api.post('/shortlists/send-mail', {
+              trainer_id:     activeTrainer.trainer_id,
+              trainer_name:   activeTrainer.name,
+              to_email:       activeTrainer.email,
+              requirement_id: req.requirement_id,
+              subject, body,
+              mail_type: 'mail3',
+            })
+            showSendStatusToast({ trainerName: activeTrainer.name, result: res.data, title: 'Slot booking sent' })
+            toast(`Auto: Slot Booking mail sent to ${activeTrainer.name}. Next trainer will wait until this pipeline finishes.`, { icon: '📅', duration: 5000 })
+          }
+          setStage(activeTrainer, 'slot_booked')
           runningRef.current = false
           return
         }
@@ -1221,9 +1768,10 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
               const latestMail2Reply = mail2Replies[mail2Replies.length - 1]
               const replyTime = new Date(latestMail2Reply.sent_at || Date.now()).getTime()
               const handledAt = nextStates[activeTrainer.trainer_id]?.detailsFollowupAt || 0
-              if (replyTime > handledAt) {
+              const guardKey = `${req.requirement_id}:${activeTrainer.trainer_id}:mail2_followup:${replyTime}:${stripQuotedEmail(latestMail2Reply.body).slice(0, 80)}`
+              if (replyTime > handledAt && shouldSendOnce(guardKey)) {
                 const { subject, body } = mail2FollowupTemplate(activeTrainer, req)
-                await api.post('/shortlists/send-mail', {
+                const res = await api.post('/shortlists/send-mail', {
                   trainer_id:     activeTrainer.trainer_id,
                   trainer_name:   activeTrainer.name,
                   to_email:       activeTrainer.email,
@@ -1231,6 +1779,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
                   subject, body,
                   mail_type: 'mail2_followup',
                 })
+                showSendStatusToast({ trainerName: activeTrainer.name, result: res.data, title: 'Details follow-up sent' })
                 toast(`🤖 Auto: ${activeTrainer.name} reached Slot Booking without details — moved back and asked for details again`, { icon: '📋', duration: 7000 })
               }
               setStage(activeTrainer, 'waiting_reply2', { detailsFollowupAt: replyTime })
@@ -1267,24 +1816,8 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
           }
 
           if (intent === 'positive') {
-            toast(`🤖 Auto: ${activeTrainer.name} confirmed slot availability — send the interview link manually`, { icon: '📅', duration: 5000 })
-            const slotText = stripQuotedEmail(latest.body)
-            const extra = { slotReplyAt: replyTime, slotConfirmed: true, clientSlotText: slotText }
-            if (!nextStates[activeTrainer.trainer_id]?.clientSlotsSentAt) {
-              try {
-                const sent = await sendSlotsToClient({ trainer: activeTrainer, req, slotText, force: false })
-                if (sent?.success) {
-                  extra.clientSlotsSentAt = Date.now()
-                  extra.clientSlotsEmailId = sent.email_id
-                  toast('Auto: trainer slots sent to client for confirmation', { icon: '📨', duration: 5000 })
-                } else {
-                  toast.error(sent?.error || 'Could not send trainer slots to client')
-                }
-              } catch (e) {
-                toast.error(e.response?.data?.detail || e.message || 'Could not send trainer slots to client')
-              }
-            }
-            setStage(activeTrainer, 'slot_booked', extra)
+            toast(`Auto: ${activeTrainer.name} confirmed slot availability. Interview link mail is ready for AI generation.`, { icon: '📅', duration: 5000 })
+            setStage(activeTrainer, 'slot_booked', { slotReplyAt: replyTime, slotConfirmed: true })
           }
 
           runningRef.current = false
@@ -1316,9 +1849,10 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
           }
 
           if (!hasRequestedTrainerDetails(latest.body)) {
-            if (replyTime > handledAt) {
+            const guardKey = `${req.requirement_id}:${activeTrainer.trainer_id}:mail2_followup:${replyTime}:${stripQuotedEmail(latest.body).slice(0, 80)}`
+            if (replyTime > handledAt && shouldSendOnce(guardKey)) {
               const { subject, body } = mail2FollowupTemplate(activeTrainer, req)
-              await api.post('/shortlists/send-mail', {
+              const res = await api.post('/shortlists/send-mail', {
                 trainer_id:     activeTrainer.trainer_id,
                 trainer_name:   activeTrainer.name,
                 to_email:       activeTrainer.email,
@@ -1326,6 +1860,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
                 subject, body,
                 mail_type: 'mail2_followup',
               })
+              showSendStatusToast({ trainerName: activeTrainer.name, result: res.data, title: 'Details follow-up sent' })
               toast(`🤖 Auto: ${activeTrainer.name} replied without the requested details — details request sent again`, { icon: '📋', duration: 6000 })
               setStage(activeTrainer, 'waiting_reply2', { detailsFollowupAt: replyTime })
             }
@@ -1334,7 +1869,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
           }
 
           const { subject, body } = mail3Template(activeTrainer, req, '')
-          await api.post('/shortlists/send-mail', {
+          const res = await api.post('/shortlists/send-mail', {
             trainer_id:     activeTrainer.trainer_id,
             trainer_name:   activeTrainer.name,
             to_email:       activeTrainer.email,
@@ -1342,6 +1877,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
             subject, body,
             mail_type: 'mail3',
           })
+          showSendStatusToast({ trainerName: activeTrainer.name, result: res.data, title: 'Slot booking sent' })
           toast(`🤖 Auto: Slot Booking mail sent to ${activeTrainer.name}`, { icon: '📅', duration: 5000 })
           setStage(activeTrainer, 'slot_booked')
           runningRef.current = false
@@ -1360,7 +1896,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
 
         if (nextResponder) {
           const { subject, body } = mail2Template(nextResponder, req)
-          await api.post('/shortlists/send-mail', {
+          const res = await api.post('/shortlists/send-mail', {
             trainer_id:     nextResponder.trainer_id,
             trainer_name:   nextResponder.name,
             to_email:       nextResponder.email,
@@ -1368,6 +1904,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
             subject, body,
             mail_type: 'mail2',
           })
+          showSendStatusToast({ trainerName: nextResponder.name, result: res.data, title: 'Details request sent' })
           toast(`🤖 Auto: sent Details Request (Mail 2) to ${nextResponder.name}`, { icon: '📋', duration: 4000 })
           setStage(nextResponder, 'waiting_reply2')
         }
@@ -1420,7 +1957,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, autoMode, isAc
   const [showTocModal, setShowTocModal] = useState(false)
   const [showPoModal, setShowPoModal] = useState(false)
   const [sendingToc, setSendingToc] = useState(false)
-  const [sendingClientSlots, setSendingClientSlots] = useState(false)
+  const [threadMessages, setThreadMessages] = useState([])
 
   const BTN = 'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white transition-all active:scale-95 shadow-sm'
 
@@ -1431,7 +1968,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, autoMode, isAc
         <div className="flex flex-wrap gap-2 mt-3">
           <div className="w-full px-3 py-2 bg-teal-50 border border-teal-200 rounded-xl">
             <span className="text-xs text-teal-700 font-semibold">
-              📄 ToC received from trainer! Now send the Training Confirmation with contact details.
+              ToC received from trainer. AI will generate the Training Confirmation after you add final contact details.
             </span>
           </div>
           <button onClick={() => setMailModal('mail7_confirm')} className={clsx(BTN, 'bg-green-600 hover:bg-green-700')}>
@@ -1534,18 +2071,9 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, autoMode, isAc
             : '⏳ Waiting for reply to Mail 3 — negative replies auto-reject and move to the next queued trainer',
         }
         return (
-          <div className="space-y-2 mt-3">
-            <div className="flex items-center gap-2 px-3 py-2 bg-sky-50 border border-sky-200 rounded-xl">
-              <Loader2 className="w-3.5 h-3.5 text-sky-500 animate-spin flex-shrink-0" />
-              <span className="text-xs text-sky-700 font-medium">{msgs[stage]}</span>
-            </div>
-            {stage === 'slot_booked' && (
-              <button onClick={() => handleSendClientSlots({ force: true })} disabled={sendingClientSlots}
-                className={clsx(BTN, 'bg-cyan-600 hover:bg-cyan-700 disabled:opacity-60')}>
-                {sendingClientSlots ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                {state?.clientSlotsSentAt ? 'Resend Slots to Client' : 'Send Slots to Client'}
-              </button>
-            )}
+          <div className="flex items-center gap-2 px-3 py-2 mt-3 bg-sky-50 border border-sky-200 rounded-xl">
+            <Loader2 className="w-3.5 h-3.5 text-sky-500 animate-spin flex-shrink-0" />
+            <span className="text-xs text-sky-700 font-medium">{msgs[stage]}</span>
           </div>
         )
       }
@@ -1565,7 +2093,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, autoMode, isAc
           <div className="flex flex-wrap gap-2 mt-3">
             <div className="w-full px-3 py-2 bg-purple-50 border border-purple-200 rounded-xl">
               <span className="text-xs text-purple-700 font-semibold">
-                Interview done? Select or Reject — auto will immediately send ToC request on selection.
+                Interview decision ready. AI will generate the next mail for selection or rejection.
               </span>
             </div>
             <button onClick={() => setMailModal('mail5_ok')} className={clsx(BTN, 'bg-emerald-600 hover:bg-emerald-700')}>
@@ -1612,16 +2140,9 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, autoMode, isAc
           </>
         )}
         {stage === 'slot_booked' && (
-          <>
-            <button onClick={() => handleSendClientSlots({ force: true })} disabled={sendingClientSlots}
-              className={clsx(BTN, 'bg-cyan-600 hover:bg-cyan-700 disabled:opacity-60')}>
-              {sendingClientSlots ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-              {state?.clientSlotsSentAt ? 'Resend Slots to Client' : 'Send Slots to Client'}
-            </button>
-            <button onClick={() => setMailModal('mail4')} className={clsx(BTN, 'bg-purple-600 hover:bg-purple-700')}>
-              <Calendar className="w-3.5 h-3.5" /> Send Interview Link
-            </button>
-          </>
+          <button onClick={() => setMailModal('mail4')} className={clsx(BTN, 'bg-purple-600 hover:bg-purple-700')}>
+            <Calendar className="w-3.5 h-3.5" /> Send Interview Link
+          </button>
         )}
         {stage === 'interview_scheduled' && (
           <>
@@ -1673,6 +2194,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, autoMode, isAc
         throw new Error(res.data?.error || 'ToC request failed')
       }
 
+      showSendStatusToast({ trainerName: trainer.name, result: res.data, title: 'ToC request sent' })
       toast.success('ToC request sent!')
       handleMailSent('toc_requested')
     } catch (e) {
@@ -1682,38 +2204,18 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, autoMode, isAc
     }
   }
 
-  const handleSendClientSlots = async ({ slotText = '', force = true } = {}) => {
-    if (sendingClientSlots) return
-    setSendingClientSlots(true)
-    try {
-      let text = slotText || state?.clientSlotText || ''
-      if (!text) {
-        const res = await api.get(`/shortlists/thread?trainer_id=${trainer.trainer_id}&requirement_id=${req.requirement_id}`)
-        const latestSlotReply = latestReplyAfter(res.data.messages || [], ['mail3'])
-        text = latestSlotReply?.body || ''
-      }
-
-      const sent = await sendSlotsToClient({ trainer, req, slotText: text, force })
-      if (sent?.success === false) throw new Error(sent.error || 'Client slot email failed')
-
-      toast.success(sent?.already_sent ? 'Slots already sent to client' : 'Trainer slots sent to client')
-      onStatusUpdate(trainer.trainer_id, stage, {
-        clientSlotsSentAt: Date.now(),
-        clientSlotsEmailId: sent.email_id || state?.clientSlotsEmailId,
-        clientSlotText: stripQuotedEmail(text),
-      })
-    } catch (e) {
-      toast.error(e.response?.data?.detail || e.message || 'Could not send trainer slots to client')
-    } finally {
-      setSendingClientSlots(false)
-    }
-  }
-
   const handleThreadUpdate = messages => {
     if (!messages?.length) return
     const current = state?.status || 'pending'
     const update = (next, extra = {}) => {
       if (current !== next || Object.keys(extra).length) onStatusUpdate(trainer.trainer_id, next, extra)
+    }
+
+    const inferred = inferPipelineStateFromThread(messages)
+    if (inferred?.status) {
+      const { status, ...extra } = inferred
+      update(status, extra)
+      return
     }
 
     const latestDetailsReply = latestReplyAfter(messages, ['mail2', 'mail2_followup'])
@@ -1734,15 +2236,10 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, autoMode, isAc
 
     const latestSlotReply = latestReplyAfter(messages, ['mail3'])
     if (latestSlotReply && current === 'slot_booked' && !state?.slotConfirmed) {
-      const slotText = stripQuotedEmail(latestSlotReply.body)
       update('slot_booked', {
         slotReplyAt: new Date(latestSlotReply.sent_at || Date.now()).getTime(),
         slotConfirmed: true,
-        clientSlotText: slotText,
       })
-      if (!state?.clientSlotsSentAt) {
-        handleSendClientSlots({ slotText, force: false })
-      }
     }
   }
 
@@ -1751,9 +2248,10 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, autoMode, isAc
       {mailModal && mailModal !== 'mail6_toc' && (
         <MailModal trainer={trainer} req={req} mailType={mailModal}
           onClose={() => setMailModal(null)}
-          onSent={handleMailSent} />
+          onSent={handleMailSent}
+          threadMessages={threadMessages} />
       )}
-      {showThread && <ThreadModal trainer={trainer} req={req} onClose={() => setShowThread(false)} onThreadUpdate={handleThreadUpdate} />}
+      {showThread && <ThreadModal trainer={trainer} req={req} onClose={() => setShowThread(false)} onThreadUpdate={(msgs) => { handleThreadUpdate(msgs); setThreadMessages(msgs) }} />}
       {showTocModal && <TocModal trainer={trainer} req={req} onClose={() => setShowTocModal(false)} />}
       {showPoModal && <PurchaseOrderModal trainer={trainer} req={req} state={state} onClose={() => setShowPoModal(false)} />}
 
@@ -1827,13 +2325,13 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, autoMode, isAc
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
-export default function Shortlist() {
+export default function Shortlist1() {
   const targetRequirementId = new URLSearchParams(window.location.search).get('requirement_id') || ''
   const [reqs, setReqs]               = useState([])
   const [selectedReq, setSelectedReq] = useState(null)
   const [trainers, setTrainers]       = useState([])
   const [states, setStates]           = useState({})
-  const [autoMode, setAutoMode]       = useState(false)
+  const [autoMode, setAutoMode]       = useState(true)
   const [loadingReqs, setLoadingReqs]         = useState(false)
   const [loadingTrainers, setLoadingTrainers] = useState(false)
 
@@ -1868,7 +2366,7 @@ export default function Shortlist() {
 
   const handleStatusUpdate = (trainerId, newStage, extra = {}) => {
     setStates(prev => {
-      const next = { ...prev, [trainerId]: { ...(prev[trainerId] || {}), status: newStage, ...extra } }
+      const next = { ...prev, [trainerId]: { status: newStage, ...extra } }
       if (selectedReq) setLS(`sl_v5_${selectedReq.requirement_id}`, next)
       return next
     })
@@ -1896,49 +2394,36 @@ export default function Shortlist() {
   }
 
   const syncReplyStates = async () => {
-    if (!selectedReq || autoMode) return
-    try { await api.post('/emails/check-replies') } catch {}
+    if (!selectedReq || !trainers.length) return
+    await syncInboxReplies()
 
     try {
       const res = await api.get('/emails', {
-        params: { requirement_id: selectedReq.requirement_id, page: 1, limit: 200 },
+        params: { requirement_id: selectedReq.requirement_id, page: 1, limit: 1000, _ts: Date.now() },
       })
-      const replied = (res.data.emails || []).filter(e => e.reply_received && e.trainer_id)
-      if (!replied.length) return
+      const logsByTrainer = {}
+      for (const email of (res.data.emails || [])) {
+        if (!email.trainer_id) continue
+        const key = String(email.trainer_id)
+        logsByTrainer[key] = logsByTrainer[key] || []
+        logsByTrainer[key].push(email)
+      }
+      const threadResults = trainers.map(trainer => ({
+        trainerId: trainer.trainer_id,
+        inferred: inferPipelineStateFromEmailLogs(logsByTrainer[String(trainer.trainer_id)] || []),
+      }))
 
       setStates(prev => {
         const next = { ...prev }
         let changed = false
 
-        for (const email of replied) {
-          const trainerId = email.trainer_id
+        for (const result of threadResults) {
+          if (!result?.inferred?.status) continue
+          const trainerId = result.trainerId
           const current = next[trainerId]?.status || 'pending'
-          const replyAt = email.replied_at ? new Date(email.replied_at).getTime() : Date.now()
-          const mailType = email.mail_type || ''
-          let status = null
-          let extra = {}
+          const { status, ...extra } = result.inferred
 
-          if ((['mail2', 'mail2_followup'].includes(mailType) && ['pending', 'details_requested', 'waiting_reply2'].includes(current))) {
-            if (!hasRequestedTrainerDetails(email.reply_text || '')) continue
-            status = 'details_received'
-          } else if ((mailType === 'mail3' && ['pending', 'slot_booked'].includes(current))) {
-            status = 'slot_booked'
-            extra = { slotReplyAt: replyAt, slotConfirmed: true }
-          } else if ((mailType === 'mail6_toc' && ['pending', 'toc_requested'].includes(current))) {
-            status = 'toc_received_pending'
-          } else if (['pending', 'mail1_sent', 'waiting_reply1'].includes(current)) {
-            status = 'mail1_replied'
-            extra = { mail1ReplyAt: replyAt }
-          } else if (['details_requested', 'waiting_reply2'].includes(current)) {
-            status = 'details_received'
-          } else if (current === 'slot_booked') {
-            status = 'slot_booked'
-            extra = { slotReplyAt: replyAt, slotConfirmed: true }
-          } else if (current === 'toc_requested') {
-            status = 'toc_received_pending'
-          }
-
-          if (status && current !== status) {
+          if (current !== status || Object.keys(extra).some(k => next[trainerId]?.[k] !== extra[k])) {
             next[trainerId] = { ...(next[trainerId] || {}), status, ...extra }
             changed = true
           }
@@ -1951,15 +2436,15 @@ export default function Shortlist() {
   }
 
   useEffect(() => {
-    if (!selectedReq || autoMode) return
+    if (!selectedReq) return
     syncReplyStates()
     const interval = setInterval(syncReplyStates, SHORTLIST_REFRESH_INTERVAL_MS)
     return () => clearInterval(interval)
-  }, [selectedReq?.requirement_id, autoMode])
+  }, [selectedReq?.requirement_id, trainers.length])
 
   const activeTrainerId = (() => {
     const active = trainers.find(t =>
-      ['waiting_reply2','slot_booked','interview_scheduled','selected','toc_requested','toc_received_pending'].includes(states[t.trainer_id]?.status)
+      ACTIVE_PIPELINE_STAGES.includes(states[t.trainer_id]?.status)
     )
     if (active) return active.trainer_id
 
@@ -1973,6 +2458,23 @@ export default function Shortlist() {
     return queued[0]?.trainer_id || null
   })()
 
+  const pipelineStats = {
+    total: trainers.length,
+    waiting: trainers.filter(t => ['waiting_reply1', 'waiting_reply2', 'toc_requested'].includes(states[t.trainer_id]?.status)).length,
+    replied: trainers.filter(t => ['mail1_replied', 'details_received', 'slot_booked', 'interview_scheduled', 'selected', 'toc_received_pending', 'training_confirmed'].includes(states[t.trainer_id]?.status)).length,
+    completed: trainers.filter(t => ['training_confirmed', 'rejected'].includes(states[t.trainer_id]?.status)).length,
+  }
+
+  const aiFlowSteps = [
+    { step: '01', label: 'First contact', note: 'AI sends Mail 1 to shortlisted trainers', color: 'bg-blue-600' },
+    { step: '02', label: 'Reply check', note: 'Replies sync every 10 seconds', color: 'bg-sky-600' },
+    { step: '03', label: 'Details request', note: 'Incomplete replies get a smart follow-up', color: 'bg-indigo-600' },
+    { step: '04', label: 'Slot booking', note: 'AI asks for interview availability', color: 'bg-amber-500' },
+    { step: '05', label: 'Selection', note: 'Selection or rejection mail is generated', color: 'bg-emerald-600' },
+    { step: '06', label: 'ToC request', note: 'Selected trainer gets course agenda request', color: 'bg-teal-600' },
+    { step: '07', label: 'Confirmation', note: 'Final schedule mail is generated', color: 'bg-green-600' },
+  ]
+
   useAutoPilot({
     trainers,
     req: selectedReq,
@@ -1983,61 +2485,56 @@ export default function Shortlist() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <Users className="w-6 h-6 text-blue-500" /> Shortlist
-        </h1>
-        <p className="text-sm text-slate-500 mt-0.5">
-          7-stage pipeline · Auto handles mails, reminders & ToC · Manual for interview, selection & confirmation
-        </p>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-4">
-        <ModeToggle autoMode={autoMode} onChange={handleAutoToggle} />
-        <div className={clsx('flex-1 rounded-2xl border px-4 py-3 text-sm transition-all',
-          autoMode ? 'bg-violet-50 border-violet-200 text-violet-700' : 'bg-slate-50 border-slate-200 text-slate-600'
-        )}>
-          {autoMode ? (
-            <span>
-              <strong>🤖 Auto:</strong> Mail 1 to all shortlisted trainers + reminders. Mail 2/Mail 3 run by reply queue, one trainer at a time.{' '}
-              <strong>Manual:</strong> Interview Link · Select/Reject · Training Confirmation.
-            </span>
-          ) : (
-            <span><strong>Manual:</strong> You control every step for every trainer.</span>
-          )}
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
+              <Bot className="h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Shortlist1 AI Pipeline</h1>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
+                AI generates every trainer mail from your 7-stage rules. Replies are checked every 10 seconds and trainer cards move through the pipeline automatically.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {[
+              ['Trainers', pipelineStats.total],
+              ['Waiting', pipelineStats.waiting],
+              ['Replied', pipelineStats.replied],
+              ['Done', pipelineStats.completed],
+            ].map(([label, value]) => (
+              <div key={label} className="min-w-[88px] rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <p className="text-xs font-semibold text-slate-400">{label}</p>
+                <p className="text-lg font-bold text-slate-900">{value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="border-t border-slate-100 bg-violet-50 px-5 py-3">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-violet-800">
+            <Sparkles className="h-4 w-4" />
+            <span className="font-semibold">AI mode is always active.</span>
+            <span className="text-violet-700">No manual message writing, no template editing, no manual/auto switch.</span>
+          </div>
         </div>
       </div>
 
-      {/* Pipeline legend */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4">
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-          <Info className="w-3.5 h-3.5" /> Pipeline Flow
+          <Info className="w-3.5 h-3.5" /> AI Mail Flow
         </p>
-        <div className="flex items-center gap-1 flex-wrap text-xs">
-          {[
-            { n:'1', l:'Mail 1',       c:'bg-blue-600',    auto:true  },
-            { n:'🔔', l:'Reminders',   c:'bg-orange-500',  auto:true  },
-            { n:'→' },
-            { n:'2', l:'Mail 2',       c:'bg-indigo-600',  auto:true  },
-            { n:'→' },
-            { n:'3', l:'Slot',         c:'bg-amber-500',   auto:true  },
-            { n:'→' },
-            { n:'4', l:'Interview',    c:'bg-purple-600',  auto:false },
-            { n:'→' },
-            { n:'5', l:'Select',       c:'bg-emerald-600', auto:false },
-            { n:'→' },
-            { n:'6', l:'ToC',          c:'bg-teal-600',    auto:true  },
-            { n:'→' },
-            { n:'7', l:'Confirm',      c:'bg-green-600',   auto:false },
-          ].map((s, i) => s.n === '→'
-            ? <span key={i} className="text-slate-300 text-base">→</span>
-            : <div key={i} className="flex items-center gap-1">
-                <span className={clsx('w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0', s.c)}>{s.n}</span>
-                {s.l && <span className="text-slate-600">{s.l}</span>}
-                {s.auto === true  && <span className="text-[10px] text-violet-500 font-bold">🤖</span>}
-                {s.auto === false && <span className="text-[10px] text-slate-400 font-bold">manual</span>}
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-7">
+          {aiFlowSteps.map(s => (
+            <div key={s.step} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div className="flex items-center gap-2">
+                <span className={clsx('flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold text-white', s.color)}>{s.step}</span>
+                <span className="text-sm font-bold text-slate-800">{s.label}</span>
               </div>
-          )}
+              <p className="mt-2 text-xs leading-5 text-slate-500">{s.note}</p>
+            </div>
+          ))}
         </div>
       </div>
 

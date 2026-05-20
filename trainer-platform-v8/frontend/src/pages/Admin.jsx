@@ -108,8 +108,8 @@ export default function Admin() {
 
   const [gmailStatus, setGmailStatus] = useState({ connected: false })
   const [clientInboxCfg, setClientInboxCfg] = useState({
-    autoSendEnabled: false,
-    autoSendThreshold: 92,
+    autoSendEnabled: true,
+    autoSendThreshold: 70,
     clientDomainsWhitelist: '',
     vendorWhatsAppNumber: '',
     replySignature: 'Regards,\nRecruitment Team,\nCalhan Technologies',
@@ -304,6 +304,14 @@ export default function Admin() {
   const connectGmail = async () => {
     setSaving(true)
     try {
+      if (!gmailStatus.connected || !gmailStatus.calendar_connected) {
+        const oauthRes = await fetch('/api/gmail/oauth-url')
+        const oauthData = await oauthRes.json().catch(() => ({}))
+        if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')
+        window.location.href = oauthData.auth_url
+        return
+      }
+
       const res = await fetch('/api/gmail/renew-watch', { method: 'POST' })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.detail || data.error || 'Gmail watch renewal failed')
@@ -490,7 +498,9 @@ export default function Admin() {
           <div>
             <p className="text-sm font-semibold text-slate-800">Gmail OAuth Status</p>
             <p className="text-xs text-slate-400 mt-0.5">
-              {gmailStatus.connected ? 'Gmail token is valid and ready for Pub/Sub webhooks' : 'Run backend/scripts/gmail_auth.py, then renew the Gmail watch'}
+              {gmailStatus.connected
+                ? (gmailStatus.calendar_connected ? 'Gmail and Google Calendar are ready for inbox sync and Meet scheduling' : 'Gmail is connected. Renew Google OAuth to enable Calendar and Meet scheduling')
+                : 'Run backend/scripts/gmail_auth.py, then renew the Gmail watch'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -500,6 +510,13 @@ export default function Admin() {
             )}>
               <span className={clsx('h-2 w-2 rounded-full', gmailStatus.connected ? 'bg-emerald-500' : 'bg-red-500')} />
               {gmailStatus.connected ? 'Connected' : 'Not Connected'}
+            </span>
+            <span className={clsx(
+              'inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold',
+              gmailStatus.calendar_connected ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-700'
+            )}>
+              <span className={clsx('h-2 w-2 rounded-full', gmailStatus.calendar_connected ? 'bg-emerald-500' : 'bg-amber-500')} />
+              {gmailStatus.calendar_connected ? 'Calendar Ready' : 'Calendar Needs Renew'}
             </span>
             <button className="btn-secondary text-sm" onClick={connectGmail} disabled={saving}>
               <RefreshCw className="w-4 h-4" /> Connect / Renew
@@ -519,7 +536,7 @@ export default function Admin() {
           <Field label={`Auto-send Threshold (${clientInboxCfg.autoSendThreshold}%)`} hint="Only replies above this confidence can be auto-sent">
             <input
               type="range"
-              min="85"
+              min="50"
               max="99"
               value={clientInboxCfg.autoSendThreshold}
               onChange={e => setClientInboxCfg({...clientInboxCfg, autoSendThreshold: Number(e.target.value)})}

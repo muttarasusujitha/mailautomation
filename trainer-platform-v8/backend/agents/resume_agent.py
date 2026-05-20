@@ -715,18 +715,23 @@ async def _call_gemini_json(resume_text: str) -> Dict[str, Any]:
     raise ResumeProcessingError(f"Gemini returned invalid JSON: {last_error}")
 
 
-async def generate_specialty_tags(profile: Dict[str, Any]) -> List[str]:
-    try:
-        raw = await _call_gemini_text(_specialty_prompt(profile), max_output_tokens=120)
-        tags = _extract_json_array(raw)
-        if len(tags) == 3:
-            return tags
-    except Exception:
-        pass
-
+def _fallback_specialty_tags(profile: Dict[str, Any]) -> List[str]:
     skills = profile.get("skills", [])[:3] or [profile.get("technology_category", "Training")]
     fallback = [f"{skill} Specialist" for skill in skills]
     return (fallback + ["Corporate Trainer", "Technical Mentor", "Workshop Expert"])[:3]
+
+
+async def generate_specialty_tags(profile: Dict[str, Any], use_ai: bool = True) -> List[str]:
+    if use_ai:
+        try:
+            raw = await _call_gemini_text(_specialty_prompt(profile), max_output_tokens=120)
+            tags = _extract_json_array(raw)
+            if len(tags) == 3:
+                return tags
+        except Exception:
+            pass
+
+    return _fallback_specialty_tags(profile)
 
 
 async def process_resume(file_bytes: bytes, filename: str, db) -> Dict[str, Any]:
@@ -821,11 +826,12 @@ def trainer_document_from_profile(profile: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-async def save_trainer_from_resume(profile: Dict[str, Any], db) -> Dict[str, Any]:
+async def save_trainer_from_resume(profile: Dict[str, Any], db, use_ai_tags: bool = True) -> Dict[str, Any]:
     if not profile.get("success"):
         return {"saved": False, "error": profile.get("error") or "Resume processing failed"}
 
-    specialty_tags = await generate_specialty_tags(profile)
+    existing_tags = _as_list(profile.get("specialty_tags"), limit=3)
+    specialty_tags = existing_tags or await generate_specialty_tags(profile, use_ai=use_ai_tags)
     profile = {**profile, "specialty_tags": specialty_tags}
     trainer_doc = trainer_document_from_profile(profile)
 
@@ -851,25 +857,45 @@ async def save_trainer_from_resume(profile: Dict[str, Any], db) -> Dict[str, Any
         await db["trainers"].insert_one(trainer_doc)
         action = "inserted"
 
-    await db["resume_uploads"].insert_one(
-        {
-            "upload_id": f"RES-{uuid.uuid4().hex[:12].upper()}",
-            "trainer_id": trainer_doc["trainer_id"],
-            "filename": profile.get("filename"),
-            "file_size": len(profile.get("raw_text", "")),
-            "processing_status": "completed",
-            "extracted_data": {k: v for k, v in trainer_doc.items() if k not in {"resume", "combined_text"}},
-            "confidence_score": profile.get("confidence_score", 0),
-            "created_at": datetime.utcnow(),
-            "processed_at": datetime.utcnow(),
-        }
-    )
+    now = datetime.utcnow()
+    upload_id = profile.get("upload_id") or f"RES-{uuid.uuid4().hex[:12].upper()}"
+    upload_doc = {
+        "trainer_id": trainer_doc["trainer_id"],
+        "filename": profile.get("filename"),
+        "file_size": len(profile.get("raw_text", "")),
+        "processing_status": "completed",
+        "extracted_data": {k: v for k, v in trainer_doc.items() if k not in {"resume", "combined_text"}},
+        "extracted_text": profile.get("raw_text", "")[:50000],
+        "confidence_score": profile.get("confidence_score", 0),
+        "processed_at": now,
+        "confirmed_at": now,
+    }
+    if profile.get("source_archive"):
+        upload_doc["source_archive"] = profile.get("source_archive")
+    if profile.get("archive_path"):
+        upload_doc["archive_path"] = profile.get("archive_path")
+
+    if profile.get("upload_id"):
+        await db["resume_uploads"].update_one(
+            {"upload_id": upload_id},
+            {"$set": upload_doc, "$setOnInsert": {"created_at": now}},
+            upsert=True,
+        )
+    else:
+        await db["resume_uploads"].insert_one(
+            {
+                "upload_id": upload_id,
+                **upload_doc,
+                "created_at": now,
+            }
+        )
 
     return {
         "saved": True,
         "action": action,
         "trainer_id": trainer_doc["trainer_id"],
         "specialty_tags": specialty_tags,
+        "upload_id": upload_id,
     }
 
 

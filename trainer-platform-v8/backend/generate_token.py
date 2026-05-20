@@ -19,6 +19,7 @@ TOKEN_FILE = CONFIG_DIR / "token.json"
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.modify",
     "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/calendar.events",
 ]
 
 

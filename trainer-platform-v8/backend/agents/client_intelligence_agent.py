@@ -12,7 +12,7 @@ from email.mime.text import MIMEText
 from email.utils import parseaddr
 from typing import Any, Dict, List, Optional, Tuple
 
-import anthropic
+import httpx
 import fitz
 from google.auth.transport.requests import Request as GoogleAuthRequest
 from google.oauth2.credentials import Credentials
@@ -22,11 +22,16 @@ from googleapiclient.discovery import build
 from config import get_settings
 
 
-CLIENT_MODEL = "claude-sonnet-4-20250514"
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 GMAIL_SCOPES = [
     "https://www.googleapis.com/auth/gmail.modify",
     "https://www.googleapis.com/auth/gmail.send",
 ]
+CALENDAR_SCOPES = [
+    "https://www.googleapis.com/auth/calendar.events",
+]
+GOOGLE_OAUTH_SCOPES = GMAIL_SCOPES + CALENDAR_SCOPES
 
 BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 CONFIG_DIR = os.path.join(BACKEND_DIR, "config")
@@ -112,7 +117,7 @@ def _oauth_flow(redirect_uri: Optional[str] = None) -> Flow:
     os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")
     return Flow.from_client_secrets_file(
         CREDENTIALS_PATH,
-        scopes=GMAIL_SCOPES,
+        scopes=GOOGLE_OAUTH_SCOPES,
         redirect_uri=redirect_uri or _default_redirect_uri(),
     )
 
@@ -149,9 +154,11 @@ def save_gmail_oauth_token(code: str, redirect_uri: Optional[str] = None) -> Dic
     }
 
 
-def _anthropic_client() -> anthropic.AsyncAnthropic:
-    api_key = os.getenv("ANTHROPIC_API_KEY", "") or _settings_value("anthropic_api_key")
-    return anthropic.AsyncAnthropic(api_key=api_key) if api_key else anthropic.AsyncAnthropic()
+def _gemini_api_key() -> str:
+    return (
+        os.getenv("GEMINI_API_KEY", "") or
+        _settings_value("gemini_api_key")
+    )
 
 
 def _gmail_b64decode(value: str) -> bytes:
@@ -243,13 +250,34 @@ def is_auto_reply(headers: Dict[str, str], subject: str, body: str) -> bool:
     return any(marker in subject_body for marker in AUTO_REPLY_MARKERS)
 
 
-def is_likely_training_email(subject: str, from_email: str = "", whitelist_domains: Optional[List[str]] = None) -> bool:
+def is_likely_training_email(
+    subject: str,
+    from_email: str = "",
+    whitelist_domains: Optional[List[str]] = None,
+    body_preview: str = "",
+) -> bool:
     domain = sender_domain(from_email)
     whitelist = {d.lower().strip() for d in (whitelist_domains or []) if d.strip()}
     if domain and domain in whitelist:
         return True
-    haystack = (subject or "").lower()
-    return any(keyword in haystack for keyword in TRAINING_KEYWORDS)
+    lowered_email = (from_email or "").lower()
+    automated_markers = ("no-reply", "noreply", "notification", "linkedin.com", "naukri.com")
+    if any(marker in lowered_email for marker in automated_markers):
+        return False
+
+    subject_haystack = (subject or "").lower()
+    if any(keyword in subject_haystack for keyword in TRAINING_KEYWORDS):
+        return True
+
+    haystack = f"{subject or ''}\n{body_preview or ''}".lower()
+    request_markers = (
+        "training", "trainer", "workshop", "corporate batch", "participants",
+        "duration", "mode:", "technology:", "budget", "share suitable trainer",
+    )
+    return (
+        any(marker in haystack for marker in request_markers)
+        and any(keyword in haystack for keyword in TRAINING_KEYWORDS)
+    )
 
 
 def _walk_gmail_parts(part: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -274,12 +302,12 @@ def _extract_pdf_text(pdf_bytes: bytes, limit: int = 20000) -> str:
         return ""
 
 
-def get_gmail_service():
+def _google_credentials(scopes: Optional[List[str]] = None):
     if not os.path.exists(TOKEN_PATH):
         raise FileNotFoundError(f"Gmail token not found at {TOKEN_PATH}")
 
     try:
-        creds = Credentials.from_authorized_user_file(TOKEN_PATH, GMAIL_SCOPES)
+        creds = Credentials.from_authorized_user_file(TOKEN_PATH, scopes or GMAIL_SCOPES)
     except Exception as exc:
         raise RuntimeError(
             "Gmail OAuth token is invalid. Reconnect Gmail from Client Inbox to create a fresh token."
@@ -293,7 +321,17 @@ def get_gmail_service():
     if not creds.valid:
         raise RuntimeError("Gmail OAuth token is not valid")
 
+    return creds
+
+
+def get_gmail_service():
+    creds = _google_credentials(GMAIL_SCOPES)
     return build("gmail", "v1", credentials=creds, cache_discovery=False)
+
+
+def get_calendar_service():
+    creds = _google_credentials(GOOGLE_OAUTH_SCOPES)
+    return build("calendar", "v3", credentials=creds, cache_discovery=False)
 
 
 async def get_gmail_auth_status(db=None) -> Dict[str, Any]:
@@ -308,10 +346,21 @@ async def get_gmail_auth_status(db=None) -> Dict[str, Any]:
         "watch_expiration": None,
     }
     try:
-        get_gmail_service()
+        service = get_gmail_service()
+        profile = service.users().getProfile(userId="me").execute()
         status.update({"connected": True, "valid": True})
+        if profile.get("emailAddress"):
+            status["gmail_user"] = profile["emailAddress"]
     except Exception as exc:
         status["error"] = str(exc)
+
+    try:
+        calendar_service = get_calendar_service()
+        calendar_service.events().list(calendarId="primary", maxResults=1).execute()
+        status["calendar_connected"] = True
+    except Exception as exc:
+        status["calendar_connected"] = False
+        status["calendar_error"] = str(exc)
 
     if db is not None:
         sync = await db["gmail_sync"].find_one({"sync_id": "default"}, {"_id": 0})
@@ -427,18 +476,38 @@ def fetch_gmail_email(message_id: str, gmail_service) -> Dict[str, Any]:
     }
 
 
-async def _claude_json(prompt: str, max_tokens: int = 1600) -> Dict[str, Any]:
-    client = _anthropic_client()
-    response = await client.messages.create(
-        model=CLIENT_MODEL,
-        max_tokens=max_tokens,
-        temperature=0,
-        messages=[{"role": "user", "content": prompt}],
+async def _gemini_json(prompt: str, max_tokens: int = 1600) -> Dict[str, Any]:
+    api_key = _gemini_api_key()
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY is not set in .env")
+
+    url = GEMINI_API_URL.format(model=GEMINI_MODEL) + f"?key={api_key}"
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0,
+            "maxOutputTokens": max_tokens,
+        },
+    }
+    async with httpx.AsyncClient(timeout=60) as client:
+        response = await client.post(url, json=payload)
+        response.raise_for_status()
+        data = response.json()
+
+    raw = (
+        data.get("candidates", [{}])[0]
+        .get("content", {})
+        .get("parts", [{}])[0]
+        .get("text", "")
+        .strip()
     )
-    raw = response.content[0].text.strip()
+    # Strip markdown code fences if present
+    raw = re.sub(r"^```(?:json)?\s*", "", raw)
+    raw = re.sub(r"\s*```$", "", raw).strip()
+
     match = re.search(r"\{.*\}", raw, re.DOTALL)
     if not match:
-        raise ValueError("Claude did not return JSON")
+        raise ValueError(f"Gemini did not return JSON. Response: {raw[:300]}")
     return json.loads(match.group())
 
 
@@ -482,8 +551,77 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
     return merged
 
 
-async def process_client_email(message_id, gmail_service) -> dict:
-    meta = fetch_gmail_email(message_id, gmail_service)
+def _field_from_text(text: str, label: str) -> Optional[str]:
+    match = re.search(rf"(?im)^\s*{re.escape(label)}\s*:\s*(.+?)\s*$", text or "")
+    return match.group(1).strip() if match else None
+
+
+def _heuristic_training_extraction(meta: Dict[str, Any]) -> Dict[str, Any]:
+    body = meta.get("clean_body") or meta.get("raw_body") or ""
+    subject = meta.get("subject") or ""
+    haystack = f"{subject}\n{body}"
+    tech = _field_from_text(body, "Technology")
+    if not tech:
+        for keyword in TRAINING_KEYWORDS:
+            if re.search(rf"\b{re.escape(keyword)}\b", haystack, re.IGNORECASE):
+                tech = keyword.title()
+                break
+    participants = _field_from_text(body, "Participants")
+    duration = _field_from_text(body, "Duration")
+    budget = _field_from_text(body, "Budget")
+    budget_number = None
+    if budget:
+        number_match = re.search(r"[\d,]+", budget)
+        if number_match:
+            budget_number = int(number_match.group(0).replace(",", ""))
+    participant_count = None
+    if participants:
+        participant_match = re.search(r"\d+", participants)
+        if participant_match:
+            participant_count = int(participant_match.group(0))
+    duration_days = None
+    if duration:
+        duration_match = re.search(r"\d+", duration)
+        if duration_match and "day" in duration.lower():
+            duration_days = int(duration_match.group(0))
+
+    needs = []
+    if not _field_from_text(body, "Audience Level"):
+        needs.append("audience level")
+    if not _field_from_text(body, "Start Date"):
+        needs.append("start date")
+
+    return {
+        "client_name": meta.get("from_name") or None,
+        "client_company": None,
+        "client_email": meta.get("from_email"),
+        "technology_needed": tech or "Training Requirement",
+        "secondary_technologies": [],
+        "duration_days": duration_days,
+        "duration_hours": None,
+        "participant_count": participant_count,
+        "audience_level": None,
+        "mode": (_field_from_text(body, "Mode") or "").lower() or None,
+        "location": _field_from_text(body, "Location"),
+        "budget_per_day": budget_number if budget and "day" in budget.lower() else None,
+        "budget_total": budget_number if budget and "day" not in budget.lower() else None,
+        "budget_currency": "INR" if budget and re.search(r"\binr\b|rs\.?|₹", budget, re.IGNORECASE) else None,
+        "timeline_start": _field_from_text(body, "Start Date"),
+        "timeline_flexible": False,
+        "urgency": "normal",
+        "special_requirements": None,
+        "language_of_training": "English",
+        "email_subject": subject,
+        "email_summary": f"Client needs {tech or 'a'} trainer for a corporate training requirement.",
+        "confidence": 0.72,
+        "needs_clarification": needs,
+        "is_training_request": True,
+        "sender_is_known_client": False,
+    }
+
+
+async def process_client_email(message_id, gmail_service, meta: Optional[Dict[str, Any]] = None) -> dict:
+    meta = meta or fetch_gmail_email(message_id, gmail_service)
 
     if meta.get("is_auto_reply"):
         meta["extracted"] = _normalise_extraction({
@@ -547,9 +685,82 @@ Email text:
 {body_for_claude[:45000]}
 ---"""
 
-    extracted = await _claude_json(prompt, max_tokens=1800)
+    try:
+        extracted = await _gemini_json(prompt, max_tokens=1800)
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code not in {429, 503}:
+            raise
+        extracted = _heuristic_training_extraction(meta)
     meta["extracted"] = _normalise_extraction(extracted, meta)
     return meta
+
+
+async def extract_client_slot_confirmation(
+    reply_text: str,
+    slot_text: str = "",
+    context: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    context = context or {}
+    timezone_name = context.get("timezone") or "Asia/Kolkata"
+    today = datetime.utcnow().strftime("%Y-%m-%d")
+    prompt = f"""You extract calendar scheduling confirmations for Calhan Technologies.
+
+The client has replied after Calhan sent trainer availability slots. Determine whether the client selected or proposed a concrete interview/discussion date and time.
+
+Rules:
+- If the client clearly declines, asks only a question, or gives no concrete date/time, set confirmed=false.
+- If the client says a listed slot works, or proposes a specific alternate date/time, set confirmed=true.
+- Interpret relative dates using today's date: {today}.
+- Use timezone "{timezone_name}" unless the email explicitly gives another timezone.
+- Default duration is 30 minutes when duration is not mentioned.
+- Return ISO 8601 local datetimes with timezone offset if you can infer them.
+
+Original trainer slot options:
+---
+{slot_text[:4000]}
+---
+
+Client reply:
+---
+{reply_text[:4000]}
+---
+
+Context:
+{json.dumps(context, ensure_ascii=False, default=str)}
+
+Return ONLY valid JSON:
+{{
+  "confirmed": true or false,
+  "date_time_text": "human readable confirmed slot or empty string",
+  "start_iso": "YYYY-MM-DDTHH:MM:SS+05:30 or empty string",
+  "end_iso": "YYYY-MM-DDTHH:MM:SS+05:30 or empty string",
+  "timezone": "{timezone_name}",
+  "confidence": 0.0,
+  "reason": "one sentence"
+}}"""
+
+    try:
+        data = await _gemini_json(prompt, max_tokens=700)
+    except Exception as exc:
+        return {
+            "confirmed": False,
+            "date_time_text": "",
+            "start_iso": "",
+            "end_iso": "",
+            "timezone": timezone_name,
+            "confidence": 0,
+            "reason": f"Could not parse slot automatically: {exc}",
+        }
+
+    return {
+        "confirmed": bool(data.get("confirmed")),
+        "date_time_text": str(data.get("date_time_text") or "").strip(),
+        "start_iso": str(data.get("start_iso") or "").strip(),
+        "end_iso": str(data.get("end_iso") or "").strip(),
+        "timezone": str(data.get("timezone") or timezone_name).strip(),
+        "confidence": float(data.get("confidence") or 0),
+        "reason": str(data.get("reason") or "").strip(),
+    }
 
 
 async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
@@ -590,7 +801,23 @@ Return ONLY valid JSON:
   "asks_for_clarification": true or false
 }}"""
 
-    reply = await _claude_json(prompt, max_tokens=900)
+    try:
+        reply = await _gemini_json(prompt, max_tokens=900)
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code not in {429, 503}:
+            raise
+        reply = {
+            "subject": f"Re: {original_subject}",
+            "body": (
+                f"Hi,\n\nThank you for sharing the {technology} training requirement. "
+                "We are reviewing suitable trainer profiles and will get back to you shortly. "
+                "If there are any additional details around schedule, audience level, or delivery expectations, "
+                "please share them with us.\n\nRegards,\nRecruitment Team,\nCalhan Technologies"
+            ),
+            "whatsapp_message": f"New {technology} training requirement received. Please review the client inbox.",
+            "tone": "formal",
+            "asks_for_clarification": bool(needs),
+        }
     subject = str(reply.get("subject") or f"Re: {original_subject}").strip()
     if not subject.lower().startswith("re:"):
         subject = f"Re: {subject}"
@@ -614,18 +841,23 @@ async def check_if_duplicate(extracted: dict, db) -> bool:
     if not technology:
         return False
 
-    company = (extracted.get("client_company") or "").strip()
-    email_domain = sender_domain(extracted.get("client_email", ""))
+    client_email = (extracted.get("client_email") or "").strip().lower()
     query: Dict[str, Any] = {
         "created_at": {"$gte": datetime.utcnow() - timedelta(days=7)},
         "technology_needed": {"$regex": f"^{re.escape(technology)}$", "$options": "i"},
     }
-    if company:
-        query["client_company"] = {"$regex": f"^{re.escape(company)}$", "$options": "i"}
-    elif email_domain:
-        query["client_email_domain"] = email_domain
-    else:
+    if not client_email:
         return False
+
+    query["client_email"] = {"$regex": f"^{re.escape(client_email)}$", "$options": "i"}
+
+    timeline = (extracted.get("timeline_start") or "").strip()
+    if timeline:
+        query["timeline_start"] = {"$regex": f"^{re.escape(timeline)}$", "$options": "i"}
+
+    participant_count = extracted.get("participant_count")
+    if participant_count not in (None, ""):
+        query["participant_count"] = participant_count
 
     return bool(await db["requirements"].find_one(query, {"_id": 1}))
 
@@ -761,8 +993,6 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
             msg = email_lib.message_from_bytes(raw_msg)
             subject = decode_header_value(msg.get("Subject", ""))
             from_name, from_email = parse_email_address(msg.get("Reply-To") or msg.get("From", ""))
-            if not is_likely_training_email(subject, from_email):
-                continue
 
             body = ""
             if msg.is_multipart():
@@ -774,6 +1004,9 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                 body = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
 
             clean_body = clean_email_body(body)
+            if not is_likely_training_email(subject, from_email, body_preview=clean_body[:1000]):
+                continue
+
             pseudo_id = f"IMAP-{uuid.uuid4().hex[:12].upper()}"
             meta = {
                 "email_id": pseudo_id,
@@ -875,4 +1108,4 @@ Email text:
 ---
 {body_for_claude[:45000]}
 ---"""
-    return _normalise_extraction(await _claude_json(prompt, max_tokens=1800), meta)
+    return _normalise_extraction(await _gemini_json(prompt, max_tokens=1800), meta)
