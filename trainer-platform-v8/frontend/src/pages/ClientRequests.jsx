@@ -83,7 +83,7 @@ function Stat({ icon: Icon, label, value, tone = 'blue' }) {
   )
 }
 
-function ClientUpdatePanel({ updates = [], loading }) {
+function ClientUpdatePanel({ updates = [], loading, onRetry, retryingId = '' }) {
   const latest = updates.slice(0, 5)
   const scheduled = updates.filter(item => item.confirmation_status === 'confirmed_scheduled').length
   const waiting = updates.filter(item => ['sent', 'auto_sent'].includes(item.confirmation_status)).length
@@ -129,7 +129,9 @@ function ClientUpdatePanel({ updates = [], loading }) {
         </div>
       ) : (
         <div className="divide-y divide-slate-100">
-          {latest.map(item => (
+          {latest.map(item => {
+            const canRetry = ['calendar_failed', 'trainer_email_failed', 'client_email_failed'].includes(item.confirmation_status)
+            return (
             <div key={item.email_id} className="grid gap-3 p-4 lg:grid-cols-[1.2fr_1fr_auto] lg:items-center">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
@@ -162,12 +164,34 @@ function ClientUpdatePanel({ updates = [], loading }) {
                     <Link2 className="h-3.5 w-3.5" /> {item.requirement_id}
                   </span>
                 )}
+                {item.client_email_sent && (
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                    <Mail className="h-3.5 w-3.5" /> Client notified
+                  </span>
+                )}
+                {item.trainer_email_sent && (
+                  <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Trainer notified
+                  </span>
+                )}
               </div>
-              <span className={clsx('w-fit rounded-lg border px-2.5 py-1 text-xs font-bold capitalize', updateStatusClass(item.confirmation_status))}>
-                {(item.confirmation_status || 'sent').replaceAll('_', ' ')}
-              </span>
+              <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                <span className={clsx('w-fit rounded-lg border px-2.5 py-1 text-xs font-bold capitalize', updateStatusClass(item.confirmation_status))}>
+                  {(item.confirmation_status || 'sent').replaceAll('_', ' ')}
+                </span>
+                {canRetry && (
+                  <button
+                    onClick={() => onRetry?.(item)}
+                    disabled={retryingId === item.email_id}
+                    className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+                  >
+                    {retryingId === item.email_id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                    Retry
+                  </button>
+                )}
+              </div>
             </div>
-          ))}
+          )})}
         </div>
       )}
     </section>
@@ -332,6 +356,12 @@ function DetailModal({ request, onClose }) {
                             )}>
                               {whatsapp.status || (whatsapp.success ? 'queued' : 'not sent')}
                             </span>
+                            {(whatsapp.to_number || whatsapp.from_number) && (
+                              <div className="mt-1 max-w-[180px] space-y-0.5 text-xs text-slate-500">
+                                {whatsapp.to_number && <p className="break-all">To: {whatsapp.to_number}</p>}
+                                {whatsapp.from_number && <p className="break-all">From: {whatsapp.from_number}</p>}
+                              </div>
+                            )}
                           </td>
                           <td className="px-3 py-3 align-top">
                             <span className={clsx('rounded-full border px-2 py-1 text-xs font-semibold',
@@ -361,6 +391,7 @@ export default function ClientRequests() {
   const [stats, setStats] = useState({})
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
+  const [retryingUpdateId, setRetryingUpdateId] = useState('')
   const [filter, setFilter] = useState('all')
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
@@ -398,6 +429,24 @@ export default function ClientRequests() {
       toast.error(e.response?.data?.detail || e.message || 'Inbox sync failed')
     } finally {
       setSyncing(false)
+    }
+  }
+
+  const retryClientUpdate = async item => {
+    if (!item?.email_id || retryingUpdateId) return
+    setRetryingUpdateId(item.email_id)
+    try {
+      const res = await api.post(`/client-updates/${item.email_id}/retry-schedule`)
+      if (res.data?.status === 'confirmed_scheduled') {
+        toast.success('Calendar created and both client/trainer notifications sent')
+      } else {
+        toast.error(res.data?.error || `Retry ended with status: ${res.data?.status || 'unknown'}`)
+      }
+      await loadRequests()
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Calendar retry failed')
+    } finally {
+      setRetryingUpdateId('')
     }
   }
 
@@ -458,7 +507,12 @@ export default function ClientRequests() {
         {statValues.map(item => <Stat key={item.label} {...item} />)}
       </div>
 
-      <ClientUpdatePanel updates={clientUpdates} loading={loading} />
+      <ClientUpdatePanel
+        updates={clientUpdates}
+        loading={loading}
+        onRetry={retryClientUpdate}
+        retryingId={retryingUpdateId}
+      />
 
       <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap gap-2">

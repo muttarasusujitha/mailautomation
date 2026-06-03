@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import { getEmails, checkReplies, retryEmail, scheduleInterview, sendMailToOne } from '../utils/api'
+import { getEmails, checkReplies, retryEmail, scheduleInterview, sendMailToOne, sendClientSlotsFromEmail } from '../utils/api'
 import toast from 'react-hot-toast'
 import {
   Mail, RefreshCw, MessageSquare, AlertCircle, Send,
-  RotateCcw, Calendar, ChevronDown, ChevronUp, CheckCircle,
+  RotateCcw, Calendar, ChevronDown, CheckCircle,
   X, Loader2, MessageCircle, Eye
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -14,7 +14,8 @@ const SENTIMENT = {
   neutral:  { color: 'badge-yellow', label: 'Neutral'    },
 }
 
-const REPLY_REFRESH_INTERVAL_MS = 10000
+const THREAD_REFRESH_INTERVAL_MS = 5000
+const REPLY_REFRESH_INTERVAL_MS = 15000
 
 /* ── Interview Modal ────────────────────────────────────────── */
 function InterviewModal({ email, onClose, onSuccess }) {
@@ -73,6 +74,66 @@ function InterviewModal({ email, onClose, onSuccess }) {
 }
 
 /* ── Thread Bubble ──────────────────────────────────────────── */
+function ClientEmailModal({ title = 'Send Slots to Client', onClose, onSubmit, loading }) {
+  const [clientEmail, setClientEmail] = useState('')
+  const [clientName, setClientName] = useState('')
+
+  const submit = () => {
+    const email = clientEmail.trim()
+    if (!email) {
+      toast.error('Client email is required')
+      return
+    }
+    onSubmit({ client_email: email, client_name: clientName.trim() })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-card-lg">
+        <div className="mb-5 flex items-start justify-between gap-3">
+          <div>
+            <h3 className="font-display text-lg font-bold text-slate-900">{title}</h3>
+            <p className="mt-1 text-sm text-slate-500">
+              This requirement has no client email saved. Add it once and the trainer slots will be sent.
+            </p>
+          </div>
+          <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="label">Client Email</label>
+            <input
+              className="input"
+              type="email"
+              placeholder="client@company.com"
+              value={clientEmail}
+              onChange={e => setClientEmail(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <div>
+            <label className="label">Client Name <span className="font-normal text-slate-400">(optional)</span></label>
+            <input
+              className="input"
+              placeholder="Client name or company"
+              value={clientName}
+              onChange={e => setClientName(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="mt-6 flex gap-3">
+          <button onClick={submit} disabled={loading} className="btn-primary flex-1 justify-center">
+            {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending...</> : <><Send className="h-4 w-4" /> Save & Send</>}
+          </button>
+          <button onClick={onClose} disabled={loading} className="btn-secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ThreadBubble({ msg }) {
   const isSent = msg.direction === 'sent'
   const LABELS = {
@@ -115,7 +176,7 @@ function ThreadBubble({ msg }) {
 }
 
 /* ── Thread Panel ───────────────────────────────────────────── */
-function ThreadPanel({ email, onClose }) {
+function ThreadPanel({ email, _onClose }) {
   const seedThread = () => {
     const msgs = []
     if (email.body) {
@@ -142,13 +203,17 @@ function ThreadPanel({ email, onClose }) {
   const [loading, setLoading]   = useState(() => seedThread().length === 0)
   const bottomRef               = useRef(null)
   const pollingRef              = useRef(null)
+  const loadingRef              = useRef(false)
+  const lastMessageCountRef     = useRef(seedThread().length)
 
   // Load thread from conversations API
   const loadThread = async (silent = false) => {
+    if (loadingRef.current) return
+    loadingRef.current = true
     if (!silent) setLoading(true)
     try {
       const res = await fetch(
-        `/api/shortlists/thread?trainer_id=${email.trainer_id}&requirement_id=${email.requirement_id}`
+        `/api/shortlists/thread?trainer_id=${email.trainer_id}&requirement_id=${email.requirement_id}&_ts=${Date.now()}`
       )
       const data = await res.json()
       const messages = data.messages || []
@@ -179,6 +244,10 @@ function ThreadPanel({ email, onClose }) {
         return ta - tb
       })
 
+      if (silent && lastMessageCountRef.current && allMsgs.length > lastMessageCountRef.current) {
+        toast.success('New reply received')
+      }
+      lastMessageCountRef.current = allMsgs.length
       setThread(allMsgs)
     } catch {
       // Fallback: build thread from email_log data alone
@@ -201,21 +270,26 @@ function ThreadPanel({ email, onClose }) {
           sent_at: email.replied_at,
         })
       }
+      lastMessageCountRef.current = msgs.length
       setThread(msgs)
     }
-    finally { setLoading(false) }
+    finally {
+      loadingRef.current = false
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
     const seeded = seedThread()
     if (seeded.length) {
+      lastMessageCountRef.current = seeded.length
       setThread(seeded)
       setLoading(false)
       loadThread(true)
     } else {
       loadThread()
     }
-    pollingRef.current = setInterval(() => loadThread(true), REPLY_REFRESH_INTERVAL_MS)
+    pollingRef.current = setInterval(() => loadThread(true), THREAD_REFRESH_INTERVAL_MS)
     return () => clearInterval(pollingRef.current)
   }, [email.email_id, email.reply_received, email.reply_text, email.replied_at])
 
@@ -299,6 +373,8 @@ function EmailRow({ email, onRefresh }) {
   const [expanded,  setExpanded]  = useState(false)
   const [retrying,  setRetrying]  = useState(false)
   const [mailing,   setMailing]   = useState(false)
+  const [sendingClientSlots, setSendingClientSlots] = useState(false)
+  const [showClientEmailModal, setShowClientEmailModal] = useState(false)
   const [showSched, setShowSched] = useState(false)
 
   const handleRetry = async (e) => {
@@ -327,16 +403,50 @@ function EmailRow({ email, onRefresh }) {
     finally { setMailing(false) }
   }
 
+  const sendClientSlots = async (payload = {}) => {
+    setSendingClientSlots(true)
+    try {
+      const res = await sendClientSlotsFromEmail(email.email_id, true, payload)
+      const data = res.data || {}
+      toast.success(data.already_sent ? 'Slots already sent to client' : 'Trainer slots sent to client')
+      setShowClientEmailModal(false)
+      onRefresh()
+    } catch (err) {
+      if ((err.message || '').toLowerCase().includes('client email not found')) {
+        setShowClientEmailModal(true)
+      } else {
+        toast.error(err.message || 'Could not send slots to client')
+      }
+    } finally {
+      setSendingClientSlots(false)
+    }
+  }
+
+  const handleSendClientSlots = async (e) => {
+    e.stopPropagation()
+    await sendClientSlots()
+  }
+
   const isFailed     = email.status === 'failed'
   const isInterested = email.reply_sentiment === 'positive' && email.reply_received
   const canSchedule  = isInterested && !email.interview_scheduled
+  const canSendClientSlots = email.mail_type === 'mail3' && email.reply_received && !!email.reply_text
+  const clientSlotsSent = !!email.client_slot_auto_result?.success
   const retryCount   = email.retry_count || 0
+  const toggleExpanded = () => setExpanded(e => !e)
   const maxRetries   = retryCount >= 3
 
   return (
     <>
       {showSched && (
         <InterviewModal email={email} onClose={() => setShowSched(false)} onSuccess={onRefresh} />
+      )}
+      {showClientEmailModal && (
+        <ClientEmailModal
+          onClose={() => setShowClientEmailModal(false)}
+          onSubmit={sendClientSlots}
+          loading={sendingClientSlots}
+        />
       )}
       <div className={clsx(
         'card overflow-hidden transition-all duration-300 hover:shadow-card-hover group',
@@ -345,8 +455,7 @@ function EmailRow({ email, onRefresh }) {
         email.interview_scheduled && 'border-purple-100'
       )}>
         {/* Main row */}
-        <div className="p-4 flex items-start gap-4 cursor-pointer hover:bg-slate-50 transition-colors"
-             onClick={() => setExpanded(e => !e)}>
+        <div className="p-4 flex items-start gap-4 hover:bg-slate-50 transition-colors">
           <div className={clsx(
             'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105',
             email.interview_scheduled ? 'bg-purple-100' :
@@ -386,6 +495,11 @@ function EmailRow({ email, onRefresh }) {
                     <Calendar className="w-3 h-3 mr-1" /> Interview Scheduled
                   </span>
                 )}
+                {clientSlotsSent && (
+                  <span className="badge bg-emerald-50 text-emerald-700">
+                    <CheckCircle className="w-3 h-3 mr-1" /> Client Slots Sent
+                  </span>
+                )}
                 {retryCount > 0 && <span className="badge-yellow">Retry #{retryCount}</span>}
 
                 {isFailed && !maxRetries && (
@@ -413,12 +527,26 @@ function EmailRow({ email, onRefresh }) {
                   </button>
                 )}
 
-                <div className={clsx(
+                {canSendClientSlots && (
+                  <button onClick={handleSendClientSlots} disabled={sendingClientSlots}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold
+                               bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition-all active:scale-95 disabled:opacity-60">
+                    {sendingClientSlots
+                      ? <><Loader2 className="w-3 h-3 animate-spin" /> Sending...</>
+                      : <><Send className="w-3 h-3" /> {clientSlotsSent ? 'Resend Slots to Client' : 'Send Slots to Client'}</>}
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={toggleExpanded}
+                  aria-label={expanded ? 'Collapse email thread' : 'Expand email thread'}
+                  className={clsx(
                   'w-6 h-6 rounded-full flex items-center justify-center transition-all',
                   expanded ? 'bg-slate-200 rotate-180' : 'bg-slate-100'
                 )}>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-                </div>
+                </button>
               </div>
             </div>
             <p className="text-sm text-slate-600 mt-1 line-clamp-1">{email.subject}</p>
@@ -515,7 +643,12 @@ export default function Emails() {
     setChecking(true)
     try {
       const res = await checkReplies()
-      toast.success(`Found ${res.data.replies_found} replies, processed ${res.data.processed}`)
+      const slotSent = Number(res.data.client_slot_auto_sent || 0)
+      const slotFailed = Number(res.data.client_slot_auto_failed || 0)
+      const slotText = slotSent || slotFailed
+        ? `, client slots sent ${slotSent}${slotFailed ? `, failed ${slotFailed}` : ''}`
+        : ''
+      toast.success(`Found ${res.data.replies_found} replies, processed ${res.data.processed}${slotText}`)
       load()
     } catch (e) { toast.error(e.message) }
     finally { setChecking(false) }
@@ -544,7 +677,7 @@ export default function Emails() {
             {total} outreach emails tracked
             <span className="ml-2 text-xs text-emerald-500 inline-flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-              Replies auto-update every 60s
+              Replies auto-update every {Math.round(REPLY_REFRESH_INTERVAL_MS / 1000)}s
             </span>
           </p>
         </div>
@@ -563,10 +696,11 @@ export default function Emails() {
           { label: 'Failed',    value: failedCount,    icon: AlertCircle,   color: 'bg-red-50 text-red-500',         key: 'failed'    },
           { label: 'Scheduled', value: scheduledCount, icon: Calendar,      color: 'bg-purple-50 text-purple-500',   key: 'scheduled' },
         ].map(s => (
-          <div key={s.label}
+          <button key={s.label}
+            type="button"
             onClick={() => setFilter(s.key)}
             className={clsx(
-              'card p-4 flex items-center gap-3 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group',
+              'card p-4 flex items-center gap-3 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group text-left',
               filter === s.key && 'ring-2 ring-brand-300'
             )}>
             <div className={clsx('w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110', s.color)}>
@@ -576,7 +710,7 @@ export default function Emails() {
               <p className="font-display text-xl font-bold text-slate-900">{s.value}</p>
               <p className="text-xs text-slate-400">{s.label}</p>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 

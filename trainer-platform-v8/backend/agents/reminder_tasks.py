@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from utils.time_utils import utc_now
 from typing import Any, Dict
 
 import httpx
@@ -52,6 +52,22 @@ def _reminder_body(reminder: Dict[str, Any]) -> str:
     )
 
 
+def _requirement_locked_for_other_trainer(requirement: Dict[str, Any], trainer_id: str) -> bool:
+    requirement = requirement or {}
+    selected_trainer_id = str(requirement.get("selected_trainer_id") or "").strip()
+    selection_status = str(requirement.get("selection_status") or requirement.get("status") or "").strip().lower()
+    locked_statuses = {
+        "selected",
+        "trainer_selected_auto_sent",
+        "toc_requested",
+        "training_confirmed",
+        "closed",
+        "fulfilled",
+    }
+    locked = bool(selected_trainer_id) or selection_status in locked_statuses
+    return locked and (not selected_trainer_id or str(trainer_id or "").strip() != selected_trainer_id)
+
+
 async def _send_teams_card(db, reminder: Dict[str, Any]) -> Dict[str, Any]:
     webhook_url = await _teams_webhook_url(db)
     if not webhook_url:
@@ -95,7 +111,7 @@ async def _send_interview_reminder(reminder_id: str, celery_task_id: str = "") -
     settings = get_settings()
     client = AsyncIOMotorClient(settings.mongodb_uri)
     db = client[settings.mongodb_db]
-    now = datetime.utcnow()
+    now = utc_now()
 
     try:
         reminder = await db["interview_reminders"].find_one({"reminder_id": reminder_id}, {"_id": 0})
@@ -103,6 +119,28 @@ async def _send_interview_reminder(reminder_id: str, celery_task_id: str = "") -
             return {"success": False, "status": "missing", "reminder_id": reminder_id}
         if reminder.get("status") == "cancelled":
             return {"success": True, "status": "cancelled", "reminder_id": reminder_id}
+
+        requirement = await db["requirements"].find_one(
+            {"requirement_id": reminder.get("requirement_id")},
+            {"_id": 0},
+        )
+        if _requirement_locked_for_other_trainer(requirement, reminder.get("trainer_id", "")):
+            await db["interview_reminders"].update_one(
+                {"reminder_id": reminder_id},
+                {"$set": {
+                    "status": "skipped_requirement_selected",
+                    "updated_at": now,
+                    "skipped_at": now,
+                }},
+            )
+            await db["email_logs"].update_one(
+                {"email_id": reminder.get("email_id")},
+                {"$set": {
+                    "interview_reminder_status": "skipped_requirement_selected",
+                    "interview_reminder_skipped_at": now,
+                }},
+            )
+            return {"success": True, "status": "skipped_requirement_selected", "reminder_id": reminder_id}
 
         await db["interview_reminders"].update_one(
             {"reminder_id": reminder_id, "status": {"$ne": "cancelled"}},
@@ -166,7 +204,7 @@ async def _send_interview_reminder(reminder_id: str, celery_task_id: str = "") -
             "teams": "sent" if teams_result.get("success") else teams_result.get("status", "failed"),
         }
         status = "sent"
-        sent_at = datetime.utcnow()
+        sent_at = utc_now()
 
         await db["interview_reminders"].update_one(
             {"reminder_id": reminder_id},
@@ -208,7 +246,7 @@ async def _send_interview_reminder(reminder_id: str, celery_task_id: str = "") -
         })
         return {"success": True, "status": status, "reminder_id": reminder_id, "channels": channel_status}
     except Exception as exc:
-        failed_at = datetime.utcnow()
+        failed_at = utc_now()
         await db["interview_reminders"].update_one(
             {"reminder_id": reminder_id},
             {"$set": {

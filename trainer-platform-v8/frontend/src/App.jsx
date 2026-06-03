@@ -1,30 +1,38 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { useState, useEffect } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import Layout from './components/Layout'
 import ChatAssistant from './components/ChatAssistant'
 import FloatingIntegrations from './components/FloatingIntegrations'
-import Login from './pages/Login'
-import Home from './pages/Home'
-import Contact from './pages/Contact'
-import Feedback from './pages/Feedback'
-import Dashboard from './pages/Dashboard'
-import AdminDashboard from './pages/AdminDashboard'
-import Trainers from './pages/Trainers'
-import Requirements from './pages/Requirements'
-import Emails from './pages/Emails'
-import Inbox from './pages/Inbox'
-import ClientRequests from './pages/ClientRequests'
-import ResumeUpload from './pages/ResumeUpload'
-import GmailCallback from './pages/GmailCallback'
-import Admin from './pages/Admin'
-import Interviews from './pages/Interviews'
-import Shortlist from './pages/Shortlist'
-import Shortlist1 from './pages/Shortlist1'
-import Profile from './pages/Profile'
+
+const Login = lazy(() => import('./pages/Login'))
+const Home = lazy(() => import('./pages/Home'))
+const Contact = lazy(() => import('./pages/Contact'))
+const Feedback = lazy(() => import('./pages/Feedback'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+const Trainers = lazy(() => import('./pages/Trainers'))
+const Requirements = lazy(() => import('./pages/Requirements'))
+const Emails = lazy(() => import('./pages/Emails'))
+const ClientRequests = lazy(() => import('./pages/ClientRequests'))
+const ClientConversations = lazy(() => import('./pages/ClientConversations'))
+const ResumeUpload = lazy(() => import('./pages/ResumeUpload'))
+const GmailCallback = lazy(() => import('./pages/GmailCallback'))
+const Admin = lazy(() => import('./pages/Admin'))
+const Shortlist = lazy(() => import('./pages/Shortlist'))
+const Shortlist1 = lazy(() => import('./pages/Shortlist1'))
+const Profile = lazy(() => import('./pages/Profile'))
 
 function PrivateRoute({ children, isLoggedIn }) {
   return isLoggedIn ? children : <Navigate to="/login" replace />
+}
+
+function PageLoader() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm font-semibold text-slate-500">
+      Loading...
+    </div>
+  )
 }
 
 export default function App() {
@@ -50,37 +58,40 @@ export default function App() {
           success: { iconTheme: { primary: '#2563eb', secondary: '#fff' } },
         }}
       />
-      <Routes>
-        <Route path="/login" element={
-          isLoggedIn ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
-        } />
-        <Route path="/home" element={<Home />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/feedback" element={<Feedback />} />
-        <Route path="/auth/callback" element={<GmailCallback />} />
-        <Route path="/" element={
-          <PrivateRoute isLoggedIn={isLoggedIn}>
-            <Layout onLogout={handleLogout} />
-          </PrivateRoute>
-        }>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard"    element={<Dashboard />} />
-          <Route path="admin-dashboard" element={<AdminDashboard />} />
-          <Route path="trainers"     element={<Trainers />} />
-          <Route path="requirements" element={<Requirements />} />
-          <Route path="emails"       element={<Emails />} />
-          <Route path="inbox"        element={<Inbox />} />
-          <Route path="client-requests" element={<ClientRequests />} />
-          <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
-          <Route path="resume-upload" element={<ResumeUpload />} />
-          <Route path="admin"        element={<Admin />} />
-          <Route path="interviews"   element={<Interviews />} />
-          <Route path="shortlist"    element={<Shortlist />} />
-          <Route path="shortlist1"   element={<Shortlist1 />} />
-          <Route path="profile"      element={<Profile />} />
-        </Route>
-        <Route path="*" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/login" element={
+            isLoggedIn ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
+          } />
+          <Route path="/home" element={<Home />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/auth/callback" element={<GmailCallback />} />
+          <Route path="/" element={
+            <PrivateRoute isLoggedIn={isLoggedIn}>
+              <Layout onLogout={handleLogout} />
+            </PrivateRoute>
+          }>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard"    element={<Dashboard />} />
+            <Route path="admin-dashboard" element={<AdminDashboard />} />
+            <Route path="trainers"     element={<Trainers />} />
+            <Route path="requirements" element={<Requirements />} />
+            <Route path="emails"       element={<Emails />} />
+            <Route path="inbox"        element={<Navigate to="/client-requests" replace />} />
+            <Route path="client-requests" element={<ClientRequests />} />
+            <Route path="client-conversations" element={<ClientConversations />} />
+            <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
+            <Route path="resume-upload" element={<ResumeUpload />} />
+            <Route path="admin"        element={<Admin />} />
+            <Route path="interviews"   element={<Navigate to="/shortlist1" replace />} />
+            <Route path="shortlist"    element={<Shortlist />} />
+            <Route path="shortlist1"   element={<Shortlist1 />} />
+            <Route path="profile"      element={<Profile />} />
+          </Route>
+          <Route path="*" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} />
+        </Routes>
+      </Suspense>
 
       {/* Chat assistant — visible on all authenticated pages */}
       {isLoggedIn && (

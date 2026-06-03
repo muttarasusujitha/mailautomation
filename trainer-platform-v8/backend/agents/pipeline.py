@@ -6,6 +6,7 @@ Agents: Parser → Validation → Ranking → Email → Reply Monitor → Retry 
 from typing import TypedDict, List, Dict, Any, Optional
 from langgraph.graph import StateGraph, END
 from datetime import datetime
+from utils.time_utils import utc_now
 from config import get_settings
 import anthropic
 import json
@@ -403,7 +404,7 @@ support@trainersync.io
             "email_stage": 1,  # Stage 1: Initial inquiry
             "status": "pending",
             "retry_count": 0,
-            "composed_at": datetime.utcnow().isoformat(),
+            "composed_at": utc_now().isoformat(),
         })
 
     state["email_payloads"] = payloads

@@ -8,6 +8,11 @@ import {
   categoriseTrainer,
   categoriseAllTrainers,
   getCategoriseJob,
+  updateTrainer,
+  requestTrainerResume,
+  sendTrainerAutomationMail,
+  tickTrainerAutomationPipeline,
+  getTrainerConversationThread,
 } from '../utils/api'
 import {
   Search,
@@ -29,6 +34,9 @@ import {
   Languages,
   Briefcase,
   Eye,
+  MessageSquare,
+  Save,
+  Send,
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
@@ -98,6 +106,17 @@ const EXPERIENCE_OPTIONS = [
   { value: '0-3', label: '0-3 years' },
   { value: '3-7', label: '3-7 years' },
   { value: '7+', label: '7+ years' },
+]
+const PIPELINE_MAIL_TEMPLATES = [
+  { value: 'mail1', label: 'Mail 1 - First Contact' },
+  { value: 'mail2', label: 'Mail 2 - Details Request' },
+  { value: 'mail2_followup', label: 'Mail 2 Follow-up - Ask Details Again' },
+  { value: 'mail3', label: 'Mail 3 - Interview Slot Booking' },
+  { value: 'mail4', label: 'Mail 4 - Interview Schedule' },
+  { value: 'mail5_ok', label: 'Mail 5 - Selection' },
+  { value: 'mail5_no', label: 'Mail 5 - Rejection' },
+  { value: 'mail6_toc', label: 'Mail 6 - ToC Request' },
+  { value: 'mail7_confirm', label: 'Mail 7 - Training Confirmation' },
 ]
 
 const DOMAIN_BADGES = {
@@ -179,7 +198,252 @@ function trainerDescription(t) {
   return parts.join(' ')
 }
 
-function TrainerDetail({ t, onClose }) {
+function TrainerPipelinePanel({ trainer, onStartAutomation, sendingAutomation }) {
+  const clientEmail = trainer.last_automation_client_email || trainer.client_email || ''
+  const clientName = trainer.last_automation_client_name || trainer.client_name || ''
+  const mailStageByType = {
+    mail1: 1,
+    mail2: 2,
+    mail2_followup: 2,
+    mail3: 3,
+    mail4: 4,
+    mail5_ok: 5,
+    mail5_no: 5,
+    mail6_toc: 6,
+    mail7_confirm: 7,
+  }
+  const statusStageByType = {
+    contacted: 1,
+    interested: 1,
+    pending_review: 2,
+    interview_scheduled: 4,
+    selected: 5,
+    rejected: 5,
+    toc_requested: 6,
+    training_confirmed: 7,
+    confirmed: 7,
+  }
+  const currentStage = Math.max(
+    mailStageByType[trainer.last_automation_mail_type] || 0,
+    statusStageByType[trainer.status] || 0
+  )
+  const isRejected = trainer.status === 'rejected' || trainer.last_automation_mail_type === 'mail5_no'
+  const stageState = step => {
+    if (!currentStage) return 'pending'
+    if (isRejected && step === 5) return 'rejected'
+    if (step < currentStage) return 'done'
+    if (step === currentStage) return currentStage === 7 ? 'done' : 'current'
+    return 'pending'
+  }
+  const stateLabel = state => ({
+    done: 'Completed',
+    current: 'Current',
+    rejected: 'Rejected',
+    pending: 'Pending',
+  }[state] || 'Pending')
+  const stages = [
+    { step: 1, code: '01', title: 'Mail 1', desc: 'First contact / interest check' },
+    { step: 2, code: '02', title: 'Mail 2', desc: 'Details request and follow-up' },
+    { step: 3, code: '03', title: 'Mail 3', desc: 'Interview slot booking' },
+    { step: 4, code: '04', title: 'Mail 4', desc: 'Interview schedule/link' },
+    { step: 5, code: '05', title: 'Mail 5', desc: 'Selection or rejection update' },
+    { step: 6, code: '06', title: 'Mail 6', desc: 'ToC / agenda request' },
+    { step: 7, code: '07', title: 'Mail 7', desc: 'Training confirmation' },
+  ]
+  const stateClass = {
+    done: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    current: 'border-blue-200 bg-blue-50 text-blue-700 ring-2 ring-blue-100',
+    rejected: 'border-red-200 bg-red-50 text-red-700',
+    pending: 'border-slate-200 bg-slate-50 text-slate-500',
+  }
+  const statusText = currentStage
+    ? `${stages.find(item => item.step === currentStage)?.title || 'Pipeline'} ${isRejected ? 'rejected' : currentStage === 7 ? 'completed' : 'in progress'}`
+    : 'Not started'
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Trainer Pipeline</p>
+          <h3 className="mt-1 text-sm font-bold text-slate-900">7-stage automation status for this person</h3>
+          <p className="mt-1 text-xs text-slate-500">
+            Automation mail uses {trainer.email ? <span className="font-semibold text-slate-700">{trainer.email}</span> : 'this trainer email'}.
+          </p>
+          {trainer.last_automation_mail_type && (
+            <p className="mt-1 text-xs text-slate-500">
+              Last sent: <span className="font-semibold text-slate-700">{trainer.last_automation_mail_type}</span>
+            </p>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className={clsx(
+            'rounded-lg border px-3 py-2 text-xs',
+            isRejected ? 'border-red-200 bg-red-50 text-red-700' :
+            currentStage ? 'border-blue-200 bg-blue-50 text-blue-700' :
+                           'border-slate-200 bg-slate-50 text-slate-600'
+          )}>
+            Status: <span className="font-bold capitalize">{statusText}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => onStartAutomation(trainer)}
+            disabled={sendingAutomation}
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-700 disabled:opacity-60"
+          >
+            {sendingAutomation ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+            Start Automation
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {stages.map(item => {
+          const state = stageState(item.step)
+          return (
+          <div key={item.step} className={clsx('rounded-lg border px-3 py-2.5', stateClass[state])}>
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 min-w-6 items-center justify-center rounded-md bg-white/80 px-1 text-[11px] font-black">
+                {state === 'done' ? 'OK' : state === 'rejected' ? 'NO' : item.code}
+              </span>
+              <span className="text-sm font-bold">{item.title}</span>
+              <span className="ml-auto rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+                {stateLabel(state)}
+              </span>
+            </div>
+            <p className="mt-1 text-xs leading-5 opacity-80">{item.desc}</p>
+          </div>
+          )
+        })}
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+        <div className="rounded-lg border border-cyan-100 bg-cyan-50 px-3 py-2">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-cyan-700">Client Mail</p>
+          <p className="mt-0.5 truncate text-xs font-semibold text-cyan-700">{clientEmail || 'Add in automation popup'}</p>
+          {clientName && <p className="mt-0.5 truncate text-[11px] text-cyan-600">{clientName}</p>}
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">Email</p>
+          <p className="mt-0.5 truncate text-xs font-semibold text-slate-700">{trainer.email || 'Missing'}</p>
+        </div>
+        <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-emerald-700">WhatsApp</p>
+          <p className="mt-0.5 truncate text-xs font-semibold text-emerald-700">{trainer.phone || 'Phone missing'}</p>
+        </div>
+        <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2 sm:col-span-3">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-indigo-700">Teams</p>
+          <p className="mt-0.5 truncate text-xs font-semibold text-indigo-700">{trainer.teams_email || trainer.microsoft_teams_email || trainer.teams_upn || trainer.email || 'Not set'}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function formatThreadTime(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return String(value)
+  return date.toLocaleString([], {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function threadDirectionLabel(msg) {
+  if (msg.direction === 'received') return 'Trainer replied'
+  if (msg.direction === 'client_sent') return 'Sent to client'
+  if (msg.direction === 'client_received') return 'Client replied'
+  return 'Sent to trainer'
+}
+
+function threadTone(msg) {
+  if (msg.direction === 'received') return 'border-emerald-100 bg-emerald-50/70'
+  if (msg.direction === 'client_sent') return 'border-cyan-100 bg-cyan-50/70'
+  if (msg.direction === 'client_received') return 'border-amber-100 bg-amber-50/70'
+  return 'border-blue-100 bg-blue-50/70'
+}
+
+function TrainerConversationThread({ trainer }) {
+  const [messages, setMessages] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const loadThread = useCallback(async () => {
+    if (!trainer?.trainer_id) return
+    setLoading(true)
+    setError('')
+    try {
+      const res = await getTrainerConversationThread(trainer.trainer_id, { _ts: Date.now() })
+      setMessages(res.data?.messages || [])
+    } catch (err) {
+      setError(err.message || 'Could not load conversation thread')
+    } finally {
+      setLoading(false)
+    }
+  }, [trainer?.trainer_id])
+
+  useEffect(() => {
+    loadThread()
+  }, [loadThread])
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Conversation Thread</p>
+          <p className="mt-0.5 text-xs text-slate-500">Trainer mails, replies, client slot messages, and interview schedule updates.</p>
+        </div>
+        <button
+          type="button"
+          onClick={loadThread}
+          disabled={loading}
+          className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-60"
+        >
+          <RefreshCw className={clsx('h-3.5 w-3.5', loading && 'animate-spin')} />
+          Refresh
+        </button>
+      </div>
+
+      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600">{error}</p>}
+      {!error && loading && !messages.length && (
+        <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-4 text-sm text-slate-500">
+          <RefreshCw className="h-4 w-4 animate-spin" />
+          Loading conversation...
+        </div>
+      )}
+      {!error && !loading && !messages.length && (
+        <p className="rounded-lg bg-slate-50 px-3 py-4 text-sm text-slate-500">No conversation yet for this trainer.</p>
+      )}
+      {messages.length > 0 && (
+        <div className="max-h-80 space-y-3 overflow-y-auto pr-1">
+          {messages.map((msg, index) => (
+            <div key={`${msg.email_id || index}-${msg.sent_at || index}`} className={clsx('rounded-xl border p-3', threadTone(msg))}>
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-bold text-slate-800">{threadDirectionLabel(msg)}</span>
+                  {msg.mail_type && <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-semibold text-slate-500">{msg.mail_type}</span>}
+                  {msg.status && <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-semibold text-slate-500">{msg.status}</span>}
+                </div>
+                <span className="text-[11px] font-medium text-slate-500">{formatThreadTime(msg.sent_at)}</span>
+              </div>
+              {msg.subject && <p className="mb-1 text-xs font-semibold text-slate-700">{msg.subject}</p>}
+              {msg.to_email && <p className="mb-1 text-[11px] text-slate-500">To: {msg.to_email}</p>}
+              {msg.client_email && msg.direction?.startsWith('client') && (
+                <p className="mb-1 text-[11px] text-cyan-700">Client: {msg.client_name || 'Client'} ({msg.client_email})</p>
+              )}
+              {msg.slot_ref && <p className="mb-1 text-[11px] text-slate-500">Slot ref: {msg.slot_ref}</p>}
+              <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-700">{msg.body || 'No body saved.'}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomation, requestingResume, sendingAutomation }) {
   const category = primaryCategory(t)
   const tags = specialisationTags(t)
   const industries = asArray(t.industry_focus)
@@ -187,6 +451,29 @@ function TrainerDetail({ t, onClose }) {
   const levels = skillLevels(t)
   const resumeText = compactResumeText(t.resume)
   const pastClients = asArray(t.past_clients)
+  const [teamsEmail, setTeamsEmail] = useState(t.teams_email || t.microsoft_teams_email || t.teams_upn || '')
+  const [savingTeams, setSavingTeams] = useState(false)
+  const [showSingleShortlist, setShowSingleShortlist] = useState(false)
+
+  useEffect(() => {
+    setTeamsEmail(t.teams_email || t.microsoft_teams_email || t.teams_upn || '')
+  }, [t])
+
+  const saveTeamsEmail = async () => {
+    setSavingTeams(true)
+    try {
+      await onUpdate(t.trainer_id, {
+        teams_email: teamsEmail,
+        microsoft_teams_email: teamsEmail,
+        teams_upn: teamsEmail,
+      })
+      toast.success('Teams email saved')
+    } catch (error) {
+      toast.error(error.message || 'Could not save Teams email')
+    } finally {
+      setSavingTeams(false)
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-5 bg-black/30 backdrop-blur-sm">
@@ -214,9 +501,49 @@ function TrainerDetail({ t, onClose }) {
 
         <div className="p-5 space-y-5 overflow-y-auto flex-1">
           <div className="rounded-xl border border-brand-100 bg-brand-50/60 p-4">
-            <p className="text-xs font-semibold text-brand-600 uppercase tracking-wider mb-2">Trainer Profile</p>
+            <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold text-brand-600 uppercase tracking-wider">Trainer Profile</p>
+                <p className="mt-0.5 text-xs text-brand-500">Resume details only. Open single shortlist when you want automation.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSingleShortlist(value => !value)}
+                className={clsx(
+                  'flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition-colors',
+                  showSingleShortlist
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-white text-blue-600 border border-blue-100 hover:bg-blue-50'
+                )}
+              >
+                <Sparkles className="h-4 w-4" />
+                {showSingleShortlist ? 'Hide Single Shortlist' : 'Single Shortlist / Pipeline'}
+              </button>
+            </div>
             <p className="text-sm leading-6 text-slate-700">{trainerDescription(t)}</p>
           </div>
+
+          {showSingleShortlist && (
+            <div className="space-y-4 rounded-2xl border border-blue-100 bg-blue-50/40 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Single Person Shortlist</p>
+                  <p className="mt-0.5 text-xs text-blue-600">Pipeline and communication only for this trainer.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onStartAutomation(t)}
+                  disabled={sendingAutomation}
+                  className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                >
+                  {sendingAutomation ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                  Start Automation
+                </button>
+              </div>
+              <TrainerPipelinePanel trainer={t} onStartAutomation={onStartAutomation} sendingAutomation={sendingAutomation} />
+              <TrainerConversationThread trainer={t} />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {t.email && (
@@ -231,6 +558,12 @@ function TrainerDetail({ t, onClose }) {
                 <span className="text-sm text-slate-700">{t.phone}</span>
               </div>
             )}
+            {(t.teams_email || t.microsoft_teams_email || t.teams_upn) && (
+              <div className="flex items-center gap-2 p-3 bg-indigo-50 rounded-xl min-w-0">
+                <MessageSquare className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                <span className="text-sm text-indigo-700 truncate">{t.teams_email || t.microsoft_teams_email || t.teams_upn}</span>
+              </div>
+            )}
             {t.location && (
               <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
                 <MapPin className="w-4 h-4 text-amber-500 flex-shrink-0" />
@@ -243,6 +576,37 @@ function TrainerDetail({ t, onClose }) {
                 <span className="text-sm text-slate-700">{t.experience_raw || `${t.experience_years} years`}</span>
               </div>
             )}
+          </div>
+
+          <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-4">
+            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-2">Microsoft Teams Direct Chat</p>
+            {t.email && (
+              <p className="mb-2 text-xs text-indigo-600">
+                Default Teams lookup uses resume email: <span className="font-semibold">{t.email}</span>
+              </p>
+            )}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
+                <input
+                  type="email"
+                  value={teamsEmail}
+                  onChange={e => setTeamsEmail(e.target.value)}
+                  placeholder="Optional Teams email override"
+                  className="w-full rounded-xl border border-indigo-100 bg-white pl-9 pr-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={saveTeamsEmail}
+                disabled={savingTeams}
+                className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+              >
+                {savingTeams ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                Save Teams
+              </button>
+            </div>
+            <p className="mt-2 text-xs text-indigo-500">Leave this blank if the resume email is the trainer's Teams account. Add an override only when Teams uses a different email.</p>
           </div>
 
           {tags.length > 0 && (
@@ -334,6 +698,23 @@ function TrainerDetail({ t, onClose }) {
           )}
 
           <div className="flex flex-wrap gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowSingleShortlist(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-sm font-medium hover:bg-blue-100 transition-colors disabled:opacity-60"
+            >
+              <Sparkles className="w-4 h-4" />
+              Single Shortlist / Pipeline
+            </button>
+            <button
+              type="button"
+              onClick={() => onRequestResume(t)}
+              disabled={requestingResume}
+              className="flex items-center gap-2 px-4 py-2 bg-brand-50 text-brand-600 rounded-xl text-sm font-medium hover:bg-brand-100 transition-colors disabled:opacity-60"
+            >
+              {requestingResume ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              Request Resume
+            </button>
             {t.linkedin && t.linkedin !== '-' && (
               <a href={t.linkedin} target="_blank" rel="noreferrer"
                  className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-sm font-medium hover:bg-blue-100 transition-colors">
@@ -353,7 +734,7 @@ function TrainerDetail({ t, onClose }) {
   )
 }
 
-function TrainerRow({ t, onDelete, onView, onRecategorise, recategorising }) {
+function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onStartAutomation, recategorising, requestingResume, sendingAutomation }) {
   const category = primaryCategory(t)
   const tags = specialisationTags(t)
   const industries = asArray(t.industry_focus)
@@ -416,6 +797,12 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, recategorising }) {
           {(t.experience_raw || t.experience_years) && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {t.experience_raw || `${t.experience_years} years`}</span>}
           {t.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {t.location}</span>}
           {t.email && <span className="flex items-center gap-1 min-w-0"><Mail className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{t.email}</span></span>}
+          {(t.teams_email || t.microsoft_teams_email || t.teams_upn) && (
+            <span className="flex items-center gap-1 min-w-0 text-indigo-600">
+              <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">{t.teams_email || t.microsoft_teams_email || t.teams_upn}</span>
+            </span>
+          )}
           {t.phone && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {t.phone}</span>}
         </div>
 
@@ -455,6 +842,26 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, recategorising }) {
       </div>
 
       <div className="flex flex-col gap-2 flex-shrink-0">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onStartAutomation(t) }}
+          disabled={sendingAutomation}
+          className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-50"
+          title="Start automation pipeline"
+          aria-label={`Start automation pipeline for ${t.name || 'trainer'}`}
+        >
+          {sendingAutomation ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+        </button>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onRequestResume(t) }}
+          disabled={requestingResume}
+          className="p-2 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-all disabled:opacity-50"
+          title="Request updated resume"
+          aria-label={`Request updated resume from ${t.name || 'trainer'}`}
+        >
+          {requestingResume ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+        </button>
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onView(t) }}
@@ -507,6 +914,32 @@ export default function Trainers() {
   const [selectedTrainer, setSelectedTrainer] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
   const [recategorisingId, setRecategorisingId] = useState('')
+  const [resumeRequestTrainer, setResumeRequestTrainer] = useState(null)
+  const [resumeRequestDomain, setResumeRequestDomain] = useState('')
+  const [requestingResumeId, setRequestingResumeId] = useState('')
+  const [automationMailTrainer, setAutomationMailTrainer] = useState(null)
+  const [automationMode, setAutomationMode] = useState('manual')
+  const [automationPollingTrainerId, setAutomationPollingTrainerId] = useState('')
+  const [automationForm, setAutomationForm] = useState({
+    mail_type: 'mail1',
+    domain: '',
+    duration: '',
+    mode: 'Online',
+    participants: '',
+    client_name: '',
+    client_email: '',
+    slots: '',
+    date_time: '',
+    platform: 'Google Meet',
+    interview_link: '',
+    training_date: '',
+    venue: '',
+    contact_name: 'Calhan Technologies Team',
+    contact_phone: '',
+    contact_email: '',
+    message: '',
+  })
+  const [sendingAutomationId, setSendingAutomationId] = useState('')
   const [categorisingAll, setCategorisingAll] = useState(false)
   const [categoryJob, setCategoryJob] = useState(null)
   const pollRef = useRef(null)
@@ -595,6 +1028,27 @@ export default function Trainers() {
     load(page)
   }, [load, page])
 
+  useEffect(() => {
+    if (!automationPollingTrainerId || !selectedTrainer || selectedTrainer.trainer_id !== automationPollingTrainerId) return undefined
+    const tick = async () => {
+      try {
+        const res = await tickTrainerAutomationPipeline(automationPollingTrainerId, {
+          domain: selectedTrainer.last_automation_mail_domain || selectedTrainer.primary_category || selectedTrainer.domain || 'Training',
+          client_email: selectedTrainer.last_automation_client_email || selectedTrainer.client_email || '',
+          client_name: selectedTrainer.last_automation_client_name || selectedTrainer.client_name || '',
+        })
+        applyUpdatedTrainer(res.data.trainer)
+        if (res.data.sent_next) {
+          toast.success(`${res.data.next_mail_type || 'Next mail'} sent automatically`)
+        }
+      } catch {
+        // Keep the visible pipeline usable even if a background poll fails once.
+      }
+    }
+    const interval = setInterval(tick, 15000)
+    return () => clearInterval(interval)
+  }, [automationPollingTrainerId, selectedTrainer])
+
   const handleSearch = (e) => {
     e.preventDefault()
     setSearch(searchInput.trim())
@@ -640,6 +1094,187 @@ export default function Trainers() {
     }
   }
 
+  const handleUpdateTrainer = async (trainerId, updates) => {
+    const res = await updateTrainer(trainerId, updates)
+    const updated = res.data.trainer
+    setTrainers(prev => prev.map(item => item.trainer_id === trainerId ? updated : item))
+    setSelectedTrainer(current => current?.trainer_id === trainerId ? updated : current)
+    return updated
+  }
+
+  const openResumeRequest = (trainer) => {
+    if (!trainer?.email) {
+      toast.error('Trainer email is required to request a resume')
+      return
+    }
+    setResumeRequestTrainer(trainer)
+    setResumeRequestDomain(domain || category || trainer.primary_category || trainer.technology_category || trainer.domain || '')
+  }
+
+  const closeResumeRequest = () => {
+    if (requestingResumeId) return
+    setResumeRequestTrainer(null)
+    setResumeRequestDomain('')
+  }
+
+  const handleRequestResume = async () => {
+    if (!resumeRequestTrainer) return
+    const wantedDomain = resumeRequestDomain.trim() || resumeRequestTrainer.primary_category || resumeRequestTrainer.domain || 'Training'
+    setRequestingResumeId(resumeRequestTrainer.trainer_id)
+    try {
+      const res = await requestTrainerResume(resumeRequestTrainer.trainer_id, {
+        domain: wantedDomain,
+      })
+      const updated = res.data.trainer
+      if (updated?.trainer_id) {
+        setTrainers(prev => prev.map(item => item.trainer_id === updated.trainer_id ? updated : item))
+        setSelectedTrainer(current => current?.trainer_id === updated.trainer_id ? updated : current)
+      }
+      toast.success(`Resume request sent to ${resumeRequestTrainer.name || 'trainer'}`)
+      setResumeRequestTrainer(null)
+      setResumeRequestDomain('')
+    } catch (error) {
+      toast.error(error.message || 'Could not send resume request')
+    } finally {
+      setRequestingResumeId('')
+    }
+  }
+
+  const closeAutomationMail = () => {
+    if (sendingAutomationId) return
+    setAutomationMailTrainer(null)
+    setAutomationMode('manual')
+    setAutomationForm({
+      mail_type: 'mail1',
+      domain: '',
+      duration: '',
+      mode: 'Online',
+      participants: '',
+      client_name: '',
+      client_email: '',
+      slots: '',
+      date_time: '',
+      platform: 'Google Meet',
+      interview_link: '',
+      training_date: '',
+      venue: '',
+      contact_name: 'Calhan Technologies Team',
+      contact_phone: '',
+      contact_email: '',
+      message: '',
+    })
+  }
+
+  const handleAutomationFormChange = (field, value) => {
+    setAutomationForm(prev => ({ ...prev, [field]: value }))
+  }
+
+  const applyUpdatedTrainer = (updated) => {
+    if (!updated?.trainer_id) return
+    setTrainers(prev => prev.map(item => item.trainer_id === updated.trainer_id ? updated : item))
+    setSelectedTrainer(current => current?.trainer_id === updated.trainer_id ? updated : current)
+  }
+
+  const startAutomationPipeline = async (trainer, overrides = {}) => {
+    if (!trainer?.email) {
+      toast.error('Trainer email is required to start automation')
+      return
+    }
+    const clientEmail = overrides.client_email || trainer.last_automation_client_email || trainer.client_email || ''
+    if (!clientEmail) {
+      const defaultDomain = domain || category || trainer.primary_category || trainer.technology_category || trainer.domain || ''
+      setAutomationMode('auto_start')
+      setAutomationMailTrainer(trainer)
+      setAutomationForm(prev => ({
+        ...prev,
+        mail_type: 'mail1',
+        domain: defaultDomain || 'Training',
+        client_name: trainer.last_automation_client_name || trainer.client_name || '',
+        client_email: '',
+      }))
+      toast.error('Add client email once, then automation will start')
+      return
+    }
+
+    setSendingAutomationId(trainer.trainer_id)
+    try {
+      const res = await tickTrainerAutomationPipeline(trainer.trainer_id, {
+        ...automationForm,
+        ...overrides,
+        domain: overrides.domain || automationForm.domain || trainer.last_automation_mail_domain || trainer.primary_category || trainer.domain || 'Training',
+        client_email: clientEmail,
+        client_name: overrides.client_name || trainer.last_automation_client_name || trainer.client_name || '',
+      })
+      applyUpdatedTrainer(res.data.trainer)
+      if (res.data.sent_next) {
+        toast.success(`${res.data.next_mail_type || 'Next mail'} sent automatically`)
+      } else {
+        toast.success(`Automation checked: ${res.data.reason || 'waiting for reply'}`)
+      }
+      setAutomationPollingTrainerId(trainer.trainer_id)
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not start automation')
+    } finally {
+      setSendingAutomationId('')
+    }
+  }
+
+  const handleSendAutomationMail = async () => {
+    if (!automationMailTrainer) return
+    if (automationMode === 'auto_start') {
+      if (!automationForm.client_email.trim()) {
+        toast.error('Client email is required to start automation')
+        return
+      }
+      await startAutomationPipeline(automationMailTrainer, {
+        ...automationForm,
+        client_email: automationForm.client_email.trim(),
+        client_name: automationForm.client_name.trim(),
+      })
+      setAutomationMailTrainer(null)
+      setAutomationMode('manual')
+      return
+    }
+    const trainerId = automationMailTrainer.trainer_id
+    setSendingAutomationId(trainerId)
+    try {
+      const res = await sendTrainerAutomationMail(trainerId, {
+        ...automationForm,
+        domain: automationForm.domain.trim() || automationMailTrainer.primary_category || automationMailTrainer.domain || 'Training',
+      })
+      const updated = res.data.trainer
+      if (updated?.trainer_id) {
+        setTrainers(prev => prev.map(item => item.trainer_id === updated.trainer_id ? updated : item))
+        setSelectedTrainer(current => current?.trainer_id === updated.trainer_id ? updated : current)
+      }
+      toast.success(`Automation mail sent to ${automationMailTrainer.name || 'trainer'}`)
+      setAutomationMailTrainer(null)
+      setAutomationForm({
+        mail_type: 'mail1',
+        domain: '',
+        duration: '',
+        mode: 'Online',
+        participants: '',
+        client_name: '',
+        client_email: '',
+        slots: '',
+        date_time: '',
+        platform: 'Google Meet',
+        interview_link: '',
+        training_date: '',
+        venue: '',
+        contact_name: 'Calhan Technologies Team',
+        contact_phone: '',
+        contact_email: '',
+        message: '',
+      })
+    } catch (error) {
+      toast.error(error.message || 'Could not send automation mail')
+    } finally {
+      setSendingAutomationId('')
+    }
+  }
+
   const handleCategoriseAll = async () => {
     setCategorisingAll(true)
     setCategoryJob(null)
@@ -668,7 +1303,267 @@ export default function Trainers() {
   return (
     <>
       {selectedTrainer && (
-        <TrainerDetail t={selectedTrainer} onClose={() => setSelectedTrainer(null)} />
+        <TrainerDetail
+          t={selectedTrainer}
+          onClose={() => setSelectedTrainer(null)}
+          onUpdate={handleUpdateTrainer}
+          onRequestResume={openResumeRequest}
+          onStartAutomation={startAutomationPipeline}
+          requestingResume={requestingResumeId === selectedTrainer.trainer_id}
+          sendingAutomation={sendingAutomationId === selectedTrainer.trainer_id}
+        />
+      )}
+
+      {automationMailTrainer && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-card-lg p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto animate-slide-up">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="font-bold text-slate-900">{automationMode === 'auto_start' ? 'Start Automation' : 'Send Automation Mail'}</h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  {automationMode === 'auto_start'
+                    ? <>Add client details once. Mail 1 starts automatically for <strong>{automationMailTrainer.name || 'Trainer'}</strong>.</>
+                    : <>Send one trainer pipeline template only to <strong>{automationMailTrainer.name || 'Trainer'}</strong>.</>}
+                </p>
+              </div>
+              <button onClick={closeAutomationMail} className="p-2 rounded-lg hover:bg-slate-100" aria-label="Close automation mail">
+                <X className="w-4 h-4 text-slate-500" />
+              </button>
+            </div>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="sm:col-span-2">
+                <label className="label">Pipeline Mail Template</label>
+                <select
+                  className="input"
+                  value={automationForm.mail_type}
+                  onChange={e => handleAutomationFormChange('mail_type', e.target.value)}
+                  disabled={automationMode === 'auto_start'}
+                >
+                  {PIPELINE_MAIL_TEMPLATES.map(item => (
+                    <option key={item.value} value={item.value}>{item.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="label">Domain / Technology</label>
+                <input
+                  className="input"
+                  value={automationForm.domain}
+                  onChange={e => handleAutomationFormChange('domain', e.target.value)}
+                  placeholder="Example: Python, AWS, Data Science"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="label">Client Name</label>
+                <input
+                  className="input"
+                  value={automationForm.client_name}
+                  onChange={e => handleAutomationFormChange('client_name', e.target.value)}
+                  placeholder="Example: ABC Corp"
+                />
+              </div>
+              <div>
+                <label className="label">Client Email</label>
+                <input
+                  className="input"
+                  type="email"
+                  value={automationForm.client_email}
+                  onChange={e => handleAutomationFormChange('client_email', e.target.value)}
+                  placeholder="client@company.com"
+                />
+              </div>
+              <div>
+                <label className="label">Duration</label>
+                <input
+                  className="input"
+                  value={automationForm.duration}
+                  onChange={e => handleAutomationFormChange('duration', e.target.value)}
+                  placeholder="Example: 2 days"
+                />
+              </div>
+              <div>
+                <label className="label">Mode</label>
+                <select
+                  className="input"
+                  value={automationForm.mode}
+                  onChange={e => handleAutomationFormChange('mode', e.target.value)}
+                >
+                  <option value="Online">Online</option>
+                  <option value="Offline">Offline</option>
+                  <option value="Hybrid">Hybrid</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="label">Participants</label>
+                <input
+                  className="input"
+                  value={automationForm.participants}
+                  onChange={e => handleAutomationFormChange('participants', e.target.value)}
+                  placeholder="Example: 20 learners"
+                />
+              </div>
+              {automationForm.mail_type === 'mail3' && (
+                <div className="sm:col-span-2">
+                  <label className="label">Slot Options</label>
+                  <textarea
+                    className="input min-h-24 resize-y"
+                    value={automationForm.slots}
+                    onChange={e => handleAutomationFormChange('slots', e.target.value)}
+                    placeholder={'Example:\n10 Jun, 11:00 AM - 11:30 AM\n11 Jun, 3:00 PM - 3:30 PM'}
+                  />
+                </div>
+              )}
+              {automationForm.mail_type === 'mail4' && (
+                <>
+                  <div>
+                    <label className="label">Date & Time</label>
+                    <input
+                      className="input"
+                      value={automationForm.date_time}
+                      onChange={e => handleAutomationFormChange('date_time', e.target.value)}
+                      placeholder="Example: 10 Jun, 11:00 AM IST"
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Platform</label>
+                    <input
+                      className="input"
+                      value={automationForm.platform}
+                      onChange={e => handleAutomationFormChange('platform', e.target.value)}
+                      placeholder="Google Meet"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="label">Meeting Link</label>
+                    <input
+                      className="input"
+                      value={automationForm.interview_link}
+                      onChange={e => handleAutomationFormChange('interview_link', e.target.value)}
+                      placeholder="https://meet.google.com/..."
+                    />
+                  </div>
+                </>
+              )}
+              {automationForm.mail_type === 'mail7_confirm' && (
+                <>
+                  <div>
+                    <label className="label">Training Date</label>
+                    <input
+                      className="input"
+                      value={automationForm.training_date}
+                      onChange={e => handleAutomationFormChange('training_date', e.target.value)}
+                      placeholder="Example: 15-16 Jun"
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Venue / Platform</label>
+                    <input
+                      className="input"
+                      value={automationForm.venue}
+                      onChange={e => handleAutomationFormChange('venue', e.target.value)}
+                      placeholder="Online / client platform"
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Contact Name</label>
+                    <input
+                      className="input"
+                      value={automationForm.contact_name}
+                      onChange={e => handleAutomationFormChange('contact_name', e.target.value)}
+                      placeholder="Calhan Technologies Team"
+                    />
+                  </div>
+                  <div>
+                    <label className="label">Contact Phone</label>
+                    <input
+                      className="input"
+                      value={automationForm.contact_phone}
+                      onChange={e => handleAutomationFormChange('contact_phone', e.target.value)}
+                      placeholder="+91..."
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="label">Contact Email</label>
+                    <input
+                      className="input"
+                      value={automationForm.contact_email}
+                      onChange={e => handleAutomationFormChange('contact_email', e.target.value)}
+                      placeholder="team@company.com"
+                    />
+                  </div>
+                </>
+              )}
+              <div className="sm:col-span-2">
+                <label className="label">Optional note</label>
+                <textarea
+                  className="input min-h-24 resize-y"
+                  value={automationForm.message}
+                  onChange={e => handleAutomationFormChange('message', e.target.value)}
+                  placeholder="Optional custom note to add before the automated message"
+                />
+              </div>
+              <div className="sm:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+                <p className="font-semibold text-slate-700">Trainer Mail To</p>
+                <p className="mt-1 break-words">{automationMailTrainer.email}</p>
+                <p className="mt-3 font-semibold text-slate-700">Client Mail</p>
+                <p className="mt-1 break-words">{automationForm.client_email || 'Not added yet'}</p>
+              </div>
+            </div>
+            <div className="mt-5 flex gap-3">
+              <button onClick={handleSendAutomationMail} disabled={!!sendingAutomationId} className="btn-primary flex-1 justify-center disabled:opacity-60">
+                {sendingAutomationId ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                {automationMode === 'auto_start' ? 'Start Automation' : 'Send Automation Mail'}
+              </button>
+              <button onClick={closeAutomationMail} disabled={!!sendingAutomationId} className="btn-secondary">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {resumeRequestTrainer && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-card-lg p-6 max-w-md w-full animate-slide-up">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="font-bold text-slate-900">Request Updated Resume</h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  Send a resume/profile request to <strong>{resumeRequestTrainer.name || 'Trainer'}</strong>.
+                </p>
+              </div>
+              <button onClick={closeResumeRequest} className="p-2 rounded-lg hover:bg-slate-100" aria-label="Close resume request">
+                <X className="w-4 h-4 text-slate-500" />
+              </button>
+            </div>
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="label">Wanted Domain / Technology</label>
+                <input
+                  className="input"
+                  value={resumeRequestDomain}
+                  onChange={e => setResumeRequestDomain(e.target.value)}
+                  placeholder="Example: Python, AWS, Data Science"
+                  autoFocus
+                />
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+                <p className="font-semibold text-slate-700">To</p>
+                <p className="mt-1 break-words">{resumeRequestTrainer.email}</p>
+              </div>
+            </div>
+            <div className="mt-5 flex gap-3">
+              <button onClick={handleRequestResume} disabled={!!requestingResumeId} className="btn-primary flex-1 justify-center disabled:opacity-60">
+                {requestingResumeId ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                Send Request
+              </button>
+              <button onClick={closeResumeRequest} disabled={!!requestingResumeId} className="btn-secondary">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {confirmDelete && (
@@ -789,7 +1684,11 @@ export default function Trainers() {
               onView={setSelectedTrainer}
               onDelete={setConfirmDelete}
               onRecategorise={handleRecategorise}
+              onRequestResume={openResumeRequest}
+              onStartAutomation={startAutomationPipeline}
               recategorising={recategorisingId === t.trainer_id}
+              requestingResume={requestingResumeId === t.trainer_id}
+              sendingAutomation={sendingAutomationId === t.trainer_id}
             />
           ))}
         </div>

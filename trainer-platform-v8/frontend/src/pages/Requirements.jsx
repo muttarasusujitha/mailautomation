@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
-import { createRequirement, shortlistOnly, getRequirements } from '../utils/api'
-import api from '../utils/api'
+import { createRequirement, deleteRequirement, getRequirements } from '../utils/api'
 import toast from 'react-hot-toast'
 import {
   Search, Plus, X, Star, MapPin, Mail,
-  Phone, Linkedin, FileText, Award, Clock, Loader2, ChevronRight,
+  Phone, Linkedin, FileText, Award, Clock, Loader2,
   TrendingUp, Users, Trash2, Eye, BriefcaseBusiness, BookOpenCheck
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -50,8 +49,8 @@ function resumeExcerpt(value) {
   return raw.length > 1200 ? `${raw.slice(0, 1200).trim()}...` : raw
 }
 
-function buildFitDescription(trainer, requirement) {
-  const tech = requirement?.technology_needed || 'this requirement'
+function buildFitDescription(trainer, _requirement) {
+  const tech = _requirement?.technology_needed || 'this requirement'
   const matchedSkills = trainer.score_breakdown?.skills?.matched_required || []
   const preferred = trainer.score_breakdown?.skills?.matched_preferred || []
   const parts = [
@@ -62,8 +61,8 @@ function buildFitDescription(trainer, requirement) {
   }
   if (matchedSkills.length) {
     parts.push(`Resume should clearly highlight hands-on work in ${matchedSkills.join(', ')}.`)
-  } else if (requirement?.required_skills?.length) {
-    parts.push(`Resume should explicitly mention the required skills: ${requirement.required_skills.join(', ')}.`)
+  } else if (_requirement?.required_skills?.length) {
+    parts.push(`Resume should explicitly mention the required skills: ${_requirement.required_skills.join(', ')}.`)
   }
   if (preferred.length) {
     parts.push(`Preferred strengths found include ${preferred.join(', ')}.`)
@@ -226,6 +225,60 @@ function TrainerDetailModal({ trainer, rank, requirement, onClose }) {
   )
 }
 
+function AutomationPipelinePreview({ trainer, requirement }) {
+  const clientEmail = requirement?.client_email || ''
+  const stages = [
+    { step: '01', title: 'Mail 1', desc: 'First contact to trainer', tone: 'blue' },
+    { step: '02', title: 'Mail 2', desc: 'Request trainer details', tone: 'indigo' },
+    { step: '03', title: 'Mail 3', desc: 'Ask interview slots', tone: 'amber' },
+    { step: 'C', title: 'Client Mail', desc: clientEmail ? `Slots go to ${clientEmail}` : 'Client email missing', tone: clientEmail ? 'cyan' : 'orange' },
+    { step: '04', title: 'Mail 4', desc: 'Interview link to trainer', tone: 'purple' },
+    { step: '05', title: 'Mail 5', desc: 'Selection or rejection', tone: 'emerald' },
+    { step: '06', title: 'Mail 6', desc: 'ToC / agenda request', tone: 'teal' },
+    { step: '07', title: 'Mail 7', desc: 'Training confirmation', tone: 'green' },
+  ]
+  const toneClass = {
+    blue: 'border-blue-100 bg-blue-50 text-blue-700',
+    indigo: 'border-indigo-100 bg-indigo-50 text-indigo-700',
+    amber: 'border-amber-100 bg-amber-50 text-amber-700',
+    cyan: 'border-cyan-100 bg-cyan-50 text-cyan-700',
+    orange: 'border-orange-100 bg-orange-50 text-orange-700',
+    purple: 'border-purple-100 bg-purple-50 text-purple-700',
+    emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+    teal: 'border-teal-100 bg-teal-50 text-teal-700',
+    green: 'border-green-100 bg-green-50 text-green-700',
+  }
+
+  return (
+    <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">7-stage automation pipeline</p>
+          <p className="mt-0.5 text-xs text-slate-500">For {trainer.name}: trainer mails, client slot mail, ToC, and final confirmation.</p>
+        </div>
+        <a
+          href="/shortlist1"
+          onClick={e => e.stopPropagation()}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-2 text-xs font-bold text-white transition hover:bg-brand-600"
+        >
+          <TrendingUp className="h-3.5 w-3.5" /> Open AI Pipeline
+        </a>
+      </div>
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        {stages.map(item => (
+          <div key={`${item.step}-${item.title}`} className={clsx('rounded-lg border px-2.5 py-2', toneClass[item.tone])}>
+            <div className="flex items-center gap-2">
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-md bg-white/75 px-1 text-[10px] font-black">{item.step}</span>
+              <span className="text-xs font-bold">{item.title}</span>
+            </div>
+            <p className="mt-1 text-[11px] leading-4 opacity-80">{item.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const TrainerCard = ({ trainer, rank, requirement, onOpen }) => (
   <div
     role="button"
@@ -291,6 +344,7 @@ const TrainerCard = ({ trainer, rank, requirement, onOpen }) => (
             })}
           </div>
         )}
+        <AutomationPipelinePreview trainer={trainer} requirement={requirement} />
         <div className="mt-3 flex items-center gap-3">
           {trainer.has_linkedin && (
             <a href={trainer.linkedin} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
@@ -328,6 +382,7 @@ export default function Requirements() {
   const [selectedTrainer, setSelectedTrainer] = useState(null)
   const [skillInput, setSkillInput] = useState('')
   const [skillSuggestions, setSkillSuggestions] = useState([])
+  const [deletingReqId, setDeletingReqId] = useState('')
   const [form, setForm] = useState({
     technology_needed: '',
     job_title: '',
@@ -337,6 +392,9 @@ export default function Requirements() {
     preferred_skills: [],
     required_certifications: [],
     preferred_location: '',
+    client_name: '',
+    client_company: '',
+    client_email: '',
     must_have_linkedin: false,
     must_have_resume: false,
     top_n: 5,
@@ -384,17 +442,42 @@ export default function Requirements() {
   }
 
   // Only shortlist, no email
-  const handleShortlistOnly = async () => {
+  const handleShortlistOnly = async (topN = form.top_n) => {
     if (!form.technology_needed) return toast.error('Technology is required')
-    setLoading(true); setLoadingMode('shortlist'); setResult(null)
+    if (!form.client_email.trim()) return toast.error('Client email is required for automatic slot handoff')
+    const shortlistCount = Number(topN) || form.top_n
+    setLoading(true); setLoadingMode(shortlistCount === 1 ? 'top1' : 'shortlist'); setResult(null)
     try {
-      const res = await createRequirement({ ...form, send_emails: false })
+      const res = await createRequirement({ ...form, top_n: shortlistCount, send_emails: false })
       setResult(res.data)
       setShowForm(false)
       toast.success(`✅ Shortlisted ${res.data.top_trainers} trainers!`)
       getRequirements().then(r => setReqs(r.data.requirements || []))
     } catch (e) { toast.error(e.message) }
     finally { setLoading(false); setLoadingMode('') }
+  }
+
+  const handleDeleteRequirement = async requirement => {
+    const requirementId = requirement?.requirement_id || requirement
+    if (!requirementId || deletingReqId) return
+    const label = requirement?.technology_needed || form.technology_needed || requirementId
+    if (!globalThis.confirm(`Delete "${label}" from Find Trainers? This removes its shortlist and pipeline data.`)) return
+
+    setDeletingReqId(requirementId)
+    try {
+      await deleteRequirement(requirementId)
+      localStorage.removeItem(`sl_v5_${requirementId}`)
+      setReqs(prev => prev.filter(item => item.requirement_id !== requirementId))
+      if (result?.requirement_id === requirementId) {
+        setResult(null)
+        setSelectedTrainer(null)
+      }
+      toast.success(`${label} deleted`)
+    } catch (err) {
+      toast.error(err.response?.data?.detail || err.message || 'Could not delete search')
+    } finally {
+      setDeletingReqId('')
+    }
   }
 
 
@@ -450,6 +533,18 @@ export default function Requirements() {
                 onChange={e => setForm(f => ({ ...f, job_title: e.target.value }))} />
             </div>
             <div>
+              <label className="label">Client Email *</label>
+              <input className="input" type="email" placeholder="client@company.com"
+                value={form.client_email}
+                onChange={e => setForm(f => ({ ...f, client_email: e.target.value }))} />
+            </div>
+            <div>
+              <label className="label">Client Name / Company</label>
+              <input className="input" placeholder="e.g. Test Client or ABC Corp"
+                value={form.client_name || form.client_company}
+                onChange={e => setForm(f => ({ ...f, client_name: e.target.value, client_company: e.target.value }))} />
+            </div>
+            <div>
               <label className="label">Minimum Experience</label>
               <select className="input" value={form.min_experience_years}
                 onChange={e => setForm(f => ({ ...f, min_experience_years: parseInt(e.target.value) }))}>
@@ -468,7 +563,7 @@ export default function Requirements() {
               <label className="label">Shortlist Top</label>
               <select className="input" value={form.top_n}
                 onChange={e => setForm(f => ({ ...f, top_n: parseInt(e.target.value) }))}>
-                {[3,5,8,10].map(n => <option key={n} value={n}>Top {n} Trainers</option>)}
+                {[1,3,5,8,10].map(n => <option key={n} value={n}>Top {n} Trainer{n > 1 ? 's' : ''}</option>)}
               </select>
             </div>
             <div>
@@ -557,7 +652,14 @@ export default function Requirements() {
 
           {/* TWO SEPARATE BUTTONS */}
           <div className="mt-6 flex gap-3 flex-wrap">
-            <button onClick={handleShortlistOnly} disabled={loading} className="btn-secondary flex-1 justify-center py-3 min-w-40">
+            <button onClick={() => handleShortlistOnly(1)} disabled={loading} className="btn-primary flex-1 justify-center py-3 min-w-40">
+              {loading && loadingMode === 'top1' ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Finding Top 1...</>
+              ) : (
+                <><Star className="w-4 h-4" /> Top 1 Shortlist</>
+              )}
+            </button>
+            <button onClick={() => handleShortlistOnly()} disabled={loading} className="btn-secondary flex-1 justify-center py-3 min-w-40">
               {loading && loadingMode === 'shortlist' ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Finding...</>
               ) : (
@@ -573,18 +675,31 @@ export default function Requirements() {
       {result && (
         <div className="space-y-4 animate-fade-in">
           <div className="card p-5 bg-brand-50 border-brand-100">
-            <div className="flex items-center gap-3 mb-3">
-              <TrendingUp className="w-5 h-5 text-brand-500" />
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-5 h-5 text-brand-500" />
               <h2 className="section-title text-brand-800">Pipeline Results — {result.requirement_id}</h2>
+              </div>
+              <button
+                onClick={() => handleDeleteRequirement(result)}
+                disabled={deletingReqId === result.requirement_id}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-white px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50 disabled:opacity-50">
+                {deletingReqId === result.requirement_id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                Delete
+              </button>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 { label: 'Scanned',      value: result.total_trainers_scanned },
                 { label: 'Matched',      value: result.total_matched },
                 { label: 'Shortlisted',  value: result.top_trainers },
+                { label: 'Client Mail',  value: result.client_email || form.client_email || 'Missing' },
               ].map(s => (
                 <div key={s.label} className="bg-white rounded-xl p-3 text-center border border-brand-100">
-                  <p className="font-display text-2xl font-bold text-brand-700">{s.value}</p>
+                  <p className={clsx(
+                    'font-display font-bold text-brand-700',
+                    s.label === 'Client Mail' ? 'break-all text-sm' : 'text-2xl'
+                  )}>{s.value}</p>
                   <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
                 </div>
               ))}
@@ -597,7 +712,7 @@ export default function Requirements() {
                 key={t.trainer_id}
                 trainer={t}
                 rank={i + 1}
-                requirement={form}
+                requirement={{ ...form, ...result, client_email: result.client_email || form.client_email }}
                 onOpen={(trainer, rank) => setSelectedTrainer({ trainer, rank })}
               />
             ))}
@@ -626,22 +741,23 @@ export default function Requirements() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-slate-800">{r.technology_needed}</p>
+                  <p className={clsx('mt-1 flex items-center gap-1 text-xs', r.client_email ? 'text-emerald-600' : 'text-amber-600')}>
+                    <Mail className="h-3 w-3" />
+                    {r.client_email ? `Client: ${r.client_email}` : 'Client email missing'}
+                  </p>
                   <p className="text-xs text-slate-400">{r.requirement_id} • {r.min_experience_years}+ yrs exp • Top {r.top_n}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="badge-blue">{r.total_matched || 0} matched</span>
                   <button
-                    onClick={async (e) => {
+                    onClick={e => {
                       e.stopPropagation()
-                      if (!confirm(`Remove search for "${r.technology_needed}"?`)) return
-                      try {
-                        await api.delete(`/requirements/${r.requirement_id}`)
-                        toast.success('Search removed')
-                        getRequirements().then(res => setReqs(res.data.requirements || []))
-                      } catch (err) { toast.error(err.message) }
+                      handleDeleteRequirement(r)
                     }}
-                    className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100">
-                    <Trash2 className="w-4 h-4" />
+                    disabled={deletingReqId === r.requirement_id}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition-all hover:bg-red-100 disabled:opacity-50">
+                    {deletingReqId === r.requirement_id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    Delete
                   </button>
                 </div>
               </div>

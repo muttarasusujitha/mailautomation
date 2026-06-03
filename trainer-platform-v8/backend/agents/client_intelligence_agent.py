@@ -7,7 +7,9 @@ import os
 import re
 import uuid
 from datetime import datetime, timedelta
+from utils.time_utils import utc_from_timestamp, utc_now
 from email.header import make_header, decode_header
+from html.parser import HTMLParser
 from email.mime.text import MIMEText
 from email.utils import parseaddr
 from typing import Any, Dict, List, Optional, Tuple
@@ -114,11 +116,13 @@ def _default_redirect_uri() -> str:
 
 
 def _oauth_flow(redirect_uri: Optional[str] = None) -> Flow:
-    os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")
+    redirect = redirect_uri or _default_redirect_uri()
+    if redirect.startswith("http://localhost") or redirect.startswith("http://127.0.0.1"):
+        os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")  # NOSONAR: local OAuth callback only
     return Flow.from_client_secrets_file(
         CREDENTIALS_PATH,
         scopes=GOOGLE_OAUTH_SCOPES,
-        redirect_uri=redirect_uri or _default_redirect_uri(),
+        redirect_uri=redirect,
     )
 
 
@@ -192,13 +196,36 @@ def _headers_to_dict(headers: List[Dict[str, str]]) -> Dict[str, str]:
     return {h.get("name", "").lower(): decode_header_value(h.get("value", "")) for h in headers or []}
 
 
+class _PlainTextHTMLParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self._skip_depth = 0
+        self._chunks: List[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in {"script", "style"}:
+            self._skip_depth += 1
+        elif tag in {"br", "p", "div", "li", "tr"}:
+            self._chunks.append("\n")
+
+    def handle_endtag(self, tag):
+        if tag in {"script", "style"} and self._skip_depth:
+            self._skip_depth -= 1
+        elif tag in {"p", "div", "li", "tr"}:
+            self._chunks.append("\n")
+
+    def handle_data(self, data):
+        if not self._skip_depth:
+            self._chunks.append(data)
+
+    def text(self) -> str:
+        return " ".join(" ".join(self._chunks).split()).strip()
+
+
 def _html_to_text(raw_html: str) -> str:
-    text = re.sub(r"(?is)<(script|style).*?>.*?</\1>", " ", raw_html or "")
-    text = re.sub(r"(?i)<br\s*/?>", "\n", text)
-    text = re.sub(r"(?i)</p\s*>", "\n", text)
-    text = re.sub(r"<[^>]+>", " ", text)
-    text = html.unescape(text)
-    return re.sub(r"[ \t]+", " ", text).strip()
+    parser = _PlainTextHTMLParser()
+    parser.feed(raw_html or "")
+    return html.unescape(parser.text())
 
 
 def strip_quoted_history(text: str) -> str:
@@ -306,12 +333,17 @@ def _google_credentials(scopes: Optional[List[str]] = None):
     if not os.path.exists(TOKEN_PATH):
         raise FileNotFoundError(f"Gmail token not found at {TOKEN_PATH}")
 
+    requested_scopes = scopes or GMAIL_SCOPES
     try:
-        creds = Credentials.from_authorized_user_file(TOKEN_PATH, scopes or GMAIL_SCOPES)
+        creds = Credentials.from_authorized_user_file(TOKEN_PATH, requested_scopes)
     except Exception as exc:
         raise RuntimeError(
             "Gmail OAuth token is invalid. Reconnect Gmail from Client Inbox to create a fresh token."
         ) from exc
+    if any(scope in requested_scopes for scope in CALENDAR_SCOPES) and hasattr(creds, "has_scopes") and not creds.has_scopes(requested_scopes):
+        raise RuntimeError(
+            "Google OAuth token is missing Calendar permission. Reconnect Google from Settings so Calendar/Meet access is granted."
+        )
     if creds.expired and creds.refresh_token:
         creds.refresh(GoogleAuthRequest())
         os.makedirs(CONFIG_DIR, exist_ok=True)
@@ -359,8 +391,14 @@ async def get_gmail_auth_status(db=None) -> Dict[str, Any]:
         calendar_service.events().list(calendarId="primary", maxResults=1).execute()
         status["calendar_connected"] = True
     except Exception as exc:
+        error = str(exc)
         status["calendar_connected"] = False
-        status["calendar_error"] = str(exc)
+        status["calendar_reconnect_required"] = "insufficient" in error.lower() and "scope" in error.lower()
+        status["calendar_error"] = (
+            "Google Calendar permission is missing. Reconnect Google from Settings so Calendar/Meet access is granted."
+            if status["calendar_reconnect_required"]
+            else error
+        )
 
     if db is not None:
         sync = await db["gmail_sync"].find_one({"sync_id": "default"}, {"_id": 0})
@@ -390,7 +428,7 @@ async def renew_gmail_watch(db=None, gmail_service=None) -> Dict[str, Any]:
     }
     result = service.users().watch(userId="me", body=body).execute()
     expires_ms = int(result.get("expiration", "0") or 0)
-    expires_at = datetime.utcfromtimestamp(expires_ms / 1000) if expires_ms else None
+    expires_at = utc_from_timestamp(expires_ms / 1000) if expires_ms else None
 
     if db is not None:
         await db["gmail_sync"].update_one(
@@ -399,7 +437,7 @@ async def renew_gmail_watch(db=None, gmail_service=None) -> Dict[str, Any]:
                 "last_history_id": result.get("historyId"),
                 "watch_expiration": expires_at,
                 "watch_response": result,
-                "watch_renewed_at": datetime.utcnow(),
+                "watch_renewed_at": utc_now(),
                 "gmail_user": _settings_value("gmail_user"),
             }},
             upsert=True,
@@ -457,12 +495,12 @@ def fetch_gmail_email(message_id: str, gmail_service) -> Dict[str, Any]:
     received_at = None
     internal_date = message.get("internalDate")
     if internal_date:
-        received_at = datetime.utcfromtimestamp(int(internal_date) / 1000)
+        received_at = utc_from_timestamp(int(internal_date) / 1000)
 
     return {
         "email_id": message_id,
         "thread_id": message.get("threadId"),
-        "received_at": received_at or datetime.utcnow(),
+        "received_at": received_at or utc_now(),
         "from_email": reply_to or from_email,
         "from_name": reply_name or from_name,
         "subject": subject,
@@ -502,13 +540,17 @@ async def _gemini_json(prompt: str, max_tokens: int = 1600) -> Dict[str, Any]:
         .strip()
     )
     # Strip markdown code fences if present
-    raw = re.sub(r"^```(?:json)?\s*", "", raw)
-    raw = re.sub(r"\s*```$", "", raw).strip()
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[1] if "\n" in raw else ""
+    if raw.endswith("```"):
+        raw = raw[:-3]
+    raw = raw.strip()
 
-    match = re.search(r"\{.*\}", raw, re.DOTALL)
-    if not match:
+    start = raw.find("{")
+    end = raw.rfind("}")
+    if start < 0 or end <= start:
         raise ValueError(f"Gemini did not return JSON. Response: {raw[:300]}")
-    return json.loads(match.group())
+    return json.loads(raw[start:end + 1])
 
 
 def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Dict[str, Any]:
@@ -516,6 +558,7 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
         "client_name": None,
         "client_company": None,
         "client_email": meta.get("from_email"),
+        "client_phone": None,
         "technology_needed": None,
         "secondary_technologies": [],
         "duration_days": None,
@@ -561,6 +604,12 @@ def _heuristic_training_extraction(meta: Dict[str, Any]) -> Dict[str, Any]:
     subject = meta.get("subject") or ""
     haystack = f"{subject}\n{body}"
     tech = _field_from_text(body, "Technology")
+    client_phone = (
+        _field_from_text(body, "Phone")
+        or _field_from_text(body, "Mobile")
+        or _field_from_text(body, "Contact")
+        or _field_from_text(body, "WhatsApp")
+    )
     if not tech:
         for keyword in TRAINING_KEYWORDS:
             if re.search(rf"\b{re.escape(keyword)}\b", haystack, re.IGNORECASE):
@@ -595,6 +644,7 @@ def _heuristic_training_extraction(meta: Dict[str, Any]) -> Dict[str, Any]:
         "client_name": meta.get("from_name") or None,
         "client_company": None,
         "client_email": meta.get("from_email"),
+        "client_phone": client_phone,
         "technology_needed": tech or "Training Requirement",
         "secondary_technologies": [],
         "duration_days": duration_days,
@@ -620,6 +670,125 @@ def _heuristic_training_extraction(meta: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+_MONTHS = {
+    "jan": 1, "january": 1,
+    "feb": 2, "february": 2,
+    "mar": 3, "march": 3,
+    "apr": 4, "april": 4,
+    "may": 5,
+    "jun": 6, "june": 6,
+    "jul": 7, "july": 7,
+    "aug": 8, "august": 8,
+    "sep": 9, "sept": 9, "september": 9,
+    "oct": 10, "october": 10,
+    "nov": 11, "november": 11,
+    "dec": 12, "december": 12,
+}
+
+
+def _time_to_24h(hour: str, minute: str = "", meridiem: str = "") -> Tuple[int, int]:
+    h = int(hour)
+    m = int(minute or 0)
+    ampm = (meridiem or "").lower()
+    if ampm == "pm" and h != 12:
+        h += 12
+    if ampm == "am" and h == 12:
+        h = 0
+    return h, m
+
+
+def _slot_iso(dt: datetime) -> str:
+    return dt.strftime("%Y-%m-%dT%H:%M:%S+05:30")
+
+
+def _heuristic_client_slot_confirmation(reply_text: str, timezone_name: str = "Asia/Kolkata") -> Dict[str, Any]:
+    text = re.sub(r"\s+", " ", str(reply_text or "")).strip()
+    empty = {
+        "confirmed": False,
+        "date_time_text": "",
+        "start_iso": "",
+        "end_iso": "",
+        "timezone": timezone_name,
+        "confidence": 0,
+    }
+    if not text:
+        return {**empty, "reason": "No client reply text"}
+
+    date_match = re.search(
+        r"\b(\d{1,2})\s+("
+        r"jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|"
+        r"jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?|tember)?|oct(?:ober)?|"
+        r"nov(?:ember)?|dec(?:ember)?)\s+(\d{4})\b",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if date_match:
+        day = int(date_match.group(1))
+        month = _MONTHS[date_match.group(2).lower()[:3]]
+        year = int(date_match.group(3))
+    else:
+        numeric_date = re.search(r"\b(\d{1,2})\s*[/-]\s*(\d{1,2})\s*[/-]\s*(\d{2,4})\b", text)
+        if numeric_date:
+            day = int(numeric_date.group(1))
+            month = int(numeric_date.group(2))
+            year = int(numeric_date.group(3))
+            if year < 100:
+                year += 2000
+        elif re.search(r"\btomorrow\b", text, flags=re.IGNORECASE):
+            tomorrow = utc_now() + timedelta(days=1)
+            day, month, year = tomorrow.day, tomorrow.month, tomorrow.year
+        else:
+            return {**empty, "reason": "No concrete date found"}
+
+    range_match = re.search(
+        r"\b(?:from\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*(?:to|-|–|—)\s*"
+        r"(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b",
+        text,
+        flags=re.IGNORECASE,
+    )
+    single_match = None if range_match else re.search(
+        r"\b(?:at|from)?\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if not range_match and not single_match:
+        return {**empty, "reason": "No concrete time found"}
+
+    if range_match:
+        start_ampm = range_match.group(3) or range_match.group(6)
+        sh, sm = _time_to_24h(range_match.group(1), range_match.group(2), start_ampm)
+        eh, em = _time_to_24h(range_match.group(4), range_match.group(5), range_match.group(6))
+    else:
+        sh, sm = _time_to_24h(single_match.group(1), single_match.group(2), single_match.group(3))
+        end_tmp = datetime(year, month, day, sh, sm) + timedelta(minutes=30)
+        eh, em = end_tmp.hour, end_tmp.minute
+
+    try:
+        start_dt = datetime(year, month, day, sh, sm)
+        end_dt = datetime(year, month, day, eh, em)
+        if end_dt <= start_dt:
+            end_dt += timedelta(hours=12)
+        if end_dt <= start_dt:
+            end_dt = start_dt + timedelta(minutes=30)
+    except ValueError as exc:
+        return {**empty, "reason": f"Invalid date/time: {exc}"}
+
+    confirmation_words = re.search(
+        r"\b(confirm|confirmed|works|available|schedule|book|proceed|convenient)\b",
+        text,
+        flags=re.IGNORECASE,
+    )
+    return {
+        "confirmed": True,
+        "date_time_text": f"{start_dt.strftime('%d %b %Y %I:%M %p')} - {end_dt.strftime('%I:%M %p')}",
+        "start_iso": _slot_iso(start_dt),
+        "end_iso": _slot_iso(end_dt),
+        "timezone": timezone_name,
+        "confidence": 0.9 if confirmation_words else 0.7,
+        "reason": "Parsed date/time with deterministic fallback",
+    }
+
+
 async def process_client_email(message_id, gmail_service, meta: Optional[Dict[str, Any]] = None) -> dict:
     meta = meta or fetch_gmail_email(message_id, gmail_service)
 
@@ -633,9 +802,9 @@ async def process_client_email(message_id, gmail_service, meta: Optional[Dict[st
         }, meta)
         return meta
 
-    body_for_claude = meta.get("clean_body") or meta.get("raw_body") or ""
+    body_for_gemini = meta.get("clean_body") or meta.get("raw_body") or ""
     if meta.get("attachments_text"):
-        body_for_claude = f"{body_for_claude}\n\nPDF/RFP attachment text:\n{meta['attachments_text']}"
+        body_for_gemini = f"{body_for_gemini}\n\nPDF/RFP attachment text:\n{meta['attachments_text']}"
 
     prompt = f"""You are an intelligent email analyst for Calhan Technologies,
 a corporate training company in India.
@@ -651,6 +820,7 @@ Extract and return ONLY valid JSON with no extra text:
   "client_name": "full name if found else null",
   "client_company": "company name if found else null",
   "client_email": "reply-to email address",
+  "client_phone": "client phone or WhatsApp number if explicitly found else null",
   "technology_needed": "primary technology or skill required",
   "secondary_technologies": ["array of additional skills if any"],
   "duration_days": number or null,
@@ -682,7 +852,7 @@ Subject: {meta.get("subject") or ""}
 
 Email text:
 ---
-{body_for_claude[:45000]}
+{body_for_gemini[:45000]}
 ---"""
 
     try:
@@ -702,7 +872,7 @@ async def extract_client_slot_confirmation(
 ) -> Dict[str, Any]:
     context = context or {}
     timezone_name = context.get("timezone") or "Asia/Kolkata"
-    today = datetime.utcnow().strftime("%Y-%m-%d")
+    today = utc_now().strftime("%Y-%m-%d")
     prompt = f"""You extract calendar scheduling confirmations for Calhan Technologies.
 
 The client has replied after Calhan sent trainer availability slots. Determine whether the client selected or proposed a concrete interview/discussion date and time.
@@ -739,9 +909,13 @@ Return ONLY valid JSON:
   "reason": "one sentence"
 }}"""
 
+    heuristic = _heuristic_client_slot_confirmation(reply_text, timezone_name)
+
     try:
         data = await _gemini_json(prompt, max_tokens=700)
     except Exception as exc:
+        if heuristic.get("confirmed"):
+            return heuristic
         return {
             "confirmed": False,
             "date_time_text": "",
@@ -752,7 +926,7 @@ Return ONLY valid JSON:
             "reason": f"Could not parse slot automatically: {exc}",
         }
 
-    return {
+    result = {
         "confirmed": bool(data.get("confirmed")),
         "date_time_text": str(data.get("date_time_text") or "").strip(),
         "start_iso": str(data.get("start_iso") or "").strip(),
@@ -761,6 +935,9 @@ Return ONLY valid JSON:
         "confidence": float(data.get("confidence") or 0),
         "reason": str(data.get("reason") or "").strip(),
     }
+    if heuristic.get("confirmed") and (not result["confirmed"] or not result["start_iso"] or result["confidence"] < 0.5):
+        return heuristic
+    return result
 
 
 async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
@@ -843,7 +1020,7 @@ async def check_if_duplicate(extracted: dict, db) -> bool:
 
     client_email = (extracted.get("client_email") or "").strip().lower()
     query: Dict[str, Any] = {
-        "created_at": {"$gte": datetime.utcnow() - timedelta(days=7)},
+        "created_at": {"$gte": utc_now() - timedelta(days=7)},
         "technology_needed": {"$regex": f"^{re.escape(technology)}$", "$options": "i"},
     }
     if not client_email:
@@ -889,6 +1066,7 @@ async def create_requirement_from_email(extracted: dict, email_id: str, db) -> s
         "client_name": extracted.get("client_name"),
         "client_company": extracted.get("client_company"),
         "client_email": extracted.get("client_email"),
+        "client_phone": extracted.get("client_phone"),
         "client_email_domain": sender_domain(extracted.get("client_email", "")),
         "duration_days": extracted.get("duration_days"),
         "duration_hours": extracted.get("duration_hours"),
@@ -905,7 +1083,7 @@ async def create_requirement_from_email(extracted: dict, email_id: str, db) -> s
         "special_requirements": extracted.get("special_requirements"),
         "language_of_training": extracted.get("language_of_training"),
         "total_matched": 0,
-        "created_at": datetime.utcnow(),
+        "created_at": utc_now(),
     }
     await db["requirements"].insert_one(doc)
     return req_id
@@ -1011,7 +1189,7 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
             meta = {
                 "email_id": pseudo_id,
                 "thread_id": "",
-                "received_at": datetime.utcnow(),
+                "received_at": utc_now(),
                 "from_email": from_email,
                 "from_name": from_name,
                 "subject": subject,
@@ -1045,7 +1223,7 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                     "sent_at": None,
                     "sent_by": None,
                     "whatsapp_notified": False,
-                    "created_at": datetime.utcnow(),
+                    "created_at": utc_now(),
                 }},
                 upsert=True,
             )
@@ -1060,7 +1238,7 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
 
 
 async def _extract_from_text(meta: Dict[str, Any]) -> Dict[str, Any]:
-    body_for_claude = meta.get("clean_body") or meta.get("raw_body") or ""
+    body_for_gemini = meta.get("clean_body") or meta.get("raw_body") or ""
     prompt = f"""You are an intelligent email analyst for Calhan Technologies,
 a corporate training company in India.
 
@@ -1075,6 +1253,7 @@ Extract and return ONLY valid JSON with no extra text:
   "client_name": "full name if found else null",
   "client_company": "company name if found else null",
   "client_email": "reply-to email address",
+  "client_phone": "client phone or WhatsApp number if explicitly found else null",
   "technology_needed": "primary technology or skill required",
   "secondary_technologies": ["array of additional skills if any"],
   "duration_days": number or null,
@@ -1106,6 +1285,6 @@ Subject: {meta.get("subject") or ""}
 
 Email text:
 ---
-{body_for_claude[:45000]}
+{body_for_gemini[:45000]}
 ---"""
     return _normalise_extraction(await _gemini_json(prompt, max_tokens=1800), meta)

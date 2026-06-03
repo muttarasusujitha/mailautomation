@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from utils.time_utils import utc_now
 import uuid
 from typing import Any, Dict, Optional
 
@@ -50,15 +51,15 @@ async def cancel_interview_reminder(
             except Exception as exc:
                 await db["interview_reminders"].update_one(
                     {"reminder_id": reminder.get("reminder_id")},
-                    {"$set": {"revoke_error": str(exc), "updated_at": datetime.utcnow()}},
+                    {"$set": {"revoke_error": str(exc), "updated_at": utc_now()}},
                 )
         await db["interview_reminders"].update_one(
             {"reminder_id": reminder.get("reminder_id")},
             {"$set": {
                 "status": "cancelled",
                 "cancel_reason": reason,
-                "cancelled_at": datetime.utcnow(),
-                "updated_at": datetime.utcnow(),
+                "cancelled_at": utc_now(),
+                "updated_at": utc_now(),
             }},
         )
         if reminder.get("email_id"):
@@ -67,7 +68,7 @@ async def cancel_interview_reminder(
                 {"$set": {
                     "interview_reminder_status": "cancelled",
                     "whatsapp_reminder_status": "cancelled",
-                    "interview_reminder_cancelled_at": datetime.utcnow(),
+                    "interview_reminder_cancelled_at": utc_now(),
                 }},
             )
         cancelled.append(reminder.get("reminder_id"))
@@ -95,7 +96,7 @@ async def schedule_interview_reminder(
         )
 
     reminder_at = interview_at - REMINDER_LEAD_TIME
-    now = datetime.utcnow()
+    now = utc_now()
     eta = reminder_at if reminder_at > now else now
     reminder_id = f"REM-{uuid.uuid4().hex[:10].upper()}"
     task_id = f"interview-reminder-{reminder_id}"
@@ -133,7 +134,7 @@ async def schedule_interview_reminder(
         send_interview_reminder_task.apply_async(args=[reminder_id], eta=eta_for_celery, task_id=task_id)
         await db["interview_reminders"].update_one(
             {"reminder_id": reminder_id},
-            {"$set": {"status": "pending", "celery_registered_at": datetime.utcnow()}},
+            {"$set": {"status": "pending", "celery_registered_at": utc_now()}},
         )
         await db["email_logs"].update_one(
             {"email_id": email_log.get("email_id")},
@@ -152,7 +153,7 @@ async def schedule_interview_reminder(
             {"$set": {
                 "status": "schedule_failed",
                 "schedule_error": str(exc),
-                "updated_at": datetime.utcnow(),
+                "updated_at": utc_now(),
             }},
         )
         await db["email_logs"].update_one(

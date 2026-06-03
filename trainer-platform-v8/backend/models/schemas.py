@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
+from utils.time_utils import utc_now
 from enum import Enum
 
 class TrainerStatus(str, Enum):
@@ -35,6 +36,9 @@ class Trainer(BaseModel):
     certifications: List[str] = []
     phone: str = ""
     email: str = ""
+    teams_email: str = ""
+    microsoft_teams_email: str = ""
+    teams_upn: str = ""
     location: str = ""
     linkedin: str = ""
     resume: str = ""
@@ -61,7 +65,7 @@ class Trainer(BaseModel):
     status: TrainerStatus = TrainerStatus.NEW
     match_score: Optional[float] = None
     rank: Optional[int] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
 
 class RequirementCreate(BaseModel):
     technology_needed: str
@@ -75,19 +79,27 @@ class RequirementCreate(BaseModel):
     top_n: int = 5
     job_title: str = ""
     job_description: str = ""
+    client_name: str = ""
+    client_company: str = ""
+    client_email: str = ""
+    client_phone: str = ""
+    client_whatsapp: str = ""
     send_emails: bool = False
 
 class Requirement(RequirementCreate):
     requirement_id: str
     status: str = "active"
     total_matched: int = 0
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
 
 class ShortlistedTrainer(BaseModel):
     trainer_id: str
     name: str
     email: str
     phone: str
+    teams_email: str = ""
+    microsoft_teams_email: str = ""
+    teams_upn: str = ""
     technologies: str
     experience_raw: str
     match_score: float
@@ -115,7 +127,7 @@ class Shortlist(BaseModel):
     technology_needed: str
     top_trainers: List[ShortlistedTrainer]
     total_matched: int
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
 
 class EmailLog(BaseModel):
     email_id: str
@@ -131,7 +143,7 @@ class EmailLog(BaseModel):
     reply_text: str = ""
     reply_sentiment: str = ""
     retry_count: int = 0
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
 
 class DashboardStats(BaseModel):
     total_trainers: int = 0
@@ -157,7 +169,7 @@ class ResumeUpload(BaseModel):
     extracted_text: str = ""
     extracted_data: Dict[str, Any] = {}
     extraction_error: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
     processed_at: Optional[datetime] = None
 
 

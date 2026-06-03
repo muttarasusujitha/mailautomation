@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { getRequirements, getShortlist, scheduleInterview } from '../utils/api'
 import toast from 'react-hot-toast'
 import {
-  Calendar, Mail, X, Loader2, Video, ExternalLink,
+  Calendar, Mail, X, Loader2, ExternalLink,
   Clock, MapPin, RefreshCw, Users,
   Star, ChevronRight, AlertCircle, Phone
 } from 'lucide-react'

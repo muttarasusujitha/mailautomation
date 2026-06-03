@@ -1,4 +1,5 @@
 from datetime import datetime
+from utils.time_utils import utc_now
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 import re
@@ -78,7 +79,7 @@ def build_purchase_order_doc(
     payload: Dict[str, Any],
     po_number: str,
 ) -> Dict[str, Any]:
-    now = datetime.utcnow()
+    now = utc_now()
     duration_days = _as_duration_days(
         payload.get("duration_days") or requirement.get("duration_days"),
         requirement.get("duration_hours"),
@@ -119,6 +120,7 @@ def build_purchase_order_doc(
         or requirement.get("client_name")
         or "Client"
     )
+    client_email = payload.get("client_email") or requirement.get("client_email") or ""
 
     return {
         "po_number": po_number,
@@ -137,6 +139,7 @@ def build_purchase_order_doc(
             "requirement_id": requirement.get("requirement_id"),
             "technology": payload.get("technology") or requirement.get("technology_needed") or "Training",
             "client_name": client_name,
+            "client_email": client_email,
             "mode": payload.get("mode") or requirement.get("mode") or "Online",
             "training_dates": training_dates,
             "duration": duration_label,

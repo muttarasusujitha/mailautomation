@@ -3,6 +3,7 @@ import json
 import os
 import re
 from datetime import datetime
+from utils.time_utils import utc_now
 from typing import Any, Dict, List, Optional
 
 import anthropic
@@ -335,7 +336,7 @@ def _normalise_categorisation(data: Dict[str, Any]) -> Dict[str, Any]:
         "needs_review": bool(data.get("needs_review")) or confidence < 0.7 or domain == NON_SOFTWARE_DOMAIN,
         "reasoning": _as_string(data.get("reasoning"))[:500],
         "categorisation_model": CATEGORISATION_MODEL,
-        "categorised_at": datetime.utcnow(),
+        "categorised_at": utc_now(),
     }
 
 
@@ -348,7 +349,7 @@ def category_update_fields(category_data: Dict[str, Any]) -> Dict[str, Any]:
         "technology_category": primary,
         "category": primary,
         "specialty_tags": tags,
-        "updated_at": datetime.utcnow(),
+        "updated_at": utc_now(),
     }
     return update_fields
 
@@ -404,7 +405,7 @@ async def bulk_categorise_all(db) -> Dict[str, int]:
                     {"_id": trainer["_id"]},
                     {"$set": {
                         "categorisation_error": str(exc),
-                        "categorisation_failed_at": datetime.utcnow(),
+                        "categorisation_failed_at": utc_now(),
                     }},
                 )
 

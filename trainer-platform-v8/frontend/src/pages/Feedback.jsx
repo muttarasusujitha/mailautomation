@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Star, ThumbsUp, MapPin, Users, CheckCircle, ArrowRight,
-  Sparkles, TrendingUp, Clock, Shield, MessageSquare, Zap
+  Star, ThumbsUp, CheckCircle, ArrowRight, MessageSquare, Zap
 } from 'lucide-react'
 import clsx from 'clsx'
+import { randomBetween, randomInt } from '../utils/random'
+import PublicFooter from '../components/PublicFooter'
+import BrandMark from '../components/BrandMark'
 
 /* ─── Animated Background Elements ─────────────────────────────── */
 function FloatingElements() {
@@ -48,13 +50,14 @@ function ParticleCanvas() {
     }
     window.addEventListener('resize', onResize)
 
+    const colors = ['#3b82f6', '#06b6d4', '#10b981', '#8b5cf6']
     const dots = Array.from({ length: 50 }, () => ({
-      x: Math.random() * W, y: Math.random() * H,
-      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
-      r: Math.random() * 2 + 1,
-      a: Math.random() * 0.4 + 0.2,
-      pulse: Math.random() * Math.PI * 2,
-      color: ['#3b82f6', '#06b6d4', '#10b981', '#8b5cf6'][Math.floor(Math.random() * 4)]
+      x: randomBetween(0, W), y: randomBetween(0, H),
+      vx: randomBetween(-0.15, 0.15), vy: randomBetween(-0.15, 0.15),
+      r: randomBetween(1, 3),
+      a: randomBetween(0.2, 0.6),
+      pulse: randomBetween(0, Math.PI * 2),
+      color: colors[randomInt(colors.length)]
     }))
 
     const draw = () => {
@@ -327,7 +330,7 @@ function WriteReviewModal({ isOpen, onClose, onSubmit }) {
 }
 
 /* ─── Stat Card ────────────────────────────────────────────── */
-function StatCard({ value, label, subtitle, icon: Icon, color }) {
+function _StatCard({ value, label, subtitle, icon: Icon, color }) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-100 text-center hover:shadow-xl transition-all duration-300 animate-fade-in-up">
       <div className={clsx("w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4", color)}>
@@ -343,7 +346,7 @@ function StatCard({ value, label, subtitle, icon: Icon, color }) {
 /* ─── Main Feedback Component ───────────────────────────────── */
 export default function Feedback() {
   const navigate = useNavigate()
-  const [mounted, setMounted] = useState(false)
+  const [_mounted, setMounted] = useState(false)
   const [filter, setFilter] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [reviews, setReviews] = useState([])
@@ -366,8 +369,8 @@ export default function Feedback() {
       role: form.role,
       company: form.company,
       initials: form.name.split(' ').map(n => n[0]).join('').toUpperCase(),
-      avatarBg: `hsl(${Math.random() * 360}, 70%, 80%)`,
-      avatarFg: `hsl(${Math.random() * 360}, 100%, 20%)`,
+      avatarBg: `hsl(${randomBetween(0, 360)}, 70%, 80%)`,
+      avatarFg: `hsl(${randomBetween(0, 360)}, 100%, 20%)`,
       stars: parseInt(form.rating),
       date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
       helpful: 0,
@@ -487,7 +490,7 @@ export default function Feedback() {
   const allReviews = [...reviews, ...defaultReviews]
   const filteredReviews = filter === 0 ? allReviews : allReviews.filter(r => r.stars === filter)
 
-  const stats = [
+  const _stats = [
     { value: "4.8", label: "Average rating", subtitle: "★★★★★", icon: Star, color: "bg-gradient-to-br from-yellow-400 to-orange-400" },
     { value: "128", label: "Total reviews", subtitle: "from verified users", icon: MessageSquare, color: "bg-gradient-to-br from-blue-500 to-cyan-500" },
     { value: "96%", label: "Would recommend", subtitle: "to a colleague", icon: CheckCircle, color: "bg-gradient-to-br from-green-500 to-emerald-500" }
@@ -501,12 +504,7 @@ export default function Feedback() {
 
       {/* Navigation — Logo on left edge, Get Started on right edge */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 lg:px-8 bg-white/80 backdrop-blur-sm">
-        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity flex-shrink-0 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300">
-            <Zap className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-bold text-slate-900 text-base cursor-pointer hover:text-blue-600 transition-colors" style={{ fontFamily:"'Sora',sans-serif" }}>TrainerSync</span>
-        </button>
+        <BrandMark size="sm" onClick={() => navigate('/dashboard')} />
         <div className="flex items-center gap-6">
           <button onClick={() => navigate('/contact')} className="text-slate-600 hover:text-slate-900 transition-colors">
             Contact
@@ -690,7 +688,8 @@ export default function Feedback() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 bg-white border-t border-slate-200 px-6 py-12 lg:px-8">
+      <PublicFooter />
+      <footer className="hidden">
         <div className="max-w-6xl mx-auto">
           {/* Main Footer Content */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">

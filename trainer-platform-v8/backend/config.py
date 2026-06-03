@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-2.0-flash"
     openai_api_key: str = ""
     anthropic_api_key: str = ""
-    secret_key: str = "changeme_use_random_string"
+    secret_key: str = ""
     frontend_url: str = "http://localhost:5173"
     redis_url: str = "redis://localhost:6379/0"
     celery_broker_url: str = ""

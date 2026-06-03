@@ -1,0 +1,86 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB: trainersync
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      FRONTEND_URL: http://localhost:5173
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/config:/app/config
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      - mongo
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000/api
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+  sonarqube:
+    image: sonarqube:community
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    profiles:
+      - quality
+
+  sonar-scanner:
+    image: sonarsource/sonar-scanner-cli:latest
+    profiles:
+      - quality
+    depends_on:
+      - sonarqube
+    working_dir: /usr/src
+    volumes:
+      - ./:/usr/src
+    environment:
+      SONAR_HOST_URL: http://sonarqube:9000
+      SONAR_TOKEN: ${SONAR_TOKEN:-}
+    command: >
+      sonar-scanner
+      -Dsonar.host.url=http://sonarqube:9000
+
+volumes:
+  mongo_data:
+  redis_data:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:

@@ -9,6 +9,7 @@ import {
   Clock3,
   Cloud,
   Download,
+  ExternalLink,
   GitBranch,
   IndianRupee,
   Loader2,
@@ -172,6 +173,57 @@ const EXPENSE_TONE = {
   gemini: 'border-violet-100 bg-violet-50 text-violet-700',
   client_storage: 'border-cyan-100 bg-cyan-50 text-cyan-700',
 }
+
+const BILLING_LINK_GROUPS = [
+  {
+    key: 'whatsapp',
+    title: 'WhatsApp Messaging',
+    subtitle: 'AiSensy, Twilio usage, delivery logs, and invoices',
+    icon: MessageCircle,
+    tone: 'border-emerald-100 bg-emerald-50 text-emerald-700',
+    links: [
+      { label: 'AiSensy Dashboard', href: 'https://app.aisensy.com/' },
+      { label: 'Twilio Billing', href: 'https://console.twilio.com/us1/billing' },
+      { label: 'Twilio Message Logs', href: 'https://console.twilio.com/us1/monitor/logs/sms' },
+    ],
+  },
+  {
+    key: 'gemini',
+    title: 'Gemini API',
+    subtitle: 'AI Studio usage, Gemini billing, and Google Cloud charges',
+    icon: Bot,
+    tone: 'border-violet-100 bg-violet-50 text-violet-700',
+    links: [
+      { label: 'AI Studio Usage', href: 'https://aistudio.google.com/usage' },
+      { label: 'Gemini API Billing', href: 'https://ai.google.dev/gemini-api/docs/billing' },
+      { label: 'Cloud Billing Reports', href: 'https://console.cloud.google.com/billing/reports' },
+    ],
+  },
+  {
+    key: 'cloud',
+    title: 'Google Cloud APIs',
+    subtitle: 'Gmail watch, Pub/Sub, Calendar API, and client storage costs',
+    icon: Cloud,
+    tone: 'border-cyan-100 bg-cyan-50 text-cyan-700',
+    links: [
+      { label: 'Cloud Billing', href: 'https://console.cloud.google.com/billing' },
+      { label: 'APIs & Services Usage', href: 'https://console.cloud.google.com/apis/dashboard' },
+      { label: 'Cloud Storage', href: 'https://console.cloud.google.com/storage/browser' },
+    ],
+  },
+  {
+    key: 'teams',
+    title: 'Microsoft Teams',
+    subtitle: 'Teams webhooks, Microsoft 365 billing, and Azure costs',
+    icon: Workflow,
+    tone: 'border-blue-100 bg-blue-50 text-blue-700',
+    links: [
+      { label: 'Azure Cost Management', href: 'https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/overview' },
+      { label: 'Microsoft 365 Billing', href: 'https://admin.microsoft.com/Adminportal/Home#/billing/accounts' },
+      { label: 'Teams Admin Center', href: 'https://admin.teams.microsoft.com/' },
+    ],
+  },
+]
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -450,6 +502,51 @@ export default function Dashboard() {
               ) : (
                 <EmptyChart label="No expense usage for this range" />
               )}
+            </div>
+          </Panel>
+
+          <Panel
+            title="Official Billing Sources"
+            subtitle="Use these provider dashboards to verify the exact invoice. TrainerSync expense values are estimates from local usage logs."
+            icon={ExternalLink}
+            className="no-print"
+          >
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {BILLING_LINK_GROUPS.map(group => {
+                const Icon = group.icon
+                return (
+                  <div key={group.key} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex items-start gap-3">
+                      <span className={clsx('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border', group.tone)}>
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-slate-900">{group.title}</p>
+                        <p className="mt-1 text-xs leading-5 text-slate-500">{group.subtitle}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 space-y-2">
+                      {group.links.map(link => (
+                        <a
+                          key={link.href}
+                          href={link.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                        >
+                          <span className="truncate">{link.label}</span>
+                          <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-800">
+              For exact billing, open the matching provider account with the same project, sender, phone number, or API key used in Settings.
             </div>
           </Panel>
 

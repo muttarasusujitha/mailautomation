@@ -3,11 +3,14 @@ PDF Processing Utility — Extract text from PDF files using PyMuPDF
 """
 
 import io
+import logging
 from typing import Optional, Tuple
 try:
     import fitz  # PyMuPDF
 except ImportError:
     fitz = None
+
+logger = logging.getLogger(__name__)
 
 
 def extract_text_from_pdf(file_content: bytes, max_pages: int = 50) -> Tuple[str, bool]:
@@ -38,8 +41,8 @@ def extract_text_from_pdf(file_content: bytes, max_pages: int = 50) -> Tuple[str
         pdf_document.close()
         return extracted_text.strip(), True
         
-    except Exception as e:
-        print(f"PDF extraction error: {e}")
+    except Exception:
+        logger.exception("PDF extraction error")
         return "", False
 
 
@@ -69,6 +72,6 @@ def get_pdf_metadata(file_content: bytes) -> dict:
         }
         pdf_document.close()
         return metadata
-    except Exception as e:
-        print(f"Metadata extraction error: {e}")
+    except Exception:
+        logger.exception("Metadata extraction error")
         return {}

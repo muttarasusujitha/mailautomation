@@ -1,14 +1,16 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from config import get_settings
+import logging
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 client: AsyncIOMotorClient = None
 
 async def connect_db():
     global client
     client = AsyncIOMotorClient(settings.mongodb_uri)
-    print(f"Connected to MongoDB: {settings.mongodb_db}")
+    logger.info("Connected to MongoDB: %s", settings.mongodb_db)
     db = client[settings.mongodb_db]
     await db["conversations"].create_index(
         [("trainer_id", 1), ("requirement_id", 1), ("sent_at", 1)],

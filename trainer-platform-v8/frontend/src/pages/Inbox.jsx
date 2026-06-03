@@ -460,6 +460,11 @@ export default function Inbox() {
                   <span className="font-medium text-slate-700">{log.status}</span>
                   <span className="text-xs text-slate-400">{relativeTime(log.created_at)}</span>
                 </div>
+                <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+                  <span className="break-all"><strong className="font-semibold text-slate-600">To:</strong> {log.to_number || 'Not saved'}</span>
+                  {log.from_number && <span className="break-all"><strong className="font-semibold text-slate-600">From:</strong> {log.from_number}</span>}
+                  {log.provider && <span className="capitalize"><strong className="font-semibold text-slate-600">Provider:</strong> {log.provider}</span>}
+                </div>
                 <p className="mt-1 text-slate-500">{log.body}</p>
               </div>
             ))}

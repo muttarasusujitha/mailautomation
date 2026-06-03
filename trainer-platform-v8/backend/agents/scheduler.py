@@ -5,9 +5,16 @@ Supports configurable retry intervals: days, hours, or minutes
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-from datetime import datetime, timedelta
+from datetime import timedelta
+from utils.time_utils import utc_now
+import logging
 from database import get_db
 from agents.email_agent import send_email_async, compose_retry_email
+from agents.client_slot_agent import (
+    ClientSlotError,
+    send_client_slot_options_email,
+    send_pending_client_slot_replies,
+)
 from agents.whatsapp_agent import (
     send_shortlist_whatsapp,
     send_vendor_reply_notification,
@@ -19,6 +26,7 @@ from agents.client_intelligence_agent import (
 )
 
 scheduler = AsyncIOScheduler()
+logger = logging.getLogger(__name__)
 
 # ─── Runtime config (updated via API without restart) ─────────────────────────
 _config = {
@@ -30,6 +38,22 @@ _config = {
     "auto_retry_enabled":     True,
 }
 
+
+def _requirement_locked_for_other_trainer(requirement: dict, trainer_id: str) -> bool:
+    requirement = requirement or {}
+    selected_trainer_id = str(requirement.get("selected_trainer_id") or "").strip()
+    selection_status = str(requirement.get("selection_status") or requirement.get("status") or "").strip().lower()
+    locked_statuses = {
+        "selected",
+        "trainer_selected_auto_sent",
+        "toc_requested",
+        "training_confirmed",
+        "closed",
+        "fulfilled",
+    }
+    locked = bool(selected_trainer_id) or selection_status in locked_statuses
+    return locked and (not selected_trainer_id or str(trainer_id or "").strip() != selected_trainer_id)
+
 def get_config():
     return dict(_config)
 
@@ -37,7 +61,7 @@ def update_config(new_cfg: dict):
     """Update runtime config and reschedule jobs live."""
     _config.update({k: v for k, v in new_cfg.items() if k in _config})
     _reschedule_jobs()
-    print(f"Scheduler config updated: {_config}")
+    logger.info("Scheduler config updated: %s", _config)
 
 
 def _interval_trigger_from_config(unit: str, value: int) -> IntervalTrigger:
@@ -65,10 +89,14 @@ def _reschedule_jobs():
                 "reply_check_job",
                 trigger=IntervalTrigger(minutes=int(_config["reply_check_interval"]))
             )
-            print(f"Jobs rescheduled: retry every {_config['retry_interval_value']} {_config['retry_interval_unit']}, "
-                  f"reply check every {_config['reply_check_interval']} min")
-    except Exception as e:
-        print(f"Reschedule error: {e}")
+            logger.info(
+                "Jobs rescheduled: retry every %s %s, reply check every %s min",
+                _config["retry_interval_value"],
+                _config["retry_interval_unit"],
+                _config["reply_check_interval"],
+            )
+    except Exception:
+        logger.exception("Reschedule error")
 
 
 async def retry_unreplied_trainers():
@@ -79,11 +107,11 @@ async def retry_unreplied_trainers():
     unit  = _config["retry_interval_unit"]
     value = int(_config["retry_interval_value"])
     if unit == "minutes":
-        cutoff = datetime.utcnow() - timedelta(minutes=value)
+        cutoff = utc_now() - timedelta(minutes=value)
     elif unit == "hours":
-        cutoff = datetime.utcnow() - timedelta(hours=value)
+        cutoff = utc_now() - timedelta(hours=value)
     else:
-        cutoff = datetime.utcnow() - timedelta(days=value)
+        cutoff = utc_now() - timedelta(days=value)
 
     docs = await db["email_logs"].find({
         "reply_received": False,
@@ -92,10 +120,19 @@ async def retry_unreplied_trainers():
         "sent_at":        {"$lt": cutoff},
     }).to_list(length=100)
 
-    print(f"Retry scheduler: {len(docs)} trainers needing follow-up ({value} {unit} ago)")
+    logger.info("Retry scheduler: %s trainers needing follow-up (%s %s ago)", len(docs), value, unit)
 
     for doc in docs:
         req  = await db["requirements"].find_one({"requirement_id": doc.get("requirement_id")})
+        if _requirement_locked_for_other_trainer(req, doc.get("trainer_id", "")):
+            await db["email_logs"].update_one(
+                {"email_id": doc.get("email_id")},
+                {"$set": {
+                    "auto_retry_status": "skipped_requirement_selected",
+                    "auto_retry_skipped_at": utc_now(),
+                }},
+            )
+            continue
         tech = req.get("technology_needed", "the technology") if req else "the technology"
         body = compose_retry_email(
             trainer_name=doc.get("trainer_name", "Trainer"),
@@ -122,7 +159,7 @@ async def retry_unreplied_trainers():
             await db["email_logs"].update_one(
                 {"email_id": doc["email_id"]},
                 {"$inc": {"retry_count": 1}, "$set": {
-                    "last_retry_at": datetime.utcnow(),
+                    "last_retry_at": utc_now(),
                     "whatsapp_summary": whatsapp_result,
                 }}
             )
@@ -151,7 +188,7 @@ async def check_and_update_replies():
                 )
             if log:
                 req_id     = log.get("requirement_id")
-                replied_at = datetime.utcnow()
+                replied_at = utc_now()
                 await db["email_logs"].update_one(
                     {"email_id": log.get("email_id")},
                     {"$set": {"reply_received": True, "reply_text": reply["body"],
@@ -184,25 +221,66 @@ async def check_and_update_replies():
                         reply_body=reply.get("body", ""),
                         sentiment=reply.get("sentiment", ""),
                     )
+                if log.get("mail_type") == "client_slot_options":
+                    continue
                 status_map = {"mark_interested": "interested", "mark_declined": "declined", "requires_review": "pending_review"}
                 await db["trainers"].update_one(
                     {"trainer_id": log.get("trainer_id")},
                     {"$set": {"status": status_map.get(reply["action"], "pending_review")}}
                 )
+                if log.get("mail_type") == "mail3" and (
+                    reply.get("action") == "mark_interested" or reply.get("sentiment") == "positive"
+                ):
+                    payload = {
+                        "trainer_id": log.get("trainer_id") or "",
+                        "trainer_name": log.get("trainer_name") or "the trainer",
+                        "requirement_id": req_id or "",
+                        "slot_text": reply.get("body") or "",
+                        "force": False,
+                        "source_email_id": log.get("email_id") or "",
+                        "source_message_id": reply.get("message_id_header") or "",
+                    }
+                    try:
+                        slot_result = await send_client_slot_options_email(
+                            db,
+                            payload,
+                            source="trainer_reply_scheduler",
+                        )
+                    except ClientSlotError as exc:
+                        slot_result = {"success": False, "error": str(exc), "already_sent": False}
+                    except Exception as exc:
+                        slot_result = {"success": False, "error": str(exc), "already_sent": False}
+                    await db["email_logs"].update_one(
+                        {"email_id": log.get("email_id")},
+                        {"$set": {
+                            "client_slot_auto_result": slot_result,
+                            "client_slot_auto_checked_at": utc_now(),
+                        }},
+                    )
         msg_ids = [r.get("msg_id") for r in replies if r.get("msg_id")]
         if msg_ids:
             mark_emails_seen(msg_ids)
-    except Exception as e:
-        print(f"Reply check error: {e}")
+        pending_slots = await send_pending_client_slot_replies(
+            db,
+            source="reply_scheduler_pending_scan",
+        )
+        if pending_slots.get("sent") or pending_slots.get("failed"):
+            logger.info(
+                "Client slot auto-send: %s sent, %s failed",
+                pending_slots.get("sent"),
+                pending_slots.get("failed"),
+            )
+    except Exception:
+        logger.exception("Reply check error")
 
 
 async def renew_gmail_watch_job():
     db = get_db()
     try:
         result = await renew_gmail_watch(db)
-        print(f"Gmail watch renewed: historyId={result.get('historyId')}")
-    except Exception as e:
-        print(f"Gmail watch renewal skipped/failed: {e}")
+        logger.info("Gmail watch renewed: historyId=%s", result.get("historyId"))
+    except Exception:
+        logger.exception("Gmail watch renewal skipped/failed")
 
 
 async def poll_client_inbox_fallback_job():
@@ -213,9 +291,9 @@ async def poll_client_inbox_fallback_job():
             return
         result = await poll_imap_client_inbox(db)
         if result.get("processed"):
-            print(f"IMAP fallback processed {result.get('processed')} client emails")
-    except Exception as e:
-        print(f"IMAP client inbox fallback failed: {e}")
+            logger.info("IMAP fallback processed %s client emails", result.get("processed"))
+    except Exception:
+        logger.exception("IMAP client inbox fallback failed")
 
 
 def start_scheduler():
@@ -240,7 +318,11 @@ def start_scheduler():
         id="client_inbox_imap_fallback_job", name="Client Inbox IMAP Fallback", replace_existing=True,
     )
     scheduler.start()
-    print(f"Scheduler started: retry every {_config['retry_interval_value']} {_config['retry_interval_unit']}")
+    logger.info(
+        "Scheduler started: retry every %s %s",
+        _config["retry_interval_value"],
+        _config["retry_interval_unit"],
+    )
 
 
 def stop_scheduler():

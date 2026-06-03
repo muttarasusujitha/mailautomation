@@ -2,50 +2,49 @@ import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import {
+  BarChart3,
   Bell,
   BriefcaseBusiness,
-  Calendar,
   ChevronRight,
-  Database,
   FileSearch,
   Home,
-  Inbox,
   LayoutDashboard,
   LogOut,
   Mail,
   Menu,
+  MessageSquare,
   Search,
   Settings,
   Upload,
   UserCircle,
   Users,
-  X,
   Zap,
 } from 'lucide-react'
+import BrandMark from './BrandMark'
 
 const NAV_GROUPS = [
   {
-    label: 'Client Work',
+    label: 'Trainer Pipeline',
     items: [
       { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, keywords: ['dashboard', 'stats', 'overview'] },
-      { to: '/client-requests', label: 'Client Requests', icon: BriefcaseBusiness, keywords: ['client', 'requests', 'requirements'] },
-      { to: '/inbox', label: 'Client Inbox', icon: Inbox, keywords: ['inbox', 'approval', 'gmail'] },
+      { to: '/resume-upload', label: 'Upload Resumes', icon: Upload, keywords: ['upload', 'resume', 'import'] },
+      { to: '/requirements', label: 'Find Trainers', icon: FileSearch, keywords: ['find', 'requirement', 'match'] },
+      { to: '/shortlist1', label: 'AI Pipeline', icon: Zap, keywords: ['advanced', 'shortlist1', 'shortlist', 'pipeline'] },
+      { to: '/shortlist', label: 'Shortlist', icon: Users, keywords: ['shortlist', 'trainer shortlist'] },
+      { to: '/trainers', label: 'Trainer Database', icon: Users, keywords: ['trainers', 'database'] },
     ],
   },
   {
-    label: 'Trainer Pipeline',
+    label: 'Client Work',
     items: [
-      { to: '/resume-upload', label: 'Upload Resumes', icon: Upload, keywords: ['upload', 'resume', 'import'] },
-      { to: '/requirements', label: 'Find Trainers', icon: FileSearch, keywords: ['find', 'requirement', 'match'] },
-      { to: '/shortlist', label: 'Shortlist', icon: Zap, keywords: ['shortlist', 'pipeline'] },
-      { to: '/shortlist1', label: 'Advanced Shortlist', icon: Database, keywords: ['advanced', 'shortlist1'] },
-      { to: '/trainers', label: 'Trainer Database', icon: Users, keywords: ['trainers', 'database'] },
-      { to: '/interviews', label: 'Interviews', icon: Calendar, keywords: ['interview', 'meeting', 'schedule'] },
+      { to: '/client-requests', label: 'Client Requests', icon: BriefcaseBusiness, keywords: ['client', 'requests', 'requirements'] },
+      { to: '/client-conversations', label: 'Client Threads', icon: MessageSquare, keywords: ['client threads', 'client conversations', 'conversation', 'thread'] },
     ],
   },
   {
     label: 'Operations',
     items: [
+      { to: '/admin-dashboard', label: 'Admin Analytics', icon: BarChart3, keywords: ['admin dashboard', 'analytics'] },
       { to: '/emails', label: 'Email Logs', icon: Mail, keywords: ['email', 'logs', 'mail'] },
       { to: '/admin', label: 'Settings', icon: Settings, keywords: ['admin', 'settings', 'gmail', 'whatsapp'] },
     ],
@@ -87,7 +86,7 @@ function SidebarLink({ item, pendingInbox, onNavigate }) {
     >
       <Icon className="h-4 w-4 shrink-0" />
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
-      {(item.to === '/inbox' || item.to === '/client-requests') && pendingInbox > 0 && (
+      {item.to === '/client-requests' && pendingInbox > 0 && (
         <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
           {pendingInbox > 99 ? '99+' : pendingInbox}
         </span>
@@ -100,14 +99,8 @@ function Sidebar({ pendingInbox, onLogout, onNavigate }) {
   return (
     <aside className="flex h-full w-72 flex-col border-r border-slate-200 bg-white">
       <div className="border-b border-slate-200 px-5 py-4">
-        <NavLink to="/home" onClick={onNavigate} className="flex items-center gap-3 text-left">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
-            <Zap className="h-5 w-5" />
-          </span>
-          <span>
-            <span className="block text-base font-bold text-slate-950">TrainerSync</span>
-            <span className="block text-xs font-medium text-slate-500">Recruitment Operations</span>
-          </span>
+        <NavLink to="/home" onClick={onNavigate}>
+          <BrandMark />
         </NavLink>
       </div>
 
@@ -234,38 +227,40 @@ export default function Layout({ onLogout }) {
               <Menu className="h-5 w-5" />
             </button>
 
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1 text-xs font-medium text-slate-400">
                 Workspace <ChevronRight className="h-3 w-3" /> {title}
               </div>
               <h1 className="truncate text-lg font-bold text-slate-950">{title}</h1>
             </div>
 
-            <form onSubmit={submitSearch} className="ml-auto hidden w-full max-w-md md:block">
+            <form onSubmit={submitSearch} className="hidden w-full max-w-md flex-none md:block">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   value={query}
                   onChange={event => setQuery(event.target.value)}
                   placeholder="Search pages, clients, trainers..."
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-500/10"
+                  className="h-10 w-full rounded-full border border-slate-200 bg-slate-50 pl-9 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-500/10"
                 />
               </div>
             </form>
 
-            <button
-              type="button"
-              onClick={() => navigate('/inbox')}
-              className="relative rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
-              aria-label="Client inbox"
-            >
-              <Bell className="h-5 w-5" />
-              {pendingInbox > 0 && <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-red-500 ring-2 ring-white" />}
-            </button>
+            <div className="flex flex-1 items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => navigate('/inbox')}
+                className="relative rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
+                aria-label="Client inbox"
+              >
+                <Bell className="h-5 w-5" />
+                {pendingInbox > 0 && <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-red-500 ring-2 ring-white" />}
+              </button>
 
-            <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600 sm:flex">
-              <span className={clsx('h-2 w-2 rounded-full', connected ? 'bg-emerald-500' : 'bg-amber-500')} />
-              {connected ? 'Gmail Ready' : 'Connect Gmail'}
+              <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-600 sm:flex">
+                <span className={clsx('h-2 w-2 rounded-full', connected ? 'bg-emerald-500' : 'bg-amber-500')} />
+                {connected ? 'Gmail Ready' : 'Connect Gmail'}
+              </div>
             </div>
           </div>
 
@@ -276,7 +271,7 @@ export default function Layout({ onLogout }) {
                 value={query}
                 onChange={event => setQuery(event.target.value)}
                 placeholder="Search..."
-                className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none focus:border-blue-400 focus:bg-white"
+                className="h-10 w-full rounded-full border border-slate-200 bg-slate-50 pl-9 pr-4 text-sm outline-none focus:border-blue-400 focus:bg-white"
               />
             </div>
           </form>

@@ -5,6 +5,7 @@ import re
 import uuid
 import asyncio
 from datetime import datetime
+from utils.time_utils import utc_now
 from typing import Any, Dict, List, Optional
 
 import fitz
@@ -269,7 +270,7 @@ SECTION_BOUNDARIES = {
 
 
 def _clean_section_heading(line: str) -> str:
-    cleaned = re.sub(r"^[\s#>*\-•]+|[:\s#>*\-•]+$", "", line or "").strip().lower()
+    cleaned = (line or "").strip(" \t\r\n#>*-:").lower()
     cleaned = re.sub(r"\s+", " ", cleaned)
     return cleaned
 
@@ -490,6 +491,13 @@ def _normalize_profile(data: Dict[str, Any]) -> Dict[str, Any]:
         "name": _as_string(profile.get("name")),
         "email": _as_string(profile.get("email")).lower(),
         "phone": _as_string(profile.get("phone")),
+        "teams_email": _as_string(
+            profile.get("teams_email")
+            or profile.get("microsoft_teams_email")
+            or profile.get("teams_upn")
+        ).lower(),
+        "microsoft_teams_email": _as_string(profile.get("microsoft_teams_email")).lower(),
+        "teams_upn": _as_string(profile.get("teams_upn")).lower(),
         "location": _as_string(profile.get("location")),
         "experience_years": _as_number(profile.get("experience_years"), 0) or 0,
         "role_designation": _as_string(
@@ -619,14 +627,35 @@ def _fallback_education(resume_text: str) -> str:
     return "; ".join(education_lines)
 
 
+def _extract_day_rate(text: str) -> Optional[float]:
+    lower = (text or "").lower()
+    for marker in ("day rate", "daily rate", "per day"):
+        marker_index = lower.find(marker)
+        if marker_index < 0:
+            continue
+        window = text[marker_index + len(marker):marker_index + len(marker) + 80]
+        digits = []
+        started = False
+        for char in window:
+            if char.isdigit() or (started and char in {",", "."}):
+                digits.append(char)
+                started = True
+            elif started:
+                break
+        if digits:
+            return _as_number("".join(digits))
+    return None
+
+
 def _fallback_extract_profile(resume_text: str, filename: str, ai_error: Exception) -> Dict[str, Any]:
-    email_match = re.search(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", resume_text)
-    phone_match = re.search(r"(?:\+?\d[\d ().-]{8,}\d)", resume_text)
-    linkedin_match = re.search(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[^\s,;)>]+", resume_text, flags=re.IGNORECASE)
-    rate_match = re.search(r"(?:day\s*rate|daily\s*rate|per\s*day)[:\s-]*(?:inr|rs\.?|₹)?\s*([0-9][0-9,]*(?:\.\d+)?)", resume_text, flags=re.IGNORECASE)
+    search_text = (resume_text or "")[:12000]
+    email_match = re.search(r"[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,24}", search_text)
+    phone_match = re.search(r"\+?\d[\d ().-]{8,20}\d", search_text)
+    linkedin_match = re.search(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[^\s,;)>]{1,120}", search_text, flags=re.IGNORECASE)
+    day_rate = _extract_day_rate(search_text)
     exp_matches = [
         float(match.group(1))
-        for match in re.finditer(r"(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)", resume_text, flags=re.IGNORECASE)
+        for match in re.finditer(r"(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)", search_text, flags=re.IGNORECASE)
     ]
     skills = _explicit_skills(resume_text)
     cert_lines = _explicit_certifications(resume_text)
@@ -641,7 +670,7 @@ def _fallback_extract_profile(resume_text: str, filename: str, ai_error: Excepti
         "role_designation": _fallback_role_designation(domain_text),
         "education": _fallback_education(resume_text),
         "linkedin": linkedin_match.group(0) if linkedin_match else "",
-        "day_rate": _as_number(rate_match.group(1)) if rate_match else None,
+        "day_rate": day_rate,
         "skills": skills,
         "certifications": cert_lines,
         "technology_category": category,
@@ -798,6 +827,9 @@ def trainer_document_from_profile(profile: Dict[str, Any]) -> Dict[str, Any]:
         "name": profile.get("name", ""),
         "email": profile.get("email", ""),
         "phone": profile.get("phone", ""),
+        "teams_email": profile.get("teams_email", ""),
+        "microsoft_teams_email": profile.get("microsoft_teams_email", ""),
+        "teams_upn": profile.get("teams_upn", ""),
         "location": profile.get("location", ""),
         "linkedin": profile.get("linkedin", ""),
         "experience_years": profile.get("experience_years", 0),
@@ -822,7 +854,7 @@ def trainer_document_from_profile(profile: Dict[str, Any]) -> Dict[str, Any]:
         "source": "resume_upload",
         "source_sheet": "resume_upload",
         "status": "new",
-        "updated_at": datetime.utcnow(),
+        "updated_at": utc_now(),
     }
 
 
@@ -853,11 +885,11 @@ async def save_trainer_from_resume(profile: Dict[str, Any], db, use_ai_tags: boo
         )
         action = "updated"
     else:
-        trainer_doc["created_at"] = datetime.utcnow()
+        trainer_doc["created_at"] = utc_now()
         await db["trainers"].insert_one(trainer_doc)
         action = "inserted"
 
-    now = datetime.utcnow()
+    now = utc_now()
     upload_id = profile.get("upload_id") or f"RES-{uuid.uuid4().hex[:12].upper()}"
     upload_doc = {
         "trainer_id": trainer_doc["trainer_id"],

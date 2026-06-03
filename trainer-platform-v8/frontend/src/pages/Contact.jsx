@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import {
   Mail, Phone, Send, MessageSquare, Clock,
   CheckCircle, ArrowRight, Zap, Sparkles,
-  Linkedin, Twitter, Instagram, ChevronDown, Star
+  Linkedin, Twitter, Instagram
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
+import { randomBetween, randomInt } from '../utils/random'
+import PublicFooter from '../components/PublicFooter'
+import BrandMark from '../components/BrandMark'
 
 /* ── Keyframes ─────────────────────────────────────────── */
 const STYLES = `
@@ -36,6 +39,7 @@ const STYLES = `
 `
 
 /* ── Particle Canvas ───────────────────────────────────── */
+// eslint-disable-next-line no-unused-vars
 function ParticleCanvas() {
   const ref = useRef(null)
   useEffect(() => {
@@ -44,11 +48,12 @@ function ParticleCanvas() {
     let raf
     const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight }
     resize(); window.addEventListener('resize', resize)
+    const colors = ['#3b82f6','#06b6d4','#10b981','#8b5cf6']
     const dots = Array.from({ length: 40 }, () => ({
-      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-      vx: (Math.random()-.5)*.3, vy: (Math.random()-.5)*.3,
-      r: Math.random()*2+.5, pulse: Math.random()*Math.PI*2,
-      color: ['#3b82f6','#06b6d4','#10b981','#8b5cf6'][Math.floor(Math.random()*4)],
+      x: randomBetween(0, canvas.width), y: randomBetween(0, canvas.height),
+      vx: randomBetween(-0.15, 0.15), vy: randomBetween(-0.15, 0.15),
+      r: randomBetween(0.5, 2.5), pulse: randomBetween(0, Math.PI*2),
+      color: colors[randomInt(colors.length)],
     }))
     const draw = () => {
       ctx.clearRect(0,0,canvas.width,canvas.height)
@@ -217,6 +222,7 @@ function StatBox({ icon:Icon, value, suffix, label, color, delay }) {
 }
 
 /* ── Contact form ──────────────────────────────────────── */
+// eslint-disable-next-line no-unused-vars
 function ContactForm() {
   const [form, setForm] = useState({ name:'', email:'', phone:'', subject:'', message:'' })
   const [loading, setLoading] = useState(false)
@@ -318,13 +324,7 @@ export default function Contact() {
 
       {/* Nav — Logo on left edge, Buttons on right edge */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5">
-        <button onClick={() => navigate('/dashboard')} className="flex items-center gap-2.5 group hover:opacity-80 transition-opacity cursor-pointer">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform group-hover:shadow-lg duration-300"
-            style={{ background:'linear-gradient(135deg,#2563eb,#06b6d4)' }}>
-            <Zap className="w-5 h-5 text-white"/>
-          </div>
-          <span className="font-bold text-slate-900 text-base hover:text-blue-600 transition-colors" style={{ fontFamily:"'Sora',sans-serif" }}>TrainerSync</span>
-        </button>
+        <BrandMark size="sm" onClick={() => navigate('/dashboard')} />
         <div className="flex items-center gap-3">
           <button onClick={() => navigate('/feedback')} className="text-sm text-slate-600 hover:text-blue-600 transition-colors px-3 py-2">Reviews</button>
           <button onClick={() => navigate('/login')}
@@ -459,7 +459,8 @@ export default function Contact() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 bg-white border-t border-slate-200 px-8 py-12">
+      <PublicFooter />
+      <footer className="hidden">
         <div className="max-w-6xl mx-auto">
           {/* Main Footer Content */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">

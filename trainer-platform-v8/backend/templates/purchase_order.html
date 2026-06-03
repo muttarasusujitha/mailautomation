@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>{{ po.po_number }} - Purchase Order</title>
@@ -222,15 +222,15 @@
 
     <table class="totals">
       <tr>
-        <td>Subtotal</td>
+        <th scope="row">Subtotal</th>
         <td class="right">{{ po.commercials.total_amount | money }}</td>
       </tr>
       <tr>
-        <td>GST @ {{ po.commercials.gst_rate }}%</td>
+        <th scope="row">GST @ {{ po.commercials.gst_rate }}%</th>
         <td class="right">{{ po.commercials.gst_amount | money }}</td>
       </tr>
       <tr class="grand">
-        <td>Grand Total</td>
+        <th scope="row">Grand Total</th>
         <td class="right">{{ po.commercials.grand_total | money }}</td>
       </tr>
     </table>

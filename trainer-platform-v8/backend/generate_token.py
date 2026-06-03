@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import shutil
 import time
@@ -10,6 +11,8 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow, InstalledAppFlow
 
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger(__name__)
 
 BACKEND_DIR = Path(__file__).resolve().parent
 CONFIG_DIR = BACKEND_DIR / "config"
@@ -29,7 +32,7 @@ def backup_invalid_token():
     stamp = time.strftime("%Y%m%d-%H%M%S")
     backup = CONFIG_DIR / f"token.invalid-{stamp}.bak"
     shutil.move(str(TOKEN_FILE), str(backup))
-    print(f"Invalid token.json moved to {backup}")
+    logger.info("Invalid token.json moved to %s", backup)
 
 
 def load_existing_token():
@@ -49,7 +52,7 @@ def load_existing_token():
 def save_token(creds):
     CONFIG_DIR.mkdir(parents=True, exist_ok=True)
     TOKEN_FILE.write_text(creds.to_json(), encoding="utf-8")
-    print(f"token.json saved to {TOKEN_FILE}")
+    logger.info("token.json saved to %s", TOKEN_FILE)
 
 
 def credentials_kind():
@@ -71,7 +74,8 @@ def generate_with_installed_client():
 
 def generate_with_web_client(client):
     redirect_uri = (client.get("redirect_uris") or ["http://localhost:5173/auth/callback"])[0]
-    os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")
+    if redirect_uri.startswith("http://localhost") or redirect_uri.startswith("http://127.0.0.1"):
+        os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")  # NOSONAR: local OAuth callback only
     flow = Flow.from_client_secrets_file(
         str(CREDENTIALS_FILE),
         scopes=SCOPES,
@@ -83,9 +87,9 @@ def generate_with_web_client(client):
         prompt="consent",
     )
 
-    print("\nOpen this Google authorization URL:")
-    print(auth_url)
-    print("\nAfter Google redirects you back, copy the full callback URL from the browser address bar.")
+    logger.info("\nOpen this Google authorization URL:")
+    logger.info(auth_url)
+    logger.info("\nAfter Google redirects you back, copy the full callback URL from the browser address bar.")
     webbrowser.open(auth_url)
     callback_url = input("\nPaste callback URL here: ").strip()
     parsed = urllib.parse.urlparse(callback_url)
@@ -101,7 +105,7 @@ def generate_with_web_client(client):
 def main():
     creds = load_existing_token()
     if creds and creds.valid:
-        print(f"Existing token is valid: {TOKEN_FILE}")
+        logger.info("Existing token is valid: %s", TOKEN_FILE)
         return
 
     kind, client = credentials_kind()
@@ -110,7 +114,7 @@ def main():
     else:
         generate_with_web_client(client)
 
-    print("Gmail OAuth flow complete.")
+    logger.info("Gmail OAuth flow complete.")
 
 
 if __name__ == "__main__":

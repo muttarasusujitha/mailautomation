@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { forgotPassword } from '../utils/api'
 import {
-  Zap, Mail, Lock, User, Eye, EyeOff, ArrowRight,
+  Mail, Lock, User, Eye, EyeOff, ArrowRight,
   CheckCircle, Sparkles, Chrome, Github, Briefcase,
-  Users, GraduationCap, Building2, Phone, MapPin
+  Users, GraduationCap, Building2, Phone
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
+import { randomBetween, randomInt } from '../utils/random'
+import BrandMark from '../components/BrandMark'
 
 /* ─── Particle Canvas ──────────────────────────────────────── */
 function ParticleCanvas() {
@@ -23,14 +25,15 @@ function ParticleCanvas() {
     }
     resize()
     window.addEventListener('resize', resize)
+    const colors = ['#3b82f6','#06b6d4','#10b981','#8b5cf6']
     const dots = Array.from({ length: 55 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      r: Math.random() * 2 + 0.8,
-      pulse: Math.random() * Math.PI * 2,
-      color: ['#3b82f6','#06b6d4','#10b981','#8b5cf6'][Math.floor(Math.random()*4)],
+      x: randomBetween(0, canvas.width),
+      y: randomBetween(0, canvas.height),
+      vx: randomBetween(-0.2, 0.2),
+      vy: randomBetween(-0.2, 0.2),
+      r: randomBetween(0.8, 2.8),
+      pulse: randomBetween(0, Math.PI * 2),
+      color: colors[randomInt(colors.length)],
     }))
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -222,10 +225,6 @@ export default function Login({ onLogin }) {
     navigate('/dashboard')
   }
 
-  const inputCls = `w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-slate-800 text-sm
-    placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100
-    hover:border-slate-300 transition-all duration-200 shadow-sm`
-
   return (
     <div className="min-h-screen flex overflow-hidden relative bg-gradient-to-br from-slate-50 via-white to-blue-50">
 
@@ -273,15 +272,7 @@ export default function Login({ onLogin }) {
         {/* Content */}
         <div className="relative z-10 flex flex-col h-full p-12">
           {/* Logo */}
-          <div className="flex items-center gap-3 anim-left">
-            <div className="w-11 h-11 bg-white/20 backdrop-blur border border-white/30 rounded-2xl flex items-center justify-center shadow-lg">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="text-white font-bold text-xl leading-none">TrainerSync</p>
-              <p className="text-white/70 text-xs mt-0.5">AI Matching Platform</p>
-            </div>
-          </div>
+          <BrandMark size="lg" theme="dark" className="anim-left" />
 
           {/* Role showcase */}
           <div className="flex-1 flex flex-col justify-center space-y-8">
@@ -350,12 +341,7 @@ export default function Login({ onLogin }) {
         )}>
 
           {/* Mobile logo */}
-          <div className="flex items-center gap-3 mb-6 lg:hidden">
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
-            <p className="text-slate-900 font-bold text-lg">TrainerSync</p>
-          </div>
+          <BrandMark className="mb-6 lg:hidden" />
 
           {/* Heading */}
           <div className="mb-3">
@@ -436,7 +422,14 @@ export default function Login({ onLogin }) {
                     } />
                   <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2 cursor-pointer">
-                      <div onClick={() => setRemember(!remember)}
+                      <input
+                        type="checkbox"
+                        checked={remember}
+                        onChange={() => setRemember(!remember)}
+                        className="sr-only"
+                      />
+                      <div
+                        aria-hidden="true"
                         className={clsx('w-4 h-4 rounded border flex items-center justify-center transition-all',
                           remember ? `bg-gradient-to-br ${selectedRole.gradient} border-transparent` : 'border-slate-300'
                         )}>

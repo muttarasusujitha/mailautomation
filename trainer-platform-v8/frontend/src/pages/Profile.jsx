@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { User, Mail, Phone, MapPin, Building2, Edit2, Save, X, Camera } from 'lucide-react'
 import toast from 'react-hot-toast'
 

@@ -2,9 +2,9 @@ import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api, { getDashboardStats, clearDatabase } from '../utils/api'
 import {
-  Users, Mail, TrendingUp, CheckCircle, XCircle, Clock,
+  Users, Mail, TrendingUp,
   RefreshCw, BarChart2, Activity, Trash2, AlertTriangle, Star, Zap,
-  ArrowUpRight, Database, Send, FileSearch, UploadCloud, ShieldCheck,
+  ArrowUpRight, Database, Send,
   BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings,
 } from 'lucide-react'
 import {
@@ -92,31 +92,6 @@ function TooltipBox({ active, payload, label }) {
         </p>
       ))}
     </div>
-  )
-}
-
-function QuickAction({ icon: Icon, label, to, tone = 'brand' }) {
-  const navigate = useNavigate()
-  const tones = {
-    brand: 'border-brand-100 bg-brand-50 text-brand-700 hover:bg-brand-100/70 hover:border-brand-200',
-    emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700 hover:bg-emerald-100/70 hover:border-emerald-200',
-    amber: 'border-amber-100 bg-amber-50 text-amber-700 hover:bg-amber-100/70 hover:border-amber-200',
-    slate: 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 hover:border-slate-300',
-  }
-
-  return (
-    <button
-      onClick={() => navigate(to)}
-      className={clsx(
-        'group flex min-h-[46px] items-center justify-between gap-3 rounded-xl border px-3.5 py-2.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm',
-        tones[tone]
-      )}
-    >
-      <span className="flex items-center gap-2 text-sm font-semibold">
-        <Icon className="h-4 w-4" /> {label}
-      </span>
-      <ArrowUpRight className="h-4 w-4 opacity-45 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
-    </button>
   )
 }
 
@@ -303,6 +278,7 @@ export default function Dashboard() {
   const clientRequirements = Number(clientStats.requirements_created || 0)
   const gmailConnected = !!gmailStatus?.connected
   const gmailUser = gmailStatus?.gmail_user || gmailStatus?.configured_user || ''
+  const gmailUserLabel = gmailUser ? ` as ${gmailUser}` : ''
   const replyRate = normaliseRate(stats?.reply_rate || (totalEmails ? (totalReplies / totalEmails) * 100 : 0))
   const interestRate = normaliseRate(stats?.interest_rate || (totalTrainers ? (interested / totalTrainers) * 100 : 0))
   const deliveryRate = totalEmails + failedEmails ? (totalEmails / (totalEmails + failedEmails)) * 100 : 100
@@ -334,25 +310,18 @@ export default function Dashboard() {
   const statCards = [
     { icon: BriefcaseBusiness, label: 'Client Requests', value: clientToday, sub: 'Received today', tone: 'blue', linkTo: '/client-requests' },
     { icon: Inbox, label: 'Client Pending', value: clientPending, sub: 'Needs approval', tone: 'amber', linkTo: '/client-requests' },
-    { icon: ShieldCheck, label: 'Client Auto Sent', value: clientAutoSent, sub: 'Replies sent by AI rules', tone: 'emerald', linkTo: '/client-requests' },
-    { icon: CheckCircle, label: 'Client Requirements', value: clientRequirements, sub: 'Created from inbox', tone: 'green', linkTo: '/client-requests' },
     { icon: Users, label: 'Total Trainers', value: stats?.total_trainers ?? 0, sub: 'In database', tone: 'blue', linkTo: '/trainers' },
     { icon: Mail, label: 'Emails Sent', value: stats?.total_emails_sent ?? 0, sub: 'Outreach emails', tone: 'purple', linkTo: '/emails' },
     { icon: TrendingUp, label: 'Replies', value: stats?.total_replies ?? 0, sub: 'Trainer replies', tone: 'emerald', linkTo: '/emails' },
-    { icon: CheckCircle, label: 'Interested', value: stats?.interested_count ?? 0, sub: 'Trainer interest', tone: 'green', linkTo: '/emails' },
     { icon: BarChart2, label: 'Requirements', value: stats?.total_requirements ?? 0, sub: 'Active searches', tone: 'orange', linkTo: '/requirements' },
-    { icon: Activity, label: 'Confirmed', value: stats?.confirmed_count ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist' },
-    { icon: Clock, label: 'Pending Review', value: stats?.pending_review ?? 0, sub: 'Needs attention', tone: 'amber', linkTo: '/trainers' },
-    { icon: XCircle, label: 'Emails Failed', value: stats?.total_emails_failed ?? 0, sub: 'Need retry', tone: 'red', linkTo: '/emails' },
+    { icon: Activity, label: 'Confirmed', value: stats?.confirmed_count ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist1' },
     { icon: Send, label: 'WhatsApp Sent', value: whatsappSent, sub: 'Queued/sent/delivered', tone: 'green' },
-    { icon: TrendingUp, label: 'WhatsApp Replies', value: whatsappReplies, sub: 'Inbound messages', tone: 'emerald' },
-    { icon: XCircle, label: 'WhatsApp Failed', value: whatsappFailed, sub: 'Failed/skipped', tone: 'red' },
   ]
 
   return (
     <div className="space-y-5 animate-fade-in">
       <section className="card overflow-hidden">
-        <div className="grid gap-5 p-5 lg:grid-cols-[1fr_360px] lg:items-center">
+        <div className="p-5">
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -364,12 +333,6 @@ export default function Dashboard() {
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
               Track trainer inventory, outreach movement, reply quality, and work that needs recruiter attention.
             </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <QuickAction icon={BriefcaseBusiness} label="Client Requests" to="/client-requests" tone="brand" />
-            <QuickAction icon={FileSearch} label="Find Trainers" to="/requirements" tone="emerald" />
-            <QuickAction icon={Clock} label="Interviews" to="/interviews" tone="amber" />
           </div>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-3">
@@ -425,7 +388,7 @@ export default function Dashboard() {
                   <p className="text-sm font-bold text-slate-900">Client inbox status</p>
                   <p className="mt-1 text-xs text-slate-500">
                     {gmailConnected
-                      ? `Connected${gmailUser ? ` as ${gmailUser}` : ''}. Use Check Inbox Now to pull latest client requests.`
+                      ? `Connected${gmailUserLabel}. Use Check Inbox Now to pull latest client requests.`
                       : 'Connect the client Gmail account before testing client request automation.'}
                   </p>
                 </div>
@@ -523,15 +486,7 @@ export default function Dashboard() {
 
         <Panel title="Next Best Actions" eyebrow="Shortcuts">
           <div className="space-y-3">
-            <button onClick={() => navigate('/client-requests')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
-              <span className="flex items-center justify-between gap-3">
-                <span>
-                  <span className="block text-sm font-semibold text-slate-800">Review client updates</span>
-                  <span className="text-xs text-slate-400">Check new requests, slot replies, and scheduling status</span>
-                </span>
-                <ArrowUpRight className="h-4 w-4 text-brand-500" />
-              </span>
-            </button>
+            <p className="px-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">Trainer Pipeline</p>
             <button onClick={() => navigate('/requirements')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
               <span className="flex items-center justify-between gap-3">
                 <span>
@@ -541,11 +496,21 @@ export default function Dashboard() {
                 <ArrowUpRight className="h-4 w-4 text-brand-500" />
               </span>
             </button>
-            <button onClick={() => navigate('/interviews')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
+            <button onClick={() => navigate('/shortlist1')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
               <span className="flex items-center justify-between gap-3">
                 <span>
-                  <span className="block text-sm font-semibold text-slate-800">Check interview schedule</span>
-                  <span className="text-xs text-slate-400">Follow confirmed client slots and trainer meetings</span>
+                  <span className="block text-sm font-semibold text-slate-800">AI pipeline</span>
+                  <span className="text-xs text-slate-400">Run AI trainer outreach and pipeline automation</span>
+                </span>
+                <ArrowUpRight className="h-4 w-4 text-brand-500" />
+              </span>
+            </button>
+            <p className="px-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">Client Work</p>
+            <button onClick={() => navigate('/client-requests')} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-brand-200 hover:bg-brand-50">
+              <span className="flex items-center justify-between gap-3">
+                <span>
+                  <span className="block text-sm font-semibold text-slate-800">Review client updates</span>
+                  <span className="text-xs text-slate-400">Check new requests, slot replies, and scheduling status</span>
                 </span>
                 <ArrowUpRight className="h-4 w-4 text-brand-500" />
               </span>
@@ -639,7 +604,7 @@ export default function Dashboard() {
                     isAnimationActive
                     animationDuration={900}
                   >
-                    {statusData.map((entry, i) => (
+                    {statusData.map((entry, _i) => (
                       <Cell key={entry.name} fill={entry.color} />
                     ))}
                   </Pie>
@@ -744,6 +709,11 @@ export default function Dashboard() {
                       {ctx.trainer_name || msg.from_number || msg.to_number || 'WhatsApp message'}
                     </p>
                     <p className="truncate text-xs text-slate-400">{msg.event_type} · {ctx.mail_type || msg.direction || 'message'}</p>
+                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-500">
+                      <span className="break-all"><strong className="font-semibold text-slate-600">To:</strong> {msg.to_number || 'Not saved'}</span>
+                      {msg.from_number && <span className="break-all"><strong className="font-semibold text-slate-600">From:</strong> {msg.from_number}</span>}
+                      {msg.provider && <span className="capitalize"><strong className="font-semibold text-slate-600">Provider:</strong> {msg.provider}</span>}
+                    </div>
                     <p className="mt-1 line-clamp-2 text-xs text-slate-500">{msg.body}</p>
                     {msg.error_message && <p className="mt-1 text-xs font-semibold text-red-500">{msg.error_message}</p>}
                   </div>

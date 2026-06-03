@@ -6,23 +6,34 @@ Fixed: uses correct env key GMAIL_APP_PASSWORD or GMAIL_PASS
 import smtplib
 import imaplib
 import email as email_lib
+from email.header import decode_header, make_header
 from email.utils import parseaddr
 from email.utils import parsedate_to_datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import List, Dict, Any
 from datetime import datetime, timedelta
+from utils.time_utils import utc_now
 import asyncio
 import os
+import logging
 
 from config import get_settings
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 POSITIVE_SIGNALS = ['yes', 'available', 'interested', 'confirm', 'accept',
                     'happy to', 'sure', 'okay', 'ok', 'look forward', 'schedule', 'agree']
 NEGATIVE_SIGNALS = ['no', 'not available', 'not interested', 'decline',
                     'unable', 'cannot', 'busy', 'engaged', 'withdraw']
+
+
+def decode_mime_header(value: str) -> str:
+    try:
+        return str(make_header(decode_header(value or "")))
+    except Exception:
+        return str(value or "")
 
 
 def get_gmail_password() -> str:
@@ -52,7 +63,7 @@ def send_email(to: str, subject: str, body: str, smtp_config: Dict[str, Any] = N
 
     if not gmail_user or not gmail_pass:
         err = "Gmail SMTP credentials not set in Admin Email Configuration"
-        print(f"Email error: {err}")
+        logger.error("Email error: %s", err)
         return False, err
 
     try:
@@ -103,15 +114,15 @@ def send_email(to: str, subject: str, body: str, smtp_config: Dict[str, Any] = N
                 server.login(gmail_user, gmail_pass)
                 server.sendmail(from_email, to, msg_obj.as_string())
 
-        print(f"Email sent to {to}")
+        logger.info("Email sent to %s", to)
         return True, ""
 
     except smtplib.SMTPAuthenticationError:
         err = "Gmail authentication failed - check GMAIL_USER and GMAIL_PASS"
-        print(f"Email error: {err}")
+        logger.error("Email error: %s", err)
         return False, err
     except Exception as e:
-        print(f"Email send failed to {to}: {e}")
+        logger.exception("Email send failed to %s", to)
         return False, str(e)
 
 
@@ -128,7 +139,7 @@ async def send_bulk_emails(payloads: List[Dict], smtp_config: Dict[str, Any] = N
             **p,
             "status": "sent" if success else "failed",
             "error_message": error if not success else "",
-            "sent_at": datetime.utcnow().isoformat() if success else None,
+            "sent_at": utc_now().isoformat() if success else None,
         })
         if success:
             await asyncio.sleep(1.5)
@@ -228,8 +239,8 @@ def check_email_replies(
             msg = email_lib.message_from_bytes(raw)
             from_addr = msg.get("From", "")
             from_email = parseaddr(from_addr)[1] or from_addr.strip()
-            subject   = msg.get("Subject", "")
-            received_at = datetime.utcnow()
+            subject   = decode_mime_header(msg.get("Subject", ""))
+            received_at = utc_now()
             try:
                 date_header = msg.get("Date", "")
                 if date_header:
@@ -239,7 +250,7 @@ def check_email_replies(
                             parsed_date = parsed_date.astimezone().replace(tzinfo=None)
                         received_at = parsed_date
             except Exception:
-                received_at = datetime.utcnow()
+                received_at = utc_now()
             message_id_header = msg.get("Message-ID", "") or msg.get("Message-Id", "")
             in_reply_to = msg.get("In-Reply-To", "")
             references = msg.get("References", "")
@@ -270,8 +281,8 @@ def check_email_replies(
                 "received_at": received_at.isoformat(),
             })
 
-    except Exception as e:
-        print(f"IMAP check failed: {e}")
+    except Exception:
+        logger.exception("IMAP check failed")
     finally:
         try:
             if mail:
@@ -301,8 +312,8 @@ def mark_emails_seen(msg_ids: List[str]) -> None:
         for msg_id in msg_ids:
             if str(msg_id).isdigit():
                 mail.store(str(msg_id), "+FLAGS", "\\Seen")
-    except Exception as e:
-        print(f"IMAP mark seen failed: {e}")
+    except Exception:
+        logger.exception("IMAP mark seen failed")
     finally:
         try:
             if mail:
@@ -318,16 +329,29 @@ def mark_emails_seen(msg_ids: List[str]) -> None:
 
 def compose_shortlist_first_email(trainer_name: str, domain: str, duration: str,
                                    mode: str, participants: str) -> str:
+    detail_lines = [f"* Domain/Technology: {domain}"]
+    if duration:
+        detail_lines.append(f"* Duration: {duration}")
+    if mode:
+        detail_lines.append(f"* Mode: {mode}")
+    if participants:
+        detail_lines.append(f"* Participants: {participants}")
+    detail_text = "\n".join(detail_lines)
+    missing_details_note = ""
+    if not duration or not participants:
+        missing_details_note = (
+            "\n\nAt this stage, we are checking your interest and availability first. "
+            "Once you confirm, we will share the confirmed duration, schedule, participants, "
+            "and other requirement details as they are finalized."
+        )
+
     return f"""Dear {trainer_name or 'Trainer'},
 
 We have received a training requirement for {domain} and are looking for a trainer with relevant experience.
 
 Training Details:
 
-* Domain/Technology: {domain}
-* Duration: {duration or '[Hours/Days]'}
-* Mode: {mode or '[Online/Offline]'}
-* Participants: {participants or '[Number]'}
+{detail_text}{missing_details_note}
 
 Please let us know if you are interested and available for this requirement. Kindly share your updated trainer profile along with relevant experience.
 

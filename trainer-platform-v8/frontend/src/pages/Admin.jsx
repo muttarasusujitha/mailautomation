@@ -95,15 +95,28 @@ export default function Admin() {
     fromEmail: 'recruitment@calhantech.com',
   })
 
-  // Twilio WhatsApp config
+  // WhatsApp config
   const [twilioCfg, setTwilioCfg] = useState({
     enabled: false,
+    provider: 'twilio',
     accountSid: '',
     authToken: '',
     fromWhatsAppNumber: 'whatsapp:+14155238886',
     vendorWhatsAppNumber: '',
     defaultCountryCode: '+91',
     statusCallbackUrl: '',
+    aisensyApiUrl: 'https://backend.aisensy.com/campaign/t1/api/v2',
+    aisensyApiKey: '',
+    aisensyCampaignName: '',
+    aisensySource: 'TrainerSync',
+    aisensyTemplateParamFields: 'message',
+    aisensyTags: 'trainersync',
+    metaApiVersion: 'v23.0',
+    metaPhoneNumberId: '',
+    metaAccessToken: '',
+    metaTemplateName: '',
+    metaLanguageCode: 'en_US',
+    metaTemplateParamFields: 'message',
   })
 
   const [gmailStatus, setGmailStatus] = useState({ connected: false })
@@ -116,6 +129,20 @@ export default function Admin() {
   })
   const [teamsCfg, setTeamsCfg] = useState({
     webhookUrl: '',
+  })
+  const [teamsDirectCfg, setTeamsDirectCfg] = useState({
+    enabled: false,
+    tenantId: 'common',
+    clientId: '',
+    clientSecret: '',
+    redirectUri: 'http://localhost:8000/api/teams-direct/oauth-callback',
+    senderUser: '',
+  })
+  const [teamsDirectStatus, setTeamsDirectStatus] = useState({
+    connected: false,
+    enabled: false,
+    token_valid: false,
+    sender_user: '',
   })
   const [reminders, setReminders] = useState([])
   const [loadingReminders, setLoadingReminders] = useState(false)
@@ -170,12 +197,13 @@ export default function Admin() {
         if (parsed.twilioCfg) setTwilioCfg({...twilioCfg, ...parsed.twilioCfg})
         if (parsed.clientInboxCfg) setClientInboxCfg({...clientInboxCfg, ...parsed.clientInboxCfg})
         if (parsed.teamsCfg) setTeamsCfg({...teamsCfg, ...parsed.teamsCfg})
+        if (parsed.teamsDirectCfg) setTeamsDirectCfg({...teamsDirectCfg, ...parsed.teamsDirectCfg})
         if (parsed.notif) setNotif({...notif, ...parsed.notif})
         if (parsed.pipeline) setPipeline({...pipeline, ...parsed.pipeline})
         if (parsed.keys) setKeys({...keys, ...parsed.keys})
       }
-    } catch (e) {
-      console.error('Failed to load admin settings:', e)
+    } catch {
+      localStorage.removeItem(SETTINGS_STORAGE_KEY)
     }
   }, [])
 
@@ -189,6 +217,7 @@ export default function Admin() {
       if (settings.twilioCfg) setTwilioCfg(prev => ({ ...prev, ...settings.twilioCfg }))
       if (settings.clientInboxCfg) setClientInboxCfg(prev => ({ ...prev, ...settings.clientInboxCfg }))
       if (settings.teamsCfg) setTeamsCfg(prev => ({ ...prev, ...settings.teamsCfg }))
+      if (settings.teamsDirectCfg) setTeamsDirectCfg(prev => ({ ...prev, ...settings.teamsDirectCfg }))
       if (settings.notif) setNotif(prev => ({ ...prev, ...settings.notif }))
       if (settings.pipeline) setPipeline(prev => ({ ...prev, ...settings.pipeline }))
       if (settings.keys) setKeys(prev => ({ ...prev, ...settings.keys }))
@@ -218,6 +247,7 @@ export default function Admin() {
         const statusRes = await fetch('/api/gmail/auth-status')
         if (statusRes.ok) setGmailStatus(await statusRes.json())
       } catch {}
+      loadTeamsDirectStatus()
       loadReminders()
     }
 
@@ -227,7 +257,7 @@ export default function Admin() {
 
   const save = async (section) => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
     try {
       const res = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -249,15 +279,8 @@ export default function Admin() {
   }
 
   const testEmail = async () => {
-    toast.loading('Sending test email...')
-    await new Promise(r => setTimeout(r, 1500))
-    toast.dismiss()
-    toast.success('Test email sent successfully!')
-  }
-
-  const testWhatsApp = async () => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
     try {
       const saveRes = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -265,7 +288,30 @@ export default function Admin() {
         body: JSON.stringify(payload),
       })
       localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
-      if (!saveRes.ok) throw new Error('Could not save Twilio settings')
+      if (!saveRes.ok) throw new Error('Could not save email settings')
+
+      const testRes = await fetch('/api/admin/email/test', { method: 'POST' })
+      const data = await testRes.json().catch(() => ({}))
+      if (!testRes.ok) throw new Error(data.detail || data.error || 'Test email failed')
+      toast.success(`Test email sent to ${data.to_email || 'configured address'}`)
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const testWhatsApp = async () => {
+    setSaving(true)
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    try {
+      const saveRes = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      if (!saveRes.ok) throw new Error('Could not save WhatsApp settings')
 
       const testRes = await fetch('/api/admin/whatsapp/test', { method: 'POST' })
       const data = await testRes.json().catch(() => ({}))
@@ -280,7 +326,7 @@ export default function Admin() {
 
   const testTeams = async () => {
     setSaving(true)
-    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, notif, pipeline, keys }
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
     try {
       const saveRes = await fetch('/api/admin/settings', {
         method: 'POST',
@@ -301,6 +347,55 @@ export default function Admin() {
     }
   }
 
+  const connectTeamsDirect = async () => {
+    setSaving(true)
+    const payload = { profile, emailCfg, twilioCfg, clientInboxCfg, teamsCfg, teamsDirectCfg, notif, pipeline, keys }
+    try {
+      const saveRes = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(payload))
+      if (!saveRes.ok) throw new Error('Could not save Teams direct settings')
+
+      const oauthRes = await fetch('/api/teams-direct/oauth-url')
+      const data = await oauthRes.json().catch(() => ({}))
+      if (!oauthRes.ok) throw new Error(data.detail || data.error || 'Microsoft OAuth URL failed')
+      globalThis.location.href = data.auth_url
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const testTeamsDirect = async () => {
+    const teamsEmail = globalThis.prompt('Enter another Teams user email to test direct chat. Do not use the sender account.')
+    if (!teamsEmail) return
+    setSaving(true)
+    try {
+      const statusRes = await fetch('/api/teams-direct/status')
+      const status = await statusRes.json().catch(() => ({}))
+      if (statusRes.ok) setTeamsDirectStatus(status)
+      if (!status.connected) {
+        throw new Error('Teams Direct is not connected yet. Click Connect Direct Chat, accept Microsoft permissions, then test again.')
+      }
+      const testRes = await fetch('/api/admin/teams-direct/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teams_email: teamsEmail }),
+      })
+      const data = await testRes.json().catch(() => ({}))
+      if (!testRes.ok) throw new Error(data.detail?.error || data.detail || data.error || 'Teams direct chat test failed')
+      toast.success('Teams direct chat sent!')
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const connectGmail = async () => {
     setSaving(true)
     try {
@@ -308,7 +403,7 @@ export default function Admin() {
         const oauthRes = await fetch('/api/gmail/oauth-url')
         const oauthData = await oauthRes.json().catch(() => ({}))
         if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')
-        window.location.href = oauthData.auth_url
+        globalThis.location.href = oauthData.auth_url
         return
       }
 
@@ -339,7 +434,7 @@ export default function Admin() {
   }
 
   const clearDatabase = () => {
-    if (window.confirm('Are you sure? This will clear all trainer data.')) {
+    if (globalThis.confirm('Are you sure? This will clear all trainer data.')) {
       toast.error('Database clear cancelled (demo mode)')
     }
   }
@@ -358,6 +453,15 @@ export default function Admin() {
     }
   }
 
+  const loadTeamsDirectStatus = async () => {
+    try {
+      const res = await fetch('/api/teams-direct/status')
+      if (res.ok) setTeamsDirectStatus(await res.json())
+    } catch {
+      setTeamsDirectStatus(prev => ({ ...prev, connected: false }))
+    }
+  }
+
   const cancelReminder = async (reminderId) => {
     try {
       const res = await fetch(`/api/interview-reminders/${reminderId}/cancel`, {
@@ -373,6 +477,9 @@ export default function Admin() {
     }
   }
 
+  const whatsappProvider = twilioCfg.provider || 'twilio'
+  const setWhatsAppProvider = provider => setTwilioCfg({ ...twilioCfg, provider })
+
   return (
     <div className="space-y-1 animate-fade-in max-w-3xl">
       {/* Header */}
@@ -386,7 +493,7 @@ export default function Admin() {
       </div>
 
       {/* ── PROFILE ── */}
-      <Section id="admin-teams" icon={MessageSquare} title="Microsoft Teams" subtitle="Incoming webhook for pipeline cards">
+      <Section id="admin-teams" icon={MessageSquare} title="Microsoft Teams" subtitle="Channel cards plus optional direct trainer chat">
         <Field label="Teams Webhook URL" hint="Paste the Teams Incoming Webhook URL here">
           <Input
             icon={MessageSquare}
@@ -396,6 +503,51 @@ export default function Admin() {
             placeholder="https://outlook.office.com/webhook/..."
           />
         </Field>
+        <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4 space-y-4">
+          <Toggle
+            checked={teamsDirectCfg.enabled}
+            onChange={v => setTeamsDirectCfg({...teamsDirectCfg, enabled: v})}
+            label="Enable Direct Teams Chat"
+            desc="Send the same trainer pipeline message as a Teams DM using the resume email by default"
+          />
+          <div className={clsx(
+            'flex flex-wrap items-center justify-between gap-3 rounded-xl border px-3 py-2 text-xs',
+            teamsDirectStatus.connected
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+              : 'border-amber-200 bg-amber-50 text-amber-700'
+          )}>
+            <span className="flex items-center gap-2 font-semibold">
+              {teamsDirectStatus.connected
+                ? <CheckCircle className="h-4 w-4" />
+                : <Key className="h-4 w-4" />}
+              {teamsDirectStatus.connected
+                ? `Direct chat connected${teamsDirectStatus.sender_user ? ` as ${teamsDirectStatus.sender_user}` : ''}`
+                : 'Direct chat not connected. Click Connect Direct Chat before testing.'}
+            </span>
+            <button type="button" onClick={loadTeamsDirectStatus} className="font-bold underline underline-offset-2">
+              Refresh status
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Tenant ID" hint="Microsoft Entra tenant id, or common for multi-tenant testing">
+              <Input icon={Building2} value={teamsDirectCfg.tenantId} onChange={e => setTeamsDirectCfg({...teamsDirectCfg, tenantId: e.target.value})} placeholder="common or tenant id" />
+            </Field>
+            <Field label="Client ID">
+              <Input icon={Key} value={teamsDirectCfg.clientId} onChange={e => setTeamsDirectCfg({...teamsDirectCfg, clientId: e.target.value})} placeholder="Microsoft app client id" />
+            </Field>
+            <Field label="Client Secret">
+              <Input icon={Lock} type={showPass ? 'text' : 'password'} value={teamsDirectCfg.clientSecret} onChange={e => setTeamsDirectCfg({...teamsDirectCfg, clientSecret: e.target.value})} placeholder="Microsoft app client secret" />
+            </Field>
+            <Field label="Sender User" hint="Optional. Leave blank to use the connected Microsoft account">
+              <Input icon={User} type="email" value={teamsDirectCfg.senderUser} onChange={e => setTeamsDirectCfg({...teamsDirectCfg, senderUser: e.target.value})} placeholder="your.name@company.com" />
+            </Field>
+            <div className="sm:col-span-2">
+              <Field label="Redirect URI" hint="Add this exact URL in Azure App Registration redirect URIs">
+                <Input icon={Globe} value={teamsDirectCfg.redirectUri} onChange={e => setTeamsDirectCfg({...teamsDirectCfg, redirectUri: e.target.value})} />
+              </Field>
+            </div>
+          </div>
+        </div>
         <div className="flex gap-3 pt-2 flex-wrap">
           <button className="btn-primary text-sm" onClick={() => save('Teams')} disabled={saving}>
             {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -403,6 +555,12 @@ export default function Admin() {
           </button>
           <button className="btn-secondary text-sm" onClick={testTeams} disabled={saving || !teamsCfg.webhookUrl.trim()}>
             <MessageSquare className="w-4 h-4" /> Send Test Teams
+          </button>
+          <button className="btn-secondary text-sm" onClick={connectTeamsDirect} disabled={saving || !teamsDirectCfg.clientId.trim()}>
+            <Key className="w-4 h-4" /> Connect Direct Chat
+          </button>
+          <button className="btn-secondary text-sm" onClick={testTeamsDirect} disabled={saving || !teamsDirectCfg.enabled}>
+            <MessageSquare className="w-4 h-4" /> Test Direct Chat
           </button>
         </div>
       </Section>
@@ -473,7 +631,7 @@ export default function Admin() {
             <Input icon={Mail} value={emailCfg.smtpUser} onChange={e => setEmailCfg({...emailCfg, smtpUser: e.target.value})} placeholder="your@gmail.com" />
           </Field>
           <Field label="SMTP Password" hint="Use App Password for Gmail">
-            <Input icon={Lock} type="password" value={emailCfg.smtpPass} onChange={e => setEmailCfg({...emailCfg, smtpPass: e.target.value})} placeholder="App password" />
+              <Input icon={Lock} type="password" value={emailCfg.smtpPass} onChange={e => setEmailCfg({...emailCfg, smtpPass: e.target.value})} placeholder="Enter mail app password" />
           </Field>
           <Field label="From Name">
             <Input value={emailCfg.fromName} onChange={e => setEmailCfg({...emailCfg, fromName: e.target.value})} placeholder="Calhan Technologies" />
@@ -543,7 +701,7 @@ export default function Admin() {
               className="w-full"
             />
           </Field>
-          <Field label="Vendor WhatsApp Number" hint="Used for client inquiry notifications; falls back to Twilio settings if empty">
+          <Field label="Vendor WhatsApp Number" hint="Used for client inquiry notifications; falls back to WhatsApp settings if empty">
             <Input icon={Phone} value={clientInboxCfg.vendorWhatsAppNumber} onChange={e => setClientInboxCfg({...clientInboxCfg, vendorWhatsAppNumber: e.target.value})} placeholder="whatsapp:+91XXXXXXXXXX" />
           </Field>
         </div>
@@ -571,29 +729,125 @@ export default function Admin() {
         </button>
       </Section>
 
-      <Section id="admin-whatsapp" icon={MessageSquare} title="WhatsApp Notifications" subtitle="Twilio WhatsApp settings for trainer and vendor alerts">
+      <Section id="admin-whatsapp" icon={MessageSquare} title="WhatsApp Notifications" subtitle="Twilio, AiSensy, or direct Meta Cloud API for trainer and vendor alerts">
         <div className="bg-slate-50 rounded-xl p-4">
           <Toggle checked={twilioCfg.enabled} onChange={v => setTwilioCfg({...twilioCfg, enabled: v})}
             label="Enable WhatsApp Automation" desc="Send WhatsApp alongside emails, reply alerts, and interview reminders" />
         </div>
+
+        <Field label="Provider">
+          <div className="grid grid-cols-1 gap-1 rounded-xl border border-slate-200 bg-white p-1 sm:grid-cols-3">
+            <button
+              type="button"
+              onClick={() => setWhatsAppProvider('twilio')}
+              className={clsx(
+                'flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition',
+                whatsappProvider === 'twilio'
+                  ? 'bg-slate-900 text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-slate-50'
+              )}
+            >
+              <MessageSquare className="w-4 h-4" /> Twilio Testing
+            </button>
+            <button
+              type="button"
+              onClick={() => setWhatsAppProvider('aisensy')}
+              className={clsx(
+                'flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition',
+                whatsappProvider === 'aisensy'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-slate-50'
+              )}
+            >
+              <Globe className="w-4 h-4" /> AiSensy Production
+            </button>
+            <button
+              type="button"
+              onClick={() => setWhatsAppProvider('meta')}
+              className={clsx(
+                'flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition',
+                whatsappProvider === 'meta'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:bg-slate-50'
+              )}
+            >
+              <Globe className="w-4 h-4" /> Meta Cloud API
+            </button>
+          </div>
+          <p className="text-xs text-slate-400">
+            {whatsappProvider === 'twilio'
+              ? 'Use Twilio Sandbox during development. Trial accounts can message only verified sandbox users.'
+              : whatsappProvider === 'aisensy'
+                ? 'Use AiSensy campaign API for production WhatsApp. Create one approved template with {{1}} for the full TrainerSync message.'
+                : 'Use official Meta WhatsApp Cloud API directly with a Phone Number ID, token, and approved template.'}
+          </p>
+        </Field>
+
+        {whatsappProvider === 'twilio' ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Twilio Account SID">
+              <Input icon={Key} value={twilioCfg.accountSid} onChange={e => setTwilioCfg({...twilioCfg, accountSid: e.target.value})} placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+            </Field>
+            <Field label="Twilio Auth Token">
+              <Input icon={Lock} type="password" value={twilioCfg.authToken} onChange={e => setTwilioCfg({...twilioCfg, authToken: e.target.value})} placeholder="Enter provider token" />
+            </Field>
+            <Field label="Twilio WhatsApp Sender" hint="Use your approved Twilio WhatsApp sender or sandbox number">
+              <Input icon={MessageSquare} value={twilioCfg.fromWhatsAppNumber} onChange={e => setTwilioCfg({...twilioCfg, fromWhatsAppNumber: e.target.value})} placeholder="whatsapp:+14155238886" />
+            </Field>
+            <Field label="Status Callback URL" hint="Optional. Leave blank to use /api/whatsapp/status-callback automatically">
+              <Input value={twilioCfg.statusCallbackUrl} onChange={e => setTwilioCfg({...twilioCfg, statusCallbackUrl: e.target.value})} placeholder="https://your-domain.com/api/whatsapp/status-callback" />
+            </Field>
+          </div>
+        ) : whatsappProvider === 'aisensy' ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="AiSensy API URL">
+              <Input icon={Globe} value={twilioCfg.aisensyApiUrl} onChange={e => setTwilioCfg({...twilioCfg, aisensyApiUrl: e.target.value})} placeholder="https://backend.aisensy.com/campaign/t1/api/v2" />
+            </Field>
+            <Field label="AiSensy API Key">
+              <Input icon={Key} type="password" value={twilioCfg.aisensyApiKey} onChange={e => setTwilioCfg({...twilioCfg, aisensyApiKey: e.target.value})} placeholder="AiSensy API key" />
+            </Field>
+            <Field label="Campaign Name" hint="Must exactly match the approved AiSensy campaign/template name">
+              <Input icon={MessageSquare} value={twilioCfg.aisensyCampaignName} onChange={e => setTwilioCfg({...twilioCfg, aisensyCampaignName: e.target.value})} placeholder="trainersync_notification" />
+            </Field>
+            <Field label="Source">
+              <Input value={twilioCfg.aisensySource} onChange={e => setTwilioCfg({...twilioCfg, aisensySource: e.target.value})} placeholder="TrainerSync" />
+            </Field>
+            <Field label="Template Params" hint="For an approved template like {{1}}, keep this as message. For multiple variables, enter fields in the same order.">
+              <Input value={twilioCfg.aisensyTemplateParamFields} onChange={e => setTwilioCfg({...twilioCfg, aisensyTemplateParamFields: e.target.value})} placeholder="message" />
+            </Field>
+            <Field label="Tags">
+              <Input value={twilioCfg.aisensyTags} onChange={e => setTwilioCfg({...twilioCfg, aisensyTags: e.target.value})} placeholder="trainersync,automation" />
+            </Field>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Meta API Version" hint="Keep as-is unless Meta asks you to use a different Graph API version">
+              <Input icon={Globe} value={twilioCfg.metaApiVersion} onChange={e => setTwilioCfg({...twilioCfg, metaApiVersion: e.target.value})} placeholder="v23.0" />
+            </Field>
+            <Field label="Phone Number ID" hint="This is not the phone number. Copy it from Meta WhatsApp API setup">
+              <Input icon={Phone} value={twilioCfg.metaPhoneNumberId} onChange={e => setTwilioCfg({...twilioCfg, metaPhoneNumberId: e.target.value})} placeholder="123456789012345" />
+            </Field>
+            <Field label="Access Token" hint="Use a permanent system-user token for production">
+              <Input icon={Key} type="password" value={twilioCfg.metaAccessToken} onChange={e => setTwilioCfg({...twilioCfg, metaAccessToken: e.target.value})} placeholder="Enter Meta access token" />
+            </Field>
+            <Field label="Template Name" hint="Approved WhatsApp template name. Leave blank only for 24-hour service-window text tests">
+              <Input icon={MessageSquare} value={twilioCfg.metaTemplateName} onChange={e => setTwilioCfg({...twilioCfg, metaTemplateName: e.target.value})} placeholder="trainersync_notify" />
+            </Field>
+            <Field label="Language Code">
+              <Input value={twilioCfg.metaLanguageCode} onChange={e => setTwilioCfg({...twilioCfg, metaLanguageCode: e.target.value})} placeholder="en_US" />
+            </Field>
+            <Field label="Template Params" hint="For one {{1}} variable use message. For four variables use trainer_name,stage,requirement_id,message">
+              <Input value={twilioCfg.metaTemplateParamFields} onChange={e => setTwilioCfg({...twilioCfg, metaTemplateParamFields: e.target.value})} placeholder="message" />
+            </Field>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Twilio Account SID">
-            <Input icon={Key} value={twilioCfg.accountSid} onChange={e => setTwilioCfg({...twilioCfg, accountSid: e.target.value})} placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
-          </Field>
-          <Field label="Twilio Auth Token">
-            <Input icon={Lock} type="password" value={twilioCfg.authToken} onChange={e => setTwilioCfg({...twilioCfg, authToken: e.target.value})} placeholder="Auth token" />
-          </Field>
-          <Field label="Twilio WhatsApp Sender" hint="Use your approved Twilio WhatsApp sender or sandbox number">
-            <Input icon={MessageSquare} value={twilioCfg.fromWhatsAppNumber} onChange={e => setTwilioCfg({...twilioCfg, fromWhatsAppNumber: e.target.value})} placeholder="whatsapp:+14155238886" />
-          </Field>
-          <Field label="Vendor WhatsApp Number" hint="Your WhatsApp number for trainer reply alerts">
-            <Input icon={Phone} value={twilioCfg.vendorWhatsAppNumber} onChange={e => setTwilioCfg({...twilioCfg, vendorWhatsAppNumber: e.target.value})} placeholder="whatsapp:+91XXXXXXXXXX" />
+          <Field label="Vendor WhatsApp Number" hint="Your WhatsApp number for trainer reply alerts and tests">
+            <Input icon={Phone} value={twilioCfg.vendorWhatsAppNumber} onChange={e => setTwilioCfg({...twilioCfg, vendorWhatsAppNumber: e.target.value})} placeholder={whatsappProvider === 'twilio' ? 'whatsapp:+91XXXXXXXXXX' : '+91XXXXXXXXXX'} />
           </Field>
           <Field label="Default Country Code" hint="Used when trainer phone numbers are saved without country code">
             <Input value={twilioCfg.defaultCountryCode} onChange={e => setTwilioCfg({...twilioCfg, defaultCountryCode: e.target.value})} placeholder="+91" />
-          </Field>
-          <Field label="Status Callback URL" hint="Optional. Leave blank to use /api/whatsapp/status-callback automatically">
-            <Input value={twilioCfg.statusCallbackUrl} onChange={e => setTwilioCfg({...twilioCfg, statusCallbackUrl: e.target.value})} placeholder="https://your-domain.com/api/whatsapp/status-callback" />
           </Field>
         </div>
         <div className="flex gap-3 pt-2 flex-wrap">
@@ -719,10 +973,10 @@ export default function Admin() {
             <Input icon={Key} value={keys.googleDriveFileId} onChange={e => setKeys({...keys, googleDriveFileId: e.target.value})} placeholder="1s3U5NvShHPUuJ3JXvmG7x..." />
           </Field>
           <Field label="MongoDB Connection URI" hint="Your MongoDB Atlas or local connection string">
-            <Input icon={Database} type="password" value={keys.mongoUri} onChange={e => setKeys({...keys, mongoUri: e.target.value})} placeholder="mongodb+srv://user:pass@cluster..." />
+            <Input icon={Database} type="password" value={keys.mongoUri} onChange={e => setKeys({...keys, mongoUri: e.target.value})} placeholder="Enter MongoDB connection URI" />
           </Field>
           <Field label="OpenAI API Key (Optional)" hint="For AI-generated email content">
-            <Input icon={Key} type="password" value={keys.openaiKey} onChange={e => setKeys({...keys, openaiKey: e.target.value})} placeholder="sk-..." />
+            <Input icon={Key} type="password" value={keys.openaiKey} onChange={e => setKeys({...keys, openaiKey: e.target.value})} placeholder="Enter OpenAI API key" />
           </Field>
         </div>
         <div className="flex gap-3 pt-2 flex-wrap">
