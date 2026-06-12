@@ -22,7 +22,7 @@ TOKEN_FILE = CONFIG_DIR / "token.json"
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.modify",
     "https://www.googleapis.com/auth/gmail.send",
-    "https://www.googleapis.com/auth/calendar.events",
+    "https://www.googleapis.com/auth/calendar",
 ]
 
 
@@ -40,6 +40,10 @@ def load_existing_token():
         return None
     try:
         creds = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
+        if hasattr(creds, "has_scopes") and not creds.has_scopes(SCOPES):
+            logger.info("Existing token is missing required Gmail/Calendar scopes.")
+            backup_invalid_token()
+            return None
         if creds.expired and creds.refresh_token:
             creds.refresh(Request())
             TOKEN_FILE.write_text(creds.to_json(), encoding="utf-8")
@@ -83,7 +87,7 @@ def generate_with_web_client(client):
     )
     auth_url, _ = flow.authorization_url(
         access_type="offline",
-        include_granted_scopes="true",
+        include_granted_scopes="false",
         prompt="consent",
     )
 

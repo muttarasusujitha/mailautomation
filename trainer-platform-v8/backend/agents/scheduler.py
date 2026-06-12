@@ -5,16 +5,13 @@ Supports configurable retry intervals: days, hours, or minutes
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-from datetime import timedelta
+from datetime import datetime, timedelta
 from utils.time_utils import utc_now
 import logging
+import httpx
 from database import get_db
 from agents.email_agent import send_email_async, compose_retry_email
-from agents.client_slot_agent import (
-    ClientSlotError,
-    send_client_slot_options_email,
-    send_pending_client_slot_replies,
-)
+from agents.client_slot_agent import send_pending_client_slot_replies
 from agents.whatsapp_agent import (
     send_shortlist_whatsapp,
     send_vendor_reply_notification,
@@ -24,6 +21,7 @@ from agents.client_intelligence_agent import (
     poll_imap_client_inbox,
     renew_gmail_watch,
 )
+from agents.excel_store_agent import sync_business_excel
 
 scheduler = AsyncIOScheduler()
 logger = logging.getLogger(__name__)
@@ -34,9 +32,87 @@ _config = {
     "retry_interval_value":   6,         # number of units between retries
     "reply_check_interval":   30,        # minutes between inbox checks
     "gmail_fallback_interval":    5,     # minutes between IMAP fallback scans
+    "excel_sync_interval":        3,     # minutes between automatic Excel register updates
+    "linkedin_client_lead_interval": 60,  # minutes between LinkedIn client post discovery scans
+    "linkedin_client_lead_enabled": True,
     "max_retries":            2,
     "auto_retry_enabled":     True,
 }
+
+
+_SCHEDULER_CFG_KEYS = set(_config.keys())
+
+
+def _coerce_bool(value, default: bool) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value in (None, ""):
+        return default
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "on", "enabled"}
+    return bool(value)
+
+
+def _coerce_int(value, default: int, minimum: int = 1, maximum: int = 10080) -> int:
+    try:
+        parsed = int(value)
+    except Exception:
+        return default
+    return max(minimum, min(parsed, maximum))
+
+
+def _clean_scheduler_config(raw: dict) -> dict:
+    raw = raw or {}
+    clean = {}
+    if "retry_interval_unit" in raw and raw.get("retry_interval_unit") in {"minutes", "hours", "days"}:
+        clean["retry_interval_unit"] = raw["retry_interval_unit"]
+    if "retry_interval_value" in raw:
+        clean["retry_interval_value"] = _coerce_int(raw.get("retry_interval_value"), _config["retry_interval_value"])
+    if "reply_check_interval" in raw:
+        clean["reply_check_interval"] = _coerce_int(raw.get("reply_check_interval"), _config["reply_check_interval"])
+    if "gmail_fallback_interval" in raw:
+        clean["gmail_fallback_interval"] = _coerce_int(raw.get("gmail_fallback_interval"), _config["gmail_fallback_interval"])
+    if "excel_sync_interval" in raw:
+        clean["excel_sync_interval"] = _coerce_int(raw.get("excel_sync_interval"), _config["excel_sync_interval"])
+    if "linkedin_client_lead_interval" in raw:
+        clean["linkedin_client_lead_interval"] = _coerce_int(raw.get("linkedin_client_lead_interval"), _config["linkedin_client_lead_interval"])
+    if "max_retries" in raw:
+        clean["max_retries"] = _coerce_int(raw.get("max_retries"), _config["max_retries"], minimum=0, maximum=10)
+    if "auto_retry_enabled" in raw:
+        clean["auto_retry_enabled"] = _coerce_bool(raw.get("auto_retry_enabled"), _config["auto_retry_enabled"])
+    if "linkedin_client_lead_enabled" in raw:
+        clean["linkedin_client_lead_enabled"] = _coerce_bool(raw.get("linkedin_client_lead_enabled"), _config["linkedin_client_lead_enabled"])
+    return clean
+
+
+async def load_config_from_db(reschedule: bool = False) -> dict:
+    db = get_db()
+    settings = await db["admin_settings"].find_one(
+        {"settings_id": "default"},
+        {"_id": 0, "schedulerCfg": 1},
+    ) or {}
+    clean = _clean_scheduler_config(settings.get("schedulerCfg") or {})
+    if clean:
+        _config.update(clean)
+        if reschedule:
+            _reschedule_jobs()
+    return get_config()
+
+
+async def save_config_to_db(new_cfg: dict) -> dict:
+    clean = _clean_scheduler_config(new_cfg)
+    if not clean:
+        return get_config()
+    db = get_db()
+    await db["admin_settings"].update_one(
+        {"settings_id": "default"},
+        {"$set": {"settings_id": "default", "schedulerCfg": {**_config, **clean}, "updated_at": utc_now()}},
+        upsert=True,
+    )
+    _config.update(clean)
+    _reschedule_jobs()
+    logger.info("Scheduler config saved to admin_settings: %s", _config)
+    return get_config()
 
 
 def _requirement_locked_for_other_trainer(requirement: dict, trainer_id: str) -> bool:
@@ -59,7 +135,7 @@ def get_config():
 
 def update_config(new_cfg: dict):
     """Update runtime config and reschedule jobs live."""
-    _config.update({k: v for k, v in new_cfg.items() if k in _config})
+    _config.update(_clean_scheduler_config({k: v for k, v in new_cfg.items() if k in _SCHEDULER_CFG_KEYS}))
     _reschedule_jobs()
     logger.info("Scheduler config updated: %s", _config)
 
@@ -78,28 +154,48 @@ def _interval_trigger_from_config(unit: str, value: int) -> IntervalTrigger:
 def _reschedule_jobs():
     try:
         if scheduler.running:
-            scheduler.reschedule_job(
-                "retry_job",
-                trigger=_interval_trigger_from_config(
-                    _config["retry_interval_unit"],
-                    _config["retry_interval_value"]
+            if scheduler.get_job("retry_job"):
+                scheduler.reschedule_job(
+                    "retry_job",
+                    trigger=_interval_trigger_from_config(
+                        _config["retry_interval_unit"],
+                        _config["retry_interval_value"]
+                    )
                 )
-            )
-            scheduler.reschedule_job(
-                "reply_check_job",
-                trigger=IntervalTrigger(minutes=int(_config["reply_check_interval"]))
-            )
+            if scheduler.get_job("reply_check_job"):
+                scheduler.reschedule_job(
+                    "reply_check_job",
+                    trigger=IntervalTrigger(minutes=int(_config["reply_check_interval"]))
+                )
+            if scheduler.get_job("client_inbox_imap_fallback_job"):
+                scheduler.reschedule_job(
+                    "client_inbox_imap_fallback_job",
+                    trigger=IntervalTrigger(minutes=int(_config["gmail_fallback_interval"]))
+                )
+            if scheduler.get_job("business_excel_sync_job"):
+                scheduler.reschedule_job(
+                    "business_excel_sync_job",
+                    trigger=IntervalTrigger(minutes=int(_config["excel_sync_interval"]))
+                )
+            if scheduler.get_job("linkedin_client_lead_discovery_job"):
+                scheduler.reschedule_job(
+                    "linkedin_client_lead_discovery_job",
+                    trigger=IntervalTrigger(minutes=int(_config["linkedin_client_lead_interval"]))
+                )
             logger.info(
-                "Jobs rescheduled: retry every %s %s, reply check every %s min",
+                "Jobs rescheduled: retry every %s %s, reply check every %s min, Excel sync every %s min, LinkedIn client discovery every %s min",
                 _config["retry_interval_value"],
                 _config["retry_interval_unit"],
                 _config["reply_check_interval"],
+                _config["excel_sync_interval"],
+                _config["linkedin_client_lead_interval"],
             )
     except Exception:
         logger.exception("Reschedule error")
 
 
 async def retry_unreplied_trainers():
+    await load_config_from_db()
     if not _config["auto_retry_enabled"]:
         return
 
@@ -168,6 +264,7 @@ async def retry_unreplied_trainers():
 
 
 async def check_and_update_replies():
+    await load_config_from_db()
     from agents.email_agent import check_email_replies, mark_emails_seen
     import re as _re
     db = get_db()
@@ -231,29 +328,14 @@ async def check_and_update_replies():
                 if log.get("mail_type") == "mail3" and (
                     reply.get("action") == "mark_interested" or reply.get("sentiment") == "positive"
                 ):
-                    payload = {
-                        "trainer_id": log.get("trainer_id") or "",
-                        "trainer_name": log.get("trainer_name") or "the trainer",
-                        "requirement_id": req_id or "",
-                        "slot_text": reply.get("body") or "",
-                        "force": False,
-                        "source_email_id": log.get("email_id") or "",
-                        "source_message_id": reply.get("message_id_header") or "",
-                    }
-                    try:
-                        slot_result = await send_client_slot_options_email(
-                            db,
-                            payload,
-                            source="trainer_reply_scheduler",
-                        )
-                    except ClientSlotError as exc:
-                        slot_result = {"success": False, "error": str(exc), "already_sent": False}
-                    except Exception as exc:
-                        slot_result = {"success": False, "error": str(exc), "already_sent": False}
                     await db["email_logs"].update_one(
                         {"email_id": log.get("email_id")},
                         {"$set": {
-                            "client_slot_auto_result": slot_result,
+                            "client_slot_auto_result": {
+                                "skipped": True,
+                                "manual_only": True,
+                                "reason": "Client slot mails are manual only",
+                            },
                             "client_slot_auto_checked_at": utc_now(),
                         }},
                     )
@@ -284,16 +366,80 @@ async def renew_gmail_watch_job():
 
 
 async def poll_client_inbox_fallback_job():
+    await load_config_from_db()
     db = get_db()
     try:
         status = await get_gmail_auth_status(db)
-        if status.get("valid"):
+        watch_expiration = status.get("watch_expiration")
+        watch_active = False
+        if watch_expiration:
+            try:
+                watch_active = datetime.fromisoformat(str(watch_expiration)) > utc_now()
+            except Exception:
+                watch_active = False
+        if status.get("valid") and watch_active:
             return
+        if status.get("valid"):
+            try:
+                async with httpx.AsyncClient(timeout=180) as client:
+                    response = await client.post("http://127.0.0.1:8001/api/gmail/sync-now?limit=25")
+                    response.raise_for_status()
+                    result = response.json()
+                if result.get("processed_count") or result.get("auto_sent_existing_count"):
+                    logger.info(
+                        "Gmail API fallback sync processed=%s auto_sent_existing=%s",
+                        result.get("processed_count"),
+                        result.get("auto_sent_existing_count"),
+                    )
+                return
+            except Exception:
+                logger.exception("Gmail API fallback sync failed; continuing with Hostinger IMAP poll")
         result = await poll_imap_client_inbox(db)
         if result.get("processed"):
             logger.info("IMAP fallback processed %s client emails", result.get("processed"))
     except Exception:
         logger.exception("IMAP client inbox fallback failed")
+
+
+async def sync_business_excel_job():
+    await load_config_from_db()
+    db = get_db()
+    try:
+        result = await sync_business_excel(db)
+        logger.info(
+            "Business Excel register updated: %s (%s trainers, %s requirements)",
+            result.get("path"),
+            (result.get("counts") or {}).get("trainers"),
+            (result.get("counts") or {}).get("requirements"),
+        )
+    except Exception:
+        logger.exception("Business Excel register update failed")
+
+
+async def discover_linkedin_client_leads_job():
+    await load_config_from_db()
+    if not _config.get("linkedin_client_lead_enabled", True):
+        return
+    try:
+        async with httpx.AsyncClient(timeout=240) as client:
+            response = await client.post(
+                "http://127.0.0.1:8001/api/client-leads/search-public",
+                json={
+                    "auto_discover": True,
+                    "max_results": 8,
+                    "max_queries": 180,
+                    "concurrency": 4,
+                },
+            )
+            response.raise_for_status()
+            result = response.json()
+        logger.info(
+            "LinkedIn client lead discovery: saved=%s skipped=%s",
+            result.get("saved_count"),
+            result.get("skipped_count"),
+        )
+    except Exception:
+        logger.exception("LinkedIn client lead discovery failed")
 
 
 def start_scheduler():
@@ -316,6 +462,19 @@ def start_scheduler():
         poll_client_inbox_fallback_job,
         trigger=IntervalTrigger(minutes=int(_config["gmail_fallback_interval"])),
         id="client_inbox_imap_fallback_job", name="Client Inbox IMAP Fallback", replace_existing=True,
+        next_run_time=utc_now(),
+    )
+    scheduler.add_job(
+        sync_business_excel_job,
+        trigger=IntervalTrigger(minutes=int(_config["excel_sync_interval"])),
+        id="business_excel_sync_job", name="Business Excel Register Sync", replace_existing=True,
+        next_run_time=utc_now(),
+    )
+    scheduler.add_job(
+        discover_linkedin_client_leads_job,
+        trigger=IntervalTrigger(minutes=int(_config["linkedin_client_lead_interval"])),
+        id="linkedin_client_lead_discovery_job", name="LinkedIn Client Lead Discovery", replace_existing=True,
+        next_run_time=utc_now(),
     )
     scheduler.start()
     logger.info(

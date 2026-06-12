@@ -37,9 +37,11 @@ import {
   MessageSquare,
   Save,
   Send,
+  Star,
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
+import { TrainerCardTrustPill } from '../components/VerificationBadge'
 
 const STATUS_COLORS = {
   new: 'badge-slate',
@@ -174,6 +176,43 @@ function skillLevels(t) {
   return Object.entries(map).filter(([skill]) => skill).slice(0, 3)
 }
 
+function trainerRating(t) {
+  const ratingFields = [
+    t.rating,
+    t.trainer_rating,
+    t.average_rating,
+    t.feedback_rating,
+    t.review_rating,
+    t.star_rating,
+  ]
+  const explicitRating = ratingFields.find(value => Number.isFinite(Number(value)) && Number(value) > 0)
+  const raw = explicitRating ?? t.resume_rank_score ?? t.match_score ?? t.confidence_score ?? t.confidence ?? 0
+  let rating = Number(raw) || 0
+  if (rating > 5) rating /= 20
+  else if (rating > 0 && rating <= 1) rating *= 5
+  return Math.max(0, Math.min(5, Math.round(rating * 10) / 10))
+}
+
+function TrainerRatingStars({ trainer }) {
+  const rating = trainerRating(trainer)
+  const filledStars = Math.round(rating)
+  const label = rating > 0 ? `${rating.toFixed(1)} / 5` : 'Not rated'
+
+  return (
+    <div className="inline-flex items-center gap-1 rounded-full border border-amber-100 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700" title={`Trainer rating: ${label}`}>
+      <span className="flex items-center gap-0.5" aria-hidden="true">
+        {[1, 2, 3, 4, 5].map(item => (
+          <Star
+            key={item}
+            className={clsx('h-3.5 w-3.5', item <= filledStars ? 'fill-amber-400 text-amber-400' : 'text-amber-200')}
+          />
+        ))}
+      </span>
+      <span>{label}</span>
+    </div>
+  )
+}
+
 function compactResumeText(value) {
   if (!value) return ''
   const text = String(value).trim()
@@ -187,14 +226,16 @@ function trainerDescription(t) {
   const certs = asArray(t.certifications).slice(0, 3)
   const category = primaryCategory(t)
   const experience = t.experience_raw || (t.experience_years ? `${t.experience_years}+ years` : '')
+  const role = t.role_designation || category
 
-  const parts = [
-    `${t.name || 'This trainer'} is profiled as a ${category} trainer${experience ? ` with ${experience} of experience` : ''}.`,
-  ]
-  if (skills.length) parts.push(`Key resume skills include ${skills.join(', ')}.`)
-  if (tags.length) parts.push(`Training focus areas: ${tags.join(', ')}.`)
-  if (certs.length) parts.push(`Certifications listed: ${certs.join(', ')}.`)
-  if (t.summary) parts.push(String(t.summary))
+  const parts = []
+  if (role || experience) {
+    parts.push(`Resume extracted: ${[role, experience].filter(Boolean).join(' | ')}.`)
+  }
+  if (skills.length) parts.push(`Skills found in resume: ${skills.join(', ')}.`)
+  if (tags.length) parts.push(`Specialisation tags from resume skills: ${tags.join(', ')}.`)
+  if (certs.length) parts.push(`Certifications found in resume: ${certs.join(', ')}.`)
+  if (t.summary) parts.push(`Resume summary excerpt: ${String(t.summary)}`)
   return parts.join(' ')
 }
 
@@ -582,7 +623,7 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
             <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-2">Microsoft Teams Direct Chat</p>
             {t.email && (
               <p className="mb-2 text-xs text-indigo-600">
-                Default Teams lookup uses resume email: <span className="font-semibold">{t.email}</span>
+                Resume email found: <span className="font-semibold">{t.email}</span>. Use Teams override only after confirming the real Teams account.
               </p>
             )}
             <div className="flex flex-col sm:flex-row gap-2">
@@ -606,7 +647,7 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
                 Save Teams
               </button>
             </div>
-            <p className="mt-2 text-xs text-indigo-500">Leave this blank if the resume email is the trainer's Teams account. Add an override only when Teams uses a different email.</p>
+            <p className="mt-2 text-xs text-indigo-500">The app will not treat a resume email as verified Teams ID. Add an override only when Teams uses a confirmed email.</p>
           </div>
 
           {tags.length > 0 && (
@@ -777,6 +818,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           </button>
 
           <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
+            <TrainerRatingStars trainer={t} />
             <span className={clsx('px-2.5 py-1 rounded-full border text-xs font-semibold', domainBadge(t.domain))}>{category}</span>
             {t.match_score != null && (
               <div className={clsx(
@@ -790,6 +832,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
               </div>
             )}
             <span className={STATUS_COLORS[t.status] || 'badge-slate'}>{t.status || 'new'}</span>
+            <TrainerCardTrustPill trainer={t} />
           </div>
         </div>
 
@@ -934,7 +977,7 @@ export default function Trainers() {
     interview_link: '',
     training_date: '',
     venue: '',
-    contact_name: 'Calhan Technologies Team',
+    contact_name: 'Clahan Technologies Team',
     contact_phone: '',
     contact_email: '',
     message: '',
@@ -1158,7 +1201,7 @@ export default function Trainers() {
       interview_link: '',
       training_date: '',
       venue: '',
-      contact_name: 'Calhan Technologies Team',
+      contact_name: 'Clahan Technologies Team',
       contact_phone: '',
       contact_email: '',
       message: '',
@@ -1263,7 +1306,7 @@ export default function Trainers() {
         interview_link: '',
         training_date: '',
         venue: '',
-        contact_name: 'Calhan Technologies Team',
+        contact_name: 'Clahan Technologies Team',
         contact_phone: '',
         contact_email: '',
         message: '',
@@ -1471,7 +1514,7 @@ export default function Trainers() {
                       className="input"
                       value={automationForm.contact_name}
                       onChange={e => handleAutomationFormChange('contact_name', e.target.value)}
-                      placeholder="Calhan Technologies Team"
+                      placeholder="Clahan Technologies Team"
                     />
                   </div>
                   <div>

@@ -422,13 +422,13 @@ export default function Dashboard() {
 
           <Panel
             title="Expense Monitor"
-            subtitle="Estimated cost by selected range. Update provider rates in admin settings/costCfg when your billing rates change."
+            subtitle="Real logged cost by selected range. No default estimates are applied."
             icon={ReceiptText}
             className="print-break"
           >
             <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total estimated expense</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total logged expense</p>
                 <p className="mt-2 text-3xl font-bold text-slate-900">
                   {expenseCurrency(expenses.total, expenseCurrencyCode)}
                 </p>
@@ -447,7 +447,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <p className="mt-3 text-xs leading-5 text-slate-500">
-                  These values are estimates from application logs. Twilio, Gemini, Microsoft, and cloud invoices remain the final billing source.
+                  These values use only real cost values logged by the application. If provider invoices are not imported, the amount stays zero.
                 </p>
               </div>
 
@@ -479,9 +479,13 @@ export default function Dashboard() {
                   <p className="text-sm font-bold text-slate-900">Weekly expense trend</p>
                   <p className="text-xs text-slate-500">Changes automatically for Today, Week, Month, and Custom ranges.</p>
                 </div>
-                {expenses.estimated && (
+                {expenses.estimated ? (
                   <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
                     Estimated
+                  </span>
+                ) : (
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                    Real logged only
                   </span>
                 )}
               </div>

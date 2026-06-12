@@ -85,5 +85,10 @@ export const getDashboardStats = ()       => api.get('/dashboard/stats')
 export const getDashboardAnalytics = (params) => api.get('/dashboard/analytics', { params })
 export const clearDatabase     = ()       => api.delete('/database/clear')
 export const forgotPassword    = (email)  => api.post('/auth/forgot-password', { email })
+export const getTocKnowledge   = ()       => api.get('/toc/knowledge')
+export const getTocKnowledgeDomain = (key) => api.get(`/toc/knowledge/${key}`)
+export const saveTocKnowledge  = (data)   => api.post('/toc/knowledge', data)
+export const importTocKnowledge = (text)   => api.post('/toc/knowledge/import', { text })
+export const deleteTocKnowledge = (key)    => api.delete(`/toc/knowledge/${key}`)
 
 export default api

@@ -179,6 +179,11 @@ Never say unknown. Always find the best matching software technology category or
 
 Think about what software technology domain this trainer serves. Use all skills, certifications,
 experience summary, past client context, training count, and resume/profile text.
+Choose the PRIMARY SPECIALIST from the resume headline, role/designation, profile summary,
+training focus, and repeated core skills. Do not classify from one isolated tool or keyword.
+Example: DevSecOps, IAM, SAST, DAST, Trivy, Aqua Security, or OWASP inside a DevOps/SRE
+resume should remain DevOps/SRE unless the headline/summary clearly says Cybersecurity,
+SOC, AppSec, Ethical Hacking, VAPT, or Penetration Testing.
 
 Allowed software technology domains:
 {domains_json}
@@ -188,7 +193,7 @@ Important software examples and rules:
 - React, Angular, Vue, Node.js, Django, Spring Boot, .NET, MERN, MEAN, and similar stacks are software development categories.
 - AWS, Azure, GCP, Kubernetes, Docker, Terraform, CI/CD, Jenkins, GitLab, SRE, and observability belong to Cloud, DevOps, or SRE.
 - Data Engineering, Data Science, Data Analytics, Power BI, Tableau, SQL, Spark, Hadoop, and Big Data are software/data technology categories.
-- Cybersecurity, Ethical Hacking, SOC, AppSec, IAM, and cloud security are Cybersecurity.
+- Cybersecurity, Ethical Hacking, SOC, AppSec, VAPT, Penetration Testing, and clearly stated cloud security are Cybersecurity.
 - Solidity is usually Blockchain.
 - SAP ABAP, SAP Basis, SAP Fiori, SAP HANA, SAP FICO, Oracle ERP, Salesforce, ServiceNow, Microsoft Dynamics, Workday, HubSpot, and Zoho are Enterprise Software, ERP Software, or CRM Software.
 - Unity, Unreal Engine, AR, VR, IoT, Embedded Systems, Robotics, and Quantum Computing are software technology categories when training is about the platform, programming, or engineering.
@@ -236,6 +241,13 @@ def _normalise_software_domain(primary: str, domain: Any) -> str:
             return allowed
 
     text = f"{primary} {raw_domain}".lower()
+    if (
+        any(term in text for term in ["devops", "ci/cd", "cicd", "jenkins", "kubernetes", "terraform", "sre", "site reliability"])
+        and not any(term in text for term in ["cybersecurity", "ethical hacking", "penetration testing", "vapt", "soc analyst", "appsec"])
+    ):
+        if "sre" in text or "site reliability" in text:
+            return "SRE"
+        return "DevOps"
     keyword_map = [
         ("Full Stack", ["full stack", "mern", "mean"]),
         ("Frontend Development", ["frontend", "react", "angular", "vue", "html", "css"]),
@@ -243,7 +255,7 @@ def _normalise_software_domain(primary: str, domain: Any) -> str:
         ("DevOps", ["devops", "kubernetes", "terraform", "jenkins", "ci/cd", "cicd"]),
         ("Cloud", ["cloud architect", "cloud engineer", "aws", "azure", "gcp", "cloud"]),
         ("SRE", ["sre", "site reliability", "observability", "prometheus", "grafana"]),
-        ("Cybersecurity", ["cyber", "security", "ethical hacking", "appsec", "soc", "iam"]),
+        ("Cybersecurity", ["cybersecurity", "ethical hacking", "penetration testing", "vapt", "appsec", "soc"]),
         ("Data Engineering", ["data engineering", "spark", "hadoop", "etl", "pipeline"]),
         ("Data Science", ["data science", "machine learning", "ml ", "statistics"]),
         ("Data Analytics", ["data analytics", "analytics", "excel analytics"]),

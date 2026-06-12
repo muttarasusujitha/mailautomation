@@ -189,8 +189,8 @@ async def send_client_slot_options_email(
         f"Reference: {requirement_id} / {slot_ref}\n\n"
         f"Available slot(s):\n{slot_text}\n\n"
         "Please confirm which slot works for your team, or share alternate timings if these are not convenient.\n"
-        "Once you confirm, Calhan Technologies will schedule the meeting and share the final link separately.\n\n"
-        "Regards,\nRecruitment Team,\nCalhan Technologies"
+        "Once you confirm, Clahan Technologies will schedule the meeting and share the final link separately.\n\n"
+        "Regards,\nRecruitment Team,\nClahan Technologies"
     )
     if slot_ref not in subject:
         subject = f"{subject} | {slot_ref}"
@@ -396,6 +396,15 @@ async def send_pending_client_slot_replies(
     source: str = "pending_reply_scan",
     request_base_url: str = "",
 ) -> dict:
+    return {
+        "checked": 0,
+        "sent": 0,
+        "failed": 0,
+        "skipped": 0,
+        "results": [],
+        "manual_only": True,
+        "reason": "Client slot mails are manual only",
+    }
     query = {
         "mail_type": {"$in": ["mail3", "mail3_slot_followup"]},
         "status": "sent",

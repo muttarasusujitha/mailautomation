@@ -28,6 +28,18 @@ async def connect_db():
         [("requirement_id", 1), ("trainer_id", 1), ("mail_type", 1), ("created_at", 1)],
         background=True,
     )
+    await db["trainer_profile_leads"].create_index(
+        [("source", 1), ("created_at", -1)],
+        background=True,
+    )
+    await db["trainer_profile_leads"].create_index(
+        [("source", 1), ("status", 1), ("created_at", -1)],
+        background=True,
+    )
+    await db["trainer_profile_leads"].create_index(
+        [("lead_id", 1)],
+        background=True,
+    )
 
 async def close_db():
     global client

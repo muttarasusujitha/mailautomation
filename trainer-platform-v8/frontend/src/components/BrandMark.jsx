@@ -15,7 +15,7 @@ const SIZES = {
     subtitle: 'text-xs',
   },
   lg: {
-    mark: 'h-11 w-11 rounded-2xl',
+    mark: 'h-11 w-11 rounded-lg',
     icon: 'h-5 w-5',
     title: 'text-xl',
     subtitle: 'text-xs',
@@ -25,7 +25,7 @@ const SIZES = {
 export default function BrandMark({
   size = 'md',
   theme = 'light',
-  subtitle = 'Calhan Technologies',
+  subtitle = 'Clahan Technologies',
   className = '',
   onClick,
 }) {
@@ -44,7 +44,7 @@ export default function BrandMark({
       )}
     >
       <span className={clsx(
-        'flex shrink-0 items-center justify-center bg-blue-600 text-white shadow-sm',
+        'flex shrink-0 items-center justify-center bg-blue-600 text-white shadow-sm shadow-blue-600/25',
         cfg.mark,
         isDark && 'ring-1 ring-white/15'
       )}>

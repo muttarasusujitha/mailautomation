@@ -84,6 +84,12 @@ class RequirementCreate(BaseModel):
     client_email: str = ""
     client_phone: str = ""
     client_whatsapp: str = ""
+    duration_days: Optional[float] = None
+    duration_hours: Optional[float] = None
+    training_dates: str = ""
+    timeline_start: str = ""
+    timeline_end: str = ""
+    timing: str = ""
     send_emails: bool = False
 
 class Requirement(RequirementCreate):

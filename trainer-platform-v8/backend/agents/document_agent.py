@@ -11,13 +11,13 @@ CURRENCY_QUANT = Decimal("0.01")
 TEMPLATE_DIR = Path(__file__).resolve().parents[1] / "templates"
 
 DEFAULT_COMPANY = {
-    "name": "Calhan Technologies",
+    "name": "Clahan Technologies",
     "tagline": "Corporate Training and Technology Consulting",
     "address": "Company Address, India",
-    "email": "accounts@calhantech.com",
+    "email": "accounts@clahantech.com",
     "phone": "+91 XXXXXXXXXX",
     "gstin": "GSTIN: To be updated",
-    "logo_text": "CALHAN",
+    "logo_text": "CLAHAN",
 }
 
 DEFAULT_PAYMENT_TERMS = (

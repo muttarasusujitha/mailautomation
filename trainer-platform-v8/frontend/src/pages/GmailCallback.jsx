@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Loader2, Mail, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import api from '../utils/api'
@@ -7,8 +7,12 @@ export default function GmailCallback() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const [status, setStatus] = useState({ type: 'loading', message: 'Connecting Gmail...' })
+  const handledRef = useRef(false)
 
   useEffect(() => {
+    if (handledRef.current) return
+    handledRef.current = true
+
     const finishAuth = async () => {
       const error = params.get('error')
       const code = params.get('code')
@@ -30,7 +34,7 @@ export default function GmailCallback() {
 
         try {
           await api.post('/gmail/renew-watch')
-          setStatus({ type: 'success', message: 'Gmail connected and inbox watch renewed.' })
+          setStatus({ type: 'success', message: 'Gmail and Google Calendar connected. Inbox watch renewed.' })
         } catch (watchError) {
           setStatus({
             type: 'warning',
@@ -39,7 +43,7 @@ export default function GmailCallback() {
         }
 
         localStorage.setItem('ts_auth', JSON.stringify({ loggedIn: true }))
-        setTimeout(() => navigate('/inbox', { replace: true }), 2200)
+        setTimeout(() => navigate('/admin', { replace: true }), 2200)
       } catch (e) {
         setStatus({ type: 'error', message: e.message })
       }

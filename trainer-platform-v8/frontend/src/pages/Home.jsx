@@ -1,4 +1,4 @@
-// Home.jsx – TrainerSync · Calhan Technologies
+// Home.jsx – TrainerSync · Clahan Technologies
 // Professional SaaS Operations Home Page
 // Uses: lucide-react, react-router-dom, inline styles only (Tailwind-free for portability)
 
@@ -126,6 +126,21 @@ const CSS = `
     0% { opacity: 0; transform: translateY(12px); }
     12%, 72% { opacity: 1; transform: translateY(0); }
     100% { opacity: 0.64; transform: translateY(0); }
+  }
+  @keyframes aiScanLine {
+    0% { transform: translateX(-22%); opacity: 0; }
+    12% { opacity: 1; }
+    50% { opacity: 1; }
+    100% { transform: translateX(122%); opacity: 0; }
+  }
+  @keyframes aiSignalPulse {
+    0%, 100% { transform: scale(1); opacity: 0.62; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+  @keyframes aiMatchFill {
+    0% { width: 18%; }
+    42% { width: 76%; }
+    100% { width: var(--ai-width); }
   }
 
   .fade-up   { animation: fadeUp  0.6s cubic-bezier(0.22,1,0.36,1) both; }
@@ -405,6 +420,67 @@ const CSS = `
     font-size: 11.5px;
     font-weight: 700;
   }
+  .ai-mini-panel {
+    margin-top: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(37,99,235,0.14);
+    background: linear-gradient(180deg, rgba(238,243,253,0.78), rgba(255,255,255,0.92));
+    padding: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .ai-mini-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 42%;
+    background: linear-gradient(90deg, transparent, rgba(26,86,219,0.12), transparent);
+    animation: aiScanLine 3.4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .ai-signal-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+  }
+  .ai-signal {
+    border-radius: 10px;
+    background: rgba(255,255,255,0.84);
+    border: 1px solid rgba(226,232,240,0.92);
+    padding: 8px;
+    animation: aiSignalPulse 2.8s ease-in-out infinite;
+    animation-delay: var(--ai-delay);
+  }
+  .ai-signal-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    color: ${T.textMuted};
+    text-transform: uppercase;
+  }
+  .ai-signal-value {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 800;
+    color: ${T.textPrimary};
+  }
+  .ai-match-bar {
+    position: relative;
+    margin-top: 10px;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(148,163,184,0.22);
+  }
+  .ai-match-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, ${T.brand}, ${T.teal});
+    animation: aiMatchFill 3.4s ease-in-out infinite;
+  }
 
   /* Mono font */
   .mono { font-family:'Geist Mono',monospace; }
@@ -673,6 +749,7 @@ const CSS = `
     .workflow-arrow { right: -14px; }
     .workflow-step::after { width: 14px; }
     .workflow-conversation { grid-template-columns: 1fr; }
+    .ai-signal-row { grid-template-columns: 1fr; }
     .integration-layout { min-height: 420px; }
     .integration-cycle { height: 420px; }
     .integration-logo-node { width: 104px; height: 76px; border-radius: 20px; }
@@ -696,7 +773,10 @@ const CSS = `
     .workflow-number,
     .workflow-arrow,
     .workflow-step::after,
-    .workflow-message-card { animation: none; }
+    .workflow-message-card,
+    .ai-mini-panel::before,
+    .ai-signal,
+    .ai-match-bar span { animation: none; }
   }
 `
 
@@ -951,6 +1031,25 @@ function FeatureCard({ feature, delay }) {
           </li>
         ))}
       </ul>
+      {feature.tag === 'AI Core' && (
+        <div className="ai-mini-panel">
+          <div className="ai-signal-row">
+            {[
+              ['Resume', 'Parsed', '0s'],
+              ['Skills', '92%', '0.25s'],
+              ['Match', 'Ranked', '0.5s'],
+            ].map(([label, value, itemDelay]) => (
+              <div key={label} className="ai-signal" style={{ '--ai-delay': itemDelay }}>
+                <span className="ai-signal-label">{label}</span>
+                <span className="ai-signal-value">{value}</span>
+              </div>
+            ))}
+          </div>
+          <div className="ai-match-bar">
+            <span style={{ '--ai-width': '88%' }} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -1421,7 +1520,7 @@ export default function Home() {
             <h1 className="fade-up" style={{ animationDelay: '0.07s', fontSize: 'clamp(2rem, 4.5vw, 3rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.04em', color: T.textPrimary, marginBottom: 18 }}>
               Trainer Matching &<br />
               <span style={{ color: T.brand }}>Operations Platform</span><br />
-              <span style={{ color: T.textSecondary, fontSize: '0.82em', fontWeight: 600 }}>for Calhan Technologies</span>
+              <span style={{ color: T.textSecondary, fontSize: '0.82em', fontWeight: 600 }}>for Clahan Technologies</span>
             </h1>
 
             <p className="fade-up" style={{ animationDelay: '0.14s', fontSize: 16, color: T.textSecondary, lineHeight: 1.7, marginBottom: 28, maxWidth: 480 }}>
@@ -1990,7 +2089,7 @@ export default function Home() {
           </div>
 
           <div style={{ borderTop: '1px solid #1F2937', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <p style={{ fontSize: 12.5, color: '#4B5563', margin: 0 }}>© 2026 TrainerSync · Calhan Technologies. All rights reserved.</p>
+            <p style={{ fontSize: 12.5, color: '#4B5563', margin: 0 }}>© 2026 TrainerSync · Clahan Technologies. All rights reserved.</p>
             <p style={{ fontSize: 12, color: '#374151', margin: 0 }}>Match · Outreach · Track · Confirm</p>
           </div>
         </div>

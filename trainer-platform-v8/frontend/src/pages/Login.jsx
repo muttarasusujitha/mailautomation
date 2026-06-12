@@ -116,7 +116,7 @@ function RoleCard({ role, selected, onClick }) {
   return (
     <button type="button" onClick={onClick}
       className={clsx(
-        'relative flex-1 flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all duration-300 group overflow-hidden',
+        'relative flex-1 flex flex-col items-center gap-1.5 overflow-hidden rounded-lg border-2 p-3 transition-all duration-300 group',
         selected
           ? `${role.border} ${role.bg} shadow-lg scale-[1.03]`
           : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-md hover:scale-[1.01]'
@@ -127,7 +127,7 @@ function RoleCard({ role, selected, onClick }) {
       )}
       {/* Icon */}
       <div className={clsx(
-        'relative w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300',
+        'relative flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300',
         selected
           ? `bg-gradient-to-br ${role.gradient} shadow-lg shadow-${role.id === 'recruiter' ? 'blue' : role.id === 'trainer' ? 'emerald' : 'violet'}-300`
           : 'bg-slate-100 group-hover:bg-slate-200'
@@ -218,8 +218,8 @@ export default function Login({ onLogin }) {
       loggedIn: true,
     }))
     toast.success(mode === 'login'
-      ? `👋 Welcome back, ${role}!`
-      : `🎉 Account created as ${selectedRole.label}!`)
+      ? `Welcome back, ${role}!`
+      : `Account created as ${selectedRole.label}!`)
     setLoading(false)
     if (onLogin) onLogin()
     navigate('/dashboard')
@@ -245,10 +245,9 @@ export default function Login({ onLogin }) {
 
       {/* ── Floating shapes ──────────────────────────────────── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-16 left-12 w-32 h-32 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full opacity-50 float-slow" />
-        <div className="absolute top-1/3 right-16 w-20 h-20 bg-gradient-to-br from-violet-100 to-pink-100 rounded-xl rotate-12 opacity-40 float-medium" />
-        <div className="absolute bottom-32 left-1/4 w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full opacity-35 float-slow" />
-        <div className="absolute bottom-16 right-1/3 w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl opacity-40 float-medium" />
+        <div className="absolute top-16 left-12 h-24 w-32 rounded-lg bg-gradient-to-br from-blue-100 to-cyan-100 opacity-35 float-slow" />
+        <div className="absolute top-1/3 right-16 h-16 w-24 rotate-12 rounded-lg bg-gradient-to-br from-violet-100 to-sky-100 opacity-30 float-medium" />
+        <div className="absolute bottom-32 left-1/4 h-20 w-28 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 opacity-30 float-slow" />
       </div>
 
       {/* ── LEFT PANEL ───────────────────────────────────────── */}
@@ -266,9 +265,6 @@ export default function Login({ onLogin }) {
         <ParticleCanvas />
 
         {/* Glow orbs */}
-        <div className="absolute top-20 right-20 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-16 w-56 h-56 bg-white/8 rounded-full blur-3xl" />
-
         {/* Content */}
         <div className="relative z-10 flex flex-col h-full p-12">
           {/* Logo */}
@@ -278,8 +274,8 @@ export default function Login({ onLogin }) {
           <div className="flex-1 flex flex-col justify-center space-y-8">
             {/* Active role spotlight */}
             <div className="anim-left" style={{ animationDelay: '0.1s' }}>
-              <div className="inline-flex items-center gap-2 bg-white/15 border border-white/20 rounded-full px-3 py-1.5 mb-5">
-                <span className="text-lg">{selectedRole.emoji}</span>
+              <div className="inline-flex items-center gap-2 bg-white/15 border border-white/20 rounded-lg px-3 py-1.5 mb-5">
+                <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
                 <span className="text-white text-sm font-semibold">For {selectedRole.label}s</span>
               </div>
               <h1 className="text-5xl font-bold text-white leading-tight">
@@ -346,7 +342,7 @@ export default function Login({ onLogin }) {
           {/* Heading */}
           <div className="mb-3">
             <h2 className="text-xl font-bold text-slate-900">
-              {mode === 'login' ? 'Welcome back 👋' : step === 1 ? 'Create account ✨' : 'Almost done! 🚀'}
+              {mode === 'login' ? 'Welcome back' : step === 1 ? 'Create account' : 'Almost done'}
             </h2>
             <p className="text-slate-500 text-xs mt-1">
               {mode === 'login' ? 'Sign in to TrainerSync' :
@@ -355,7 +351,7 @@ export default function Login({ onLogin }) {
           </div>
 
           {/* Card */}
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-xl px-6 py-5 space-y-4">
+          <div className="bg-white rounded-lg border border-slate-200 shadow-xl px-6 py-5 space-y-4">
 
             {/* Role selector — show always */}
             <div>
@@ -370,17 +366,17 @@ export default function Login({ onLogin }) {
             </div>
 
             {/* Role badge */}
-            <div className={clsx('flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold', selectedRole.badge)}>
+            <div className={clsx('flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold', selectedRole.badge)}>
               <selectedRole.icon className="w-3.5 h-3.5" />
-              {selectedRole.label} — {selectedRole.tagline}
+              {selectedRole.label} - {selectedRole.tagline}
             </div>
 
             {/* Sign In / Sign Up tabs */}
-            <div className="flex bg-slate-100 rounded-xl p-1 gap-1">
+            <div className="flex bg-slate-100 rounded-lg p-1 gap-1">
               {['login','signup'].map(m => (
                 <button key={m} type="button" onClick={() => { setMode(m); setStep(1) }}
                   className={clsx(
-                    'flex-1 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200',
+                    'flex-1 py-1.5 rounded-md text-sm font-semibold transition-all duration-200',
                     mode === m
                       ? `bg-gradient-to-r ${selectedRole.gradient} text-white shadow-md`
                       : 'text-slate-500 hover:text-slate-700'
@@ -394,7 +390,7 @@ export default function Login({ onLogin }) {
             <div className="grid grid-cols-2 gap-2">
               {[{icon: Chrome, label:'Google'},{icon: Github, label:'GitHub'}].map(s => (
                 <button key={s.label} type="button" onClick={() => toast('Social login coming soon!')}
-                  className="flex items-center justify-center gap-2 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-slate-600 text-xs font-semibold transition-all hover:shadow-sm">
+                  className="flex items-center justify-center gap-2 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-600 text-xs font-semibold transition-all hover:shadow-sm">
                   <s.icon className="w-4 h-4" />{s.label}
                 </button>
               ))}
@@ -494,15 +490,15 @@ export default function Login({ onLogin }) {
               {/* Back button for step 2 */}
               {mode === 'signup' && step === 2 && (
                 <button type="button" onClick={() => setStep(1)}
-                  className="w-full py-2 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-all">
-                  ← Back
+                  className="w-full py-2 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-all">
+                  Back
                 </button>
               )}
 
               {/* Submit */}
               <button type="submit" disabled={loading}
                   className={clsx(
-                  'w-full py-2.5 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2',
+                  'w-full py-2.5 rounded-lg font-bold text-sm text-white flex items-center justify-center gap-2',
                   'transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98]',
                   'disabled:opacity-60 disabled:cursor-not-allowed',
                   `bg-gradient-to-r ${selectedRole.gradient}`
@@ -512,7 +508,7 @@ export default function Login({ onLogin }) {
                   : <>
                       <Sparkles className="w-4 h-4" />
                       {mode === 'login' ? `Sign In as ${selectedRole.label}` :
-                       step === 1 ? 'Continue →' : `Create ${selectedRole.label} Account`}
+                       step === 1 ? 'Continue' : `Create ${selectedRole.label} Account`}
                       {mode === 'login' && <ArrowRight className="w-4 h-4" />}
                     </>
                 }
@@ -529,10 +525,12 @@ export default function Login({ onLogin }) {
           </div>
 
           <p className="text-center text-slate-400 text-[10px] mt-4">
-            Secured by TrainerSync · Your data is protected
+            Secured by TrainerSync - your data is protected
           </p>
         </div>
       </div>
     </div>
   )
 }
+
+

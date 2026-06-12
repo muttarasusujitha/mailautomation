@@ -287,7 +287,7 @@ def _whatsapp_stage_message(
         return (
             f"{greeting}\n\n"
             f"Congratulations! You have been selected for the {domain} training requirement.\n\n"
-            "Calhan Technologies will coordinate the next steps and documentation with you shortly.\n\n"
+            "Clahan Technologies will coordinate the next steps and documentation with you shortly.\n\n"
             "Regards,\nTrainerSync Team"
         )
 

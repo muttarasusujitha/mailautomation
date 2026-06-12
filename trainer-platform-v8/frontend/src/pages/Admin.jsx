@@ -79,10 +79,10 @@ export default function Admin() {
   // Profile
   const [profile, setProfile] = useState({
     name:     'Admin',
-    email:    'admin@calhantech.com',
-    company:  'Calhan Technologies',
+    email:    'admin@clahantech.com',
+    company:  'Clahan Technologies',
     role:     'Recruiter Account',
-    website:  'https://calhantech.com',
+    website:  'https://clahantech.com',
   })
 
   // Email config
@@ -91,8 +91,8 @@ export default function Admin() {
     smtpPort:  '587',
     smtpUser:  '',
     smtpPass:  '',
-    fromName:  'Calhan Technologies',
-    fromEmail: 'recruitment@calhantech.com',
+    fromName:  'Clahan Technologies',
+    fromEmail: 'recruitment@clahantech.com',
   })
 
   // WhatsApp config
@@ -125,7 +125,7 @@ export default function Admin() {
     autoSendThreshold: 70,
     clientDomainsWhitelist: '',
     vendorWhatsAppNumber: '',
-    replySignature: 'Regards,\nRecruitment Team,\nCalhan Technologies',
+    replySignature: 'Best Regards,\nRecruitment Team\nClahan Technologies',
   })
   const [teamsCfg, setTeamsCfg] = useState({
     webhookUrl: '',
@@ -399,8 +399,9 @@ export default function Admin() {
   const connectGmail = async () => {
     setSaving(true)
     try {
-      if (!gmailStatus.connected || !gmailStatus.calendar_connected) {
-        const oauthRes = await fetch('/api/gmail/oauth-url')
+      if (!gmailStatus.connected) {
+        const redirectUri = `${window.location.origin}/auth/callback`
+        const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
         const oauthData = await oauthRes.json().catch(() => ({}))
         if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')
         globalThis.location.href = oauthData.auth_url
@@ -414,6 +415,21 @@ export default function Admin() {
       toast.success('Gmail connected and watch renewed!')
     } catch (e) {
       toast.error(e.message || 'Run backend/scripts/gmail_auth.py first')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const renewGoogleAccess = async () => {
+    setSaving(true)
+    try {
+      const redirectUri = `${window.location.origin}/auth/callback`
+      const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
+      const oauthData = await oauthRes.json().catch(() => ({}))
+      if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')
+      globalThis.location.href = oauthData.auth_url
+    } catch (e) {
+      toast.error(e.message || 'Google OAuth URL failed')
     } finally {
       setSaving(false)
     }
@@ -634,10 +650,10 @@ export default function Admin() {
               <Input icon={Lock} type="password" value={emailCfg.smtpPass} onChange={e => setEmailCfg({...emailCfg, smtpPass: e.target.value})} placeholder="Enter mail app password" />
           </Field>
           <Field label="From Name">
-            <Input value={emailCfg.fromName} onChange={e => setEmailCfg({...emailCfg, fromName: e.target.value})} placeholder="Calhan Technologies" />
+            <Input value={emailCfg.fromName} onChange={e => setEmailCfg({...emailCfg, fromName: e.target.value})} placeholder="Clahan Technologies" />
           </Field>
           <Field label="From Email">
-            <Input icon={Mail} type="email" value={emailCfg.fromEmail} onChange={e => setEmailCfg({...emailCfg, fromEmail: e.target.value})} placeholder="recruitment@calhantech.com" />
+            <Input icon={Mail} type="email" value={emailCfg.fromEmail} onChange={e => setEmailCfg({...emailCfg, fromEmail: e.target.value})} placeholder="recruitment@clahantech.com" />
           </Field>
         </div>
         <div className="flex gap-3 pt-2 flex-wrap">
@@ -651,14 +667,14 @@ export default function Admin() {
       </Section>
 
       {/* ── PIPELINE DEFAULTS ── */}
-      <Section icon={Mail} title="Gmail Client Inbox" subtitle="Gmail OAuth, AI client email reading, and Calhan Technologies reply controls">
+      <Section icon={Mail} title="Gmail Client Inbox" subtitle="Gmail OAuth, AI client email reading, and Clahan Technologies reply controls">
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 p-4">
           <div>
             <p className="text-sm font-semibold text-slate-800">Gmail OAuth Status</p>
             <p className="text-xs text-slate-400 mt-0.5">
               {gmailStatus.connected
-                ? (gmailStatus.calendar_connected ? 'Gmail and Google Calendar are ready for inbox sync and Meet scheduling' : 'Gmail is connected. Renew Google OAuth to enable Calendar and Meet scheduling')
-                : 'Run backend/scripts/gmail_auth.py, then renew the Gmail watch'}
+                ? (gmailStatus.calendar_connected ? 'Gmail and Google Calendar are ready for inbox sync and Meet scheduling' : 'Gmail is connected. Calendar/Meet is optional and can be renewed when needed.')
+                : 'Connect Google once to enable Gmail inbox sync and Calendar/Meet scheduling'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -674,10 +690,13 @@ export default function Admin() {
               gmailStatus.calendar_connected ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-700'
             )}>
               <span className={clsx('h-2 w-2 rounded-full', gmailStatus.calendar_connected ? 'bg-emerald-500' : 'bg-amber-500')} />
-              {gmailStatus.calendar_connected ? 'Calendar Ready' : 'Calendar Needs Renew'}
+              {gmailStatus.calendar_connected ? 'Calendar Ready' : 'Calendar Optional'}
             </span>
             <button className="btn-secondary text-sm" onClick={connectGmail} disabled={saving}>
-              <RefreshCw className="w-4 h-4" /> Connect / Renew
+              <RefreshCw className="w-4 h-4" /> {gmailStatus.connected ? 'Renew Watch' : 'Connect'}
+            </button>
+            <button className="btn-secondary text-sm" onClick={renewGoogleAccess} disabled={saving}>
+              <RefreshCw className="w-4 h-4" /> Renew Access
             </button>
             <button className="btn-secondary text-sm text-red-600" onClick={disconnectGmail} disabled={saving || !gmailStatus.connected}>
               Disconnect
@@ -687,7 +706,7 @@ export default function Admin() {
 
         <div className="bg-slate-50 rounded-xl p-4">
           <Toggle checked={clientInboxCfg.autoSendEnabled} onChange={v => setClientInboxCfg({...clientInboxCfg, autoSendEnabled: v})}
-            label="Enable Client Auto-send" desc="Send Calhan Technologies replies automatically when confidence and domain rules pass" />
+            label="Enable Client Auto-send" desc="Send Clahan Technologies replies automatically when confidence and domain rules pass" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -715,7 +734,7 @@ export default function Admin() {
           />
         </Field>
 
-        <Field label="Reply Signature" hint="Appended to every Calhan Technologies client reply">
+        <Field label="Reply Signature" hint="Appended to every Clahan Technologies client reply">
           <textarea
             value={clientInboxCfg.replySignature}
             onChange={e => setClientInboxCfg({...clientInboxCfg, replySignature: e.target.value})}

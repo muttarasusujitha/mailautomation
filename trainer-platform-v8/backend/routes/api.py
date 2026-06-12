@@ -13,6 +13,8 @@ import logging
 import html as _html
 import smtplib
 import asyncio
+import hashlib
+from urllib.parse import urljoin as _urljoin
 from email.utils import parseaddr as _parseaddr
 from email.header import decode_header as _decode_header, make_header as _make_header
 from email.mime.application import MIMEApplication
@@ -20,6 +22,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 import fitz
+from docx import Document as _DocxDocument
 from pymongo import ReturnDocument
 from pymongo.errors import ExecutionTimeout
 
@@ -33,10 +36,19 @@ from agents.document_agent import (
     purchase_order_pdf_bytes,
     render_purchase_order_html,
 )
+from agents.toc_domain_dataset import list_domains, get_domain
+from agents.toc_generation_agent import generate_toc_from_dataset, validate_toc
 from agents.resume_agent import (
+    ContactVerificationTier,
+    TIER_WEIGHT,
+    find_matching_trainer_for_lead,
+    get_contact_verification_summary,
+    linkedin_lead_to_unverified_profile,
+    merge_linkedin_with_resume_profile,
     process_resume,
     public_resume_result,
     save_trainer_from_resume,
+    trainer_document_from_profile,
 )
 from agents.categorisation_agent import (
     SOFTWARE_TECH_DOMAINS,
@@ -51,6 +63,7 @@ from agents.email_agent import (
     send_email_async, compose_retry_email, compose_interview_email,
     compose_shortlist_first_email,
     get_gmail_password,
+    send_gmail_oauth_message,
 )
 from agents.client_slot_agent import (
     ClientSlotError,
@@ -60,6 +73,7 @@ from agents.client_slot_agent import (
     send_pending_client_slot_replies,
 )
 from agents.teams_agent import send_teams_stage_notification
+from agents.excel_store_agent import sync_business_excel, workbook_path
 from agents.teams_direct_agent import (
     exchange_microsoft_code,
     get_teams_direct_config,
@@ -69,6 +83,7 @@ from agents.teams_direct_agent import (
 from agents.client_intelligence_agent import (
     check_if_duplicate,
     create_requirement_from_email,
+    ensure_requirement_from_email,
     extract_client_slot_confirmation,
     fetch_gmail_email,
     generate_calhan_reply,
@@ -83,8 +98,13 @@ from agents.client_intelligence_agent import (
     save_gmail_oauth_token,
     sender_domain,
     send_gmail_reply,
+    upload_file_to_drive,
 )
-from agents.scheduler import get_config as get_scheduler_config, update_config as update_scheduler_config
+from agents.scheduler import (
+    get_config as get_scheduler_config,
+    load_config_from_db as load_scheduler_config_from_db,
+    save_config_to_db as save_scheduler_config_to_db,
+)
 from agents.interview_reminder_scheduler import (
     cancel_interview_reminder,
     schedule_interview_reminder,
@@ -222,6 +242,26 @@ def _norm_subject(value: str = "") -> str:
     return " ".join(value.split())
 
 
+def _question_without_commitment(text: str = "") -> bool:
+    clean = str(text or "").lower().strip()
+    if not clean:
+        return False
+    strong_commitment = [
+        "i am available", "i'm available", "i confirm my availability",
+        "i am interested", "i'm interested", "yes i am", "yes, i am",
+        "happy to proceed", "ready to proceed", "please proceed",
+    ]
+    if any(item in clean for item in strong_commitment):
+        return False
+    question_markers = [
+        "?", "can you", "could you", "please confirm", "kindly confirm",
+        "what is", "when is", "where is", "how many", "how much",
+        "duration", "timing", "schedule", "date", "mode", "client",
+        "rate", "payment", "toc", "agenda", "syllabus", "interview link",
+    ]
+    return any(item in clean for item in question_markers)
+
+
 def _reply_sentiment_and_action(body: str) -> dict:
     text = str(body or "").lower()
     negative = [
@@ -234,6 +274,8 @@ def _reply_sentiment_and_action(body: str) -> dict:
     ]
     if any(item in text for item in negative):
         return {"sentiment": "negative", "action": "mark_declined"}
+    if _question_without_commitment(text):
+        return {"sentiment": "neutral", "action": "requires_review"}
     if any(item in text for item in positive):
         return {"sentiment": "positive", "action": "mark_interested"}
     return {"sentiment": "neutral", "action": "requires_review"}
@@ -452,12 +494,22 @@ def _detect_client_interview_decision(subject: str = "", body: str = "") -> dict
         r"\bconfirm(?:ed)?\s+(?:the\s+)?trainer\b",
         r"\bproceed\s+with\b",
         r"\bgo\s+ahead\s+with\b",
-        r"\bfinali[sz]ed\b",
-        r"\bwe\s+can\s+proceed\b",
         r"\btrainer\s+is\s+confirmed\b",
         r"\bhe\s+is\s+selected\b",
         r"\bshe\s+is\s+selected\b",
     ]
+    slot_context = _re.search(
+        r"\b(slot|meeting|meet|interview schedule|interview slot|availability|timing|time)\b",
+        text,
+    )
+    has_clear_trainer_selection = _re.search(
+        r"\b(trainer|profile|candidate|he|she)\s+(?:is\s+|has\s+been\s+)?(?:selected|approved|confirmed)\b"
+        r"|\b(?:select|approve|confirm)\s+(?:this\s+|the\s+)?(?:trainer|profile|candidate)\b"
+        r"|\b(?:proceed|go\s+ahead)\s+with\s+(?:this\s+|the\s+)?(?:trainer|profile|candidate|he|she)\b",
+        text,
+    )
+    if slot_context and not has_clear_trainer_selection:
+        return {"decision": "", "confidence": 0, "reason": "slot scheduling context"}
 
     for pattern in rejection_patterns:
         if _re.search(pattern, text):
@@ -512,115 +564,396 @@ def _duration_days_for_toc(requirement: dict) -> int:
         if value:
             match = _re.search(r"\d+", str(value))
             if match:
-                return max(1, min(int(match.group(0)), 15))
+                return max(1, min(int(match.group(0)), 100))
     hours = requirement.get("duration_hours")
     if hours:
         try:
-            return max(1, min(int((float(hours) + 7) // 8), 15))
+            return max(1, min(int((float(hours) + 7) // 8), 100))
         except Exception:
             pass
     text = " ".join(str(requirement.get(key) or "") for key in ("preferred_dates", "timeline_start", "timeline_end", "description"))
     match = _re.search(r"\b(\d{1,2})\s*(?:day|days)\b", text, flags=_re.IGNORECASE)
     if match:
-        return max(1, min(int(match.group(1)), 15))
+        return max(1, min(int(match.group(1)), 100))
     return 3
+
+
+def _toc_domain_plan(technology: str) -> dict:
+    tech = str(technology or "Training").lower()
+    if any(key in tech for key in ("devops", "dev ops", "ci/cd", "cicd", "kubernetes", "docker")):
+        return {
+            "tools": ["Git", "Linux", "Docker", "Kubernetes", "Jenkins", "GitHub Actions", "Terraform", "Ansible", "Prometheus", "Grafana"],
+            "prerequisites": [
+                "Basic Linux command-line knowledge",
+                "Understanding of software build and deployment flow",
+                "Laptop with Docker/Desktop or cloud lab access",
+            ],
+            "outcomes": [
+                "Design CI/CD pipelines for build, test, security scan, and deployment",
+                "Containerize applications using Docker and manage images safely",
+                "Deploy and troubleshoot workloads on Kubernetes",
+                "Provision infrastructure using Terraform and automate configuration with Ansible",
+                "Set up monitoring, logging, rollback, and release governance practices",
+            ],
+            "themes": [
+                ("Linux & DevOps Foundations", [
+                    "Linux file system, permissions, users, groups, process management, and service logs",
+                    "Bash scripting with variables, loops, conditions, cron jobs, and backup automation",
+                    "DevOps principles, SDLC, Agile overview, networking basics, DNS, HTTP/HTTPS, ports",
+                    "Lab: Linux administration tasks, backup shell script, and networking validation",
+                    "Jira: create Scrum project, Epic Linux & Networking Foundations, stories, subtasks, story points",
+                ]),
+                ("Version Control & Git Workflows", [
+                    "Git fundamentals: init, clone, add, commit, push, pull, status, log",
+                    "Branching, merge, rebase, cherry-pick, stash, hooks, conflict resolution",
+                    "GitHub workflows: pull requests, code review, branch protection, issue keys",
+                    "Lab: team PR workflow and merge conflict resolution",
+                    "Jira: Epic Version Control, Sprint 1 planning, smart commits, PR-linked issue transitions",
+                ]),
+                ("Docker & Containerization", [
+                    "Containers vs virtual machines, Docker CLI, images, layers, registries",
+                    "Dockerfile authoring, build cache, multi-stage builds, image tagging",
+                    "Docker Compose services, networks, volumes, env vars, and troubleshooting",
+                    "Lab: deploy a full-stack app with Docker Compose end to end",
+                    "Jira: Epic Containerization, Docker labels, Definition of Done, impediment logging",
+                ]),
+                ("Jenkins & CI/CD Pipelines", [
+                    "Jenkins installation, plugins, admin setup, credentials, and global configuration",
+                    "Freestyle jobs, build triggers, SCM polling, post-build actions",
+                    "Declarative Jenkinsfile pipelines, stages, agents, shared libraries, parallel stages",
+                    "Lab: build, test, Docker image creation, and registry push pipeline",
+                    "Jira: CI/CD epic, Jenkins build links, automation transition on PR merge, release notes",
+                ]),
+                ("GitHub Actions & Advanced CI/CD", [
+                    "GitHub Actions workflows, triggers, jobs, steps, marketplace actions",
+                    "Build, test, lint on pull request, matrix builds, caching, artifacts",
+                    "Deployment workflows, environment secrets, approvals, OIDC, reusable workflows",
+                    "Lab: full GitHub Actions CI/CD from test to Docker build to deploy",
+                    "Jira: deployment tracking, release versions, CI failure notifications, velocity report",
+                ]),
+                ("Terraform & Infrastructure as Code", [
+                    "IaC concepts, Terraform providers, resources, init, plan, apply, destroy",
+                    "Variables, outputs, locals, data sources, tfvars, state, and locking",
+                    "Modules, Terraform Registry, S3 backend, multi-environment workspaces",
+                    "Lab: provision AWS VPC, EC2/RDS module, remote state, and reusable variables",
+                    "Jira: IaC epic, components terraform/aws/networking, risk register, sprint health dashboard",
+                ]),
+                ("Kubernetes Fundamentals", [
+                    "Kubernetes architecture, control plane, etcd, scheduler, kubelet, nodes, pods",
+                    "Deployments, ReplicaSets, Services, Namespaces, ConfigMaps, Secrets",
+                    "PV/PVC, StorageClass, Ingress, NetworkPolicy, CoreDNS, Helm charts",
+                    "Lab: deploy microservices app with Helm, Ingress, and persistent storage",
+                    "Jira: Kubernetes Kanban board, deployment checklist, fix versions, incident ticket",
+                ]),
+                ("Monitoring, Logging & Observability", [
+                    "Prometheus setup, exporters, scrape configs, PromQL, Alertmanager",
+                    "Grafana dashboards, variables, panels, alerts, SLI/SLO tracking",
+                    "ELK stack logging with Elasticsearch, Logstash, Kibana, Filebeat, tracing overview",
+                    "Lab: metrics, logs, traces, dashboards, alerts, and postmortem workflow",
+                    "Jira: ITSM incident project, SLA fields, alert-to-incident automation, CFD review",
+                ]),
+                ("Cloud, AWS, Security & Networking", [
+                    "AWS EC2, S3, RDS, IAM, VPC, EKS, Lambda, Route53, CloudFront, CloudWatch",
+                    "Subnets, NACLs, Security Groups, VPN, VPC peering, Transit Gateway",
+                    "DevSecOps with IAM policies, Secrets Manager, SAST/DAST, Trivy, Snyk, OPA",
+                    "Lab: deploy secure 3-tier app on AWS using Terraform, EKS, RDS, and ALB",
+                    "Jira: cloud security findings, compliance checklist, risk matrix, change workflow",
+                ]),
+                ("Capstone: End-to-End DevOps Project", [
+                    "Requirements, architecture design, tool selection, and pipeline design",
+                    "Terraform AWS infrastructure, Dockerize app, push to ECR/Docker Hub",
+                    "GitHub Actions and Jenkins pipeline: build, test, scan, deploy",
+                    "Lab: Helm deploy to EKS with Prometheus, Grafana, ELK, demo, and rollback",
+                    "Jira: full project sprint with epics, stories, tasks, burndown, velocity, retro",
+                ]),
+            ],
+            "certifications": [
+                "AWS Certified DevOps Engineer - Professional",
+                "Certified Kubernetes Administrator (CKA)",
+                "Certified Kubernetes Application Developer (CKAD)",
+                "HashiCorp Certified: Terraform Associate",
+                "GitHub Actions Certification",
+                "Jenkins Certified Engineer",
+                "Docker Certified Associate",
+                "Atlassian Certified in Jira Software Development",
+            ],
+        }
+    if any(key in tech for key in ("python", "django", "flask", "fastapi")):
+        return {
+            "tools": ["Python 3", "VS Code", "pip/venv", "pytest", "FastAPI/Flask", "SQLAlchemy", "Git"],
+            "prerequisites": ["Basic programming knowledge", "Laptop with Python 3 installed", "Familiarity with command-line usage"],
+            "outcomes": ["Write clean Python programs", "Build APIs and database-backed apps", "Test and debug Python applications", "Package and deploy Python services", "Apply Python best practices in projects"],
+            "themes": [
+                ("Python Foundations", ["Syntax, data types, control flow, functions, modules", "Collections, comprehensions, error handling", "File handling and virtual environments", "Lab: build CLI utilities", "Lab: debug and refactor Python scripts"]),
+                ("Object-Oriented and Practical Python", ["Classes, objects, inheritance, dataclasses", "Iterators, decorators, context managers", "Working with APIs, JSON, and external packages", "Lab: consume REST API and process data", "Lab: build reusable Python package"]),
+                ("Web/API Development", ["Flask/FastAPI routing, validation, middleware", "Database integration and ORM basics", "Authentication, logging, and error handling", "Lab: build CRUD API", "Lab: test API endpoints"]),
+                ("Testing, Deployment, and Capstone", ["pytest, mocking, coverage, linting", "Dockerizing Python apps and deployment basics", "Performance, security, and production checklist", "Capstone lab: complete API project", "Assessment and next steps"]),
+            ],
+        }
+    if any(key in tech for key in ("react", "frontend", "front end", "javascript")):
+        return {
+            "tools": ["Node.js", "React", "Vite", "React Router", "Axios", "Tailwind/CSS", "Git"],
+            "prerequisites": ["HTML/CSS basics", "JavaScript ES6 knowledge", "Node.js installed"],
+            "outcomes": ["Build component-based React apps", "Manage state and forms", "Integrate APIs", "Implement routing and UI patterns", "Deploy production frontend builds"],
+            "themes": [
+                ("React and Modern JavaScript Foundations", ["JS ES6 refresh, modules, promises", "React components, props, state", "JSX, events, conditional rendering", "Lab: build component library", "Lab: stateful mini app"]),
+                ("Hooks, Forms, and API Integration", ["useEffect, custom hooks, form state", "Axios/fetch, loading/error states", "Validation and reusable form components", "Lab: API-backed dashboard", "Lab: form workflow with validation"]),
+                ("Routing, Performance, and Production", ["React Router, layouts, protected routes", "Memoization, code splitting, UX states", "Build, deployment, accessibility basics", "Capstone lab: complete React app", "Review and assessment"]),
+            ],
+        }
+    if any(key in tech for key in ("data engineering", "big data", "etl", "spark", "databricks")):
+        return {
+            "tools": ["SQL", "Python", "Apache Spark", "Airflow", "Cloud Storage", "Data Warehouse", "Git"],
+            "prerequisites": ["SQL basics", "Basic Python knowledge", "Understanding of databases and files"],
+            "outcomes": ["Design ETL/ELT pipelines", "Process batch data using Spark", "Validate data quality", "Orchestrate workflows", "Build production-ready data pipeline patterns"],
+            "themes": [
+                ("Data Engineering Foundations", ["ETL vs ELT, lakehouse, warehouse concepts", "Data modeling, partitioning, file formats", "SQL transformation and quality checks", "Lab: design pipeline architecture", "Lab: create validation rules"]),
+                ("Batch Processing and Spark", ["Spark architecture, DataFrames, transformations", "Joins, aggregations, optimization basics", "Handling schema drift and bad records", "Lab: build Spark transformation job", "Lab: tune and troubleshoot job"]),
+                ("Orchestration and Production Pipelines", ["Airflow DAGs, scheduling, retries", "Monitoring, logging, lineage, alerts", "Deployment and CI/CD for data pipelines", "Capstone lab: end-to-end data pipeline", "Assessment and best practices"]),
+            ],
+        }
+    return {
+        "tools": [technology, "Browser", "Code editor / relevant platform tools", "Collaboration tools"],
+        "prerequisites": ["Basic understanding of IT systems and business workflows", "Laptop with required software access", f"Interest or prior exposure to {technology}"],
+        "outcomes": [f"Understand core {technology} concepts and terminology", "Configure and use key tools in practical scenarios", "Apply best practices for real-world implementation", "Troubleshoot common issues and validate outcomes", "Complete hands-on exercises aligned with business use cases"],
+        "themes": [
+            ("Foundations and Environment Setup", ["Program introduction and learning outcomes", f"{technology} fundamentals and architecture", "Environment setup and tool walkthrough", "Core concepts with guided examples", "Hands-on lab: build the first working exercise"]),
+            ("Core Implementation and Practical Workflows", ["Key features and implementation patterns", "Common business use cases", "Configuration and troubleshooting practices", "Hands-on lab: implement a real-world workflow", "Review, Q&A, and improvement discussion"]),
+            ("Advanced Topics and Capstone", ["Advanced concepts and optimization", "Security, governance, and best practices", "Case study and scenario-based exercises", "Capstone project implementation", "Assessment, feedback, and next-step guidance"]),
+        ],
+    }
 
 
 def _fallback_toc_data(payload: dict, reason: str = "") -> dict:
     technology = payload.get("technology") or "Training"
-    duration_days = max(1, min(int(payload.get("duration_days") or 3), 15))
+    duration_days = max(1, min(int(payload.get("duration_days") or 3), 100))
     audience_level = payload.get("audience_level") or "intermediate"
     mode = payload.get("mode") or "Online"
-    themes = [
-        ("Foundations and Environment Setup", [
-            "Program introduction and learning outcomes",
-            f"{technology} fundamentals and architecture",
-            "Environment setup and tool walkthrough",
-            "Core concepts with guided examples",
-            "Hands-on lab: build the first working exercise",
-        ]),
-        ("Core Implementation and Practical Workflows", [
-            "Key features and implementation patterns",
-            "Common business use cases",
-            "Configuration and troubleshooting practices",
-            "Hands-on lab: implement a real-world workflow",
-            "Review, Q&A, and improvement discussion",
-        ]),
-        ("Advanced Topics and Capstone", [
-            "Advanced concepts and optimization",
-            "Security, governance, and best practices",
-            "Case study and scenario-based exercises",
-            "Capstone project implementation",
-            "Assessment, feedback, and next-step guidance",
-        ]),
-    ]
+    plan = _toc_domain_plan(technology)
+    themes = plan["themes"]
+
+    def day_tools(title: str) -> str:
+        clean = title.lower()
+        if "linux" in clean:
+            return "Linux + Jira"
+        if "git" in clean and "github actions" not in clean:
+            return "Git + GitHub + Jira"
+        if "docker" in clean:
+            return "Docker + Docker Compose + Jira"
+        if "jenkins" in clean:
+            return "Jenkins + Maven + Jira"
+        if "github actions" in clean:
+            return "GitHub Actions + Jira"
+        if "terraform" in clean:
+            return "Terraform + AWS + Jira"
+        if "kubernetes" in clean:
+            return "Kubernetes + kubectl + Jira"
+        if "observability" in clean or "monitoring" in clean:
+            return "Prometheus + Grafana + ELK + Jira"
+        if "aws" in clean or "cloud" in clean:
+            return "AWS + Terraform + Jira"
+        if "capstone" in clean:
+            return "All DevOps Tools + Jira"
+        return ", ".join(plan["tools"][:3])
+
+    def jira_focus(title: str, topics: list) -> str:
+        for topic in topics:
+            if str(topic).startswith("Jira:"):
+                return str(topic).replace("Jira:", "", 1).strip()
+        return f"Create delivery board and track {title} tasks"
 
     days = []
     for index in range(duration_days):
-        title, topics = themes[min(index, len(themes) - 1)]
-        if index >= len(themes):
-            title = f"Applied Practice and Capstone Extension {index + 1}"
-            topics = [
-                f"Recap and advanced {technology} scenario",
-                "Design discussion and implementation planning",
-                "Hands-on lab: extended business case",
-                "Troubleshooting, optimization, and review",
-                "Q&A and action plan",
-            ]
+        title, topics = themes[index % len(themes)]
+        if duration_days > len(themes) and index >= len(themes):
+            title = f"{title} - Extended Practice"
+        jira = jira_focus(title, topics)
+        tools = day_tools(title)
         days.append({
             "day": index + 1,
             "title": f"Day {index + 1}: {title}",
+            "focus_area": title,
+            "tools": tools,
+            "jira_focus": jira,
             "morning_session": {
-                "time": "9:30 AM - 1:00 PM",
+                "time": "9:00 AM - 1:00 PM",
                 "title": f"{title} - Concepts",
                 "topics": [
-                    {"time": "9:30 - 10:00", "topic": "Recap / Introduction and objectives", "type": "lecture"},
-                    {"time": "10:00 - 10:45", "topic": topics[0], "type": "lecture"},
-                    {"time": "10:45 - 11:00", "topic": "Break", "type": "break"},
-                    {"time": "11:00 - 12:00", "topic": topics[1], "type": "demo"},
-                    {"time": "12:00 - 1:00", "topic": topics[2], "type": "lab"},
+                    {"time": "9:00 - 10:30", "topic": topics[0], "type": "lecture"},
+                    {"time": "10:30 - 10:45", "topic": "Break", "type": "break"},
+                    {"time": "10:45 - 12:15", "topic": topics[1], "type": "demo"},
+                    {"time": "12:15 - 1:00", "topic": "Lunch", "type": "break"},
                 ],
             },
             "afternoon_session": {
-                "time": "2:00 PM - 5:30 PM",
+                "time": "1:00 PM - 5:00 PM",
                 "title": f"{title} - Hands-on",
                 "topics": [
-                    {"time": "2:00 - 2:45", "topic": topics[3], "type": "lab"},
-                    {"time": "2:45 - 3:30", "topic": topics[4], "type": "lab"},
-                    {"time": "3:30 - 3:45", "topic": "Break", "type": "break"},
-                    {"time": "3:45 - 4:45", "topic": "Practice exercise and trainer review", "type": "lab"},
-                    {"time": "4:45 - 5:30", "topic": "Q&A, recap, and assignments", "type": "qa"},
+                    {"time": "1:00 - 2:30", "topic": topics[2], "type": "lecture"},
+                    {"time": "2:30 - 2:45", "topic": "Break", "type": "break"},
+                    {"time": "2:45 - 4:00", "topic": topics[3], "type": "lab"},
+                    {"time": "4:00 - 5:00", "topic": topics[4], "type": "jira"},
                 ],
             },
+            "learning_objectives": [
+                f"Understand and apply {title} concepts in real delivery scenarios",
+                f"Use {tools} to complete guided hands-on activities",
+                "Connect technical delivery work with Jira epics, stories, subtasks, and sprint tracking",
+                "Identify troubleshooting steps, risks, and production-readiness checks",
+            ],
+            "jira_practice": [
+                jira,
+                "Create or update Epics, Stories, Tasks, Subtasks, acceptance criteria, and story points",
+                "Move work across To Do, In Progress, Review, and Done with comments and time logs",
+                "Review sprint progress using burndown, velocity, dashboard, or incident/project reports",
+            ],
         })
+
+    overview_table = [
+        {
+            "day": day["day"],
+            "focus_area": day["focus_area"],
+            "primary_tools": day["tools"],
+            "jira_focus": day["jira_focus"],
+        }
+        for day in days
+    ]
 
     note = "Generated with deterministic fallback because AI generation was temporarily unavailable."
     if reason:
         note += f" Reason: {reason[:180]}"
     return {
-        "title": f"Complete {technology} Training Program",
-        "subtitle": f"{duration_days}-Day {audience_level.title()} Training | {mode} Mode",
+        "title": f"{technology} Mastery",
+        "subtitle": f"{duration_days}-Day Intensive Training Program",
         "overview": (
-            f"This program provides a practical, structured path for learning {technology}. "
-            "It combines concepts, demonstrations, hands-on labs, and a final capstone-style review."
+            f"This {duration_days}-day {technology} intensive takes learners from foundations to production-ready execution. "
+            "Each 8-hour day combines theory, hands-on labs, and real-world Jira project management to simulate professional delivery workflows."
         ),
-        "prerequisites": [
-            "Basic understanding of IT systems and business workflows",
-            "Laptop with required software access",
-            f"Interest or prior exposure to {technology}",
-        ],
-        "learning_outcomes": [
-            f"Understand core {technology} concepts and terminology",
-            "Configure and use key tools in practical scenarios",
-            "Apply best practices for real-world implementation",
-            "Troubleshoot common issues and validate outcomes",
-            "Complete hands-on exercises aligned with business use cases",
-        ],
+        "overview_table": overview_table,
+        "prerequisites": plan["prerequisites"],
+        "learning_outcomes": plan["outcomes"],
         "days": days,
-        "tools_software": [technology, "Browser", "Code editor / relevant platform tools", "Collaboration tools"],
-        "certification_guidance": f"Trainer may align examples with relevant {technology} certification objectives where applicable.",
+        "tools_software": plan["tools"],
+        "tools_reference": [
+            {"category": "CI/CD Tools", "items": ["Jenkins - build automation, Jenkinsfile pipelines, shared libraries", "GitHub Actions - workflow files, marketplace actions, OIDC, reusable workflows"]},
+            {"category": "Containerisation & Orchestration", "items": ["Docker - Dockerfiles, multi-stage builds, Compose, networking, volumes", "Kubernetes - Pods, Deployments, Services, Ingress, Helm, EKS"]},
+            {"category": "Infrastructure as Code", "items": ["Terraform - providers, modules, workspaces, remote state, S3 backend"]},
+            {"category": "Cloud Platform", "items": ["AWS - EC2, S3, RDS, IAM, VPC, EKS, Lambda, ALB, Route53, CloudWatch"]},
+            {"category": "Monitoring & Observability", "items": ["Prometheus and Grafana - metrics, dashboards, alerting", "ELK Stack - Elasticsearch, Logstash, Kibana, Filebeat"]},
+            {"category": "Project Management", "items": ["Jira Software - Scrum/Kanban boards, epics, stories, sprints, automation, reports"]},
+        ] if "devops" in str(technology).lower() else [],
+        "certification_roadmap": plan.get("certifications") or [],
+        "certification_guidance": f"After this program, learners can prepare for: {', '.join(plan.get('certifications') or [f'relevant {technology} certifications'])}.",
         "trainer_notes": note,
     }
+
+
+def _is_placeholder_api_key(value: str = "") -> bool:
+    clean = str(value or "").strip().lower()
+    return (
+        not clean
+        or clean.startswith("your_")
+        or clean in {"your_gemini_api_key", "your-api-key", "your_api_key", "changeme", "placeholder"}
+    )
+
+
+def _has_value(*values) -> bool:
+    return any(str(value or "").strip() for value in values)
+
+
+def _toc_missing_client_inputs(requirement: dict, payload: Optional[dict] = None) -> list[dict]:
+    payload = payload or {}
+    missing = []
+    if not _has_value(payload.get("duration_days"), payload.get("duration_hours"), requirement.get("duration_days"), requirement.get("duration_hours"), requirement.get("duration"), requirement.get("training_duration")):
+        missing.append({"key": "duration", "label": "Total duration / training hours"})
+    if not _has_value(payload.get("training_dates"), payload.get("timing"), payload.get("schedule"), requirement.get("training_dates"), requirement.get("preferred_dates"), requirement.get("timeline_start"), requirement.get("timeline_end"), requirement.get("timing"), requirement.get("schedule")):
+        missing.append({"key": "dates_timing", "label": "Training dates and daily timings"})
+    if not _has_value(payload.get("audience_level"), requirement.get("audience_level"), requirement.get("level")):
+        missing.append({"key": "audience_level", "label": "Audience level: Basic / Intermediate / Advanced / Mixed"})
+    if not _has_value(payload.get("mode"), requirement.get("mode"), requirement.get("training_mode")):
+        missing.append({"key": "mode", "label": "Training mode: Online / Classroom / Hybrid"})
+    if not _has_value(payload.get("custom_topics"), payload.get("client_notes"), requirement.get("client_notes"), requirement.get("job_description"), requirement.get("description"), requirement.get("content_scope"), requirement.get("syllabus"), requirement.get("topics")):
+        missing.append({"key": "content_scope", "label": "Content scope/topics to cover"})
+    return missing
+
+
+async def _send_toc_details_request_to_client(
+    db,
+    request: Optional[Request],
+    *,
+    requirement: dict,
+    trainer: Optional[dict] = None,
+    missing: list[dict],
+    source: str,
+) -> dict:
+    client_email = str(requirement.get("client_email") or "").strip()
+    if not client_email:
+        return {"success": False, "error": "Client email is required to request TOC inputs"}
+    client_name = requirement.get("client_name") or requirement.get("client_company") or "Client"
+    technology = requirement.get("technology_needed") or requirement.get("job_title") or "Training"
+    trainer_name = (trainer or {}).get("name") or (trainer or {}).get("trainer_name") or requirement.get("selected_trainer_name") or "selected trainer"
+    missing_lines = "\n".join(f"* {item['label']}" for item in missing)
+    subject = f"Required Training Details for TOC Preparation - {technology}"
+    body = (
+        f"Dear {client_name},\n\n"
+        f"Thank you for the discussion regarding the {technology} training requirement.\n\n"
+        "To prepare an accurate Table of Contents (TOC) for the trainer and avoid assumptions, kindly share the below details:\n\n"
+        f"{missing_lines}\n\n"
+        "Please confirm the following format if possible:\n\n"
+        "* Duration: [Number of days] and [hours per day]\n"
+        "* Dates & Timings: [DD/MM/YYYY] to [DD/MM/YYYY], [Start time - End time]\n"
+        "* Audience Level: Basic / Intermediate / Advanced / Mixed\n"
+        "* Mode: Online / Classroom / Hybrid\n"
+        "* Content Scope: Required topics, tools, project/lab expectations, and any exclusions\n\n"
+        f"Once we receive these details, we will prepare and share the TOC for {trainer_name}.\n\n"
+        "Thank you & regards,\n"
+        "TrainerSync Team"
+    )
+    email_id = f"CLIENT-TOC-DETAILS-{uuid.uuid4().hex[:8].upper()}"
+    smtp_config = await get_admin_email_config(db)
+    success, error = await send_email_async(
+        client_email,
+        subject,
+        body,
+        smtp_config,
+        build_tracking_url(request, email_id) if request else "",
+    )
+    now = utc_now()
+    log_doc = {
+        "email_id": email_id,
+        "trainer_id": (trainer or {}).get("trainer_id") or requirement.get("selected_trainer_id") or "",
+        "trainer_name": trainer_name,
+        "requirement_id": requirement.get("requirement_id") or "",
+        "to_email": client_email,
+        "client_name": client_name,
+        "client_email": client_email,
+        "subject": subject,
+        "body": body,
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "sent_at": now if success else None,
+        "reply_received": False,
+        "opened": False,
+        "open_count": 0,
+        "tracking_url": build_tracking_url(request, email_id) if request else "",
+        "retry_count": 0,
+        "mail_type": "client_toc_details_request",
+        "source": source,
+        "missing_toc_inputs": missing,
+        "created_at": now,
+    }
+    await db["email_logs"].insert_one(log_doc)
+    await db["conversations"].insert_one({**log_doc, "direction": "client_sent", "error": error if not success else ""})
+    await db["requirements"].update_one(
+        {"requirement_id": requirement.get("requirement_id")},
+        {"$set": {
+            "toc_input_status": "requested" if success else "request_failed",
+            "toc_input_requested_at": now,
+            "toc_input_request_email_id": email_id,
+            "toc_missing_inputs": missing,
+        }},
+    )
+    return {"success": success, "error": error, "email_id": email_id, "to_email": client_email, "missing": missing}
 
 
 async def _auto_generate_and_send_toc(
@@ -640,12 +973,30 @@ async def _auto_generate_and_send_toc(
     if not trainer_id or not requirement_id or not trainer_email:
         return {"success": False, "error": "Trainer email or requirement id missing", "mail_type": "mail6_toc"}
 
+    missing_inputs = _toc_missing_client_inputs(requirement)
+    if missing_inputs:
+        request_result = await _send_toc_details_request_to_client(
+            db,
+            request,
+            requirement=requirement,
+            trainer=trainer,
+            missing=missing_inputs,
+            source=f"{source}_toc_input_guard",
+        )
+        return {
+            "success": False,
+            "status": "toc_inputs_requested",
+            "error": "Missing client TOC inputs. Requested details from client.",
+            "mail_type": "client_toc_details_request",
+            "details_request": request_result,
+            "missing_inputs": missing_inputs,
+        }
+
     existing = await db["toc_documents"].find_one(
         {
             "trainer_id": trainer_id,
             "requirement_id": requirement_id,
             "status": {"$in": ["sent", "draft"]},
-            "source": {"$in": ["client_post_interview_decision", "auto_selection_toc", source]},
         },
         {"_id": 0},
         sort=[("created_at", -1)],
@@ -657,6 +1008,26 @@ async def _auto_generate_and_send_toc(
             "status": "already_sent",
             "mail_type": "mail6_toc",
             "toc_id": existing.get("toc_id"),
+        }
+
+    sent_log = await db["email_logs"].find_one(
+        {
+            "trainer_id": trainer_id,
+            "requirement_id": requirement_id,
+            "mail_type": "mail6_toc",
+            "status": "sent",
+        },
+        {"_id": 0, "email_id": 1, "toc_id": 1},
+        sort=[("sent_at", -1), ("created_at", -1)],
+    )
+    if sent_log:
+        return {
+            "success": True,
+            "skipped": True,
+            "status": "already_sent",
+            "mail_type": "mail6_toc",
+            "email_id": sent_log.get("email_id"),
+            "toc_id": sent_log.get("toc_id"),
         }
 
     duration_days = _duration_days_for_toc(requirement)
@@ -680,10 +1051,22 @@ async def _auto_generate_and_send_toc(
         generation_error = existing.get("generation_error", "") if existing else ""
         if not toc_data:
             try:
-                toc_data = await _generate_toc_with_gemini(payload)
-            except Exception as exc:
-                generation_error = str(exc)
+                toc_data = await _generate_toc_from_best_knowledge(
+                    db,
+                    {
+                        **payload,
+                        "technology": technology,
+                        "audience_level": audience_level,
+                        "mode": mode,
+                        "client_notes": requirement.get("client_notes") or requirement.get("job_description") or "",
+                    },
+                    duration_days,
+                )
+                generation_error = ""
+            except Exception as dataset_exc:
+                generation_error = f"Knowledge base fallback failed: {dataset_exc}"
                 toc_data = _fallback_toc_data(payload, generation_error)
+        toc_data = validate_toc(toc_data, duration_days)
         toc_id = existing.get("toc_id") if existing else f"TOC-{uuid.uuid4().hex[:8].upper()}"
         doc = {
             "toc_id": toc_id,
@@ -699,6 +1082,7 @@ async def _auto_generate_and_send_toc(
             "custom_topics": "",
             "toc_data": toc_data,
             "generation_error": generation_error,
+            "ai_provider": "ollomo" if not generation_error else "dataset_fallback",
             "status": "draft",
             "source": source,
             "created_at": existing.get("created_at") if existing else utc_now(),
@@ -729,6 +1113,74 @@ async def _auto_generate_and_send_toc(
             pdf_bytes,
             smtp_config,
         )
+        client_toc_result = {"skipped": True, "reason": "client email missing"}
+        client_email = str(requirement.get("client_email") or "").strip()
+        if client_email and client_email.lower() != str(trainer_email or "").strip().lower():
+            client_subject = f"Training TOC / Course Agenda - {technology} - {trainer_name}"
+            client_body = (
+                f"Dear {requirement.get('client_name') or 'Client'},\n\n"
+                f"Please find attached the generated Training Table of Contents / Course Agenda for the {technology} training.\n\n"
+                f"Trainer: {trainer_name}\n"
+                f"Duration: {duration_days} days\n"
+                f"Mode: {mode}\n"
+                f"Audience Level: {audience_level}\n\n"
+                "Kindly review and share any changes or approval to proceed.\n\n"
+                "Regards,\nTrainerSync Team"
+            )
+            client_email_id = f"CLIENT-TOC-{uuid.uuid4().hex[:8].upper()}"
+            client_success, client_error = _send_toc_email_with_attachment(
+                client_email,
+                client_subject,
+                client_body,
+                filename,
+                pdf_bytes,
+                smtp_config,
+            )
+            client_toc_result = {
+                "success": client_success,
+                "error": client_error,
+                "email_id": client_email_id,
+                "to_email": client_email,
+            }
+            await db["client_messages"].insert_one({
+                "message_id": f"CLIENT-MSG-{uuid.uuid4().hex[:8].upper()}",
+                "client_email": client_email,
+                "client_name": requirement.get("client_name") or client_email,
+                "requirement_id": requirement_id,
+                "trainer_id": trainer_id,
+                "trainer_name": trainer_name,
+                "subject": client_subject,
+                "body": client_body,
+                "mail_type": "client_toc",
+                "direction": "sent",
+                "status": "sent" if client_success else "failed",
+                "error": client_error if not client_success else "",
+                "sent_at": utc_now(),
+                "toc_id": toc_id,
+                "source": source,
+            })
+            await db["email_logs"].insert_one({
+                "email_id": client_email_id,
+                "trainer_id": trainer_id,
+                "trainer_name": trainer_name,
+                "requirement_id": requirement_id,
+                "to_email": client_email,
+                "subject": client_subject,
+                "body": client_body,
+                "status": "sent" if client_success else "failed",
+                "error_message": client_error if not client_success else "",
+                "sent_at": utc_now() if client_success else None,
+                "reply_received": False,
+                "opened": False,
+                "open_count": 0,
+                "tracking_url": build_tracking_url(request, client_email_id) if request else "",
+                "retry_count": 0,
+                "mail_type": "client_toc",
+                "toc_id": toc_id,
+                "toc_title": toc_data.get("title", ""),
+                "source": source,
+                "created_at": utc_now(),
+            })
         email_id = f"EMAIL-{uuid.uuid4().hex[:8].upper()}"
         trainer_phone = await _trainer_phone(db, trainer_id, trainer.get("phone") or "")
         trainer_for_teams = await _trainer_for_direct_teams(db, trainer_id, trainer)
@@ -766,6 +1218,7 @@ async def _auto_generate_and_send_toc(
                 "pdf_generated_at": sent_at,
                 "whatsapp_summary": whatsapp_result,
                 "teams_direct_summary": teams_direct_result,
+                "client_toc_summary": client_toc_result,
             }},
         )
         await db["conversations"].insert_one({
@@ -806,6 +1259,7 @@ async def _auto_generate_and_send_toc(
             "trainer_phone": trainer_phone,
             "whatsapp_summary": whatsapp_result,
             "teams_direct_summary": teams_direct_result,
+            "client_toc_summary": client_toc_result,
             "source": source,
             "created_at": sent_at,
         })
@@ -819,6 +1273,7 @@ async def _auto_generate_and_send_toc(
             "toc_id": toc_id,
             "whatsapp": whatsapp_result,
             "teams_direct": teams_direct_result,
+            "client_toc": client_toc_result,
         }
     except Exception as exc:
         return {"success": False, "error": str(exc), "mail_type": "mail6_toc"}
@@ -832,7 +1287,7 @@ def _training_date_for_confirmation(requirement: dict) -> str:
             if key == "timeline_start" and end and end != value:
                 return f"{value} to {end}"
             return value
-    return "As per the client-approved schedule coordinated by Calhan Technologies"
+    return "As per the client-approved schedule coordinated by Clahan Technologies"
 
 
 def _venue_for_confirmation(requirement: dict) -> str:
@@ -863,12 +1318,12 @@ async def _send_auto_training_confirmation(
         or smtp_config.get("smtpUser")
         or getattr(get_settings(), "from_email", "")
         or getattr(get_settings(), "gmail_user", "")
-        or "recruitment@calhantech.com"
+        or "recruitment@clahantech.com"
     )
     contact_phone = (
         client_inbox_cfg.get("vendorWhatsAppNumber")
         or twilio_cfg.get("vendorWhatsAppNumber")
-        or "Calhan Technologies coordination team"
+        or "Clahan Technologies coordination team"
     )
     if str(contact_phone).startswith("whatsapp:"):
         contact_phone = str(contact_phone).replace("whatsapp:", "", 1)
@@ -885,11 +1340,11 @@ async def _send_auto_training_confirmation(
         f"Venue / Platform: {venue}\n\n"
         "Action Items Before Training:\n"
         "* Ensure all materials and slides are ready\n"
-        "* Review the generated ToC / Course Agenda shared by Calhan Technologies\n"
+        "* Review the generated ToC / Course Agenda shared by Clahan Technologies\n"
         "* Share soft copies of training content with us 2 days prior\n"
         "* Confirm your availability 24 hours before the training\n\n"
         "For any questions or additional information, please contact:\n\n"
-        "Contact Name: Calhan Technologies Team\n"
+        "Contact Name: Clahan Technologies Team\n"
         f"Phone: {contact_phone}\n"
         f"Email: {contact_email}\n\n"
         "We look forward to a successful training session.\n\n"
@@ -1062,6 +1517,159 @@ async def _send_trainer_pipeline_email(
     }
 
 
+def _trainer_commercial_negotiation_body(trainer_name: str, technology: str, amount: float, unit: str) -> str:
+    amount_text = f"{float(amount):,.0f}" if amount else "the available"
+    unit_label = unit or "session"
+    return (
+        f"Dear {trainer_name or 'Trainer'},\n\n"
+        f"Thank you for your interest in the {technology} training requirement.\n\n"
+        f"For this requirement, the available commercial budget is INR {amount_text} per {unit_label}. "
+        "Kindly confirm whether this commercial is workable from your side so we can proceed with your profile for the next steps.\n\n"
+        "Best Regards,\n"
+        "Recruitment Team\n"
+        "Clahan Technologies"
+    )
+
+
+async def _mark_shortlist_trainer_status(db, requirement_id: str, trainer_id: str, status: str, reason: str = "") -> None:
+    if not requirement_id or not trainer_id:
+        return
+    fields = {
+        "top_trainers.$.status": status,
+        "top_trainers.$.pipeline_status": status,
+        "top_trainers.$.updated_at": utc_now(),
+    }
+    if reason:
+        fields["top_trainers.$.status_reason"] = reason
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": fields},
+    )
+
+
+async def _send_next_trainer_after_decline(
+    db,
+    request: Optional[Request],
+    *,
+    declined_log: dict,
+    reply: dict,
+) -> dict:
+    requirement_id = declined_log.get("requirement_id") or ""
+    declined_trainer_id = declined_log.get("trainer_id") or ""
+    if not requirement_id or not declined_trainer_id:
+        return {"skipped": True, "reason": "Missing requirement or trainer id"}
+
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    top_trainers = shortlist.get("top_trainers") or []
+    if not top_trainers:
+        return {"skipped": True, "reason": "No shortlist found"}
+
+    await _mark_shortlist_trainer_status(
+        db,
+        requirement_id,
+        declined_trainer_id,
+        "declined",
+        "Trainer declined or not interested",
+    )
+
+    commercial_amount = (
+        requirement.get("trainer_visible_budget_per_session")
+        or requirement.get("trainer_requested_budget_per_session")
+        or (declined_log.get("commercials") or {}).get("requested_trainer_commercial")
+    )
+    commercial_context = declined_log.get("mail_type") == "trainer_commercial_negotiation" or bool(commercial_amount)
+    technology = requirement.get("technology_needed") or "Training"
+    declined_index = next(
+        (index for index, item in enumerate(top_trainers) if str(item.get("trainer_id")) == str(declined_trainer_id)),
+        -1,
+    )
+    ordered_candidates = top_trainers[declined_index + 1:] + top_trainers[:max(declined_index, 0)]
+    blocked_statuses = {"declined", "rejected", "selected", "stopped_selected", "training_confirmed"}
+
+    for item in ordered_candidates:
+        trainer_id = item.get("trainer_id")
+        if not trainer_id or str(trainer_id) == str(declined_trainer_id):
+            continue
+        item_status = str(item.get("pipeline_status") or item.get("status") or "").strip().lower()
+        if item_status in blocked_statuses:
+            continue
+        existing = await db["email_logs"].find_one(
+            {
+                "requirement_id": requirement_id,
+                "trainer_id": trainer_id,
+                "mail_type": "trainer_commercial_negotiation" if commercial_context else "mail1",
+                "status": "sent",
+                "reply_received": {"$ne": True},
+            },
+            {"_id": 0, "email_id": 1},
+        )
+        if existing:
+            continue
+
+        trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or item
+        trainer_name = trainer.get("name") or trainer.get("trainer_name") or item.get("name") or "Trainer"
+        if commercial_context and commercial_amount:
+            mail_type = "trainer_commercial_negotiation"
+            subject = f"Commercial Revision Request - {technology} Training"
+            body = _trainer_commercial_negotiation_body(trainer_name, technology, float(commercial_amount), "session")
+        else:
+            mail_type = "mail1"
+            subject = f"Training Requirement - {technology}"
+            body = compose_shortlist_first_email(
+                trainer_name,
+                technology,
+                str(requirement.get("duration_days") or requirement.get("duration_hours") or ""),
+                str(requirement.get("mode") or ""),
+                str(requirement.get("participant_count") or ""),
+            )
+
+        result = await _send_trainer_pipeline_email(
+            db,
+            request,
+            trainer=trainer,
+            requirement=requirement,
+            subject=subject,
+            body=body,
+            mail_type=mail_type,
+            source="next_trainer_after_decline",
+        )
+        if result.get("success"):
+            await _mark_shortlist_trainer_status(
+                db,
+                requirement_id,
+                trainer_id,
+                "commercial_negotiation_requested" if mail_type == "trainer_commercial_negotiation" else "contacted",
+                "Follow-up sent after previous trainer declined",
+            )
+            await db["requirements"].update_one(
+                {"requirement_id": requirement_id},
+                {"$set": {
+                    "last_declined_trainer_id": declined_trainer_id,
+                    "last_declined_trainer_name": declined_log.get("trainer_name") or "",
+                    "next_trainer_followup_id": trainer_id,
+                    "next_trainer_followup_name": trainer_name,
+                    "next_trainer_followup_mail_type": mail_type,
+                    "next_trainer_followup_at": utc_now(),
+                }},
+            )
+        return {
+            **result,
+            "next_trainer_id": trainer_id,
+            "next_trainer_name": trainer_name,
+            "declined_trainer_id": declined_trainer_id,
+        }
+
+    await db["requirements"].update_one(
+        {"requirement_id": requirement_id},
+        {"$set": {
+            "next_trainer_followup_status": "no_available_trainer",
+            "next_trainer_followup_checked_at": utc_now(),
+        }},
+    )
+    return {"skipped": True, "reason": "No available next trainer"}
+
+
 async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> tuple[Optional[dict], Optional[dict], dict]:
     from_email = (meta.get("from_email") or "").strip()
     text = _re.sub(r"\s+", " ", f"{meta.get('subject') or ''} {clean_body or meta.get('snippet') or ''}".lower())
@@ -1103,8 +1711,48 @@ async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> t
         },
         {"_id": 0},
     ).sort("sent_at", -1).limit(50).to_list(50)
+
     if not logs:
-        return None, None, {"reason": "no scheduled interview mail found", "requirement_ids": requirement_ids}
+        slot_logs = await db["client_slot_emails"].find(
+            {
+                "requirement_id": {"$in": requirement_ids},
+                "to_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"} if from_email else {"$exists": True},
+            },
+            {"_id": 0},
+        ).sort("sent_at", -1).limit(50).to_list(50)
+        logs = [
+            {
+                **item,
+                "mail_type": "client_slot_options",
+                "status": item.get("status") or "sent",
+                "sent_at": item.get("sent_at") or item.get("created_at"),
+                "to_email": item.get("trainer_email") or "",
+                "trainer_name": item.get("trainer_name"),
+                "source": "client_slot_decision_fallback",
+            }
+            for item in slot_logs
+            if item.get("trainer_id") and item.get("requirement_id")
+        ]
+
+    if not logs:
+        selected_trainer_id = next(
+            (req.get("selected_trainer_id") for req in requirements if req.get("selected_trainer_id")),
+            "",
+        )
+        if selected_trainer_id:
+            selected_req = next(
+                (req for req in requirements if str(req.get("selected_trainer_id") or "") == str(selected_trainer_id)),
+                requirements[0] if requirements else {},
+            )
+            selected_trainer = await db["trainers"].find_one({"trainer_id": selected_trainer_id}, {"_id": 0}) or {
+                "trainer_id": selected_trainer_id,
+                "name": selected_req.get("selected_trainer_name"),
+            }
+            return selected_trainer, selected_req, {
+                "score": 120,
+                "selected_requirement_fallback": True,
+            }
+        return None, None, {"reason": "no scheduled interview or client slot mail found", "requirement_ids": requirement_ids}
 
     trainer_ids = [log.get("trainer_id") for log in logs if log.get("trainer_id")]
     trainers = await db["trainers"].find(
@@ -1161,6 +1809,21 @@ async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> t
             "matched_email_id": best_log.get("email_id"),
             "single_candidate_group": True,
         }
+    if (
+        best_score >= 50
+        and _recent_enough(best_log.get("sent_at"), meta.get("received_at") or utc_now(), days=7)
+        and _re.search(r"\b(candidate|he|she|trainer|profile)\s+(?:has\s+been\s+|is\s+)?selected\b|\bselected\s+for\s+the\s+training\b", text)
+    ):
+        if not best_trainer.get("email"):
+            best_trainer["email"] = best_log.get("to_email")
+        if not best_trainer.get("phone"):
+            best_trainer["phone"] = best_log.get("trainer_phone", "")
+        return best_trainer, best_requirement, {
+            "score": best_score,
+            "matched_email_id": best_log.get("email_id"),
+            "latest_recent_candidate_fallback": True,
+            "viable_candidate_count": len(viable_pairs),
+        }
     if best_score < 100 and len(logs) != 1:
         return None, None, {"reason": "ambiguous trainer decision", "score": best_score}
     if best_score < 70 and len(logs) == 1:
@@ -1207,6 +1870,42 @@ async def _process_client_interview_decision(db, meta: dict, request: Optional[R
         )
         return {k: v for k, v in doc.items() if k != "_id"}
 
+    prior_decision = await db["post_interview_decisions"].find_one(
+        {
+            "requirement_id": requirement.get("requirement_id"),
+            "trainer_id": trainer.get("trainer_id"),
+            "decision.decision": decision["decision"],
+            "status": {"$in": ["trainer_selected_auto_sent", "trainer_rejected_auto_sent"]},
+            "gmail_message_id": {"$ne": message_id},
+        },
+        {"_id": 0},
+        sort=[("updated_at", -1), ("created_at", -1)],
+    )
+    if prior_decision:
+        doc = {
+            "decision_id": decision_id,
+            "gmail_message_id": message_id,
+            "status": "already_processed_client_decision_for_trainer",
+            "decision": decision,
+            "match": {**(match or {}), "prior_decision_id": prior_decision.get("decision_id")},
+            "requirement_id": requirement.get("requirement_id"),
+            "trainer_id": trainer.get("trainer_id"),
+            "trainer_name": trainer.get("name") or trainer.get("trainer_name"),
+            "trainer_email": trainer.get("email") or trainer.get("trainer_email"),
+            "client_email": meta.get("from_email"),
+            "client_name": meta.get("from_name"),
+            "subject": meta.get("subject"),
+            "reply_text": clean_body,
+            "sent_results": prior_decision.get("sent_results") or [],
+            "updated_at": now,
+        }
+        await db["post_interview_decisions"].update_one(
+            {"gmail_message_id": message_id},
+            {"$set": doc, "$setOnInsert": {"created_at": now}},
+            upsert=True,
+        )
+        return {k: v for k, v in doc.items() if k != "_id"}
+
     client_note = _client_note_excerpt(clean_body)
     sent_results = []
     for template in _decision_mail_templates(trainer, requirement, decision["decision"], client_note):
@@ -1232,15 +1931,28 @@ async def _process_client_interview_decision(db, meta: dict, request: Optional[R
             source="client_post_interview_decision",
         )
         sent_results.append(toc_result)
-        if toc_result.get("success"):
-            confirmation_result = await _send_auto_training_confirmation(
-                db,
-                request,
-                trainer=trainer,
-                requirement=requirement,
-                source="client_post_interview_decision",
-            )
-            sent_results.append(confirmation_result)
+        if toc_result.get("success") and request:
+            try:
+                po_request_result = await request_client_purchase_order(
+                    requirement.get("requirement_id"),
+                    {
+                        "trainer_id": trainer.get("trainer_id"),
+                        "trainer_name": trainer.get("name") or trainer.get("trainer_name"),
+                        "client_email": requirement.get("client_email"),
+                        "client_name": requirement.get("client_name") or requirement.get("client_company") or "",
+                    },
+                    request,
+                )
+                sent_results.append({
+                    "success": True,
+                    "mail_type": "client_po_request",
+                    "email_id": po_request_result.get("email_id"),
+                    "to_email": po_request_result.get("to_email"),
+                })
+            except HTTPException as exc:
+                sent_results.append({"success": False, "mail_type": "client_po_request", "error": exc.detail})
+            except Exception as exc:
+                sent_results.append({"success": False, "mail_type": "client_po_request", "error": str(exc)})
 
     final_status = "trainer_selected_auto_sent" if decision["decision"] == "selected" else "trainer_rejected_auto_sent"
     if not all(item.get("success") for item in sent_results):
@@ -1343,7 +2055,7 @@ async def _client_inbox_settings(db) -> dict:
         "autoSendEnabled": bool(cfg.get("autoSendEnabled", True)),
         "autoSendThreshold": float(cfg.get("autoSendThreshold", 70)),
         "clientDomainsWhitelist": cfg.get("clientDomainsWhitelist", ""),
-        "replySignature": cfg.get("replySignature") or "Regards,\nRecruitment Team,\nCalhan Technologies",
+        "replySignature": cfg.get("replySignature") or "Best Regards,\nRecruitment Team\nClahan Technologies",
         "vendorWhatsAppNumber": cfg.get("vendorWhatsAppNumber") or twilio.get("vendorWhatsAppNumber", ""),
     }
 
@@ -1377,6 +2089,220 @@ def _decode_pubsub_payload(payload: dict) -> dict:
 def _public_doc(doc: dict) -> dict:
     clean = {k: v for k, v in (doc or {}).items() if k != "_id"}
     return clean
+
+
+def _tier_value(tier: str) -> str:
+    return tier.value if isinstance(tier, ContactVerificationTier) else str(tier or ContactVerificationTier.UNKNOWN.value)
+
+
+def _linkedin_contact_display_class(tier: str) -> str:
+    mapping = {
+        ContactVerificationTier.RESUME_VERIFIED.value: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        ContactVerificationTier.AI_EXTRACTED.value: "bg-blue-50 text-blue-700 border-blue-200",
+        ContactVerificationTier.LOCAL_FALLBACK.value: "bg-violet-50 text-violet-700 border-violet-200",
+        ContactVerificationTier.LINKEDIN_SIGNAL.value: "bg-amber-50 text-amber-700 border-amber-200",
+        ContactVerificationTier.MANUAL_ENTRY.value: "bg-teal-50 text-teal-700 border-teal-200",
+        ContactVerificationTier.UNKNOWN.value: "bg-slate-50 text-slate-500 border-slate-200",
+    }
+    return mapping.get(_tier_value(tier), mapping[ContactVerificationTier.UNKNOWN.value])
+
+
+def _linkedin_tier_label(tier: str) -> str:
+    labels = {
+        ContactVerificationTier.RESUME_VERIFIED.value: "Resume verified",
+        ContactVerificationTier.AI_EXTRACTED.value: "AI verified",
+        ContactVerificationTier.LOCAL_FALLBACK.value: "Extracted",
+        ContactVerificationTier.LINKEDIN_SIGNAL.value: "Unverified",
+        ContactVerificationTier.MANUAL_ENTRY.value: "Manual entry",
+        ContactVerificationTier.UNKNOWN.value: "Unknown",
+    }
+    return labels.get(_tier_value(tier), "Unknown")
+
+
+def _stamp_linkedin_signal_on_enriched(update_fields: dict, email: str = "", phone: str = "", name: str = "", linkedin: str = "", location: str = "") -> dict:
+    contact_trust = {}
+    values = {
+        "email": email,
+        "phone": phone,
+        "name": name,
+        "linkedin": linkedin,
+        "location": location,
+    }
+    for field, value in values.items():
+        clean_value = str(value or "").strip()
+        if not clean_value:
+            continue
+        contact_trust[field] = {
+            "tier": ContactVerificationTier.LINKEDIN_SIGNAL.value,
+            "weight": TIER_WEIGHT[ContactVerificationTier.LINKEDIN_SIGNAL.value],
+            "value": clean_value,
+        }
+    if contact_trust:
+        existing = dict(update_fields.get("contact_trust") or {})
+        existing.update(contact_trust)
+        update_fields["contact_trust"] = existing
+    update_fields["verification_tier"] = ContactVerificationTier.LINKEDIN_SIGNAL.value
+    update_fields.setdefault("email_source", "linkedin_public_web_scan")
+    return update_fields
+
+
+def _enrich_lead_response(lead: dict) -> dict:
+    lead = _public_doc(lead)
+    contact_trust = lead.get("contact_trust") or {}
+    tier = _tier_value(lead.get("verification_tier") or ContactVerificationTier.UNKNOWN.value)
+    email_tier = _tier_value((contact_trust.get("email") or {}).get("tier") or ContactVerificationTier.UNKNOWN.value)
+    phone_tier = _tier_value((contact_trust.get("phone") or {}).get("tier") or ContactVerificationTier.UNKNOWN.value)
+    verified_tiers = {
+        ContactVerificationTier.RESUME_VERIFIED.value,
+        ContactVerificationTier.AI_EXTRACTED.value,
+        ContactVerificationTier.MANUAL_ENTRY.value,
+    }
+    lead["ui_trust"] = {
+        "overall_class": _linkedin_contact_display_class(tier),
+        "email_class": _linkedin_contact_display_class(email_tier),
+        "phone_class": _linkedin_contact_display_class(phone_tier),
+        "email_verified": email_tier in verified_tiers,
+        "phone_verified": phone_tier in verified_tiers,
+        "show_verify_badge": tier == ContactVerificationTier.LINKEDIN_SIGNAL.value,
+        "show_resume_request": tier == ContactVerificationTier.LINKEDIN_SIGNAL.value and bool(lead.get("contact_email")),
+        "tier_label": _linkedin_tier_label(tier),
+    }
+    return lead
+
+
+async def _is_duplicate_linkedin_lead(db, source_url: str, contact_email: str = "", trainer_name: str = "") -> Optional[str]:
+    if source_url:
+        existing = await db["trainer_profile_leads"].find_one(
+            {"source_url": source_url},
+            {"_id": 0, "lead_id": 1},
+        )
+        if existing:
+            return existing.get("lead_id")
+    email = str(contact_email or "").strip().lower()
+    if email and "@" in email:
+        existing = await db["trainer_profile_leads"].find_one(
+            {
+                "contact_email": {"$regex": f"^{_re.escape(email)}$", "$options": "i"},
+                "status": {"$nin": ["rejected"]},
+            },
+            {"_id": 0, "lead_id": 1},
+        )
+        if existing:
+            return existing.get("lead_id")
+    return None
+
+
+async def _save_linkedin_lead_as_trainer(db, lead: dict) -> dict:
+    existing = await find_matching_trainer_for_lead(db, lead)
+    now = utc_now()
+    if existing:
+        trainer_id = existing["trainer_id"]
+        merged = merge_linkedin_with_resume_profile(existing, lead)
+        update_doc = {
+            "linkedin": merged.get("linkedin") or existing.get("linkedin", ""),
+            "contact_trust": merged.get("contact_trust") or existing.get("contact_trust") or {},
+            "verification_tier": merged.get("verification_tier") or existing.get("verification_tier") or ContactVerificationTier.UNKNOWN.value,
+            "lead_id": lead.get("lead_id") or existing.get("lead_id") or "",
+            "linkedin_lead_verified": True,
+            "linkedin_unverified": False,
+            "confidence_score": merged.get("confidence_score", existing.get("confidence_score", 0)),
+            "updated_at": now,
+        }
+        for field in ("email", "phone"):
+            if not existing.get(field) and merged.get(field):
+                update_doc[field] = merged[field]
+        await db["trainers"].update_one({"trainer_id": trainer_id}, {"$set": update_doc})
+        await db["trainer_profile_leads"].update_one(
+            {"lead_id": lead.get("lead_id")},
+            {"$set": {
+                "verification_status": "linked_to_trainer",
+                "verified_trainer_id": trainer_id,
+                "linkedin_lead_verified": True,
+                "updated_at": now,
+            }},
+        )
+        return {"saved": True, "action": "merged", "trainer_id": trainer_id}
+
+    profile = linkedin_lead_to_unverified_profile(lead)
+    doc = trainer_document_from_profile(profile)
+    doc["source"] = "linkedin_lead"
+    doc["source_sheet"] = "linkedin_search"
+    doc["created_at"] = now
+    await db["trainers"].insert_one(doc)
+    await db["trainer_profile_leads"].update_one(
+        {"lead_id": lead.get("lead_id")},
+        {"$set": {
+            "verification_status": "placeholder_created",
+            "verified_trainer_id": doc["trainer_id"],
+            "updated_at": now,
+        }},
+    )
+    return {"saved": True, "action": "inserted", "trainer_id": doc["trainer_id"]}
+
+
+async def _auto_verify_lead_on_resume_upload(db, resume_profile: dict) -> Optional[dict]:
+    email = str(resume_profile.get("email") or "").strip().lower()
+    name_key = _re.sub(r"[^a-z0-9]+", "", str(resume_profile.get("name") or "").lower())
+    lead = None
+    if email and "@" in email:
+        lead = await db["trainer_profile_leads"].find_one(
+            {
+                "contact_email": {"$regex": f"^{_re.escape(email)}$", "$options": "i"},
+                "verification_status": {"$nin": ["rejected"]},
+            },
+            {"_id": 0},
+            sort=[("created_at", -1)],
+        )
+    if not lead and name_key and len(name_key) >= 4:
+        domain = str(resume_profile.get("technology_category") or resume_profile.get("domain") or "").strip()
+        query = {"verification_status": {"$nin": ["rejected"]}}
+        if domain:
+            pattern = {"$regex": _re.escape(domain), "$options": "i"}
+            query["$or"] = [{"domain": pattern}, {"searched_domain": pattern}]
+        candidates = await db["trainer_profile_leads"].find(query, {"_id": 0}).sort("created_at", -1).limit(50).to_list(50)
+        for candidate in candidates:
+            candidate_name = _re.sub(
+                r"[^a-z0-9]+",
+                "",
+                str(candidate.get("trainer_name") or candidate.get("headline") or "").lower(),
+            )
+            if candidate_name and (name_key in candidate_name or candidate_name in name_key):
+                lead = candidate
+                break
+    if not lead:
+        return None
+
+    now = utc_now()
+    trainer_id = resume_profile.get("trainer_id") or ""
+    await db["trainer_profile_leads"].update_one(
+        {"lead_id": lead["lead_id"]},
+        {"$set": {
+            "verification_status": "resume_verified",
+            "verified_trainer_id": trainer_id,
+            "resume_verified_at": now,
+            "linkedin_lead_verified": True,
+            "verified_contact_email": resume_profile.get("email") or "",
+            "updated_at": now,
+        }},
+    )
+
+    placeholder_id = lead.get("verified_trainer_id")
+    if placeholder_id:
+        placeholder = await db["trainers"].find_one(
+            {"trainer_id": placeholder_id, "linkedin_unverified": True},
+            {"_id": 0},
+        )
+        if placeholder:
+            merged = merge_linkedin_with_resume_profile(resume_profile, lead)
+            doc = trainer_document_from_profile({**merged, "trainer_id": placeholder_id})
+            doc["linkedin_unverified"] = False
+            doc["needs_review"] = False
+            doc["updated_at"] = now
+            await db["trainers"].update_one(
+                {"trainer_id": placeholder_id},
+                {"$set": {k: v for k, v in doc.items() if k not in {"_id", "created_at"}}},
+            )
+    return lead
 
 
 def _thread_datetime(value):
@@ -1556,12 +2482,366 @@ async def _process_and_store_client_decision_message(
     return decision_result
 
 
+def _extract_client_po_details(subject: str = "", body: str = "") -> Optional[dict]:
+    text = f"{subject or ''}\n{body or ''}"
+    clean = _re.sub(r"\s+", " ", text).strip()
+    lower = clean.lower()
+    if _re.search(r"\b(request\s+(?:for\s+)?purchase\s+order|request\s+you\s+to\s+kindly\s+issue|please\s+share\s+the\s+purchase\s+order|po\s+request\s+sent)\b", lower):
+        return None
+    if not _re.search(r"\b(purchase\s*order|po\s*(?:no|number|#|ref|reference)?|client\s*po)\b", lower):
+        return None
+    if not _re.search(r"\b(invoice|amount|total|gst|purchase\s*order|po\s*(?:no|number|#|ref|reference))\b", lower):
+        return None
+
+    po_number = ""
+    for pattern in [
+        r"\b(PO[-/_]?[A-Z0-9][A-Z0-9/_\-]{2,})\b",
+        r"\bpurchase\s*order\s*#\s*[:\-]?\s*([A-Z0-9][A-Z0-9/_\-]{2,})",
+        r"(?<![A-Z0-9/_\-])(?:po|client\s*po)\s*(?:number|no|#|ref|reference)?\s*[:\-]?\s*([A-Z0-9][A-Z0-9/_\-]{2,})",
+    ]:
+        match = _re.search(pattern, clean, flags=_re.IGNORECASE)
+        if match:
+            po_number = match.group(1).strip(" .,:;")
+            break
+
+    def amount_from(pattern: str) -> float:
+        match = _re.search(pattern, clean, flags=_re.IGNORECASE)
+        if match:
+            try:
+                return float(match.group(1).replace(",", ""))
+            except Exception:
+                return 0.0
+        return 0.0
+
+    subtotal_amount = amount_from(r"(?:sub\s*total|subtotal)\s*(?:in\s*)?(?:inr|rs\.?|₹)?\s*[:\-]?\s*([0-9][0-9,]*(?:\.\d{1,2})?)")
+    total_amount = amount_from(r"(?:grand\s*total|total\s*amount|po\s*amount|total)\s*(?:in\s*)?(?:inr|rs\.?|₹)?\s*[:\-]?\s*([0-9][0-9,]*(?:\.\d{1,2})?)")
+    currency_amount = amount_from(r"(?:inr|rs\.?|₹)\s*([0-9][0-9,]*(?:\.\d{1,2})?)")
+
+    gst_rate = 0.0
+    gst_match = _re.search(r"\b(?:gst|igst|cgst|sgst)\s*(?:rate)?\s*(?:\([^)]*\))?\s*[:\-]?\s*(\d{1,2}(?:\.\d+)?)\s*%", clean, flags=_re.IGNORECASE)
+    if gst_match:
+        gst_rate = _float_or_zero(gst_match.group(1))
+    elif _re.search(r"\b(?:igst|cgst|sgst)\b", clean, flags=_re.IGNORECASE):
+        gst_rate = 18.0
+
+    amount = subtotal_amount if gst_rate > 0 and subtotal_amount > 0 else total_amount or currency_amount or subtotal_amount
+    if not po_number or amount <= 0:
+        return None
+
+    gstin = ""
+    gstin_match = _re.search(r"\b([0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z])\b", clean, flags=_re.IGNORECASE)
+    if gstin_match:
+        gstin = gstin_match.group(1).upper()
+
+    po_date = ""
+    date_match = _re.search(r"\b(?:date|po\s*date)\s*[:#\-]?\s*([0-9]{1,2}[/-][0-9]{1,2}[/-][0-9]{2,4}|[0-9]{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+\s+[0-9]{4})", clean, flags=_re.IGNORECASE)
+    if date_match:
+        po_date = date_match.group(1).strip()
+
+    payment_terms = ""
+    terms_match = _re.search(r"\b(?:terms|payment\s*terms)\s*[:#\-]?\s*([A-Za-z0-9 ,./+-]{3,80}?)(?=\s+(?:ref|requestor|project|initiated\s+by|vendor|bill\s+to|$))", clean, flags=_re.IGNORECASE)
+    if terms_match:
+        payment_terms = terms_match.group(1).strip(" .,:;")
+
+    ref_number = ""
+    ref_match = _re.search(r"\b(?:reference|project\s*name|ref)\s*#?\s*[:\-]?\s*([A-Z0-9][A-Z0-9/_\-]{2,})", clean, flags=_re.IGNORECASE)
+    if ref_match:
+        ref_number = ref_match.group(1).strip(" .,:;")
+
+    start_date = ""
+    end_date = ""
+    range_match = _re.search(
+        r"\b(?:start\s*date)\s*[:\-]?\s*([0-9]{1,2}\s*[/-]\s*[0-9]{1,2}(?:\s*[/-]\s*[0-9]{2,4})?).{0,80}?\b(?:end\s*date)\s*[:\-]?\s*([0-9]{1,2}\s*[/-]\s*[0-9]{1,2}(?:\s*[/-]\s*[0-9]{2,4})?)",
+        clean,
+        flags=_re.IGNORECASE,
+    )
+    if range_match:
+        start_date = range_match.group(1).strip()
+        end_date = range_match.group(2).strip()
+    elif _re.search(r"\bstart\s*date\b.{0,30}\bend\s*date\b", clean, flags=_re.IGNORECASE):
+        after_headers = _re.split(r"\bstart\s*date\b.{0,30}\bend\s*date\b", clean, flags=_re.IGNORECASE, maxsplit=1)
+        date_candidates = _re.findall(r"\b[0-9]{1,2}\s*[/-]\s*[0-9]{1,2}(?:\s*[/-]\s*[0-9]{2,4})?\b", after_headers[-1] if after_headers else clean)
+        if len(date_candidates) >= 2:
+            start_date = _re.sub(r"\s+", "", date_candidates[0])
+            end_date = _re.sub(r"\s+", "", date_candidates[1])
+
+    hsn_sac = ""
+    hsn_match = _re.search(r"\b(?:hsn|sac|hsn/sac)\s*(?:code)?\s*[:\-]?\s*([0-9]{4,8})\b", clean, flags=_re.IGNORECASE)
+    if hsn_match:
+        hsn_sac = hsn_match.group(1)
+    elif _re.search(r"\bhsn\s*/?\s*sac\b", clean, flags=_re.IGNORECASE):
+        generic_hsn = _re.search(r"\b(99[0-9]{4})\b", clean)
+        if generic_hsn:
+            hsn_sac = generic_hsn.group(1)
+
+    return {
+        "client_po_number": po_number,
+        "client_po_date": po_date,
+        "total_amount": amount,
+        "gst_rate": gst_rate,
+        "client_gstin": gstin,
+        "payment_terms": payment_terms,
+        "ref_number": ref_number,
+        "start_date": start_date,
+        "end_date": end_date,
+        "hsn_sac": hsn_sac,
+        "raw_text": clean[:4000],
+        "confidence": 0.95,
+    }
+
+
+async def _match_client_po_requirement(db, meta: dict, po_details: dict) -> Optional[dict]:
+    from_email = str(meta.get("from_email") or "").strip()
+    if not from_email:
+        return None
+    text = _re.sub(r"\s+", " ", f"{meta.get('subject') or ''} {meta.get('clean_body') or meta.get('raw_body') or meta.get('snippet') or ''}".lower())
+    candidates = await db["requirements"].find(
+        {"client_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"}},
+        {"_id": 0},
+    ).sort("updated_at", -1).limit(30).to_list(30)
+    if not candidates:
+        domain = sender_domain(from_email)
+        if domain:
+            candidates = await db["requirements"].find(
+                {"client_email_domain": domain},
+                {"_id": 0},
+            ).sort("updated_at", -1).limit(30).to_list(30)
+    if not candidates:
+        return None
+
+    scored = []
+    for req in candidates:
+        po_was_requested = bool(req.get("po_requested_at") or req.get("po_request_status") == "requested")
+        if not po_was_requested:
+            continue
+        req_id = str(req.get("requirement_id") or "").lower()
+        tech = str(req.get("technology_needed") or "").lower()
+        selected = bool(req.get("selected_trainer_id") or str(req.get("selection_status") or "").lower() in {"selected", "training_confirmed"})
+        score = 0
+        if req_id and req_id in text:
+            score += 200
+        if tech and tech in text:
+            score += 60
+        if selected:
+            score += 80
+        if req.get("po_requested_at") or req.get("po_request_status") == "requested":
+            score += 50
+        if req.get("invoice_id"):
+            score -= 50
+        scored.append((score, req))
+    scored.sort(key=lambda item: item[0], reverse=True)
+    return scored[0][1] if scored and scored[0][0] >= 50 else scored[0][1] if len(scored) == 1 else None
+
+
+async def _process_client_purchase_order_email(db, processed: dict, request: Optional[Request] = None) -> Optional[dict]:
+    po_details = _extract_client_po_details(
+        processed.get("subject", ""),
+        "\n\n".join([
+            processed.get("clean_body") or processed.get("raw_body") or processed.get("snippet") or "",
+            processed.get("attachments_text") or "",
+        ]),
+    )
+    if not po_details:
+        return None
+
+    requirement = await _match_client_po_requirement(db, processed, po_details)
+    if not requirement:
+        return None
+    if not (requirement.get("po_requested_at") or requirement.get("po_request_status") == "requested"):
+        return None
+
+    requirement_id = requirement.get("requirement_id")
+    trainer_id = str(requirement.get("selected_trainer_id") or "").strip()
+    client_email = str(requirement.get("client_email") or processed.get("from_email") or "").strip()
+    now = utc_now()
+    client_po_number = str(po_details.get("client_po_number") or "").strip()
+    if not client_po_number:
+        return None
+    total_amount = _float_or_zero(po_details.get("total_amount"))
+    if total_amount <= 0:
+        return None
+
+    existing_po = await db["client_purchase_orders"].find_one(
+        {"requirement_id": requirement_id, "client_po_number": client_po_number},
+        {"_id": 0},
+    )
+    if existing_po and existing_po.get("invoice_id") and str(existing_po.get("status") or "").lower() in {"invoice_generated", "invoice_sent"}:
+        return {
+            "status": "client_po_invoice_sent" if str(existing_po.get("status") or "").lower() == "invoice_sent" else "client_po_invoice_generated",
+            "email_id": processed.get("email_id"),
+            "requirement_id": requirement_id,
+            "client_po_number": client_po_number,
+            "invoice": {
+                "invoice_id": existing_po.get("invoice_id"),
+                "invoice_number": existing_po.get("invoice_number"),
+            },
+            "already_processed": True,
+        }
+
+    await db["client_purchase_orders"].update_one(
+        {"requirement_id": requirement_id, "client_po_number": client_po_number},
+        {"$set": {
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "trainer_name": requirement.get("selected_trainer_name") or "",
+            "client_email": client_email,
+            "client_name": requirement.get("client_name") or requirement.get("client_company") or processed.get("from_name") or client_email,
+            "client_po_number": client_po_number,
+            "client_po_date": po_details.get("client_po_date") or "",
+            "client_gstin": po_details.get("client_gstin") or "",
+            "total_amount": total_amount,
+            "gst_rate": po_details.get("gst_rate") or 18,
+            "payment_terms": po_details.get("payment_terms") or "",
+            "ref_number": po_details.get("ref_number") or "",
+            "start_date": po_details.get("start_date") or "",
+            "end_date": po_details.get("end_date") or "",
+            "hsn_sac": po_details.get("hsn_sac") or "",
+            "status": "received",
+            "source": "gmail_client_po",
+            "source_email_id": processed.get("email_id"),
+            "raw_text": po_details.get("raw_text") or "",
+            "updated_at": now,
+        }, "$setOnInsert": {"created_at": now}},
+        upsert=True,
+    )
+    await db["requirements"].update_one(
+        {"requirement_id": requirement_id},
+        {"$set": {
+            "client_po_status": "received",
+            "client_po_number": client_po_number,
+            "client_po_received_at": now,
+            "client_po_source_email_id": processed.get("email_id"),
+        }},
+    )
+
+    invoice_result = None
+    invoice_send_result = None
+    training_confirmation_result = None
+    if request and trainer_id and total_amount > 0:
+        try:
+            invoice_result = await generate_invoice_from_client_purchase_order(requirement_id, {
+                "trainer_id": trainer_id,
+                "client_email": client_email,
+                "client_name": requirement.get("client_company") or requirement.get("client_name") or processed.get("from_name") or client_email,
+                "client_po_number": client_po_number,
+                "client_po_date": po_details.get("client_po_date") or "",
+                "total_amount": total_amount,
+                "gst_rate": po_details.get("gst_rate") or 18,
+                "client_gstin": po_details.get("client_gstin") or "",
+                "payment_terms": po_details.get("payment_terms") or "",
+                "client_po_notes": "Generated automatically from client Gmail PO reply or attached PO PDF.",
+                "ref_number": po_details.get("ref_number") or "",
+                "start_date": po_details.get("start_date") or "",
+                "end_date": po_details.get("end_date") or "",
+                "hsn_sac": po_details.get("hsn_sac") or "",
+                "technology": requirement.get("technology_needed") or "Training",
+                "duration_days": requirement.get("duration_days") or "",
+                "mode": requirement.get("mode") or "Online",
+            }, request)
+        except HTTPException as exc:
+            invoice_result = {"success": False, "error": exc.detail}
+        except Exception as exc:
+            invoice_result = {"success": False, "error": str(exc)}
+        if invoice_result and invoice_result.get("success") and (invoice_result.get("invoice") or {}).get("invoice_id"):
+            try:
+                invoice_send_result = await send_invoice(
+                    (invoice_result.get("invoice") or {}).get("invoice_id"),
+                    {"to_email": client_email},
+                    request,
+                )
+            except HTTPException as exc:
+                invoice_send_result = {"success": False, "error": exc.detail}
+            except Exception as exc:
+                invoice_send_result = {"success": False, "error": str(exc)}
+        if invoice_send_result and invoice_send_result.get("success"):
+            try:
+                trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or {}
+                training_confirmation_result = await _send_auto_training_confirmation(
+                    db,
+                    request,
+                    trainer=trainer or {
+                        "trainer_id": trainer_id,
+                        "name": requirement.get("selected_trainer_name") or "",
+                    },
+                    requirement=requirement,
+                    source="client_po_invoice_sent",
+                )
+            except HTTPException as exc:
+                training_confirmation_result = {"success": False, "mail_type": "mail7_confirm", "error": exc.detail}
+            except Exception as exc:
+                training_confirmation_result = {"success": False, "mail_type": "mail7_confirm", "error": str(exc)}
+
+    final_status = "client_po_received"
+    if invoice_send_result and invoice_send_result.get("success"):
+        final_status = "client_po_invoice_sent"
+    elif invoice_result and invoice_result.get("success"):
+        final_status = "client_po_invoice_generated"
+
+    await db["client_emails"].update_one(
+        {"email_id": processed.get("email_id")},
+        {"$set": {
+            "email_id": processed.get("email_id"),
+            "thread_id": processed.get("thread_id"),
+            "received_at": processed.get("received_at"),
+            "from_email": processed.get("from_email"),
+            "from_name": processed.get("from_name"),
+            "subject": processed.get("subject"),
+            "raw_body": processed.get("raw_body"),
+            "clean_body": processed.get("clean_body"),
+            "requirement_id": requirement_id,
+            "status": final_status,
+            "extracted": {
+                "is_training_request": False,
+                "client_purchase_order": True,
+                "client_po_number": client_po_number,
+                "total_amount": total_amount,
+                "confidence": po_details.get("confidence"),
+            },
+            "generated_reply": {},
+            "client_po": po_details,
+            "invoice_result": invoice_result or {},
+            "invoice_send_result": invoice_send_result or {},
+            "training_confirmation_result": training_confirmation_result or {},
+            "auto_send_eligible": False,
+            "whatsapp_notified": False,
+            "message_id_header": processed.get("message_id_header", ""),
+            "updated_at": now,
+        }, "$setOnInsert": {"created_at": now}},
+        upsert=True,
+    )
+    return {
+        "status": final_status,
+        "email_id": processed.get("email_id"),
+        "requirement_id": requirement_id,
+        "client_po_number": client_po_number,
+        "invoice": (invoice_result or {}).get("invoice") if invoice_result else None,
+        "invoice_send": invoice_send_result or None,
+        "training_confirmation": training_confirmation_result or None,
+    }
+
+
 async def _process_and_store_client_message(db, message_id: str, gmail_service, request: Optional[Request] = None) -> dict:
     settings = await _client_inbox_settings(db)
     processed = await process_client_email(message_id, gmail_service)
     existing = await db["client_emails"].find_one({"email_id": processed.get("email_id")}, {"_id": 1, "status": 1})
     if existing:
         return {"status": "already_processed", "email_id": processed.get("email_id")}
+
+    po_result = await _process_client_purchase_order_email(db, processed, request)
+    if po_result:
+        return po_result
+
+    slot_doc = await _matching_client_slot_email(db, processed, processed.get("clean_body") or "")
+    if slot_doc:
+        slot_result = await _process_client_slot_reply_from_meta(
+            db,
+            processed.get("email_id") or message_id,
+            request=request,
+            meta_hint=processed,
+            slot_doc=slot_doc,
+        )
+        if slot_result:
+            return slot_result
 
     decision_result = await _process_client_interview_decision(db, processed, request)
     if decision_result:
@@ -1584,8 +2864,7 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
             "subject": processed.get("subject", ""),
             "reply_signature": settings.get("replySignature"),
         })
-        duplicate = await check_if_duplicate(extracted, db)
-        requirement_id = None if duplicate else await create_requirement_from_email(extracted, message_id, db)
+        requirement_id = await ensure_requirement_from_email(extracted, message_id, db)
         confidence = float(extracted.get("confidence") or 0)
         threshold = float(settings.get("autoSendThreshold") or 70) / 100
         auto_send_eligible = confidence >= threshold and domain_is_allowed
@@ -1748,10 +3027,10 @@ async def _create_google_meet_event(
     event_body = {
         "summary": f"{technology} Discussion - {requirement_id}".strip(),
         "description": (
-            f"Calhan Technologies discussion/interview.\n\n"
+            f"Clahan Technologies discussion/interview.\n\n"
             f"Requirement ID: {requirement_id}\n"
             f"Technology: {technology}\n"
-            "Participants will be notified separately by Calhan Technologies.\n\n"
+            "Participants will be notified separately by Clahan Technologies.\n\n"
             f"Confirmed slot reply:\n{slot_reply[:2000]}"
         ),
         "start": {"dateTime": start_text, "timeZone": timezone_name},
@@ -1836,7 +3115,7 @@ async def _send_trainer_interview_schedule(
         f"Platform    : {platform}\n"
         f"Meeting Link: {interview_link or '[Meeting Link]'}\n\n"
         f"Please join on time. Let us know if you need any assistance.\n\n"
-        f"Regards,\nRecruitment Team,\nCalhan Technologies"
+        f"Regards,\nRecruitment Team,\nClahan Technologies"
     )
 
     email_id = f"EMAIL-{uuid.uuid4().hex[:8].upper()}"
@@ -1974,6 +3253,54 @@ async def _send_trainer_interview_schedule(
     }
 
 
+def _client_missing_training_detail_labels(requirement: Optional[dict]) -> list[str]:
+    requirement = requirement or {}
+
+    def text_value(*keys: str) -> str:
+        for key in keys:
+            value = requirement.get(key)
+            if value not in (None, ""):
+                return str(value).strip()
+        return ""
+
+    def has_number(*keys: str) -> bool:
+        for key in keys:
+            value = requirement.get(key)
+            if value in (None, ""):
+                continue
+            try:
+                return float(value) > 0
+            except Exception:
+                return bool(str(value).strip())
+        return False
+
+    def is_deferred(value: str) -> bool:
+        lowered = str(value or "").strip().lower()
+        if not lowered:
+            return True
+        markers = (
+            "after interview", "post interview", "after discussion", "post discussion",
+            "will share", "will provide", "will confirm", "will update",
+            "later", "future", "tbd", "tba", "to be confirmed", "to be decided",
+        )
+        return any(marker in lowered for marker in markers)
+
+    missing = []
+    if not has_number("duration_days", "duration_hours") and is_deferred(text_value("duration", "duration_text", "training_duration")):
+        missing.append("Training duration")
+    if is_deferred(text_value("timeline_start", "timeline_end", "training_dates", "start_date", "end_date")):
+        missing.append("Preferred training dates")
+    if is_deferred(text_value("daily_timing", "timing", "training_timing", "daily_timings")):
+        missing.append("Daily training timings")
+    if is_deferred(text_value("audience_level", "level")):
+        missing.append("Audience level (Beginner / Intermediate / Advanced)")
+    if is_deferred(text_value("mode", "training_mode", "preferred_mode")):
+        missing.append("Training mode (Online / Offline / Hybrid)")
+    if not has_number("budget_per_day", "budget_total") and is_deferred(text_value("commercials", "budget", "expected_charges_per_day")):
+        missing.append("Budget or expected commercial charges per day/session")
+    return missing
+
+
 async def _send_client_interview_schedule(
     db,
     request: Optional[Request],
@@ -1994,6 +3321,15 @@ async def _send_client_interview_schedule(
     req = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
     technology = req.get("technology_needed", "Training") if req else "Training"
     client_phone = str((req or {}).get("client_phone") or (req or {}).get("client_whatsapp") or "").strip()
+    missing_details = _client_missing_training_detail_labels(req)
+    missing_details_text = ""
+    if missing_details:
+        missing_lines = "\n".join(f"* {item}" for item in missing_details)
+        missing_details_text = (
+            "\n\nPost-interview follow-up details required:\n"
+            "To proceed smoothly after the discussion and finalize the training plan, kindly share the below details when available:\n\n"
+            f"{missing_lines}\n"
+        )
     subject = f"Discussion Schedule Confirmation - {technology}"
     body = (
         f"Hi {client_name or 'Client'},\n\n"
@@ -2001,8 +3337,9 @@ async def _send_client_interview_schedule(
         f"Date & Time : {date_time or '[Date & Time]'}\n"
         f"Platform    : {platform}\n"
         f"Meeting Link: {interview_link or '[Meeting Link]'}\n\n"
-        "Calhan Technologies will coordinate the discussion. Please join on time and let us know if you need any assistance.\n\n"
-        "Regards,\nRecruitment Team,\nCalhan Technologies"
+        "Clahan Technologies will coordinate the discussion. Please join on time and let us know if you need any assistance."
+        f"{missing_details_text}\n\n"
+        "Regards,\nRecruitment Team,\nClahan Technologies"
     )
 
     email_id = f"CLIENT-SCHEDULE-{uuid.uuid4().hex[:8].upper()}"
@@ -2058,6 +3395,7 @@ async def _send_client_interview_schedule(
         "platform": platform,
         "technology": technology,
         "calendar_event": calendar_event or {},
+        "missing_details_requested": missing_details,
         "client_slot_email_id": client_slot_email_id,
         "whatsapp_summary": whatsapp_result,
         "source": source,
@@ -2186,6 +3524,17 @@ async def _process_client_slot_reply_from_meta(
     slot_doc: Optional[dict] = None,
 ) -> Optional[dict]:
     existing = await db["client_slot_confirmations"].find_one({"gmail_message_id": message_id}, {"_id": 0})
+    if not existing and slot_doc and slot_doc.get("email_id"):
+        existing = await db["client_slot_confirmations"].find_one(
+            {
+                "client_slot_email_id": slot_doc.get("email_id"),
+                "status": {"$in": ["calendar_failed", "trainer_email_failed", "needs_manual_review"]},
+            },
+            {"_id": 0},
+            sort=[("updated_at", -1), ("created_at", -1)],
+        )
+        if existing:
+            message_id = existing.get("gmail_message_id") or message_id
     if existing and existing.get("status") not in {"calendar_failed", "trainer_email_failed", "needs_manual_review"}:
         return {
             "status": "already_processed_client_slot_reply",
@@ -2376,15 +3725,18 @@ async def _process_client_slot_reply_from_meta(
     )
     await db["client_slot_emails"].update_one(
         {"email_id": slot_doc.get("email_id")},
-        {"$set": {
-            "status": final_status,
-            "client_confirmed_at": now,
-            "client_confirmed_slot": parsed,
-            "client_reply_message_id": message_id,
-            "calendar_event": calendar_event,
-            "trainer_schedule_email": send_result,
-            "client_schedule_email": client_send_result,
-        }},
+        {
+            "$set": {
+                "status": final_status,
+                "client_confirmed_at": now,
+                "client_confirmed_slot": parsed,
+                "client_reply_message_id": message_id,
+                "calendar_event": calendar_event,
+                "trainer_schedule_email": send_result,
+                "client_schedule_email": client_send_result,
+            },
+            "$unset": {"calendar_error": ""},
+        },
     )
     return {
         "status": final_status,
@@ -2422,20 +3774,45 @@ async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_r
     service = get_gmail_service()
     settings = await _client_inbox_settings(db)
     whitelist = _parse_domain_csv(settings.get("clientDomainsWhitelist", ""))
-    listed = service.users().messages().list(
-        userId="me",
-        labelIds=["INBOX"],
-        q="newer_than:7d",
-        maxResults=max(1, min(int(max_results or 25), 100)),
-    ).execute()
-
     processed = []
     skipped = 0
     already_processed = 0
     auto_sent_existing = []
     errors = []
+    sync_limit = max(1, min(int(max_results or 25), 100))
+    search_queries = [
+        ("training_request", "newer_than:14d {training trainer requirement}", sync_limit),
+        ("devops_request", "newer_than:14d devops", 20),
+        ("share_trainer", "newer_than:14d \"share a suitable trainer\"", 20),
+        ("recent", "newer_than:7d", min(sync_limit, 30)),
+        ("selected", "newer_than:30d selected", 25),
+        ("approved", "newer_than:30d approved", 15),
+        ("proceed", "newer_than:30d proceed", 15),
+    ]
+    listed_messages = []
+    seen_message_ids = set()
+    for _, query, limit in search_queries:
+        if len(listed_messages) >= sync_limit:
+            break
+        try:
+            listed = service.users().messages().list(
+                userId="me",
+                labelIds=["INBOX"],
+                q=query,
+                maxResults=max(1, min(int(limit or sync_limit), 100)),
+            ).execute()
+        except Exception as exc:
+            errors.append({"query": query, "error": str(exc)})
+            continue
+        for message in listed.get("messages", []) or []:
+            message_id = message.get("id")
+            if message_id and message_id not in seen_message_ids:
+                seen_message_ids.add(message_id)
+                listed_messages.append(message)
+                if len(listed_messages) >= sync_limit:
+                    break
 
-    for item in listed.get("messages", []) or []:
+    for item in listed_messages:
         message_id = item.get("id")
         if not message_id:
             continue
@@ -2445,6 +3822,11 @@ async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_r
                 existing.get("post_interview_decision")
                 or (existing.get("extracted") or {}).get("post_interview_decision")
             )
+            if not has_decision and existing.get("status") != "spam":
+                decision_attempt = await _process_and_store_client_decision_message(db, message_id, service, request)
+                if decision_attempt:
+                    processed.append(decision_attempt)
+                    continue
             if (
                 has_decision
                 or existing.get("status") in {"spam", "needs_manual_review", "trainer_decision_email_failed"}
@@ -2580,38 +3962,326 @@ OUTPUT FORMAT (respond ONLY with valid JSON, no markdown, no explanation):
 }
 """
 
+TOC_SYSTEM_PROMPT = TOC_SYSTEM_PROMPT + """
+
+STRICT CLIENT TIMING OVERRIDE:
+- Use the client-provided daily timing exactly.
+- If the client says 9:00 AM to 4:00 PM, every generated time slot must stay inside 9:00 AM to 4:00 PM.
+- Do not generate 5:00 PM or 5:30 PM timings unless the client explicitly gave that end time.
+- Split each day into Morning Session, Lunch/Break, and Afternoon Session inside the client timing window.
+- Use only ASCII hyphen "-" for time ranges. Do not use en dash or em dash.
+"""
+
 
 def _toc_user_prompt(payload: dict) -> str:
     technology = payload.get("technology") or "Training"
     duration_days = int(payload.get("duration_days") or 1)
     audience_level = payload.get("audience_level") or "intermediate"
     mode = payload.get("mode") or "Online"
+    training_dates = payload.get("training_dates") or payload.get("schedule") or "Not specified"
+    timing = payload.get("timing") or payload.get("daily_timing") or payload.get("duration_hours") or "Use 9:00 AM to 4:00 PM with breaks"
+    client_notes = (payload.get("client_notes") or payload.get("content_scope") or "").strip()
     custom_topics = (payload.get("custom_topics") or "").strip()
     if payload.get("toc_type") == "custom":
         return f"""Generate a structured Training Table of Contents for:
 - Technology/Domain: {technology}
 - Duration: {duration_days} days
+- Training Dates: {training_dates}
+- Daily Timing / Hours: {timing}
 - Audience Level: {audience_level}
 - Training Mode: {mode}
 - Client has specified these topics to cover: {custom_topics}
+- Client Content Scope / Notes: {client_notes or custom_topics}
 
 Structure these exact topics into a logical day-by-day curriculum with proper time slots and lab exercises.
 Do not add extra topics beyond what's specified, but you can add sub-topics and labs for each.
+Use the daily timing exactly and keep all sessions inside the given time window.
+Use only ASCII hyphen "-" for time ranges.
 """
     return f"""Generate a complete Training Table of Contents for:
 - Technology/Domain: {technology}
 - Duration: {duration_days} days
+- Training Dates: {training_dates}
+- Daily Timing / Hours: {timing}
 - Audience Level: {audience_level}
 - Training Mode: {mode}
+- Client Content Scope / Notes: {client_notes}
 - Generate comprehensive, industry-standard curriculum covering all major topics
+Use the daily timing exactly and keep all sessions inside the given time window.
+Use only ASCII hyphen "-" for time ranges.
 """
+
+
+def _json_object_from_ai_text(raw: str, provider: str = "AI") -> dict:
+    raw = (raw or "").strip()
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[1] if "\n" in raw else ""
+    if raw.endswith("```"):
+        raw = raw[:-3]
+    raw = raw.strip()
+    if raw.startswith("`") and raw.endswith("`"):
+        raw = raw[1:-1]
+    raw = raw.strip()
+    start = raw.find("{")
+    end = raw.rfind("}")
+    if start < 0 or end <= start:
+        raise ValueError(f"{provider} did not return valid JSON for TOC. Response: {raw[:300]}")
+    return _json.loads(raw[start:end + 1])
+
+
+async def _repair_toc_json_with_ollomo(raw: str, api_url: str, headers: dict, model: str, timeout_seconds: int) -> dict:
+    import httpx as _httpx
+
+    repair_prompt = f"""Fix the following malformed JSON and return only valid JSON.
+Do not summarize. Do not add markdown. Do not add explanation.
+Preserve all fields, days, sessions, topics, and values as much as possible.
+Use only ASCII hyphen "-" for time ranges.
+
+Malformed JSON:
+{raw[:70000]}
+"""
+    body = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": "You repair malformed JSON. Return only valid JSON."},
+            {"role": "user", "content": repair_prompt},
+        ],
+        "temperature": 0,
+        "max_tokens": 12000,
+    }
+    async with _httpx.AsyncClient(timeout=timeout_seconds) as client:
+        res = await client.post(api_url, headers=headers, json=body)
+        res.raise_for_status()
+        data = res.json()
+    choices = data.get("choices") or []
+    fixed = ""
+    if choices:
+        message = choices[0].get("message") or {}
+        fixed = message.get("content") or choices[0].get("text") or ""
+    if not fixed:
+        fixed = data.get("output_text") or data.get("response") or data.get("text") or ""
+    return _json_object_from_ai_text(fixed, "Ollomo JSON repair")
+
+
+def _normalise_toc_timing_for_payload(toc: dict, payload: dict) -> dict:
+    timing = str(payload.get("timing") or payload.get("daily_timing") or "").lower()
+    if not ("9" in timing and "4" in timing):
+        return toc
+    template_morning = [
+        ("9:00 - 9:30", "Recap / Introduction & Expectations", "lecture"),
+        ("9:30 - 10:45", None, "lecture"),
+        ("10:45 - 11:00", "Break", "break"),
+        ("11:00 - 12:15", None, "demo"),
+        ("12:15 - 1:00", None, "qa"),
+    ]
+    template_afternoon = [
+        ("1:00 - 2:15", None, "lecture"),
+        ("2:15 - 2:30", "Break", "break"),
+        ("2:30 - 3:30", None, "lab"),
+        ("3:30 - 4:00", "Day Summary & Q&A", "qa"),
+    ]
+
+    def apply_template(session: dict, template: list[tuple[str, Optional[str], str]], time_label: str) -> None:
+        session["time"] = time_label
+        topics = list(session.get("topics") or [])
+        agenda_topics = []
+        for item in topics:
+            if not isinstance(item, dict):
+                continue
+            topic_text = str(item.get("topic") or "").strip()
+            topic_type = str(item.get("type") or "").strip().lower()
+            if not topic_text:
+                continue
+            if topic_type == "break" or topic_text.lower() in {"break", "lunch", "tea break"}:
+                continue
+            agenda_topics.append(item)
+        agenda_cursor = 0
+
+        def next_agenda_topic(fallback_type: str) -> dict:
+            nonlocal agenda_cursor
+            if agenda_cursor < len(agenda_topics):
+                item = agenda_topics[agenda_cursor]
+                agenda_cursor += 1
+                topic_text = str(item.get("topic") or "").strip()
+                topic_type = str(item.get("type") or fallback_type).strip().lower()
+                if topic_type == "break":
+                    topic_type = fallback_type
+                return {"topic": topic_text, "type": topic_type or fallback_type}
+            return {"topic": "Topic discussion, demo, and guided practice", "type": fallback_type}
+
+        rebuilt = []
+        for slot, forced_topic, fallback_type in template:
+            if forced_topic:
+                rebuilt.append({
+                    "time": slot,
+                    "topic": forced_topic,
+                    "type": fallback_type,
+                })
+                continue
+            agenda = next_agenda_topic(fallback_type)
+            rebuilt.append({
+                "time": slot,
+                "topic": agenda["topic"],
+                "type": agenda["type"],
+            })
+        session["topics"] = rebuilt
+
+    for day in toc.get("days") or []:
+        if isinstance(day.get("morning_session"), dict):
+            apply_template(day["morning_session"], template_morning, "9:00 AM - 1:00 PM")
+        if isinstance(day.get("afternoon_session"), dict):
+            apply_template(day["afternoon_session"], template_afternoon, "1:00 PM - 4:00 PM")
+    return toc
+
+
+async def _generate_toc_with_ollomo_chunked(payload: dict, api_url: str, headers: dict, model: str, timeout_seconds: int) -> dict:
+    import httpx as _httpx
+
+    duration_days = int(payload.get("duration_days") or 1)
+    base = generate_toc_from_dataset(
+        payload.get("technology"),
+        duration_days,
+        payload.get("audience_level") or "intermediate",
+        payload.get("mode") or "Online",
+        payload.get("custom_topics") or payload.get("client_notes") or "",
+    )
+    base = _normalise_toc_timing_for_payload(base, payload)
+    rewritten = 0
+    day_prompt_prefix = f"""Rewrite this single training day as valid JSON only.
+Technology: {payload.get("technology")}
+Audience Level: {payload.get("audience_level") or "Intermediate"}
+Mode: {payload.get("mode") or "Online"}
+Daily Timing: {payload.get("timing") or "9:00 AM to 4:00 PM with breaks"}
+Client Scope: {payload.get("client_notes") or payload.get("custom_topics") or ""}
+
+Rules:
+- Return only one JSON object for the day.
+- Keep all times inside the daily timing window.
+- Use Morning Session 9:00 AM - 1:00 PM and Afternoon Session 1:00 PM - 4:00 PM when timing is 9:00 AM to 4:00 PM.
+- Include lecture/demo/lab/break/qa topic types.
+- Use only ASCII hyphen "-" in time ranges.
+"""
+    async with _httpx.AsyncClient(timeout=timeout_seconds) as client:
+        for index, day in enumerate(list(base.get("days") or [])):
+            prompt = day_prompt_prefix + "\nBase day JSON:\n" + _json.dumps(day, ensure_ascii=False)
+            body = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": "You generate one valid JSON object. No markdown."},
+                    {"role": "user", "content": prompt},
+                ],
+                "temperature": 0.1,
+                "max_tokens": 2200,
+            }
+            try:
+                res = await client.post(api_url, headers=headers, json=body)
+                res.raise_for_status()
+                data = res.json()
+                choices = data.get("choices") or []
+                raw = ""
+                if choices:
+                    message = choices[0].get("message") or {}
+                    raw = message.get("content") or choices[0].get("text") or ""
+                if not raw:
+                    raw = data.get("output_text") or data.get("response") or data.get("text") or ""
+                fixed_day = _json_object_from_ai_text(raw, f"Ollomo day {index + 1}")
+                base["days"][index] = fixed_day
+                rewritten += 1
+            except Exception:
+                continue
+    base = _normalise_toc_timing_for_payload(base, payload)
+    base["agent"] = {
+        **(base.get("agent") or {}),
+        "source": "ollomo_chunked",
+        "provider": "ollomo",
+        "model": model,
+        "days_rewritten": rewritten,
+        "requested_days": duration_days,
+    }
+    base["trainer_notes"] = (
+        str(base.get("trainer_notes") or "").strip()
+        or "Generated with local Ollama day-wise enhancement and validated timing."
+    )
+    return base
+
+
+async def _generate_toc_with_ollomo(payload: dict) -> dict:
+    import httpx as _httpx
+
+    settings = get_settings()
+    api_key = (
+        os.getenv("OLLOMO_API_KEY", "")
+        or getattr(settings, "ollomo_api_key", "")
+    ).strip()
+    if _is_placeholder_api_key(api_key):
+        raise ValueError("OLLOMO_API_KEY is not configured")
+
+    api_url = (
+        os.getenv("OLLOMO_API_URL", "").strip()
+        or getattr(settings, "ollomo_api_url", "").strip()
+        or "https://api.ollomo.ai/v1/chat/completions"
+    )
+    model = (
+        os.getenv("OLLOMO_MODEL", "").strip()
+        or getattr(settings, "ollomo_model", "").strip()
+        or "ollomo-chat"
+    )
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "X-API-Key": api_key,
+        "Content-Type": "application/json",
+    }
+    timeout_seconds = int(os.getenv("OLLOMO_TIMEOUT_SECONDS", "600") or "600")
+    if int(payload.get("duration_days") or 0) >= 10:
+        return await _generate_toc_with_ollomo_chunked(payload, api_url, headers, model, timeout_seconds)
+
+    body = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": TOC_SYSTEM_PROMPT},
+            {"role": "user", "content": _toc_user_prompt(payload)},
+        ],
+        "temperature": 0.2,
+        "max_tokens": int(os.getenv("OLLOMO_TOC_MAX_TOKENS", "12000") or "12000"),
+    }
+    async with _httpx.AsyncClient(timeout=timeout_seconds) as client:
+        res = await client.post(api_url, headers=headers, json=body)
+        res.raise_for_status()
+        data = res.json()
+
+    raw = ""
+    choices = data.get("choices") or []
+    if choices:
+        message = choices[0].get("message") or {}
+        raw = message.get("content") or choices[0].get("text") or ""
+    if not raw:
+        raw = data.get("output_text") or data.get("response") or data.get("text") or ""
+    if not raw:
+        raw = str(data)
+
+    try:
+        toc = _json_object_from_ai_text(raw, "Ollomo")
+    except Exception:
+        toc = await _repair_toc_json_with_ollomo(raw, api_url, headers, model, timeout_seconds)
+    toc["agent"] = {
+        **(toc.get("agent") or {}),
+        "source": "ollomo_api",
+        "provider": "ollomo",
+        "model": model,
+    }
+    return toc
 
 
 async def _generate_toc_with_gemini(payload: dict) -> dict:
     import httpx as _httpx
+    technology = str(payload.get("technology") or "")
+    duration_days = int(payload.get("duration_days") or 0)
+    if "devops" in technology.lower() and duration_days >= 8:
+        return _fallback_toc_data(payload, "")
     settings = get_settings()
     api_key = os.getenv("GEMINI_API_KEY", "") or getattr(settings, "gemini_api_key", "")
-    if not api_key:
+    if _is_placeholder_api_key(api_key):
         raise ValueError("GEMINI_API_KEY is not configured")
     model = os.getenv("GEMINI_MODEL", "") or getattr(settings, "gemini_model", "") or "gemini-2.0-flash"
     full_prompt = TOC_SYSTEM_PROMPT + "\n\n" + _toc_user_prompt(payload)
@@ -2624,16 +4294,171 @@ async def _generate_toc_with_gemini(payload: dict) -> dict:
         res.raise_for_status()
         data = res.json()
     raw = (data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")).strip()
-    if raw.startswith("```"):
-        raw = raw.split("\n", 1)[1] if "\n" in raw else ""
-    if raw.endswith("```"):
-        raw = raw[:-3]
-    raw = raw.strip()
-    start = raw.find("{")
-    end = raw.rfind("}")
-    if start < 0 or end <= start:
-        raise ValueError(f"Gemini did not return valid JSON for TOC. Response: {raw[:300]}")
-    return _json.loads(raw[start:end + 1])
+    return _json_object_from_ai_text(raw, "Gemini")
+
+
+async def _polish_toc_with_gemini(toc_data: dict, payload: dict) -> dict:
+    import httpx as _httpx
+
+    settings = get_settings()
+    api_key = (os.getenv("GEMINI_API_KEY", "") or getattr(settings, "gemini_api_key", "")).strip()
+    if _is_placeholder_api_key(api_key):
+        raise ValueError("GEMINI_API_KEY is not configured")
+    model = (os.getenv("GEMINI_MODEL", "") or getattr(settings, "gemini_model", "") or "gemini-2.0-flash").strip()
+    max_tokens = int(os.getenv("GEMINI_TOC_MAX_OUTPUT_TOKENS", "12000") or "12000")
+    technology = payload.get("technology") or "Training"
+    duration_days = int(payload.get("duration_days") or len(toc_data.get("days") or []) or 1)
+    prompt = f"""You are polishing a training Table of Contents JSON for a corporate training proposal.
+
+Rules:
+- Return ONLY valid JSON.
+- Preserve the same schema and fields.
+- Preserve exactly {duration_days} days.
+- Preserve every day number.
+- Preserve all time ranges exactly as given.
+- Preserve break rows as breaks, but do not add lunch/break rows.
+- Do not replace teaching topics with Break, Lunch, or empty text.
+- Improve topic wording, subtopics, overview, learning outcomes, labs, assessment, tools, and certification guidance.
+- Keep the curriculum technically accurate for {technology}.
+- Do not add marketing text or explanations outside JSON.
+
+Input JSON:
+{_json.dumps(toc_data, default=str)}
+"""
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    async with _httpx.AsyncClient(timeout=180) as client:
+        res = await client.post(url, json={
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "temperature": 0.15,
+                "maxOutputTokens": max_tokens,
+                "responseMimeType": "application/json",
+            },
+        })
+        res.raise_for_status()
+        data = res.json()
+    raw = (data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")).strip()
+    polished = _json_object_from_ai_text(raw, "Gemini ToC polish")
+    polished["agent"] = {
+        **(polished.get("agent") or toc_data.get("agent") or {}),
+        "polisher": "gemini",
+        "polish_model": model,
+    }
+    return polished
+
+
+async def _maybe_polish_toc_with_gemini(toc_data: dict, payload: dict) -> tuple[dict, str]:
+    enabled = str(os.getenv("GEMINI_TOC_POLISH_ENABLED", "true")).strip().lower() not in {"0", "false", "no", "off"}
+    if not enabled:
+        return toc_data, "disabled"
+    try:
+        polished = await _polish_toc_with_gemini(toc_data, payload)
+        return validate_toc(polished, int(payload.get("duration_days") or 1)), "gemini"
+    except Exception as exc:
+        logger.warning("Gemini ToC polish skipped: %s", exc)
+        return toc_data, f"skipped: {exc}"
+
+
+def _validate_toc_agent_output(toc_data: dict, payload: dict) -> dict:
+    toc_data = dict(toc_data or {})
+    expected_days = max(1, min(int(payload.get("duration_days") or 1), 100))
+    fallback = _fallback_toc_data({**payload, "duration_days": expected_days}, "")
+    days = list(toc_data.get("days") or [])
+
+    if len(days) < expected_days:
+        days.extend((fallback.get("days") or [])[len(days):expected_days])
+    elif len(days) > expected_days:
+        days = days[:expected_days]
+
+    for index in range(expected_days):
+        source_day = days[index] if index < len(days) else {}
+        fallback_day = (fallback.get("days") or [])[index]
+        day = {**fallback_day, **(source_day or {})}
+        day["day"] = index + 1
+        if not day.get("title"):
+            day["title"] = fallback_day.get("title") or f"Day {index + 1}"
+        if not day.get("focus_area"):
+            day["focus_area"] = fallback_day.get("focus_area") or str(day.get("title", "")).split(":", 1)[-1].strip()
+        if not day.get("tools"):
+            day["tools"] = fallback_day.get("tools") or ", ".join((fallback.get("tools_software") or [])[:3])
+        if not day.get("jira_focus"):
+            day["jira_focus"] = fallback_day.get("jira_focus") or "Update sprint board, log time, and move cards"
+        for key in ("morning_session", "afternoon_session"):
+            session = dict(day.get(key) or {})
+            fallback_session = fallback_day.get(key) or {}
+            if not session.get("time"):
+                session["time"] = fallback_session.get("time")
+            if not session.get("title"):
+                session["title"] = fallback_session.get("title")
+            topics = list(session.get("topics") or [])
+            if not topics:
+                topics = list(fallback_session.get("topics") or [])
+            if not any(str(topic.get("type", "")).lower() == "lab" or "lab" in str(topic.get("topic", "")).lower() for topic in topics):
+                topics.append({"time": "2:45 - 4:00", "topic": f"Lab: Apply {day.get('focus_area')} in a guided real-world exercise", "type": "lab"})
+            session["topics"] = topics[:5]
+            day[key] = session
+        if not day.get("learning_objectives"):
+            day["learning_objectives"] = fallback_day.get("learning_objectives") or [
+                f"Understand {day.get('focus_area')} concepts",
+                f"Use {day.get('tools')} in practical exercises",
+                "Complete hands-on activities with review",
+            ]
+        if not day.get("jira_practice"):
+            day["jira_practice"] = fallback_day.get("jira_practice") or [
+                day.get("jira_focus"),
+                "Create or update stories, subtasks, acceptance criteria, and story points",
+                "Move tasks across the sprint board and review progress",
+            ]
+        days[index] = day
+
+    if days:
+        last = days[-1]
+        if "capstone" not in str(last.get("title", "")).lower() and expected_days >= 5:
+            last["title"] = f"Day {expected_days}: Capstone Project + Certification Roadmap"
+            last["focus_area"] = "Capstone Project + Certification Roadmap"
+            last["jira_focus"] = "Final sprint review, retrospective, release notes, and stakeholder demo"
+            last["learning_objectives"] = [
+                "Integrate the complete training toolchain into one end-to-end solution",
+                "Demonstrate the final project and explain design decisions",
+                "Review certification roadmap and interview preparation areas",
+            ]
+            last["jira_practice"] = [
+                "Run final sprint review and retrospective",
+                "Create release notes and close completed epics",
+                "Export sprint metrics for stakeholder reporting",
+            ]
+
+    toc_data["days"] = days
+    toc_data.setdefault("title", fallback.get("title"))
+    toc_data.setdefault("subtitle", fallback.get("subtitle"))
+    toc_data.setdefault("overview", fallback.get("overview"))
+    toc_data["overview_table"] = [
+        {
+            "day": day.get("day"),
+            "focus_area": day.get("focus_area"),
+            "primary_tools": day.get("tools"),
+            "jira_focus": day.get("jira_focus"),
+        }
+        for day in days
+    ]
+    for key in ("prerequisites", "learning_outcomes", "tools_software", "tools_reference", "certification_roadmap"):
+        if not toc_data.get(key):
+            toc_data[key] = fallback.get(key) or []
+    if not toc_data.get("certification_guidance"):
+        toc_data["certification_guidance"] = fallback.get("certification_guidance")
+    if not toc_data.get("trainer_notes"):
+        toc_data["trainer_notes"] = "Generated by the Training TOC Agent with day-count validation."
+    toc_data["validation"] = {
+        "requested_days": expected_days,
+        "generated_days": len(days),
+        "valid": len(days) == expected_days,
+        "rules": [
+            "Exact day count matched",
+            "Every day has topics, tools, lab content, and Jira practice",
+            "Capstone/certification roadmap reserved for final stage",
+        ],
+    }
+    return toc_data
 
 
 def _clean_filename(value: str) -> str:
@@ -2702,7 +4527,7 @@ def _toc_html(doc: dict) -> str:
 </head>
 <body>
   <div class="page">
-    <div class="brand">Calhan Technologies · TrainerSync</div>
+    <div class="brand">Clahan Technologies · TrainerSync</div>
     <h1>{esc(toc.get('title'))}</h1>
     <h2>{esc(toc.get('subtitle'))}</h2>
     <div class="meta">
@@ -2718,9 +4543,11 @@ def _toc_html(doc: dict) -> str:
     <div class="box"><strong>Learning Outcomes</strong><ul>{li(toc.get('learning_outcomes'))}</ul></div>
     {''.join(day_blocks)}
     <div class="box"><strong>Tools & Software</strong><ul>{li(toc.get('tools_software'))}</ul></div>
+    <div class="box"><strong>Hiring & Test Preparation</strong><ul>{li(toc.get('hiring_preparation'))}</ul></div>
+    <div class="box"><strong>Assessment Plan</strong><ul>{li(toc.get('assessment_plan'))}</ul></div>
     <div class="box"><strong>Certification Guidance</strong><br>{esc(toc.get('certification_guidance'))}</div>
     <div class="box"><strong>Trainer Notes</strong><br>{esc(toc.get('trainer_notes'))}</div>
-    <div class="footer">Generated by TrainerSync for Calhan Technologies.</div>
+    <div class="footer">Generated by TrainerSync for Clahan Technologies.</div>
   </div>
 </body>
 </html>"""
@@ -2760,25 +4587,44 @@ def _toc_pdf_bytes(doc: dict) -> bytes:
         nonlocal y
         y += amount
 
-    write("Calhan Technologies | TrainerSync", size=9, bold=True, color=(37 / 255, 99 / 255, 235 / 255), gap=10)
+    write("Clahan Technologies | TrainerSync", size=9, bold=True, color=(37 / 255, 99 / 255, 235 / 255), gap=10)
     write(toc.get("title", "Training Table of Contents"), size=20, bold=True, color=(15 / 255, 23 / 255, 42 / 255), gap=4)
     write(toc.get("subtitle", ""), size=11, color=(71 / 255, 85 / 255, 105 / 255), gap=14)
     write(f"Technology: {doc.get('technology', '')} | Duration: {doc.get('duration_days', '')} day(s) | Mode: {doc.get('mode', '')} | Trainer: {doc.get('trainer_name', '')}", size=9, gap=12)
     write("Program Overview", size=13, bold=True, color=(15 / 255, 23 / 255, 42 / 255), gap=4)
     write(toc.get("overview", ""), size=10, gap=10)
+    if toc.get("overview_table"):
+        write("Program Roadmap", size=13, bold=True, color=(15 / 255, 23 / 255, 42 / 255), gap=4)
+        for row in toc.get("overview_table") or []:
+            write(
+                f"Day {row.get('day')}: {row.get('focus_area')} | Tools: {row.get('primary_tools')} | Jira: {row.get('jira_focus')}",
+                size=8,
+                gap=2,
+            )
+        y_gap(8)
     bullet_list("Prerequisites", toc.get("prerequisites", []))
     bullet_list("Learning Outcomes", toc.get("learning_outcomes", []))
 
     for day in toc.get("days") or []:
         write(day.get("title") or f"Day {day.get('day', '')}", size=14, bold=True, color=(29 / 255, 78 / 255, 216 / 255), gap=6)
+        if day.get("tools") or day.get("jira_focus"):
+            write(f"Tools: {day.get('tools', '')} | Jira Focus: {day.get('jira_focus', '')}", size=9, gap=5)
         for key, label in (("morning_session", "Morning Session"), ("afternoon_session", "Afternoon Session")):
             session = day.get(key) or {}
             write(f"{label}: {session.get('title', '')} ({session.get('time', '')})", size=11, bold=True, gap=4)
             for topic in session.get("topics") or []:
                 write(f"{topic.get('time', '')} - {topic.get('topic', '')} [{topic.get('type', '')}]", size=8, gap=1)
             y_gap(5)
+        bullet_list("Learning Objectives", day.get("learning_objectives", []))
+        bullet_list("Jira Practice", day.get("jira_practice", []))
 
     bullet_list("Tools & Software", toc.get("tools_software", []))
+    bullet_list("Hiring & Test Preparation", toc.get("hiring_preparation", []))
+    bullet_list("Assessment Plan", toc.get("assessment_plan", []))
+    for ref in toc.get("tools_reference") or []:
+        bullet_list(ref.get("category") or "Tools Reference", ref.get("items") or [])
+    if toc.get("certification_roadmap"):
+        bullet_list("Certification Roadmap", toc.get("certification_roadmap", []))
     write("Certification Guidance", size=13, bold=True, gap=4)
     write(toc.get("certification_guidance", ""), size=10, gap=8)
     write("Trainer Notes", size=13, bold=True, gap=4)
@@ -2790,6 +4636,7 @@ def _toc_pdf_bytes(doc: dict) -> bytes:
 
 
 def _send_toc_email_with_attachment(to_email: str, subject: str, body: str, filename: str, pdf_bytes: bytes, smtp_config: dict) -> tuple:
+    smtp_config = smtp_config or {}
     settings = get_settings()
     gmail_user = smtp_config.get("smtpUser") or getattr(settings, "gmail_user", "")
     gmail_pass = (smtp_config.get("smtpPass") or get_gmail_password()).replace(" ", "")
@@ -2797,8 +4644,22 @@ def _send_toc_email_with_attachment(to_email: str, subject: str, body: str, file
     from_email = smtp_config.get("fromEmail") or getattr(settings, "from_email", "") or gmail_user
     smtp_host = smtp_config.get("smtpHost") or "smtp.gmail.com"
     smtp_port = int(smtp_config.get("smtpPort") or 587)
+    can_use_gmail_oauth = (
+        "gmail" in str(smtp_host or "").lower()
+        or str(gmail_user or "").lower().endswith("@gmail.com")
+        or str(from_email or "").lower().endswith("@gmail.com")
+        or bool(smtp_config.get("useGmailOAuth"))
+    )
 
     if not gmail_user or not gmail_pass:
+        if can_use_gmail_oauth:
+            return send_gmail_oauth_message(
+                to_email,
+                subject,
+                body,
+                from_name,
+                attachments=[{"filename": filename, "content": pdf_bytes, "subtype": "pdf"}],
+            )
         return False, "Gmail credentials not set in .env or Admin email settings"
 
     msg = MIMEMultipart()
@@ -2826,6 +4687,85 @@ def _send_toc_email_with_attachment(to_email: str, subject: str, body: str, file
                 server.sendmail(from_email, [to_email], msg.as_string())
         return True, ""
     except Exception as exc:
+        if can_use_gmail_oauth:
+            return send_gmail_oauth_message(
+                to_email,
+                subject,
+                body,
+                from_name,
+                attachments=[{"filename": filename, "content": pdf_bytes, "subtype": "pdf"}],
+            )
+        return False, str(exc)
+
+
+def _send_email_with_file_attachment(
+    to_email: str,
+    subject: str,
+    body: str,
+    filename: str,
+    file_bytes: bytes,
+    smtp_config: dict,
+    subtype: str = "octet-stream",
+) -> tuple:
+    smtp_config = smtp_config or {}
+    settings = get_settings()
+    smtp_user = smtp_config.get("smtpUser") or getattr(settings, "gmail_user", "")
+    smtp_pass = (smtp_config.get("smtpPass") or get_gmail_password()).replace(" ", "")
+    from_name = smtp_config.get("fromName") or getattr(settings, "from_name", "TrainerSync")
+    from_email = smtp_config.get("fromEmail") or getattr(settings, "from_email", "") or smtp_user
+    smtp_host = smtp_config.get("smtpHost") or "smtp.gmail.com"
+    smtp_port = int(smtp_config.get("smtpPort") or 587)
+    can_use_gmail_oauth = (
+        "gmail" in str(smtp_host or "").lower()
+        or str(smtp_user or "").lower().endswith("@gmail.com")
+        or str(from_email or "").lower().endswith("@gmail.com")
+        or bool(smtp_config.get("useGmailOAuth"))
+    )
+
+    if not smtp_user or not smtp_pass:
+        if can_use_gmail_oauth:
+            return send_gmail_oauth_message(
+                to_email,
+                subject,
+                body,
+                from_name,
+                attachments=[{"filename": filename, "content": file_bytes, "subtype": subtype}],
+            )
+        return False, "SMTP credentials not set in Admin email settings"
+
+    msg = MIMEMultipart()
+    msg["Subject"] = subject
+    msg["From"] = f"{from_name} <{from_email}>"
+    msg["To"] = to_email
+    msg["Reply-To"] = from_email
+    msg.attach(MIMEText(body, "plain", "utf-8"))
+    attachment = MIMEApplication(file_bytes, _subtype=subtype)
+    attachment.add_header("Content-Disposition", "attachment", filename=filename)
+    msg.attach(attachment)
+
+    try:
+        try:
+            ssl_port = 465 if smtp_port == 587 else smtp_port
+            with smtplib.SMTP_SSL(smtp_host, ssl_port, timeout=30) as server:
+                server.login(smtp_user, smtp_pass)
+                server.sendmail(from_email, [to_email], msg.as_string())
+        except Exception:
+            starttls_port = smtp_port if smtp_port != 465 else 587
+            with smtplib.SMTP(smtp_host, starttls_port, timeout=30) as server:
+                server.ehlo()
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.sendmail(from_email, [to_email], msg.as_string())
+        return True, ""
+    except Exception as exc:
+        if can_use_gmail_oauth:
+            return send_gmail_oauth_message(
+                to_email,
+                subject,
+                body,
+                from_name,
+                attachments=[{"filename": filename, "content": file_bytes, "subtype": subtype}],
+            )
         return False, str(exc)
 
 
@@ -3359,9 +5299,340 @@ async def whatsapp_meta_webhook(request: Request):
 
 # --- AI Training TOC Generator ---------------------------------------------
 
+TOC_LEVELS = ("foundation", "core", "advanced", "observability", "security", "projects", "revision", "capstone")
+
+
+def _toc_key(value: str) -> str:
+    return str(value or "").lower().strip().replace(" ", "_").replace(".", "_").replace("/", "_").replace("-", "_")
+
+
+def _toc_key_tokens(value: str) -> set:
+    stopwords = {
+        "and", "or", "plus", "with", "for", "training", "course", "program",
+        "technology", "technologies", "basic", "basics", "advanced",
+    }
+    return {token for token in _toc_key(value).split("_") if token and token not in stopwords}
+
+
+def _clean_toc_topic(item: dict) -> dict:
+    item = item or {}
+    return {
+        "topic": str(item.get("topic") or "").strip(),
+        "subtopics": [str(v).strip() for v in (item.get("subtopics") or []) if str(v).strip()],
+        "tools": [str(v).strip() for v in (item.get("tools") or []) if str(v).strip()],
+        "lab": str(item.get("lab") or "").strip(),
+    }
+
+
+def _domain_doc_to_agent_domain(doc: dict) -> dict:
+    doc = doc or {}
+    source_map = doc.get("level_map") or {}
+    level_map = {}
+    for level in TOC_LEVELS:
+        topics = [_clean_toc_topic(item) for item in (source_map.get(level) or [])]
+        level_map[level] = [item for item in topics if item.get("topic")]
+    return {
+        "name": doc.get("name") or doc.get("key") or "Training",
+        "icon": doc.get("icon") or "book",
+        "level_map": level_map,
+        "jira_practice": {
+            "daily": [str(v).strip() for v in ((doc.get("jira_practice") or {}).get("daily") or []) if str(v).strip()],
+            "weekly": [str(v).strip() for v in ((doc.get("jira_practice") or {}).get("weekly") or []) if str(v).strip()],
+        },
+        "certifications": [str(v).strip() for v in (doc.get("certifications") or []) if str(v).strip()],
+    }
+
+
+def _public_toc_domain_doc(doc: dict) -> dict:
+    public = _public_doc(doc or {})
+    public.setdefault("aliases", [])
+    public.setdefault("level_map", {})
+    public.setdefault("jira_practice", {"daily": [], "weekly": []})
+    public.setdefault("certifications", [])
+    return public
+
+
+def _split_toc_list(value) -> list:
+    if isinstance(value, list):
+        values = value
+    else:
+        values = _re.split(r"[\n,]+", str(value or ""))
+    return [str(item).strip(" -\t\r") for item in values if str(item).strip(" -\t\r")]
+
+
+def _parse_toc_topic_section(raw: str, tools: list, labs: list) -> list:
+    topics = []
+    current = None
+    for line in str(raw or "").splitlines():
+        if not line.strip():
+            continue
+        stripped = line.strip()
+        topic_match = _re.match(r"^\d+\.\s+(.+)$", stripped)
+        bullet_match = _re.match(r"^[-*]\s+(.+)$", stripped)
+        is_indented = bool(_re.match(r"^\s{2,}[-*]\s+", line))
+
+        if topic_match or (bullet_match and not is_indented):
+            if current and current.get("topic"):
+                topics.append(current)
+            name = (topic_match.group(1) if topic_match else bullet_match.group(1)).strip()
+            current = {
+                "topic": name,
+                "subtopics": [],
+                "tools": tools[:],
+                "lab": labs[len(topics) % len(labs)] if labs else f"Hands-on practice for {name}",
+            }
+            continue
+
+        subtopic_match = _re.match(r"^[-*]\s+(.+)$", stripped)
+        if subtopic_match and current:
+            current["subtopics"].append(subtopic_match.group(1).strip())
+        elif current:
+            current["subtopics"].append(stripped)
+        else:
+            current = {
+                "topic": stripped,
+                "subtopics": [],
+                "tools": tools[:],
+                "lab": labs[0] if labs else f"Hands-on practice for {stripped}",
+            }
+
+    if current and current.get("topic"):
+        topics.append(current)
+    return [_clean_toc_topic(item) for item in topics if item.get("topic")]
+
+
+def _parse_toc_knowledge_blocks(text: str) -> list:
+    clean_text = _re.sub(r"^\s*```.*?$", "", str(text or ""), flags=_re.MULTILINE).replace("\r\n", "\n")
+    matches = list(_re.finditer(r"(?im)^Technology Name:\s*(.+?)\s*$", clean_text))
+    parsed = []
+    section_pattern = _re.compile(
+        r"(?im)^(Aliases|Foundation Topics|Core Topics|Advanced Topics|Project Topics|Projects|Capstone|Tools|Labs|Certifications):\s*$"
+    )
+
+    for index, match in enumerate(matches):
+        block = clean_text[match.start(): matches[index + 1].start() if index + 1 < len(matches) else len(clean_text)]
+        name = match.group(1).strip()
+        sections = {}
+        section_matches = list(section_pattern.finditer(block))
+        for sec_index, sec_match in enumerate(section_matches):
+            label = sec_match.group(1).lower().replace(" ", "_")
+            start = sec_match.end()
+            end = section_matches[sec_index + 1].start() if sec_index + 1 < len(section_matches) else len(block)
+            sections[label] = block[start:end].strip()
+
+        aliases = [_toc_key(item) for item in _split_toc_list(sections.get("aliases"))]
+        tools = _split_toc_list(sections.get("tools"))
+        labs = _split_toc_list(sections.get("labs"))
+        certifications = _split_toc_list(sections.get("certifications"))
+        projects_raw = sections.get("project_topics") or sections.get("projects") or ""
+
+        level_map = {level: [] for level in TOC_LEVELS}
+        level_map["foundation"] = _parse_toc_topic_section(sections.get("foundation_topics", ""), tools, labs)
+        level_map["core"] = _parse_toc_topic_section(sections.get("core_topics", ""), tools, labs)
+        level_map["advanced"] = _parse_toc_topic_section(sections.get("advanced_topics", ""), tools, labs)
+        level_map["projects"] = _parse_toc_topic_section(projects_raw, tools, labs)
+        capstone_text = sections.get("capstone", "").strip()
+        if capstone_text:
+            capstone_topics = _parse_toc_topic_section(capstone_text, tools, labs)
+            if not capstone_topics:
+                capstone_topics = [{
+                    "topic": capstone_text.strip(" -"),
+                    "subtopics": [],
+                    "tools": tools[:],
+                    "lab": labs[-1] if labs else f"Capstone project for {name}",
+                }]
+            level_map["capstone"] = capstone_topics[:1]
+
+        if not any(level_map.values()):
+            continue
+        parsed.append({
+            "key": _toc_key(name),
+            "name": name,
+            "icon": "book",
+            "aliases": sorted({item for item in aliases if item and item != _toc_key(name)}),
+            "active": True,
+            "level_map": level_map,
+            "jira_practice": {
+                "daily": ["Create/update training task", "Log lab evidence", "Move cards across sprint board"],
+                "weekly": ["Sprint review", "Project demo", "Retrospective"],
+            },
+            "certifications": certifications,
+        })
+    return parsed
+
+
+def _toc_knowledge_doc_from_payload(payload: dict) -> dict:
+    name = str(payload.get("name") or payload.get("key") or "").strip()
+    if not name:
+        raise HTTPException(400, "Domain name is required")
+    key = _toc_key(payload.get("key") or name)
+    aliases = sorted({_toc_key(value) for value in (payload.get("aliases") or []) if _toc_key(value)})
+    level_map = {}
+    for level in TOC_LEVELS:
+        topics = [_clean_toc_topic(item) for item in ((payload.get("level_map") or {}).get(level) or [])]
+        level_map[level] = [item for item in topics if item.get("topic")]
+    if not any(level_map.values()):
+        raise HTTPException(400, "Add at least one topic")
+    now = utc_now()
+    return {
+        "key": key,
+        "name_key": _toc_key(name),
+        "name": name,
+        "icon": str(payload.get("icon") or "book").strip() or "book",
+        "aliases": aliases,
+        "level_map": level_map,
+        "jira_practice": {
+            "daily": [str(v).strip() for v in ((payload.get("jira_practice") or {}).get("daily") or []) if str(v).strip()],
+            "weekly": [str(v).strip() for v in ((payload.get("jira_practice") or {}).get("weekly") or []) if str(v).strip()],
+        },
+        "certifications": [str(v).strip() for v in (payload.get("certifications") or []) if str(v).strip()],
+        "active": bool(payload.get("active", True)),
+        "source": "admin",
+        "updated_at": now,
+    }
+
+
+async def _admin_toc_domain_for(db, name: str) -> Optional[dict]:
+    key = _toc_key(name)
+    if not key:
+        return None
+    exact = await db["toc_domain_knowledge"].find_one({
+        "active": {"$ne": False},
+        "$or": [{"key": key}, {"aliases": key}, {"name_key": key}],
+    }, {"_id": 0})
+    if exact:
+        return exact
+
+    requested_tokens = _toc_key_tokens(key)
+    if not requested_tokens:
+        return None
+    docs = await db["toc_domain_knowledge"].find({"active": {"$ne": False}}, {"_id": 0}).to_list(1000)
+    best_doc = None
+    best_score = 0
+    for doc in docs:
+        candidates = [doc.get("key"), doc.get("name_key"), doc.get("name"), *(doc.get("aliases") or [])]
+        for candidate in candidates:
+            candidate_key = _toc_key(candidate)
+            candidate_tokens = _toc_key_tokens(candidate_key)
+            if not candidate_tokens:
+                continue
+            phrase_match = candidate_key in key or key in candidate_key
+            overlap = len(requested_tokens & candidate_tokens)
+            if not phrase_match and overlap <= 0:
+                continue
+            score = overlap * 10
+            if phrase_match:
+                score += 25
+            if candidate_key == doc.get("key"):
+                score += 3
+            if score > best_score:
+                best_score = score
+                best_doc = doc
+    return best_doc if best_score >= 10 else None
+
+
+async def _generate_toc_from_best_knowledge(db, payload: dict, duration_days: int) -> dict:
+    custom = await _admin_toc_domain_for(db, payload.get("technology"))
+    return generate_toc_from_dataset(
+        payload.get("technology"),
+        duration_days,
+        payload.get("audience_level") or "intermediate",
+        payload.get("mode") or "Online",
+        payload.get("client_notes") or payload.get("custom_topics") or "",
+        domain_override=_domain_doc_to_agent_domain(custom) if custom else None,
+    )
+
+@router.get("/toc/domains")
+async def get_toc_domains():
+    db = get_db()
+    static_domains = list_domains()
+    custom_docs = await db["toc_domain_knowledge"].find({"active": {"$ne": False}}, {"_id": 0}).sort("name", 1).to_list(500)
+    custom_keys = {doc.get("key") for doc in custom_docs}
+    domains = [
+        {"key": doc.get("key"), "name": doc.get("name"), "icon": doc.get("icon", "book"), "source": "admin", "aliases": doc.get("aliases", [])}
+        for doc in custom_docs
+    ]
+    domains.extend({**item, "source": "built_in"} for item in static_domains if item.get("key") not in custom_keys)
+    return {"success": True, "domains": domains}
+
+
+@router.get("/toc/knowledge")
+async def list_toc_knowledge():
+    db = get_db()
+    docs = await db["toc_domain_knowledge"].find({}, {"_id": 0}).sort("updated_at", -1).to_list(500)
+    return {"success": True, "domains": [_public_toc_domain_doc(doc) for doc in docs]}
+
+
+@router.get("/toc/knowledge/{key}")
+async def get_toc_knowledge(key: str):
+    db = get_db()
+    doc = await db["toc_domain_knowledge"].find_one({"key": _toc_key(key)}, {"_id": 0})
+    if not doc:
+        builtin = get_domain(key)
+        if not builtin:
+            raise HTTPException(404, "ToC domain not found")
+        doc = {
+            "key": _toc_key(key),
+            "name": builtin.get("name"),
+            "icon": builtin.get("icon", "book"),
+            "aliases": [],
+            "level_map": builtin.get("level_map") or {},
+            "jira_practice": builtin.get("jira_practice") or {"daily": [], "weekly": []},
+            "certifications": builtin.get("certifications") or [],
+            "active": True,
+            "source": "built_in",
+        }
+    return {"success": True, "domain": _public_toc_domain_doc(doc)}
+
+
+@router.post("/toc/knowledge")
+async def save_toc_knowledge(payload: dict):
+    db = get_db()
+    doc = _toc_knowledge_doc_from_payload(payload)
+    now = doc["updated_at"]
+    await db["toc_domain_knowledge"].update_one(
+        {"key": doc["key"]},
+        {"$set": doc, "$setOnInsert": {"created_at": now}},
+        upsert=True,
+    )
+    saved = await db["toc_domain_knowledge"].find_one({"key": doc["key"]}, {"_id": 0})
+    return {"success": True, "domain": _public_toc_domain_doc(saved)}
+
+
+@router.post("/toc/knowledge/import")
+async def import_toc_knowledge(payload: dict):
+    raw_text = str(payload.get("text") or "")
+    if not raw_text.strip():
+        raise HTTPException(400, "Paste ToC knowledge text first")
+    domains = _parse_toc_knowledge_blocks(raw_text)
+    if not domains:
+        raise HTTPException(400, "No valid Technology Name blocks found")
+    db = get_db()
+    saved = []
+    for domain_payload in domains:
+        doc = _toc_knowledge_doc_from_payload(domain_payload)
+        await db["toc_domain_knowledge"].update_one(
+            {"key": doc["key"]},
+            {"$set": doc, "$setOnInsert": {"created_at": doc["updated_at"]}},
+            upsert=True,
+        )
+        saved_doc = await db["toc_domain_knowledge"].find_one({"key": doc["key"]}, {"_id": 0})
+        saved.append(_public_toc_domain_doc(saved_doc))
+    return {"success": True, "imported": len(saved), "domains": saved}
+
+
+@router.delete("/toc/knowledge/{key}")
+async def delete_toc_knowledge(key: str):
+    db = get_db()
+    result = await db["toc_domain_knowledge"].delete_one({"key": _toc_key(key)})
+    if not result.deleted_count:
+        raise HTTPException(404, "ToC domain not found")
+    return {"success": True, "deleted": _toc_key(key)}
+
+
 @router.post("/toc/generate")
-async def generate_training_toc(payload: dict):
-    required = ["requirement_id", "trainer_id", "trainer_name", "trainer_email", "technology", "duration_days"]
+async def generate_training_toc(payload: dict, request: Request):
+    required = ["requirement_id", "trainer_id", "technology", "duration_days"]
     missing = [field for field in required if not payload.get(field)]
     if missing:
         raise HTTPException(400, f"Missing required fields: {', '.join(missing)}")
@@ -3370,24 +5641,53 @@ async def generate_training_toc(payload: dict):
         duration_days = int(payload.get("duration_days"))
     except Exception:
         raise HTTPException(400, "duration_days must be a number")
-    if duration_days < 1 or duration_days > 15:
-        raise HTTPException(400, "duration_days must be between 1 and 15")
+    if duration_days < 1 or duration_days > 100:
+        raise HTTPException(400, "duration_days must be between 1 and 100")
     if payload.get("toc_type") == "custom" and not (payload.get("custom_topics") or "").strip():
         raise HTTPException(400, "custom_topics is required for custom TOC mode")
 
-    try:
-        toc_data = await _generate_toc_with_gemini({**payload, "duration_days": duration_days})
-    except Exception as exc:
-        raise HTTPException(500, f"TOC generation failed: {exc}")
-
     db = get_db()
+    requirement = await db["requirements"].find_one({"requirement_id": payload.get("requirement_id")}, {"_id": 0}) or {}
+    trainer_doc = await db["trainers"].find_one({"trainer_id": payload.get("trainer_id")}, {"_id": 0}) or {}
+    trainer_name = (
+        str(payload.get("trainer_name") or "").strip()
+        or str(trainer_doc.get("name") or trainer_doc.get("trainer_name") or "").strip()
+        or "Trainer"
+    )
+    trainer_email = (
+        str(payload.get("trainer_email") or "").strip()
+        or str(trainer_doc.get("email") or trainer_doc.get("trainer_email") or "").strip()
+    )
+    trainer = {
+        "trainer_id": payload.get("trainer_id"),
+        "name": trainer_name,
+        "email": trainer_email,
+    }
+    missing_client_inputs = _toc_missing_client_inputs(requirement, {**payload, "duration_days": duration_days})
+
+    generation_error = ""
+    toc_payload = {**payload, "duration_days": duration_days}
+    try:
+        if payload.get("toc_type") == "custom":
+            toc_data = await _generate_toc_with_ollomo(toc_payload)
+        else:
+            toc_data = await _generate_toc_from_best_knowledge(db, toc_payload, duration_days)
+    except Exception as exc:
+        generation_error = f"Primary ToC generation unavailable, used fallback: {exc!r}"
+        try:
+            toc_data = await _generate_toc_from_best_knowledge(db, toc_payload, duration_days)
+        except Exception as dataset_exc:
+            generation_error = f"{generation_error}; dataset fallback failed: {dataset_exc}"
+            toc_data = _fallback_toc_data(toc_payload, generation_error)
+    toc_data = validate_toc(toc_data, duration_days)
+
     toc_id = f"TOC-{uuid.uuid4().hex[:8].upper()}"
     doc = {
         "toc_id": toc_id,
         "requirement_id": payload.get("requirement_id"),
         "trainer_id": payload.get("trainer_id"),
-        "trainer_name": payload.get("trainer_name"),
-        "trainer_email": payload.get("trainer_email"),
+        "trainer_name": trainer_name,
+        "trainer_email": trainer_email,
         "technology": payload.get("technology"),
         "duration_days": duration_days,
         "audience_level": payload.get("audience_level") or "intermediate",
@@ -3395,11 +5695,23 @@ async def generate_training_toc(payload: dict):
         "toc_type": payload.get("toc_type") or "standard",
         "custom_topics": payload.get("custom_topics") or "",
         "toc_data": toc_data,
+        "missing_client_inputs": missing_client_inputs,
+        "generation_error": generation_error,
+        "ai_provider": "ollomo" if payload.get("toc_type") == "custom" and not generation_error else ("knowledge_base" if not generation_error else "dataset_fallback"),
         "status": "draft",
         "created_at": utc_now(),
     }
     await db["toc_documents"].insert_one(doc)
-    return {"toc_id": toc_id, "toc_data": toc_data, "message": "TOC generated successfully"}
+    return {
+        "toc_id": toc_id,
+        "toc_data": toc_data,
+        "generation_error": generation_error,
+        "used_fallback": bool(generation_error),
+        "missing_client_inputs": missing_client_inputs,
+        "warning": "Generated with assumptions because some client TOC inputs are missing" if missing_client_inputs else "",
+        "provider": doc["ai_provider"],
+        "message": "TOC generated successfully from the knowledge base" if doc["ai_provider"] == "knowledge_base" else ("TOC generated successfully with Ollomo" if doc["ai_provider"] == "ollomo" else "TOC generated with fallback rules"),
+    }
 
 
 @router.post("/toc/generate-pdf")
@@ -3435,6 +5747,32 @@ async def send_toc_email(payload: dict):
     doc = await db["toc_documents"].find_one({"toc_id": toc_id}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "TOC document not found")
+    if doc.get("status") == "sent" or doc.get("sent_at"):
+        return {
+            "success": True,
+            "skipped": True,
+            "status": "already_sent",
+            "message": "TOC was already sent once",
+            "toc_id": toc_id,
+        }
+    existing_sent = await db["email_logs"].find_one(
+        {
+            "toc_id": toc_id,
+            "mail_type": {"$in": ["mail6_toc", "toc_generated"]},
+            "status": "sent",
+        },
+        {"_id": 0, "email_id": 1},
+        sort=[("sent_at", -1), ("created_at", -1)],
+    )
+    if existing_sent:
+        return {
+            "success": True,
+            "skipped": True,
+            "status": "already_sent",
+            "message": "TOC was already sent once",
+            "toc_id": toc_id,
+            "email_id": existing_sent.get("email_id"),
+        }
 
     toc = doc.get("toc_data") or {}
     subject = payload.get("subject") or f"Training TOC / Course Agenda - {doc.get('technology', 'Training')}"
@@ -3446,6 +5784,8 @@ async def send_toc_email(payload: dict):
         "Regards,\n"
         "TrainerSync Team"
     )
+    if not str(doc.get("trainer_email") or "").strip():
+        raise HTTPException(400, "Trainer email is missing. TOC was generated, but add trainer email before sending it.")
     pdf_bytes = _toc_pdf_bytes(doc)
     filename = f"{_clean_filename(doc.get('technology', 'training'))}_{toc_id}.pdf"
     smtp_config = await get_admin_email_config(db)
@@ -3600,62 +5940,429 @@ def _money_text(value) -> str:
         return "INR 0.00"
 
 
+def _money_number(value) -> str:
+    try:
+        return f"{float(value or 0):,.2f}"
+    except Exception:
+        return "0.00"
+
+
+def _invoice_due_date_display(invoice_doc: dict) -> str:
+    if invoice_doc.get("due_date_display"):
+        return str(invoice_doc.get("due_date_display"))
+    issue = invoice_doc.get("issue_date")
+    if isinstance(issue, datetime):
+        return (issue + timedelta(days=30)).strftime("%d-%m-%Y")
+    try:
+        parsed = datetime.fromisoformat(str(issue).replace("Z", "+00:00"))
+        return (parsed + timedelta(days=30)).strftime("%d-%m-%Y")
+    except Exception:
+        return ""
+
+
+def _amount_words_indian(value) -> str:
+    try:
+        number = int(round(float(value or 0)))
+    except Exception:
+        number = 0
+    if number <= 0:
+        return "Zero Rupees Only"
+    ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"]
+    tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"]
+
+    def below_hundred(n):
+        if n < 20:
+            return ones[n]
+        return " ".join(part for part in [tens[n // 10], ones[n % 10]] if part)
+
+    def below_thousand(n):
+        if n < 100:
+            return below_hundred(n)
+        return " ".join(part for part in [ones[n // 100], "Hundred", below_hundred(n % 100)] if part)
+
+    parts = []
+    crore, number = divmod(number, 10000000)
+    lakh, number = divmod(number, 100000)
+    thousand, number = divmod(number, 1000)
+    if crore:
+        parts.append(f"{below_thousand(crore)} Crore")
+    if lakh:
+        parts.append(f"{below_thousand(lakh)} Lakh")
+    if thousand:
+        parts.append(f"{below_thousand(thousand)} Thousand")
+    if number:
+        parts.append(below_thousand(number))
+    return f"{', '.join(parts)} Rupees Only"
+
+
+def _invoice_asset_data_uri(filename: str, mime: str) -> str:
+    try:
+        path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", filename)
+        with open(path, "rb") as handle:
+            return f"data:{mime};base64,{_base64.b64encode(handle.read()).decode('ascii')}"
+    except Exception:
+        return ""
+
+
 def _render_invoice_html(invoice_doc: dict) -> str:
     esc = _html.escape
-    company = invoice_doc.get("company") or {}
+    company = _invoice_display_company(invoice_doc)
     trainer = invoice_doc.get("trainer") or {}
     client = invoice_doc.get("client") or {}
     requirement = invoice_doc.get("requirement") or {}
     commercials = invoice_doc.get("commercials") or {}
-    item_rows = "".join([
-        f"<tr><td>Training</td><td>{esc(requirement.get('technology') or 'Training')}</td><td>{esc(requirement.get('duration') or '-')}</td><td>{_money_text(commercials.get('total_amount'))}</td></tr>",
-        f"<tr><td>GST</td><td>GST on training services</td><td>18%</td><td>{_money_text(commercials.get('gst_amount'))}</td></tr>",
-    ])
+    qty = (
+        invoice_doc.get("quantity")
+        or requirement.get("duration_days")
+        or requirement.get("duration")
+        or 1
+    )
+    rate = commercials.get("day_rate") or (
+        round(float(commercials.get("total_amount") or 0) / float(qty), 2)
+        if str(qty).replace(".", "", 1).isdigit() and float(qty or 0) else 0
+    )
+    start_date = invoice_doc.get("start_date") or requirement.get("start_date") or requirement.get("training_dates") or "As per PO"
+    end_date = invoice_doc.get("end_date") or requirement.get("end_date") or requirement.get("training_dates") or "As per PO"
+    hsn_sac = invoice_doc.get("hsn_sac") or "999293"
+    po_date = invoice_doc.get("po_date") or invoice_doc.get("client_po_date") or ""
+    payment_terms = invoice_doc.get("payment_terms") or "As per client PO."
+    gst_rate = float(commercials.get("gst_rate") or 0)
+    gst_label = invoice_doc.get("tax_type") or ("IGST" if gst_rate else "Tax")
+    due_date = _invoice_due_date_display(invoice_doc)
+    amount_words = invoice_doc.get("amount_words") or _amount_words_indian(commercials.get("grand_total"))
+    bank = invoice_doc.get("bank") or invoice_doc.get("bank_details") or {}
+    bank = {
+        "account_name": bank.get("account_name") or "Beulix Solutions Pvt Ltd",
+        "account_number": bank.get("account_number") or "232805003625",
+        "ifsc": bank.get("ifsc") or "ICIC0002328",
+    }
+    logo_uri = invoice_doc.get("logo_data_uri") or _invoice_asset_data_uri("invoice_sample_image_1.png", "image/png")
+    signature_uri = invoice_doc.get("signature_data_uri") or _invoice_asset_data_uri("invoice_sample_image_0.jpeg", "image/jpeg")
+    items = invoice_doc.get("items") or []
+    if items:
+        item_rows = "\n".join(
+            f"""<tr>
+      <td class="center">{idx}</td>
+      <td>{esc(str(item.get('description') or requirement.get('technology') or 'Training'))}<br><span style="color:#4b5563">Trainer: {esc(trainer.get('name') or 'Trainer')}</span></td>
+      <td>{esc(str(item.get('hsn_sac') or hsn_sac))}</td>
+      <td class="right">{esc(str(item.get('quantity') or 1))}</td>
+      <td class="right">{_money_number(item.get('rate') or 0)}</td>
+      <td class="right">{_money_number(item.get('amount') or 0)}</td>
+    </tr>"""
+            for idx, item in enumerate(items, start=1)
+        )
+    else:
+        item_rows = f"""<tr>
+      <td class="center">1</td>
+      <td>{esc(requirement.get('technology') or 'Training')}<br><span style="color:#4b5563">Trainer: {esc(trainer.get('name') or 'Trainer')}</span></td>
+      <td>{esc(str(hsn_sac))}</td>
+      <td class="right">{esc(str(qty))}</td>
+      <td class="right">{_money_number(rate)}</td>
+      <td class="right">{_money_number(commercials.get('total_amount'))}</td>
+    </tr>"""
     return f"""<!doctype html>
 <html><head><meta charset="utf-8"><title>{esc(invoice_doc.get('invoice_number') or 'Invoice')}</title>
 <style>
-@page {{ size:A4; margin:22mm 18mm; }}
-body {{ font-family:Arial,sans-serif; color:#1f2937; font-size:12px; line-height:1.45; }}
-.header {{ display:flex; justify-content:space-between; gap:24px; border-bottom:3px solid #059669; padding-bottom:18px; margin-bottom:20px; }}
-h1,h2,h3 {{ margin:0; color:#0f172a; }}
-.muted {{ color:#64748b; }}
-.grid {{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; }}
-.box {{ border:1px solid #e2e8f0; border-radius:10px; padding:12px; }}
-.title {{ color:#047857; font-weight:700; text-transform:uppercase; font-size:12px; margin-bottom:8px; }}
-table {{ width:100%; border-collapse:collapse; margin-top:18px; }}
-th {{ background:#ecfdf5; color:#047857; text-align:left; }}
-th,td {{ border:1px solid #d1fae5; padding:9px; vertical-align:top; }}
-.totals {{ margin-left:auto; width:280px; margin-top:16px; }}
-.totals td {{ border-color:#e2e8f0; }}
-.total {{ font-weight:700; color:#047857; font-size:14px; }}
-.footer {{ margin-top:28px; color:#64748b; font-size:11px; border-top:1px solid #e2e8f0; padding-top:12px; }}
+@page {{ size:A4; margin:13mm 12mm; }}
+body {{ font-family:Arial,sans-serif; color:#111827; font-size:11px; line-height:1.32; }}
+h1,h2,h3,p {{ margin:0; }}
+.top {{ display:grid; grid-template-columns:1fr 230px; align-items:center; gap:20px; border-bottom:3px solid #183b70; padding-bottom:12px; margin-bottom:14px; }}
+.logo {{ width:255px; max-height:72px; object-fit:contain; }}
+.invoice-title {{ text-align:right; color:#183b70; font-size:25px; font-weight:900; letter-spacing:.5px; }}
+.invoice-no {{ text-align:right; color:#183b70; font-size:13px; font-weight:800; margin-top:2px; }}
+.header {{ display:block; margin-bottom:12px; border-bottom:1px solid #9ca3af; padding-bottom:12px; }}
+.company h1 {{ font-size:15px; font-weight:900; margin-bottom:5px; }}
+.company p,.bill p,.bank p,.terms p {{ margin:2px 0; }}
+.meta-row {{ display:grid; grid-template-columns:95px 1fr; gap:8px; margin-bottom:20px; }}
+.meta-label {{ color:#374151; font-weight:700; }}
+.bill-wrap {{ display:grid; grid-template-columns:1.15fr .95fr; gap:28px; margin:14px 0 16px; }}
+.section-label {{ font-weight:800; margin-bottom:5px; }}
+table {{ width:100%; border-collapse:collapse; }}
+th,td {{ border:1px solid #b7bcc4; padding:9px 9px; vertical-align:top; }}
+th {{ background:#1f4578; color:white; font-weight:900; text-align:left; font-size:12px; }}
+.center {{ text-align:center; }}
+.right {{ text-align:right; }}
+.amount-panel {{ width:300px; margin-left:auto; margin-top:10px; }}
+.amount-panel td {{ border:1px solid #d1d5db; padding:8px 9px; }}
+.amount-panel .value {{ text-align:right; }}
+.total td {{ font-weight:800; font-size:14px; }}
+.balance td {{ font-weight:800; }}
+.words {{ margin-top:12px; font-weight:800; text-transform:uppercase; }}
+.bottom {{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px; margin-top:20px; border-top:1px solid #9ca3af; padding-top:18px; }}
+.bank,.terms {{ min-height:82px; }}
+.signature-box {{ text-align:center; }}
+.signature-img {{ width:170px; max-height:70px; object-fit:contain; margin-top:12px; }}
+.signature {{ margin-top:8px; font-weight:800; font-size:14px; }}
 </style></head><body>
+<div class="top">
+  <div>{f'<img class="logo" src="{logo_uri}" />' if logo_uri else f'<h1>{esc(company.get("name") or "BEULIX SOLUTIONS PRIVATE LIMITED")}</h1>'}</div>
+  <div><div class="invoice-title">TAX INVOICE</div><div class="invoice-no"># {esc(invoice_doc.get('invoice_number') or '')}</div></div>
+</div>
 <div class="header">
-  <div><h1>{esc(company.get('name') or 'Calhan Technologies')}</h1>
-  <p class="muted">{esc(company.get('tagline') or 'Corporate Training and Technology Consulting')}</p>
-  <p class="muted">{esc(company.get('address') or '')}</p>
-  <p class="muted">{esc(company.get('email') or '')} {esc(company.get('phone') or '')}</p></div>
-  <div style="text-align:right"><h2>INVOICE</h2>
-  <p><strong>{esc(invoice_doc.get('invoice_number') or '')}</strong></p>
-  <p class="muted">Date: {esc(invoice_doc.get('issue_date_display') or '')}</p>
-  <p class="muted">PO: {esc(invoice_doc.get('po_number') or '')}</p></div>
+  <div class="company">
+    <h1>{esc(company.get('name') or 'Clahan Technologies')}</h1>
+    <p>{esc(company.get('address') or '')}</p>
+    <p>Email: {esc(company.get('email') or '')} | Contact: {esc(company.get('phone') or '')}</p>
+    <p>PAN: {esc(company.get('pan') or '')} | GST: {esc(company.get('gstin') or '')}</p>
+  </div>
 </div>
-<div class="grid">
-  <div class="box"><div class="title">Bill To</div><p><strong>{esc(client.get('name') or 'Client')}</strong></p><p>{esc(client.get('email') or '')}</p></div>
-  <div class="box"><div class="title">Training Details</div><p><strong>{esc(requirement.get('technology') or 'Training')}</strong></p><p>Trainer: {esc(trainer.get('name') or 'Trainer')}</p><p>Dates: {esc(requirement.get('training_dates') or 'To be confirmed')}</p><p>Mode: {esc(requirement.get('mode') or 'Online')}</p></div>
+<div class="bill-wrap">
+  <div class="bill">
+    <div class="section-label">Bill To:</div>
+    <p><strong>{esc(client.get('name') or 'Client')}</strong></p>
+    <p>{esc(client.get('billing_address') or '')}</p>
+    <p>PONO: {esc(invoice_doc.get('po_number') or '')}</p>
+    <p>PAN: {esc(client.get('pan') or '')}</p>
+    <p>GST: {esc(client.get('gstin') or '')}</p>
+    <p>Place of Supply: {esc(invoice_doc.get('place_of_supply') or client.get('place_of_supply') or '')}</p>
+  </div>
+  <div>
+    <div class="meta-row"><div class="meta-label">Invoice Date:</div><div class="right">{esc(invoice_doc.get('issue_date_display') or '')}</div></div>
+    <div class="meta-row"><div class="meta-label">Due Date:</div><div class="right">{esc(due_date)}</div></div>
+  </div>
 </div>
-<table><thead><tr><th>Item</th><th>Description</th><th>Qty/Rate</th><th>Amount</th></tr></thead><tbody>{item_rows}</tbody></table>
-<table class="totals"><tr><td>Subtotal</td><td>{_money_text(commercials.get('total_amount'))}</td></tr><tr><td>GST 18%</td><td>{_money_text(commercials.get('gst_amount'))}</td></tr><tr class="total"><td>Grand Total</td><td>{_money_text(commercials.get('grand_total'))}</td></tr></table>
-<div class="box" style="margin-top:18px"><div class="title">Payment Terms</div><p>{esc(invoice_doc.get('payment_terms') or '')}</p></div>
-<div class="footer">Linked to PO {esc(invoice_doc.get('po_number') or '')}, requirement {esc(requirement.get('requirement_id') or '')}, trainer {esc(trainer.get('trainer_id') or '')}. Generated by TrainerSync.</div>
+<table>
+  <thead>
+    <tr><th class="center">S.No</th><th>Item & Description</th><th>HSN/SAC</th><th class="right">Qty</th><th class="right">Rate</th><th class="right">Amount</th></tr>
+  </thead>
+  <tbody>
+    {item_rows}
+  </tbody>
+</table>
+<table class="amount-panel">
+  <tr><td>Sub Total</td><td class="value">{_money_number(commercials.get('total_amount'))}</td></tr>
+  <tr><td>{esc(gst_label)} ({esc(str(commercials.get('gst_rate', 0)))}%)</td><td class="value">{_money_number(commercials.get('gst_amount'))}</td></tr>
+  <tr class="total"><td>Total</td><td class="value">Rs:{_money_number(commercials.get('grand_total'))}</td></tr>
+  <tr class="balance"><td>Balance Due</td><td class="value">Rs:{_money_number(commercials.get('grand_total'))}</td></tr>
+</table>
+<div class="words">AMOUNT IN WORDS: {esc(amount_words)}</div>
+<div class="bottom">
+  <div class="bank"><div class="section-label">Bank Details:</div><p>{esc(bank.get('account_name') or company.get('name') or 'Clahan Technologies')}</p><p>A/C No: {esc(bank.get('account_number') or '')}</p><p>IFSC: {esc(bank.get('ifsc') or '')}</p></div>
+  <div class="terms"><div class="section-label">Terms & Conditions:</div><p>{esc(invoice_doc.get('terms_conditions') or 'Once payment is done, it cannot be reversed.')}</p></div>
+  <div class="signature-box">{f'<img class="signature-img" src="{signature_uri}" />' if signature_uri else ''}<div class="signature">Authorized Signature</div></div>
+</div>
 </body></html>"""
 
 
 def _invoice_pdf_from_doc(invoice_doc: dict) -> bytes:
-    encoded = invoice_doc.get("pdf_base64")
-    if encoded:
-        return _base64.b64decode(encoded)
-    return purchase_order_pdf_bytes({}, invoice_doc.get("html") or _render_invoice_html(invoice_doc))
+    try:
+        return _simple_invoice_pdf_bytes(invoice_doc)
+    except Exception:
+        return _simple_invoice_pdf_bytes(invoice_doc)
+
+
+def _invoice_display_company(invoice_doc: dict) -> dict:
+    company = dict(invoice_doc.get("company") or {})
+    invoice_type = str(invoice_doc.get("invoice_type") or "").lower()
+    name = str(company.get("name") or "").strip().lower()
+    if invoice_type == "beulix" or not company or name in {"calhan technologies", "calhan"}:
+        company.update({
+            "name": "BEULIX SOLUTIONS PRIVATE LIMITED",
+            "address": "No.29/2, 1st Main Road, Maruthinagar, Madivala, Bangalore - Karnataka 560068",
+            "email": "finance@beulixsolutions.com",
+            "phone": "8179147889",
+            "pan": "AANCB2798",
+            "gstin": "29AANCB2798L1ZS",
+        })
+    return company
+
+
+def _simple_invoice_pdf_bytes(invoice_doc: dict) -> bytes:
+    company = _invoice_display_company(invoice_doc)
+    trainer = invoice_doc.get("trainer") or {}
+    client = invoice_doc.get("client") or {}
+    requirement = invoice_doc.get("requirement") or {}
+    commercials = invoice_doc.get("commercials") or {}
+    qty = invoice_doc.get("quantity") or requirement.get("duration_days") or requirement.get("duration") or 1
+    rate = commercials.get("day_rate") or (
+        round(float(commercials.get("total_amount") or 0) / float(qty), 2)
+        if str(qty).replace(".", "", 1).isdigit() and float(qty or 0) else 0
+    )
+    due_date = _invoice_due_date_display(invoice_doc)
+    bank = invoice_doc.get("bank") or invoice_doc.get("bank_details") or {}
+
+    def draw_wrapped(page, text, x, y, max_width, size=10, color=(0, 0, 0), bold=False, line_height=14):
+        font = "helv"
+        words = str(text or "").replace("\n", " \n ").split(" ")
+        line = ""
+        for word in words:
+            if word == "\n":
+                page.insert_text((x, y), line, fontsize=size, fontname=font, color=color)
+                y += line_height
+                line = ""
+                continue
+            trial = f"{line} {word}".strip()
+            if fitz.get_text_length(trial, fontname=font, fontsize=size) <= max_width:
+                line = trial
+            else:
+                page.insert_text((x, y), line, fontsize=size, fontname=font, color=color)
+                y += line_height
+                line = word
+        if line:
+            page.insert_text((x, y), line, fontsize=size, fontname=font, color=color)
+            y += line_height
+        return y
+
+    def text(page, x, y, value, size=10, color=(0, 0, 0)):
+        page.insert_text((x, y), str(value or ""), fontsize=size, fontname="helv", color=color)
+
+    def text_right(page, x, y, value, size=10, color=(0, 0, 0)):
+        value = str(value or "")
+        page.insert_text((x - fitz.get_text_length(value, fontname="helv", fontsize=size), y), value, fontsize=size, fontname="helv", color=color)
+
+    def draw_water_drop(page, rect):
+        cx = (rect.x0 + rect.x1) / 2
+        shape = page.new_shape()
+        top = fitz.Point(cx, rect.y0)
+        bottom = fitz.Point(cx, rect.y1)
+        left_mid = fitz.Point(rect.x0 + rect.width * 0.08, rect.y0 + rect.height * 0.58)
+        right_mid = fitz.Point(rect.x1 - rect.width * 0.08, rect.y0 + rect.height * 0.58)
+        shape.draw_bezier(top, fitz.Point(rect.x0 + rect.width * 0.08, rect.y0 + rect.height * 0.16), left_mid, bottom)
+        shape.draw_bezier(bottom, right_mid, fitz.Point(rect.x1 - rect.width * 0.08, rect.y0 + rect.height * 0.16), top)
+        shape.finish(color=(0.16, 0.46, 0.78), fill=(0.63, 0.84, 1.0), width=1.0, fill_opacity=0.16, stroke_opacity=0.22)
+        shape.commit()
+
+    navy = (31 / 255, 69 / 255, 120 / 255)
+    grey = (0.72, 0.72, 0.72)
+    pdf = fitz.open()
+    page = pdf.new_page(width=595, height=842)
+    margin = 42
+
+    logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "invoice_sample_image_1.png")
+    sig_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets", "invoice_sample_image_0.jpeg")
+    if os.path.exists(logo_path):
+        watermark = fitz.Rect(172, 410, 423, 468)
+        page.insert_image(watermark, filename=logo_path, keep_proportion=True)
+        try:
+            page.draw_rect(watermark + (-10, -10, 10, 10), color=None, fill=(1, 1, 1), fill_opacity=0.78)
+        except TypeError:
+            page.draw_rect(watermark + (-10, -10, 10, 10), color=None, fill=(1, 1, 1))
+    if os.path.exists(logo_path):
+        page.insert_image(fitz.Rect(margin - 4, 28, 236, 80), filename=logo_path, keep_proportion=True)
+    else:
+        text(page, margin, 62, company.get("name") or "BEULIX SOLUTIONS PRIVATE LIMITED", 14, navy)
+    text_right(page, 553, 54, "TAX INVOICE", 22, navy)
+    text_right(page, 553, 76, f"# {invoice_doc.get('invoice_number') or ''}", 12, navy)
+    page.draw_line((margin, 94), (553, 94), color=navy, width=2.2)
+
+    y = 112
+    text(page, margin, y, company.get("name") or "BEULIX SOLUTIONS PRIVATE LIMITED", 13)
+    y += 17
+    y = draw_wrapped(page, company.get("address") or "", margin, y, 505, 10, line_height=13)
+    text(page, margin, y, f"Email: {company.get('email') or ''} | Contact: {company.get('phone') or ''}", 10)
+    y += 14
+    text(page, margin, y, f"PAN: {company.get('pan') or ''} | GST: {company.get('gstin') or ''}", 10)
+    y += 16
+    page.draw_line((margin, y), (553, y), color=grey, width=0.8)
+
+    y += 24
+    text(page, margin, y, "Bill To:", 10, navy)
+    text(page, 330, y, "Invoice Date:", 10)
+    text_right(page, 553, y, invoice_doc.get("issue_date_display") or "", 10)
+    y += 18
+    text(page, margin, y, client.get("name") or "Client", 12)
+    bill_y = y + 15
+    bill_y = draw_wrapped(page, client.get("billing_address") or "", margin, bill_y, 260, 10, line_height=14)
+    text(page, 330, y + 32, "Due Date:", 10)
+    text_right(page, 553, y + 32, due_date, 10)
+    for label, value in [
+        ("PONO", invoice_doc.get("po_number") or invoice_doc.get("client_po_number") or ""),
+        ("PAN", client.get("pan") or ""),
+        ("GST", client.get("gstin") or ""),
+        ("Place of Supply", invoice_doc.get("place_of_supply") or client.get("place_of_supply") or ""),
+    ]:
+        text(page, margin, bill_y, f"{label}: {value}", 10)
+        bill_y += 15
+
+    table_x = margin
+    table_y = max(bill_y + 12, 318)
+    widths = [34, 205, 76, 58, 82, 86]
+    headers = ["S.No", "Item & Description", "HSN/SAC", "Qty", "Rate", "Amount"]
+    row_h = 43
+    x = table_x
+    for w, header in zip(widths, headers):
+        page.draw_rect(fitz.Rect(x, table_y, x + w, table_y + row_h), color=grey, fill=navy, width=0.8)
+        text(page, x + 7, table_y + 25, header, 10, (1, 1, 1))
+        x += w
+
+    items = invoice_doc.get("items") or [{
+        "description": requirement.get("technology") or "Training",
+        "hsn_sac": invoice_doc.get("hsn_sac") or "999293",
+        "quantity": qty,
+        "rate": rate,
+        "amount": commercials.get("total_amount"),
+    }]
+    y = table_y + row_h
+    for idx, item in enumerate(items[:3], start=1):
+        row_amount = _float_or_zero(item.get("amount"))
+        row_qty = _float_or_zero(item.get("quantity") or 1)
+        row_rate = _float_or_zero(item.get("rate")) or (round(row_amount / row_qty, 2) if row_amount and row_qty else 0)
+        x = table_x
+        for w in widths:
+            page.draw_rect(fitz.Rect(x, y, x + w, y + 35), color=grey, width=0.6)
+            x += w
+        text(page, table_x + 14, y + 21, idx, 10)
+        text(page, table_x + widths[0] + 7, y + 21, item.get("description") or requirement.get("technology") or "Training", 10)
+        text(page, table_x + widths[0] + widths[1] + 20, y + 21, item.get("hsn_sac") or invoice_doc.get("hsn_sac") or "999293", 10)
+        text_right(page, table_x + sum(widths[:4]) - 10, y + 21, item.get("quantity") or 1, 10)
+        text_right(page, table_x + sum(widths[:5]) - 8, y + 21, _money_number(row_rate), 10)
+        text_right(page, table_x + sum(widths) - 8, y + 21, _money_number(row_amount), 10)
+        y += 35
+
+    for _ in range(max(0, 3 - len(items[:3]))):
+        x = table_x
+        for w in widths:
+            page.draw_rect(fitz.Rect(x, y, x + w, y + 35), color=grey, width=0.45)
+            x += w
+        y += 35
+
+    for label, value, tall in [
+        ("Sub Total", commercials.get("total_amount"), 32),
+        (f"{invoice_doc.get('tax_type') or 'IGST'} ({commercials.get('gst_rate', 0)}%)", commercials.get("gst_amount"), 32),
+        ("Total", commercials.get("grand_total"), 45),
+        ("Balance Due", commercials.get("grand_total"), 45),
+    ]:
+        x_label = table_x + sum(widths[:4])
+        page.draw_rect(fitz.Rect(table_x, y, x_label, y + tall), color=grey, width=0.6)
+        page.draw_rect(fitz.Rect(x_label, y, x_label + widths[4], y + tall), color=grey, width=0.6)
+        page.draw_rect(fitz.Rect(x_label + widths[4], y, table_x + sum(widths), y + tall), color=grey, width=0.6)
+        text_right(page, x_label + widths[4] - 8, y + (22 if tall == 32 else 28), label, 10, navy if label in {"Total", "Balance Due"} else (0, 0, 0))
+        text_right(page, table_x + sum(widths) - 8, y + (22 if tall == 32 else 28), f"Rs:{_money_number(value)}" if label in {"Total", "Balance Due"} else _money_number(value), 10, navy if label in {"Total", "Balance Due"} else (0, 0, 0))
+        y += tall
+
+    y += 18
+    text(page, margin, y, f"AMOUNT IN WORDS: {_amount_words_indian(commercials.get('grand_total'))}", 10, navy)
+    y += 20
+    page.draw_line((margin, y), (553, y), color=grey, width=0.8)
+    y += 26
+    text(page, margin, y, "Bank Details:", 11)
+    text(page, margin, y + 18, bank.get("account_name") or company.get("name") or "BEULIX SOLUTIONS PRIVATE LIMITED", 10)
+    text(page, margin, y + 34, f"A/C No: {bank.get('account_number') or ''}", 10)
+    text(page, margin, y + 50, f"IFSC: {bank.get('ifsc') or ''}", 10)
+    text(page, 225, y, "Terms & Conditions:", 11)
+    draw_wrapped(page, invoice_doc.get("terms_conditions") or "Once payment is done, it cannot be reversed.", 225, y + 18, 160, 10, line_height=14)
+    if os.path.exists(sig_path):
+        sig_rect = fitz.Rect(382, y + 0, 555, y + 62)
+        page.insert_image(sig_rect, filename=sig_path, keep_proportion=True)
+        page.draw_rect(fitz.Rect(374, y + 43, 560, y + 92), color=None, fill=(1, 1, 1))
+    text(page, 408, y + 78, "Authorized Signature", 12)
+    data = pdf.tobytes()
+    pdf.close()
+    return data
+
+
+def _gst_amount_for_invoice(total_amount, gst_rate=18):
+    try:
+        return round(float(total_amount or 0) * (float(gst_rate or 0) / 100), 2)
+    except Exception:
+        return 0
+
+
+def _float_or_zero(value) -> float:
+    try:
+        return float(value or 0)
+    except Exception:
+        return 0
 
 
 @router.post("/purchase-orders/generate")
@@ -3754,17 +6461,50 @@ async def request_client_purchase_order(requirement_id: str, payload: dict, requ
         or requirement.get("timeline_start")
         or ""
     )
-    subject = payload.get("subject") or f"Purchase Order Request - {technology} | {requirement_id}"
+    project_name = (
+        payload.get("project_name")
+        or requirement.get("project_name")
+        or f"{technology} Training"
+    )
+    requirement_text = (
+        payload.get("requirement")
+        or requirement.get("requirement")
+        or f"{technology} training service with {trainer_name}"
+    )
+    quantity = (
+        payload.get("quantity")
+        or requirement.get("duration")
+        or requirement.get("duration_days")
+        or requirement.get("participants")
+        or "As applicable"
+    )
+    expected_delivery = payload.get("expected_delivery_date") or "Within 1 day"
+    billing_company = payload.get("billing_company") or "Clahan Technologies"
+    billing_address = payload.get("billing_address") or "As per registered billing details"
+    gst_number = payload.get("gst_number") or "As applicable"
+    subject = payload.get("subject") or "Request for Purchase Order (PO)"
     body = payload.get("body") or (
-        f"Hi {client_name},\n\n"
-        f"The {technology} training engagement has been confirmed with {trainer_name}.\n\n"
-        "To proceed with invoice generation and commercial closure, kindly share the Purchase Order (PO) "
-        "with the applicable PO number, billing details, amount, payment terms, and tax details.\n\n"
-        f"Requirement ID: {requirement_id}\n"
-        f"Trainer: {trainer_name}\n"
-        f"Training Dates: {training_dates or 'As confirmed'}\n\n"
-        "Once we receive the PO, Calhan Technologies will generate the invoice and share it back for processing.\n\n"
-        "Regards,\nRecruitment Team,\nCalhan Technologies"
+        f"Dear {client_name},\n\n"
+        "I hope you are doing well.\n\n"
+        "We would like to request you to kindly issue the Purchase Order (PO) for the following requirement:\n\n"
+        "Project Details:\n\n"
+        f"* Project Name: {project_name}\n"
+        f"* Requirement: {requirement_text}\n"
+        f"* Quantity: {quantity}\n"
+        f"* Expected Delivery Date: {expected_delivery}\n"
+        f"* Requirement ID: {requirement_id}\n"
+        f"* Trainer: {trainer_name}\n"
+        f"* Training Dates: {training_dates or 'As confirmed'}\n\n"
+        "Billing Details:\n\n"
+        f"* Company Name: {billing_company}\n"
+        f"* Address: {billing_address}\n"
+        f"* GST Number: {gst_number}\n\n"
+        "Please share the Purchase Order within 1 day so that we can proceed with the next steps.\n\n"
+        "If you need any additional information, feel free to contact us.\n\n"
+        "Looking forward to your confirmation.\n\n"
+        "Thank you & regards,\n"
+        "Recruitment Team\n"
+        "Clahan Technologies"
     )
 
     email_id = f"CLIENT-PO-REQ-{uuid.uuid4().hex[:8].upper()}"
@@ -3819,6 +6559,129 @@ async def request_client_purchase_order(requirement_id: str, payload: dict, requ
         "message": "PO request sent to client",
         "email_id": email_id,
         "to_email": client_email,
+    }
+
+
+@router.post("/requirements/{requirement_id}/request-client-budget-increase")
+async def request_client_budget_increase(requirement_id: str, payload: dict, request: Request):
+    db = get_db()
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    if not requirement:
+        raise HTTPException(404, "Requirement not found")
+
+    client_email = str(payload.get("client_email") or requirement.get("client_email") or "").strip()
+    if not client_email:
+        raise HTTPException(400, "Client email is required to request budget revision")
+
+    client_name = (
+        payload.get("client_name")
+        or requirement.get("client_name")
+        or requirement.get("client_company")
+        or "Client"
+    )
+    technology = requirement.get("technology_needed") or payload.get("technology") or "training"
+    current_budget = _float_or_zero(payload.get("current_budget") or requirement.get("budget_per_day") or requirement.get("budget_total"))
+    requested_budget = _float_or_zero(payload.get("requested_budget"))
+    increment = _float_or_zero(payload.get("increment") or 5000)
+    unit = str(payload.get("unit") or "day").strip().lower()
+    unit_label = "hour" if unit.startswith("hour") else "day"
+    if requested_budget <= 0 and current_budget > 0:
+        requested_budget = current_budget + increment
+    if requested_budget <= 0:
+        raise HTTPException(400, "requested_budget is required")
+    trainer_id = str(payload.get("trainer_id") or "")
+    existing_request = await db["email_logs"].find_one(
+        {
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "mail_type": "client_budget_revision_request",
+            "status": "sent",
+        },
+        {"_id": 0, "email_id": 1, "to_email": 1, "commercials": 1},
+        sort=[("sent_at", -1), ("created_at", -1)],
+    )
+    if existing_request:
+        return {
+            "success": True,
+            "skipped": True,
+            "message": "Budget revision request already sent to client",
+            "email_id": existing_request.get("email_id"),
+            "to_email": existing_request.get("to_email"),
+            "requested_budget": (existing_request.get("commercials") or {}).get("requested_budget"),
+            "unit": (existing_request.get("commercials") or {}).get("unit") or unit_label,
+        }
+
+    subject = payload.get("subject") or f"Commercial Revision Request - {technology} Training"
+    body = payload.get("body") or (
+        f"Dear {client_name},\n\n"
+        f"Thank you for the update regarding the {technology} training requirement.\n\n"
+        "Based on current trainer availability, required experience level, and the quality expectations for this engagement, "
+        f"we request you to kindly consider revising the commercial budget to INR {requested_budget:,.0f} per {unit_label}.\n\n"
+        "This revision will help us align with a suitable trainer profile and proceed without delays.\n\n"
+        "Please confirm if this revised commercial is workable from your side, so we can move ahead with the next steps.\n\n"
+        "Regards,\n"
+        "Recruitment Team\n"
+        "Clahan Technologies"
+    )
+
+    email_id = f"CLIENT-BUDGET-{uuid.uuid4().hex[:8].upper()}"
+    tracking_url = build_tracking_url(request, email_id)
+    smtp_config = await get_admin_email_config(db)
+    success, error = await send_email_async(client_email, subject, body, smtp_config, tracking_url)
+    now = utc_now()
+    log_doc = {
+        "email_id": email_id,
+        "trainer_id": trainer_id,
+        "trainer_name": str(payload.get("trainer_name") or ""),
+        "requirement_id": requirement_id,
+        "to_email": client_email,
+        "client_name": client_name,
+        "client_email": client_email,
+        "subject": subject,
+        "body": body,
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "sent_at": now if success else None,
+        "reply_received": False,
+        "opened": False,
+        "open_count": 0,
+        "tracking_url": tracking_url,
+        "retry_count": 0,
+        "mail_type": "client_budget_revision_request",
+        "source": "trainer_commercial_negotiation",
+        "commercials": {
+            "current_budget": current_budget,
+            "requested_budget": requested_budget,
+            "increment": increment,
+            "unit": unit_label,
+        },
+        "created_at": now,
+    }
+    await db["email_logs"].insert_one(log_doc)
+    await db["client_messages"].insert_one({
+        **log_doc,
+        "direction": "sent",
+    })
+    if success:
+        await db["requirements"].update_one(
+            {"requirement_id": requirement_id},
+            {"$set": {
+                "client_budget_revision_requested_at": now,
+                "client_budget_revision_email_id": email_id,
+                "client_budget_revision_requested": requested_budget,
+                "client_budget_revision_unit": unit_label,
+            }},
+        )
+
+    if not success:
+        raise HTTPException(500, error or "Could not send budget revision request to client")
+    return {
+        "success": True,
+        "message": "Budget revision request sent to client",
+        "email_id": email_id,
+        "to_email": client_email,
+        "requested_budget": requested_budget,
+        "unit": unit_label,
     }
 
 
@@ -4025,6 +6888,10 @@ async def generate_invoice_from_purchase_order(po_id: str, payload: dict, reques
         "invoice_number": invoice_number,
         "po_id": po_id,
         "po_number": po_doc.get("po_number"),
+        "po_date": po_doc.get("issue_date_display") or "",
+        "ref_number": payload.get("ref_number") or requirement_id,
+        "hsn_sac": payload.get("hsn_sac") or "999293",
+        "quantity": payload.get("quantity") or (po_doc.get("requirement") or {}).get("duration_days") or 1,
         "status": "generated",
         "issue_date": now,
         "issue_date_display": now.strftime("%d %b %Y"),
@@ -4049,7 +6916,7 @@ async def generate_invoice_from_purchase_order(po_id: str, payload: dict, reques
 
     try:
         html = _render_invoice_html(invoice_doc)
-        pdf_bytes = purchase_order_pdf_bytes({}, html)
+        pdf_bytes = _invoice_pdf_from_doc(invoice_doc)
     except RuntimeError as exc:
         raise HTTPException(500, str(exc))
     except Exception as exc:
@@ -4075,6 +6942,194 @@ async def generate_invoice_from_purchase_order(po_id: str, payload: dict, reques
     return {
         "success": True,
         "message": "Invoice generated",
+        "invoice": _public_invoice(invoice_doc),
+    }
+
+
+@router.post("/requirements/{requirement_id}/client-po/generate-invoice")
+async def generate_invoice_from_client_purchase_order(requirement_id: str, payload: dict, request: Request):
+    db = get_db()
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    if not requirement:
+        raise HTTPException(404, "Requirement not found")
+
+    trainer_id = str(payload.get("trainer_id") or requirement.get("selected_trainer_id") or "").strip()
+    if not trainer_id:
+        raise HTTPException(400, "trainer_id is required to generate invoice from client PO")
+    trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0})
+    if not trainer:
+        raise HTTPException(404, "Trainer not found")
+
+    client_email = str(payload.get("client_email") or requirement.get("client_email") or "").strip()
+    saved_client_email = str(requirement.get("client_email") or "").strip()
+    if saved_client_email and client_email and saved_client_email.lower() != client_email.lower():
+        raise HTTPException(400, "Client email mismatch. Invoice can only be generated for the saved requirement client.")
+    if not client_email:
+        raise HTTPException(400, "Client email is required before generating invoice")
+
+    client_po_number = str(payload.get("client_po_number") or payload.get("po_number") or "").strip()
+    if not client_po_number:
+        raise HTTPException(400, "Client PO number is required")
+
+    try:
+        total_amount = float(payload.get("total_amount") or 0)
+    except Exception:
+        total_amount = 0
+    if total_amount <= 0:
+        raise HTTPException(400, "Client PO total amount is required")
+
+    gst_rate = _float_or_zero(payload.get("gst_rate") or 18)
+    gst_amount = _gst_amount_for_invoice(total_amount, gst_rate)
+    grand_total = round(total_amount + gst_amount, 2)
+    client_name = (
+        payload.get("client_name")
+        or requirement.get("client_company")
+        or requirement.get("client_name")
+        or client_email
+    )
+    training_dates = (
+        payload.get("training_dates")
+        or requirement.get("training_dates")
+        or requirement.get("timeline_start")
+        or "As per client PO"
+    )
+    duration_days = payload.get("duration_days") or requirement.get("duration_days") or ""
+    duration = payload.get("duration") or (f"{duration_days} day(s)" if duration_days else "As per client PO")
+    invoice_number = str(payload.get("invoice_number") or "").strip() or await _next_invoice_number(db)
+    invoice_id = f"INV-DOC-{uuid.uuid4().hex[:8].upper()}"
+    now = utc_now()
+    invoice_type = str(payload.get("invoice_type") or "").lower()
+    default_company = {
+        "name": "BEULIX SOLUTIONS PRIVATE LIMITED",
+        "address": "No.29/2, 1st Main Road, Maruthinagar, Madivala, Bangalore - Karnataka 560068",
+        "email": "finance@beulixsolutions.com",
+        "phone": "8179147889",
+        "pan": "AANCB2798",
+        "gstin": "29AANCB2798L1ZS",
+    } if invoice_type == "beulix" else {
+        "name": "Clahan Technologies",
+        "tagline": "Corporate Training and Technology Consulting",
+        "address": payload.get("calhan_address") or "",
+        "email": payload.get("calhan_email") or getattr(get_settings(), "from_email", "") or getattr(get_settings(), "gmail_user", ""),
+        "phone": payload.get("calhan_phone") or "",
+        "gstin": payload.get("calhan_gstin") or "",
+    }
+    invoice_doc = {
+        "invoice_id": invoice_id,
+        "invoice_number": invoice_number,
+        "client_po_number": client_po_number,
+        "po_number": client_po_number,
+        "po_date": payload.get("client_po_date") or payload.get("po_date") or "",
+        "ref_number": payload.get("ref_number") or payload.get("project_name") or requirement_id,
+        "project_name": payload.get("project_name") or requirement.get("project_name") or requirement.get("technology_needed") or "",
+        "start_date": payload.get("start_date") or "",
+        "end_date": payload.get("end_date") or "",
+        "hsn_sac": payload.get("hsn_sac") or "999293",
+        "quantity": payload.get("quantity") or duration_days or 1,
+        "items": payload.get("items") or [],
+        "tax_type": payload.get("tax_type") or "",
+        "invoice_type": invoice_type,
+        "status": "generated",
+        "issue_date": now,
+        "issue_date_display": payload.get("invoice_date") or now.strftime("%d %b %Y"),
+        "due_date_display": payload.get("due_date") or "",
+        "company": payload.get("company") or default_company,
+        "trainer": {
+            "trainer_id": trainer.get("trainer_id"),
+            "name": trainer.get("name") or payload.get("trainer_name") or "Trainer",
+            "email": trainer.get("email") or "",
+            "phone": trainer.get("phone") or "",
+            "location": trainer.get("location") or "",
+        },
+        "client": {
+            "name": client_name,
+            "email": client_email,
+            "billing_address": payload.get("client_billing_address") or "",
+            "gstin": payload.get("client_gstin") or "",
+            "pan": payload.get("client_pan") or "",
+        },
+        "requirement": {
+            "requirement_id": requirement_id,
+            "technology": payload.get("technology") or requirement.get("technology_needed") or "Training",
+            "client_email": client_email,
+            "client_name": client_name,
+            "mode": payload.get("mode") or requirement.get("mode") or "Online",
+            "course_name": payload.get("course_name") or "",
+            "classroom_location": payload.get("classroom_location") or "",
+            "mode_of_lecture": payload.get("mode_of_lecture") or "",
+            "contact_person": payload.get("contact_person") or "",
+            "contact_number": payload.get("contact_number") or "",
+            "training_dates": training_dates,
+            "duration": duration,
+            "duration_days": duration_days,
+        },
+        "commercials": {
+            "currency": payload.get("currency") or requirement.get("budget_currency") or "INR",
+            "day_rate": _float_or_zero(payload.get("day_rate")),
+            "total_amount": total_amount,
+            "gst_rate": gst_rate,
+            "gst_amount": gst_amount,
+            "grand_total": grand_total,
+        },
+        "payment_terms": payload.get("payment_terms") or "As per client PO.",
+        "client_po_notes": payload.get("client_po_notes") or "",
+        "source": "client_purchase_order",
+        "created_at": now,
+        "download_url": _invoice_download_url(request, invoice_id),
+    }
+
+    try:
+        html = _render_invoice_html(invoice_doc)
+        pdf_bytes = _invoice_pdf_from_doc(invoice_doc)
+    except RuntimeError as exc:
+        raise HTTPException(500, str(exc))
+    except Exception as exc:
+        raise HTTPException(500, f"Invoice PDF generation failed: {exc}")
+
+    invoice_doc.update({
+        "html": html,
+        "pdf_base64": _base64.b64encode(pdf_bytes).decode("ascii"),
+        "pdf_content_type": "application/pdf",
+        "pdf_filename": _invoice_filename(invoice_doc),
+        "pdf_generated_at": utc_now(),
+    })
+    await db["invoices"].insert_one(invoice_doc)
+    await db["client_purchase_orders"].update_one(
+        {"requirement_id": requirement_id, "trainer_id": trainer_id, "client_po_number": client_po_number},
+        {"$set": {
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "trainer_name": trainer.get("name"),
+            "client_email": client_email,
+            "client_name": client_name,
+            "client_po_number": client_po_number,
+            "client_po_date": invoice_doc.get("po_date"),
+            "total_amount": total_amount,
+            "gst_rate": gst_rate,
+            "gst_amount": gst_amount,
+            "grand_total": grand_total,
+            "invoice_id": invoice_id,
+            "invoice_number": invoice_number,
+            "status": "invoice_generated",
+            "updated_at": utc_now(),
+        }, "$setOnInsert": {"created_at": now}},
+        upsert=True,
+    )
+    await db["requirements"].update_one(
+        {"requirement_id": requirement_id},
+        {"$set": {
+            "client_po_status": "received",
+            "client_po_number": client_po_number,
+            "client_po_received_at": now,
+            "invoice_id": invoice_id,
+            "invoice_number": invoice_number,
+            "invoice_status": "generated",
+            "invoice_generated_at": utc_now(),
+        }},
+    )
+    return {
+        "success": True,
+        "message": "Invoice generated from client PO",
         "invoice": _public_invoice(invoice_doc),
     }
 
@@ -4162,6 +7217,40 @@ async def send_invoice(invoice_id: str, payload: dict, request: Request):
             "invoice_sent_at": sent_at if email_success else None,
         }},
     )
+    requirement_id = requirement.get("requirement_id") or ""
+    trainer_id = trainer.get("trainer_id") or ""
+    client_po_number = doc.get("client_po_number") or doc.get("po_number")
+    if doc.get("source") == "client_purchase_order":
+        client_po_query = {
+            "invoice_id": invoice_id,
+        }
+        if requirement_id and trainer_id and client_po_number:
+            client_po_query = {
+                "requirement_id": requirement_id,
+                "trainer_id": trainer_id,
+                "client_po_number": client_po_number,
+            }
+        await db["client_purchase_orders"].update_one(
+            client_po_query,
+            {"$set": {
+                "status": "invoice_sent" if email_success else "invoice_send_failed",
+                "invoice_status": status,
+                "invoice_sent_at": sent_at if email_success else None,
+                "updated_at": utc_now(),
+                "email_error": "" if email_success else email_error,
+            }},
+        )
+    if requirement_id:
+        await db["requirements"].update_one(
+            {"requirement_id": requirement_id},
+            {"$set": {
+                "invoice_id": invoice_id,
+                "invoice_number": doc.get("invoice_number"),
+                "invoice_status": status,
+                "invoice_sent_at": sent_at if email_success else None,
+                "client_po_status": "invoice_sent" if email_success else requirement.get("client_po_status", "received"),
+            }},
+        )
     await db["client_messages"].insert_one({
         "message_id": f"CLIENT-MSG-{uuid.uuid4().hex[:8].upper()}",
         "client_email": to_email,
@@ -4190,6 +7279,251 @@ async def send_invoice(invoice_id: str, payload: dict, request: Request):
         "message": "Invoice sent to client",
         "invoice": _public_invoice(updated),
     }
+
+
+def _client_pipeline_dt(value):
+    if isinstance(value, datetime):
+        return value
+    if not value:
+        return datetime.min.replace(tzinfo=timezone.utc)
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except Exception:
+        return datetime.min.replace(tzinfo=timezone.utc)
+
+
+def _client_pipeline_preview(text: str = "", limit: int = 220) -> str:
+    clean = _re.sub(r"\s+", " ", str(text or "")).strip()
+    return clean[:limit]
+
+
+def _client_pipeline_stage_status(requirement: dict, shortlist: dict, client_po: dict, invoice: dict) -> dict:
+    selected = bool(requirement.get("selected_trainer_id") or requirement.get("selection_status") == "selected")
+    po_status = str(requirement.get("client_po_status") or client_po.get("status") or "").lower()
+    po_requested = str(requirement.get("po_request_status") or "").lower() == "requested" or bool(requirement.get("po_requested_at"))
+    invoice_status = str(requirement.get("invoice_status") or invoice.get("status") or "").lower()
+    commercial_revision_requested = bool(requirement.get("client_budget_revision_requested_at"))
+    commercial_done = selected and (
+        not commercial_revision_requested
+        or po_requested
+        or po_status in {"requested", "received", "invoice_generated", "invoice_sent"}
+        or bool(client_po)
+        or invoice_status in {"generated", "sent"}
+    )
+    return {
+        "client_request": "done" if requirement.get("requirement_id") else "pending",
+        "shortlist": "done" if shortlist.get("top_trainers") else "pending",
+        "selection": "done" if selected else "pending",
+        "commercial_alignment": "done" if commercial_done else ("pending" if selected else "locked"),
+        "po_request": "done" if po_requested or po_status in {"requested", "received", "invoice_generated", "invoice_sent"} or client_po else ("ready" if selected else "locked"),
+        "client_po": "done" if po_status in {"received", "invoice_generated", "invoice_sent"} or client_po.get("client_po_number") else "pending",
+        "invoice": "done" if invoice.get("invoice_id") or invoice_status in {"generated", "sent"} else "pending",
+        "invoice_sent": "done" if invoice_status == "sent" or po_status == "invoice_sent" else "pending",
+    }
+
+
+@router.get("/client-pipeline")
+async def get_client_pipeline(q: Optional[str] = None, domain: Optional[str] = None, limit: int = 80):
+    db = get_db()
+    limit = max(10, min(int(limit or 80), 200))
+    filters = []
+    if domain:
+        pattern = {"$regex": _re.escape(domain.strip()), "$options": "i"}
+        filters.append({"$or": [
+            {"technology_needed": pattern},
+            {"job_title": pattern},
+            {"job_description": pattern},
+        ]})
+    if q:
+        pattern = {"$regex": _re.escape(q.strip()), "$options": "i"}
+        filters.append({"$or": [
+            {"requirement_id": pattern},
+            {"technology_needed": pattern},
+            {"job_title": pattern},
+            {"client_email": pattern},
+            {"client_name": pattern},
+            {"client_company": pattern},
+            {"selected_trainer_name": pattern},
+        ]})
+    query = {"$and": filters} if filters else {}
+    requirements = await db["requirements"].find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+    requirement_ids = [doc.get("requirement_id") for doc in requirements if doc.get("requirement_id")]
+    trainer_ids = [doc.get("selected_trainer_id") for doc in requirements if doc.get("selected_trainer_id")]
+
+    shortlists = {}
+    client_emails = []
+    client_messages = []
+    client_slots = []
+    confirmations = []
+    invoices = {}
+    client_pos = {}
+    trainers = {}
+    email_logs = []
+    if requirement_ids:
+        shortlist_docs = await db["shortlists"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).to_list(len(requirement_ids))
+        shortlists = {doc.get("requirement_id"): doc for doc in shortlist_docs}
+        client_emails = await db["client_emails"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("received_at", -1).limit(300).to_list(300)
+        client_messages = await db["client_messages"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(400).to_list(400)
+        client_slots = await db["client_slot_emails"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
+        confirmations = await db["client_slot_confirmations"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
+        invoice_docs = await db["invoices"].find({"requirement.requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
+        po_docs = await db["client_purchase_orders"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("updated_at", -1).limit(300).to_list(300)
+        email_logs = await db["email_logs"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(500).to_list(500)
+        for doc in invoice_docs:
+            req_id = (doc.get("requirement") or {}).get("requirement_id")
+            if req_id and req_id not in invoices:
+                invoices[req_id] = doc
+        for doc in po_docs:
+            req_id = doc.get("requirement_id")
+            if req_id and req_id not in client_pos:
+                client_pos[req_id] = doc
+        if trainer_ids:
+            trainer_docs = await db["trainers"].find({"trainer_id": {"$in": trainer_ids}}, {"_id": 0}).to_list(len(trainer_ids))
+            trainers = {doc.get("trainer_id"): doc for doc in trainer_docs}
+
+    by_req = {req_id: {"client_emails": [], "client_messages": [], "client_slots": [], "confirmations": [], "email_logs": []} for req_id in requirement_ids}
+    for collection_name, docs in [
+        ("client_emails", client_emails),
+        ("client_messages", client_messages),
+        ("client_slots", client_slots),
+        ("confirmations", confirmations),
+        ("email_logs", email_logs),
+    ]:
+        for doc in docs:
+            req_id = doc.get("requirement_id")
+            if req_id in by_req:
+                by_req[req_id][collection_name].append(doc)
+
+    items = []
+    for requirement in requirements:
+        req_id = requirement.get("requirement_id")
+        grouped = by_req.get(req_id, {})
+        shortlist = shortlists.get(req_id) or {}
+        invoice = invoices.get(req_id) or {}
+        client_po = client_pos.get(req_id) or {}
+        selected_trainer = trainers.get(requirement.get("selected_trainer_id")) or {}
+        if not selected_trainer and shortlist.get("top_trainers"):
+            selected_trainer = next(
+                (item for item in shortlist.get("top_trainers", []) if str(item.get("trainer_id")) == str(requirement.get("selected_trainer_id"))),
+                {},
+            )
+
+        messages = []
+        for doc in grouped.get("client_emails", []):
+            reply = doc.get("generated_reply") or {}
+            messages.append({
+                "direction": "received",
+                "type": "client_request",
+                "label": "Client email received",
+                "subject": doc.get("subject") or "",
+                "body": doc.get("clean_body") or doc.get("raw_body") or doc.get("snippet") or "",
+                "at": doc.get("received_at") or doc.get("created_at"),
+                "status": doc.get("status") or "",
+            })
+            if reply.get("body"):
+                messages.append({
+                    "direction": "sent",
+                    "type": "calhan_reply",
+                    "label": "Clahan reply",
+                    "subject": reply.get("subject") or f"Re: {doc.get('subject', '')}",
+                    "body": reply.get("body"),
+                    "at": doc.get("sent_at") or doc.get("created_at"),
+                    "status": doc.get("status") or "draft",
+                })
+        for doc in grouped.get("client_slots", []):
+            messages.append({
+                "direction": "sent",
+                "type": "client_slots",
+                "label": "Trainer slots sent to client",
+                "subject": doc.get("subject") or "",
+                "body": doc.get("body") or doc.get("slot_text") or "",
+                "at": doc.get("sent_at") or doc.get("created_at"),
+                "status": doc.get("status") or "",
+            })
+            if doc.get("last_client_reply_text"):
+                messages.append({
+                    "direction": "received",
+                    "type": "client_slot_reply",
+                    "label": "Client selected slot",
+                    "subject": f"Re: {doc.get('subject', '')}",
+                    "body": doc.get("last_client_reply_text"),
+                    "at": doc.get("last_client_reply_at") or doc.get("client_confirmed_at"),
+                    "status": doc.get("status") or "",
+                })
+        for doc in grouped.get("confirmations", []):
+            messages.append({
+                "direction": "received",
+                "type": "client_confirmation",
+                "label": "Client confirmation",
+                "subject": doc.get("subject") or "Client confirmation",
+                "body": doc.get("reply_text") or "",
+                "at": doc.get("created_at") or doc.get("updated_at"),
+                "status": doc.get("status") or "",
+            })
+        for doc in grouped.get("client_messages", []):
+            messages.append({
+                "direction": doc.get("direction") or "sent",
+                "type": doc.get("mail_type") or "client_message",
+                "label": str(doc.get("mail_type") or "Client message").replace("_", " ").title(),
+                "subject": doc.get("subject") or "",
+                "body": doc.get("body") or "",
+                "at": doc.get("sent_at") or doc.get("created_at"),
+                "status": doc.get("status") or "",
+            })
+        if client_po:
+            messages.append({
+                "direction": "received",
+                "type": "client_po",
+                "label": "Client PO received",
+                "subject": client_po.get("client_po_number") or "Client PO",
+                "body": f"Client PO {client_po.get('client_po_number') or ''} received. Amount: {_money_text(client_po.get('grand_total') or client_po.get('total_amount'))}",
+                "at": client_po.get("updated_at") or client_po.get("created_at"),
+                "status": client_po.get("status") or "received",
+            })
+        if invoice:
+            messages.append({
+                "direction": "sent",
+                "type": "invoice",
+                "label": "Invoice generated" if invoice.get("status") != "sent" else "Invoice sent",
+                "subject": invoice.get("invoice_number") or "Invoice",
+                "body": f"Invoice {invoice.get('invoice_number') or ''} for PO {invoice.get('po_number') or ''}. Grand total: {_money_text((invoice.get('commercials') or {}).get('grand_total'))}",
+                "at": invoice.get("sent_at") or invoice.get("created_at"),
+                "status": invoice.get("status") or "generated",
+                "invoice_id": invoice.get("invoice_id"),
+                "download_url": invoice.get("download_url"),
+            })
+
+        messages = sorted(messages, key=lambda item: _client_pipeline_dt(item.get("at")))
+        latest = messages[-1] if messages else {}
+        domain_label = requirement.get("technology_needed") or requirement.get("job_title") or "Training"
+        items.append({
+            "requirement_id": req_id,
+            "domain": domain_label,
+            "client": {
+                "name": requirement.get("client_name") or requirement.get("client_company") or requirement.get("client_email") or "Client",
+                "email": requirement.get("client_email") or "",
+                "company": requirement.get("client_company") or requirement.get("client_name") or "",
+                "phone": requirement.get("client_phone") or requirement.get("client_whatsapp") or "",
+            },
+            "requirement": requirement,
+            "shortlist_count": len(shortlist.get("top_trainers") or []),
+            "selected_trainer": {
+                "trainer_id": selected_trainer.get("trainer_id") or requirement.get("selected_trainer_id") or "",
+                "name": selected_trainer.get("name") or selected_trainer.get("trainer_name") or requirement.get("selected_trainer_name") or "",
+                "email": selected_trainer.get("email") or selected_trainer.get("to_email") or "",
+                "phone": selected_trainer.get("phone") or "",
+            },
+            "client_po": client_po,
+            "invoice": _public_invoice(invoice) if invoice else {},
+            "stages": _client_pipeline_stage_status(requirement, shortlist, client_po, invoice),
+            "messages": [_public_doc(message) for message in messages],
+            "latest_at": latest.get("at") or requirement.get("updated_at") or requirement.get("created_at"),
+            "last_preview": _client_pipeline_preview(latest.get("body") or latest.get("subject") or ""),
+        })
+
+    facet_reqs = await db["requirements"].find({}, {"_id": 0, "technology_needed": 1}).sort("created_at", -1).limit(500).to_list(500)
+    domains = sorted({str(doc.get("technology_needed") or "").strip() for doc in facet_reqs if str(doc.get("technology_needed") or "").strip()})
+    return {"items": items, "domains": domains, "total": len(items)}
 
 
 # Resume upload helpers
@@ -4352,6 +7686,13 @@ async def _handle_resume_upload_item(db, item: dict, confirm: bool) -> tuple[dic
             if confirm:
                 save_result = await save_trainer_from_resume(processed, db, use_ai_tags=False)
                 saved_trainer_id = save_result.get("trainer_id") if save_result.get("saved") else None
+                if saved_trainer_id:
+                    verified_lead = await _auto_verify_lead_on_resume_upload(
+                        db,
+                        {**processed, "trainer_id": saved_trainer_id},
+                    )
+                    if verified_lead:
+                        save_result["linkedin_lead_verified"] = verified_lead.get("lead_id")
             else:
                 await _cache_resume_preview(db, processed, item)
 
@@ -4454,6 +7795,12 @@ async def confirm_resume_previews(payload: dict, background_tasks: BackgroundTas
             save_result = await save_trainer_from_resume(profile, db, use_ai_tags=False)
             if save_result.get("saved") and save_result.get("trainer_id"):
                 saved_trainer_ids.append(save_result["trainer_id"])
+                verified_lead = await _auto_verify_lead_on_resume_upload(
+                    db,
+                    {**profile, "trainer_id": save_result["trainer_id"]},
+                )
+                if verified_lead:
+                    save_result["linkedin_lead_verified"] = verified_lead.get("lead_id")
 
             results.append({
                 "upload_id": upload_id,
@@ -4521,7 +7868,21 @@ async def get_trainers(
             {"category": category},
         ]})
     if domain:
-        clauses.append({"domain": domain})
+        domain_pattern = _re.escape(domain.strip())
+        clauses.append({"$or": [
+            {"domain": {"$regex": domain_pattern, "$options": "i"}},
+            {"primary_category": {"$regex": domain_pattern, "$options": "i"}},
+            {"technology_category": {"$regex": domain_pattern, "$options": "i"}},
+            {"category": {"$regex": domain_pattern, "$options": "i"}},
+            {"secondary_categories": {"$regex": domain_pattern, "$options": "i"}},
+            {"technologies": {"$regex": domain_pattern, "$options": "i"}},
+            {"skills": {"$regex": domain_pattern, "$options": "i"}},
+            {"specialty_tags": {"$regex": domain_pattern, "$options": "i"}},
+            {"specialisation_tags": {"$regex": domain_pattern, "$options": "i"}},
+            {"summary": {"$regex": domain_pattern, "$options": "i"}},
+            {"combined_text": {"$regex": domain_pattern, "$options": "i"}},
+            {"resume": {"$regex": domain_pattern, "$options": "i"}},
+        ]})
     if industry:
         clauses.append({"industry_focus": industry})
     if experience == "0-3":
@@ -4549,12 +7910,20 @@ async def get_trainers(
             {"teams_email": {"$regex": pattern, "$options": "i"}},
             {"microsoft_teams_email": {"$regex": pattern, "$options": "i"}},
             {"teams_upn": {"$regex": pattern, "$options": "i"}},
+            {"summary": {"$regex": pattern, "$options": "i"}},
+            {"resume": {"$regex": pattern, "$options": "i"}},
+            {"combined_text": {"$regex": pattern, "$options": "i"}},
+            {"role_designation": {"$regex": pattern, "$options": "i"}},
+            {"certifications": {"$regex": pattern, "$options": "i"}},
+            {"past_clients": {"$regex": pattern, "$options": "i"}},
         ]})
 
     query = {"$and": clauses} if len(clauses) > 1 else (clauses[0] if clauses else {})
     total = await db["trainers"].count_documents(query)
     skip = (page - 1) * limit
     trainers = await db["trainers"].find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    for trainer in trainers:
+        trainer["verification_summary"] = get_contact_verification_summary(trainer)
     return {
         "trainers": trainers,
         "total": total,
@@ -4662,6 +8031,12 @@ def _single_trainer_mail_context(trainer: dict, payload: dict) -> dict:
         "duration": str(payload.get("duration") or payload.get("duration_days") or "").strip(),
         "mode": str(payload.get("mode") or "Online").strip(),
         "participants": str(payload.get("participants") or payload.get("participant_count") or "").strip(),
+        "trainer_budget": str(
+            payload.get("trainer_visible_budget_per_session")
+            or payload.get("trainer_requested_budget_per_session")
+            or payload.get("trainer_budget")
+            or ""
+        ).strip(),
         "client_name": str(payload.get("client_name") or payload.get("client_company") or "").strip(),
         "client_email": str(payload.get("client_email") or "").strip(),
         "requirement_id": str(payload.get("requirement_id") or "").strip(),
@@ -4690,7 +8065,9 @@ def _has_proper_interview_slots(text: str = "") -> bool:
     ]:
         time_hits += len(_re.findall(pattern, clean, flags=_re.IGNORECASE))
     slot_hints = len(_re.findall(r"\b(?:slot|option|available|availability)\b", clean, flags=_re.IGNORECASE))
-    return (date_hits >= 3 and time_hits >= 3) or (date_hits >= 3 and time_hits >= 2 and slot_hints >= 1)
+    has_one_exact_slot = date_hits >= 1 and time_hits >= 1
+    has_three_slot_options = (date_hits >= 3 and time_hits >= 3) or (date_hits >= 3 and time_hits >= 2 and slot_hints >= 1)
+    return has_one_exact_slot or has_three_slot_options
 
 
 def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context: dict) -> dict:
@@ -4721,9 +8098,35 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
     date_time = str(payload.get("date_time") or payload.get("interview_date") or "").strip()
     training_date = str(payload.get("training_date") or "").strip()
     venue = str(payload.get("venue") or mode or "").strip()
-    contact_name = str(payload.get("contact_name") or "Calhan Technologies Team").strip()
+    contact_name = str(payload.get("contact_name") or "Clahan Technologies Team").strip()
     contact_phone = str(payload.get("contact_phone") or "").strip()
     contact_email = str(payload.get("contact_email") or getattr(get_settings(), "from_email", "") or "").strip()
+    trainer_budget = str(context.get("trainer_budget") or "").strip()
+    known_detail_lines = [f"* Domain/Technology: {domain}"]
+    if duration and duration != "[Hours/Days]":
+        known_detail_lines.append(f"* Duration: {duration}")
+    if mode and mode != "[Online/Offline]":
+        known_detail_lines.append(f"* Mode: {mode}")
+    if participants and participants != "[Number]":
+        known_detail_lines.append(f"* Participants: {participants}")
+    training_dates = str(payload.get("training_dates") or payload.get("timeline_start") or "").strip()
+    if training_dates:
+        known_detail_lines.append(f"* Training dates: {training_dates}")
+    else:
+        known_detail_lines.append("* Training dates: To be shared once finalized by the client")
+    if trainer_budget:
+        known_detail_lines.append(f"* Commercial budget: INR {trainer_budget} per session")
+    requested_detail_lines = [
+        "* Total years of experience",
+        "* Number of trainings conducted previously",
+        "* Relevant certifications",
+        "* Preferred training mode (Online / Offline)",
+        "* Availability for Full-Day or Half-Day sessions",
+        "" if trainer_budget else "* Expected commercial charges per day/session",
+        "* Current location",
+        "* Availability for the mentioned dates",
+    ]
+    requested_detail_text = "\n".join(line for line in requested_detail_lines if line)
 
     if mail_type == "mail2":
         return {
@@ -4732,16 +8135,11 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
             "body": (
                 f"{greeting}\n\n"
                 "Thank you for your response.\n\n"
+                "Please find the current requirement details below:\n\n"
+                f"{chr(10).join(known_detail_lines)}\n\n"
                 "To proceed further, kindly share the below details:\n\n"
-                "* Total years of experience\n"
-                "* Number of trainings conducted previously\n"
-                "* Relevant certifications\n"
-                "* Preferred training mode (Online / Offline)\n"
-                "* Availability for Full-Day or Half-Day sessions\n"
-                "* Expected commercial charges per day/session\n"
-                "* Current location\n"
-                "* Availability for the mentioned dates\n\n"
-                "Regards,\nTrainerSync Team"
+                f"{requested_detail_text}\n\n"
+                "Best Regards,\nRecruitment Team\nClahan Technologies"
             ),
         }
 
@@ -5310,6 +8708,26 @@ async def create_requirement(req: RequirementCreate, request: Request):
     req_dict["client_email"] = str(req_dict.get("client_email") or "").strip()
     req_dict["client_phone"] = str(req_dict.get("client_phone") or "").strip()
     req_dict["client_whatsapp"] = str(req_dict.get("client_whatsapp") or "").strip()
+    req_dict["timeline_start"] = str(req_dict.get("timeline_start") or "").strip()
+    req_dict["timeline_end"] = str(req_dict.get("timeline_end") or "").strip()
+    req_dict["timing"] = str(req_dict.get("timing") or "").strip()
+    req_dict["training_dates"] = str(req_dict.get("training_dates") or "").strip()
+    if not req_dict["training_dates"] and (req_dict["timeline_start"] or req_dict["timeline_end"]):
+        req_dict["training_dates"] = " to ".join(
+            part for part in [req_dict["timeline_start"], req_dict["timeline_end"]] if part
+        )
+    if req_dict.get("duration_days") not in (None, ""):
+        try:
+            req_dict["duration_days"] = float(req_dict["duration_days"])
+        except Exception:
+            req_dict["duration_days"] = None
+    if req_dict.get("duration_hours") not in (None, ""):
+        try:
+            req_dict["duration_hours"] = float(req_dict["duration_hours"])
+        except Exception:
+            req_dict["duration_hours"] = None
+    if not req_dict.get("duration_days") and req_dict.get("duration_hours"):
+        req_dict["duration_days"] = max(1, round(float(req_dict["duration_hours"]) / 7, 2))
     if req_dict["client_email"]:
         req_dict["client_email_domain"] = sender_domain(req_dict["client_email"])
     req_dict.update({"requirement_id": req_id, "status": "active", "created_at": utc_now()})
@@ -6027,21 +9445,56 @@ async def update_requirement(requirement_id: str, payload: dict, request: Reques
 @router.post("/shortlists/send-mail")
 async def send_shortlist_mail(payload: dict, request: Request):
     db = get_db()
-    trainer_id     = payload.get("trainer_id")
-    trainer_name   = payload.get("trainer_name")
-    to_email       = payload.get("to_email")
-    trainer_phone  = payload.get("trainer_phone") or payload.get("phone") or ""
-    requirement_id = payload.get("requirement_id")
-    subject        = payload.get("subject")
-    body           = payload.get("body")
-    mail_type      = payload.get("mail_type", "first")
+    trainer_id     = str(payload.get("trainer_id") or "").strip()
+    trainer_name   = str(payload.get("trainer_name") or "").strip()
+    to_email       = str(payload.get("to_email") or "").strip()
+    trainer_phone  = str(payload.get("trainer_phone") or payload.get("phone") or "").strip()
+    requirement_id = str(payload.get("requirement_id") or "").strip()
+    subject        = str(payload.get("subject") or "").strip()
+    body           = str(payload.get("body") or "").strip()
+    mail_type      = str(payload.get("mail_type") or "first").strip()
     client_email   = str(payload.get("client_email") or "").strip()
     client_name    = str(payload.get("client_name") or "").strip()
     client_company = str(payload.get("client_company") or "").strip()
     client_phone   = str(payload.get("client_phone") or payload.get("client_whatsapp") or "").strip()
 
-    if not to_email or not body:
-        raise HTTPException(400, "to_email and body are required")
+    if trainer_id and not to_email:
+        trainer_doc = await db["trainers"].find_one(
+            {"trainer_id": trainer_id},
+            {"_id": 0, "email": 1, "trainer_email": 1, "name": 1, "trainer_name": 1, "phone": 1},
+        )
+        if trainer_doc:
+            to_email = str(trainer_doc.get("email") or trainer_doc.get("trainer_email") or "").strip()
+            trainer_name = trainer_name or str(trainer_doc.get("name") or trainer_doc.get("trainer_name") or "").strip()
+            trainer_phone = trainer_phone or str(trainer_doc.get("phone") or "").strip()
+
+    if not to_email:
+        raise HTTPException(400, "Trainer email is missing. Add a valid email to this trainer before sending mail.")
+    if not body:
+        raise HTTPException(400, "Email body is missing. Choose a valid mail stage/template before sending.")
+
+    if requirement_id and trainer_id and mail_type in {"mail1", "first"}:
+        existing_mail1 = await db["email_logs"].find_one(
+            {
+                "requirement_id": requirement_id,
+                "trainer_id": trainer_id,
+                "mail_type": {"$in": ["mail1", "first"]},
+                "status": "sent",
+            },
+            {"_id": 0, "email_id": 1, "sent_at": 1, "trainer_name": 1},
+            sort=[("sent_at", -1), ("created_at", -1)],
+        )
+        if existing_mail1:
+            return {
+                "success": True,
+                "skipped": True,
+                "status": "already_sent",
+                "message": "Mail 1 already sent to this trainer for this requirement",
+                "email_id": existing_mail1.get("email_id"),
+                "mail_type": mail_type,
+                "trainer_id": trainer_id,
+                "trainer_name": existing_mail1.get("trainer_name") or trainer_name,
+            }
 
     requirement_for_guard = {}
     if requirement_id:
@@ -6637,6 +10090,7 @@ async def get_whatsapp_logs(requirement_id: Optional[str] = None, page: int = 1,
 # ─── Check Replies ────────────────────────────────────────────────────────────
 
 async def _auto_send_client_slots_from_trainer_reply(db, request: Request, log: dict, reply: dict) -> dict:
+    return {"skipped": True, "reason": "Client slot mails are manual only"}
     if (log or {}).get("mail_type") not in {"mail3", "mail3_slot_followup"}:
         return {"skipped": True, "reason": "Not an interview slot booking reply"}
     if not looks_like_trainer_slots(reply.get("body") or ""):
@@ -6789,6 +10243,535 @@ async def _process_pending_client_slot_confirmations_from_logs(
     return {"checked": len(logs), "processed": processed, "skipped": skipped, "failed": failed}
 
 
+def _looks_like_extra_training_question(text: str = "") -> bool:
+    body = str(text or "").strip().lower()
+    if not body:
+        return False
+    question_terms = [
+        "?", "what", "when", "where", "how", "can you", "could you", "please confirm",
+        "duration", "timing", "time", "date", "start date", "end date", "schedule",
+        "mode", "online", "classroom", "hybrid", "client", "company", "location",
+        "rate", "budget", "payment", "invoice", "po", "purchase order",
+        "toc", "agenda", "content", "syllabus", "tools", "labs", "interview",
+        "meeting", "link", "slot", "availability", "hours", "training",
+    ]
+    return any(term in body for term in question_terms)
+
+
+def _looks_like_profile_details_request_stage(log: dict, question: str = "") -> bool:
+    mail_type = str((log or {}).get("mail_type") or "").strip().lower()
+    text = str(question or "").lower()
+    positive_interest = any(
+        phrase in text
+        for phrase in [
+            "yes",
+            "interested",
+            "available",
+            "can deliver",
+            "can take",
+            "can handle",
+            "please share",
+            "share the detailed requirement",
+            "share detailed requirement",
+            "share the toc",
+            "share toc",
+            "share agenda",
+            "other details",
+        ]
+    )
+    asks_requirement_before_profile = any(
+        phrase in text
+        for phrase in [
+            "share the detailed requirement",
+            "share detailed requirement",
+            "please share the requirement",
+            "please share requirement",
+            "share the toc",
+            "share toc",
+            "share agenda",
+            "other details",
+            "detailed requirement",
+            "toc and other details",
+        ]
+    )
+    return mail_type in {"mail1", "mail1_reminder", "trainer_interest_check"} and positive_interest and asks_requirement_before_profile
+
+
+def _trainer_profile_details_reply(log: dict, reply: dict, requirement: dict | None) -> dict:
+    requirement = requirement or {}
+    trainer_name = log.get("trainer_name") or "Trainer"
+    technology = (
+        requirement.get("technology_needed")
+        or log.get("technology")
+        or log.get("domain")
+        or "the training"
+    )
+    known_detail_lines = [f"* Domain/Technology: {technology}"]
+
+    def add_known(label: str, *values) -> None:
+        for value in values:
+            text = str(value or "").strip()
+            if text:
+                known_detail_lines.append(f"* {label}: {text}")
+                return
+
+    add_known("Duration", requirement.get("duration_days") and f"{requirement.get('duration_days')} day(s)", requirement.get("duration"), requirement.get("training_duration"))
+    add_known("Training dates", requirement.get("training_dates"), " ".join([str(requirement.get("timeline_start") or ""), str(requirement.get("timeline_end") or "")]).strip())
+    add_known("Daily timing", requirement.get("daily_timing"), requirement.get("timing"), requirement.get("training_timing"))
+    add_known("Mode", requirement.get("mode"), requirement.get("training_mode"))
+    add_known("Audience level", requirement.get("audience_level"), requirement.get("level"))
+
+    if len(known_detail_lines) == 1:
+        known_detail_lines.append("* Detailed schedule, duration, participant count, and TOC will be shared once finalized by the client")
+
+    return {
+        "subject": f"Re: {reply.get('subject') or log.get('subject') or f'Training Requirement - {technology}'}",
+        "body": (
+            f"Dear {trainer_name},\n\n"
+            f"Thank you for confirming your interest in the {technology} training requirement.\n\n"
+            "Please find the currently available requirement details below:\n\n"
+            f"{chr(10).join(known_detail_lines)}\n\n"
+            "To proceed further, kindly share your updated trainer profile/resume along with the below details:\n\n"
+            "* Total years of experience\n"
+            "* Number of trainings conducted previously\n"
+            "* Relevant certifications, if any\n"
+            "* Preferred training mode: Online / Offline / Hybrid\n"
+            "* Availability for Full-Day or Half-Day sessions\n"
+            "* Current location\n"
+            "* Commercial expectation per day/session\n\n"
+            "Once we receive the above details, we will review your profile and share the next steps accordingly.\n\n"
+            "Best Regards,\n"
+            "Recruitment Team\n"
+            "Clahan Technologies"
+        ),
+        "ai_used": False,
+        "fallback": True,
+        "reply_kind": "profile_details_request",
+    }
+
+
+def _extra_training_reply_fallback(log: dict, reply: dict, requirement: dict | None) -> dict:
+    requirement = requirement or {}
+    trainer_name = log.get("trainer_name") or "Trainer"
+    technology = (
+        requirement.get("technology_needed")
+        or log.get("technology")
+        or log.get("domain")
+        or "the training"
+    )
+    question = _strip_quoted_reply_text(reply.get("body") or "").lower()
+
+    if _looks_like_profile_details_request_stage(log, question):
+        return _trainer_profile_details_reply(log, reply, requirement)
+
+    def asked(*terms: str) -> bool:
+        return any(term in question for term in terms)
+
+    def first_value(*values) -> str:
+        for value in values:
+            text = str(value or "").strip()
+            if text:
+                return text
+        return ""
+
+    def duration_value() -> str:
+        if requirement.get("duration_days"):
+            return f"{requirement.get('duration_days')} day(s)"
+        if requirement.get("duration_hours"):
+            return f"{requirement.get('duration_hours')} hour(s)"
+        return first_value(requirement.get("duration"), requirement.get("training_duration"))
+
+    def dates_value() -> str:
+        return first_value(
+            requirement.get("training_dates"),
+            " ".join([str(requirement.get("timeline_start") or ""), str(requirement.get("timeline_end") or "")]).strip(),
+        )
+
+    def commercial_value() -> str:
+        amount = (
+            requirement.get("trainer_visible_budget_per_session")
+            or requirement.get("trainer_requested_budget_per_session")
+            or (log.get("commercials") or {}).get("requested_trainer_commercial")
+            or requirement.get("trainer_visible_budget_per_hour")
+            or requirement.get("trainer_commercial_per_hour")
+        )
+        if not amount:
+            return ""
+        unit = "hour" if requirement.get("trainer_visible_budget_per_hour") or requirement.get("trainer_commercial_per_hour") else "session"
+        try:
+            amount_text = f"{float(amount):,.0f}"
+        except Exception:
+            amount_text = str(amount)
+        return f"INR {amount_text} per {unit}"
+
+    asked_fields = []
+    if asked("duration", "how many days", "how many hours", "hours", "days"):
+        asked_fields.append(("Duration", duration_value(), "The duration has not been finalized yet. We will share it once confirmed by the client."))
+    if asked("date", "dates", "start date", "end date", "schedule", "when"):
+        asked_fields.append(("Training dates", dates_value(), "The client has not confirmed the training dates yet. We will share them once finalized by the client."))
+    if asked("timing", "time", "daily timing", "daily timings", "slot"):
+        asked_fields.append(("Daily timing", first_value(requirement.get("daily_timing"), requirement.get("timing"), requirement.get("training_timing")), "The daily timing has not been finalized yet. We will share it once confirmed by the client."))
+    if asked("mode", "online", "offline", "classroom", "hybrid"):
+        asked_fields.append(("Training mode", first_value(requirement.get("mode"), requirement.get("training_mode")), "The training mode has not been finalized yet. We will share it once confirmed by the client."))
+    if asked("commercial", "commercials", "rate", "budget", "payment", "charges", "price", "cost"):
+        asked_fields.append(("Commercial", commercial_value(), "The commercial is not finalized yet. We will confirm it shortly."))
+    if asked("location", "venue", "city", "place"):
+        asked_fields.append(("Location", first_value(requirement.get("location"), requirement.get("preferred_location"), requirement.get("venue")), "The location/venue has not been finalized yet. We will share it once confirmed by the client."))
+    if asked("participant", "participants", "audience", "batch size", "count"):
+        asked_fields.append(("Participants", first_value(requirement.get("participant_count"), requirement.get("participants")), "The participant count has not been finalized yet. We will share it once confirmed by the client."))
+    if asked("level", "beginner", "intermediate", "advanced"):
+        asked_fields.append(("Audience level", first_value(requirement.get("audience_level"), requirement.get("level")), "The audience level has not been finalized yet. We will share it once confirmed by the client."))
+    if asked("client", "company"):
+        asked_fields.append(("Client", first_value(requirement.get("client_company"), requirement.get("client_name"), log.get("client_name")), "Client details will be shared once confirmed for the next step."))
+    if asked("toc", "agenda", "content", "syllabus"):
+        asked_fields.append(("TOC/Agenda", first_value(requirement.get("toc_summary"), requirement.get("job_description")), "The TOC/agenda is not finalized yet. We will share it once confirmed."))
+
+    if not asked_fields:
+        asked_fields = [("Requirement", technology, "The requirement details are under coordination and will be shared once confirmed.")]
+
+    lines = []
+    for label, value, missing_text in asked_fields:
+        lines.append(f"{label}: {value}" if value else missing_text)
+    answer_block = "\n".join(lines)
+    return {
+        "subject": f"Re: {reply.get('subject') or log.get('subject') or f'Training Requirement - {technology}'}",
+        "body": (
+            f"Dear {trainer_name},\n\n"
+            "Thank you for your question.\n\n"
+            f"{answer_block}\n\n"
+            "Best Regards,\n"
+            "Recruitment Team\n"
+            "Clahan Technologies"
+        ),
+        "ai_used": False,
+        "fallback": True,
+    }
+
+
+async def _generate_extra_training_question_reply(db, log: dict, reply: dict, requirement: dict | None) -> dict:
+    fallback = _extra_training_reply_fallback(log, reply, requirement)
+    if fallback.get("reply_kind") == "profile_details_request":
+        return fallback
+    api_key = (os.getenv("GEMINI_API_KEY", "") or getattr(settings, "gemini_api_key", "")).strip()
+    if _is_placeholder_api_key(api_key):
+        return fallback
+
+    requirement = requirement or {}
+    model = (os.getenv("GEMINI_MODEL", "") or getattr(settings, "gemini_model", "") or "gemini-2.0-flash").strip()
+    trainer_name = log.get("trainer_name") or "Trainer"
+    technology = requirement.get("technology_needed") or log.get("technology") or log.get("domain") or "Training"
+    prompt = f"""
+You are a professional training coordination assistant for Clahan Technologies.
+
+Write a short, helpful email reply to the trainer/client's extra question.
+
+Rules:
+- Answer only the specific question(s) asked by the trainer/client.
+- If they ask multiple items together, answer those items together.
+- If this is the first trainer interest reply and they ask for TOC/details/detailed requirement before sharing profile, ask for updated trainer profile/resume and trainer details first. Share only known requirement details; say missing details will be updated after client confirmation.
+- If a requested detail is available in the known context, share it.
+- If a requested detail is missing, say it is not finalized yet and will be shared once confirmed by the client.
+- Do not add unrelated reminders, requests, or commercial/profile follow-ups unless the question asks about them.
+- Do not invent dates, rates, links, or commitments.
+- Keep it concise and professional.
+- Do not mention AI, Gemini, internal systems, or tokens.
+- Return only the email body, no subject.
+
+Recipient name: {trainer_name}
+Original subject: {reply.get('subject') or log.get('subject') or ''}
+Incoming question:
+{str(reply.get('body') or '')[:6000]}
+
+Training context:
+Technology: {technology}
+Client: {requirement.get('client_name') or requirement.get('client_company') or log.get('client_name') or ''}
+Client email: {requirement.get('client_email') or log.get('client_email') or ''}
+Duration days: {requirement.get('duration_days') or ''}
+Duration hours: {requirement.get('duration_hours') or ''}
+Training dates: {requirement.get('training_dates') or ''}
+Start date: {requirement.get('timeline_start') or ''}
+End date: {requirement.get('timeline_end') or ''}
+Timing: {requirement.get('timing') or ''}
+Mode: {requirement.get('mode') or ''}
+Level: {requirement.get('level') or requirement.get('audience_level') or ''}
+Requirement notes: {requirement.get('job_description') or requirement.get('client_notes') or ''}
+Latest mail stage: {log.get('mail_type') or ''}
+"""
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        async with _httpx.AsyncClient(timeout=30) as client:
+            res = await client.post(url, json={
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.25, "maxOutputTokens": 700},
+            })
+            res.raise_for_status()
+            data = res.json()
+        body = (
+            data.get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [{}])[0]
+            .get("text", "")
+            .strip()
+        )
+        if not body:
+            return fallback
+        usage = data.get("usageMetadata") or {}
+        input_tokens = int(usage.get("promptTokenCount") or max(1, len(prompt) // 4))
+        output_tokens = int(usage.get("candidatesTokenCount") or max(1, len(body) // 4))
+        rates = await _dashboard_cost_rates(db)
+        cost_inr = (
+            (input_tokens / 1000) * rates["gemini_input_1k_tokens"]
+            + (output_tokens / 1000) * rates["gemini_output_1k_tokens"]
+        )
+        await db["ai_usage_logs"].insert_one({
+            "usage_id": f"AI-{uuid.uuid4().hex[:10].upper()}",
+            "provider": "gemini",
+            "model": model,
+            "feature": "extra_training_question_reply",
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "cost_inr": _money(cost_inr),
+            "metadata": {
+                "email_id": log.get("email_id"),
+                "trainer_id": log.get("trainer_id"),
+                "requirement_id": log.get("requirement_id"),
+                "mail_type": log.get("mail_type"),
+            },
+            "created_at": utc_now(),
+        })
+        return {
+            "subject": fallback["subject"],
+            "body": body,
+            "ai_used": True,
+            "fallback": False,
+        }
+    except Exception as exc:
+        logger.warning("Extra training question Gemini reply failed; using fallback: %s", exc)
+        return fallback
+
+
+async def _auto_reply_extra_training_question(
+    db,
+    request: Request,
+    *,
+    log: dict,
+    reply: dict,
+    from_email: str,
+    replied_at: datetime,
+    message_id_header: str = "",
+) -> dict | None:
+    if not _looks_like_extra_training_question(reply.get("body") or ""):
+        return None
+    action = (reply.get("action") or "").strip()
+    sentiment = (reply.get("sentiment") or "").strip().lower()
+    if action == "mark_declined" or sentiment == "negative":
+        return None
+    if action not in {"requires_review", "", "mark_interested"} and sentiment not in {"neutral", "positive"}:
+        return None
+
+    existing = await db["conversations"].find_one({
+        "direction": "sent",
+        "mail_type": "ai_extra_question_reply",
+        "$or": [
+            {"in_reply_to": message_id_header} if message_id_header else {"source_email_id": log.get("email_id")},
+            {"source_email_id": log.get("email_id"), "to_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"}},
+        ],
+    })
+    if existing:
+        return {"skipped": True, "reason": "AI extra question reply already sent", "email_id": existing.get("email_id")}
+
+    requirement = None
+    if log.get("requirement_id"):
+        requirement = await db["requirements"].find_one({"requirement_id": log.get("requirement_id")}, {"_id": 0})
+
+    generated = await _generate_extra_training_question_reply(db, log, reply, requirement)
+    email_id = f"AI-EXTRA-{uuid.uuid4().hex[:8].upper()}"
+    tracking_url = build_tracking_url(request, email_id)
+    smtp_config = await get_admin_email_config(db)
+    success, error = await send_email_async(
+        from_email,
+        generated["subject"],
+        generated["body"],
+        smtp_config,
+        tracking_url,
+    )
+    now = utc_now()
+    log_doc = {
+        "email_id": email_id,
+        "trainer_id": log.get("trainer_id"),
+        "trainer_name": log.get("trainer_name"),
+        "requirement_id": log.get("requirement_id"),
+        "to_email": from_email,
+        "subject": generated["subject"],
+        "body": generated["body"],
+        "direction": "sent",
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "sent_at": now if success else None,
+        "reply_received": False,
+        "opened": False,
+        "open_count": 0,
+        "tracking_url": tracking_url,
+        "retry_count": 0,
+        "mail_type": "ai_extra_question_reply",
+        "source": "ai_extra_training_question",
+        "source_email_id": log.get("email_id"),
+        "in_reply_to": message_id_header,
+        "ai_used": generated.get("ai_used", False),
+        "fallback": generated.get("fallback", False),
+        "created_at": now,
+    }
+    await db["email_logs"].insert_one(log_doc)
+    await db["conversations"].insert_one({
+        **log_doc,
+        "status": "sent" if success else "failed",
+        "error": error if not success else "",
+    })
+    await db["email_logs"].update_one(
+        {"email_id": log.get("email_id")},
+        {"$set": {
+            "extra_question_reply_result": {
+                "success": success,
+                "error": error,
+                "email_id": email_id,
+                "ai_used": generated.get("ai_used", False),
+                "fallback": generated.get("fallback", False),
+            },
+            "extra_question_reply_checked_at": now,
+        }},
+    )
+    return {
+        "success": success,
+        "error": error,
+        "email_id": email_id,
+        "ai_used": generated.get("ai_used", False),
+        "fallback": generated.get("fallback", False),
+    }
+
+
+def _extract_toc_detail_fields(text: str = "") -> dict:
+    body = str(text or "").strip()
+    if not body:
+        return {}
+
+    def field(label: str) -> str:
+        match = _re.search(
+            rf"(?im)^\s*(?:[-*]\s*)?{label}\s*:\s*(.+?)(?=\n\s*(?:[-*]\s*)?(?:Duration|Dates?|Timings?|Audience\s+Level|Mode|Content\s+Scope)\s*:|\n\s*(?:Please|Regards|Thanks|Thank you)\b|\Z)",
+            body,
+            flags=_re.IGNORECASE | _re.DOTALL,
+        )
+        return " ".join(match.group(1).strip().split()) if match else ""
+
+    duration_text = field("Duration")
+    dates_text = field("Dates?")
+    timing_text = field("Timings?")
+    audience_level = field("Audience\\s+Level")
+    mode = field("Mode")
+    content_scope = field("Content\\s+Scope")
+
+    if not timing_text and duration_text:
+        time_match = _re.search(
+            r"(\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm)\s*(?:-|to|–|—)\s*\d{1,2}(?::\d{2})?\s*(?:AM|PM|am|pm))",
+            duration_text,
+        )
+        if time_match:
+            timing_text = time_match.group(1)
+
+    duration_days = None
+    day_match = _re.search(r"\b(\d{1,3})\s*(?:day|days)\b", duration_text, flags=_re.IGNORECASE)
+    if day_match:
+        duration_days = max(1, min(int(day_match.group(1)), 100))
+
+    update = {}
+    if duration_days:
+        update["duration_days"] = float(duration_days)
+    if duration_text:
+        update["duration_text"] = duration_text
+    if dates_text:
+        update["training_dates"] = dates_text
+        date_match = _re.search(r"(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\s*(?:to|-|–|—)\s*(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})", dates_text)
+        if date_match:
+            update["timeline_start"] = date_match.group(1)
+            update["timeline_end"] = date_match.group(2)
+    if timing_text:
+        update["timing"] = timing_text
+    if audience_level:
+        clean_level = audience_level.strip().lower()
+        if any(level in clean_level for level in ("basic", "beginner")):
+            update["audience_level"] = "Basic"
+        elif "advanced" in clean_level:
+            update["audience_level"] = "Advanced"
+        elif "mixed" in clean_level:
+            update["audience_level"] = "Mixed"
+        elif "intermediate" in clean_level:
+            update["audience_level"] = "Intermediate"
+        else:
+            update["audience_level"] = audience_level.strip()
+    if mode:
+        clean_mode = mode.strip().lower()
+        if "class" in clean_mode:
+            update["mode"] = "Classroom"
+        elif "hybrid" in clean_mode:
+            update["mode"] = "Hybrid"
+        elif "online" in clean_mode or "virtual" in clean_mode:
+            update["mode"] = "Online"
+        else:
+            update["mode"] = mode.strip()
+    if content_scope:
+        update["content_scope"] = content_scope.strip()
+        update["client_notes"] = content_scope.strip()
+    return update
+
+
+async def _process_client_toc_details_reply(db, request: Request, *, log: dict, reply: dict, from_email: str, replied_at: datetime) -> dict | None:
+    body = reply.get("body") or ""
+    subject = reply.get("subject") or ""
+    if not any(marker in f"{subject}\n{body}".lower() for marker in ("audience level", "content scope", "prepare and share the toc", "training details")):
+        return None
+    requirement_id = log.get("requirement_id") or ""
+    if not requirement_id:
+        return None
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    if not requirement:
+        return None
+    details = _extract_toc_detail_fields(body)
+    if not details:
+        return None
+
+    now = utc_now()
+    details.update({
+        "toc_input_status": "details_received",
+        "toc_input_received_at": now,
+        "toc_input_source_email": from_email,
+        "toc_input_reply_text": body,
+        "updated_at": now,
+    })
+    await db["requirements"].update_one({"requirement_id": requirement_id}, {"$set": details})
+    updated_requirement = {**requirement, **details}
+
+    trainer = {}
+    trainer_id = log.get("trainer_id") or requirement.get("selected_trainer_id") or ""
+    if trainer_id:
+        trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or {}
+    trainer.setdefault("trainer_id", trainer_id)
+    trainer.setdefault("name", log.get("trainer_name") or requirement.get("selected_trainer_name") or "")
+    trainer.setdefault("email", log.get("trainer_email") or trainer.get("email") or "")
+
+    toc_result = await _auto_generate_and_send_toc(
+        db,
+        request,
+        trainer=trainer,
+        requirement=updated_requirement,
+        source="client_toc_details_reply",
+    )
+    return {
+        "status": "toc_details_processed",
+        "requirement_id": requirement_id,
+        "updated_fields": details,
+        "toc_result": toc_result,
+    }
+
+
 @router.post("/emails/check-replies")
 async def manual_reply_check(request: Request):
     db = get_db()
@@ -6806,7 +10789,7 @@ async def manual_reply_check(request: Request):
     gmail_ok, replies, gmail_error = await asyncio.to_thread(
         _check_gmail_replies_fast,
         since_days=14,
-        max_messages=50,
+        max_messages=100,
         from_emails=sent_recipients,
     )
     reply_source = "gmail_api" if gmail_ok else "imap"
@@ -6814,10 +10797,12 @@ async def manual_reply_check(request: Request):
         replies = await asyncio.to_thread(
             check_email_replies,
             since_days=14,
-            max_messages=50,
+            max_messages=100,
             from_emails=sent_recipients,
             gmail_user=smtp_config.get("smtpUser") or "",
             gmail_pass=smtp_config.get("smtpPass") or "",
+            imap_host=smtp_config.get("imapHost") or ("imap.hostinger.com" if "hostinger" in str(smtp_config.get("smtpHost") or "").lower() else "imap.gmail.com"),
+            imap_port=int(smtp_config.get("imapPort") or 993),
         )
     processed = 0
     skipped_duplicates = 0
@@ -6825,6 +10810,79 @@ async def manual_reply_check(request: Request):
     client_slot_auto_sent = 0
     client_slot_auto_failed = 0
     client_slot_auto_results = []
+    client_decision_results = []
+    client_po_results = []
+    extra_question_ai_replies_sent = 0
+    extra_question_ai_replies_failed = 0
+    extra_question_ai_reply_results = []
+    client_toc_detail_results = []
+    next_trainer_followups = []
+
+    async def process_client_decision_reply(reply: dict, from_email: str, replied_at):
+        body = reply.get("body") or ""
+        subject = reply.get("subject") or ""
+        if not _detect_client_interview_decision(subject, body).get("decision"):
+            return None
+        slot_meta = {
+            "from_email": from_email,
+            "subject": subject,
+            "snippet": body[:500],
+            "clean_body": body,
+            "received_at": replied_at,
+        }
+        if await _matching_client_slot_email(db, slot_meta, body):
+            return None
+        client_match = await db["requirements"].find_one(
+            {"client_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"}},
+            {"_id": 0, "requirement_id": 1},
+        )
+        slot_mail_match = await db["email_logs"].find_one(
+            {
+                "to_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"},
+                "mail_type": "client_slot_options",
+                "status": "sent",
+            },
+            {"_id": 0, "email_id": 1},
+        )
+        if not client_match and not slot_mail_match:
+            return None
+        meta = {
+            "email_id": reply.get("msg_id") or reply.get("message_id_header") or f"reply-{hashlib.sha256((subject + body).encode('utf-8')).hexdigest()[:16]}",
+            "gmail_message_id": reply.get("msg_id") or reply.get("message_id_header") or "",
+            "thread_id": reply.get("thread_id") or "",
+            "from_email": from_email,
+            "from_name": reply.get("from_name") or "",
+            "subject": subject,
+            "clean_body": body,
+            "raw_body": body,
+            "snippet": body[:500],
+            "received_at": replied_at,
+        }
+        result = await _process_client_interview_decision(db, meta, request)
+        if result:
+            await _save_post_interview_decision_email(db, meta, result)
+        return result
+
+    async def process_client_po_reply(reply: dict, from_email: str, replied_at):
+        body = reply.get("body") or ""
+        subject = reply.get("subject") or ""
+        if not _extract_client_po_details(subject, body):
+            return None
+        meta = {
+            "email_id": reply.get("msg_id") or reply.get("message_id_header") or f"client-po-{hashlib.sha256((subject + body).encode('utf-8')).hexdigest()[:16]}",
+            "gmail_message_id": reply.get("msg_id") or reply.get("message_id_header") or "",
+            "thread_id": reply.get("thread_id") or "",
+            "from_email": from_email,
+            "from_name": reply.get("from_name") or "",
+            "subject": subject,
+            "clean_body": body,
+            "raw_body": body,
+            "snippet": body[:500],
+            "received_at": replied_at,
+            "message_id_header": reply.get("message_id_header", ""),
+        }
+        return await _process_client_purchase_order_email(db, meta, request)
+
     for reply in replies:
         from_raw = reply["from_email"]
         m = _re.search(r'<([^>]+)>', from_raw)
@@ -6843,6 +10901,40 @@ async def manual_reply_check(request: Request):
             {"_id": 0, "trainer_id": 1, "trainer_name": 1, "requirement_id": 1, "sent_at": 1},
         )
         if existing_reply:
+            if existing_reply.get("requirement_id"):
+                toc_log = await db["email_logs"].find_one(
+                    {
+                        "requirement_id": existing_reply.get("requirement_id"),
+                        "to_email": {"$regex": f"^{_re.escape(from_email_clean)}$", "$options": "i"},
+                        "mail_type": "client_toc_details_request",
+                        "status": "sent",
+                    },
+                    {"_id": 0},
+                    sort=[("created_at", -1), ("sent_at", -1)],
+                )
+                if toc_log:
+                    toc_detail_result = await _process_client_toc_details_reply(
+                        db,
+                        request,
+                        log=toc_log,
+                        reply=reply,
+                        from_email=from_email_clean,
+                        replied_at=existing_reply.get("sent_at") or utc_now(),
+                    )
+                    if toc_detail_result:
+                        client_toc_detail_results.append(toc_detail_result)
+                        skipped_duplicates += 1
+                        continue
+            po_result = await process_client_po_reply(reply, from_email_clean, existing_reply.get("sent_at") or utc_now())
+            if po_result:
+                client_po_results.append(po_result)
+                skipped_duplicates += 1
+                continue
+            decision_result = await process_client_decision_reply(reply, from_email_clean, existing_reply.get("sent_at") or utc_now())
+            if decision_result:
+                client_decision_results.append(decision_result)
+                skipped_duplicates += 1
+                continue
             if existing_reply.get("trainer_id") and existing_reply.get("requirement_id"):
                 slot_log = await db["email_logs"].find_one(
                     {
@@ -6873,6 +10965,18 @@ async def manual_reply_check(request: Request):
         except Exception:
             replied_at = utc_now()
 
+        po_result = await process_client_po_reply(reply, from_email_clean, replied_at)
+        if po_result:
+            client_po_results.append(po_result)
+            processed += 1
+            continue
+
+        decision_result = await process_client_decision_reply(reply, from_email_clean, replied_at)
+        if decision_result:
+            client_decision_results.append(decision_result)
+            processed += 1
+            continue
+
         reply_subject_norm = _norm_subject(reply.get("subject", ""))
         candidate_logs = await db["email_logs"].find(
             {
@@ -6902,6 +11006,8 @@ async def manual_reply_check(request: Request):
                 score += 120
             if item.get("mail_type") == "mail1_reminder" and "reminder" in reply_subject_norm:
                 score += 30
+            if item.get("mail_type") == "trainer_commercial_negotiation" and "commercial" in reply_subject_norm:
+                score += 180
             if item.get("reply_received"):
                 score -= 40
             return score
@@ -6963,6 +11069,20 @@ async def manual_reply_check(request: Request):
                 processed += 1
                 continue
 
+            if log.get("mail_type") == "client_toc_details_request":
+                toc_detail_result = await _process_client_toc_details_reply(
+                    db,
+                    request,
+                    log=log,
+                    reply=reply,
+                    from_email=from_email_clean,
+                    replied_at=replied_at,
+                )
+                if toc_detail_result:
+                    client_toc_detail_results.append(toc_detail_result)
+                    processed += 1
+                    continue
+
             duplicate_query = {
                 "to_email": from_email_clean,
                 "requirement_id": requirement_id_matched,
@@ -7010,10 +11130,34 @@ async def manual_reply_check(request: Request):
                     },
                 )
 
+            extra_reply_result = await _auto_reply_extra_training_question(
+                db,
+                request,
+                log=log,
+                reply=reply,
+                from_email=from_email_clean,
+                replied_at=replied_at,
+                message_id_header=message_id_header,
+            )
+            if extra_reply_result and not extra_reply_result.get("skipped"):
+                extra_question_ai_reply_results.append(extra_reply_result)
+                if extra_reply_result.get("success"):
+                    extra_question_ai_replies_sent += 1
+                else:
+                    extra_question_ai_replies_failed += 1
+
             await db["trainers"].update_one(
                 {"trainer_id": trainer_id_matched},
                 {"$set": {"status": status_map.get(reply["action"], "pending_review")}}
             )
+            if reply.get("action") == "mark_declined":
+                followup_result = await _send_next_trainer_after_decline(
+                    db,
+                    request,
+                    declined_log=log,
+                    reply=reply,
+                )
+                next_trainer_followups.append(followup_result)
             slot_result = await _auto_send_client_slots_from_trainer_reply(db, request, log, reply)
             if slot_result and not slot_result.get("skipped"):
                 client_slot_auto_results.append(slot_result)
@@ -7025,12 +11169,7 @@ async def manual_reply_check(request: Request):
         else:
             skipped_unmatched += 1
 
-    pending_slot_scan = await send_pending_client_slot_replies(
-        db,
-        tracking_url_builder=lambda email_id: build_tracking_url(request, email_id),
-        source="reply_check_pending_scan",
-        request_base_url=_request_base_url(request),
-    )
+    pending_slot_scan = {"checked": 0, "sent": 0, "failed": 0, "results": [], "manual_only": True}
     client_slot_auto_sent += pending_slot_scan.get("sent", 0)
     client_slot_auto_failed += pending_slot_scan.get("failed", 0)
     client_slot_auto_results.extend(pending_slot_scan.get("results") or [])
@@ -7040,7 +11179,6 @@ async def manual_reply_check(request: Request):
         limit=25,
     )
     client_slot_auto_results.extend(client_confirmation_scan.get("processed") or [])
-
     if processed > 0 and reply_source == "imap":
         from agents.email_agent import mark_emails_seen
         msg_ids = [r["msg_id"] for r in replies if r.get("msg_id")]
@@ -7060,6 +11198,17 @@ async def manual_reply_check(request: Request):
         "client_slot_confirmations_checked": client_confirmation_scan.get("checked", 0),
         "client_slot_confirmations_failed": client_confirmation_scan.get("failed", 0),
         "client_slot_auto_results": client_slot_auto_results,
+        "client_decision_processed": len(client_decision_results),
+        "client_decision_results": client_decision_results,
+        "client_po_processed": len(client_po_results),
+        "client_po_results": client_po_results,
+        "client_toc_details_processed": len(client_toc_detail_results),
+        "client_toc_detail_results": client_toc_detail_results,
+        "extra_question_ai_replies_sent": extra_question_ai_replies_sent,
+        "extra_question_ai_replies_failed": extra_question_ai_replies_failed,
+        "extra_question_ai_reply_results": extra_question_ai_reply_results,
+        "next_trainer_followups": next_trainer_followups,
+        "client_decision_error": "",
     }
 
 
@@ -7067,22 +11216,154 @@ async def manual_reply_check(request: Request):
 
 @router.get("/scheduler/config")
 async def get_scheduler_config_route():
-    return get_scheduler_config()
+    return await load_scheduler_config_from_db()
 
 
 @router.post("/scheduler/config")
 async def update_scheduler_config_route(payload: dict):
-    allowed = {"retry_interval_unit", "retry_interval_value", "reply_check_interval", "max_retries", "auto_retry_enabled"}
+    allowed = {
+        "retry_interval_unit", "retry_interval_value", "reply_check_interval",
+        "gmail_fallback_interval", "excel_sync_interval", "max_retries",
+        "auto_retry_enabled", "linkedin_client_lead_interval",
+        "linkedin_client_lead_enabled",
+    }
     clean = {k: v for k, v in payload.items() if k in allowed}
     if not clean:
         raise HTTPException(400, "No valid config keys provided")
     if "retry_interval_unit" in clean and clean["retry_interval_unit"] not in ("minutes", "hours", "days"):
         raise HTTPException(400, "retry_interval_unit must be 'minutes', 'hours', or 'days'")
-    update_scheduler_config(clean)
-    return {"message": "Scheduler config updated", "config": get_scheduler_config()}
+    config = await save_scheduler_config_to_db(clean)
+    return {"message": "Scheduler config updated", "config": config}
 
 
 # ─── Dashboard Stats ──────────────────────────────────────────────────────────
+
+@router.get("/business-excel/status")
+async def business_excel_status():
+    path = workbook_path()
+    return {
+        "path": str(path),
+        "exists": path.exists(),
+        "updated_at": datetime.fromtimestamp(path.stat().st_mtime).isoformat() if path.exists() else "",
+        "filename": path.name,
+    }
+
+
+@router.post("/business-excel/sync")
+async def sync_business_excel_route():
+    return await sync_business_excel(get_db())
+
+
+@router.post("/business-excel/send-email")
+async def send_business_excel_email(payload: dict = {}):
+    db = get_db()
+    sync_result = await sync_business_excel(db)
+    path = workbook_path()
+    if not path.exists():
+        raise HTTPException(404, "Business Excel workbook was not found after sync")
+
+    to_email = str(payload.get("to_email") or "sujithamuttarasu@gmail.com").strip()
+    if not to_email or "@" not in to_email:
+        raise HTTPException(400, "Valid to_email is required")
+
+    subject = str(payload.get("subject") or "TrainerSync Business Excel Register").strip()
+    body = str(payload.get("body") or (
+        "Dear Team,\n\n"
+        "Please find attached the latest TrainerSync business Excel register.\n\n"
+        "This workbook includes trainer data, requirements, selected/rejected details, "
+        "client PO details, invoices, and monthly summary.\n\n"
+        "Regards,\n"
+        "Clahan Technologies"
+    )).strip()
+
+    smtp_config = await get_admin_email_config(db)
+    file_bytes = path.read_bytes()
+    success, error = _send_email_with_file_attachment(
+        to_email,
+        subject,
+        body,
+        path.name,
+        file_bytes,
+        smtp_config,
+        subtype="vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+    email_id = f"EMAIL-{uuid.uuid4().hex[:8].upper()}"
+    await db["email_logs"].insert_one({
+        "email_id": email_id,
+        "mail_type": "business_excel_report",
+        "from_email": smtp_config.get("fromEmail") or smtp_config.get("smtpUser") or "",
+        "to_email": to_email,
+        "subject": subject,
+        "body": body,
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "attachment_filename": path.name,
+        "attachment_path": str(path),
+        "sync_result": sync_result,
+        "created_at": utc_now(),
+        "sent_at": utc_now() if success else None,
+    })
+
+    if not success:
+        raise HTTPException(500, error or "Business Excel email failed")
+
+    return {
+        "success": True,
+        "message": "Business Excel workbook sent successfully",
+        "email_id": email_id,
+        "to_email": to_email,
+        "filename": path.name,
+        "path": str(path),
+        "sync_result": sync_result,
+    }
+
+
+@router.post("/business-excel/upload-drive")
+async def upload_business_excel_to_drive(payload: dict = {}):
+    db = get_db()
+    sync_result = await sync_business_excel(db)
+    path = workbook_path()
+    if not path.exists():
+        raise HTTPException(404, "Business Excel workbook was not found after sync")
+
+    folder_name = str(payload.get("folder_name") or "TrainerSync Business Reports").strip()
+    file_name = str(payload.get("file_name") or path.name).strip()
+    try:
+        upload_result = upload_file_to_drive(
+            str(path),
+            name=file_name,
+            folder_name=folder_name,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            400,
+            {
+                "message": "Google Drive upload failed. Reconnect Google OAuth and approve Drive permission.",
+                "error": str(exc),
+                "required_action": "Open /api/gmail/oauth-url and reconnect the Google account with Gmail, Calendar, and Drive permissions.",
+            },
+        )
+
+    await db["excel_drive_uploads"].insert_one({
+        "upload_id": f"DRIVE-{uuid.uuid4().hex[:8].upper()}",
+        "filename": file_name,
+        "local_path": str(path),
+        "folder_name": folder_name,
+        "drive_file_id": upload_result.get("file_id"),
+        "drive_file_link": upload_result.get("web_view_link"),
+        "sync_result": sync_result,
+        "created_at": utc_now(),
+    })
+    return {
+        "success": True,
+        "message": "Business Excel workbook uploaded to Google Drive",
+        "filename": file_name,
+        "path": str(path),
+        "drive": upload_result,
+        "sync_result": sync_result,
+    }
+
 
 @router.get("/dashboard/stats")
 async def get_dashboard_stats():
@@ -7285,15 +11566,15 @@ async def _distinct_values(db, collection: str, field: str, match: dict) -> set:
 
 
 DEFAULT_COST_RATES_INR = {
-    # These are estimator defaults. Override by saving admin_settings.costCfg.
-    "whatsapp_outbound_message": 0.75,
+    # Real-only defaults. Do not invent billing when provider cost is not logged.
+    "whatsapp_outbound_message": 0.0,
     "whatsapp_inbound_message": 0.0,
     "teams_notification": 0.0,
-    "gemini_input_1k_tokens": 0.0063,
-    "gemini_output_1k_tokens": 0.0252,
-    "gemini_input_tokens_per_call": 1800,
-    "gemini_output_tokens_per_call": 700,
-    "client_inbox_storage_gb_month": 20.0,
+    "gemini_input_1k_tokens": 0.0,
+    "gemini_output_1k_tokens": 0.0,
+    "gemini_input_tokens_per_call": 0,
+    "gemini_output_tokens_per_call": 0,
+    "client_inbox_storage_gb_month": 0.0,
 }
 
 
@@ -7334,11 +11615,15 @@ async def _estimated_collection_bytes(db, collection: str, match: dict, limit: i
     return total_bytes, count
 
 
-async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks: list[dict]) -> dict:
-    rates = await _dashboard_cost_rates(db)
-    period_days = max((end - start).total_seconds() / 86400, 1)
-    period_months = period_days / 30.44
+async def _actual_cost_inr(db, collection: str, match: dict) -> float:
+    docs = await db[collection].aggregate([
+        {"$match": match},
+        {"$group": {"_id": None, "cost": {"$sum": {"$ifNull": ["$cost_inr", 0]}}}},
+    ]).to_list(1)
+    return float(docs[0]["cost"]) if docs else 0.0
 
+
+async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks: list[dict]) -> dict:
     whatsapp_match = _range_match("created_at", start, end)
     whatsapp_outbound = await db["whatsapp_logs"].count_documents({
         **whatsapp_match,
@@ -7384,36 +11669,19 @@ async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks
         }},
     ]).to_list(1)
     actual_ai = usage_docs[0] if usage_docs else {}
-    estimated_gemini_calls = (client_processed * 2) + resume_gemini
-    estimated_input_tokens = estimated_gemini_calls * rates["gemini_input_tokens_per_call"]
-    estimated_output_tokens = estimated_gemini_calls * rates["gemini_output_tokens_per_call"]
     logged_input_tokens = int(actual_ai.get("input_tokens") or 0)
     logged_output_tokens = int(actual_ai.get("output_tokens") or 0)
-    logged_cost = float(actual_ai.get("cost_inr") or 0)
-    if not logged_cost and (logged_input_tokens or logged_output_tokens):
-        logged_cost = (
-            (logged_input_tokens / 1000) * rates["gemini_input_1k_tokens"]
-            + (logged_output_tokens / 1000) * rates["gemini_output_1k_tokens"]
-        )
-    estimated_unlogged_cost = (
-        (estimated_input_tokens / 1000) * rates["gemini_input_1k_tokens"]
-        + (estimated_output_tokens / 1000) * rates["gemini_output_1k_tokens"]
-    )
-    gemini_cost = logged_cost + estimated_unlogged_cost
+    logged_cost = await _actual_cost_inr(db, "ai_usage_logs", _range_match("created_at", start, end))
+    gemini_cost = logged_cost
 
     client_storage_bytes, client_storage_docs = await _estimated_collection_bytes(
         db,
         "client_emails",
         _range_match("received_at", start, end),
     )
-    storage_gb = client_storage_bytes / (1024 ** 3)
-    storage_cost = storage_gb * rates["client_inbox_storage_gb_month"] * period_months
-
-    whatsapp_cost = (
-        whatsapp_outbound * rates["whatsapp_outbound_message"]
-        + whatsapp_inbound * rates["whatsapp_inbound_message"]
-    )
-    teams_cost = teams_sent * rates["teams_notification"]
+    storage_cost = await _actual_cost_inr(db, "client_emails", _range_match("received_at", start, end))
+    whatsapp_cost = await _actual_cost_inr(db, "whatsapp_logs", whatsapp_match)
+    teams_cost = await _actual_cost_inr(db, "teams_logs", _range_match("created_at", start, end))
     communication_total = whatsapp_cost + teams_cost
     ai_total = gemini_cost
     storage_total = storage_cost
@@ -7443,24 +11711,10 @@ async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks
                 **_range_match("created_at", w_start, week_end),
                 "status": "sent",
             })
-            w_client_processed = await db["client_emails"].count_documents(_range_match("received_at", w_start, week_end))
-            w_resume_gemini = await db["trainers"].count_documents({
-                **_range_match("created_at", w_start, week_end),
-                "extraction_source": "gemini",
-            })
-            w_gemini_calls = (w_client_processed * 2) + w_resume_gemini
-            w_gemini = (
-                (w_gemini_calls * rates["gemini_input_tokens_per_call"] / 1000) * rates["gemini_input_1k_tokens"]
-                + (w_gemini_calls * rates["gemini_output_tokens_per_call"] / 1000) * rates["gemini_output_1k_tokens"]
-            )
-            w_bytes, _ = await _estimated_collection_bytes(db, "client_emails", _range_match("received_at", w_start, week_end))
-            w_months = max((week_end - w_start).total_seconds() / 86400, 1) / 30.44
-            w_storage = (w_bytes / (1024 ** 3)) * rates["client_inbox_storage_gb_month"] * w_months
-            w_whatsapp = (
-                w_whatsapp_outbound * rates["whatsapp_outbound_message"]
-                + w_whatsapp_inbound * rates["whatsapp_inbound_message"]
-            )
-            w_teams = w_teams_sent * rates["teams_notification"]
+            w_gemini = await _actual_cost_inr(db, "ai_usage_logs", _range_match("created_at", w_start, week_end))
+            w_storage = await _actual_cost_inr(db, "client_emails", _range_match("received_at", w_start, week_end))
+            w_whatsapp = await _actual_cost_inr(db, "whatsapp_logs", _range_match("created_at", w_start, week_end))
+            w_teams = await _actual_cost_inr(db, "teams_logs", _range_match("created_at", w_start, week_end))
             weekly_expenses.append({
                 "key": key,
                 "week": (week_lookup.get(key) or {}).get("week") or current.strftime("%d %b"),
@@ -7475,7 +11729,8 @@ async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks
 
     return {
         "currency": "INR",
-        "estimated": True,
+        "estimated": False,
+        "real_only": True,
         "total": _money(total),
         "communication_total": _money(communication_total),
         "ai_total": _money(ai_total),
@@ -7487,7 +11742,7 @@ async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks
                 "cost": _money(whatsapp_cost),
                 "count": whatsapp_outbound + whatsapp_inbound,
                 "unit": "messages",
-                "note": f"{whatsapp_outbound} billable outbound, {whatsapp_inbound} inbound, {whatsapp_failed} failed/skipped",
+                "note": f"{whatsapp_outbound} outbound, {whatsapp_inbound} inbound, {whatsapp_failed} failed/skipped. Cost uses only real logged cost_inr.",
             },
             {
                 "key": "teams",
@@ -7495,15 +11750,15 @@ async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks
                 "cost": _money(teams_cost),
                 "count": teams_sent,
                 "unit": "notifications",
-                "note": f"{teams_failed} failed webhook posts. Default Teams webhook cost is 0 unless you set a rate.",
+                "note": f"{teams_failed} failed webhook posts. Cost uses only real logged cost_inr.",
             },
             {
                 "key": "gemini",
                 "label": "Gemini Text Generation",
                 "cost": _money(gemini_cost),
-                "count": int(actual_ai.get("calls") or 0) + estimated_gemini_calls,
+                "count": int(actual_ai.get("calls") or 0),
                 "unit": "AI calls",
-                "note": f"{int(actual_ai.get('calls') or 0)} logged calls, {client_processed} client emails, {client_auto_sent} auto-sent replies, {resume_gemini} resume AI parses",
+                "note": f"{int(actual_ai.get('calls') or 0)} logged calls with real cost_inr, {client_processed} client emails, {client_auto_sent} auto-sent replies, {resume_gemini} resume AI parses",
             },
             {
                 "key": "client_storage",
@@ -7511,7 +11766,7 @@ async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks
                 "cost": _money(storage_cost),
                 "count": client_storage_docs,
                 "unit": "stored emails",
-                "note": f"{round(client_storage_bytes / 1024, 1)} KB stored in selected range",
+                "note": f"{round(client_storage_bytes / 1024, 1)} KB stored. Cost uses only real logged cost_inr.",
             },
         ],
         "usage": {
@@ -7522,15 +11777,15 @@ async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks
             "teams_failed": teams_failed,
             "client_processed": client_processed,
             "client_auto_sent": client_auto_sent,
-            "estimated_gemini_calls": estimated_gemini_calls,
+            "estimated_gemini_calls": 0,
             "logged_gemini_calls": int(actual_ai.get("calls") or 0),
             "logged_input_tokens": logged_input_tokens,
             "logged_output_tokens": logged_output_tokens,
-            "estimated_input_tokens": int(estimated_input_tokens),
-            "estimated_output_tokens": int(estimated_output_tokens),
+            "estimated_input_tokens": 0,
+            "estimated_output_tokens": 0,
             "client_storage_bytes": client_storage_bytes,
         },
-        "rates": rates,
+        "rates": {},
         "weekly": weekly_expenses,
     }
 
@@ -7915,6 +12170,14 @@ def _keyword_intent(body: str) -> dict:
         if phrase in t:
             return {"intent": "negative", "reason": f'Matched negative phrase: "{phrase}"',
                     "confidence": 0.92, "ai_used": False}
+
+    if _question_without_commitment(t):
+        return {
+            "intent": "neutral",
+            "reason": "Question without clear commitment",
+            "confidence": 0.7,
+            "ai_used": False,
+        }
 
     # Positive only if no negative found
     pos_phrases = [
@@ -8927,6 +13190,8 @@ async def get_client_inbox(status: Optional[str] = None, page: int = 1, limit: i
         "today": await db["client_emails"].count_documents({"received_at": {"$gte": today}}),
         "pending_approval": await db["client_emails"].count_documents({"status": "pending_approval"}),
         "auto_sent": await db["client_emails"].count_documents({"status": "auto_sent"}),
+        "sent": await db["client_emails"].count_documents({"status": "sent"}),
+        "office_replies": await db["client_emails"].count_documents({"office_mail_category": {"$nin": [None, ""]}}),
         "requirements_created": await db["client_emails"].count_documents({"requirement_id": {"$nin": [None, ""]}}),
     }
     whatsapp_logs = await db["whatsapp_logs"].find(
@@ -8941,6 +13206,1994 @@ async def get_client_inbox(status: Optional[str] = None, page: int = 1, limit: i
         "stats": stats,
         "whatsapp_logs": whatsapp_logs,
     }
+
+
+# --- Client Lead Finder -----------------------------------------------------
+
+LEAD_KEYWORDS = [
+    "need trainer", "trainer required", "require trainer", "looking for trainer",
+    "corporate trainer", "training requirement", "need corporate training",
+    "freelance trainer", "technical trainer", "instructor required",
+]
+
+LEAD_DOMAINS = [
+    "devops", "full stack", "aws", "azure", "python", "java", "react", "node",
+    "power bi", "tableau", "data science", "machine learning", "genai",
+    "kubernetes", "docker", "jenkins", "terraform", "salesforce", "sap",
+    "cybersecurity", "cloud", "sql", "excel", "agile", "scrum",
+]
+
+
+def _lead_text(payload: dict) -> str:
+    return "\n".join(str(payload.get(key) or "") for key in [
+        "post_text", "description", "notes", "title", "source_url", "company_name", "contact_name",
+    ])
+
+
+def _analyse_client_lead(payload: dict) -> dict:
+    text = _lead_text(payload)
+    haystack = text.lower()
+    matched = [kw for kw in LEAD_KEYWORDS if kw in haystack]
+    domains = [domain for domain in LEAD_DOMAINS if domain in haystack]
+    extracted_email = _extract_public_email(text)
+    phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", text)
+    confidence = 0.25 + (0.4 if matched else 0) + (0.2 if domains else 0)
+    if payload.get("contact_email") or extracted_email:
+        confidence += 0.1
+    if payload.get("source_url"):
+        confidence += 0.05
+    primary_domain = payload.get("domain") or (domains[0].title() if domains else "")
+    return {
+        "is_trainer_requirement_lead": bool(matched),
+        "matched_keywords": matched,
+        "domain": primary_domain,
+        "domains_found": domains,
+        "contact_email": payload.get("contact_email") or extracted_email,
+        "contact_phone": payload.get("contact_phone") or (phone_match.group(0) if phone_match else ""),
+        "confidence": round(min(confidence, 0.95), 2),
+    }
+
+
+def _client_lead_draft(lead: dict) -> dict:
+    domain = lead.get("domain") or "corporate training"
+    contact_name = lead.get("contact_name") or "Team"
+    signature = "Best Regards,\nRecruitment Team\nClahan Technologies"
+    return {
+        "subject": f"Trainer Support for {domain} Requirement",
+        "body": (
+            f"Dear {contact_name},\n\n"
+            f"We noticed your requirement related to {domain} training.\n\n"
+            "Clahan Technologies can help you with suitable corporate trainers based on your duration, "
+            "audience level, delivery mode, dates, and budget.\n\n"
+            "Kindly let us know if the requirement is still open. Once confirmed, we can share relevant trainer profiles for your review.\n\n"
+            f"{signature}"
+        ),
+    }
+
+
+TRAINER_PROFILE_KEYWORDS = [
+    "trainer", "corporate trainer", "technical trainer", "instructor", "faculty",
+    "mentor", "coach", "freelance trainer", "training delivery", "conduct trainings",
+]
+
+TRAINER_PROVIDER_SIGNALS = [
+    "freelance trainer", "corporate trainer", "technical trainer", "trainer profile",
+    "training delivery", "conduct trainings", "conducted trainings", "delivered training",
+    "delivers training", "instructor",
+    "faculty", "mentor", "coach", "online training", "classroom training",
+    "corporate training experience", "training assignment", "training sessions",
+]
+
+TRAINER_PROFILE_BLOCKERS = [
+    "job vacancies", "job vacancy", "apply to", "job description", "required candidate profile",
+    "hiring office", "we are hiring", "we are looking for", "salary", "lacs p.a",
+    "job opening", "job role", "current ctc", "expected ctc", "notice period",
+    "immediate joiner", "last working day", "offer in hand", "open to opportunities",
+    "actively exploring", "willing to relocate", "seeking opportunity", "looking for job",
+    "looking for opportunities", "application for", "my resume", "work preference",
+    "ready to work from office",
+]
+
+TRAINER_PROFILE_SOFT_BLOCKERS = [
+    "institute", "academy", "pvt ltd", "private limited", "solutions", "technologies",
+    "consultant", "consulting", "consultant1 day ago", "consultant2 days ago", "consultant3 days ago", "recruiter",
+    "location ", "experience ", "yrs · consultant", "yrs consultant",
+]
+
+INDIA_LOCATION_TERMS = [
+    "india", "indian", "bengaluru", "bangalore", "hyderabad", "chennai", "pune",
+    "mumbai", "delhi", "new delhi", "noida", "gurgaon", "gurugram", "kolkata",
+    "ahmedabad", "coimbatore", "kochi", "kerala", "telangana", "karnataka",
+    "tamil nadu", "maharashtra", "andhra pradesh", "uttar pradesh", "gujarat",
+    "rajasthan", "madhya pradesh", "bhopal", "indore", "jaipur", "lucknow",
+    "chandigarh", "bhubaneswar", "odisha", "nagpur", "mysore", "mysuru",
+]
+
+
+def _looks_indian_profile_text(text: str = "", source_url: str = "") -> bool:
+    haystack = f"{text or ''} {source_url or ''}".lower()
+    is_public_profile = (
+        "linkedin.com/in/" in haystack
+        or "linkedin.com/pub/" in haystack
+        or "naukri.com" in haystack
+    )
+    return (
+        is_public_profile and (
+            any(term in haystack for term in INDIA_LOCATION_TERMS)
+            or " in.linkedin.com/" in haystack
+            or "/in/" in haystack and any(term in haystack for term in ["greater delhi", "greater bengaluru", "greater hyderabad"])
+            or "naukri.com" in haystack
+        )
+    )
+
+
+def _extract_public_email(text: str = "") -> str:
+    value = str(text or "")
+    if not value:
+        return ""
+    candidates = [value]
+    normalised = value
+    normalised = _re.sub(r"\s*(?:\[at\]|\(at\)|\{at\}|<at>|\sat\s)\s*", "@", normalised, flags=_re.I)
+    normalised = _re.sub(r"\s*(?:\[dot\]|\(dot\)|\{dot\}|<dot>|\sdot\s)\s*", ".", normalised, flags=_re.I)
+    normalised = normalised.replace("＠", "@").replace("﹫", "@").replace(" dot ", ".")
+    candidates.append(normalised)
+    compact = _re.sub(r"\s+", "", normalised)
+    candidates.append(compact)
+    tlds = (
+        "com|org|net|in|co|co\\.in|edu|io|ai|dev|info|biz|me|us|uk|ca|au|sg|ae|"
+        "tech|cloud|solutions|consulting|training"
+    )
+    email_pattern = rf"(?<![\w.+-])[\w.+-]{{2,80}}@(?:[A-Za-z0-9-]{{2,63}}\.)+(?:{tlds})(?=$|[^A-Za-z0-9]|\.[A-Z])"
+    for candidate in candidates:
+        for match in _re.finditer(email_pattern, candidate, flags=_re.I):
+            email = match.group(0).strip(".,;:()[]{}<>\"'")
+            lower = email.lower()
+            if any(bad in lower for bad in ["example.com", "email.com", "domain.com", "your-email", "yourmail", "noreply", "news@"]):
+                continue
+            return email
+    return ""
+
+
+def _extract_contact_context_email(text: str = "") -> str:
+    value = str(text or "")
+    email = _extract_public_email(value)
+    if not email:
+        return ""
+    lower = value.lower()
+    email_pos = lower.find(email.lower())
+    if email_pos < 0:
+        return ""
+    context = lower[max(0, email_pos - 180): email_pos + len(email) + 180]
+    contact_markers = ["email", "e-mail", "mail", "contact", "reach", "resume", "curriculum vitae", "cv", "phone", "mobile"]
+    wrong_person_markers = ["privacy", "terms", "support@", "info@", "admin@", "sales@", "noreply", "no-reply", "linkedin"]
+    if any(marker in context for marker in wrong_person_markers):
+        return ""
+    if any(marker in context for marker in contact_markers):
+        return email
+    return ""
+
+
+def _extract_public_phone(text: str = "") -> str:
+    match = _re.search(r"(?:\+?91[\s-]?)?[6-9]\d{9}", str(text or ""))
+    if not match:
+        return ""
+    return match.group(0).replace(" ", "").replace("-", "")
+
+
+def _public_resume_urls(text: str = "", base_url: str = "") -> list[str]:
+    value = _html.unescape(str(text or ""))
+    urls = set()
+    for match in _re.finditer(r"https?://[^\s\"'<>)]+", value, flags=_re.I):
+        urls.add(match.group(0).rstrip(".,;:)]}"))
+    for match in _re.finditer(r"href=[\"']([^\"']+)[\"']", value, flags=_re.I):
+        href = match.group(1).strip()
+        if href:
+            urls.add(_urljoin(base_url or "", href))
+    wanted = []
+    for url in urls:
+        lower = url.lower()
+        if not lower.startswith(("http://", "https://")):
+            continue
+        if any(skip in lower for skip in ["linkedin.com/login", "linkedin.com/signup", "linkedin.com/company", "mailto:", "tel:"]):
+            continue
+        if (
+            any(lower.split("?")[0].endswith(ext) for ext in [".pdf", ".docx", ".doc"])
+            or any(word in lower for word in ["resume", "curriculum-vitae", "/cv", "cv."])
+        ):
+            wanted.append(url)
+    return wanted[:3]
+
+
+def _text_from_public_document_bytes(data: bytes, content_type: str = "", url: str = "") -> str:
+    lower_url = str(url or "").lower()
+    lower_type = str(content_type or "").lower()
+    try:
+        if ".pdf" in lower_url or "pdf" in lower_type:
+            doc = fitz.open(stream=data, filetype="pdf")
+            return "\n".join(page.get_text("text") for page in doc[:6])[:25000]
+        if ".docx" in lower_url or "wordprocessingml" in lower_type:
+            document = _DocxDocument(io.BytesIO(data))
+            return "\n".join(paragraph.text for paragraph in document.paragraphs)[:25000]
+        if any(kind in lower_type for kind in ["text/plain", "text/html"]) or lower_url.endswith((".txt", ".html", ".htm")):
+            text = data[:500000].decode("utf-8", errors="ignore")
+            return _re.sub(r"<[^>]+>", " ", text)[:25000]
+    except Exception:
+        return ""
+    return ""
+
+
+async def _extract_public_resume_contact(client, public_text: str = "", source_url: str = "", timeout: int = 25) -> dict:
+    for resume_url in _public_resume_urls(public_text, source_url):
+        try:
+            response = await client.get(resume_url, follow_redirects=True, timeout=timeout)
+            response.raise_for_status()
+            content = response.content[:6_000_000]
+            extracted_text = _text_from_public_document_bytes(
+                content,
+                response.headers.get("content-type", ""),
+                str(response.url or resume_url),
+            )
+            email = _extract_public_email(extracted_text)
+            phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", extracted_text or "")
+            if email or phone_match:
+                return {
+                    "url": str(response.url or resume_url),
+                    "text": extracted_text,
+                    "email": email,
+                    "phone": phone_match.group(0) if phone_match else "",
+                }
+        except Exception:
+            continue
+    return {}
+
+
+def _public_contact_urls(text: str = "", base_url: str = "") -> list[str]:
+    value = _html.unescape(str(text or ""))
+    urls = set()
+    for match in _re.finditer(r"https?://[^\s\"'<>)]+", value, flags=_re.I):
+        urls.add(match.group(0).rstrip(".,;:)]}"))
+    for match in _re.finditer(r"href=[\"']([^\"']+)[\"']", value, flags=_re.I):
+        href = match.group(1).strip()
+        if href:
+            urls.add(_urljoin(base_url or "", href))
+    blocked = [
+        "linkedin.com", "licdn.com", "facebook.com", "instagram.com", "twitter.com", "x.com",
+        "youtube.com", "google.com", "github.com", "static.", "media.", "mailto:", "tel:",
+    ]
+    wanted = []
+    for url in urls:
+        lower = url.lower()
+        if not lower.startswith(("http://", "https://")):
+            continue
+        if any(item in lower for item in blocked):
+            continue
+        if any(token in lower for token in ["portfolio", "resume", "curriculum-vitae", "/cv", "cv.", "contact", "about"]):
+            wanted.append(url)
+    return wanted[:4]
+
+
+async def _extract_public_website_contact(client, public_text: str = "", source_url: str = "", timeout: int = 25) -> dict:
+    for website_url in _public_contact_urls(public_text, source_url):
+        try:
+            response = await client.get(website_url, follow_redirects=True, timeout=timeout)
+            response.raise_for_status()
+            content_type = response.headers.get("content-type", "")
+            text = _text_from_public_document_bytes(response.content[:1_000_000], content_type, str(response.url or website_url))
+            if not text:
+                text = response.text[:500000]
+            email = _extract_contact_context_email(text)
+            phone = _extract_public_phone(text)
+            if email or phone:
+                return {
+                    "url": str(response.url or website_url),
+                    "text": text[:25000],
+                    "email": email,
+                    "phone": phone,
+                }
+        except Exception:
+            continue
+    return {}
+
+
+def _analyse_trainer_profile_lead(payload: dict) -> dict:
+    text = _lead_text(payload)
+    haystack = text.lower()
+    matched = [kw for kw in TRAINER_PROFILE_KEYWORDS if kw in haystack]
+    provider_signals = [kw for kw in TRAINER_PROVIDER_SIGNALS if kw in haystack]
+    blockers = [kw for kw in TRAINER_PROFILE_BLOCKERS if kw in haystack]
+    soft_blockers = [kw for kw in TRAINER_PROFILE_SOFT_BLOCKERS if kw in haystack]
+    domains = [domain for domain in LEAD_DOMAINS if domain in haystack]
+    extracted_email = _extract_public_email(text)
+    phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", text)
+    indian_profile = _looks_indian_profile_text(text, payload.get("source_url") or "")
+    source_url = str(payload.get("source_url") or "").lower()
+    is_public_linkedin_profile = "linkedin.com/in" in source_url or "linkedin.com/pub" in source_url
+    has_trainer_provider_evidence = bool(provider_signals) and not bool(blockers)
+    confidence = 0.35
+    confidence += min(len(provider_signals), 3) * 0.08
+    confidence += min(len(domains), 2) * 0.07
+    confidence += 0.08 if indian_profile else 0
+    if is_public_linkedin_profile:
+        confidence += 0.08
+    if matched:
+        confidence += 0.06
+    if payload.get("contact_email") or extracted_email:
+        confidence += 0.08
+    if payload.get("contact_phone") or phone_match:
+        confidence += 0.04
+    if blockers:
+        confidence -= 0.25
+    elif soft_blockers and not is_public_linkedin_profile and len(provider_signals) < 2:
+        confidence -= 0.12
+    primary_domain = payload.get("domain") or (domains[0].title() if domains else "")
+    return {
+        "is_trainer_profile_lead": has_trainer_provider_evidence,
+        "matched_keywords": matched,
+        "provider_signals": provider_signals,
+        "blocked_keywords": blockers,
+        "soft_blocked_keywords": soft_blockers,
+        "domain": primary_domain,
+        "domains_found": domains,
+        "contact_email": payload.get("contact_email") or extracted_email,
+        "contact_phone": payload.get("contact_phone") or (phone_match.group(0) if phone_match else ""),
+        "indian_profile": indian_profile,
+        "confidence": round(max(0, min(confidence, 0.95)), 2),
+    }
+
+
+def _searched_domain_from_query(query: str = "") -> str:
+    quoted = _re.findall(r'"([^"]+)"', str(query or ""))
+    for item in quoted:
+        text = str(item or "").strip()
+        if text and text.lower() not in {
+            "trainer", "corporate trainer", "certified", "consultant", "training",
+            "india", "need trainer", "seeking trainer", "looking for trainer",
+            "trainer required", "certified trainer required", "corporate trainer required",
+            "trainer requirement", "corporate training",
+        }:
+            return text
+    return ""
+
+
+def _trainer_intent_query(query: str = "") -> bool:
+    text = str(query or "").lower()
+    return any(term in text for term in [
+        "trainer", "instructor", "mentor", "coach", "faculty", "sme trainer",
+        "training consultant", "corporate facilitator", "workshop facilitator",
+        "subject matter expert",
+    ])
+
+
+def _public_search_domain_aliases(domain: str = "") -> list[str]:
+    clean = _re.sub(
+        r"\b(trainer|training|jobs?|job|online|corporate|technical|faculty|instructor)\b",
+        " ",
+        str(domain or "").lower(),
+    )
+    compact = _re.sub(r"[^a-z0-9]", "", clean)
+    aliases = {clean.strip(), compact}
+    if "devops" in compact:
+        aliases.add("devops")
+    if "python" in compact:
+        aliases.add("python")
+    if "aws" in compact:
+        aliases.add("aws")
+    if "fullstack" in compact:
+        aliases.add("fullstack")
+    if "s4hana" in compact or "sap" in compact:
+        aliases.update({"sap", "s4hana", "saps4hana"})
+    if "apisix" in compact or "apacheapisix" in compact:
+        aliases.update({"apisix", "apacheapisix"})
+    return [item for item in aliases if item]
+
+
+def _public_search_text_matches_domain(title: str = "", source_url: str = "", domain: str = "", content: str = "") -> bool:
+    if not domain:
+        return True
+    haystack = f"{title or ''} {source_url or ''} {content or ''}".lower()
+    compact_haystack = _re.sub(r"[^a-z0-9]", "", haystack)
+    for alias in _public_search_domain_aliases(domain):
+        alias_compact = _re.sub(r"[^a-z0-9]", "", alias)
+        if alias_compact and (alias_compact in compact_haystack or alias in haystack):
+            return True
+    return False
+
+
+def _is_public_naukri_trainer_profile_result(title: str = "", source_url: str = "", content: str = "") -> bool:
+    text = f"{title or ''} {source_url or ''} {content or ''}".lower()
+    url = str(source_url or "").lower()
+    has_email = bool(_extract_public_email(text))
+    has_phone = bool(_re.search(r"(?:\+91[\s-]?)?[6-9]\d{9}\b", text))
+
+    employer_url_tokens = [
+        "job-listings", "jobs-in", "job-vacancies", "vacancies", "apply-to",
+        "jobs-careers", "jobs?", "/jobs", "-jobs-", "-job-", "page-", "trainer-jobs",
+        "jobdetail", "job-detail", "jobsearch", "job-search",
+    ]
+    employer_text_tokens = [
+        " job ", " jobs ", "job vacancies", "job vacancy", "apply to", "job description", "required candidate profile",
+        "hiring office", "we are hiring", "we are looking for", "salary", "lacs p.a",
+        "vacancies", "candidate profile", "job opening", "job role", "current ctc",
+        "expected ctc", "notice period", "immediate joiner", "last working day",
+        "offer in hand", "actively exploring", "open to opportunities", "willing to relocate",
+        "application for", "my resume", "ready to work from office", "work preference",
+        "institute", "academy", "pvt ltd", "private limited", "solutions", "technologies",
+        "consultant", "consulting", "consultant1 day ago", "consultant2 days ago", "consultant3 days ago", "recruiter",
+        "location ", "experience ", "yrs · consultant", "yrs consultant",
+    ]
+    trainer_profile_tokens = [
+        "trainer profile", "freelance trainer", "corporate trainer", "technical trainer",
+        "training delivery", "conduct trainings", "conducted trainings", "delivered training",
+        "curriculum vitae", " cv ", "contact no",
+        "contact:", "email id", "email:",
+    ]
+
+    if any(token in url for token in employer_url_tokens):
+        return False
+    if any(token in text for token in employer_text_tokens):
+        return False
+    return any(token in f" {text} " for token in trainer_profile_tokens) and (has_email or has_phone or "linkedin.com/in" in text)
+
+
+@router.get("/client-leads")
+async def list_client_leads(status: Optional[str] = None, q: Optional[str] = None, limit: int = 100):
+    db = get_db()
+    query = {}
+    if status and status != "all":
+        query["status"] = status
+    if q:
+        pattern = {"$regex": _re.escape(q.strip()), "$options": "i"}
+        query["$or"] = [
+            {"company_name": pattern}, {"contact_name": pattern}, {"domain": pattern},
+            {"source": pattern}, {"post_text": pattern}, {"source_url": pattern},
+        ]
+    limit = max(10, min(int(limit or 100), 300))
+    leads = await db["client_leads"].find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+    stats = {
+        "total": await db["client_leads"].count_documents({}),
+        "new": await db["client_leads"].count_documents({"status": "new"}),
+        "reviewed": await db["client_leads"].count_documents({"status": "reviewed"}),
+        "contacted": await db["client_leads"].count_documents({"status": "contacted"}),
+        "converted": await db["client_leads"].count_documents({"status": "converted"}),
+        "rejected": await db["client_leads"].count_documents({"status": "rejected"}),
+    }
+    card_docs = []
+    for doc in leads:
+        item = _public_doc(doc)
+        if item.get("post_text"):
+            item["post_text"] = str(item.get("post_text") or "")[:2500]
+        draft = item.get("draft")
+        if isinstance(draft, dict) and draft.get("body"):
+            item["draft"] = {**draft, "body": str(draft.get("body") or "")[:2500]}
+        card_docs.append(item)
+    return {"success": True, "leads": card_docs, "stats": stats}
+
+
+@router.post("/client-leads/analyze")
+async def analyze_client_lead(payload: dict):
+    analysis = _analyse_client_lead(payload)
+    return {"success": True, "analysis": analysis, "draft": _client_lead_draft({**payload, **analysis})}
+
+
+@router.post("/client-leads")
+async def create_client_lead(payload: dict):
+    db = get_db()
+    analysis = _analyse_client_lead(payload)
+    now = utc_now()
+    lead_id = payload.get("lead_id") or f"LEAD-{uuid.uuid4().hex[:8].upper()}"
+    source_url = str(payload.get("source_url") or "").strip()
+    if source_url:
+        existing = await db["client_leads"].find_one({"source_url": source_url}, {"_id": 0, "lead_id": 1})
+        if existing:
+            raise HTTPException(409, {"message": "Lead already exists for this source URL", "lead_id": existing.get("lead_id")})
+    lead = {
+        "lead_id": lead_id,
+        "source": payload.get("source") or "Manual",
+        "source_url": source_url,
+        "company_name": payload.get("company_name") or "",
+        "contact_name": payload.get("contact_name") or "",
+        "contact_email": analysis.get("contact_email") or "",
+        "contact_phone": analysis.get("contact_phone") or "",
+        "domain": analysis.get("domain") or "",
+        "post_text": payload.get("post_text") or payload.get("description") or "",
+        "notes": payload.get("notes") or "",
+        "status": payload.get("status") or "new",
+        "confidence": analysis.get("confidence"),
+        "is_trainer_requirement_lead": analysis.get("is_trainer_requirement_lead"),
+        "matched_keywords": analysis.get("matched_keywords"),
+        "domains_found": analysis.get("domains_found"),
+        "draft": _client_lead_draft({**payload, **analysis}),
+        "created_at": now,
+        "updated_at": now,
+    }
+    await db["client_leads"].insert_one(lead)
+    return {"success": True, "lead": _public_doc(lead)}
+
+
+@router.post("/client-leads/search-public")
+async def search_public_client_leads(payload: dict = {}):
+    import httpx as _httpx
+
+    api_key = (
+        os.getenv("TAVILY_API_KEY", "")
+        or getattr(get_settings(), "tavily_api_key", "")
+    ).strip()
+    if not api_key:
+        raise HTTPException(
+            400,
+            {
+                "message": "TAVILY_API_KEY is required for automatic public lead search.",
+                "required_env": "TAVILY_API_KEY",
+                "setup": "Create a Tavily API key and add it to backend/.env, then restart backend.",
+            },
+        )
+
+    db = get_db()
+    auto_discover = bool(payload.get("auto_discover"))
+    domains = payload.get("domains") or [
+        "DevOps", "AWS", "Azure", "Full Stack", "Power BI", "Python", "Java", "SAP", "Data Science",
+        "Machine Learning", "AI", "GenAI", "Cloud", "Cyber Security", "React", "Node", "Angular",
+        "SQL", "Data Engineering", "Tableau", "Excel", "Soft Skills", "Leadership", "Communication",
+    ]
+    domains = [str(item).strip() for item in domains if str(item).strip()][:12]
+    max_results = max(1, min(int(payload.get("max_results") or 5), 10))
+    saved = []
+    skipped = []
+    queries = []
+    client_requirement_phrases = [
+        "Need Trainer",
+        "Seeking Trainer",
+        "Looking for Trainer",
+        "Trainer Required",
+        "Corporate Trainer Required",
+        "Hiring Trainer",
+        "Hiring Corporate Trainer",
+        "Immediate Requirement for Trainer",
+        "Trainer Vacancy",
+        "Trainer Opening",
+        "Trainer Position Available",
+        "Corporate Training Requirement",
+        "Looking for Corporate Trainer",
+        "Need Technical Trainer",
+        "Need Soft Skills Trainer",
+        "Need Python Trainer",
+        "Need AI Trainer",
+        "Need Data Analytics Trainer",
+        "Need Power BI Trainer",
+        "Need Excel Trainer",
+        "Need Communication Skills Trainer",
+        "Freelance Trainer Required",
+        "Contract Trainer Required",
+        "Part-Time Trainer Required",
+        "Online Trainer Required",
+        "Offline Trainer Required",
+        "Guest Faculty Required",
+        "Resource Person Required",
+        "Workshop Trainer Required",
+        "Faculty Required for Training",
+        "Learning and Development Trainer Required",
+        "L&D Trainer Hiring",
+        "Training Consultant Required",
+        "Training Specialist Required",
+        "Corporate Learning Trainer",
+        "Employee Training Facilitator Required",
+        "Technical Training Requirement",
+        "Corporate Workshop Facilitator Required",
+        "Instructor Required",
+        "Subject Matter Expert Trainer Required",
+        "Training Program Facilitator Required",
+        "Campus Trainer Required",
+        "College Trainer Required",
+        "Industrial Trainer Required",
+        "Professional Trainer Required",
+        "Leadership Trainer Required",
+        "Behavioral Skills Trainer Required",
+        "Corporate Coach Required",
+        "Business Trainer Required",
+    ]
+    if auto_discover:
+        for phrase in client_requirement_phrases:
+            queries.append(f'site:linkedin.com/posts "{phrase}"')
+            queries.append(f'site:linkedin.com/feed/update "{phrase}"')
+    for domain in domains:
+        for phrase in client_requirement_phrases:
+            queries.append(f'site:linkedin.com/posts "{phrase}" "{domain}"')
+            queries.append(f'site:linkedin.com/feed/update "{phrase}" "{domain}"')
+        queries.append(f'site:linkedin.com/company "{domain}" "trainer required"')
+    queries = list(dict.fromkeys(queries))
+    queries = queries[: int(payload.get("max_queries") or 18)]
+
+    search_timeout = 45
+    search_concurrency = max(1, min(int(payload.get("concurrency") or 6), 10))
+    async with _httpx.AsyncClient(timeout=search_timeout) as client:
+        semaphore = asyncio.Semaphore(search_concurrency)
+
+        async def _run_public_trainer_query(query: str):
+            async with semaphore:
+                try:
+                    response = await client.post(
+                        "https://api.tavily.com/search",
+                        json={
+                            "api_key": api_key,
+                            "query": query,
+                            "search_depth": "basic",
+                            "max_results": max_results,
+                            "include_answer": False,
+                            "include_raw_content": True,
+                        },
+                    )
+                    response.raise_for_status()
+                    return query, response.json(), None
+                except _httpx.HTTPStatusError as exc:
+                    status_code = exc.response.status_code if exc.response is not None else "unknown"
+                    detail = (exc.response.text or exc.response.reason_phrase or "").strip() if exc.response is not None else ""
+                    return query, None, f"Tavily search failed ({status_code}): {detail[:300]}"
+                except Exception as exc:
+                    return query, None, str(exc)
+
+        query_results = await asyncio.gather(*[_run_public_trainer_query(query) for query in queries])
+        failed_query_count = 0
+
+        for query, data, error in query_results:
+            if error:
+                failed_query_count += 1
+                skipped.append({"query": query, "reason": error})
+                continue
+            try:
+                results = data.get("results") or []
+            except Exception as exc:
+                skipped.append({"query": query, "reason": str(exc)})
+                continue
+
+            for result in results:
+                searched_domain = _searched_domain_from_query(query)
+                source_url = str(result.get("url") or "").strip()
+                if not source_url:
+                    continue
+                existing = await db["client_leads"].find_one({"source_url": source_url}, {"_id": 0, "lead_id": 1})
+                if existing:
+                    skipped.append({"url": source_url, "reason": "duplicate", "lead_id": existing.get("lead_id")})
+                    continue
+                title = str(result.get("title") or "")
+                content = str(result.get("content") or result.get("snippet") or "")
+                raw_content = str(result.get("raw_content") or "")
+                image_url = str(result.get("image") or result.get("favicon") or "").strip()
+                public_text = f"{title}\n\n{content}\n\n{raw_content}".strip()
+                resume_contact = await _extract_public_resume_contact(client, public_text, source_url)
+                if resume_contact.get("text"):
+                    public_text = f"{public_text}\n\nPublic linked resume/document:\n{resume_contact['text']}".strip()
+                website_contact = await _extract_public_website_contact(client, public_text, source_url)
+                if website_contact.get("text"):
+                    public_text = f"{public_text}\n\nPublic linked website/portfolio:\n{website_contact['text']}".strip()
+                lead_payload = {
+                    "source": "Public Web Search",
+                    "source_url": source_url,
+                    "company_name": "",
+                    "contact_name": title[:120],
+                    "post_text": public_text,
+                    "notes": f"Found by public lead search query: {query}",
+                }
+                analysis = _analyse_client_lead(lead_payload)
+                if resume_contact.get("email"):
+                    analysis["contact_email"] = resume_contact["email"]
+                if website_contact.get("email"):
+                    analysis["contact_email"] = website_contact["email"]
+                if resume_contact.get("phone") and not analysis.get("contact_phone"):
+                    analysis["contact_phone"] = resume_contact["phone"]
+                if website_contact.get("phone") and not analysis.get("contact_phone"):
+                    analysis["contact_phone"] = website_contact["phone"]
+                if not analysis.get("is_trainer_requirement_lead") and analysis.get("confidence", 0) < 0.65:
+                    skipped.append({"url": source_url, "reason": "low confidence", "confidence": analysis.get("confidence")})
+                    continue
+                now = utc_now()
+                lead = {
+                    "lead_id": f"LEAD-{uuid.uuid4().hex[:8].upper()}",
+                    "source": lead_payload["source"],
+                    "source_url": source_url,
+                    "company_name": "",
+                    "contact_name": lead_payload["contact_name"],
+                    "contact_email": analysis.get("contact_email") or "",
+                    "contact_phone": analysis.get("contact_phone") or "",
+                    "domain": searched_domain or analysis.get("domain") or "",
+                    "searched_domain": searched_domain,
+                    "post_text": lead_payload["post_text"],
+                    "notes": lead_payload["notes"],
+                    "public_resume_url": resume_contact.get("url", ""),
+                    "public_website_url": website_contact.get("url", ""),
+                    "status": "new",
+                    "confidence": analysis.get("confidence"),
+                    "is_trainer_requirement_lead": analysis.get("is_trainer_requirement_lead"),
+                    "matched_keywords": analysis.get("matched_keywords"),
+                    "domains_found": analysis.get("domains_found"),
+                    "draft": _client_lead_draft({**lead_payload, **analysis}),
+                    "created_at": now,
+                    "updated_at": now,
+                }
+                await db["client_leads"].insert_one(lead)
+                saved.append(_public_doc(lead))
+
+    return {
+        "success": True,
+        "saved_count": len(saved),
+        "skipped_count": len(skipped),
+        "failed_query_count": failed_query_count,
+        "search_error": (
+            skipped[0].get("reason")
+            if failed_query_count == len(queries) and not saved and skipped
+            else ""
+        ),
+        "queries": queries,
+        "saved": saved,
+        "skipped": skipped[:50],
+    }
+
+
+@router.post("/client-leads/auto-discover-now")
+async def auto_discover_client_leads_now():
+    return await search_public_client_leads({
+        "auto_discover": True,
+        "max_results": 8,
+        "max_queries": 180,
+        "concurrency": 4,
+    })
+
+
+@router.get("/trainer-profile-leads")
+async def list_trainer_profile_leads(
+    status: Optional[str] = None,
+    q: Optional[str] = None,
+    source: Optional[str] = None,
+    limit: int = 100,
+    compact: bool = False,
+    include_stats: bool = True,
+):
+    db = get_db()
+    query = {}
+    if status and status != "all":
+        query["status"] = status
+    source_filter = str(source or "").strip().lower()
+    if source_filter == "naukri":
+        query["source"] = "Naukri Public Search"
+    elif source_filter == "linkedin":
+        query["source"] = {"$regex": "linkedin", "$options": "i"}
+    if q:
+        pattern = {"$regex": _re.escape(q.strip()), "$options": "i"}
+        query["$or"] = [
+            {"trainer_name": pattern}, {"domain": pattern}, {"source": pattern},
+            {"headline": pattern}, {"profile_text": pattern}, {"source_url": pattern},
+        ]
+    limit = max(10, min(int(limit or 100), 300))
+    projection = {"_id": 0}
+    if compact:
+        projection = {
+            "_id": 0,
+            "lead_id": 1,
+            "source": 1,
+            "source_url": 1,
+            "trainer_name": 1,
+            "contact_email": 1,
+            "contact_phone": 1,
+            "domain": 1,
+            "searched_domain": 1,
+            "headline": 1,
+            "profile_text": 1,
+            "notes": 1,
+            "public_resume_url": 1,
+            "public_website_url": 1,
+            "status": 1,
+            "confidence": 1,
+            "contact_trust": 1,
+            "verification_tier": 1,
+            "verification_status": 1,
+            "verified_trainer_id": 1,
+            "linkedin_lead_verified": 1,
+            "created_at": 1,
+        }
+    leads = await db["trainer_profile_leads"].find(query, projection).sort("created_at", -1).limit(limit).to_list(limit)
+    if compact:
+        for lead in leads:
+            text = str(lead.get("profile_text") or "")
+            if len(text) > 3000:
+                lead["profile_text"] = text[:3000] + "..."
+    stats = {}
+    if include_stats:
+        stats_query = {"source": query["source"]} if query.get("source") else {}
+        stats = {
+            "total": await db["trainer_profile_leads"].count_documents(stats_query),
+            "new": await db["trainer_profile_leads"].count_documents({**stats_query, "status": "new"}),
+            "reviewed": await db["trainer_profile_leads"].count_documents({**stats_query, "status": "reviewed"}),
+            "contacted": await db["trainer_profile_leads"].count_documents({**stats_query, "status": "contacted"}),
+            "converted": await db["trainer_profile_leads"].count_documents({**stats_query, "status": "converted"}),
+            "rejected": await db["trainer_profile_leads"].count_documents({**stats_query, "status": "rejected"}),
+        }
+    return {"success": True, "leads": [_enrich_lead_response(doc) for doc in leads], "stats": stats}
+
+
+@router.post("/trainer-profile-leads/search-public")
+async def search_public_trainer_profile_leads(payload: dict = {}):
+    import httpx as _httpx
+
+    api_key = (
+        os.getenv("TAVILY_API_KEY", "")
+        or getattr(get_settings(), "tavily_api_key", "")
+    ).strip()
+    if not api_key:
+        raise HTTPException(
+            400,
+            {
+                "message": "TAVILY_API_KEY is required for automatic public trainer profile search.",
+                "required_env": "TAVILY_API_KEY",
+                "setup": "Create a Tavily API key and add it to backend/.env, then restart backend.",
+            },
+        )
+
+    db = get_db()
+    domains = payload.get("domains") or ["SAP S/4HANA", "Apache APISIX", "DevOps", "AWS", "Python"]
+    domains = [str(item).strip() for item in domains if str(item).strip()][:12]
+    source_mode = str(payload.get("source") or payload.get("source_mode") or "linkedin").strip().lower()
+    deep_enrich = bool(payload.get("deep_enrich", source_mode not in {"naukri"}))
+    max_results = max(1, min(int(payload.get("max_results") or 5), 10))
+    saved = []
+    skipped = []
+    queries = []
+    LOCATIONS = [
+        "Hyderabad", "Warangal", "Karimnagar", "Nizamabad",
+        "Visakhapatnam", "Vijayawada", "Guntur", "Tirupati", "Amaravati",
+        "Bangalore", "Mumbai", "Pune", "Delhi", "Chennai", "Noida",
+        "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+        "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
+        "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+        "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
+        "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
+        "Uttar Pradesh", "Uttarakhand", "West Bengal",
+    ]
+    TRAINER_SEARCH_ROLES = [
+        "trainer",
+        "corporate trainer",
+        "freelance trainer",
+        "certified trainer",
+        "instructor",
+        "training consultant",
+        "SME trainer",
+        "mentor",
+        "trainer India",
+        "technical trainer",
+        "soft skills trainer",
+        "professional trainer",
+        "guest faculty",
+        "resource person",
+        "workshop facilitator",
+        "learning facilitator",
+        "corporate facilitator",
+        "training specialist",
+        "training manager",
+        "training lead",
+        "subject matter expert",
+        "coach",
+        "industry trainer",
+        "visiting faculty",
+        "online trainer",
+        "offline trainer",
+        "virtual trainer",
+        "contract trainer",
+        "part-time trainer",
+        "L&D trainer",
+        "learning and development specialist",
+        "curriculum trainer",
+        "education consultant",
+        "instructional trainer",
+        "corporate coach",
+        "professional coach",
+        "skills trainer",
+        "technical instructor",
+        "faculty trainer",
+        "bootcamp instructor",
+        "workshop trainer",
+        "seminar speaker",
+        "keynote trainer",
+        "training provider",
+        "training partner",
+        "industry expert",
+        "practitioner trainer",
+        "certification trainer",
+        "apprenticeship trainer",
+        "academic trainer",
+        "college trainer",
+    ]
+    for domain in domains:
+        if source_mode in {"linkedin", "both", "all"}:
+            for role in TRAINER_SEARCH_ROLES:
+                queries.append(f'site:linkedin.com/in "{domain}" "{role}"')
+            queries.extend([
+                f'site:linkedin.com/in "{domain}" "certified" "trainer" India',
+                f'site:linkedin.com/in "{domain}" "experienced" "trainer" India',
+                f'site:linkedin.com/in "{domain}" "years experience" "trainer" India',
+            ])
+            for location in LOCATIONS:
+                queries.append(f'site:linkedin.com/in "{domain}" trainer "{location}"')
+        if source_mode in {"naukri", "both", "all"}:
+            queries.extend([
+                f'site:naukri.com "{domain}" "trainer profile" "India" -jobs -vacancies',
+                f'site:naukri.com "{domain}" "freelance trainer" "resume" -jobs -vacancies',
+                f'site:naukri.com "{domain}" "corporate trainer" "resume" -jobs -vacancies',
+                f'site:naukri.com "{domain}" "trainer" "email" "India" -jobs -vacancies',
+                f'site:naukri.com "{domain}" "trainer" "contact" "India" -jobs -vacancies',
+            ])
+    queries = list(dict.fromkeys(queries))
+    queries = queries[: int(payload.get("max_queries") or 60)]
+
+    search_timeout = 30 if source_mode == "naukri" else 45
+    search_concurrency = max(1, min(int(payload.get("concurrency") or 6), 10))
+    async with _httpx.AsyncClient(timeout=search_timeout) as client:
+        semaphore = asyncio.Semaphore(search_concurrency)
+
+        async def _run_public_trainer_query(query: str):
+            async with semaphore:
+                try:
+                    response = await client.post(
+                        "https://api.tavily.com/search",
+                        json={
+                            "api_key": api_key,
+                            "query": query,
+                            "search_depth": "basic",
+                            "max_results": max_results,
+                            "include_answer": False,
+                            "include_raw_content": True,
+                        },
+                    )
+                    response.raise_for_status()
+                    return query, response.json(), None
+                except _httpx.HTTPStatusError as exc:
+                    status_code = exc.response.status_code if exc.response is not None else "unknown"
+                    detail = (exc.response.text or exc.response.reason_phrase or "").strip() if exc.response is not None else ""
+                    return query, None, f"Tavily search failed ({status_code}): {detail[:300]}"
+                except Exception as exc:
+                    return query, None, str(exc)
+
+        query_results = await asyncio.gather(*[_run_public_trainer_query(query) for query in queries])
+        failed_query_count = 0
+
+        for query, data, error in query_results:
+            if error:
+                failed_query_count += 1
+                skipped.append({"query": query, "reason": error})
+                continue
+            try:
+                results = data.get("results") or []
+            except Exception as exc:
+                skipped.append({"query": query, "reason": str(exc)})
+                continue
+
+            for result in results:
+                searched_domain = _searched_domain_from_query(query)
+                source_url = str(result.get("url") or "").strip()
+                if not source_url:
+                    continue
+                source_lower = source_url.lower()
+                is_linkedin_result = "linkedin.com/in" in source_lower or "linkedin.com/pub" in source_lower
+                is_naukri_result = "naukri.com" in source_lower
+                if source_mode == "naukri" and not is_naukri_result:
+                    skipped.append({"url": source_url, "reason": "not a public Naukri result"})
+                    continue
+                if source_mode not in {"naukri"} and not (is_linkedin_result or (source_mode in {"both", "all"} and is_naukri_result)):
+                    skipped.append({"url": source_url, "reason": "not a supported public trainer result"})
+                    continue
+                title = str(result.get("title") or "")
+                content = str(result.get("content") or result.get("snippet") or "")
+                raw_content = str(result.get("raw_content") or "")
+                full_result_text = f"{content}\n{raw_content}"
+                if is_naukri_result and not _is_public_naukri_trainer_profile_result(title, source_url, full_result_text):
+                    skipped.append({
+                        "url": source_url,
+                        "reason": "Naukri employer/job listing skipped",
+                        "title": title[:120],
+                    })
+                    continue
+                if not _public_search_text_matches_domain(title, source_url, searched_domain, f"{content}\n{raw_content}"):
+                    skipped.append({
+                        "url": source_url,
+                        "reason": "result does not match searched domain skill",
+                        "searched_domain": searched_domain,
+                        "title": title[:120],
+                    })
+                    continue
+                image_url = str(result.get("image") or result.get("favicon") or "").strip()
+                public_text = f"{title}\n\n{content}\n\n{raw_content}".strip()
+                resume_contact = await _extract_public_resume_contact(client, public_text, source_url) if deep_enrich else {}
+                if resume_contact.get("text"):
+                    public_text = f"{public_text}\n\nPublic linked resume/document:\n{resume_contact['text']}".strip()
+                website_contact = await _extract_public_website_contact(client, public_text, source_url) if deep_enrich else {}
+                if website_contact.get("text"):
+                    public_text = f"{public_text}\n\nPublic linked website/portfolio:\n{website_contact['text']}".strip()
+                phone_from_text = _extract_public_phone(public_text)
+                email_from_text = _extract_contact_context_email(public_text)
+                lead_payload = {
+                    "source": "Naukri Public Search" if is_naukri_result else "Public LinkedIn Search",
+                    "source_url": source_url,
+                    "trainer_name": title[:120],
+                    "post_text": public_text,
+                    "description": public_text,
+                    "notes": f"Found by public trainer profile search query: {query}",
+                }
+                analysis = _analyse_trainer_profile_lead(lead_payload)
+                if resume_contact.get("email"):
+                    analysis["contact_email"] = resume_contact["email"]
+                if website_contact.get("email"):
+                    analysis["contact_email"] = website_contact["email"]
+                if resume_contact.get("phone") and not analysis.get("contact_phone"):
+                    analysis["contact_phone"] = resume_contact["phone"]
+                if website_contact.get("phone") and not analysis.get("contact_phone"):
+                    analysis["contact_phone"] = website_contact["phone"]
+                if (
+                    is_linkedin_result
+                    and _trainer_intent_query(query)
+                    and not analysis.get("blocked_keywords")
+                    and not analysis.get("is_trainer_profile_lead")
+                ):
+                    analysis["is_trainer_profile_lead"] = True
+                    analysis["provider_signals"] = [
+                        *(analysis.get("provider_signals") or []),
+                        "trainer search query",
+                    ]
+                    analysis["confidence"] = max(float(analysis.get("confidence") or 0), 0.62)
+                    analysis["candidate_reason"] = "LinkedIn profile matched the searched skill and trainer-intent query."
+                if is_linkedin_result and not analysis.get("indian_profile"):
+                    analysis["indian_profile"] = True
+                    analysis["india_inferred_from_query"] = True
+                contact_email = analysis.get("contact_email") or email_from_text or ""
+                contact_phone = analysis.get("contact_phone") or phone_from_text or ""
+                dup_lead_id = await _is_duplicate_linkedin_lead(
+                    db,
+                    source_url=source_url,
+                    contact_email=contact_email,
+                    trainer_name=lead_payload["trainer_name"],
+                )
+                if dup_lead_id:
+                    skipped.append({"url": source_url, "reason": "duplicate_email_or_url", "lead_id": dup_lead_id})
+                    continue
+                if not analysis.get("indian_profile"):
+                    skipped.append({"url": source_url, "reason": "outside India or India location not visible"})
+                    continue
+                if not analysis.get("is_trainer_profile_lead"):
+                    skipped.append({
+                        "url": source_url,
+                        "reason": "not a trainer provider profile",
+                        "confidence": analysis.get("confidence"),
+                        "blocked_keywords": analysis.get("blocked_keywords") or [],
+                    })
+                    continue
+                now = utc_now()
+                lead = {
+                    "lead_id": f"TPL-{uuid.uuid4().hex[:8].upper()}",
+                    "source": lead_payload["source"],
+                    "source_url": source_url,
+                    "trainer_name": lead_payload["trainer_name"],
+                    "contact_email": contact_email,
+                    "contact_phone": contact_phone,
+                    "domain": searched_domain or analysis.get("domain") or "",
+                    "searched_domain": searched_domain,
+                    "headline": title,
+                    "profile_image": image_url,
+                    "profile_text": lead_payload["post_text"],
+                    "notes": lead_payload["notes"],
+                    "public_resume_url": resume_contact.get("url", ""),
+                    "public_website_url": website_contact.get("url", ""),
+                    "status": "new",
+                    "confidence": analysis.get("confidence"),
+                    "indian_profile": analysis.get("indian_profile"),
+                    "india_inferred_from_query": bool(analysis.get("india_inferred_from_query")),
+                    "is_trainer_profile_lead": analysis.get("is_trainer_profile_lead"),
+                    "candidate_reason": analysis.get("candidate_reason", ""),
+                    "provider_signals": analysis.get("provider_signals") or [],
+                    "matched_keywords": analysis.get("matched_keywords"),
+                    "domains_found": analysis.get("domains_found"),
+                    "created_at": now,
+                    "updated_at": now,
+                }
+                _stamp_linkedin_signal_on_enriched(
+                    lead,
+                    email=lead.get("contact_email", ""),
+                    phone=lead.get("contact_phone", ""),
+                    name=lead.get("trainer_name", ""),
+                    linkedin=lead.get("source_url", ""),
+                )
+                await db["trainer_profile_leads"].insert_one(lead)
+                try:
+                    lead["trainer_save"] = await _save_linkedin_lead_as_trainer(db, lead)
+                    lead["verified_trainer_id"] = lead["trainer_save"].get("trainer_id", "")
+                    lead["verification_status"] = "placeholder_created" if lead["trainer_save"].get("action") == "inserted" else "linked_to_trainer"
+                except Exception as exc:
+                    lead["trainer_save"] = {"saved": False, "error": str(exc)}
+                saved.append(_enrich_lead_response(lead))
+                pav_urls = _re.findall(r"https?://in\.linkedin\.com/in/[a-zA-Z0-9_-]+", public_text or "")
+                pav_urls += _re.findall(r"https?://www\.linkedin\.com/in/[a-zA-Z0-9_-]+", public_text or "")
+                pav_urls = list(dict.fromkeys(pav_urls))[:8]
+
+                for pav_url in pav_urls:
+                    if pav_url == source_url:
+                        continue
+                    pav_dup_lead_id = await _is_duplicate_linkedin_lead(db, pav_url)
+                    if pav_dup_lead_id:
+                        continue
+                    try:
+                        pav_resp = await client.get(pav_url, follow_redirects=True, timeout=15)
+                        pav_resp.raise_for_status()
+                        pav_text = f"{pav_resp.text[:300000]}"
+                        pav_phone = _extract_public_phone(pav_text)
+                        pav_email = _extract_contact_context_email(pav_text)
+                        pav_payload = {
+                            "source_url": pav_url,
+                            "post_text": pav_text[:8000],
+                            "description": pav_text[:8000],
+                        }
+                        pav_analysis = _analyse_trainer_profile_lead(pav_payload)
+                        if not pav_analysis.get("is_trainer_profile_lead"):
+                            continue
+                        pav_lead = {
+                            "lead_id": f"TPL-{uuid.uuid4().hex[:8].upper()}",
+                            "source": "Public LinkedIn Search (PAV)",
+                            "source_url": pav_url,
+                            "trainer_name": pav_url.split("/in/")[-1].replace("-", " ").title()[:80],
+                            "contact_email": pav_email or "",
+                            "contact_phone": pav_phone or "",
+                            "domain": searched_domain or analysis.get("domain") or "",
+                            "searched_domain": searched_domain,
+                            "headline": "",
+                            "profile_text": pav_text[:8000],
+                            "notes": f"Found via People Also Viewed from {source_url}",
+                            "status": "new",
+                            "confidence": pav_analysis.get("confidence", 0.7),
+                            "is_trainer_profile_lead": True,
+                            "created_at": utc_now(),
+                            "updated_at": utc_now(),
+                        }
+                        _stamp_linkedin_signal_on_enriched(
+                            pav_lead,
+                            email=pav_lead.get("contact_email", ""),
+                            phone=pav_lead.get("contact_phone", ""),
+                            name=pav_lead.get("trainer_name", ""),
+                            linkedin=pav_lead.get("source_url", ""),
+                        )
+                        await db["trainer_profile_leads"].insert_one(pav_lead)
+                        try:
+                            pav_lead["trainer_save"] = await _save_linkedin_lead_as_trainer(db, pav_lead)
+                            pav_lead["verified_trainer_id"] = pav_lead["trainer_save"].get("trainer_id", "")
+                            pav_lead["verification_status"] = "placeholder_created" if pav_lead["trainer_save"].get("action") == "inserted" else "linked_to_trainer"
+                        except Exception as exc:
+                            pav_lead["trainer_save"] = {"saved": False, "error": str(exc)}
+                        saved.append(_enrich_lead_response(pav_lead))
+                    except Exception:
+                        continue
+
+    return {
+        "success": True,
+        "saved_count": len(saved),
+        "skipped_count": len(skipped),
+        "failed_query_count": failed_query_count,
+        "search_error": (
+            skipped[0].get("reason")
+            if failed_query_count == len(queries) and not saved and skipped
+            else ""
+        ),
+        "queries": queries,
+        "saved": saved,
+        "skipped": skipped[:50],
+    }
+
+
+@router.post("/trainer-profile-leads/expand-from-profiles")
+async def expand_trainer_profile_leads_from_profiles(payload: dict = {}):
+    import httpx as _httpx
+
+    db = get_db()
+    profile_urls = [
+        str(url or "").strip()
+        for url in (payload.get("profile_urls") or [])
+        if str(url or "").strip()
+    ]
+    profile_urls = list(dict.fromkeys(profile_urls))[:30]
+    if not profile_urls:
+        raise HTTPException(400, "At least one LinkedIn profile URL is required")
+
+    domain = str(payload.get("domain") or "").strip()
+    limit_per_profile = max(1, min(int(payload.get("limit_per_profile") or 8), 12))
+    saved = []
+    skipped = []
+
+    async with _httpx.AsyncClient(timeout=20, follow_redirects=True) as client:
+        for source_url in profile_urls:
+            if "linkedin.com/in" not in source_url.lower():
+                skipped.append({"url": source_url, "reason": "not a LinkedIn profile URL"})
+                continue
+            try:
+                response = await client.get(source_url)
+                response.raise_for_status()
+                source_text = response.text[:300000]
+            except Exception as exc:
+                skipped.append({"url": source_url, "reason": str(exc)})
+                continue
+
+            pav_urls = _re.findall(r"https?://in\.linkedin\.com/in/[a-zA-Z0-9_-]+", source_text or "")
+            pav_urls += _re.findall(r"https?://www\.linkedin\.com/in/[a-zA-Z0-9_-]+", source_text or "")
+            pav_urls = [
+                url for url in list(dict.fromkeys(pav_urls))
+                if url.rstrip("/") != source_url.rstrip("/")
+            ][:limit_per_profile]
+
+            if not pav_urls:
+                skipped.append({"url": source_url, "reason": "no related LinkedIn profiles found"})
+                continue
+
+            for pav_url in pav_urls:
+                duplicate_id = await _is_duplicate_linkedin_lead(db, pav_url)
+                if duplicate_id:
+                    skipped.append({"url": pav_url, "reason": "duplicate", "lead_id": duplicate_id})
+                    continue
+                try:
+                    pav_resp = await client.get(pav_url)
+                    pav_resp.raise_for_status()
+                    pav_text = pav_resp.text[:300000]
+                except Exception as exc:
+                    skipped.append({"url": pav_url, "reason": str(exc)})
+                    continue
+
+                pav_payload = {
+                    "source_url": pav_url,
+                    "post_text": pav_text[:8000],
+                    "description": pav_text[:8000],
+                    "domain": domain,
+                }
+                pav_analysis = _analyse_trainer_profile_lead(pav_payload)
+                if domain and not _public_search_text_matches_domain("", pav_url, domain, pav_text):
+                    skipped.append({"url": pav_url, "reason": "result does not match selected domain"})
+                    continue
+                if not pav_analysis.get("indian_profile"):
+                    skipped.append({"url": pav_url, "reason": "outside India or India location not visible"})
+                    continue
+                if not pav_analysis.get("is_trainer_profile_lead"):
+                    skipped.append({
+                        "url": pav_url,
+                        "reason": "not a trainer provider profile",
+                        "confidence": pav_analysis.get("confidence"),
+                    })
+                    continue
+
+                pav_lead = {
+                    "lead_id": f"TPL-{uuid.uuid4().hex[:8].upper()}",
+                    "source": "Public LinkedIn Search (Expanded)",
+                    "source_url": pav_url,
+                    "trainer_name": pav_url.split("/in/")[-1].replace("-", " ").title()[:80],
+                    "contact_email": _extract_contact_context_email(pav_text) or "",
+                    "contact_phone": _extract_public_phone(pav_text) or "",
+                    "domain": domain or pav_analysis.get("domain") or "",
+                    "searched_domain": domain,
+                    "headline": "",
+                    "profile_text": pav_text[:8000],
+                    "notes": f"Found via People Also Viewed from {source_url}",
+                    "status": "new",
+                    "confidence": pav_analysis.get("confidence", 0.7),
+                    "indian_profile": pav_analysis.get("indian_profile"),
+                    "is_trainer_profile_lead": True,
+                    "matched_keywords": pav_analysis.get("matched_keywords"),
+                    "domains_found": pav_analysis.get("domains_found"),
+                    "created_at": utc_now(),
+                    "updated_at": utc_now(),
+                }
+                _stamp_linkedin_signal_on_enriched(
+                    pav_lead,
+                    email=pav_lead.get("contact_email", ""),
+                    phone=pav_lead.get("contact_phone", ""),
+                    name=pav_lead.get("trainer_name", ""),
+                    linkedin=pav_lead.get("source_url", ""),
+                )
+                await db["trainer_profile_leads"].insert_one(pav_lead)
+                try:
+                    pav_lead["trainer_save"] = await _save_linkedin_lead_as_trainer(db, pav_lead)
+                    pav_lead["verified_trainer_id"] = pav_lead["trainer_save"].get("trainer_id", "")
+                    pav_lead["verification_status"] = "placeholder_created" if pav_lead["trainer_save"].get("action") == "inserted" else "linked_to_trainer"
+                except Exception as exc:
+                    pav_lead["trainer_save"] = {"saved": False, "error": str(exc)}
+                saved.append(_enrich_lead_response(pav_lead))
+
+    return {
+        "success": True,
+        "checked": len(profile_urls),
+        "saved_count": len(saved),
+        "skipped_count": len(skipped),
+        "saved": saved,
+        "skipped": skipped[:50],
+    }
+
+
+@router.post("/trainer-profile-leads/enrich-public-emails")
+async def enrich_trainer_profile_public_emails(payload: dict = {}):
+    import httpx as _httpx
+
+    db = get_db()
+    query = {
+        "$or": [{"contact_email": {"$exists": False}}, {"contact_email": ""}, {"contact_email": None}],
+        "status": {"$nin": ["rejected", "contacted"]},
+    }
+    domain = str(payload.get("domain") or "").strip()
+    if domain:
+        pattern = {"$regex": _re.escape(domain), "$options": "i"}
+        query["$and"] = [{
+            "$or": [{"domain": pattern}, {"searched_domain": pattern}, {"profile_text": pattern}, {"headline": pattern}]
+        }]
+    source_filter = str(payload.get("source") or payload.get("source_mode") or "").strip().lower()
+    if source_filter == "naukri":
+        query["source"] = {"$regex": "naukri", "$options": "i"}
+    elif source_filter == "linkedin":
+        query["source"] = {"$regex": "linkedin", "$options": "i"}
+    limit = max(1, min(int(payload.get("limit") or (40 if source_filter == "naukri" else 75)), 200))
+    docs = await db["trainer_profile_leads"].find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+    enriched = []
+    skipped = []
+    request_timeout = 4 if source_filter == "naukri" else 40
+    linked_timeout = 4 if source_filter == "naukri" else 25
+    deep_link_scan = bool(payload.get("deep_link_scan", source_filter != "naukri"))
+    fetch_source_page = bool(payload.get("fetch_source_page", source_filter != "naukri"))
+    async with _httpx.AsyncClient(timeout=request_timeout) as client:
+        for lead in docs:
+            lead_id = lead.get("lead_id")
+            public_text = "\n".join(str(lead.get(key) or "") for key in ["headline", "profile_text", "notes", "source_url"])
+            email = _extract_public_email(public_text)
+            phone = lead.get("contact_phone") or ""
+            resume_url = lead.get("public_resume_url") or ""
+            website_url = lead.get("public_website_url") or ""
+            source_page_text = ""
+            if not email and fetch_source_page and source_filter == "naukri" and lead.get("source_url"):
+                try:
+                    response = await client.get(lead.get("source_url"), follow_redirects=True, timeout=request_timeout)
+                    response.raise_for_status()
+                    source_page_text = _re.sub(r"<[^>]+>", " ", response.text[:750000])
+                    email = _extract_public_email(source_page_text)
+                    phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", source_page_text or "")
+                    phone = phone or (phone_match.group(0) if phone_match else "")
+                    public_text = f"{public_text}\n\n{source_page_text[:50000]}"
+                except Exception:
+                    pass
+            if not email and deep_link_scan:
+                resume_contact = await _extract_public_resume_contact(client, public_text, lead.get("source_url") or "", timeout=linked_timeout)
+                email = resume_contact.get("email") or ""
+                phone = phone or resume_contact.get("phone") or ""
+                resume_url = resume_url or resume_contact.get("url") or ""
+            if not email and deep_link_scan:
+                website_contact = await _extract_public_website_contact(client, public_text, lead.get("source_url") or "", timeout=linked_timeout)
+                email = website_contact.get("email") or ""
+                phone = phone or website_contact.get("phone") or ""
+                website_url = website_url or website_contact.get("url") or ""
+            if not email:
+                skipped.append({"lead_id": lead_id, "trainer_name": lead.get("trainer_name"), "reason": "no public email found"})
+                continue
+            update = {
+                "contact_email": email,
+                "contact_phone": phone,
+                "public_resume_url": resume_url,
+                "public_website_url": website_url,
+                "email_source": "public_profile_or_linked_website",
+                "updated_at": utc_now(),
+            }
+            update = _stamp_linkedin_signal_on_enriched(
+                update,
+                email=email,
+                phone=phone,
+                name=lead.get("trainer_name") or lead.get("headline") or "",
+                linkedin=lead.get("source_url") or "",
+            )
+            await db["trainer_profile_leads"].update_one({"lead_id": lead_id}, {"$set": update})
+            enriched.append({**lead, **update})
+    return {"success": True, "checked": len(docs), "enriched_count": len(enriched), "enriched": [_enrich_lead_response(item) for item in enriched], "skipped": skipped[:50]}
+
+
+_MAIL_MATCH_STOPWORDS = {
+    "trainer", "training", "jobs", "job", "online", "corporate", "technical", "faculty",
+    "instructor", "naukri", "linkedin", "public", "search", "profile", "india", "remote",
+    "years", "experience", "opening", "vacancies", "vacancy", "june", "page", "apply",
+    "devops", "python", "aws", "azure", "cloud", "sap", "full", "stack", "java",
+    "bangalore", "bengaluru", "mumbai", "pune", "delhi", "noida", "hyderabad", "chennai",
+    "kolkata", "gurgaon", "gurugram", "remote", "areas", "all", "technology", "software",
+    "solutions", "institute", "school", "course", "courses",
+}
+
+
+def _lead_match_terms_for_mail_lookup(lead: dict) -> list[str]:
+    text = " ".join(str(lead.get(key) or "") for key in ["trainer_name", "headline", "domain", "searched_domain"])
+    terms = []
+    for item in _re.findall(r"[a-zA-Z][a-zA-Z0-9+#./-]{2,}", text.lower()):
+        clean = item.strip(" .,/+-_")
+        if len(clean) < 4 or clean in _MAIL_MATCH_STOPWORDS:
+            continue
+        if clean not in terms:
+            terms.append(clean)
+    return terms[:12]
+
+
+def _mail_lookup_text(doc: dict) -> str:
+    extracted = doc.get("extracted") or doc.get("extracted_data") or {}
+    return "\n".join([
+        str(doc.get("from_name") or ""),
+        str(doc.get("from_email") or ""),
+        str(doc.get("subject") or ""),
+        str(doc.get("snippet") or ""),
+        str(doc.get("clean_body") or ""),
+        str(doc.get("raw_body") or ""),
+        str(doc.get("body") or ""),
+        str(extracted),
+    ])
+
+
+def _mail_lookup_score(lead: dict, text: str, terms: list[str]) -> tuple[int, int]:
+    haystack = str(text or "").lower()
+    score = 0
+    domain_aliases = _public_search_domain_aliases(lead.get("domain") or lead.get("searched_domain") or "")
+    if any(alias and alias in haystack for alias in domain_aliases):
+        score += 2
+    matched_terms = [term for term in terms if term in haystack]
+    score += min(len(matched_terms), 4)
+    if any(word in haystack for word in ["resume", "cv", "profile", "trainer", "training", "availability", "commercial", "experience"]):
+        score += 1
+    return score, len(matched_terms)
+
+
+def _verification_tokens(value: str = "") -> list[str]:
+    tokens = []
+    for item in _re.findall(r"[a-zA-Z][a-zA-Z0-9+#./-]{2,}", str(value or "").lower()):
+        clean = item.strip(" .,/+-_")
+        if len(clean) < 3 or clean in _MAIL_MATCH_STOPWORDS:
+            continue
+        if clean not in tokens:
+            tokens.append(clean)
+    return tokens[:16]
+
+
+def _lead_identity_tokens(lead: dict) -> tuple[list[str], list[str]]:
+    name_tokens = _verification_tokens(" ".join([
+        str(lead.get("trainer_name") or ""),
+        str(lead.get("headline") or ""),
+    ]))
+    domain_tokens = _verification_tokens(" ".join([
+        str(lead.get("domain") or ""),
+        str(lead.get("searched_domain") or ""),
+        str(lead.get("profile_text") or "")[:1200],
+    ]))
+    return name_tokens[:6], domain_tokens[:10]
+
+
+def _internal_verification_score(lead: dict, text: str) -> tuple[int, list[str]]:
+    haystack = str(text or "").lower()
+    name_tokens, domain_tokens = _lead_identity_tokens(lead)
+    reasons = []
+    score = 0
+    name_hits = [token for token in name_tokens if token in haystack]
+    domain_hits = [token for token in domain_tokens if token in haystack]
+    if len(name_hits) >= 2:
+        score += 55
+        reasons.append(f"name match: {', '.join(name_hits[:3])}")
+    elif len(name_hits) == 1 and len(name_tokens) == 1:
+        score += 35
+        reasons.append(f"name match: {name_hits[0]}")
+    if domain_hits:
+        score += min(len(domain_hits), 3) * 10
+        reasons.append(f"skill/domain match: {', '.join(domain_hits[:3])}")
+    source_url = str(lead.get("source_url") or "").lower().strip()
+    if source_url and source_url in haystack:
+        score += 35
+        reasons.append("linkedin url match")
+    if any(word in haystack for word in ["resume", "cv", "curriculum vitae"]):
+        score += 10
+        reasons.append("resume context")
+    return score, reasons
+
+
+def _verification_source_item(source: str, doc: dict, text: str, email: str = "", phone: str = "") -> dict:
+    return {
+        "source": source,
+        "doc": doc,
+        "text": text,
+        "email": str(email or "").strip(),
+        "phone": str(phone or "").strip(),
+    }
+
+
+@router.post("/trainer-profile-leads/{lead_id}/verify-internal")
+async def verify_trainer_profile_lead_internal(lead_id: str):
+    db = get_db()
+    lead = await db["trainer_profile_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
+    if not lead:
+        raise HTTPException(404, "Trainer profile lead not found")
+
+    sources = []
+    trainer_docs = await db["trainers"].find(
+        {},
+        {"_id": 0, "trainer_id": 1, "name": 1, "email": 1, "phone": 1, "linkedin": 1, "domain": 1, "technologies": 1, "skills": 1, "location": 1, "summary": 1, "source_sheet": 1, "created_at": 1},
+    ).sort("created_at", -1).limit(1500).to_list(1500)
+    for doc in trainer_docs:
+        text = "\n".join(str(doc.get(key) or "") for key in doc.keys())
+        sources.append(_verification_source_item("Verified from Trainer DB", doc, text, doc.get("email"), doc.get("phone")))
+
+    resume_docs = await db["resume_uploads"].find(
+        {},
+        {"_id": 0, "upload_id": 1, "trainer_id": 1, "filename": 1, "extracted_data": 1, "extracted_text": 1, "created_at": 1},
+    ).sort("created_at", -1).limit(1500).to_list(1500)
+    for doc in resume_docs:
+        extracted = doc.get("extracted_data") or {}
+        text = "\n".join([str(doc.get("filename") or ""), str(extracted), str(doc.get("extracted_text") or "")[:30000]])
+        email = extracted.get("email") or _extract_public_email(text)
+        phone = extracted.get("phone") or _extract_public_phone(text)
+        sources.append(_verification_source_item("Verified from Resume", doc, text, email, phone))
+
+    mail_docs = await db["email_logs"].find(
+        {},
+        {"_id": 0, "email_id": 1, "trainer_id": 1, "trainer_name": 1, "to_email": 1, "subject": 1, "body": 1, "source": 1, "created_at": 1},
+    ).sort("created_at", -1).limit(1000).to_list(1000)
+    for doc in mail_docs:
+        text = "\n".join(str(doc.get(key) or "") for key in ["trainer_name", "to_email", "subject", "body", "source"])
+        sources.append(_verification_source_item("Verified from Email History", doc, text, doc.get("to_email"), ""))
+
+    best = None
+    for source in sources:
+        score, reasons = _internal_verification_score(lead, source["text"])
+        if not source["email"] and not source["phone"]:
+            score -= 20
+        if not best or score > best["score"]:
+            best = {**source, "score": score, "reasons": reasons}
+
+    if not best or best["score"] < 70 or not (best["email"] or best["phone"]):
+        update = {
+            "verification_status": "unverified",
+            "verification_source": "No strong internal match",
+            "verification_score": max(0, int((best or {}).get("score") or 0)),
+            "verification_reasons": (best or {}).get("reasons") or [],
+            "updated_at": utc_now(),
+        }
+        await db["trainer_profile_leads"].update_one({"lead_id": lead_id}, {"$set": update})
+        return {"success": True, "verified": False, "lead": _enrich_lead_response({**lead, **update})}
+
+    source_doc = best["doc"] or {}
+    update = {
+        "verification_status": "verified",
+        "verification_source": best["source"],
+        "verification_score": min(100, int(best["score"])),
+        "verification_reasons": best["reasons"],
+        "verification_reference": source_doc.get("trainer_id") or source_doc.get("upload_id") or source_doc.get("email_id") or source_doc.get("filename") or "",
+        "contact_email": best["email"] or lead.get("contact_email") or "",
+        "contact_phone": best["phone"] or lead.get("contact_phone") or "",
+        "email_source": best["source"],
+        "updated_at": utc_now(),
+    }
+    verified_tier = (
+        ContactVerificationTier.RESUME_VERIFIED.value
+        if "resume" in str(best["source"] or "").lower() or "trainer db" in str(best["source"] or "").lower()
+        else ContactVerificationTier.AI_EXTRACTED.value
+    )
+    update["verification_tier"] = verified_tier
+    contact_trust = dict(lead.get("contact_trust") or {})
+    if update["contact_email"]:
+        contact_trust["email"] = {
+            "tier": verified_tier,
+            "weight": TIER_WEIGHT[verified_tier],
+            "value": update["contact_email"],
+        }
+    if update["contact_phone"]:
+        contact_trust["phone"] = {
+            "tier": verified_tier,
+            "weight": TIER_WEIGHT[verified_tier],
+            "value": update["contact_phone"],
+        }
+    if contact_trust:
+        update["contact_trust"] = contact_trust
+    await db["trainer_profile_leads"].update_one({"lead_id": lead_id}, {"$set": update})
+    return {"success": True, "verified": True, "lead": _enrich_lead_response({**lead, **update})}
+
+
+@router.post("/trainer-profile-leads/enrich-from-mails")
+async def enrich_trainer_profile_emails_from_mails(payload: dict = {}):
+    db = get_db()
+    query = {
+        "$or": [{"contact_email": {"$exists": False}}, {"contact_email": ""}, {"contact_email": None}],
+        "status": {"$nin": ["rejected", "contacted"]},
+    }
+    source_filter = str(payload.get("source") or payload.get("source_mode") or "").strip().lower()
+    if source_filter == "naukri":
+        query["source"] = {"$regex": "naukri", "$options": "i"}
+    elif source_filter == "linkedin":
+        query["source"] = {"$regex": "linkedin", "$options": "i"}
+    domain = str(payload.get("domain") or "").strip()
+    if domain:
+        pattern = {"$regex": _re.escape(domain), "$options": "i"}
+        query["$and"] = [{
+            "$or": [{"domain": pattern}, {"searched_domain": pattern}, {"profile_text": pattern}, {"headline": pattern}]
+        }]
+
+    limit = max(1, min(int(payload.get("limit") or 60), 150))
+    leads = await db["trainer_profile_leads"].find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+    mail_docs = await db["client_emails"].find(
+        {},
+        {"_id": 0, "from_email": 1, "from_name": 1, "subject": 1, "snippet": 1, "clean_body": 1, "raw_body": 1, "extracted": 1, "received_at": 1},
+    ).sort("received_at", -1).limit(1200).to_list(1200)
+    resume_docs = await db["resume_uploads"].find(
+        {},
+        {"_id": 0, "filename": 1, "extracted_data": 1, "extracted_text": 1, "created_at": 1},
+    ).sort("created_at", -1).limit(1200).to_list(1200)
+    trainer_docs = await db["trainers"].find(
+        {},
+        {"_id": 0, "name": 1, "email": 1, "phone": 1, "domain": 1, "specialization": 1, "skills": 1, "experience": 1, "created_at": 1},
+    ).sort("created_at", -1).limit(1200).to_list(1200)
+
+    enriched = []
+    skipped = []
+    sources = []
+    for doc in trainer_docs:
+        email = str(doc.get("email") or "").strip()
+        if email:
+            sources.append(("trainer_database", doc, " ".join(str(doc.get(key) or "") for key in doc.keys()), email, str(doc.get("phone") or "")))
+    for doc in resume_docs:
+        extracted = doc.get("extracted_data") or {}
+        text = "\n".join([str(doc.get("filename") or ""), str(extracted), str(doc.get("extracted_text") or "")[:20000]])
+        email = _extract_public_email(text)
+        phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", text or "")
+        if email:
+            sources.append(("resume_mail_or_upload", doc, text, email, phone_match.group(0) if phone_match else ""))
+    for doc in mail_docs:
+        text = _mail_lookup_text(doc)
+        email = str(doc.get("from_email") or "").strip() or _extract_public_email(text)
+        phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", text or "")
+        if email:
+            sources.append(("office_mail", doc, text, email, phone_match.group(0) if phone_match else ""))
+
+    for lead in leads:
+        lead_id = lead.get("lead_id")
+        terms = _lead_match_terms_for_mail_lookup(lead)
+        best = None
+        best_score = 0
+        best_term_hits = 0
+        for source_name, source_doc, text, email, phone in sources:
+            score, term_hits = _mail_lookup_score(lead, text, terms)
+            if score > best_score:
+                best = (source_name, source_doc, email, phone)
+                best_score = score
+                best_term_hits = term_hits
+        if not best or best_score < 5 or best_term_hits < 2:
+            skipped.append({"lead_id": lead_id, "trainer_name": lead.get("trainer_name"), "reason": "no matching stored mail/resume email found"})
+            continue
+        source_name, source_doc, email, phone = best
+        update = {
+            "contact_email": email,
+            "contact_phone": lead.get("contact_phone") or phone,
+            "email_source": source_name,
+            "mail_match_score": best_score,
+            "mail_match_reference": source_doc.get("email_id") or source_doc.get("filename") or source_doc.get("name") or source_doc.get("subject") or "",
+            "updated_at": utc_now(),
+        }
+        verified_tier = (
+            ContactVerificationTier.RESUME_VERIFIED.value
+            if source_name in {"trainer_database", "resume_mail_or_upload"}
+            else ContactVerificationTier.AI_EXTRACTED.value
+        )
+        contact_trust = dict(lead.get("contact_trust") or {})
+        contact_trust["email"] = {
+            "tier": verified_tier,
+            "weight": TIER_WEIGHT[verified_tier],
+            "value": email,
+        }
+        if update["contact_phone"]:
+            contact_trust["phone"] = {
+                "tier": verified_tier,
+                "weight": TIER_WEIGHT[verified_tier],
+                "value": update["contact_phone"],
+            }
+        update["contact_trust"] = contact_trust
+        update["verification_tier"] = verified_tier
+        await db["trainer_profile_leads"].update_one({"lead_id": lead_id}, {"$set": update})
+        enriched.append({**lead, **update})
+
+    return {
+        "success": True,
+        "checked": len(leads),
+        "mail_sources_checked": len(sources),
+        "enriched_count": len(enriched),
+        "enriched": [_enrich_lead_response(item) for item in enriched],
+        "skipped": skipped[:50],
+    }
+
+
+@router.post("/trainer-profile-leads/send-public-email-outreach")
+async def send_public_email_trainer_outreach(payload: dict = {}):
+    db = get_db()
+    query = {
+        "contact_email": {"$nin": [None, ""]},
+        "status": {"$nin": ["rejected", "contacted"]},
+    }
+    domain = str(payload.get("domain") or "").strip()
+    if domain:
+        pattern = {"$regex": _re.escape(domain), "$options": "i"}
+        query["$and"] = [{
+            "$or": [{"domain": pattern}, {"searched_domain": pattern}, {"profile_text": pattern}, {"headline": pattern}]
+        }]
+    limit = max(1, min(int(payload.get("limit") or 25), 100))
+    leads = await db["trainer_profile_leads"].find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
+    smtp_config = await get_admin_email_config(db)
+    sent = []
+    failed = []
+    skipped = []
+    for lead in leads:
+        to_email = str(lead.get("contact_email") or "").strip()
+        if not _extract_public_email(to_email):
+            skipped.append({"lead_id": lead.get("lead_id"), "to_email": to_email, "reason": "invalid email"})
+            continue
+        existing = await db["email_logs"].find_one({
+            "lead_id": lead.get("lead_id"),
+            "to_email": to_email,
+            "mail_type": "linkedin_trainer_profile_outreach",
+            "status": "sent",
+        }, {"_id": 0, "email_id": 1})
+        if existing:
+            skipped.append({"lead_id": lead.get("lead_id"), "to_email": to_email, "reason": "already sent"})
+            continue
+        draft = _trainer_profile_lead_mail_draft(lead, {**payload, "domain": payload.get("domain") or lead.get("domain")})
+        subject = str(draft.get("subject") or f"Training Requirement - {lead.get('domain') or 'Training'}").strip()
+        body = str(draft.get("body") or "").strip()
+        email_id = f"TPLMAIL-{uuid.uuid4().hex[:8].upper()}"
+        now = utc_now()
+        success, error = await send_email_async(to_email, subject, body, smtp_config, "")
+        log_doc = {
+            "email_id": email_id,
+            "mail_type": "linkedin_trainer_profile_outreach",
+            "source": "linkedin_shortlist_bulk_public_email",
+            "lead_id": lead.get("lead_id"),
+            "trainer_name": lead.get("trainer_name") or lead.get("headline") or "",
+            "to_email": to_email,
+            "subject": subject,
+            "body": body,
+            "status": "sent" if success else "failed",
+            "error_message": error if not success else "",
+            "sent_at": now if success else None,
+            "created_at": now,
+            "reply_received": False,
+            "opened": False,
+            "open_count": 0,
+        }
+        await db["email_logs"].insert_one(log_doc)
+        await db["trainer_profile_leads"].update_one(
+            {"lead_id": lead.get("lead_id")},
+            {"$set": {
+                "status": "contacted" if success else lead.get("status", "new"),
+                "last_email_id": email_id,
+                "last_contacted_at": now if success else None,
+                "last_error": error if not success else "",
+                "updated_at": utc_now(),
+            }},
+        )
+        item = {"lead_id": lead.get("lead_id"), "trainer_name": lead.get("trainer_name"), "to_email": to_email, "email_id": email_id, "status": "sent" if success else "failed", "error": error}
+        if success:
+            sent.append(item)
+        else:
+            failed.append(item)
+    return {"success": True, "checked": len(leads), "sent_count": len(sent), "failed_count": len(failed), "skipped_count": len(skipped), "sent": sent, "failed": failed, "skipped": skipped[:50]}
+
+
+@router.patch("/trainer-profile-leads/{lead_id}")
+async def update_trainer_profile_lead(lead_id: str, payload: dict):
+    db = get_db()
+    allowed = {"source", "source_url", "trainer_name", "contact_email", "contact_phone", "domain", "headline", "profile_text", "notes", "status", "public_resume_url", "public_website_url"}
+    updates = {key: value for key, value in payload.items() if key in allowed}
+    updates["updated_at"] = utc_now()
+    doc = await db["trainer_profile_leads"].find_one_and_update(
+        {"lead_id": lead_id},
+        {"$set": updates},
+        projection={"_id": 0},
+        return_document=ReturnDocument.AFTER,
+    )
+    if not doc:
+        raise HTTPException(404, "Trainer profile lead not found")
+    return {"success": True, "lead": _public_doc(doc)}
+
+
+def _trainer_profile_lead_mail_draft(lead: dict, payload: dict) -> dict:
+    trainer_name = (
+        payload.get("trainer_name")
+        or lead.get("trainer_name")
+        or lead.get("headline")
+        or "Trainer"
+    )
+    domain = str(payload.get("domain") or lead.get("domain") or "Training").strip()
+    duration = str(payload.get("duration") or "").strip()
+    mode = str(payload.get("mode") or "Online").strip()
+    participants = str(payload.get("participants") or "").strip()
+    requirement_note = str(payload.get("requirement_note") or "").strip()
+    details = [f"* Domain/Technology: {domain}"]
+    if duration:
+        details.append(f"* Duration: {duration}")
+    if mode:
+        details.append(f"* Mode: {mode}")
+    if participants:
+        details.append(f"* Participants: {participants}")
+    if requirement_note:
+        details.append(f"* Requirement note: {requirement_note}")
+
+    return {
+        "subject": f"Training Requirement - {domain}",
+        "body": (
+            f"Dear {trainer_name},\n\n"
+            f"We came across your public trainer profile related to {domain} and would like to check your interest for a relevant corporate training requirement.\n\n"
+            "Training Details:\n\n"
+            f"{chr(10).join(details)}\n\n"
+            "At this stage, we are checking your interest and availability first. Once you confirm, we will share the confirmed schedule, participant details, and next steps.\n\n"
+            "Kindly confirm your interest and share your updated trainer profile/resume along with your experience, availability, and commercial expectation.\n\n"
+            "Best Regards,\n"
+            "Recruitment Team\n"
+            "Clahan Technologies"
+        ),
+    }
+
+
+@router.post("/trainer-profile-leads/{lead_id}/send-email")
+async def send_trainer_profile_lead_email(lead_id: str, payload: dict = {}):
+    db = get_db()
+    lead = await db["trainer_profile_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
+    if not lead:
+        raise HTTPException(404, "Trainer profile lead not found")
+    to_email = str(payload.get("to_email") or lead.get("contact_email") or "").strip()
+    if not to_email:
+        raise HTTPException(400, "Trainer email is required before sending")
+    draft = payload.get("draft") or _trainer_profile_lead_mail_draft(lead, payload)
+    subject = str(draft.get("subject") or f"Training Requirement - {lead.get('domain') or 'Training'}").strip()
+    body = str(draft.get("body") or "").strip()
+    smtp_config = await get_admin_email_config(db)
+    email_id = f"TPLMAIL-{uuid.uuid4().hex[:8].upper()}"
+    sent_at = utc_now()
+    success, error = await send_email_async(to_email, subject, body, smtp_config, "")
+    status_value = "sent" if success else "failed"
+    await db["email_logs"].insert_one({
+        "email_id": email_id,
+        "mail_type": "linkedin_trainer_profile_outreach",
+        "source": "linkedin_shortlist",
+        "lead_id": lead_id,
+        "trainer_name": lead.get("trainer_name") or lead.get("headline") or "",
+        "to_email": to_email,
+        "subject": subject,
+        "body": body,
+        "status": status_value,
+        "error_message": error if not success else "",
+        "sent_at": sent_at if success else None,
+        "created_at": sent_at,
+        "reply_received": False,
+        "opened": False,
+        "open_count": 0,
+    })
+    await db["trainer_profile_leads"].update_one(
+        {"lead_id": lead_id},
+        {"$set": {
+            "contact_email": to_email,
+            "status": "contacted" if success else lead.get("status", "reviewed"),
+            "last_email_id": email_id,
+            "last_contacted_at": sent_at if success else None,
+            "last_error": error if not success else "",
+            "updated_at": utc_now(),
+        }},
+    )
+    return {"success": success, "status": status_value, "error": error, "email_id": email_id, "draft": draft}
+
+
+@router.delete("/trainer-profile-leads/by-domain")
+async def delete_trainer_profile_leads_by_domain(domain: str):
+    clean = str(domain or "").strip()
+    if not clean:
+        raise HTTPException(400, "Domain is required")
+    db = get_db()
+    pattern = {"$regex": f"^{_re.escape(clean)}$", "$options": "i"}
+    result = await db["trainer_profile_leads"].delete_many({
+        "$or": [{"domain": pattern}, {"searched_domain": pattern}],
+    })
+    return {"success": True, "domain": clean, "deleted_count": result.deleted_count}
+
+
+@router.delete("/trainer-profile-leads/{lead_id}")
+async def delete_trainer_profile_lead(lead_id: str):
+    db = get_db()
+    result = await db["trainer_profile_leads"].delete_one({"lead_id": lead_id})
+    if not result.deleted_count:
+        raise HTTPException(404, "Trainer profile lead not found")
+    return {"success": True, "deleted": lead_id}
+
+
+@router.patch("/client-leads/{lead_id}")
+async def update_client_lead(lead_id: str, payload: dict):
+    db = get_db()
+    allowed = {"source", "source_url", "company_name", "contact_name", "contact_email", "contact_phone", "domain", "post_text", "notes", "status", "draft"}
+    updates = {key: value for key, value in payload.items() if key in allowed}
+    updates["updated_at"] = utc_now()
+    doc = await db["client_leads"].find_one_and_update(
+        {"lead_id": lead_id},
+        {"$set": updates},
+        projection={"_id": 0},
+        return_document=ReturnDocument.AFTER,
+    )
+    if not doc:
+        raise HTTPException(404, "Client lead not found")
+    return {"success": True, "lead": _public_doc(doc)}
+
+
+@router.post("/client-leads/{lead_id}/regenerate-draft")
+async def regenerate_client_lead_draft(lead_id: str):
+    db = get_db()
+    lead = await db["client_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
+    if not lead:
+        raise HTTPException(404, "Client lead not found")
+    draft = _client_lead_draft(lead)
+    await db["client_leads"].update_one({"lead_id": lead_id}, {"$set": {"draft": draft, "updated_at": utc_now()}})
+    return {"success": True, "draft": draft}
+
+
+@router.post("/client-leads/{lead_id}/send-email")
+async def send_client_lead_email(lead_id: str, payload: dict = {}):
+    db = get_db()
+    lead = await db["client_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
+    if not lead:
+        raise HTTPException(404, "Client lead not found")
+    to_email = str(payload.get("to_email") or lead.get("contact_email") or "").strip()
+    if not to_email:
+        raise HTTPException(400, "Contact email is required before sending")
+    draft = payload.get("draft") or lead.get("draft") or _client_lead_draft(lead)
+    subject = str(draft.get("subject") or f"Trainer Support for {lead.get('domain') or 'Training'} Requirement").strip()
+    body = str(draft.get("body") or "").strip()
+    smtp_config = await get_admin_email_config(db)
+    email_id = f"LEADMAIL-{uuid.uuid4().hex[:8].upper()}"
+    sent_at = utc_now()
+    success, error = await send_email_async(to_email, subject, body, smtp_config, "")
+    status_value = "sent" if success else "failed"
+    await db["email_logs"].insert_one({
+        "email_id": email_id,
+        "mail_type": "client_lead_outreach",
+        "source": "client_lead_finder",
+        "lead_id": lead_id,
+        "to_email": to_email,
+        "to_name": lead.get("contact_name") or "",
+        "subject": subject,
+        "body": body,
+        "status": status_value,
+        "error_message": error if not success else "",
+        "sent_at": sent_at if success else None,
+        "created_at": sent_at,
+        "reply_received": False,
+        "opened": False,
+        "open_count": 0,
+    })
+    await db["client_leads"].update_one(
+        {"lead_id": lead_id},
+        {"$set": {
+            "contact_email": to_email,
+            "status": "contacted" if success else lead.get("status", "new"),
+            "last_email_id": email_id,
+            "last_contacted_at": sent_at if success else None,
+            "last_error": error if not success else "",
+            "updated_at": utc_now(),
+        }},
+    )
+    return {"success": success, "status": status_value, "error": error, "email_id": email_id}
+
+
+@router.delete("/client-leads/by-domain")
+async def delete_client_leads_by_domain(domain: str):
+    clean = str(domain or "").strip()
+    if not clean:
+        raise HTTPException(400, "Domain is required")
+    db = get_db()
+    pattern = {"$regex": f"^{_re.escape(clean)}$", "$options": "i"}
+    result = await db["client_leads"].delete_many({
+        "$or": [{"domain": pattern}, {"searched_domain": pattern}],
+    })
+    return {"success": True, "domain": clean, "deleted_count": result.deleted_count}
+
+
+@router.delete("/client-leads/{lead_id}")
+async def delete_client_lead(lead_id: str):
+    db = get_db()
+    result = await db["client_leads"].delete_one({"lead_id": lead_id})
+    if not result.deleted_count:
+        raise HTTPException(404, "Client lead not found")
+    return {"success": True, "deleted": lead_id}
 
 
 @router.get("/client-conversations")
@@ -9085,6 +15338,7 @@ async def get_client_conversations(
             threads[key] = {
                 "thread_key": key,
                 **meta,
+                "trainers": [],
                 "messages": [],
                 "message_count": 0,
                 "latest_at": None,
@@ -9129,6 +15383,15 @@ async def get_client_conversations(
             "to_label": item.get("to_label") or "",
             "meta": item.get("meta") or {},
         }
+        trainer_id = str(message["meta"].get("trainer_id") or item.get("trainer_id") or "").strip()
+        trainer_name = str(message["meta"].get("trainer_name") or item.get("trainer_name") or "").strip()
+        if trainer_id or trainer_name:
+            trainer_key = trainer_id or trainer_name.lower()
+            if not any((existing.get("trainer_id") or existing.get("trainer_name", "").lower()) == trainer_key for existing in group.get("trainers", [])):
+                group.setdefault("trainers", []).append({
+                    "trainer_id": trainer_id,
+                    "trainer_name": trainer_name or trainer_id or "Trainer",
+                })
         group["messages"].append(message)
         when = _thread_datetime(message.get("sent_at"))
         latest = _thread_datetime(group.get("latest_at"))
@@ -9151,7 +15414,7 @@ async def get_client_conversations(
             "sort_order": 10,
             "status": doc.get("status"),
             "from_label": client_label,
-            "to_label": "Calhan Technologies",
+            "to_label": "Clahan Technologies",
             "meta": {
                 "requirement_id": doc.get("requirement_id"),
                 "confidence": doc.get("confidence"),
@@ -9170,7 +15433,7 @@ async def get_client_conversations(
                 "sent_at": sent_at or doc.get("created_at") or doc.get("received_at"),
                 "sort_order": 20,
                 "status": doc.get("status"),
-                "from_label": "Calhan Technologies",
+                "from_label": "Clahan Technologies",
                 "to_label": client_label,
                 "meta": {"sent_by": doc.get("sent_by") or ("draft" if not sent_at else "")},
             })
@@ -9188,9 +15451,10 @@ async def get_client_conversations(
             "sent_at": slot.get("sent_at") or slot.get("created_at"),
             "sort_order": 30,
             "status": slot.get("status"),
-            "from_label": "Calhan Technologies",
+            "from_label": "Clahan Technologies",
             "to_label": client_label,
             "meta": {
+                "trainer_id": slot.get("trainer_id"),
                 "trainer_name": slot.get("trainer_name"),
                 "slot_ref": slot.get("slot_ref"),
                 "slot_text": slot.get("slot_text"),
@@ -9207,8 +15471,12 @@ async def get_client_conversations(
                 "sort_order": 40,
                 "status": slot.get("status"),
                 "from_label": client_label,
-                "to_label": "Calhan Technologies",
-                "meta": {"slot_ref": slot.get("slot_ref")},
+                "to_label": "Clahan Technologies",
+                "meta": {
+                    "trainer_id": slot.get("trainer_id"),
+                    "trainer_name": slot.get("trainer_name"),
+                    "slot_ref": slot.get("slot_ref"),
+                },
             })
 
     for confirmation in confirmations:
@@ -9225,8 +15493,9 @@ async def get_client_conversations(
             "sort_order": 40,
             "status": confirmation.get("status"),
             "from_label": client_label,
-            "to_label": "Calhan Technologies",
+            "to_label": "Clahan Technologies",
             "meta": {
+                "trainer_id": confirmation.get("trainer_id"),
                 "trainer_name": confirmation.get("trainer_name"),
                 "parsed_slot": confirmation.get("parsed_slot"),
             },
@@ -9245,7 +15514,11 @@ async def get_client_conversations(
                 "status": confirmation.get("status"),
                 "from_label": "TrainerSync",
                 "to_label": "Client + Trainer",
-                "meta": {"meet_link": meet_link},
+                "meta": {
+                    "trainer_id": confirmation.get("trainer_id"),
+                    "trainer_name": confirmation.get("trainer_name"),
+                    "meet_link": meet_link,
+                },
             })
 
     for client_message in client_messages:
@@ -9268,9 +15541,11 @@ async def get_client_conversations(
             "sent_at": client_message.get("sent_at") or client_message.get("created_at"),
             "sort_order": 45,
             "status": client_message.get("status"),
-            "from_label": "Calhan Technologies",
+            "from_label": "Clahan Technologies",
             "to_label": client_label,
             "meta": {
+                "trainer_id": client_message.get("trainer_id"),
+                "trainer_name": client_message.get("trainer_name"),
                 "client_slot_email_id": client_message.get("client_slot_email_id"),
                 "meet_link": meet_link,
                 "platform": client_message.get("platform"),
@@ -9408,12 +15683,117 @@ async def get_client_updates(requirement_id: Optional[str] = None, limit: int = 
     return {"updates": [_public_doc(update) for update in updates], "total": len(updates)}
 
 
+@router.get("/interview-schedules")
+async def get_interview_schedules(requirement_id: Optional[str] = None, limit: int = 100):
+    db = get_db()
+    query = {
+        "$or": [
+            {"status": "confirmed_scheduled"},
+            {"calendar_event": {"$exists": True}},
+            {"client_confirmed_slot": {"$exists": True}},
+        ]
+    }
+    if requirement_id:
+        query["requirement_id"] = requirement_id
+
+    limit = max(1, min(int(limit or 100), 500))
+    docs = await db["client_slot_emails"].find(query, {"_id": 0}).sort(
+        "client_confirmed_at", -1
+    ).limit(limit).to_list(limit)
+
+    requirement_ids = sorted({doc.get("requirement_id") for doc in docs if doc.get("requirement_id")})
+    trainer_ids = sorted({doc.get("trainer_id") for doc in docs if doc.get("trainer_id")})
+    requirements = {}
+    trainers = {}
+    confirmations = {}
+
+    if requirement_ids:
+        req_docs = await db["requirements"].find(
+            {"requirement_id": {"$in": requirement_ids}},
+            {
+                "_id": 0,
+                "requirement_id": 1,
+                "technology_needed": 1,
+                "domain": 1,
+                "job_title": 1,
+                "client_name": 1,
+                "client_company": 1,
+                "client_email": 1,
+                "mode": 1,
+                "training_mode": 1,
+            },
+        ).to_list(len(requirement_ids))
+        requirements = {doc.get("requirement_id"): doc for doc in req_docs}
+
+    if trainer_ids:
+        trainer_docs = await db["trainers"].find(
+            {"trainer_id": {"$in": trainer_ids}},
+            {"_id": 0, "trainer_id": 1, "name": 1, "trainer_name": 1, "email": 1, "trainer_email": 1, "phone": 1},
+        ).to_list(len(trainer_ids))
+        trainers = {doc.get("trainer_id"): doc for doc in trainer_docs}
+
+    email_ids = sorted({doc.get("email_id") for doc in docs if doc.get("email_id")})
+    if email_ids:
+        conf_docs = await db["client_slot_confirmations"].find(
+            {"client_slot_email_id": {"$in": email_ids}},
+            {"_id": 0},
+        ).sort("updated_at", -1).to_list(len(email_ids) * 2)
+        for conf in conf_docs:
+            confirmations.setdefault(conf.get("client_slot_email_id"), conf)
+
+    schedules = []
+    for doc in docs:
+        req = requirements.get(doc.get("requirement_id")) or {}
+        trainer = trainers.get(doc.get("trainer_id")) or {}
+        confirmation = confirmations.get(doc.get("email_id")) or {}
+        slot = doc.get("client_confirmed_slot") or confirmation.get("parsed_slot") or {}
+        calendar_event = doc.get("calendar_event") or confirmation.get("calendar_event") or {}
+        trainer_schedule_email = doc.get("trainer_schedule_email") or confirmation.get("trainer_schedule_email") or {}
+        client_schedule_email = doc.get("client_schedule_email") or confirmation.get("client_schedule_email") or {}
+        schedules.append({
+            "email_id": doc.get("email_id"),
+            "requirement_id": doc.get("requirement_id"),
+            "domain": req.get("technology_needed") or req.get("domain") or req.get("job_title") or doc.get("technology") or "Training",
+            "client_name": req.get("client_name") or req.get("client_company") or doc.get("client_name") or "Client",
+            "client_company": req.get("client_company") or "",
+            "client_email": req.get("client_email") or doc.get("to_email") or "",
+            "trainer_name": trainer.get("name") or trainer.get("trainer_name") or doc.get("trainer_name") or "Trainer",
+            "trainer_email": trainer.get("email") or trainer.get("trainer_email") or doc.get("trainer_email") or "",
+            "trainer_phone": trainer.get("phone") or doc.get("trainer_phone") or "",
+            "date_time_text": slot.get("date_time_text") or "",
+            "start_iso": slot.get("start_iso") or calendar_event.get("start") or "",
+            "end_iso": slot.get("end_iso") or calendar_event.get("end") or "",
+            "timezone": slot.get("timezone") or "Asia/Kolkata",
+            "meet_link": calendar_event.get("meet_link") or calendar_event.get("html_link") or "",
+            "calendar_event_id": calendar_event.get("event_id") or "",
+            "status": doc.get("status") or confirmation.get("status") or "",
+            "slot_ref": doc.get("slot_ref") or "",
+            "client_email_sent": bool(client_schedule_email.get("success")),
+            "trainer_email_sent": bool(trainer_schedule_email.get("success")),
+            "scheduled_at": confirmation.get("scheduled_at") or doc.get("client_confirmed_at") or doc.get("updated_at") or doc.get("created_at"),
+        })
+
+    return {"schedules": [_public_doc(item) for item in schedules], "total": len(schedules)}
+
+
 @router.post("/client-updates/{email_id}/retry-schedule")
 async def retry_client_slot_schedule(email_id: str, request: Request):
     db = get_db()
     slot_doc = await db["client_slot_emails"].find_one({"email_id": email_id}, {"_id": 0})
     if not slot_doc:
         raise HTTPException(404, "Client slot update not found")
+    if slot_doc.get("status") == "confirmed_scheduled":
+        calendar_event = slot_doc.get("calendar_event") or {}
+        return {
+            "status": "confirmed_scheduled",
+            "email_id": email_id,
+            "requirement_id": slot_doc.get("requirement_id"),
+            "trainer_id": slot_doc.get("trainer_id"),
+            "meet_link": calendar_event.get("meet_link") or calendar_event.get("html_link") or "",
+            "calendar_event_id": calendar_event.get("event_id"),
+            "trainer_email_sent": bool((slot_doc.get("trainer_schedule_email") or {}).get("success")),
+            "client_email_sent": bool((slot_doc.get("client_schedule_email") or {}).get("success")),
+        }
 
     confirmation = await db["client_slot_confirmations"].find_one(
         {"client_slot_email_id": email_id},

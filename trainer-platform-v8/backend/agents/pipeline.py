@@ -153,8 +153,20 @@ def validation_agent(state: PipelineState) -> PipelineState:
 
         # ── Technology Match (35 pts) ──
         tech_keyword = req.get("technology_needed", "").lower()
+        category_text = " ".join([
+            str(t.get("technology_category") or ""),
+            str(t.get("primary_category") or ""),
+            str(t.get("category") or ""),
+            _text(t.get("secondary_categories", [])),
+        ]).lower()
+        compatible_full_stack = (
+            "full stack" in tech_keyword
+            and any(marker in category_text for marker in ["frontend development", "backend development", "full stack"])
+        )
         if tech_keyword in combined:
             tech_score = 35
+        elif compatible_full_stack:
+            tech_score = 30
         else:
             words = [w for w in tech_keyword.split() if len(w) > 2]
             matches = sum(1 for w in words if w in combined)

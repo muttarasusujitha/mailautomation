@@ -4,6 +4,7 @@ import os
 import re
 import uuid
 import asyncio
+from enum import Enum
 from datetime import datetime
 from utils.time_utils import utc_now
 from typing import Any, Dict, List, Optional
@@ -20,7 +21,11 @@ except ImportError:
 
 TECHNOLOGY_CATEGORIES = [
     "DevOps",
+    "Frontend Development",
+    "Backend Development",
     "Data Engineering",
+    "Data Science",
+    "Data Analytics",
     "Agentic AI",
     "Gen AI",
     "Full Stack",
@@ -59,6 +64,27 @@ RESUME_JSON_FIELDS = {
     "secondary_categories": [],
     "summary": "",
 }
+
+
+class ContactVerificationTier(str, Enum):
+    RESUME_VERIFIED = "resume_verified"
+    AI_EXTRACTED = "ai_extracted"
+    LOCAL_FALLBACK = "local_fallback"
+    LINKEDIN_SIGNAL = "linkedin_signal"
+    MANUAL_ENTRY = "manual_entry"
+    UNKNOWN = "unknown"
+
+
+TIER_WEIGHT: Dict[str, float] = {
+    ContactVerificationTier.RESUME_VERIFIED.value: 1.0,
+    ContactVerificationTier.AI_EXTRACTED.value: 0.85,
+    ContactVerificationTier.LOCAL_FALLBACK.value: 0.65,
+    ContactVerificationTier.LINKEDIN_SIGNAL.value: 0.30,
+    ContactVerificationTier.MANUAL_ENTRY.value: 0.90,
+    ContactVerificationTier.UNKNOWN.value: 0.50,
+}
+
+CONTACT_TRUST_FIELDS = ["email", "phone", "name", "linkedin", "location"]
 
 COMMON_SKILLS = [
     "Python",
@@ -416,8 +442,18 @@ def _name_key(value: Any) -> str:
 
 
 def _is_same_person(existing: Dict[str, Any], profile: Dict[str, Any]) -> bool:
+    existing_email = _as_string(existing.get("email")).lower()
+    profile_email = _as_string(profile.get("email")).lower()
     existing_name = _name_key(existing.get("name"))
     profile_name = _name_key(profile.get("name"))
+
+    if existing_email and profile_email:
+        if existing_email != profile_email:
+            return False
+        if existing_name and profile_name:
+            return existing_name in profile_name or profile_name in existing_name
+        return True
+
     if existing_name and profile_name:
         return existing_name == profile_name
     return True
@@ -478,7 +514,287 @@ def _normalize_category(value: Any) -> str:
     return aliases.get(raw, "Multi-Skillset")
 
 
-def _normalize_profile(data: Dict[str, Any]) -> Dict[str, Any]:
+def _tier_weight(tier: Any) -> float:
+    value = tier.value if isinstance(tier, ContactVerificationTier) else str(tier or ContactVerificationTier.UNKNOWN.value)
+    return TIER_WEIGHT.get(value, TIER_WEIGHT[ContactVerificationTier.UNKNOWN.value])
+
+
+def _verification_tier_for_source(profile: Dict[str, Any], extraction_source: str) -> ContactVerificationTier:
+    source = _as_string(extraction_source).lower()
+    if "manual" in source:
+        return ContactVerificationTier.MANUAL_ENTRY
+    if "linkedin" in source or "public_search" in source or "web_search" in source:
+        return ContactVerificationTier.LINKEDIN_SIGNAL
+    if "local_fallback" in source or "fallback" in source:
+        tier = ContactVerificationTier.LOCAL_FALLBACK
+    elif "gemini" in source or "ai_extracted" in source or "resume" in source:
+        tier = ContactVerificationTier.AI_EXTRACTED
+    else:
+        tier = ContactVerificationTier.UNKNOWN
+
+    if "resume" in source or profile.get("raw_text") or profile.get("filename"):
+        if tier in {ContactVerificationTier.AI_EXTRACTED, ContactVerificationTier.LOCAL_FALLBACK}:
+            return ContactVerificationTier.RESUME_VERIFIED
+    return tier
+
+
+def _tag_verification_source(profile: Dict[str, Any], extraction_source: str) -> Dict[str, Any]:
+    tier = _verification_tier_for_source(profile, extraction_source)
+    contact_trust = {}
+    for field in CONTACT_TRUST_FIELDS:
+        value = _as_string(profile.get(field))
+        field_tier = tier if value else ContactVerificationTier.UNKNOWN
+        contact_trust[field] = {
+            "tier": field_tier.value,
+            "weight": _tier_weight(field_tier),
+            "value": value,
+        }
+    profile["contact_trust"] = contact_trust
+    profile["verification_tier"] = tier.value
+    return profile
+
+
+def should_update_field(existing_doc: Dict[str, Any], new_profile: Dict[str, Any], field: str) -> bool:
+    existing_trust = (existing_doc.get("contact_trust") or {}).get(field, {})
+    new_trust = (new_profile.get("contact_trust") or {}).get(field, {})
+    return _tier_weight(new_trust.get("tier")) >= _tier_weight(existing_trust.get("tier"))
+
+
+def _tier_display_label(tier: str) -> str:
+    labels = {
+        ContactVerificationTier.RESUME_VERIFIED.value: "Verified (Resume)",
+        ContactVerificationTier.AI_EXTRACTED.value: "Verified (AI Parsed)",
+        ContactVerificationTier.LOCAL_FALLBACK.value: "Extracted (Fallback)",
+        ContactVerificationTier.LINKEDIN_SIGNAL.value: "Unverified (LinkedIn)",
+        ContactVerificationTier.MANUAL_ENTRY.value: "Entered Manually",
+        ContactVerificationTier.UNKNOWN.value: "Unknown Source",
+    }
+    return labels.get(str(tier or ""), "Unknown Source")
+
+
+def get_contact_verification_summary(profile: Dict[str, Any]) -> Dict[str, Any]:
+    contact_trust = profile.get("contact_trust") or {}
+    summary: Dict[str, Any] = {
+        "overall_tier": profile.get("verification_tier", ContactVerificationTier.UNKNOWN.value),
+        "is_resume_verified": False,
+        "is_linkedin_only": False,
+        "needs_resume_upload": False,
+        "fields": {},
+    }
+    verified_count = 0
+    linkedin_only_count = 0
+    for field, trust in contact_trust.items():
+        tier = trust.get("tier", ContactVerificationTier.UNKNOWN.value)
+        summary["fields"][field] = {
+            "tier": tier,
+            "display": _tier_display_label(tier),
+            "value_present": bool(trust.get("value")),
+        }
+        if tier in {
+            ContactVerificationTier.RESUME_VERIFIED.value,
+            ContactVerificationTier.AI_EXTRACTED.value,
+            ContactVerificationTier.MANUAL_ENTRY.value,
+        }:
+            verified_count += 1
+        elif tier == ContactVerificationTier.LINKEDIN_SIGNAL.value:
+            linkedin_only_count += 1
+    summary["is_resume_verified"] = verified_count >= 2
+    summary["is_linkedin_only"] = linkedin_only_count >= 2 and verified_count == 0
+    summary["needs_resume_upload"] = summary["is_linkedin_only"] or not summary["is_resume_verified"]
+    return summary
+
+
+SPECIALIST_RULES = [
+    (
+        "DevOps",
+        [
+            r"\bdevops\b",
+            r"\bci\s*/?\s*cd\b",
+            r"\bjenkins\b",
+            r"\bkubernetes\b",
+            r"\bdocker\b",
+            r"\bterraform\b",
+            r"\bansible\b",
+            r"\bbuild\s*/?\s*release\b",
+            r"\bazure\s+devops\b",
+        ],
+        [r"\bdevops\s+(consultant|engineer|architect|trainer)\b", r"\bbuild\s*/?\s*release\b"],
+    ),
+    (
+        "SRE",
+        [
+            r"\bsre\b",
+            r"\bsite reliability\b",
+            r"\bobservability\b",
+            r"\bprometheus\b",
+            r"\bgrafana\b",
+            r"\bincident management\b",
+        ],
+        [r"\bsre\s+(engineer|consultant|trainer)\b", r"\bsite reliability\b"],
+    ),
+    (
+        "Cloud",
+        [
+            r"\baws\b",
+            r"\bazure\b",
+            r"\bgcp\b",
+            r"\bcloud architect\b",
+            r"\bcloud engineer\b",
+            r"\bec2\b",
+            r"\bs3\b",
+            r"\bvpc\b",
+            r"\beks\b",
+        ],
+        [r"\bcloud\s+(architect|engineer|consultant|trainer)\b"],
+    ),
+    (
+        "Full Stack",
+        [
+            r"\bfull\s*stack\b",
+            r"\bmern\b",
+            r"\bmean\b",
+            r"\breact\b",
+            r"\bangular\b",
+            r"\bnode\.?js\b",
+            r"\bfrontend\b",
+            r"\bbackend\b",
+        ],
+        [r"\bfull\s*stack\s+(developer|engineer|trainer)\b"],
+    ),
+    (
+        "Frontend Development",
+        [
+            r"\bfrontend\b",
+            r"\bfront\s*end\b",
+            r"\breact\b",
+            r"\bangular\b",
+            r"\bvue\b",
+            r"\bhtml5?\b",
+            r"\bcss3?\b",
+        ],
+        [r"\bfront\s*end\s+(developer|engineer|trainer)\b", r"\breact\s+(developer|trainer)\b"],
+    ),
+    (
+        "Backend Development",
+        [
+            r"\bbackend\b",
+            r"\bback\s*end\b",
+            r"\bnode\.?js\b",
+            r"\bspring boot\b",
+            r"\bdjango\b",
+            r"\bfastapi\b",
+            r"\brest api\b",
+        ],
+        [r"\bback\s*end\s+(developer|engineer|trainer)\b", r"\bbackend\s+(developer|engineer|trainer)\b"],
+    ),
+    (
+        "Data Engineering",
+        [
+            r"\bdata engineering\b",
+            r"\betl\b",
+            r"\bspark\b",
+            r"\bpyspark\b",
+            r"\bdatabricks\b",
+            r"\bairflow\b",
+            r"\bkafka\b",
+        ],
+        [r"\bdata engineer(ing)?\b"],
+    ),
+    (
+        "Data Science",
+        [
+            r"\bdata science\b",
+            r"\bdata scientist\b",
+            r"\bmachine learning\b",
+            r"\bdeep learning\b",
+            r"\bstatistics\b",
+            r"\bstatistical modeling\b",
+            r"\bpytorch\b",
+            r"\btensorflow\b",
+            r"\bscikit-learn\b",
+            r"\bxgboost\b",
+            r"\blightgbm\b",
+            r"\bnlp\b",
+        ],
+        [r"\bdata scientist\b", r"\bml\s+(engineer|trainer)\b", r"\bmachine learning\s+(engineer|trainer)\b"],
+    ),
+    (
+        "Data Analytics",
+        [
+            r"\bdata analytics\b",
+            r"\bdata analyst\b",
+            r"\bpower bi\b",
+            r"\btableau\b",
+            r"\bdashboard\b",
+            r"\bexcel\b",
+            r"\bsql\b",
+        ],
+        [r"\bdata analyst\b", r"\banalytics\s+(consultant|trainer)\b"],
+    ),
+    (
+        "Gen AI",
+        [
+            r"\bgenerative ai\b",
+            r"\bgenai\b",
+            r"\bllm\b",
+            r"\blangchain\b",
+            r"\brag\b",
+            r"\bprompt engineering\b",
+        ],
+        [r"\b(gen(erative)? ai|llm)\s+(engineer|consultant|trainer)\b"],
+    ),
+    (
+        "Cybersecurity",
+        [
+            r"\bcybersecurity\b",
+            r"\bethical hacking\b",
+            r"\bpenetration testing\b",
+            r"\bvapt\b",
+            r"\bsoc\b",
+            r"\bappsec\b",
+        ],
+        [r"\b(cybersecurity|security|soc|appsec)\s+(analyst|engineer|consultant|trainer)\b"],
+    ),
+]
+
+
+def _specialist_evidence_category(resume_text: str, skills: Optional[List[str]] = None) -> str:
+    text = f"{resume_text or ''} {' '.join(skills or [])}".lower()
+    headline = " ".join((resume_text or "").splitlines()[:35]).lower()
+    scores = {}
+    role_hits = []
+    for category, keyword_patterns, role_patterns in SPECIALIST_RULES:
+        score = 0
+        for pattern in keyword_patterns:
+            score += len(re.findall(pattern, text, flags=re.IGNORECASE))
+        for pattern in role_patterns:
+            match = re.search(pattern, headline, flags=re.IGNORECASE)
+            if match:
+                score += 8
+                role_hits.append((match.start(), category))
+        scores[category] = score
+
+    if scores.get("DevOps", 0) >= 8:
+        scores["Cybersecurity"] = max(0, scores.get("Cybersecurity", 0) - 5)
+    if scores.get("Full Stack", 0) >= 8:
+        scores["Cloud"] = max(0, scores.get("Cloud", 0) - 3)
+        scores["DevOps"] = max(0, scores.get("DevOps", 0) - 2)
+    if scores.get("Data Science", 0) >= 8 and not re.search(r"\b(generative ai|genai|llm|rag|langchain)\b", headline):
+        scores["Gen AI"] = max(0, scores.get("Gen AI", 0) - 4)
+    if scores.get("Data Analytics", 0) >= 8:
+        scores["Gen AI"] = max(0, scores.get("Gen AI", 0) - 5)
+
+    if role_hits:
+        role_hits.sort(key=lambda item: item[0])
+        first_role_category = role_hits[0][1]
+        if scores.get(first_role_category, 0) >= 5:
+            return first_role_category
+
+    category, score = max(scores.items(), key=lambda item: item[1])
+    return category if score >= 5 else ""
+
+
+def _normalize_profile(data: Dict[str, Any], extraction_source: str = "resume") -> Dict[str, Any]:
     profile = {**RESUME_JSON_FIELDS, **(data or {})}
     primary = _normalize_category(profile.get("technology_category") or profile.get("domain"))
     secondary = [
@@ -518,6 +834,7 @@ def _normalize_profile(data: Dict[str, Any]) -> Dict[str, Any]:
         "technology_category": primary,
         "secondary_categories": secondary,
         "summary": _as_string(profile.get("summary")),
+        "extraction_source": extraction_source,
     }
     normalized["category"] = normalized["technology_category"]
     normalized["technologies"] = ", ".join(normalized["skills"][:12])
@@ -526,7 +843,7 @@ def _normalize_profile(data: Dict[str, Any]) -> Dict[str, Any]:
         if normalized["experience_years"]
         else ""
     )
-    return normalized
+    return _tag_verification_source(normalized, extraction_source)
 
 
 def _name_from_filename(filename: str) -> str:
@@ -547,6 +864,10 @@ def _first_plausible_name(resume_text: str, filename: str) -> str:
 
 
 def _fallback_category(skills: List[str], resume_text: str) -> str:
+    evidence_category = _specialist_evidence_category(resume_text, skills)
+    if evidence_category:
+        return evidence_category
+
     text = f"{resume_text} {' '.join(skills)}".lower()
     skill_text = " ".join(skills).lower()
     role_text = " ".join(resume_text.splitlines()[:30]).lower()
@@ -559,18 +880,31 @@ def _fallback_category(skills: List[str], resume_text: str) -> str:
     add("Gen AI", 4, ["generative ai", "genai", "llm", "langchain", "openai", "rag", "prompt engineering"], text)
     add("MLOps", 4, ["mlops", "model deployment", "model monitoring"], text)
     add("Data Engineering", 4, ["data engineering", "spark", "databricks", "airflow", "kafka", "etl", "hadoop"], text)
+    add("Data Science", 4, ["data science", "data scientist", "machine learning", "deep learning", "pytorch", "tensorflow", "scikit-learn", "xgboost", "lightgbm", "nlp", "statistics"], text)
+    add("Data Analytics", 4, ["data analytics", "data analyst", "power bi", "tableau", "dashboard", "excel analytics"], text)
     add("SRE", 4, ["sre", "site reliability", "observability", "prometheus", "grafana"], text)
 
+    add("Frontend Development", 4, ["react", "angular", "vue", "javascript", "typescript", "html", "css", "frontend"], skill_text)
+    add("Backend Development", 4, ["node.js", "node ", "spring boot", "django", "fastapi", ".net", "rest api", "backend"], skill_text)
     add("Full Stack", 3, ["react", "angular", "vue", "node.js", "node ", "typescript", "javascript", "frontend", "backend", "full stack"], skill_text)
     add("Full Stack", 2, ["django", "flask", "fastapi", "spring boot", "html", "css"], skill_text)
     add("Full Stack", 1, ["sql", "postgresql", "mongodb", "mysql"], skill_text)
     if re.search(r"\b(frontend|backend|full\s*stack)\s+(engineer|developer|architect|trainer)\b", role_text):
         scores["Full Stack"] += 6
+    if re.search(r"\bfront\s*end\s+(engineer|developer|architect|trainer)\b|\breact\s+(developer|trainer)\b", role_text):
+        scores["Frontend Development"] += 8
+    if re.search(r"\bback\s*end\s+(engineer|developer|architect|trainer)\b|\bbackend\s+(developer|trainer)\b", role_text):
+        scores["Backend Development"] += 8
+    if re.search(r"\bdata scientist\b|\bmachine learning\s+(engineer|trainer)\b|\bml\s+(engineer|trainer)\b", role_text):
+        scores["Data Science"] += 8
+    if re.search(r"\bdata analyst\b|\banalytics\s+(consultant|trainer)\b", role_text):
+        scores["Data Analytics"] += 8
 
     add("DevOps", 4, ["devops", "kubernetes", "terraform", "jenkins", "ci/cd", "cicd", "gitlab", "github actions", "ansible", "helm"], skill_text)
+    add("DevOps", 3, ["devops", "ci/cd", "cicd", "jenkins", "kubernetes", "docker", "terraform", "ansible", "helm", "build/release", "build release"], text)
     add("DevOps", 1, ["docker"], skill_text)
-    if re.search(r"\bdevops\b", role_text):
-        scores["DevOps"] += 6
+    if re.search(r"\b(senior\s+)?devops\s+(consultant|engineer|architect|trainer)\b|\bbuild/release\b|\bci\s*&\s*cd\b", role_text):
+        scores["DevOps"] += 10
 
     add("Cloud", 3, ["aws", "azure", "gcp"], skill_text)
     add("Cloud", 4, ["cloud"], role_text)
@@ -578,7 +912,9 @@ def _fallback_category(skills: List[str], resume_text: str) -> str:
     if cloud_provider_count >= 2:
         scores["Cloud"] += 4
 
-    add("Cybersecurity", 5, ["cybersecurity", "ethical hacking", "appsec", "soc", "iam", "vapt", "penetration testing"], text)
+    add("Cybersecurity", 5, ["cybersecurity", "ethical hacking", "appsec", "soc", "vapt", "penetration testing"], text)
+    if "iam" in text and any(marker in text for marker in ["cybersecurity", "security trainer", "cloud security", "identity access"]):
+        scores["Cybersecurity"] += 2
     if re.search(r"\b(cyber|security|soc|appsec)\s+(engineer|analyst|consultant|trainer)\b", role_text):
         scores["Cybersecurity"] += 6
 
@@ -591,6 +927,12 @@ def _fallback_category(skills: List[str], resume_text: str) -> str:
         scores["DevOps"] = max(0, scores["DevOps"] - 2)
     if scores["Data Engineering"] >= 6:
         scores["DevOps"] = max(0, scores["DevOps"] - 2)
+    if scores["Data Science"] >= 8 and not re.search(r"\b(generative ai|genai|llm|rag|langchain)\b", role_text):
+        scores["Gen AI"] = max(0, scores["Gen AI"] - 4)
+    if scores["Data Analytics"] >= 8:
+        scores["Gen AI"] = max(0, scores["Gen AI"] - 5)
+    if scores["DevOps"] >= 10 and re.search(r"\bdevops\b|\bci/cd\b|\bjenkins\b|\bkubernetes\b", text):
+        scores["Cybersecurity"] = max(0, scores["Cybersecurity"] - 4)
 
     best_category, best_score = max(scores.items(), key=lambda item: item[1])
     if best_score >= 4:
@@ -677,27 +1019,113 @@ def _fallback_extract_profile(resume_text: str, filename: str, ai_error: Excepti
         "summary": (
             domain_text[:300] if domain_text else ""
         ),
-    })
-    profile["extraction_source"] = "local_fallback"
+    }, extraction_source="local_fallback_resume")
+    profile["field_sources"] = {
+        **({"email": "regex_email_pattern"} if email_match else {}),
+        **({"phone": "regex_phone_pattern"} if phone_match else {}),
+        **({"linkedin": "regex_linkedin_pattern"} if linkedin_match else {}),
+        **({"skills": "section_parse_skills"} if skills else {}),
+        **({"name": "first_line_or_filename_heuristic"} if profile.get("name") else {}),
+    }
     profile["needs_review"] = True
     profile["warning"] = f"AI extraction failed, so a local fallback was used: {ai_error}"
     return profile
 
 
+def mark_fallback_field_sources(profile: Dict[str, Any]) -> Dict[str, Any]:
+    source_map: Dict[str, str] = {}
+    raw_text = profile.get("raw_text") or profile.get("resume") or ""
+    if profile.get("email"):
+        match = re.search(
+            r"[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,24}",
+            raw_text[:12000],
+        )
+        source_map["email"] = "regex_email_pattern" if match else "unknown"
+    if profile.get("phone"):
+        source_map["phone"] = "regex_phone_pattern"
+    if profile.get("skills"):
+        source_map["skills"] = "section_parse_skills"
+    if profile.get("name"):
+        stem = _as_string(profile.get("filename"))
+        compact_name = _as_string(profile.get("name")).lower().replace(" ", "")
+        compact_stem = stem.lower().replace(" ", "")
+        source_map["name"] = "filename_heuristic" if stem and compact_name in compact_stem else "first_line_heuristic"
+    profile["field_sources"] = {**source_map, **(profile.get("field_sources") or {})}
+    return profile
+
+
+def _apply_specialist_correction(profile: Dict[str, Any], resume_text: str) -> Dict[str, Any]:
+    evidence_category = _specialist_evidence_category(resume_text, _as_list(profile.get("skills")))
+    current = _normalize_category(profile.get("technology_category"))
+    if evidence_category and evidence_category != current:
+        profile["original_technology_category"] = current
+        profile["technology_category"] = evidence_category
+        profile["category"] = evidence_category
+        profile["specialist_correction_applied"] = True
+        profile["specialist_correction_reason"] = (
+            "Corrected from resume headline/profile and repeated core skill evidence."
+        )
+    profile["domain"] = profile.get("domain") or profile.get("technology_category")
+    return profile
+
+
 def calculate_confidence(profile: Dict[str, Any]) -> float:
+    contact_trust = profile.get("contact_trust") or {}
+
+    def field_score(field: str, has_value: bool) -> float:
+        if not has_value:
+            return 0.0
+        return _tier_weight((contact_trust.get(field) or {}).get("tier"))
+
     checks = [
-        bool(profile.get("name")),
-        bool(profile.get("email")),
-        bool(profile.get("phone")),
-        bool(profile.get("location")),
-        bool(profile.get("experience_years")),
-        bool(profile.get("skills")),
-        bool(profile.get("certifications")),
-        bool(profile.get("past_clients")),
-        profile.get("technology_category") in TECHNOLOGY_CATEGORIES,
-        bool(profile.get("summary")),
+        field_score("name", bool(profile.get("name"))),
+        field_score("email", bool(profile.get("email"))),
+        field_score("phone", bool(profile.get("phone"))),
+        field_score("location", bool(profile.get("location"))),
+        0.8 if profile.get("experience_years") else 0.0,
+        0.9 if profile.get("skills") else 0.0,
+        0.8 if profile.get("certifications") else 0.0,
+        0.6 if profile.get("past_clients") else 0.0,
+        0.9 if profile.get("technology_category") in TECHNOLOGY_CATEGORIES else 0.0,
+        0.7 if profile.get("summary") else 0.0,
     ]
     return round(sum(checks) / len(checks), 2)
+
+
+def calculate_resume_rank_score(profile: Dict[str, Any]) -> int:
+    """General resume quality score used to rank uploaded profiles before requirement matching."""
+    score = 0
+    contact_trust = profile.get("contact_trust") or {}
+
+    def contact_bonus(field: str, base: int) -> int:
+        return int(base * _tier_weight((contact_trust.get(field) or {}).get("tier")))
+
+    if profile.get("name"):
+        score += contact_bonus("name", 8)
+    if profile.get("email"):
+        score += contact_bonus("email", 8)
+    if profile.get("phone"):
+        score += contact_bonus("phone", 6)
+    if profile.get("location"):
+        score += contact_bonus("location", 4)
+    if profile.get("technology_category") and profile.get("technology_category") != "Multi-Skillset":
+        score += 14
+    if profile.get("role_designation"):
+        score += 8
+    exp = _as_number(profile.get("experience_years"), 0) or 0
+    score += min(18, int(exp * 2))
+    skills_count = len(_as_list(profile.get("skills")))
+    score += min(16, skills_count * 2)
+    cert_count = len(_as_list(profile.get("certifications")))
+    score += min(8, cert_count * 2)
+    if len(_as_string(profile.get("summary"))) >= 80:
+        score += 8
+    if profile.get("linkedin"):
+        score += 4
+    extraction_source = _as_string(profile.get("extraction_source")).lower()
+    if "linkedin" in extraction_source or "public_search" in extraction_source:
+        score = max(0, score - 15)
+    return max(0, min(100, score))
 
 
 def _gemini_response_text(response: Any) -> str:
@@ -775,12 +1203,16 @@ async def process_resume(file_bytes: bytes, filename: str, db) -> Dict[str, Any]
         raw_text = extract_text(file_bytes, filename)
         try:
             extracted = await _call_gemini_json(raw_text)
-            profile = _normalize_profile(extracted)
-            profile["extraction_source"] = "gemini"
+            profile = _normalize_profile(extracted, extraction_source="resume_gemini")
         except Exception as exc:
             profile = _fallback_extract_profile(raw_text, filename, exc)
+        profile["raw_text"] = raw_text
+        profile["filename"] = filename
+        profile = _tag_verification_source(profile, profile.get("extraction_source", "resume"))
+        profile = _apply_specialist_correction(profile, raw_text)
         profile["trainer_id"] = f"TR-{uuid.uuid4().hex[:8].upper()}"
         profile["confidence_score"] = calculate_confidence(profile)
+        profile["resume_rank_score"] = calculate_resume_rank_score(profile)
 
         duplicate = None
         if profile.get("email"):
@@ -848,7 +1280,17 @@ def trainer_document_from_profile(profile: Dict[str, Any]) -> Dict[str, Any]:
         "category": profile.get("technology_category", "Multi-Skillset"),
         "summary": profile.get("summary", ""),
         "specialty_tags": _as_list(profile.get("specialty_tags"), limit=3),
+        "extraction_source": profile.get("extraction_source", "resume"),
+        "contact_trust": profile.get("contact_trust") or {},
+        "verification_tier": profile.get("verification_tier", ContactVerificationTier.UNKNOWN.value),
+        "linkedin_unverified": bool(profile.get("linkedin_unverified", False)),
+        "field_sources": profile.get("field_sources") or {},
+        "contact_source": "resume_text" if profile.get("email") or profile.get("phone") else "",
+        "facts_only": True,
+        "needs_review": bool(profile.get("needs_review")),
+        "parser_warning": profile.get("warning", ""),
         "confidence_score": profile.get("confidence_score", 0),
+        "resume_rank_score": profile.get("resume_rank_score", 0),
         "resume": raw_text[:50000],
         "combined_text": " ".join(combined_parts).lower(),
         "source": "resume_upload",
@@ -856,6 +1298,154 @@ def trainer_document_from_profile(profile: Dict[str, Any]) -> Dict[str, Any]:
         "status": "new",
         "updated_at": utc_now(),
     }
+
+
+def linkedin_lead_to_unverified_profile(lead: Dict[str, Any]) -> Dict[str, Any]:
+    text = _as_string(lead.get("profile_text") or lead.get("headline"))
+    domain = _as_string(lead.get("domain") or lead.get("searched_domain"))
+    name = _as_string(lead.get("trainer_name") or lead.get("headline"))
+    profile = _normalize_profile(
+        {
+            "name": name,
+            "email": _as_string(lead.get("contact_email")).lower(),
+            "phone": _as_string(lead.get("contact_phone")),
+            "role_designation": name,
+            "technology_category": _normalize_category(domain) if domain else "Multi-Skillset",
+            "summary": text[:400],
+            "linkedin": _as_string(lead.get("source_url")),
+        },
+        extraction_source="linkedin_public_search",
+    )
+    profile["trainer_id"] = f"TR-LI-{uuid.uuid4().hex[:8].upper()}"
+    profile["source"] = "linkedin_lead"
+    profile["source_sheet"] = "linkedin_search"
+    profile["lead_id"] = lead.get("lead_id") or ""
+    profile["needs_review"] = True
+    profile["linkedin_unverified"] = True
+    profile["warning"] = (
+        "Profile created from LinkedIn public search result. Contact details are unverified. "
+        "Upload the trainer's resume to verify."
+    )
+    profile["confidence_score"] = calculate_confidence(profile)
+    profile["resume_rank_score"] = calculate_resume_rank_score(profile)
+    return profile
+
+
+def merge_linkedin_with_resume_profile(resume_profile: Dict[str, Any], linkedin_lead: Dict[str, Any]) -> Dict[str, Any]:
+    merged = dict(resume_profile)
+    contact_trust = resume_profile.get("contact_trust") or {}
+
+    def is_resume_verified(field: str) -> bool:
+        tier = (contact_trust.get(field) or {}).get("tier", "")
+        return tier in {
+            ContactVerificationTier.RESUME_VERIFIED.value,
+            ContactVerificationTier.AI_EXTRACTED.value,
+            ContactVerificationTier.MANUAL_ENTRY.value,
+        }
+
+    lead_values = {
+        "email": linkedin_lead.get("contact_email"),
+        "phone": linkedin_lead.get("contact_phone"),
+        "location": linkedin_lead.get("location"),
+    }
+    for field, value in lead_values.items():
+        if value and (not merged.get(field) or not is_resume_verified(field)):
+            merged[field] = value
+    if not merged.get("linkedin") and linkedin_lead.get("source_url"):
+        merged["linkedin"] = linkedin_lead["source_url"]
+    merged["lead_id"] = linkedin_lead.get("lead_id") or merged.get("lead_id") or ""
+    merged["linkedin_lead_verified"] = True
+    merged["linkedin_unverified"] = False
+    merged = _tag_verification_source(merged, merged.get("extraction_source", "resume"))
+    merged["confidence_score"] = calculate_confidence(merged)
+    merged["resume_rank_score"] = calculate_resume_rank_score(merged)
+    return merged
+
+
+async def safe_update_trainer(
+    db,
+    trainer_id: str,
+    new_doc: Dict[str, Any],
+    existing_doc: Dict[str, Any],
+    contact_fields: Optional[List[str]] = None,
+) -> Dict[str, str]:
+    contact_fields = contact_fields or CONTACT_TRUST_FIELDS
+    set_fields: Dict[str, Any] = {}
+    result: Dict[str, str] = {}
+
+    for field in contact_fields:
+        new_value = new_doc.get(field)
+        if not new_value:
+            result[field] = "skipped_empty"
+            continue
+        if should_update_field(existing_doc, new_doc, field):
+            set_fields[field] = new_value
+            result[field] = "updated"
+        else:
+            result[field] = "skipped_lower_trust"
+
+    protected = set(contact_fields) | {"created_at", "trainer_id"}
+    merged_contact_trust = dict(existing_doc.get("contact_trust") or {})
+    for field in contact_fields:
+        if result.get(field) == "updated":
+            new_trust = (new_doc.get("contact_trust") or {}).get(field)
+            if new_trust:
+                merged_contact_trust[field] = new_trust
+    if merged_contact_trust:
+        set_fields["contact_trust"] = merged_contact_trust
+        result["contact_trust"] = "updated"
+
+    existing_tier = existing_doc.get("verification_tier", ContactVerificationTier.UNKNOWN.value)
+    new_tier = new_doc.get("verification_tier", ContactVerificationTier.UNKNOWN.value)
+    if _tier_weight(new_tier) >= _tier_weight(existing_tier):
+        set_fields["verification_tier"] = new_tier
+        result["verification_tier"] = "updated"
+    else:
+        result["verification_tier"] = "skipped_lower_trust"
+
+    for field, value in new_doc.items():
+        if field not in protected and field not in {"contact_trust", "verification_tier"}:
+            set_fields[field] = value
+            result[field] = "updated"
+
+    if set_fields:
+        await db["trainers"].update_one(
+            {"trainer_id": trainer_id},
+            {"$set": set_fields},
+        )
+    return result
+
+
+async def find_matching_trainer_for_lead(db, lead: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    email = _as_string(lead.get("contact_email")).lower()
+    if email and "@" in email:
+        trainer = await db["trainers"].find_one(
+            {"email": {"$regex": f"^{re.escape(email)}$", "$options": "i"}},
+            {"_id": 0},
+        )
+        if trainer:
+            return trainer
+
+    name = _name_key(lead.get("trainer_name") or lead.get("headline"))
+    domain = _as_string(lead.get("domain") or lead.get("searched_domain"))
+    if not name or len(name) < 4:
+        return None
+
+    candidates = await db["trainers"].find(
+        {
+            "$or": [
+                {"technologies": {"$regex": re.escape(domain), "$options": "i"}},
+                {"technology_category": {"$regex": re.escape(domain), "$options": "i"}},
+            ]
+        },
+        {"_id": 0, "trainer_id": 1, "name": 1, "email": 1, "contact_trust": 1},
+    ).limit(50).to_list(50)
+
+    for candidate in candidates:
+        candidate_name = _name_key(candidate.get("name"))
+        if candidate_name and (name in candidate_name or candidate_name in name):
+            return candidate
+    return None
 
 
 async def save_trainer_from_resume(profile: Dict[str, Any], db, use_ai_tags: bool = True) -> Dict[str, Any]:
@@ -871,7 +1461,7 @@ async def save_trainer_from_resume(profile: Dict[str, Any], db, use_ai_tags: boo
     if trainer_doc.get("email"):
         existing = await db["trainers"].find_one(
             {"email": {"$regex": f"^{re.escape(trainer_doc['email'])}$", "$options": "i"}},
-            {"_id": 0, "trainer_id": 1, "created_at": 1, "name": 1},
+            {"_id": 0},
         )
         if existing and not _is_same_person(existing, trainer_doc):
             existing = None
@@ -879,15 +1469,18 @@ async def save_trainer_from_resume(profile: Dict[str, Any], db, use_ai_tags: boo
     if existing:
         trainer_doc["trainer_id"] = existing["trainer_id"]
         trainer_doc["created_at"] = existing.get("created_at")
-        await db["trainers"].update_one(
-            {"trainer_id": existing["trainer_id"]},
-            {"$set": {k: v for k, v in trainer_doc.items() if k != "created_at"}},
+        update_guard = await safe_update_trainer(
+            db,
+            existing["trainer_id"],
+            trainer_doc,
+            existing,
         )
         action = "updated"
     else:
         trainer_doc["created_at"] = utc_now()
         await db["trainers"].insert_one(trainer_doc)
         action = "inserted"
+        update_guard = {}
 
     now = utc_now()
     upload_id = profile.get("upload_id") or f"RES-{uuid.uuid4().hex[:12].upper()}"
@@ -928,6 +1521,7 @@ async def save_trainer_from_resume(profile: Dict[str, Any], db, use_ai_tags: boo
         "trainer_id": trainer_doc["trainer_id"],
         "specialty_tags": specialty_tags,
         "upload_id": upload_id,
+        "update_guard": update_guard,
     }
 
 

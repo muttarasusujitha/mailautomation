@@ -1,6 +1,6 @@
 # TrainerSync Gmail Client Inbox Setup
 
-This setup connects Gmail API push notifications to `POST /api/gmail/webhook`, where the Client Intelligence Agent extracts client requirements, drafts Calhan Technologies replies, creates requirements, and queues approvals.
+This setup connects Gmail API push notifications to `POST /api/gmail/webhook`, where the Client Intelligence Agent extracts client requirements, drafts Clahan Technologies replies, creates requirements, and queues approvals.
 
 ## 1. Google Cloud Project and APIs
 
@@ -64,7 +64,7 @@ For local testing, expose FastAPI with a public HTTPS URL such as ngrok and use 
 Add these to `backend/.env`:
 
 ```env
-GMAIL_USER=recruitment@calhantech.com
+GMAIL_USER=recruitment@clahantech.com
 PUBSUB_TOPIC=projects/PROJECT_ID/topics/trainersync-inbox
 ANTHROPIC_API_KEY=sk-ant-...
 
@@ -125,5 +125,5 @@ db.whatsapp_logs.createIndex({ event_type: 1, created_at: -1 })
 3. Backend uses Gmail History API to fetch new message IDs since the last `historyId`.
 4. The Client Intelligence Agent reads the full email, strips quotes/signatures, extracts PDF text, and asks Claude for structured JSON.
 5. If it is a training request, a requirement is created with `source: "email_auto"`.
-6. Claude drafts a Calhan Technologies reply.
+6. Claude drafts a Clahan Technologies reply.
 7. Recruiter reviews it in `/inbox`, or the system auto-sends when confidence and domain rules pass.

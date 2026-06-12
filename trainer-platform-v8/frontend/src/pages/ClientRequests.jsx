@@ -497,6 +497,9 @@ export default function ClientRequests() {
           <button onClick={() => navigate('/inbox')} className="btn-secondary text-sm">
             <FileText className="h-4 w-4" /> Review Drafts
           </button>
+          <button onClick={() => navigate('/client-mail-pipeline')} className="btn-secondary text-sm">
+            <Send className="h-4 w-4" /> Mail Pipeline
+          </button>
           <button onClick={() => navigate('/admin')} className="btn-primary text-sm">
             <ExternalLink className="h-4 w-4" /> Gmail Settings
           </button>

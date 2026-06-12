@@ -12,6 +12,7 @@ const FILTERS = [
   { key: 'all', label: 'All' },
   { key: 'pending_approval', label: 'Pending Approval' },
   { key: 'auto_sent', label: 'Auto Sent' },
+  { key: 'sent', label: 'Sent' },
   { key: 'approved', label: 'Approved' },
   { key: 'rejected', label: 'Rejected' },
 ]
@@ -19,9 +20,20 @@ const FILTERS = [
 const STATUS_LABELS = {
   pending_approval: 'Pending Approval',
   auto_sent: 'Auto Sent',
+  sent: 'Sent',
   approved: 'Approved',
   rejected: 'Rejected',
   spam: 'Spam',
+}
+
+const OFFICE_CATEGORY_LABELS = {
+  job_application: 'Job Application',
+  trainer_interest: 'Trainer Interest',
+  vendor_hotlist: 'Vendor Hotlist',
+  vendor_followup: 'Vendor Follow-up',
+  marketing: 'Marketing',
+  admin_alert: 'Admin Alert',
+  other: 'Office Mail',
 }
 
 function initials(name = '', email = '') {
@@ -79,6 +91,7 @@ function EmailCard({ email, onApprove, onReject, onRegenerate }) {
   const confidence = Number(email.confidence ?? extracted.confidence ?? 0)
   const missing = extracted.needs_clarification || []
   const company = extracted.client_company || email.from_email?.split('@')[1] || 'Client'
+  const officeLabel = OFFICE_CATEGORY_LABELS[email.office_mail_category] || ''
 
   useEffect(() => {
     setBody(email.generated_reply?.body || '')
@@ -129,6 +142,11 @@ function EmailCard({ email, onApprove, onReject, onRegenerate }) {
                 <Zap className="h-3.5 w-3.5" /> Auto-send eligible
               </span>
             )}
+            {officeLabel && (
+              <span className="inline-flex items-center gap-1 rounded-lg border border-violet-200 bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700">
+                <Mail className="h-3.5 w-3.5" /> {officeLabel}
+              </span>
+            )}
             <span className={clsx('rounded-lg border px-2.5 py-1 text-xs font-semibold', urgencyClass(extracted.urgency))}>
               {extracted.urgency || 'normal'}
             </span>
@@ -170,7 +188,7 @@ function EmailCard({ email, onApprove, onReject, onRegenerate }) {
               </div>
             </div>
             <div>
-              <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Calhan Technologies Reply</label>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Clahan Technologies Reply</label>
               <textarea
                 value={body}
                 onChange={e => setBody(e.target.value)}
@@ -184,7 +202,7 @@ function EmailCard({ email, onApprove, onReject, onRegenerate }) {
           <button onClick={() => setOpen(v => !v)} className="btn-secondary text-sm">
             <Mail className="h-4 w-4" /> {open ? 'Collapse' : 'Review Draft'}
           </button>
-          <button onClick={approve} disabled={busy === 'approve' || email.status === 'approved' || email.status === 'auto_sent'} className="btn-primary text-sm disabled:opacity-50">
+          <button onClick={approve} disabled={busy === 'approve' || ['approved', 'auto_sent', 'sent'].includes(email.status)} className="btn-primary text-sm disabled:opacity-50">
             {busy === 'approve' ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             Approve and Send
           </button>
@@ -291,7 +309,7 @@ export default function Inbox() {
 
   const approve = async (emailId, payload) => {
     await api.post(`/inbox/${emailId}/approve`, payload)
-    toast.success('Reply sent from Calhan Technologies')
+    toast.success('Reply sent from Clahan Technologies')
     fetchInbox()
   }
 
@@ -346,6 +364,8 @@ export default function Inbox() {
     { label: 'Today', value: stats.today || 0, icon: Clock },
     { label: 'Pending Approval', value: stats.pending_approval || 0, icon: AlertTriangle },
     { label: 'Auto Sent', value: stats.auto_sent || 0, icon: ShieldCheck },
+    { label: 'Sent', value: stats.sent || 0, icon: Send },
+    { label: 'Office Replies', value: stats.office_replies || 0, icon: Mail },
     { label: 'Requirements Created', value: stats.requirements_created || 0, icon: CheckCircle2 },
   ], [stats])
 

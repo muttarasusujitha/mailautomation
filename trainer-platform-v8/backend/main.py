@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from database import connect_db, close_db
 from routes.api import router
-from agents.scheduler import start_scheduler, stop_scheduler
+from agents.scheduler import load_config_from_db, start_scheduler, stop_scheduler
 from config import get_settings
 
 settings = get_settings()
@@ -14,6 +14,7 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     # Startup
     await connect_db()
+    await load_config_from_db()
     start_scheduler()
     yield
     # Shutdown

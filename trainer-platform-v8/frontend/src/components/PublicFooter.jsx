@@ -60,7 +60,7 @@ export default function PublicFooter() {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-6">
-          <p className="m-0 text-xs text-slate-600">&copy; 2026 TrainerSync - Calhan Technologies. All rights reserved.</p>
+          <p className="m-0 text-xs text-slate-600">&copy; 2026 TrainerSync - Clahan Technologies. All rights reserved.</p>
           <p className="m-0 text-xs text-slate-700">Match - Outreach - Track - Confirm</p>
         </div>
       </div>

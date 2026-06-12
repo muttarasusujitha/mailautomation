@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import api, { getDashboardStats, clearDatabase } from '../utils/api'
 import {
   Users, Mail, TrendingUp,
-  RefreshCw, BarChart2, Activity, Trash2, AlertTriangle, Star, Zap,
+  RefreshCw, BarChart2, Activity, Trash2, AlertTriangle, Star,
   ArrowUpRight, Database, Send,
   BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings,
 } from 'lucide-react'
@@ -81,6 +81,18 @@ function clientStatusClass(status = '') {
   return 'badge-slate'
 }
 
+function clientRequestTitle(item = {}) {
+  const extracted = item.extracted || {}
+  const domain = extracted.technology_needed || extracted.domain || extracted.primary_skill || ''
+  if (domain) return `Client requesting ${domain} trainer`
+  return item.subject || 'New client trainer request'
+}
+
+function clientRequestSummary(item = {}) {
+  const extracted = item.extracted || {}
+  return extracted.email_summary || item.clean_body || item.raw_body || item.subject || ''
+}
+
 function TooltipBox({ active, payload, label }) {
   if (!active || !payload?.length) return null
   return (
@@ -95,9 +107,164 @@ function TooltipBox({ active, payload, label }) {
   )
 }
 
+const dashboardMotionCss = `
+  @keyframes dashFloatIn {
+    from { opacity: 0; transform: translateY(14px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes dashSoftGlow {
+    0%, 100% { transform: translate3d(-1%, -1%, 0); opacity: 0.7; }
+    50% { transform: translate3d(1.5%, 1%, 0); opacity: 1; }
+  }
+  @keyframes dashSheen {
+    0% { transform: translateX(-120%) rotate(9deg); opacity: 0; }
+    24% { opacity: 0.42; }
+    64% { opacity: 0.18; }
+    100% { transform: translateX(130%) rotate(9deg); opacity: 0; }
+  }
+  @keyframes dashBarGlow {
+    0% { transform: translateX(-80%); }
+    100% { transform: translateX(240%); }
+  }
+  .dashboard-shell {
+    position: relative;
+    isolation: isolate;
+  }
+  .dashboard-shell::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+      linear-gradient(112deg, transparent 0 24%, rgba(14,165,233,0.08) 24.2% 24.5%, transparent 25% 100%),
+      repeating-linear-gradient(90deg, rgba(14,165,233,0.035) 0 1px, transparent 1px 92px),
+      linear-gradient(180deg, rgba(255,255,255,0), rgba(240,249,255,0.42));
+    animation: none;
+  }
+  .dashboard-hero {
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(14,165,233,0.18);
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.92), rgba(240,249,255,0.78) 48%, rgba(240,253,244,0.68)),
+      linear-gradient(90deg, rgba(14,165,233,0.1), transparent 42%, rgba(16,185,129,0.09));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.92), 0 24px 72px rgba(14,116,144,0.12);
+  }
+  .dashboard-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(104deg, transparent 0 38%, rgba(255,255,255,0.62) 44%, rgba(125,211,252,0.18) 49%, transparent 58%),
+      repeating-linear-gradient(90deg, rgba(14,165,233,0.08) 0 1px, transparent 1px 64px);
+    opacity: 0.76;
+  }
+  .dashboard-hero::after,
+  .dashboard-card-motion::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 2px;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(14,165,233,0.78), rgba(16,185,129,0.52), rgba(245,158,11,0.36));
+  }
+  .dashboard-card-motion {
+    position: relative;
+    animation: dashFloatIn 0.58s cubic-bezier(0.22,1,0.36,1) both;
+    background:
+      linear-gradient(145deg, rgba(255,255,255,0.9), rgba(248,250,252,0.76)),
+      linear-gradient(90deg, rgba(14,165,233,0.055), transparent 44%, rgba(16,185,129,0.04));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.92), 0 18px 45px rgba(15,23,42,0.06);
+    backdrop-filter: blur(18px);
+  }
+  .dashboard-card-motion:hover {
+    background:
+      linear-gradient(145deg, rgba(255,255,255,0.95), rgba(240,249,255,0.82)),
+      linear-gradient(90deg, rgba(14,165,233,0.08), transparent 44%, rgba(16,185,129,0.06));
+  }
+  .ops-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border-radius: 999px;
+    border: 1px solid rgba(14,165,233,0.16);
+    background: linear-gradient(135deg, rgba(255,255,255,0.86), rgba(240,249,255,0.72));
+    padding: 0.35rem 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #0e7490;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 8px 20px rgba(15,23,42,0.05);
+  }
+  .ops-engine-card {
+    border: 1px solid rgba(14,165,233,0.16);
+    background:
+      linear-gradient(145deg, rgba(255,255,255,0.9), rgba(240,249,255,0.72)),
+      repeating-linear-gradient(90deg, rgba(14,165,233,0.06) 0 1px, transparent 1px 58px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 18px 45px rgba(15,23,42,0.06);
+    backdrop-filter: blur(18px);
+  }
+  .dashboard-core-panel {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(14,165,233,0.18);
+    background:
+      linear-gradient(145deg, rgba(255,255,255,0.86), rgba(240,249,255,0.68)),
+      repeating-linear-gradient(90deg, rgba(14,165,233,0.055) 0 1px, transparent 1px 42px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.92), 0 22px 52px rgba(14,116,144,0.12);
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+  .dashboard-core-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(120deg, transparent 0 34%, rgba(255,255,255,0.56) 42%, rgba(125,211,252,0.16) 48%, transparent 58%),
+      linear-gradient(90deg, rgba(14,165,233,0.14), transparent 40%, rgba(245,158,11,0.08));
+    opacity: 0.72;
+  }
+  .dashboard-core-row {
+    position: relative;
+    border: 1px solid rgba(226,232,240,0.9);
+    background: rgba(255,255,255,0.58);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.82);
+  }
+  .dashboard-core-meter {
+    position: relative;
+    overflow: hidden;
+    height: 0.42rem;
+    border-radius: 999px;
+    background: rgba(226,232,240,0.82);
+  }
+  .dashboard-core-meter span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    box-shadow: 0 0 18px rgba(14,165,233,0.22);
+  }
+  .dashboard-panel {
+    animation: dashFloatIn 0.62s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .dashboard-progress {
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(15,23,42,0.04);
+  }
+  .dashboard-progress::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 38%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.42), transparent);
+    animation: dashBarGlow 2.7s ease-in-out infinite;
+  }
+`
+
 function Panel({ title, eyebrow, badge, children, className }) {
   return (
-    <section className={clsx('card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card-lg', className)}>
+    <section className={clsx('card dashboard-panel p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-card-lg', className)}>
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
           {eyebrow && <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">{eyebrow}</p>}
@@ -121,7 +288,7 @@ function PulseMetric({ label, value, sub, color = 'bg-brand-500' }) {
         </div>
         <span className="font-display text-lg font-bold text-slate-900">{formatPercent(safe)}</span>
       </div>
-      <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
+      <div className="dashboard-progress h-2.5 overflow-hidden rounded-full bg-slate-100">
         <div
           className={clsx('h-full rounded-full transition-all duration-1000 ease-out', color)}
           style={{ width: `${safe}%` }}
@@ -150,16 +317,15 @@ function StatCard({ icon: Icon, label, value, sub, tone, loading, linkTo, delay 
       onClick={() => linkTo && navigate(linkTo)}
       style={{ animationDelay: `${delay}ms` }}
       className={clsx(
-        'group card relative flex min-h-[132px] items-start gap-4 overflow-hidden p-5 text-left transition-all duration-300 animate-fade-in-up',
-        'hover:-translate-y-1 hover:border-brand-200 hover:shadow-card-lg focus:outline-none focus:ring-2 focus:ring-brand-500/20',
+        'group dashboard-card-motion relative flex min-h-[142px] items-start gap-4 overflow-hidden rounded-xl border border-slate-200 p-5 text-left shadow-[0_18px_45px_rgba(15,23,42,0.06)] transition-all duration-300',
+        'hover:-translate-y-1 hover:border-slate-300 hover:shadow-[0_22px_55px_rgba(15,23,42,0.09)] focus:outline-none focus:ring-2 focus:ring-slate-500/20',
         linkTo ? 'cursor-pointer' : 'cursor-default'
       )}
     >
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-500 via-emerald-400 to-amber-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="absolute inset-x-0 top-0 h-1 bg-slate-200 opacity-80 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="absolute -right-8 -top-10 h-24 w-24 rotate-12 rounded-[18px] bg-slate-100/70" />
       <div className="absolute right-3 top-3 flex gap-0.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-        {[0, 1, 2].map(i => (
-          <span key={i} className="h-1 w-1 rounded-full bg-brand-400 animate-pulse" style={{ animationDelay: `${i * 130}ms` }} />
-        ))}
+        {[0, 1, 2].map(i => <span key={i} className="h-1 w-1 rounded-full bg-cyan-400 animate-pulse" style={{ animationDelay: `${i * 130}ms` }} />)}
       </div>
       <div className={clsx('stat-icon border transition-transform duration-300 group-hover:scale-110', tones[tone])}>
         <Icon className="h-5 w-5" />
@@ -169,7 +335,7 @@ function StatCard({ icon: Icon, label, value, sub, tone, loading, linkTo, delay 
         {loading ? (
           <div className="h-8 w-20 animate-pulse rounded-lg bg-slate-100" />
         ) : (
-          <p className="font-display text-2xl font-bold text-slate-900">
+          <p className="font-display text-3xl font-black tracking-tight text-slate-950">
             <AnimatedNumber value={value} />
           </p>
         )}
@@ -251,7 +417,21 @@ export default function Dashboard() {
       const res = await api.post('/gmail/sync-now?limit=50')
       const processed = Number(res.data?.processed_count || 0)
       const skipped = Number(res.data?.skipped || 0)
-      toast.success(`Client inbox checked: ${processed} processed, ${skipped} skipped`)
+      if (processed > 0) {
+        try {
+          const latestRes = await api.get('/inbox', { params: { limit: 1 } })
+          const latest = latestRes.data?.emails?.[0]
+          if (latest && latest.status !== 'spam') {
+            toast.success(clientRequestTitle(latest), { duration: 7000 })
+          } else {
+            toast.success(`Client inbox checked: ${processed} processed, ${skipped} skipped`)
+          }
+        } catch {
+          toast.success(`Client inbox checked: ${processed} processed, ${skipped} skipped`)
+        }
+      } else {
+        toast.success(`Client inbox checked: ${processed} processed, ${skipped} skipped`)
+      }
       await load(true)
     } catch (e) {
       toast.error(e.message || 'Client inbox sync failed')
@@ -272,6 +452,9 @@ export default function Dashboard() {
   const whatsappReplies = Number(whatsapp.replies || 0)
   const clientStats = clientInbox?.stats || {}
   const recentClientEmails = clientInbox?.emails || []
+  const latestClientTrainerRequest = recentClientEmails.find(item =>
+    item?.status !== 'spam' && (item?.extracted?.is_training_request || item?.requirement_id)
+  )
   const clientToday = Number(clientStats.today || 0)
   const clientPending = Number(clientStats.pending_approval || 0)
   const clientAutoSent = Number(clientStats.auto_sent || 0)
@@ -319,23 +502,94 @@ export default function Dashboard() {
   ]
 
   return (
-    <div className="space-y-5 animate-fade-in">
-      <section className="card overflow-hidden">
-        <div className="p-5">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+    <div className="dashboard-shell space-y-5 animate-fade-in">
+      <style>{dashboardMotionCss}</style>
+      <section className="card dashboard-hero overflow-hidden">
+        <div className="relative grid gap-4 p-4 lg:grid-cols-[1fr_340px] lg:p-5">
+          <div className="min-w-0">
+            <div className="mb-1.5 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               Live operational overview
             </div>
-            <h1 className="page-title flex items-center gap-2">
-              <Zap className="h-6 w-6 text-brand-500" /> Dashboard
+            <h1 className="font-display text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+              Dashboard
             </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+            <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-500">
               Track trainer inventory, outreach movement, reply quality, and work that needs recruiter attention.
             </p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {['Trainer intelligence', 'Client inbox', 'Mail automation', 'PO to invoice'].map(item => (
+                <span key={item} className="ops-chip">
+                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-500" />
+                  {item}
+                </span>
+              ))}
+            </div>
+            <div className="mt-2 grid max-w-3xl gap-2 sm:grid-cols-3">
+              {[
+                ['AI matching', 'Live', 'bg-blue-50 text-blue-700 border-blue-100'],
+                ['Mail automation', gmailConnected ? 'Ready' : 'Setup needed', gmailConnected ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'],
+                ['Pipeline sync', refreshing ? 'Refreshing' : 'Normal', refreshing ? 'bg-sky-50 text-sky-700 border-sky-100' : 'bg-slate-50 text-slate-600 border-slate-200'],
+              ].map(([label, value, klass], i) => (
+                <div
+                  key={label}
+                  className={clsx('dashboard-card-motion rounded-lg border px-3 py-2 shadow-sm', klass)}
+                  style={{ animationDelay: `${120 + i * 80}ms` }}
+                >
+                  <p className="text-[10px] font-bold uppercase tracking-wide opacity-70">{label}</p>
+                  <p className="text-sm font-black">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="dashboard-core-panel relative p-4">
+            <div className="relative flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-700">Ops Core</p>
+                <p className="mt-1 font-display text-lg font-black text-slate-950">Recruiting Signal</p>
+              </div>
+              <div className={clsx(
+                'rounded-lg border px-2.5 py-1 text-right text-[10px] font-black uppercase tracking-wide',
+                gmailConnected ? 'border-emerald-100 bg-emerald-50 text-emerald-700' : 'border-amber-100 bg-amber-50 text-amber-700'
+              )}>
+                {gmailConnected ? 'Synced' : 'Standby'}
+              </div>
+            </div>
+            <div className="relative mt-4 space-y-2.5">
+              {[
+                ['Delivery Mesh', deliveryRate, 'bg-gradient-to-r from-cyan-500 to-emerald-400'],
+                ['Reply Signal', replyRate, 'bg-gradient-to-r from-sky-500 to-blue-600'],
+                ['Review Load', reviewLoad, 'bg-gradient-to-r from-amber-400 to-orange-500'],
+              ].map(([label, rawValue, tone]) => {
+                const safeValue = Math.max(0, Math.min(100, Number(rawValue || 0)))
+                return (
+                  <div key={label} className="dashboard-core-row rounded-lg px-3 py-2.5">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <span className="text-xs font-bold text-slate-600">{label}</span>
+                      <span className="font-mono text-[11px] font-black text-slate-900">{formatPercent(safeValue)}</span>
+                    </div>
+                    <div className="dashboard-core-meter">
+                      <span className={tone} style={{ width: `${safeValue}%` }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="relative mt-3 grid grid-cols-3 gap-2">
+              {[
+                ['Profiles', totalTrainers],
+                ['Pending', clientPending],
+                ['Replies', totalReplies],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-lg border border-slate-200/80 bg-white/60 px-2 py-2 text-center shadow-sm">
+                  <p className="font-mono text-sm font-black text-slate-950">{loading ? '-' : Number(value || 0).toLocaleString('en-IN')}</p>
+                  <p className="mt-0.5 truncate text-[10px] font-bold uppercase tracking-wide text-slate-400">{label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-3">
+        <div className="relative flex flex-wrap items-center justify-between gap-3 border-t border-cyan-100 bg-white/62 px-4 py-2 backdrop-blur">
           <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
             <Database className="h-4 w-4 text-slate-400" />
             {loading ? 'Loading dashboard data...' : `${totalTrainers.toLocaleString('en-IN')} trainer profiles synced`}
@@ -381,8 +635,32 @@ export default function Dashboard() {
           eyebrow="Client automation"
           badge={gmailConnected ? 'Gmail connected' : 'Gmail not connected'}
         >
+          {latestClientTrainerRequest && (
+            <button
+              type="button"
+              onClick={() => navigate('/client-requests')}
+              className="mb-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-left shadow-sm transition hover:border-brand-200 hover:bg-brand-50"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black uppercase tracking-wide text-brand-600">New client notification</p>
+                  <p className="mt-1 truncate text-base font-black text-slate-950">
+                    {clientRequestTitle(latestClientTrainerRequest)}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
+                    From {latestClientTrainerRequest.from_name || latestClientTrainerRequest.from_email || 'Client'}
+                    {latestClientTrainerRequest.received_at ? ` - ${formatDateTime(latestClientTrainerRequest.received_at)}` : ''}
+                    {clientRequestSummary(latestClientTrainerRequest) ? ` - ${clientRequestSummary(latestClientTrainerRequest)}` : ''}
+                  </p>
+                </div>
+                <span className={clsx('badge shrink-0 text-[11px]', clientStatusClass(latestClientTrainerRequest.status))}>
+                  {clientStatusLabel(latestClientTrainerRequest.status)}
+                </span>
+              </div>
+            </button>
+          )}
           <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-sm font-bold text-slate-900">Client inbox status</p>
@@ -451,16 +729,15 @@ export default function Dashboard() {
               ) : recentClientEmails.length ? (
                 <div className="space-y-2">
                   {recentClientEmails.slice(0, 4).map(item => {
-                    const extracted = item.extracted || {}
                     return (
                       <button
                         key={item.email_id}
                         onClick={() => navigate('/client-requests')}
-                        className="w-full rounded-lg border border-slate-100 px-3 py-2 text-left transition hover:border-brand-100 hover:bg-brand-50"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-left shadow-sm transition hover:border-brand-200 hover:bg-brand-50"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <p className="truncate text-sm font-semibold text-slate-800">
-                            {extracted.technology_needed || item.subject || 'Client request'}
+                            {clientRequestTitle(item)}
                           </p>
                           <span className={clsx('badge text-[11px]', clientStatusClass(item.status))}>
                             {clientStatusLabel(item.status)}
@@ -469,6 +746,11 @@ export default function Dashboard() {
                         <p className="mt-1 truncate text-xs text-slate-400">
                           {item.from_name || item.from_email || 'Client'} {item.received_at ? `- ${formatDateTime(item.received_at)}` : ''}
                         </p>
+                        {clientRequestSummary(item) && (
+                          <p className="mt-1 line-clamp-1 text-[11px] text-slate-400">
+                            {clientRequestSummary(item)}
+                          </p>
+                        )}
                       </button>
                     )
                   })}
