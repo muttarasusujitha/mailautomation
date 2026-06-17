@@ -3,7 +3,8 @@ import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import {
   BriefcaseBusiness, CheckCircle2, ExternalLink, Globe2, Mail, RefreshCw,
-  Search, Send, ShieldCheck, Target, Trash2, Users,
+  Search, Send, ShieldCheck, Target, Trash2, Users, Zap, Phone, CreditCard,
+  AlertCircle, BarChart2,
 } from 'lucide-react'
 import api from '../utils/api'
 import { LinkedInLeadVerifyButton, TrustLegend, VerificationBadge } from '../components/VerificationBadge'
@@ -76,6 +77,19 @@ export default function LinkedInSearch() {
   const [deletingDomain, setDeletingDomain] = useState('')
   const [verifyingLead, setVerifyingLead] = useState('')
 
+  // ── Apollo state ──────────────────────────────────────────────────────────
+  const [source, setSource] = useState('linkedin')          // 'linkedin' | 'apollo'
+  const [apolloMode, setApolloMode] = useState('trainer')   // 'trainer' | 'client'
+  const [apolloKeywords, setApolloKeywords] = useState('Python')
+  const [apolloLocations, setApolloLocations] = useState('Bangalore, India')
+  const [apolloMaxCredits, setApolloMaxCredits] = useState(10)
+  const [apolloSearching, setApolloSearching] = useState(false)
+  const [apolloResults, setApolloResults] = useState([])
+  const [apolloSaved, setApolloSaved] = useState(null)      // last save result
+  const [apolloCredits, setApolloCredits] = useState(null)  // { used, remaining, monthly_limit }
+  const [apolloPreview, setApolloPreview] = useState([])    // free search preview
+
+  const isApollo = source === 'apollo'
   const isTrainer = mode === 'trainer'
 
   const load = async () => {
@@ -97,6 +111,76 @@ export default function LinkedInSearch() {
     setSelectedDomain('all')
     setSearchDomains(isTrainer ? 'Python' : '')
   }, [mode, isTrainer])
+
+  // ── Apollo: load credit status on mount ───────────────────────────────────
+  useEffect(() => {
+    if (source !== 'apollo') return
+    api.get('/apollo/credits')
+      .then(r => setApolloCredits(r.data))
+      .catch(() => {})
+  }, [source])
+
+  // ── Apollo: free preview search (no credits) ─────────────────────────────
+  const runApolloPreview = async () => {
+    setApolloSearching(true)
+    setApolloPreview([])
+    setApolloSaved(null)
+    try {
+      const keywords = apolloKeywords.split(',').map(k => k.trim()).filter(Boolean)
+      const locations = apolloLocations.split(',').map(l => l.trim()).filter(Boolean)
+      const res = await api.post('/apollo/search', {
+        mode:          apolloMode,
+        keywords:      keywords.length ? keywords : undefined,
+        locations:     locations.length ? locations : ['India'],
+        require_phone: true,
+        max_pages:     4,
+      })
+      setApolloPreview(res.data.people || [])
+      toast.success(`Found ${res.data.qualified} qualified contacts — no credits used`)
+    } catch (e) {
+      const msg = e?.response?.data?.detail || e.message
+      toast.error(`Apollo preview failed: ${msg}`)
+    } finally {
+      setApolloSearching(false)
+    }
+  }
+
+  // ── Apollo: enrich + save (costs credits) ────────────────────────────────
+  const runApolloSave = async () => {
+    if (!window.confirm(
+      `This will use up to ${apolloMaxCredits} Apollo credit${apolloMaxCredits === 1 ? '' : 's'}.\n\n` +
+      `Each credit = 1 verified contact with email + phone.\n\nProceed?`
+    )) return
+
+    setApolloSearching(true)
+    setApolloSaved(null)
+    try {
+      const keywords = apolloKeywords.split(',').map(k => k.trim()).filter(Boolean)
+      const locations = apolloLocations.split(',').map(l => l.trim()).filter(Boolean)
+      const res = await api.post('/apollo/find-and-save', {
+        mode:           apolloMode,
+        keywords:       keywords.length ? keywords : undefined,
+        locations:      locations.length ? locations : ['India'],
+        domain_keyword: keywords[0] || '',
+        max_credits:    apolloMaxCredits,
+        require_phone:  true,
+      })
+      setApolloSaved(res.data)
+      setApolloCredits(res.data.credit_status)
+      toast.success(res.data.message)
+      // Reload leads list to show newly saved contacts
+      await load()
+    } catch (e) {
+      const msg = e?.response?.data?.detail || e.message
+      if (msg?.includes('429') || msg?.includes('credits remaining')) {
+        toast.error('No Apollo credits remaining this month. Resets on the 1st.')
+      } else {
+        toast.error(`Apollo save failed: ${msg}`)
+      }
+    } finally {
+      setApolloSearching(false)
+    }
+  }
 
   const runSearch = async () => {
     setSearching(true)
@@ -252,19 +336,260 @@ export default function LinkedInSearch() {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="page-title flex items-center gap-2">
-            <Globe2 className="h-6 w-6 text-blue-600" /> LinkedIn Search
+            <Globe2 className="h-6 w-6 text-blue-600" /> LinkedIn &amp; Apollo Search
           </h1>
-          <p className="mt-1 text-sm text-slate-500">Search public LinkedIn/web results for recent client trainer posts or Indian trainer profiles.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Search public LinkedIn/web results or use Apollo.io to find verified contacts with email and phone.
+          </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative min-w-[260px]">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && load()} placeholder="Search saved results" className="input bg-[#eaf6ff] pl-9" />
           </div>
-          <button onClick={load} className="btn-secondary text-sm"><RefreshCw className="h-4 w-4" /> Search</button>
+          <button onClick={load} className="btn-secondary text-sm"><RefreshCw className="h-4 w-4" /> Refresh</button>
         </div>
       </div>
 
+      {/* ── Source Switcher ─────────────────────────────────────────────── */}
+      <div className="flex flex-wrap gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2">
+        <button
+          onClick={() => setSource('linkedin')}
+          className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition',
+            !isApollo ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100')}
+        >
+          <Globe2 className="h-4 w-4" /> LinkedIn / Web Search
+        </button>
+        <button
+          onClick={() => setSource('apollo')}
+          className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition',
+            isApollo ? 'bg-violet-600 text-white' : 'text-slate-600 hover:bg-slate-100')}
+        >
+          <Zap className="h-4 w-4" /> Apollo.io
+          <span className={clsx('rounded-full px-1.5 py-0.5 text-xs font-bold',
+            isApollo ? 'bg-white/20 text-white' : 'bg-violet-100 text-violet-700')}>
+            Email + Phone
+          </span>
+        </button>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════════
+          APOLLO PANEL
+      ══════════════════════════════════════════════════════════════════ */}
+      {isApollo && (
+        <div className="space-y-4">
+
+          {/* Credit status bar */}
+          {apolloCredits && (
+            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-violet-200 bg-violet-50 px-4 py-3">
+              <CreditCard className="h-4 w-4 text-violet-600" />
+              <span className="text-sm font-semibold text-violet-900">Apollo Credits</span>
+              <div className="flex-1">
+                <div className="mb-1 flex items-center justify-between text-xs text-violet-700">
+                  <span>Used: {apolloCredits.used_this_month} / {apolloCredits.monthly_limit}</span>
+                  <span className="font-bold">{apolloCredits.remaining_this_month} remaining</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-violet-200">
+                  <div
+                    className="h-full rounded-full bg-violet-500 transition-all"
+                    style={{ width: `${Math.min(100, (apolloCredits.used_this_month / apolloCredits.monthly_limit) * 100)}%` }}
+                  />
+                </div>
+              </div>
+              {apolloCredits.remaining_this_month === 0 && (
+                <span className="flex items-center gap-1 text-xs font-bold text-red-600">
+                  <AlertCircle className="h-3 w-3" /> Out of credits — resets 1st of month
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Mode + Search controls */}
+          <div className="rounded-lg border border-violet-200 bg-violet-50 p-4 space-y-4">
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-violet-600" />
+              <h2 className="text-sm font-bold text-slate-900">Apollo.io Contact Search</h2>
+              <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-bold text-violet-700">
+                Verified email + phone
+              </span>
+            </div>
+
+            {/* Trainer / Client toggle */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setApolloMode('trainer')}
+                className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition',
+                  apolloMode === 'trainer' ? 'bg-violet-600 text-white' : 'bg-white text-slate-600 hover:bg-violet-50 border border-slate-200')}
+              >
+                <Users className="h-4 w-4" /> Find Trainers
+              </button>
+              <button
+                onClick={() => setApolloMode('client')}
+                className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition',
+                  apolloMode === 'client' ? 'bg-violet-600 text-white' : 'bg-white text-slate-600 hover:bg-violet-50 border border-slate-200')}
+              >
+                <BriefcaseBusiness className="h-4 w-4" /> Find HR / L&D Managers
+              </button>
+            </div>
+
+            {/* Inputs */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-600">
+                  Keywords / Domain <span className="text-slate-400">(comma separated)</span>
+                </label>
+                <input
+                  className="input bg-white"
+                  value={apolloKeywords}
+                  onChange={e => setApolloKeywords(e.target.value)}
+                  placeholder={apolloMode === 'trainer' ? 'Python, SAP FICO, DevOps' : 'IT, Manufacturing, BFSI'}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-600">
+                  Locations <span className="text-slate-400">(comma separated)</span>
+                </label>
+                <input
+                  className="input bg-white"
+                  value={apolloLocations}
+                  onChange={e => setApolloLocations(e.target.value)}
+                  placeholder="Bangalore, India, Mumbai, India"
+                />
+              </div>
+            </div>
+
+            {/* Credit selector */}
+            <div className="flex flex-wrap items-end gap-4">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-slate-600">
+                  Credits to use for enrichment
+                </label>
+                <div className="flex items-center gap-2">
+                  {[5, 10, 15, 20].map(n => (
+                    <button
+                      key={n}
+                      onClick={() => setApolloMaxCredits(n)}
+                      className={clsx('rounded-lg border px-3 py-1.5 text-sm font-bold transition',
+                        apolloMaxCredits === n
+                          ? 'border-violet-500 bg-violet-600 text-white'
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-violet-300')}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                  <span className="text-xs text-slate-400">= {apolloMaxCredits} verified contacts</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Info box */}
+            <div className="rounded-lg border border-violet-100 bg-white p-3 text-xs text-slate-600 space-y-1">
+              <p className="font-semibold text-slate-800">How it works:</p>
+              <p>1. <span className="font-semibold text-green-700">Preview Search</span> — finds matching contacts and shows quality. <span className="font-bold text-green-700">FREE, no credits.</span></p>
+              <p>2. <span className="font-semibold text-violet-700">Save Contacts</span> — enriches and saves verified email + phone to your pipeline. <span className="font-bold text-violet-700">Uses {apolloMaxCredits} credit{apolloMaxCredits === 1 ? '' : 's'}.</span></p>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={runApolloPreview}
+                disabled={apolloSearching}
+                className="btn-secondary text-sm disabled:opacity-50"
+              >
+                {apolloSearching ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                Preview Search (Free)
+              </button>
+              <button
+                onClick={runApolloSave}
+                disabled={apolloSearching || (apolloCredits?.remaining_this_month === 0)}
+                className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:opacity-50"
+              >
+                {apolloSearching ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+                Save Contacts ({apolloMaxCredits} credit{apolloMaxCredits === 1 ? '' : 's'})
+              </button>
+            </div>
+          </div>
+
+          {/* Save result summary */}
+          {apolloSaved && (
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                <div className="flex-1">
+                  <p className="font-semibold text-emerald-900">{apolloSaved.message}</p>
+                  <div className="mt-1 flex flex-wrap gap-3 text-xs text-emerald-700">
+                    <span>Searched: {apolloSaved.searched}</span>
+                    <span>Qualified: {apolloSaved.qualified}</span>
+                    <span>Saved: <strong>{apolloSaved.saved_count}</strong></span>
+                    <span>Skipped (duplicates): {apolloSaved.skipped_count}</span>
+                    <span>Credits used: <strong>{apolloSaved.credits_used}</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Free preview results */}
+          {apolloPreview.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <BarChart2 className="h-4 w-4 text-violet-600" />
+                <h3 className="text-sm font-bold text-slate-800">
+                  Preview — {apolloPreview.length} qualified contacts found
+                </h3>
+                <span className="text-xs text-slate-400">(last name hidden, email/phone unlocked on save)</span>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {apolloPreview.map((p, i) => {
+                  const org = p.organization || {}
+                  return (
+                    <div key={p.id || i} className="rounded-lg border border-violet-100 bg-white p-3 text-sm space-y-1">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-700">
+                          {(p.first_name || '?')[0].toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-900 truncate">
+                            {p.first_name} {p.last_name_obfuscated || '•••'}
+                          </p>
+                          <p className="truncate text-xs text-slate-500">{p.title || 'No title'}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-600 truncate">🏢 {org.name || '—'}</p>
+                      <div className="flex flex-wrap gap-1">
+                        {p.has_email && (
+                          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
+                            ✓ Email
+                          </span>
+                        )}
+                        {p.has_direct_phone === 'Yes' && (
+                          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">
+                            ✓ Phone
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Divider to saved leads */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 border-t border-slate-200" />
+            <span className="text-xs font-semibold text-slate-400">SAVED APOLLO CONTACTS IN PIPELINE</span>
+            <div className="flex-1 border-t border-slate-200" />
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════
+          LINKEDIN PANEL (existing, unchanged)
+      ══════════════════════════════════════════════════════════════════ */}
+      {!isApollo && (
+      <>
+      {/* Mode switcher — Client posts vs Trainer profiles */}
       <div className="linkedin-glow-panel flex flex-wrap gap-2 rounded-lg border border-[#d8e6f5] bg-[#edf5ff] p-2">
         <button onClick={() => setMode('client')} className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition', !isTrainer ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
           <BriefcaseBusiness className="h-4 w-4" /> Client Requirement Posts
@@ -274,6 +599,7 @@ export default function LinkedInSearch() {
         </button>
       </div>
 
+      {/* Search box */}
       <section className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] p-4">
         <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
@@ -438,6 +764,8 @@ export default function LinkedInSearch() {
           <Globe2 className="mx-auto mb-3 h-10 w-10 opacity-40" />
           <p>No {isTrainer ? 'trainer profiles' : 'client posts'} in this domain/status view.</p>
         </div>
+      )}
+      </>
       )}
     </div>
   )
