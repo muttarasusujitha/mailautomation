@@ -14,11 +14,11 @@ const SETTINGS_STORAGE_KEY = 'admin_settings'
 const Section = ({ id, icon: Icon, title, subtitle, children }) => (
   <div id={id} className="card p-5 mb-5 scroll-mt-24">
     <div className="flex items-start gap-3 mb-5 pb-4 border-b border-slate-100">
-      <div className="w-9 h-9 rounded-xl bg-brand-50 flex items-center justify-center flex-shrink-0">
-        <Icon className="w-5 h-5 text-brand-500" />
+      <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+        <Icon className="w-5 h-5 text-blue-600" />
       </div>
       <div>
-        <h2 className="font-display font-bold text-slate-900 text-base">{title}</h2>
+        <h2 className="font-jakarta font-bold text-slate-900 text-base">{title}</h2>
         {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
       </div>
     </div>
@@ -40,7 +40,7 @@ const Input = ({ icon: Icon, ...props }) => (
     <input
       className={clsx(
         "w-full border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm",
-        "focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400",
+        "focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400",
         "placeholder:text-slate-400 transition",
         Icon ? "pl-9 pr-4 py-2.5" : "px-4 py-2.5"
       )}
@@ -60,7 +60,7 @@ const Toggle = ({ checked, onChange, label, desc }) => (
       onClick={() => onChange(!checked)}
       className={clsx(
         "relative inline-flex w-11 h-6 rounded-full transition-colors flex-shrink-0",
-        checked ? "bg-brand-500" : "bg-slate-200"
+        checked ? "bg-blue-500" : "bg-slate-200"
       )}
     >
       <span className={clsx(
@@ -502,7 +502,7 @@ export default function Admin() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="page-title flex items-center gap-2">
-            <Settings className="w-6 h-6 text-brand-500" /> Admin Settings
+            <Settings className="w-6 h-6 text-blue-600" /> Admin Settings
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">Manage your account, pipeline and integrations</p>
         </div>
@@ -614,7 +614,7 @@ export default function Admin() {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input type={showPass ? 'text' : 'password'} placeholder="••••••••"
-                className="w-full border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm pl-9 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400" />
+                className="w-full border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm pl-9 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400" />
               <button type="button" onClick={() => setShowPass(!showPass)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                 {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -625,7 +625,7 @@ export default function Admin() {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input type={showPass ? 'text' : 'password'} placeholder="••••••••"
-                className="w-full border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm pl-9 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400" />
+                className="w-full border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm pl-9 pr-10 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400" />
             </div>
           </Field>
         </div>
@@ -730,7 +730,7 @@ export default function Admin() {
             value={clientInboxCfg.clientDomainsWhitelist}
             onChange={e => setClientInboxCfg({...clientInboxCfg, clientDomainsWhitelist: e.target.value})}
             placeholder="infosys.com, wipro.com, tcs.com"
-            className="w-full min-h-20 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400"
+            className="w-full min-h-20 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
           />
         </Field>
 
@@ -738,7 +738,7 @@ export default function Admin() {
           <textarea
             value={clientInboxCfg.replySignature}
             onChange={e => setClientInboxCfg({...clientInboxCfg, replySignature: e.target.value})}
-            className="w-full min-h-28 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400"
+            className="w-full min-h-28 border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400"
           />
         </Field>
 
@@ -943,7 +943,7 @@ export default function Admin() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Field label="Top N Trainers" hint="How many to shortlist">
             <select value={pipeline.topN} onChange={e => setPipeline({...pipeline, topN: e.target.value})}
-              className="w-full border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+              className="w-full border border-slate-200 rounded-xl bg-slate-50 text-slate-900 text-sm px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
               <option>3</option><option>5</option><option>10</option>
             </select>
           </Field>

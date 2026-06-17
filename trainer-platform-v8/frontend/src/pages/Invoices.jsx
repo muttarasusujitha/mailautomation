@@ -34,7 +34,7 @@ function invoiceStatus(item = {}) {
 function statusClass(status) {
   if (status === 'Sent') return 'bg-emerald-50 text-emerald-700 ring-emerald-200'
   if (status === 'Generated') return 'bg-blue-50 text-blue-700 ring-blue-200'
-  if (status === 'PO Received') return 'bg-cyan-50 text-cyan-700 ring-cyan-200'
+  if (status === 'PO Received') return 'bg-blue-50 text-blue-700 ring-cyan-200'
   if (status === 'Ready') return 'bg-amber-50 text-amber-700 ring-amber-200'
   return 'bg-slate-50 text-slate-500 ring-slate-200'
 }

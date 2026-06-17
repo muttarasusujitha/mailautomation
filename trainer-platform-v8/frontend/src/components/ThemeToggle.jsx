@@ -265,7 +265,7 @@ export default function ThemeToggle({ floating = false }) {
                 <span className="block text-[11px] font-black text-slate-700">{item.number}</span>
                 <span className="mt-1 block text-xs font-bold leading-tight text-slate-700">{item.name}</span>
                 {item.id === plate && (
-                  <span className="absolute right-2 top-2 rounded-full bg-cyan-600 p-1 text-white">
+                  <span className="absolute right-2 top-2 rounded-full bg-blue-600 p-1 text-white">
                     <Check className="h-3 w-3" />
                   </span>
                 )}
@@ -276,7 +276,7 @@ export default function ThemeToggle({ floating = false }) {
           <div className="mt-4 border-t border-slate-200 pt-3">
             <div className="mb-2 flex items-center justify-between gap-3">
               <p className="text-xs font-black uppercase tracking-wide text-slate-500">Margin Glow</p>
-              <span className="text-xs font-bold text-cyan-700">{selectedGlow.name}</span>
+              <span className="text-xs font-bold text-blue-700">{selectedGlow.name}</span>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {GLOWS.map(item => (
@@ -298,7 +298,7 @@ export default function ThemeToggle({ floating = false }) {
                   <span className="block text-[11px] text-slate-500">{item.number}</span>
                   <span className="block">{item.name}</span>
                   {item.id === glow && (
-                    <span className="absolute right-1.5 top-1.5 rounded-full bg-cyan-600 p-0.5 text-white">
+                    <span className="absolute right-1.5 top-1.5 rounded-full bg-blue-600 p-0.5 text-white">
                       <Check className="h-2.5 w-2.5" />
                     </span>
                   )}
@@ -310,7 +310,7 @@ export default function ThemeToggle({ floating = false }) {
           <div className="mt-4 border-t border-slate-200 pt-3">
             <div className="mb-2 flex items-center justify-between gap-3">
               <p className="text-xs font-black uppercase tracking-wide text-slate-500">Glow Color</p>
-              <span className="text-xs font-bold text-cyan-700">{selectedGlowColor.name}</span>
+              <span className="text-xs font-bold text-blue-700">{selectedGlowColor.name}</span>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {GLOW_COLORS.map(item => (
@@ -330,7 +330,7 @@ export default function ThemeToggle({ floating = false }) {
                 >
                   <span className="block">{item.name}</span>
                   {item.id === glowColor && (
-                    <span className="absolute right-1.5 top-1.5 rounded-full bg-cyan-600 p-0.5 text-white">
+                    <span className="absolute right-1.5 top-1.5 rounded-full bg-blue-600 p-0.5 text-white">
                       <Check className="h-2.5 w-2.5" />
                     </span>
                   )}

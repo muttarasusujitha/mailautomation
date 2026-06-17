@@ -63,7 +63,7 @@ export default function App() {
       <Toaster
         position="top-right"
         toastOptions={{
-          style: { borderRadius: '12px', fontFamily: "'DM Sans', sans-serif", fontSize: '14px' },
+          style: { borderRadius: '12px', fontFamily: "'Inter', sans-serif", fontSize: '14px' },
           success: { iconTheme: { primary: '#2563eb', secondary: '#fff' } },
         }}
       />

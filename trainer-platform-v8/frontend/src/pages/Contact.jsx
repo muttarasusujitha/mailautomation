@@ -352,7 +352,7 @@ export default function Contact() {
             <span className="text-blue-700 text-sm font-semibold">We're online — reply in ~2 hrs</span>
           </div>
 
-          <h1 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(2rem,4vw,3.2rem)', fontWeight:800, lineHeight:1.15, color:'#0f172a' }}>
+          <h1 style={{ fontFamily:"'Plus Jakarta Sans',sans-serif", fontSize:'clamp(2rem,4vw,3.2rem)', fontWeight:800, lineHeight:1.15, color:'#0f172a' }}>
             Let's Build Your<br/>
             <span style={{ background:'linear-gradient(90deg,#2563eb,#06b6d4)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
               Dream Team

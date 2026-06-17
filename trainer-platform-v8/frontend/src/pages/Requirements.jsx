@@ -24,7 +24,7 @@ const ScoreBadge = ({ score }) => {
               : 'bg-red-100 text-red-700'
   return (
     <div className={clsx('w-12 h-12 rounded-xl flex flex-col items-center justify-center flex-shrink-0', color)}>
-      <span className="font-display font-bold text-lg leading-none">{score}</span>
+      <span className="font-jakarta font-bold text-lg leading-none">{score}</span>
       <span className="text-xs leading-none opacity-70">pts</span>
     </div>
   )
@@ -81,7 +81,7 @@ function DetailSection({ title, icon: Icon, children }) {
   return (
     <section className="rounded-xl border border-slate-200 bg-slate-50 p-4">
       <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-800">
-        <Icon className="h-4 w-4 text-brand-500" /> {title}
+        <Icon className="h-4 w-4 text-blue-600" /> {title}
       </h4>
       {children}
     </section>
@@ -103,11 +103,11 @@ function TrainerDetailModal({ trainer, rank, requirement, onClose }) {
         <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-bold text-brand-600">Rank #{rank}</span>
+              <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-600">Rank #{rank}</span>
               <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">{trainer.match_score ?? 0}/100 match</span>
               {trainer.status && <span className="badge-slate">{trainer.status}</span>}
             </div>
-            <h3 className="mt-2 font-display text-2xl font-bold text-slate-900">{trainer.name}</h3>
+            <h3 className="mt-2 font-jakarta text-2xl font-bold text-slate-900">{trainer.name}</h3>
             <p className="mt-1 text-sm text-slate-500">{textValue(trainer.technologies)}</p>
           </div>
           <button onClick={onClose} className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
@@ -131,7 +131,7 @@ function TrainerDetailModal({ trainer, rank, requirement, onClose }) {
                 {excerpt ? (
                   <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-white p-3 font-sans text-sm leading-6 text-slate-700">{excerpt}</pre>
                 ) : trainer.resume ? (
-                  <a href={trainer.resume} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:underline">
+                  <a href={trainer.resume} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:underline">
                     <FileText className="h-4 w-4" /> Open resume
                   </a>
                 ) : (
@@ -158,7 +158,7 @@ function TrainerDetailModal({ trainer, rank, requirement, onClose }) {
                   <p><strong>Location:</strong> {textValue(trainer.location)}</p>
                   <p><strong>Email:</strong> {textValue(trainer.email)}</p>
                   <p><strong>Phone:</strong> {textValue(trainer.phone)}</p>
-                  <p><strong>LinkedIn:</strong> {trainer.linkedin ? <a className="text-brand-600 hover:underline" href={trainer.linkedin} target="_blank" rel="noreferrer">Open profile</a> : 'Not available'}</p>
+                  <p><strong>LinkedIn:</strong> {trainer.linkedin ? <a className="text-blue-600 hover:underline" href={trainer.linkedin} target="_blank" rel="noreferrer">Open profile</a> : 'Not available'}</p>
                   <p><strong>Trainings:</strong> {trainer.training_count ?? 'Not available'}</p>
                   <p><strong>Day rate:</strong> {trainer.day_rate ? `INR ${Number(trainer.day_rate).toLocaleString('en-IN')}` : 'Not available'}</p>
                 </div>
@@ -199,7 +199,7 @@ function TrainerDetailModal({ trainer, rank, requirement, onClose }) {
                           <span>{label}</span><span>{score}/{max}</span>
                         </div>
                         <div className="h-2 overflow-hidden rounded-full bg-slate-200">
-                          <div className="h-full rounded-full bg-brand-500" style={{ width: `${Math.min(100, Math.round((score / max) * 100))}%` }} />
+                          <div className="h-full rounded-full bg-blue-500" style={{ width: `${Math.min(100, Math.round((score / max) * 100))}%` }} />
                         </div>
                       </div>
                     )
@@ -241,7 +241,7 @@ function AutomationPipelinePreview({ trainer, requirement }) {
     blue: 'border-blue-100 bg-blue-50 text-blue-700',
     indigo: 'border-indigo-100 bg-indigo-50 text-indigo-700',
     amber: 'border-amber-100 bg-amber-50 text-amber-700',
-    cyan: 'border-cyan-100 bg-cyan-50 text-cyan-700',
+    cyan: 'border-blue-100 bg-blue-50 text-blue-700',
     orange: 'border-orange-100 bg-orange-50 text-orange-700',
     purple: 'border-purple-100 bg-purple-50 text-purple-700',
     emerald: 'border-emerald-100 bg-emerald-50 text-emerald-700',
@@ -259,7 +259,7 @@ function AutomationPipelinePreview({ trainer, requirement }) {
         <a
           href="/shortlist1"
           onClick={e => e.stopPropagation()}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-2 text-xs font-bold text-white transition hover:bg-brand-600"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-blue-500 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-600"
         >
           <TrendingUp className="h-3.5 w-3.5" /> Open AI Pipeline
         </a>
@@ -268,7 +268,7 @@ function AutomationPipelinePreview({ trainer, requirement }) {
         {stages.map(item => (
           <div key={`${item.step}-${item.title}`} className={clsx('rounded-lg border px-2.5 py-2', toneClass[item.tone])}>
             <div className="flex items-center gap-2">
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-md bg-white/75 px-1 text-[10px] font-black">{item.step}</span>
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-md bg-white px-1 text-[10px] font-black">{item.step}</span>
               <span className="text-xs font-bold">{item.title}</span>
             </div>
             <p className="mt-1 text-[11px] leading-4 opacity-80">{item.desc}</p>
@@ -290,16 +290,16 @@ const TrainerCard = ({ trainer, rank, requirement, onOpen }) => (
         onOpen(trainer, rank)
       }
     }}
-    className="card-hover cursor-pointer p-5 animate-slide-up focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+    className="card-hover cursor-pointer p-5 animate-slide-up focus:outline-none focus:ring-2 focus:ring-blue-500/30"
   >
     <div className="flex items-start gap-4">
-      <div className="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0">
-        <span className="font-display font-bold text-brand-600 text-sm">#{rank}</span>
+      <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+        <span className="font-jakarta font-bold text-blue-600 text-sm">#{rank}</span>
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
-            <h3 className="font-display font-semibold text-slate-900">{trainer.name}</h3>
+            <h3 className="font-jakarta font-semibold text-slate-900">{trainer.name}</h3>
             <p className="text-sm text-slate-500 mt-0.5 line-clamp-1">{trainer.technologies?.substring(0, 80)}</p>
             {trainer.ai_match_reason && (
               <p className="mt-1 text-xs text-slate-500 line-clamp-1">{trainer.ai_match_reason}</p>
@@ -348,17 +348,17 @@ const TrainerCard = ({ trainer, rank, requirement, onOpen }) => (
         <div className="mt-3 flex items-center gap-3">
           {trainer.has_linkedin && (
             <a href={trainer.linkedin} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
-               className="flex items-center gap-1 text-xs text-brand-500 hover:underline">
+               className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
               <Linkedin className="w-3.5 h-3.5" /> LinkedIn
             </a>
           )}
           {trainer.has_resume && (
             <a href={trainer.resume} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
-               className="flex items-center gap-1 text-xs text-brand-500 hover:underline">
+               className="flex items-center gap-1 text-xs text-blue-600 hover:underline">
               <FileText className="w-3.5 h-3.5" /> Resume
             </a>
           )}
-          <span className="flex items-center gap-1 text-xs font-semibold text-brand-500">
+          <span className="flex items-center gap-1 text-xs font-semibold text-blue-600">
             <Eye className="w-3.5 h-3.5" /> View details
           </span>
           <span className={clsx('ml-auto badge',
@@ -492,32 +492,32 @@ export default function Requirements() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="future-panel">
+      <div className="panel">
         <div className="pointer-events-none absolute right-[-3rem] top-0 hidden h-full w-80 skew-x-[-18deg] bg-[linear-gradient(180deg,rgba(6,182,212,0.18),rgba(16,185,129,0.10),transparent)] md:block" />
         <div className="pointer-events-none absolute right-20 top-0 hidden h-full w-px bg-cyan-200/80 md:block" />
-        <div className="relative grid gap-5 border-b border-cyan-100 px-5 py-5 lg:grid-cols-[1fr_360px]">
+        <div className="relative grid gap-5 border-b border-blue-100 px-5 py-5 lg:grid-cols-[1fr_360px]">
           <div className="min-w-0 max-w-3xl">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-white/75 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-cyan-700 shadow-sm">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-blue-700 shadow-sm">
               <Search className="h-3.5 w-3.5" />
               Trainer intelligence cockpit
             </div>
-            <h1 className="font-display text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Find Trainers</h1>
+            <h1 className="font-jakarta text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Find Trainers</h1>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
               Capture client requirement, training dates, duration, and trainer-fit signals in one place.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {['Skill graph', 'Schedule signal', 'Client context', 'Automation ready'].map(item => (
-                <span key={item} className="command-chip bg-white/85">{item}</span>
+                <span key={item} className="command-chip bg-white">{item}</span>
               ))}
             </div>
           </div>
-          <div className="rounded-xl border border-white/80 bg-white/80 p-4 shadow-[0_18px_45px_rgba(14,116,144,0.12)] backdrop-blur-xl">
+          <div className="rounded-xl border border-white/80 bg-white p-4 shadow-[0_18px_45px_rgba(14,116,144,0.12)] backdrop-blur-xl">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-black uppercase tracking-wide text-cyan-700">AI Match Engine</p>
+                <p className="text-xs font-black uppercase tracking-wide text-blue-700">AI Match Engine</p>
                 <p className="mt-1 text-sm font-semibold text-slate-900">Requirement signal quality</p>
               </div>
-              <button onClick={() => { setShowForm(true); setResult(null); setSelectedTrainer(null) }} className="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(37,99,235,0.22)] transition hover:-translate-y-0.5 hover:bg-blue-800">
+              <button onClick={() => { setShowForm(true); setResult(null); setSelectedTrainer(null) }} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-blue-sm transition hover:-translate-y-0.5 hover:bg-blue-700">
                 <Plus className="w-4 h-4" /> New
               </button>
             </div>
@@ -537,15 +537,15 @@ export default function Requirements() {
             </div>
           </div>
         </div>
-        <div className="relative grid gap-3 bg-white/45 px-5 py-4 text-sm sm:grid-cols-3">
-          <div className="signal-card border-cyan-100">
+        <div className="relative grid gap-3 bg-slate-50 px-5 py-4 text-sm sm:grid-cols-3">
+          <div className="signal-card border-blue-100">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Flow</p>
                 <p className="mt-1 font-semibold text-slate-900">Requirement to shortlist</p>
                 <p className="mt-1 text-xs text-slate-500">Client signal captured</p>
               </div>
-              <span className="rounded-md bg-cyan-100 px-2 py-1 text-xs font-bold text-cyan-800">01</span>
+              <span className="rounded-md bg-blue-100 px-2 py-1 text-xs font-bold text-blue-800">01</span>
             </div>
           </div>
           <div className="signal-card border-emerald-100">
@@ -582,7 +582,7 @@ export default function Requirements() {
             <div key={step} className={clsx('process-step', index === 0 && 'process-step-active')}>
               <span className={clsx(
                 'flex h-6 w-6 items-center justify-center rounded-md text-[10px]',
-                index === 0 ? 'bg-white/20 text-white' : 'bg-cyan-50 text-cyan-700'
+                index === 0 ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-700'
               )}>{step}</span>
               <span className="truncate">{label}</span>
             </div>
@@ -592,11 +592,11 @@ export default function Requirements() {
 
       {/* Search Form */}
       {showForm && (
-        <div className="command-panel animate-slide-up overflow-hidden">
-          <div className="mb-5 flex items-center justify-between border-b border-slate-100 bg-white/70 px-6 py-5">
+        <div className="panel animate-slide-up overflow-hidden">
+          <div className="mb-5 flex items-center justify-between border-b border-slate-100 bg-white px-6 py-5">
             <div>
-              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-cyan-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-cyan-500" />
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-blue-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
                 Signal intake layer
               </div>
               <h2 className="section-title">Search Requirements</h2>
@@ -622,15 +622,15 @@ export default function Requirements() {
             </div>
           </div>
 
-          <div className="mx-6 mb-5 grid gap-2 rounded-xl border border-cyan-100 bg-cyan-50/60 p-3 text-xs sm:grid-cols-4">
+          <div className="mx-6 mb-5 grid gap-2 rounded-xl border border-blue-100 bg-blue-50/60 p-3 text-xs sm:grid-cols-4">
             {[
               ['Signal', form.technology_needed || 'Technology'],
               ['Client', form.client_name || form.client_company || 'Company'],
               ['Duration', form.duration_days ? `${form.duration_days} days` : form.duration_hours ? `${form.duration_hours} hours` : 'Timeline'],
               ['Mode', form.timing || 'Daily timing'],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-lg bg-white/80 px-3 py-2 shadow-sm">
-                <p className="font-bold uppercase tracking-wide text-cyan-700">{label}</p>
+              <div key={label} className="rounded-lg bg-white px-3 py-2 shadow-sm">
+                <p className="font-bold uppercase tracking-wide text-blue-700">{label}</p>
                 <p className="mt-1 truncate font-semibold text-slate-800">{value}</p>
               </div>
             ))}
@@ -747,7 +747,7 @@ export default function Requirements() {
                     {skillSuggestions.map(s => (
                       <button key={s} type="button"
                         onClick={() => addSkill(s)}
-                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-brand-50 hover:text-brand-600 transition-colors">
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
                         {s}
                       </button>
                     ))}
@@ -789,7 +789,7 @@ export default function Requirements() {
               { key: 'must_have_resume',   label: 'Must have Resume'   },
             ].map(({ key, label }) => (
               <label key={key} className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 accent-brand-500"
+                <input type="checkbox" className="w-4 h-4 accent-blue-600"
                   checked={form[key]}
                   onChange={e => setForm(f => ({ ...f, [key]: e.target.checked }))} />
                 <span className="text-sm text-slate-700">{label}</span>
@@ -798,22 +798,22 @@ export default function Requirements() {
           </div>
 
           {/* TWO SEPARATE BUTTONS */}
-          <div className="mt-6 flex flex-wrap gap-3 border-t border-cyan-100 bg-cyan-50/80 px-6 py-5">
-            <button onClick={() => handleShortlistOnly(1)} disabled={loading} className="inline-flex min-w-40 flex-1 items-center justify-center gap-2 rounded-lg bg-blue-700 px-4 py-3 font-semibold text-white shadow-[0_14px_30px_rgba(37,99,235,0.22)] transition hover:-translate-y-0.5 hover:bg-blue-800 disabled:opacity-70">
+          <div className="mt-6 flex flex-wrap gap-3 border-t border-blue-100 bg-blue-50/80 px-6 py-5">
+            <button onClick={() => handleShortlistOnly(1)} disabled={loading} className="inline-flex min-w-40 flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white shadow-blue-sm transition hover:-translate-y-0.5 hover:bg-blue-700 disabled:opacity-70">
               {loading && loadingMode === 'top1' ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Finding Top 1...</>
               ) : (
                 <><Star className="w-4 h-4" /> Top 1 Shortlist</>
               )}
             </button>
-            <button onClick={() => handleShortlistOnly()} disabled={loading} className="inline-flex min-w-40 flex-1 items-center justify-center gap-2 rounded-lg border border-blue-200 bg-white/80 px-4 py-3 font-semibold text-blue-800 shadow-sm transition hover:bg-white">
+            <button onClick={() => handleShortlistOnly()} disabled={loading} className="inline-flex min-w-40 flex-1 items-center justify-center gap-2 rounded-lg border border-blue-200 bg-white px-4 py-3 font-semibold text-blue-800 shadow-sm transition hover:bg-white">
               {loading && loadingMode === 'shortlist' ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Finding...</>
               ) : (
                 <><Users className="w-4 h-4" /> Shortlist Only</>
               )}
             </button>
-            <button onClick={() => setShowForm(false)} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white/80 px-4 py-2.5 font-semibold text-slate-700 shadow-sm transition hover:bg-white">Cancel</button>
+            <button onClick={() => setShowForm(false)} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 font-semibold text-slate-700 shadow-sm transition hover:bg-white">Cancel</button>
           </div>
         </div>
       )}
@@ -821,11 +821,11 @@ export default function Requirements() {
       {/* Results */}
       {result && (
         <div className="space-y-4 animate-fade-in">
-          <div className="card border-cyan-100 bg-cyan-50/70 p-5">
+          <div className="card border-blue-100 bg-blue-50/70 p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <TrendingUp className="w-5 h-5 text-cyan-700" />
-              <h2 className="section-title text-cyan-950">Pipeline Results - {result.requirement_id}</h2>
+                <TrendingUp className="w-5 h-5 text-blue-700" />
+              <h2 className="section-title text-slate-900">Pipeline Results - {result.requirement_id}</h2>
               </div>
               <button
                 onClick={() => handleDeleteRequirement(result)}
@@ -842,9 +842,9 @@ export default function Requirements() {
                 { label: 'Shortlisted',  value: result.top_trainers },
                 { label: 'Client Mail',  value: result.client_email || form.client_email || 'Missing' },
               ].map(s => (
-                <div key={s.label} className="bg-white rounded-xl p-3 text-center border border-brand-100">
+                <div key={s.label} className="bg-white rounded-xl p-3 text-center border border-blue-100">
                   <p className={clsx(
-                    'font-display font-bold text-brand-700',
+                    'font-jakarta font-bold text-blue-700',
                     s.label === 'Client Mail' ? 'break-all text-sm' : 'text-2xl'
                   )}>{s.value}</p>
                   <p className="text-xs text-slate-500 mt-0.5">{s.label}</p>
@@ -883,8 +883,8 @@ export default function Requirements() {
           <div className="space-y-3">
             {reqs.map(r => (
               <div key={r.requirement_id} className="card-hover p-4 flex items-center gap-4 group">
-                <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center flex-shrink-0">
-                  <Search className="w-5 h-5 text-brand-500" />
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <Search className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-slate-800">{r.technology_needed}</p>
