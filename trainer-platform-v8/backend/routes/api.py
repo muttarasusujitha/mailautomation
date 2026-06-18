@@ -13722,9 +13722,15 @@ async def search_public_client_leads(payload: dict = {}):
         raise HTTPException(
             400,
             {
-                "message": "TAVILY_API_KEY is required for automatic public lead search.",
+                "message": "TAVILY_API_KEY is not set. Public lead search requires a Tavily API key.",
                 "required_env": "TAVILY_API_KEY",
-                "setup": "Create a Tavily API key and add it to backend/.env, then restart backend.",
+                "how_to_fix": [
+                    "1. Go to https://app.tavily.com and sign up (free)",
+                    "2. Copy your API key from the dashboard",
+                    "3. Add TAVILY_API_KEY=tvly-your-key to backend/.env",
+                    "4. Restart the backend server",
+                ],
+                "free_plan": "1000 searches/month — enough for daily lead searches",
             },
         )
 
