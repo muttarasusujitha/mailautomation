@@ -13736,17 +13736,59 @@ async def search_public_client_leads(payload: dict = {}):
 
     db = get_db()
     auto_discover = bool(payload.get("auto_discover"))
-    domains = payload.get("domains") or [
-        "DevOps", "AWS", "Azure", "Full Stack", "Power BI", "Python", "Java", "SAP", "Data Science",
-        "Machine Learning", "AI", "GenAI", "Cloud", "Cyber Security", "React", "Node", "Angular",
-        "SQL", "Data Engineering", "Tableau", "Excel", "Soft Skills", "Leadership", "Communication",
+
+    # ── CREDIT-SAFE domain list ───────────────────────────────────────────────
+    # Only IT/Technical domains that Clahan actually places trainers for.
+    # Non-IT domains (Excel, Soft Skills, Communication) are excluded by default
+    # because they waste credits and return low-quality leads.
+    # Pass "domains" in payload to override this list.
+    DEFAULT_IT_DOMAINS = [
+        "DevOps", "AWS", "Azure", "Python", "Java", "SAP",
+        "Data Science", "Machine Learning", "AI", "GenAI",
+        "Full Stack", "React", "Data Engineering", "Cloud",
+        "Cyber Security", "Power BI",
     ]
-    domains = [str(item).strip() for item in domains if str(item).strip()][:12]
-    max_results = max(1, min(int(payload.get("max_results") or 5), 10))
+
+    # Non-IT domains — only included if caller explicitly requests them
+    NON_IT_DOMAINS = [
+        "Excel", "Soft Skills", "Leadership", "Communication",
+        "Behavioural", "Sales Training",
+    ]
+
+    if payload.get("domains"):
+        # Caller specified domains — use those
+        domains = [str(d).strip() for d in payload["domains"] if str(d).strip()]
+    elif payload.get("include_non_it"):
+        # Explicitly requested non-IT too
+        domains = DEFAULT_IT_DOMAINS + NON_IT_DOMAINS
+    else:
+        # Default: IT only — saves credits
+        domains = DEFAULT_IT_DOMAINS
+
+    # Hard cap: max 6 domains per run to stay within free credit limit
+    max_domains = min(int(payload.get("max_domains") or 4), 6)
+    domains = domains[:max_domains]
+
+    max_results = max(1, min(int(payload.get("max_results") or 3), 5))
+
     saved = []
     skipped = []
     queries = []
-    client_requirement_phrases = [
+
+    # ── CREDIT-SAFE phrase list ───────────────────────────────────────────────
+    # Use only the most effective high-signal phrases.
+    # Fewer phrases × fewer domains = fewer credits used.
+    HIGH_SIGNAL_PHRASES = [
+        "Corporate Trainer Required",
+        "Technical Training Requirement",
+        "Need Technical Trainer",
+        "Trainer Required",
+        "Subject Matter Expert Trainer Required",
+        "Looking for Corporate Trainer",
+    ]
+
+    # Full phrase list — only used when caller requests deep search
+    ALL_PHRASES = [
         "Need Trainer",
         "Seeking Trainer",
         "Looking for Trainer",
@@ -13797,20 +13839,34 @@ async def search_public_client_leads(payload: dict = {}):
         "Corporate Coach Required",
         "Business Trainer Required",
     ]
+
+    # Use high-signal phrases by default (saves credits)
+    # Use all phrases only if deep_search=true in payload
+    client_requirement_phrases = (
+        ALL_PHRASES if payload.get("deep_search") else HIGH_SIGNAL_PHRASES
+    )
+
     if auto_discover:
-        for phrase in client_requirement_phrases:
+        for phrase in client_requirement_phrases[:3]:   # limit auto-discover too
             queries.append(f'site:linkedin.com/posts "{phrase}"')
-            queries.append(f'site:linkedin.com/feed/update "{phrase}"')
+
     for domain in domains:
-        for phrase in client_requirement_phrases:
+        for phrase in client_requirement_phrases[:3]:   # max 3 phrases per domain
             queries.append(f'site:linkedin.com/posts "{phrase}" "{domain}"')
-            queries.append(f'site:linkedin.com/feed/update "{phrase}" "{domain}"')
         queries.append(f'site:linkedin.com/company "{domain}" "trainer required"')
+
     queries = list(dict.fromkeys(queries))
-    queries = queries[: int(payload.get("max_queries") or 18)]
+
+    # ── HARD CAP on queries to protect credits ────────────────────────────────
+    # Default: max 8 queries per run = max 8 × 3 = 24 Tavily calls
+    # deep_search: max 18 queries
+    max_queries_default = 18 if payload.get("deep_search") else 8
+    max_queries = min(int(payload.get("max_queries") or max_queries_default), 18)
+    queries = queries[:max_queries]
 
     search_timeout = 45
-    search_concurrency = max(1, min(int(payload.get("concurrency") or 6), 10))
+    # Reduce concurrency — fewer parallel calls = more controlled credit usage
+    search_concurrency = max(1, min(int(payload.get("concurrency") or 3), 6))
     async with _httpx.AsyncClient(timeout=search_timeout) as client:
         semaphore = asyncio.Semaphore(search_concurrency)
 

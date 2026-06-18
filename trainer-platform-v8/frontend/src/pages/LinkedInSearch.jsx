@@ -103,17 +103,27 @@ export default function LinkedInSearch() {
     try {
       const domains = searchDomains.split(',').map(item => item.trim()).filter(Boolean)
       const endpoint = isTrainer ? '/trainer-profile-leads/search-public' : '/client-leads/search-public'
+
+      // ── CREDIT-SAFE payload ─────────────────────────────────────────────
+      // max_queries:  8  = uses ~8-24 Tavily credits per run (was 180-480!)
+      // max_results:  3  = 3 results per query (was 5-10)
+      // max_domains:  4  = only top 4 IT domains at a time
+      // deep_search: false = use high-signal phrases only (saves 6x credits)
       const payload = {
-        source: isTrainer ? 'linkedin' : undefined,
-        max_results: isTrainer ? 10 : 5,
-        max_queries: isTrainer ? Math.min(domains.length * 120, 480) : 12,
-        concurrency: isTrainer ? 4 : undefined,
+        source:      isTrainer ? 'linkedin' : undefined,
+        max_results: 3,
+        max_queries: 8,
+        max_domains: 4,
+        concurrency: 3,
+        deep_search: false,
       }
-      if (isTrainer || domains.length) payload.domains = domains
+      if (domains.length) {
+        payload.domains = domains
+      }
       if (!isTrainer && !domains.length) {
         payload.auto_discover = true
-        payload.max_results = 8
-        payload.max_queries = 180
+        payload.max_queries   = 6    // was 180 — now credit safe
+        payload.max_results   = 3
       }
       const res = await api.post(endpoint, payload)
       const savedCount = res.data.saved_count || 0
@@ -289,6 +299,11 @@ export default function LinkedInSearch() {
               onChange={e => setSearchDomains(e.target.value)}
               placeholder={isTrainer ? 'SAP S/4HANA, Apache APISIX, Python' : 'Leave blank to auto-discover client trainer requirements'}
             />
+            <p className="mt-1 text-xs text-slate-400">
+              💡 <strong>Credit-safe mode:</strong> Each search uses ~8–24 Tavily credits.
+              Enter specific IT domains (e.g. <em>DevOps, Python</em>) to get the most relevant results.
+              Non-IT domains like Excel or Soft Skills are excluded by default to save credits.
+            </p>
           </div>
           <button onClick={runSearch} disabled={searching} className="btn-primary text-sm disabled:opacity-50">
             {searching ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
