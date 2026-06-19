@@ -60,8 +60,74 @@ function leadSearchText(lead) {
   ].join(' ').toLowerCase()
 }
 
+// ── Corporate IT trainer filter ────────────────────────────────────────────
+// Only show profiles that look like Indian corporate IT trainers.
+// Hides: school teachers, college professors, students, job-seekers,
+//        non-Indian profiles, soft-skills-only trainers.
+const CORPORATE_TRAINER_SIGNALS = [
+  'corporate trainer', 'freelance trainer', 'technical trainer',
+  'corporate training', 'batch training', 'training delivery',
+  'delivered training', 'conducted training', 'conduct training',
+  'training consultant', 'sme trainer', 'subject matter expert',
+  'workshop trainer', 'l&d trainer', 'certification trainer',
+  'trained professionals', 'trained employees',
+  'tcs', 'infosys', 'wipro', 'accenture', 'cognizant', 'hcl',
+  'tech mahindra', 'capgemini', 'ibm', 'deloitte',
+]
+
+const NON_CORPORATE_BLOCKERS = [
+  'school teacher', 'high school', 'secondary school', 'primary school',
+  'college professor', 'assistant professor', 'associate professor',
+  'university professor', 'professor', 'lecturer',
+  'engineering college', 'degree college', 'polytechnic',
+  'currently learning', 'i am learning', 'fresher', 'fresh graduate',
+  'final year student', 'btech student', 'b.tech student',
+  'pursuing', 'enrolled in', 'completed my degree',
+  'united states', 'united kingdom', 'netherlands', 'belgium',
+  'germany', 'france', 'canada', 'australia', 'singapore',
+  'dubai', 'new york', 'london', 'amsterdam', 'silicon valley',
+  'looking for job', 'seeking opportunity', 'open to opportunities',
+  'my resume', 'job application',
+]
+
+const INDIA_SIGNALS = [
+  'india', 'indian', 'bangalore', 'bengaluru', 'hyderabad', 'chennai',
+  'pune', 'mumbai', 'delhi', 'noida', 'gurgaon', 'gurugram', 'kolkata',
+  'ahmedabad', 'coimbatore', 'kochi', 'telangana', 'karnataka',
+  'tamil nadu', 'maharashtra', 'andhra pradesh', 'uttar pradesh',
+  'gujarat', 'rajasthan', 'bhopal', 'indore', 'jaipur', 'lucknow',
+  'chandigarh', 'nagpur', 'mysore', 'mysuru', 'in.linkedin.com',
+]
+
 function isTrainerProviderProfile(lead) {
-  return Boolean(lead)
+  if (!lead) return false
+
+  // Backend already ran its filter — trust is_trainer_profile_lead flag if present
+  if (lead.is_trainer_profile_lead === false) return false
+
+  const text = [
+    lead.headline,
+    lead.profile_text,
+    lead.trainer_name,
+    lead.domain,
+    lead.notes,
+    lead.source_url,
+  ].join(' ').toLowerCase()
+
+  // Hard block — non-corporate profiles never shown
+  if (NON_CORPORATE_BLOCKERS.some(b => text.includes(b))) return false
+
+  // Must have at least one India signal OR be from in.linkedin.com
+  const hasIndia = INDIA_SIGNALS.some(s => text.includes(s))
+    || (lead.indian_profile === true)
+    || (lead.source_url || '').toLowerCase().includes('in.linkedin.com')
+  if (!hasIndia) return false
+
+  // Must have at least one corporate trainer signal
+  const hasCorporateSignal = CORPORATE_TRAINER_SIGNALS.some(s => text.includes(s))
+    || (lead.is_trainer_profile_lead === true)
+    || (lead.confidence != null && lead.confidence >= 0.65)
+  return hasCorporateSignal
 }
 
 export default function LinkedInSearch() {
