@@ -213,7 +213,7 @@ export default function TocKnowledge() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="page-title flex items-center gap-2">
-            <Database className="h-6 w-6 text-cyan-600" /> ToC Knowledge Base
+            <Database className="h-6 w-6 text-blue-600" /> ToC Knowledge Base
           </h1>
           <p className="mt-1 text-sm text-slate-500">Manage technology curricula used by the automated ToC generator.</p>
         </div>
@@ -227,11 +227,11 @@ export default function TocKnowledge() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-cyan-100 bg-white p-4 shadow-sm">
+      <div className="rounded-lg border border-blue-100 bg-white p-4 shadow-sm">
         <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="flex items-center gap-2 text-base font-bold text-slate-950">
-              <Upload className="h-4 w-4 text-cyan-600" /> Import Detailed Subtopics
+              <Upload className="h-4 w-4 text-blue-600" /> Import Detailed Subtopics
             </h2>
             <p className="mt-1 text-sm text-slate-500">Paste blocks with Technology Name, Aliases, Foundation/Core/Advanced Topics, Tools, Labs, and Certifications.</p>
           </div>
@@ -252,7 +252,7 @@ export default function TocKnowledge() {
         <aside className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
           <div className="mb-3 flex items-center justify-between">
             <p className="text-sm font-bold text-slate-900">Admin Domains</p>
-            <span className="rounded-full bg-cyan-50 px-2 py-0.5 text-xs font-bold text-cyan-700">{domains.length}</span>
+            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-700">{domains.length}</span>
           </div>
           <div className="space-y-2">
             {domains.map(domain => (
@@ -260,10 +260,10 @@ export default function TocKnowledge() {
                 key={domain.key}
                 type="button"
                 onClick={() => setSelectedKey(domain.key)}
-                className={`w-full rounded-lg border px-3 py-3 text-left transition ${selectedKey === domain.key ? 'border-cyan-300 bg-cyan-50' : 'border-slate-200 bg-white hover:bg-slate-50'}`}
+                className={`w-full rounded-lg border px-3 py-3 text-left transition ${selectedKey === domain.key ? 'border-cyan-300 bg-blue-50' : 'border-slate-200 bg-white hover:bg-slate-50'}`}
               >
                 <div className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-cyan-600" />
+                  <BookOpen className="h-4 w-4 text-blue-600" />
                   <span className="min-w-0 flex-1 truncate text-sm font-bold text-slate-900">{domain.name}</span>
                   <span className="text-xs font-semibold text-slate-400">{topicCount(domain)}</span>
                 </div>
@@ -282,7 +282,7 @@ export default function TocKnowledge() {
           <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="flex items-center gap-2 text-base font-bold text-slate-950">
-                <Edit3 className="h-4 w-4 text-cyan-600" /> Domain Details
+                <Edit3 className="h-4 w-4 text-blue-600" /> Domain Details
               </h2>
               <label className="flex items-center gap-2 text-sm font-semibold text-slate-600">
                 <input type="checkbox" checked={form.active} onChange={event => updateForm({ active: event.target.checked })} />
@@ -316,7 +316,7 @@ export default function TocKnowledge() {
           <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="flex items-center gap-2 text-base font-bold text-slate-950">
-                <Layers className="h-4 w-4 text-cyan-600" /> Curriculum Topics
+                <Layers className="h-4 w-4 text-blue-600" /> Curriculum Topics
               </h2>
               <div className="flex flex-wrap gap-2">
                 {LEVELS.map(item => (
@@ -324,7 +324,7 @@ export default function TocKnowledge() {
                     key={item}
                     type="button"
                     onClick={() => setLevel(item)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-bold capitalize transition ${level === item ? 'bg-cyan-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-bold capitalize transition ${level === item ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                   >
                     {item} ({(form.level_map[item] || []).length})
                   </button>
@@ -364,7 +364,7 @@ export default function TocKnowledge() {
                         <div className="min-w-0 flex-1">
                           <p className="font-bold text-slate-950">{topic.topic}</p>
                           <p className="mt-1 text-xs text-slate-500">{(topic.subtopics || []).join(', ')}</p>
-                          <p className="mt-1 text-xs font-semibold text-cyan-700">{(topic.tools || []).join(' + ')}</p>
+                          <p className="mt-1 text-xs font-semibold text-blue-700">{(topic.tools || []).join(' + ')}</p>
                           {topic.lab && <p className="mt-1 text-xs text-slate-600">Lab: {topic.lab}</p>}
                         </div>
                         <button type="button" onClick={() => removeTopic(item, index)} className="h-9 rounded-lg border border-rose-100 px-2 text-rose-600 hover:bg-rose-50" aria-label="Remove topic">

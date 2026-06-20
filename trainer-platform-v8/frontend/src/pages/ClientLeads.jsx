@@ -168,7 +168,7 @@ export default function ClientLeads() {
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="page-title flex items-center gap-2">
-            <BriefcaseBusiness className="h-6 w-6 text-cyan-600" /> Client Leads
+            <BriefcaseBusiness className="h-6 w-6 text-blue-600" /> Client Leads
           </h1>
           <p className="mt-1 text-sm text-slate-500">Search public LinkedIn/web results for client requirements or trainer profiles, then review before action.</p>
         </div>
@@ -209,11 +209,11 @@ export default function ClientLeads() {
       </div>
 
       <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-        <div className="rounded-lg border border-cyan-100 bg-cyan-50 p-4 shadow-sm">
+        <div className="rounded-lg border border-blue-100 bg-blue-50 p-4 shadow-sm">
           <div className="flex flex-col gap-3">
             <div className="min-w-0 flex-1">
               <div className="mb-2 flex items-center gap-2">
-                <Globe2 className="h-4 w-4 text-cyan-700" />
+                <Globe2 className="h-4 w-4 text-blue-700" />
                 <h2 className="text-sm font-bold text-slate-900">{leadMode === 'trainer' ? 'Find Public Trainer Profiles' : 'Find Public Client Leads'}</h2>
               </div>
               <p className="mb-3 text-xs leading-5 text-slate-600">
@@ -233,7 +233,7 @@ export default function ClientLeads() {
               {searchingPublic ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
               {leadMode === 'trainer' ? 'Find Trainer Profiles' : 'Find Leads Now'}
               </button>
-              <span className="rounded-lg border border-cyan-200 bg-white/70 px-3 py-2 text-xs font-semibold text-cyan-700">
+              <span className="rounded-lg border border-blue-200 bg-white/70 px-3 py-2 text-xs font-semibold text-blue-700">
                 Requires TAVILY_API_KEY
               </span>
             </div>
@@ -242,7 +242,7 @@ export default function ClientLeads() {
 
         <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <div className="mb-4 flex items-center gap-2">
-            <Plus className="h-4 w-4 text-cyan-600" />
+            <Plus className="h-4 w-4 text-blue-600" />
             <h2 className="text-sm font-bold text-slate-900">Add Public Requirement Lead</h2>
           </div>
           <div className="grid gap-3 lg:grid-cols-2">
@@ -259,7 +259,7 @@ export default function ClientLeads() {
             <button onClick={saveLead} disabled={saving} className="btn-primary text-sm disabled:opacity-50"><Save className="h-4 w-4" /> Save Lead</button>
           </div>
           {analysis && (
-            <div className="mt-4 rounded-lg border border-cyan-100 bg-cyan-50 p-3 text-sm text-slate-700">
+            <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-3 text-sm text-slate-700">
               <p><strong>Detected:</strong> {analysis.analysis.is_trainer_requirement_lead ? 'Trainer requirement lead' : 'Needs review'}</p>
               <p><strong>Domain:</strong> {analysis.analysis.domain || 'Not detected'} | <strong>Confidence:</strong> {Math.round((analysis.analysis.confidence || 0) * 100)}%</p>
               <p className="mt-2 whitespace-pre-wrap"><strong>Draft:</strong> {analysis.draft.body}</p>

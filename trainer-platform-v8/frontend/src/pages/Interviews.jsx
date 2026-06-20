@@ -44,7 +44,7 @@ function ScheduleModal({ trainer, onClose, onSuccess }) {
       <div className="bg-white rounded-2xl shadow-card-lg w-full max-w-md p-6 animate-slide-up">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h3 className="font-display font-bold text-slate-900">Schedule Interview</h3>
+            <h3 className="font-jakarta font-bold text-slate-900">Schedule Interview</h3>
             <p className="text-sm text-slate-500 mt-0.5">For <strong>{trainer.name || trainer.trainer_name}</strong></p>
           </div>
           <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-lg">
@@ -86,7 +86,7 @@ function ScheduleModal({ trainer, onClose, onSuccess }) {
                    value={link} onChange={e => setLink(e.target.value)} />
             {link && (
               <a href={link} target="_blank" rel="noreferrer"
-                 className="flex items-center gap-1 text-xs text-brand-500 hover:underline mt-1.5">
+                 className="flex items-center gap-1 text-xs text-blue-500 hover:underline mt-1.5">
                 <ExternalLink className="w-3 h-3" /> Test link
               </a>
             )}
@@ -121,8 +121,8 @@ function TrainerCard({ trainer, onSchedule }) {
   const email = trainer.email || trainer.to_email
   return (
     <div className="card p-4 flex items-center gap-4 hover:shadow-card-hover transition-all">
-      <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center flex-shrink-0">
-        <span className="font-display font-bold text-brand-600">{name?.charAt(0)?.toUpperCase()}</span>
+      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+        <span className="font-jakarta font-bold text-blue-600">{name?.charAt(0)?.toUpperCase()}</span>
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-slate-900">{name}</p>
@@ -153,7 +153,7 @@ function TrainerCard({ trainer, onSchedule }) {
         )}
         <button onClick={() => onSchedule(trainer)}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold
-                     bg-brand-500 hover:bg-brand-600 text-white shadow-sm transition-all active:scale-95">
+                     bg-blue-500 hover:bg-blue-600 text-white shadow-sm transition-all active:scale-95">
           <Calendar className="w-3.5 h-3.5" /> Schedule Interview
         </button>
       </div>
@@ -204,7 +204,7 @@ export default function Interviews() {
 
       <div>
         <h1 className="page-title flex items-center gap-2">
-          <Calendar className="w-6 h-6 text-brand-500" /> Interviews
+          <Calendar className="w-6 h-6 text-blue-500" /> Interviews
         </h1>
         <p className="text-sm text-slate-500 mt-0.5">
           Schedule interviews for shortlisted trainers — choose Zoom, Teams or Google Meet
@@ -221,7 +221,7 @@ export default function Interviews() {
           <div key={s.label} className={clsx('card p-4 flex items-center gap-3 hover:shadow-card-hover transition-all', s.color)}>
             <span className="text-2xl">{s.icon}</span>
             <div>
-              <p className="font-display text-2xl font-bold">{s.value}</p>
+              <p className="font-jakarta text-2xl font-bold">{s.value}</p>
               <p className="text-xs opacity-70">{s.label}</p>
             </div>
           </div>
@@ -259,11 +259,11 @@ export default function Interviews() {
                 className={clsx(
                   'flex items-center gap-3 p-3 rounded-xl border text-left transition-all',
                   selectedReq?.requirement_id === r.requirement_id
-                    ? 'bg-brand-50 border-brand-300 text-brand-700'
-                    : 'bg-white border-slate-200 hover:border-brand-300 text-slate-700'
+                    ? 'bg-blue-50 border-blue-300 text-blue-700'
+                    : 'bg-white border-slate-200 hover:border-blue-300 text-slate-700'
                 )}>
-                <div className="w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center flex-shrink-0">
-                  <Star className="w-4 h-4 text-brand-500" />
+                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <Star className="w-4 h-4 text-blue-500" />
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-sm truncate">{r.technology_needed}</p>
@@ -281,7 +281,7 @@ export default function Interviews() {
         <div className="space-y-3">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h2 className="section-title">
-              Shortlisted for: <span className="text-brand-600">{selectedReq.technology_needed}</span>
+              Shortlisted for: <span className="text-blue-600">{selectedReq.technology_needed}</span>
             </h2>
             <button onClick={reload} disabled={loadingTrainers} className="btn-secondary py-1.5 px-3 text-xs">
               <RefreshCw className={clsx('w-3.5 h-3.5', loadingTrainers && 'animate-spin')} /> Refresh

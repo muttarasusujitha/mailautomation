@@ -43,7 +43,7 @@ function InterviewModal({ email, onClose, onSuccess }) {
       <div className="bg-white rounded-2xl shadow-card-lg w-full max-w-md p-6 animate-slide-up">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h3 className="font-display font-bold text-slate-900">Schedule Interview</h3>
+            <h3 className="font-jakarta font-bold text-slate-900">Schedule Interview</h3>
             <p className="text-sm text-slate-500 mt-0.5">For <strong>{email.trainer_name}</strong></p>
           </div>
           <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-lg">
@@ -92,7 +92,7 @@ function ClientEmailModal({ title = 'Send Slots to Client', onClose, onSubmit, l
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-card-lg">
         <div className="mb-5 flex items-start justify-between gap-3">
           <div>
-            <h3 className="font-display text-lg font-bold text-slate-900">{title}</h3>
+            <h3 className="font-jakarta text-lg font-bold text-slate-900">{title}</h3>
             <p className="mt-1 text-sm text-slate-500">
               This requirement has no client email saved. Add it once and the trainer slots will be sent.
             </p>
@@ -359,7 +359,7 @@ function ThreadPanel({ email, _onClose }) {
             <span>Interview: <strong>{email.interview_date}</strong></span>
             {email.interview_link && (
               <a href={email.interview_link} target="_blank" rel="noreferrer"
-                 className="ml-auto text-brand-500 hover:underline">Join →</a>
+                 className="ml-auto text-blue-600 hover:underline">Join →</a>
             )}
           </div>
         </div>
@@ -460,14 +460,14 @@ function EmailRow({ email, onRefresh }) {
             'w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105',
             email.interview_scheduled ? 'bg-purple-100' :
             email.reply_received      ? 'bg-emerald-100' :
-            email.opened              ? 'bg-cyan-50' :
+            email.opened              ? 'bg-blue-50' :
             isFailed                  ? 'bg-red-50' : 'bg-blue-50'
           )}>
             {email.interview_scheduled ? <Calendar className="w-5 h-5 text-purple-600" /> :
              email.reply_received      ? <MessageSquare className="w-5 h-5 text-emerald-600" /> :
-             email.opened              ? <Eye className="w-5 h-5 text-cyan-600" /> :
+             email.opened              ? <Eye className="w-5 h-5 text-blue-600" /> :
              isFailed                  ? <AlertCircle className="w-5 h-5 text-red-500" /> :
-                                         <Mail className="w-5 h-5 text-brand-500" />}
+                                         <Mail className="w-5 h-5 text-blue-600" />}
           </div>
 
           <div className="flex-1 min-w-0">
@@ -486,7 +486,7 @@ function EmailRow({ email, onRefresh }) {
                   </span>
                 )}
                 {email.opened && (
-                  <span className="badge bg-cyan-50 text-cyan-700">
+                  <span className="badge bg-blue-50 text-blue-700">
                     <Eye className="w-3 h-3 mr-1" /> Opened
                   </span>
                 )}
@@ -690,8 +690,8 @@ export default function Emails() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         {[
-          { label: 'Sent',      value: sentCount,      icon: Send,          color: 'bg-blue-50 text-brand-500',      key: 'all'       },
-          { label: 'Opened',    value: openedCount,    icon: Eye,           color: 'bg-cyan-50 text-cyan-500',       key: 'opened'    },
+          { label: 'Sent',      value: sentCount,      icon: Send,          color: 'bg-blue-50 text-blue-600',      key: 'all'       },
+          { label: 'Opened',    value: openedCount,    icon: Eye,           color: 'bg-blue-50 text-cyan-500',       key: 'opened'    },
           { label: 'Replied',   value: repliedCount,   icon: MessageSquare, color: 'bg-emerald-50 text-emerald-500', key: 'replied'   },
           { label: 'Failed',    value: failedCount,    icon: AlertCircle,   color: 'bg-red-50 text-red-500',         key: 'failed'    },
           { label: 'Scheduled', value: scheduledCount, icon: Calendar,      color: 'bg-purple-50 text-purple-500',   key: 'scheduled' },
@@ -701,13 +701,13 @@ export default function Emails() {
             onClick={() => setFilter(s.key)}
             className={clsx(
               'card p-4 flex items-center gap-3 hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group text-left',
-              filter === s.key && 'ring-2 ring-brand-300'
+              filter === s.key && 'ring-2 ring-blue-300'
             )}>
             <div className={clsx('w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110', s.color)}>
               <s.icon className="w-4 h-4" />
             </div>
             <div>
-              <p className="font-display text-xl font-bold text-slate-900">{s.value}</p>
+              <p className="font-jakarta text-xl font-bold text-slate-900">{s.value}</p>
               <p className="text-xs text-slate-400">{s.label}</p>
             </div>
           </button>
@@ -727,7 +727,7 @@ export default function Emails() {
           <button key={f.key} onClick={() => setFilter(f.key)}
             className={clsx('px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-150',
               filter === f.key
-                ? 'bg-brand-500 text-white border-brand-500 shadow-sm'
+                ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
                 : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50')}>
             {f.label}
           </button>
