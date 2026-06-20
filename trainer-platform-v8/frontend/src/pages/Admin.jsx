@@ -91,6 +91,10 @@ export default function Admin() {
     smtpPort:  '587',
     smtpUser:  '',
     smtpPass:  '',
+    imapHost:  '',
+    imapPort:  '993',
+    imapUser:  '',
+    imapPass:  '',
     fromName:  'Clahan Technologies',
     fromEmail: 'recruitment@clahantech.com',
   })
@@ -121,6 +125,7 @@ export default function Admin() {
 
   const [gmailStatus, setGmailStatus] = useState({ connected: false })
   const [clientInboxCfg, setClientInboxCfg] = useState({
+    inboxProvider: 'gmail_api',
     autoSendEnabled: true,
     autoSendThreshold: 70,
     clientDomainsWhitelist: '',
@@ -635,7 +640,7 @@ export default function Admin() {
       </Section>
 
       {/* ── EMAIL CONFIG ── */}
-      <Section icon={Mail} title="Email Configuration" subtitle="SMTP settings for sending outreach emails">
+      <Section icon={Mail} title="Email Configuration" subtitle="SMTP for sending and IMAP for inbox polling">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="SMTP Host">
             <Input value={emailCfg.smtpHost} onChange={e => setEmailCfg({...emailCfg, smtpHost: e.target.value})} placeholder="smtp.gmail.com" />
@@ -648,6 +653,18 @@ export default function Admin() {
           </Field>
           <Field label="SMTP Password" hint="Use App Password for Gmail">
               <Input icon={Lock} type="password" value={emailCfg.smtpPass} onChange={e => setEmailCfg({...emailCfg, smtpPass: e.target.value})} placeholder="Enter mail app password" />
+          </Field>
+          <Field label="IMAP Host">
+            <Input value={emailCfg.imapHost || ''} onChange={e => setEmailCfg({...emailCfg, imapHost: e.target.value})} placeholder="imap.gmail.com" />
+          </Field>
+          <Field label="IMAP Port">
+            <Input value={emailCfg.imapPort || ''} onChange={e => setEmailCfg({...emailCfg, imapPort: e.target.value})} placeholder="993" />
+          </Field>
+          <Field label="IMAP Username">
+            <Input icon={Mail} value={emailCfg.imapUser || ''} onChange={e => setEmailCfg({...emailCfg, imapUser: e.target.value})} placeholder="your@gmail.com" />
+          </Field>
+          <Field label="IMAP Password" hint="For Gmail, use the same Gmail App Password">
+            <Input icon={Lock} type="password" value={emailCfg.imapPass || ''} onChange={e => setEmailCfg({...emailCfg, imapPass: e.target.value})} placeholder="Enter IMAP app password" />
           </Field>
           <Field label="From Name">
             <Input value={emailCfg.fromName} onChange={e => setEmailCfg({...emailCfg, fromName: e.target.value})} placeholder="Clahan Technologies" />
@@ -667,7 +684,31 @@ export default function Admin() {
       </Section>
 
       {/* ── PIPELINE DEFAULTS ── */}
-      <Section icon={Mail} title="Gmail Client Inbox" subtitle="Gmail OAuth, AI client email reading, and Clahan Technologies reply controls">
+      <Section icon={Mail} title="Client Inbox Automation" subtitle="Gmail OAuth or IMAP polling, AI client email reading, and Clahan Technologies reply controls">
+        <Field label="Inbox Mode" hint="SMTP Only sends generated pending replies; Gmail API or IMAP is required to read new inbox mail">
+          <div className="grid grid-cols-1 gap-1 rounded-xl border border-slate-200 bg-white p-1 sm:grid-cols-3">
+            {[
+              ['gmail_api', 'Gmail API'],
+              ['imap', 'IMAP Polling'],
+              ['smtp_only', 'SMTP Only'],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setClientInboxCfg({ ...clientInboxCfg, inboxProvider: value })}
+                className={clsx(
+                  'rounded-lg px-3 py-2 text-sm font-semibold transition',
+                  (clientInboxCfg.inboxProvider || 'gmail_api') === value
+                    ? 'bg-brand-500 text-white shadow-sm'
+                    : 'text-slate-600 hover:bg-slate-50'
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </Field>
+
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 p-4">
           <div>
             <p className="text-sm font-semibold text-slate-800">Gmail OAuth Status</p>
@@ -742,9 +783,9 @@ export default function Admin() {
           />
         </Field>
 
-        <button className="btn-primary text-sm" onClick={() => save('Gmail Client Inbox')} disabled={saving}>
+        <button className="btn-primary text-sm" onClick={() => save('Client Inbox')} disabled={saving}>
           {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          Save Gmail Settings
+          Save Inbox Settings
         </button>
       </Section>
 

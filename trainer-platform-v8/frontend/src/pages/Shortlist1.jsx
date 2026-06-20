@@ -676,8 +676,14 @@ function needsCommercialNegotiation(replyText, req) {
   return { quote, clientBudget, target }
 }
 
-async function requestClientBudgetIncrease({ trainer, req, clientBudget }) {
-  const target = clientBudgetIncreaseTarget(clientBudget)
+async function requestClientBudgetIncrease({ trainer, req, clientBudget, requestedBudget = 0 }) {
+  const target = requestedBudget > 0
+    ? {
+        unit: clientBudget.unit,
+        increment: Math.max(0, requestedBudget - clientBudget.amount),
+        amount: requestedBudget,
+      }
+    : clientBudgetIncreaseTarget(clientBudget)
   if (!target) return { success: false, error: 'Client budget is missing' }
   const res = await api.post(`/requirements/${req.requirement_id}/request-client-budget-increase`, {
     trainer_id: trainer.trainer_id,
@@ -692,11 +698,39 @@ async function requestClientBudgetIncrease({ trainer, req, clientBudget }) {
   return res.data
 }
 
-function isCommercialAcceptedAfterNegotiation(replyText, req) {
+function extractCommercialCounterOffer(replyText = '', clientBudget = null) {
+  const clean = stripQuotedEmail(replyText).toLowerCase().replace(/,/g, '')
+  if (!clean) return null
+  if (clientBudget?.amount) {
+    const increment = clientBudget.unit === 'hour' ? 500 : 5000
+    const trainerTarget = Math.max(0, clientBudget.amount - increment)
+    const extraPatterns = [
+      /(?:extra|more|additional|increase)\D{0,30}(?:inr|rs\.?|₹)?\s*(\d+(?:\.\d+)?)\s*(k)?\b/i,
+      /(?:inr|rs\.?|₹)?\s*(\d+(?:\.\d+)?)\s*(k)?\b\D{0,20}(?:extra|more|additional)/i,
+    ]
+    for (const rx of extraPatterns) {
+      const match = clean.match(rx)
+      if (!match) continue
+      const extra = Number(match[1]) * (match[2] ? 1000 : 1)
+      if (Number.isFinite(extra) && extra > 0) return { amount: trainerTarget + extra, unit: clientBudget.unit }
+    }
+  }
   const quote = extractCommercialQuote(replyText)
+  if (quote) return quote
+  const kMatch = clean.match(/\b(\d+(?:\.\d+)?)\s*k\b/i)
+  if (kMatch) {
+    const amount = Number(kMatch[1]) * 1000
+    if (Number.isFinite(amount) && amount > 0) return { amount, unit: clientBudget?.unit || 'day' }
+  }
+  return null
+}
+
+function isCommercialAcceptedAfterNegotiation(replyText, req) {
   const clientBudget = clientBudgetInfo(req)
+  const quote = extractCommercialCounterOffer(replyText, clientBudget)
   if (!quote || !clientBudget || quote.unit !== clientBudget.unit) return false
-  return quote.amount <= clientBudget.amount
+  const increment = clientBudget.unit === 'hour' ? 500 : 5000
+  return quote.amount + increment <= clientBudget.amount
 }
 
 function hasProperInterviewSlots(text = '') {
@@ -2721,22 +2755,34 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
 
           if (isNegotiationReply && !acceptedNegotiatedCommercial) {
             const clientBudget = clientBudgetInfo(req)
-            const revisedQuote = extractCommercialQuote(latest.body)
-            const stillAboveClientBudget = revisedQuote && clientBudget && revisedQuote.unit === clientBudget.unit && revisedQuote.amount > clientBudget.amount
-            if (intent === 'negative' || stillAboveClientBudget || !revisedQuote) {
+            const revisedQuote = extractCommercialCounterOffer(latest.body, clientBudget)
+            if (intent === 'negative' && !revisedQuote) {
+              toast(`Auto: ${activeTrainer.name} did not accept the commercial. Moving to another trainer.`, { duration: 6000 })
+              setStage(activeTrainer, 'rejected', {
+                commercialRejectedAt: replyTime,
+                commercialRejectedBy: 'trainer',
+              })
+              runningRef.current = false
+              return
+            }
+            const quoteMarkup = clientBudget?.unit === 'hour' ? 500 : 5000
+            const stillAboveClientBudget = revisedQuote && clientBudget && revisedQuote.unit === clientBudget.unit && revisedQuote.amount + quoteMarkup > clientBudget.amount
+            if (stillAboveClientBudget) {
               if (!clientBudget) {
                 toast.error('Client budget is missing. Cannot request a revised commercial from client.')
                 runningRef.current = false
                 return
               }
               try {
-                const clientRes = await requestClientBudgetIncrease({ trainer: activeTrainer, req, clientBudget })
-                const requestedBudget = Number(clientRes?.requested_budget || 0)
+                const increment = clientBudget.unit === 'hour' ? 500 : 5000
+                const requestedBudget = revisedQuote.amount + increment
+                const clientRes = await requestClientBudgetIncrease({ trainer: activeTrainer, req, clientBudget, requestedBudget })
+                const requestedBudgetDisplay = Number(clientRes?.requested_budget || requestedBudget || 0)
                 const unit = clientRes?.unit || clientBudget.unit || 'day'
                 toast.success(
                   clientRes?.skipped
                     ? 'Client budget revision request already sent'
-                    : `Client budget revision requested: INR ${requestedBudget.toLocaleString('en-IN')} per ${unit}`,
+                    : `Client budget revision requested: INR ${requestedBudgetDisplay.toLocaleString('en-IN')} per ${unit}`,
                   { duration: 6000 }
                 )
                 setStage(activeTrainer, 'waiting_reply2', {

@@ -276,10 +276,10 @@ def send_email(to: str, subject: str, body: str, smtp_config: Dict[str, Any] = N
         return True, ""
 
     except smtplib.SMTPAuthenticationError:
-        if can_use_gmail_oauth:
+        if bool(smtp_config.get("useGmailOAuth")) and can_use_gmail_oauth:
             logger.warning("SMTP authentication failed for Gmail; falling back to Gmail OAuth")
             return send_gmail_oauth_message(to, subject, body, from_name, tracking_url)
-        err = "Gmail authentication failed - check GMAIL_USER and GMAIL_PASS"
+        err = "Gmail SMTP authentication failed - use a valid 16-character Gmail App Password"
         logger.error("Email error: %s", err)
         return False, err
     except Exception as e:

@@ -66,7 +66,10 @@ from agents.email_agent import (
     send_gmail_oauth_message,
 )
 from agents.client_slot_agent import (
+    CLAHAN_CLIENT_COMMERCIAL_MARKUP_INR,
     ClientSlotError,
+    client_budget_for_trainer_commercial,
+    extract_trainer_commercial_details,
     looks_like_trainer_slots,
     send_client_slot_options_email,
     send_client_slots_for_email_log,
@@ -87,13 +90,22 @@ from agents.client_intelligence_agent import (
     extract_client_slot_confirmation,
     fetch_gmail_email,
     generate_calhan_reply,
+    generate_client_requirement_closed_reply,
     get_calendar_service,
     get_gmail_auth_status,
     get_gmail_oauth_url,
     get_gmail_service,
     get_history_message_ids,
+    auto_send_pending_client_replies_smtp,
+    client_reply_auto_send_eligible,
+    find_existing_client_clarification_request,
+    find_matching_trainer_outbound_thread,
     is_likely_training_email,
+    is_client_clarification_reply,
+    mark_client_requirement_closed,
+    poll_imap_client_inbox,
     process_client_email,
+    record_trainer_reply_from_client_inbox,
     renew_gmail_watch,
     save_gmail_oauth_token,
     sender_domain,
@@ -2057,6 +2069,7 @@ async def _client_inbox_settings(db) -> dict:
         "clientDomainsWhitelist": cfg.get("clientDomainsWhitelist", ""),
         "replySignature": cfg.get("replySignature") or "Best Regards,\nRecruitment Team\nClahan Technologies",
         "vendorWhatsAppNumber": cfg.get("vendorWhatsAppNumber") or twilio.get("vendorWhatsAppNumber", ""),
+        "inboxProvider": str(cfg.get("inboxProvider") or "gmail_api").strip().lower(),
     }
 
 
@@ -2827,6 +2840,22 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
     if existing:
         return {"status": "already_processed", "email_id": processed.get("email_id")}
 
+    trainer_thread = await find_matching_trainer_outbound_thread(
+        db,
+        processed.get("from_email", ""),
+        processed.get("subject", ""),
+        processed.get("clean_body") or processed.get("raw_body") or "",
+    )
+    if trainer_thread:
+        inbox_doc = await record_trainer_reply_from_client_inbox(db, processed, trainer_thread)
+        return {
+            "status": "routed_to_trainer_reply",
+            "email_id": inbox_doc.get("email_id"),
+            "requirement_id": inbox_doc.get("requirement_id"),
+            "trainer_id": inbox_doc.get("trainer_id"),
+            "source_email_id": inbox_doc.get("trainer_reply_source_email_id"),
+        }
+
     po_result = await _process_client_purchase_order_email(db, processed, request)
     if po_result:
         return po_result
@@ -2855,7 +2884,25 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
     whitelist = set(_parse_domain_csv(settings.get("clientDomainsWhitelist", "")))
     domain_is_allowed = not whitelist or domain in whitelist
 
-    if processed.get("is_auto_reply") or not extracted.get("is_training_request"):
+    duplicate_clarification = None
+    if extracted.get("client_request_closed"):
+        requirement_id = await mark_client_requirement_closed(
+            db,
+            from_email=processed.get("from_email", ""),
+            requirement_id=processed.get("requirement_id") or "",
+            reason=extracted.get("client_closed_reason") or extracted.get("email_summary") or "",
+            email_id=processed.get("email_id") or message_id,
+            subject=processed.get("subject", ""),
+            body=processed.get("clean_body") or processed.get("raw_body") or "",
+        )
+        status = "client_closed_requirement"
+        generated_reply = generate_client_requirement_closed_reply(
+            processed,
+            extracted.get("client_closed_reason") or extracted.get("email_summary") or "",
+            settings.get("replySignature"),
+        )
+        auto_send_eligible = False
+    elif processed.get("is_auto_reply") or not extracted.get("is_training_request"):
         status = "spam"
         generated_reply = {}
         requirement_id = None
@@ -2866,12 +2913,36 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
         })
         requirement_id = await ensure_requirement_from_email(extracted, message_id, db)
         confidence = float(extracted.get("confidence") or 0)
-        threshold = float(settings.get("autoSendThreshold") or 70) / 100
-        auto_send_eligible = confidence >= threshold and domain_is_allowed
+        auto_send_eligible = client_reply_auto_send_eligible(
+            extracted,
+            generated_reply,
+            confidence,
+            settings,
+            domain_is_allowed,
+        )
+        duplicate_clarification = await find_existing_client_clarification_request(
+            db,
+            from_email=processed.get("from_email", ""),
+            requirement_id=requirement_id or "",
+            generated_reply=generated_reply,
+            extracted=extracted,
+            exclude_email_id=processed.get("email_id") or message_id,
+        ) if auto_send_eligible else None
+        if duplicate_clarification:
+            auto_send_eligible = False
         status = "auto_sent" if auto_send_eligible and settings.get("autoSendEnabled") else "pending_approval"
+        if duplicate_clarification:
+            status = "auto_skipped_duplicate_clarification"
 
     confidence = float(extracted.get("confidence") or 0)
-    auto_send_eligible = confidence >= (float(settings.get("autoSendThreshold") or 70) / 100) and domain_is_allowed
+    if not duplicate_clarification:
+        auto_send_eligible = client_reply_auto_send_eligible(
+            extracted,
+            generated_reply,
+            confidence,
+            settings,
+            domain_is_allowed,
+        )
     inbox_doc = {
         "email_id": processed.get("email_id"),
         "thread_id": processed.get("thread_id"),
@@ -2889,6 +2960,8 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
         "auto_send_eligible": auto_send_eligible,
         "sent_at": None,
         "sent_by": None,
+        "duplicate_clarification_email_id": (duplicate_clarification or {}).get("email_id", ""),
+        "duplicate_clarification_sent_at": (duplicate_clarification or {}).get("sent_at"),
         "whatsapp_notified": False,
         "message_id_header": processed.get("message_id_header", ""),
         "created_at": utc_now(),
@@ -2908,9 +2981,27 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
         inbox_doc["gmail_send_result"] = send_result
         inbox_doc["sent_at"] = utc_now()
         inbox_doc["sent_by"] = "auto"
+    elif extracted.get("client_request_closed") and settings.get("autoSendEnabled") and generated_reply.get("body"):
+        try:
+            send_result = send_gmail_reply(
+                gmail_service,
+                to_email=inbox_doc["from_email"],
+                subject=generated_reply.get("subject", ""),
+                body=generated_reply.get("body", ""),
+                thread_id=inbox_doc.get("thread_id") or "",
+                in_reply_to=inbox_doc.get("message_id_header") or "",
+            )
+            inbox_doc["gmail_send_result"] = send_result
+            inbox_doc["sent_at"] = utc_now()
+            inbox_doc["sent_by"] = "auto_client_closure_ack"
+            inbox_doc["client_closure_ack_sent"] = True
+            inbox_doc["client_closure_ack_error"] = ""
+        except Exception as exc:
+            inbox_doc["client_closure_ack_sent"] = False
+            inbox_doc["client_closure_ack_error"] = str(exc)
 
     await db["client_emails"].insert_one(inbox_doc)
-    if requirement_id:
+    if requirement_id and inbox_doc.get("status") != "client_closed_requirement":
         requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
         await send_teams_stage_notification(
             db,
@@ -2934,13 +3025,38 @@ async def _auto_send_pending_client_reply(db, inbox_doc: dict, gmail_service, se
     whitelist = set(_parse_domain_csv(settings.get("clientDomainsWhitelist", "")))
     domain_is_allowed = not whitelist or domain in whitelist
     confidence = float(inbox_doc.get("confidence") or extracted.get("confidence") or 0)
-    threshold = float(settings.get("autoSendThreshold") or 70) / 100
-    if not domain_is_allowed or confidence < threshold:
-        return None
 
     generated_reply = inbox_doc.get("generated_reply") or {}
+    if not client_reply_auto_send_eligible(extracted, generated_reply, confidence, settings, domain_is_allowed):
+        return None
     if not inbox_doc.get("from_email") or not generated_reply.get("body"):
         return None
+
+    existing_clarification = await find_existing_client_clarification_request(
+        db,
+        from_email=inbox_doc.get("from_email", ""),
+        requirement_id=inbox_doc.get("requirement_id") or "",
+        generated_reply=generated_reply,
+        extracted=extracted,
+        exclude_email_id=inbox_doc.get("email_id") or "",
+    )
+    if existing_clarification:
+        await db["client_emails"].update_one(
+            {"email_id": inbox_doc["email_id"], "status": "pending_approval", "sent_at": None},
+            {"$set": {
+                "status": "auto_skipped_duplicate_clarification",
+                "auto_send_eligible": False,
+                "duplicate_clarification_email_id": existing_clarification.get("email_id", ""),
+                "duplicate_clarification_sent_at": existing_clarification.get("sent_at"),
+                "duplicate_clarification_checked_at": utc_now(),
+            }},
+        )
+        return {
+            "status": "auto_skipped_duplicate_clarification",
+            "email_id": inbox_doc["email_id"],
+            "requirement_id": inbox_doc.get("requirement_id"),
+            "existing_email_id": existing_clarification.get("email_id"),
+        }
 
     send_result = send_gmail_reply(
         gmail_service,
@@ -2954,6 +3070,7 @@ async def _auto_send_pending_client_reply(db, inbox_doc: dict, gmail_service, se
         {"email_id": inbox_doc["email_id"], "status": "pending_approval", "sent_at": None},
         {"$set": {
             "status": "auto_sent",
+            "auto_send_eligible": True,
             "gmail_send_result": send_result,
             "sent_at": utc_now(),
             "sent_by": "auto",
@@ -3771,8 +3888,62 @@ async def _process_client_slot_reply(
 
 
 async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_results: int = 25) -> dict:
-    service = get_gmail_service()
     settings = await _client_inbox_settings(db)
+    if settings.get("inboxProvider") in {"smtp_only", "smtp"}:
+        auto_sent_existing = await auto_send_pending_client_replies_smtp(db)
+        await db["gmail_sync"].update_one(
+            {"sync_id": "default"},
+            {"$set": {
+                "last_manual_sync_at": utc_now(),
+                "last_manual_sync_provider": "smtp_only",
+                "last_manual_sync_processed": 0,
+                "last_manual_sync_auto_sent_existing": len(auto_sent_existing),
+                "last_manual_sync_skipped": 0,
+                "last_manual_sync_errors": [],
+            }},
+            upsert=True,
+        )
+        return {
+            "success": True,
+            "provider": "smtp_only",
+            "processed": [],
+            "processed_count": 0,
+            "skipped": 0,
+            "already_processed": 0,
+            "auto_sent_existing": auto_sent_existing,
+            "auto_sent_existing_count": len(auto_sent_existing),
+            "errors": [],
+            "message": "SMTP-only mode can send eligible pending replies, but it cannot read new inbox mail.",
+        }
+
+    if settings.get("inboxProvider") in {"imap", "imap_poll", "imap_polling"}:
+        result = await poll_imap_client_inbox(db)
+        await db["gmail_sync"].update_one(
+            {"sync_id": "default"},
+            {"$set": {
+                "last_manual_sync_at": utc_now(),
+                "last_manual_sync_provider": "imap",
+                "last_manual_sync_processed": int(result.get("processed") or 0),
+                "last_manual_sync_auto_sent_existing": int(result.get("auto_sent_existing") or 0),
+                "last_manual_sync_skipped": 1 if result.get("skipped") else 0,
+                "last_manual_sync_errors": [result.get("error")] if result.get("error") else [],
+            }},
+            upsert=True,
+        )
+        return {
+            "success": True,
+            "provider": "imap",
+            "processed": [],
+            "processed_count": int(result.get("processed") or 0),
+            "skipped": 1 if result.get("skipped") else 0,
+            "already_processed": 0,
+            "auto_sent_existing": [],
+            "auto_sent_existing_count": int(result.get("auto_sent_existing") or 0),
+            "errors": [result.get("error")] if result.get("error") else [],
+            "imap": result,
+        }
+
+    service = get_gmail_service()
     whitelist = _parse_domain_csv(settings.get("clientDomainsWhitelist", ""))
     processed = []
     skipped = 0
@@ -4888,8 +5059,9 @@ async def save_admin_settings(payload: dict):
     incoming_email = payload.get("emailCfg")
     if isinstance(incoming_email, dict):
         existing_email = existing.get("emailCfg") or {}
-        if not incoming_email.get("smtpPass") and existing_email.get("smtpPass"):
-            incoming_email["smtpPass"] = existing_email.get("smtpPass")
+        for password_key in ("smtpPass", "imapPass"):
+            if not incoming_email.get(password_key) and existing_email.get(password_key):
+                incoming_email[password_key] = existing_email.get(password_key)
 
     incoming_teams_direct = payload.get("teamsDirectCfg")
     if isinstance(incoming_teams_direct, dict):
@@ -6683,6 +6855,235 @@ async def request_client_budget_increase(requirement_id: str, payload: dict, req
         "requested_budget": requested_budget,
         "unit": unit_label,
     }
+
+
+def _commercial_amount_label(amount: float, unit: str = "") -> str:
+    try:
+        amount = float(amount or 0)
+    except (TypeError, ValueError):
+        amount = 0
+    amount_text = f"{amount:,.0f}" if amount else "the requested"
+    unit_text = str(unit or "").strip()
+    return f"INR {amount_text} per {unit_text}" if unit_text else f"INR {amount_text}"
+
+
+def _commercial_log_details(log: dict) -> dict:
+    commercials = (log or {}).get("commercials") or {}
+    amount = _float_or_zero(commercials.get("requested_trainer_commercial"))
+    unit = str(commercials.get("unit") or "day").strip().lower()
+    return {"amount": amount, "unit": "hour" if unit.startswith("hour") else "day"}
+
+
+def _amount_match_to_number(match) -> float:
+    if not match:
+        return 0.0
+    raw = str(match.group(1) or "").replace(",", "")
+    multiplier = 1000 if str(match.group(2) or "").strip().lower() == "k" else 1
+    try:
+        return float(raw) * multiplier
+    except ValueError:
+        return 0.0
+
+
+def _trainer_counter_commercial(reply_text: str, log: dict) -> dict:
+    text = _strip_quoted_reply_text(reply_text or "")
+    if not text:
+        return {}
+    lower = text.lower()
+    base = _commercial_log_details(log)
+    unit = base.get("unit") or "day"
+    target_amount = _float_or_zero(base.get("amount"))
+
+    extra_patterns = [
+        r"(?:extra|more|additional|increase)\D{0,30}(?:inr|rs\.?|₹)?\s*([0-9][0-9,]*(?:\.\d+)?)(\s*k)?\b",
+        r"(?:inr|rs\.?|₹)?\s*([0-9][0-9,]*(?:\.\d+)?)(\s*k)?\b\D{0,20}(?:extra|more|additional)",
+    ]
+    for pattern in extra_patterns:
+        match = _re.search(pattern, lower, flags=_re.IGNORECASE)
+        amount = _amount_match_to_number(match)
+        if amount > 0 and target_amount > 0:
+            counter = target_amount + amount
+            return {"amount": counter, "unit": unit, "is_extra": True, "extra_amount": amount}
+
+    parsed = extract_trainer_commercial_details(text)
+    if parsed and _float_or_zero(parsed.get("amount")) > 0:
+        parsed["unit"] = parsed.get("unit") or unit
+        return parsed
+
+    amount_patterns = [
+        r"(?:inr|rs\.?|₹)\s*([0-9][0-9,]*(?:\.\d+)?)(\s*k)?\b",
+        r"\b([0-9][0-9,]*(?:\.\d+)?)(\s*k)\b",
+        r"\b(?:need|want|asking|quote|rate|commercial|charges?)\D{0,30}([0-9][0-9,]*(?:\.\d+)?)(\s*k)?\b",
+    ]
+    for pattern in amount_patterns:
+        match = _re.search(pattern, lower, flags=_re.IGNORECASE)
+        amount = _amount_match_to_number(match)
+        if amount > 0:
+            return {"amount": amount, "unit": unit}
+    return {}
+
+
+def _trainer_accepted_commercial(reply: dict, log: dict) -> bool:
+    body = str(reply.get("body") or "").lower()
+    if reply.get("action") == "mark_declined" or reply.get("sentiment") == "negative":
+        return False
+    if any(phrase in body for phrase in ["not ok", "not okay", "not possible", "not acceptable", "cannot", "can't"]):
+        return False
+    return any(phrase in body for phrase in ["ok", "okay", "works", "agree", "accepted", "fine", "confirm", "confirmed", "yes", "sure"])
+
+
+async def _latest_trainer_slot_reply_text(db, requirement_id: str, trainer_id: str) -> str:
+    slot_log = await db["email_logs"].find_one(
+        {
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "mail_type": {"$in": ["mail3", "mail3_slot_followup"]},
+            "reply_text": {"$nin": [None, ""]},
+        },
+        {"_id": 0, "reply_text": 1},
+        sort=[("replied_at", -1), ("created_at", -1)],
+    )
+    if slot_log and slot_log.get("reply_text"):
+        return slot_log.get("reply_text") or ""
+    latest_reply = await db["conversations"].find_one(
+        {
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "direction": "received",
+        },
+        {"_id": 0, "body": 1},
+        sort=[("sent_at", -1), ("created_at", -1)],
+    )
+    return (latest_reply or {}).get("body") or ""
+
+
+async def _handle_trainer_commercial_negotiation_reply(
+    db,
+    request: Request,
+    *,
+    log: dict,
+    reply: dict,
+) -> dict | None:
+    if (log or {}).get("mail_type") != "trainer_commercial_negotiation":
+        return None
+
+    requirement_id = log.get("requirement_id") or ""
+    trainer_id = log.get("trainer_id") or ""
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    target = _commercial_log_details(log)
+    target_amount = _float_or_zero(target.get("amount"))
+    unit = target.get("unit") or "day"
+    counter = _trainer_counter_commercial(reply.get("body") or "", log)
+    accepted_target = not counter and _trainer_accepted_commercial(reply, log)
+
+    if accepted_target and target_amount > 0:
+        slot_text = await _latest_trainer_slot_reply_text(db, requirement_id, trainer_id)
+        if slot_text:
+            target_text = _commercial_amount_label(target_amount, unit)
+            result = await send_client_slot_options_email(
+                db,
+                {
+                    "trainer_id": trainer_id,
+                    "trainer_name": log.get("trainer_name") or "the trainer",
+                    "trainer_email": log.get("to_email") or "",
+                    "requirement_id": requirement_id,
+                    "slot_text": slot_text,
+                    "trainer_commercial": target_text,
+                    "force": True,
+                    "source_email_id": log.get("email_id") or "",
+                    "source_message_id": log.get("reply_message_id") or "",
+                },
+                tracking_url_builder=lambda email_id: build_tracking_url(request, email_id),
+                source="trainer_commercial_accepted",
+                request_base_url=_request_base_url(request),
+            )
+        else:
+            result = {"success": False, "error": "Trainer accepted commercial, but previous slot reply was not found"}
+        await db["trainers"].update_one({"trainer_id": trainer_id}, {"$set": {"status": "commercial_accepted"}})
+        await db["shortlists"].update_one(
+            {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+            {"$set": {
+                "top_trainers.$.status": "commercial_accepted",
+                "top_trainers.$.pipeline_status": "commercial_accepted",
+                "top_trainers.$.commercial_accepted_at": utc_now(),
+            }},
+        )
+        return {"status": "trainer_commercial_accepted", "client_slot_result": result}
+
+    if counter and _float_or_zero(counter.get("amount")) > 0:
+        client_budget = client_budget_for_trainer_commercial(requirement, counter)
+        trainer_amount = _float_or_zero(counter.get("amount"))
+        requested_client_amount = trainer_amount + CLAHAN_CLIENT_COMMERCIAL_MARKUP_INR
+        budget_amount = _float_or_zero((client_budget or {}).get("amount"))
+        trainer_text = _commercial_amount_label(trainer_amount, counter.get("unit") or unit)
+        client_text = _commercial_amount_label(requested_client_amount, counter.get("unit") or unit)
+
+        if budget_amount and requested_client_amount <= budget_amount:
+            slot_text = await _latest_trainer_slot_reply_text(db, requirement_id, trainer_id)
+            result = await send_client_slot_options_email(
+                db,
+                {
+                    "trainer_id": trainer_id,
+                    "trainer_name": log.get("trainer_name") or "the trainer",
+                    "trainer_email": log.get("to_email") or "",
+                    "requirement_id": requirement_id,
+                    "slot_text": slot_text or reply.get("body") or "",
+                    "trainer_commercial": trainer_text,
+                    "force": True,
+                    "source_email_id": log.get("email_id") or "",
+                    "source_message_id": log.get("reply_message_id") or "",
+                },
+                tracking_url_builder=lambda email_id: build_tracking_url(request, email_id),
+                source="trainer_commercial_counter_within_budget",
+                request_base_url=_request_base_url(request),
+            )
+            return {"status": "trainer_counter_within_budget", "client_slot_result": result}
+
+        technology = requirement.get("technology_needed") or "training"
+        current_budget = budget_amount or _float_or_zero(requirement.get("budget_per_day") or requirement.get("budget_total"))
+        client_name = requirement.get("client_name") or requirement.get("client_company") or "Client"
+        body = (
+            f"Dear {client_name},\n\n"
+            f"The trainer shortlisted for the {technology} requirement has requested {trainer_text}.\n\n"
+            f"Including Clahan Technologies coordination, the revised commercial will be {client_text}.\n\n"
+            "Please confirm if this is acceptable to proceed with this trainer. "
+            "If this is not workable, we will continue searching and share another suitable trainer profile.\n\n"
+            "Regards,\n"
+            "Recruitment Team\n"
+            "Clahan Technologies"
+        )
+        result = await request_client_budget_increase(
+            requirement_id,
+            {
+                "trainer_id": trainer_id,
+                "trainer_name": log.get("trainer_name") or "",
+                "current_budget": current_budget,
+                "requested_budget": requested_client_amount,
+                "increment": max(0, requested_client_amount - current_budget) if current_budget else CLAHAN_CLIENT_COMMERCIAL_MARKUP_INR,
+                "unit": counter.get("unit") or unit,
+                "subject": f"Commercial Confirmation Required - {technology} Training",
+                "body": body,
+            },
+            request,
+        )
+        await db["trainers"].update_one({"trainer_id": trainer_id}, {"$set": {"status": "client_budget_approval_requested"}})
+        await db["shortlists"].update_one(
+            {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+            {"$set": {
+                "top_trainers.$.status": "client_budget_approval_requested",
+                "top_trainers.$.pipeline_status": "client_budget_approval_requested",
+                "top_trainers.$.client_budget_requested_at": utc_now(),
+            }},
+        )
+        return {"status": "client_budget_approval_requested", "client_budget_request": result}
+
+    if reply.get("action") == "mark_declined" or reply.get("sentiment") == "negative":
+        await db["trainers"].update_one({"trainer_id": trainer_id}, {"$set": {"status": "declined"}})
+        followup = await _send_next_trainer_after_decline(db, request, declined_log=log, reply=reply)
+        return {"status": "trainer_commercial_declined", "next_trainer": followup}
+
+    await db["trainers"].update_one({"trainer_id": trainer_id}, {"$set": {"status": "commercial_needs_review"}})
+    return {"status": "trainer_commercial_needs_review", "reason": "Commercial reply is unclear"}
 
 
 @router.get("/purchase-orders/{po_id}/download", name="download_purchase_order")
@@ -10350,6 +10751,45 @@ def _trainer_profile_details_reply(log: dict, reply: dict, requirement: dict | N
     }
 
 
+def _looks_like_slot_count_question(question: str = "") -> bool:
+    text = _re.sub(r"\s+", " ", str(question or "").lower()).strip()
+    if not text or "slot" not in text:
+        return False
+    question_terms = [
+        "how many",
+        "no of",
+        "number of",
+        "count",
+        "enough",
+        "sufficient",
+        "required",
+        "needed",
+        "need to",
+        "should i",
+        "should we",
+        "do i need",
+        "do we need",
+        "can i share",
+        "can we share",
+        "please confirm",
+    ]
+    action_terms = [
+        "book",
+        "provide",
+        "share",
+        "send",
+        "give",
+    ]
+    has_count_context = any(term in text for term in question_terms) or bool(_re.search(r"\b\d+\s+slots?\b", text))
+    has_action_context = any(term in text for term in action_terms) or bool(_re.search(r"\b\d+\s+slots?\b", text))
+    has_question_context = "?" in text or any(term in text for term in question_terms)
+    if not has_question_context:
+        return False
+    if not has_action_context and not any(term in text for term in ["how many", "number of", "no of", "count", "enough", "sufficient"]):
+        return False
+    return has_count_context and has_question_context
+
+
 def _extra_training_reply_fallback(log: dict, reply: dict, requirement: dict | None) -> dict:
     requirement = requirement or {}
     trainer_name = log.get("trainer_name") or "Trainer"
@@ -10363,6 +10803,28 @@ def _extra_training_reply_fallback(log: dict, reply: dict, requirement: dict | N
 
     if _looks_like_profile_details_request_stage(log, question):
         return _trainer_profile_details_reply(log, reply, requirement)
+
+    if _looks_like_slot_count_question(question):
+        return {
+            "subject": f"Re: {reply.get('subject') or log.get('subject') or 'Interview Slot Booking'}",
+            "body": (
+                f"Dear {trainer_name},\n\n"
+                "Thank you for checking.\n\n"
+                "Three interview slot options are enough at this stage. You do not need to share five slots unless you would like to provide additional flexibility.\n\n"
+                "Kindly share any 3 convenient slots with the full date, month, year, time, AM/PM, and timezone clearly mentioned.\n\n"
+                "Example format:\n"
+                "Slot 1: [Date Month Year], [Start Time] - [End Time] IST\n"
+                "Slot 2: [Date Month Year], [Start Time] - [End Time] IST\n"
+                "Slot 3: [Date Month Year], [Start Time] - [End Time] IST\n\n"
+                "Once you share the slots in this format, we will coordinate with the client accordingly.\n\n"
+                "Best Regards,\n"
+                "Recruitment Team\n"
+                "Clahan Technologies"
+            ),
+            "ai_used": False,
+            "fallback": True,
+            "reply_kind": "slot_count_guidance",
+        }
 
     def asked(*terms: str) -> bool:
         return any(term in question for term in terms)
@@ -10469,6 +10931,7 @@ Rules:
 - Answer only the specific question(s) asked by the trainer/client.
 - If they ask multiple items together, answer those items together.
 - If this is the first trainer interest reply and they ask for TOC/details/detailed requirement before sharing profile, ask for updated trainer profile/resume and trainer details first. Share only known requirement details; say missing details will be updated after client confirmation.
+- If they ask how many interview slots to share, or ask whether they should book/share 5 slots, gently say 3 slot options are enough. Ask them to share any 3 convenient slots with full date, month, year, time, AM/PM, and timezone. Include this blank format: "Slot 1: [Date Month Year], [Start Time] - [End Time] IST", "Slot 2: [Date Month Year], [Start Time] - [End Time] IST", "Slot 3: [Date Month Year], [Start Time] - [End Time] IST".
 - If a requested detail is available in the known context, share it.
 - If a requested detail is missing, say it is not finalized yet and will be shared once confirmed by the client.
 - Do not add unrelated reminders, requests, or commercial/profile follow-ups unless the question asks about them.
@@ -10815,6 +11278,7 @@ async def manual_reply_check(request: Request):
     extra_question_ai_replies_sent = 0
     extra_question_ai_replies_failed = 0
     extra_question_ai_reply_results = []
+    commercial_negotiation_results = []
     client_toc_detail_results = []
     next_trainer_followups = []
 
@@ -11130,6 +11594,27 @@ async def manual_reply_check(request: Request):
                     },
                 )
 
+            commercial_result = await _handle_trainer_commercial_negotiation_reply(
+                db,
+                request,
+                log=log,
+                reply=reply,
+            )
+            if commercial_result:
+                commercial_negotiation_results.append(commercial_result)
+                slot_followup = commercial_result.get("client_slot_result") or {}
+                if slot_followup:
+                    client_slot_auto_results.append(slot_followup)
+                    if slot_followup.get("success"):
+                        client_slot_auto_sent += 1
+                    else:
+                        client_slot_auto_failed += 1
+                next_followup = commercial_result.get("next_trainer")
+                if next_followup:
+                    next_trainer_followups.append(next_followup)
+                processed += 1
+                continue
+
             extra_reply_result = await _auto_reply_extra_training_question(
                 db,
                 request,
@@ -11207,6 +11692,7 @@ async def manual_reply_check(request: Request):
         "extra_question_ai_replies_sent": extra_question_ai_replies_sent,
         "extra_question_ai_replies_failed": extra_question_ai_replies_failed,
         "extra_question_ai_reply_results": extra_question_ai_reply_results,
+        "commercial_negotiation_results": commercial_negotiation_results,
         "next_trainer_followups": next_trainer_followups,
         "client_decision_error": "",
     }
@@ -15913,15 +16399,52 @@ async def approve_client_email(email_id: str, payload: dict = {}):
     if not body:
         raise HTTPException(400, "Reply body is required")
 
-    service = get_gmail_service()
-    send_result = send_gmail_reply(
-        service,
-        to_email=doc.get("from_email", ""),
-        subject=subject,
-        body=body,
-        thread_id=doc.get("thread_id", ""),
-        in_reply_to=doc.get("message_id_header", ""),
-    )
+    extracted = doc.get("extracted") or {}
+    outgoing_reply = {**reply, "subject": subject, "body": body}
+    if not payload.get("force") and is_client_clarification_reply(extracted, outgoing_reply):
+        existing_clarification = await find_existing_client_clarification_request(
+            db,
+            from_email=doc.get("from_email", ""),
+            requirement_id=doc.get("requirement_id") or "",
+            generated_reply=outgoing_reply,
+            extracted=extracted,
+            exclude_email_id=email_id,
+        )
+        if existing_clarification:
+            await db["client_emails"].update_one(
+                {"email_id": email_id},
+                {"$set": {
+                    "status": "skipped_duplicate_clarification",
+                    "auto_send_eligible": False,
+                    "duplicate_clarification_email_id": existing_clarification.get("email_id", ""),
+                    "duplicate_clarification_sent_at": existing_clarification.get("sent_at"),
+                    "duplicate_clarification_checked_at": utc_now(),
+                }},
+            )
+            return {
+                "success": True,
+                "skipped": True,
+                "status": "skipped_duplicate_clarification",
+                "existing_email_id": existing_clarification.get("email_id"),
+            }
+
+    settings = await _client_inbox_settings(db)
+    if settings.get("inboxProvider") in {"imap", "imap_poll", "imap_polling", "smtp_only", "smtp"}:
+        smtp_config = await get_admin_email_config(db)
+        success, error = await send_email_async(doc.get("from_email", ""), subject, body, smtp_config)
+        if not success:
+            raise HTTPException(400, error or "Could not send reply through SMTP")
+        send_result = {"success": True, "provider": "smtp_imap_mode"}
+    else:
+        service = get_gmail_service()
+        send_result = send_gmail_reply(
+            service,
+            to_email=doc.get("from_email", ""),
+            subject=subject,
+            body=body,
+            thread_id=doc.get("thread_id", ""),
+            in_reply_to=doc.get("message_id_header", ""),
+        )
     now = utc_now()
     await db["client_emails"].update_one(
         {"email_id": email_id},

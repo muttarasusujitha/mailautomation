@@ -17,6 +17,7 @@ from agents.whatsapp_agent import (
     send_vendor_reply_notification,
 )
 from agents.client_intelligence_agent import (
+    auto_send_pending_client_replies_smtp,
     get_gmail_auth_status,
     poll_imap_client_inbox,
     renew_gmail_watch,
@@ -369,6 +370,28 @@ async def poll_client_inbox_fallback_job():
     await load_config_from_db()
     db = get_db()
     try:
+        settings_doc = await db["admin_settings"].find_one(
+            {"settings_id": "default"},
+            {"_id": 0, "clientInboxCfg.inboxProvider": 1},
+        ) or {}
+        inbox_provider = str(((settings_doc.get("clientInboxCfg") or {}).get("inboxProvider")) or "gmail_api").strip().lower()
+        if inbox_provider in {"smtp_only", "smtp"}:
+            # SMTP-only test mode intentionally skips inbox polling.
+            auto_sent_existing = await auto_send_pending_client_replies_smtp(db)
+            if auto_sent_existing:
+                logger.info("SMTP-only client inbox sent %s pending replies", len(auto_sent_existing))
+            return
+
+        if inbox_provider in {"imap", "imap_poll", "imap_polling"}:
+            result = await poll_imap_client_inbox(db)
+            if result.get("processed"):
+                logger.info("IMAP fallback processed %s client emails", result.get("processed"))
+            if result.get("auto_sent_existing"):
+                logger.info("IMAP fallback auto-sent %s pending client replies", result.get("auto_sent_existing"))
+            elif result.get("skipped"):
+                logger.warning("IMAP fallback skipped: %s", result.get("skipped"))
+            return
+
         status = await get_gmail_auth_status(db)
         watch_expiration = status.get("watch_expiration")
         watch_active = False
@@ -393,10 +416,14 @@ async def poll_client_inbox_fallback_job():
                     )
                 return
             except Exception:
-                logger.exception("Gmail API fallback sync failed; continuing with Hostinger IMAP poll")
+                logger.exception("Gmail API fallback sync failed; continuing with IMAP poll")
         result = await poll_imap_client_inbox(db)
         if result.get("processed"):
             logger.info("IMAP fallback processed %s client emails", result.get("processed"))
+        if result.get("auto_sent_existing"):
+            logger.info("IMAP fallback auto-sent %s pending client replies", result.get("auto_sent_existing"))
+        elif result.get("skipped"):
+            logger.warning("IMAP fallback skipped: %s", result.get("skipped"))
     except Exception:
         logger.exception("IMAP client inbox fallback failed")
 

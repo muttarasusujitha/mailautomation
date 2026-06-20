@@ -70,6 +70,20 @@ AUTO_REPLY_MARKERS = [
     "i am away", "away from office", "delivery status notification",
 ]
 
+TRAINER_THREAD_MAIL_TYPES = {
+    "mail1",
+    "mail2",
+    "mail2_followup",
+    "mail3",
+    "mail3_slot_followup",
+    "mail4",
+    "mail5_ok",
+    "mail5_reject",
+    "trainer_dates_clarification",
+    "trainer_commercial_negotiation",
+    "ai_extra_question_reply",
+}
+
 
 def _is_placeholder_value(value: str) -> bool:
     lowered = (value or "").strip().lower()
@@ -301,6 +315,46 @@ def clean_email_body(text: str) -> str:
     text = strip_signature(text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
+
+
+def looks_like_client_requirement_closed(text: str) -> bool:
+    clean = clean_email_body(text or "")
+    if not clean:
+        return False
+    lowered = re.sub(r"\s+", " ", clean.lower()).strip()
+    if re.search(r"\b(do\s*not|don't|dont|not)\s+(close|cancel|withdraw)", lowered):
+        return False
+    closure_patterns = (
+        r"\bclose(?:d)?\s+(?:the\s+)?requirement\b",
+        r"\brequirement\s+(?:is\s+|was\s+)?closed\b",
+        r"\brequirement\s+(?:is\s+|was\s+)?cancelled\b",
+        r"\brequirement\s+(?:is\s+|was\s+)?canceled\b",
+        r"\brequirement\s+(?:is\s+|was\s+)?withdrawn\b",
+        r"\bposition\s+(?:is\s+|was\s+)?closed\b",
+        r"\brole\s+(?:is\s+|was\s+)?closed\b",
+        r"\bno\s+longer\s+(?:required|needed)\b",
+        r"\bnot\s+required\s+anymore\b",
+        r"\bfound\s+(?:another|other)\s+trainer\b",
+        r"\balready\s+(?:finali[sz]ed|closed|hired|got)\b",
+        r"\b(?:too|so|very)\s+late\b",
+    )
+    return any(re.search(pattern, lowered) for pattern in closure_patterns)
+
+
+def client_requirement_closure_reason(text: str) -> str:
+    clean = re.sub(r"\s+", " ", clean_email_body(text or "")).strip()
+    lowered = clean.lower()
+    if re.search(r"\b(?:too|so|very)?\s*late\b", lowered):
+        return "Client said the requirement is closed because the response was late."
+    if re.search(r"\bfound\s+(?:another|other)\s+trainer\b", lowered):
+        return "Client said they found another trainer."
+    if re.search(r"\balready\s+(?:finali[sz]ed|hired|got)\b", lowered):
+        return "Client said the requirement was already finalized."
+    if re.search(r"\bcancelled|canceled|withdrawn\b", lowered):
+        return "Client cancelled or withdrew the requirement."
+    if clean:
+        return f"Client asked to close the requirement: {clean[:180]}"
+    return "Client asked to close the requirement."
 
 
 def is_auto_reply(headers: Dict[str, str], subject: str, body: str) -> bool:
@@ -942,6 +996,68 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
     return merged
 
 
+def client_requirement_closure_extraction(meta: Dict[str, Any], reason: str = "") -> Dict[str, Any]:
+    body = meta.get("clean_body") or meta.get("raw_body") or meta.get("snippet") or ""
+    subject = meta.get("subject") or ""
+    technology = None
+    for keyword in TECHNOLOGY_KEYWORDS:
+        if re.search(rf"\b{re.escape(keyword)}\b", f"{subject}\n{body}", re.IGNORECASE):
+            technology = keyword.title()
+            break
+    extracted = _normalise_extraction({
+        "client_name": meta.get("from_name") or None,
+        "client_email": meta.get("from_email"),
+        "technology_needed": technology,
+        "email_subject": subject,
+        "email_summary": reason or "Client asked to close the requirement.",
+        "confidence": 0.98,
+        "needs_clarification": [],
+        "is_training_request": False,
+        "client_request_closed": True,
+        "client_closed_reason": reason or "Client asked to close the requirement.",
+    }, meta)
+    extracted["needs_clarification"] = []
+    extracted["is_training_request"] = False
+    extracted["client_request_closed"] = True
+    extracted["client_closed_reason"] = reason or "Client asked to close the requirement."
+    return extracted
+
+
+def generate_client_requirement_closed_reply(
+    meta: Dict[str, Any],
+    reason: str = "",
+    signature: str = "",
+) -> Dict[str, Any]:
+    subject = str(meta.get("subject") or "Training Requirement").strip()
+    if not subject.lower().startswith("re:"):
+        subject = f"Re: {subject}"
+    client_name = _clean_ai_text(meta.get("from_name")) or "Client"
+    delay_context = bool(
+        re.search(r"\blate\b", str(reason or ""), re.IGNORECASE)
+        or re.search(r"\blate\b", str(meta.get("clean_body") or ""), re.IGNORECASE)
+    )
+    opening = (
+        "Sorry for the delayed response."
+        if delay_context else
+        "Thank you for the update."
+    )
+    footer = (signature or "Regards,\nRecruitment Team,\nClahan Technologies").strip()
+    body = (
+        f"Dear {client_name},\n\n"
+        f"{opening} We understand that this requirement has been closed, and we will not proceed further on it.\n\n"
+        "For any future training requirements, please feel free to contact us. "
+        "We will be happy to support you with suitable trainer profiles promptly.\n\n"
+        f"{footer}"
+    )
+    return {
+        "subject": subject,
+        "body": body,
+        "tone": "polite_closure_acknowledgement",
+        "asks_for_clarification": False,
+        "client_request_closed_ack": True,
+    }
+
+
 def _field_from_text(text: str, label: str) -> Optional[str]:
     match = re.search(rf"(?im)^\s*{re.escape(label)}\s*:\s*(.+?)\s*$", text or "")
     return match.group(1).strip() if match else None
@@ -1164,6 +1280,12 @@ async def process_client_email(message_id, gmail_service, meta: Optional[Dict[st
             "confidence": 0,
             "is_training_request": False,
         }, meta)
+        return meta
+
+    latest_client_text = meta.get("clean_body") or meta.get("raw_body") or meta.get("snippet") or ""
+    if looks_like_client_requirement_closed(latest_client_text):
+        reason = client_requirement_closure_reason(latest_client_text)
+        meta["extracted"] = client_requirement_closure_extraction(meta, reason)
         return meta
 
     body_for_gemini = meta.get("clean_body") or meta.get("raw_body") or ""
@@ -1525,6 +1647,254 @@ async def ensure_requirement_from_email(extracted: dict, email_id: str, db) -> s
     return await create_requirement_from_email(extracted, email_id, db)
 
 
+async def mark_client_requirement_closed(
+    db,
+    from_email: str = "",
+    requirement_id: str = "",
+    reason: str = "",
+    email_id: str = "",
+    subject: str = "",
+    body: str = "",
+) -> str:
+    closed_statuses = ["closed", "completed", "fulfilled", "inactive", "cancelled", "archived"]
+    req = None
+    if requirement_id:
+        req = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    client_email = _clean_ai_text(from_email).lower()
+    if not req and client_email:
+        active_query = {
+            "client_email": {"$regex": f"^{re.escape(client_email)}$", "$options": "i"},
+            "status": {"$nin": closed_statuses},
+        }
+        req = await db["requirements"].find_one(
+            active_query,
+            {"_id": 0},
+            sort=[("last_client_email_at", -1), ("created_at", -1)],
+        )
+    if not req and client_email:
+        req = await db["requirements"].find_one(
+            {"client_email": {"$regex": f"^{re.escape(client_email)}$", "$options": "i"}},
+            {"_id": 0},
+            sort=[("last_client_email_at", -1), ("created_at", -1)],
+        )
+    req_id = (req or {}).get("requirement_id") or requirement_id or ""
+    if not req_id:
+        return ""
+
+    closed_at = utc_now()
+    body_excerpt = re.sub(r"\s+", " ", clean_email_body(body or "")).strip()[:500]
+    update_doc = {
+        "status": "closed",
+        "close_date": closed_at,
+        "client_closed_at": closed_at,
+        "client_closed_reason": reason or "Client asked to close the requirement.",
+        "client_closed_email_id": email_id,
+        "client_closed_subject": subject or "",
+        "client_closed_body_excerpt": body_excerpt,
+        "closed_by": "client_email",
+        "auto_match_status": "client_closed",
+        "trainer_outreach_status": "stopped_client_closed",
+        "last_client_email_id": email_id,
+        "last_client_email_at": closed_at,
+        "updated_at": closed_at,
+    }
+    await db["requirements"].update_one(
+        {"requirement_id": req_id},
+        {"$set": update_doc},
+    )
+    await db["shortlists"].update_many(
+        {"requirement_id": req_id},
+        {"$set": {
+            "status": "closed",
+            "pipeline_status": "client_closed",
+            "client_closed_at": closed_at,
+            "client_closed_reason": update_doc["client_closed_reason"],
+            "updated_at": closed_at,
+        }},
+    )
+    return req_id
+
+
+def _normalise_thread_subject(subject: str = "") -> str:
+    value = re.sub(r"(?i)^\s*(re|fw|fwd)\s*:\s*", "", str(subject or "")).strip()
+    value = re.sub(r"\s+", " ", value).lower()
+    return value
+
+
+def _trainer_reply_signal(body: str = "") -> bool:
+    text = re.sub(r"\s+", " ", clean_email_body(body or "").lower()).strip()
+    if not text:
+        return False
+    markers = (
+        "trainer",
+        "trainersync team",
+        "calhan technologies team",
+        "i am available",
+        "available for the following",
+        "time slots",
+        "slot 1",
+        "slot 2",
+        "slot 3",
+        "years of experience",
+        "trainings conducted",
+        "relevant certifications",
+        "expected commercial",
+        "commercial charges",
+        "current location",
+    )
+    has_time = bool(re.search(r"\b\d{1,2}(?::\d{2})?\s*(?:am|pm)\b", text, flags=re.I))
+    has_slot_language = bool(re.search(r"\b(?:slot|available|availability|interview|discussion)\b", text, flags=re.I))
+    return any(marker in text for marker in markers) or (has_time and has_slot_language)
+
+
+async def find_matching_trainer_outbound_thread(
+    db,
+    from_email: str = "",
+    subject: str = "",
+    body: str = "",
+) -> Optional[dict]:
+    sender = _clean_ai_text(from_email).lower()
+    if not sender:
+        return None
+    candidates = await db["email_logs"].find(
+        {
+            "to_email": {"$regex": f"^{re.escape(sender)}$", "$options": "i"},
+            "status": "sent",
+            "mail_type": {"$in": sorted(TRAINER_THREAD_MAIL_TYPES)},
+        },
+        {"_id": 0},
+    ).sort("sent_at", -1).limit(30).to_list(30)
+    if not candidates:
+        return None
+
+    reply_subject = _normalise_thread_subject(subject)
+    body_text = clean_email_body(body or "")
+    body_lower = body_text.lower()
+    has_trainer_signal = _trainer_reply_signal(body_text)
+
+    best: Optional[dict] = None
+    best_score = 0
+    for item in candidates:
+        sent_subject = _normalise_thread_subject(item.get("subject") or "")
+        trainer_name = _clean_ai_text(item.get("trainer_name")).lower()
+        mail_type = str(item.get("mail_type") or "")
+        score = 0
+        if sent_subject and reply_subject and (sent_subject in reply_subject or reply_subject in sent_subject):
+            score += 120
+        if "interview slot booking" in reply_subject and mail_type in {"mail3", "mail3_slot_followup", "ai_extra_question_reply"}:
+            score += 160
+        if "additional details required" in reply_subject and mail_type in {"mail2", "mail2_followup"}:
+            score += 120
+        if "training requirement" in reply_subject and mail_type in {"mail1", "mail2", "mail2_followup"}:
+            score += 70
+        if trainer_name and trainer_name in body_lower:
+            score += 100
+        if has_trainer_signal:
+            score += 60
+        if mail_type.startswith("mail") and item.get("requirement_id") and item.get("trainer_id"):
+            score += 20
+        if score > best_score:
+            best_score = score
+            best = item
+
+    return best if best_score >= 100 else None
+
+
+async def record_trainer_reply_from_client_inbox(
+    db,
+    meta: Dict[str, Any],
+    trainer_thread: dict,
+) -> dict:
+    now = utc_now()
+    email_id = meta.get("email_id") or f"IMAP-TRAINER-{uuid.uuid4().hex[:8].upper()}"
+    body = meta.get("clean_body") or meta.get("raw_body") or ""
+    message_id_header = meta.get("message_id_header") or ""
+    requirement_id = trainer_thread.get("requirement_id") or ""
+    trainer_id = trainer_thread.get("trainer_id") or ""
+    trainer_name = trainer_thread.get("trainer_name") or meta.get("from_name") or ""
+
+    await db["email_logs"].update_one(
+        {"email_id": trainer_thread.get("email_id")},
+        {"$set": {
+            "reply_received": True,
+            "reply_text": body,
+            "reply_subject": meta.get("subject") or "",
+            "reply_message_id": message_id_header,
+            "replied_at": now,
+            "trainer_reply_routed_from_client_inbox": True,
+            "trainer_reply_inbound_email_id": email_id,
+            "updated_at": now,
+        }},
+    )
+
+    conversation_query: Dict[str, Any] = {
+        "direction": "received",
+        "from_email": {"$regex": f"^{re.escape(meta.get('from_email') or '')}$", "$options": "i"},
+        "source_email_id": trainer_thread.get("email_id") or "",
+    }
+    if message_id_header:
+        conversation_query["message_id_header"] = message_id_header
+    else:
+        conversation_query["body"] = body
+
+    existing_conversation = await db["conversations"].find_one(conversation_query, {"_id": 0, "email_id": 1})
+    if not existing_conversation:
+        await db["conversations"].insert_one({
+            "email_id": email_id,
+            "source_email_id": trainer_thread.get("email_id") or "",
+            "message_id_header": message_id_header,
+            "trainer_id": trainer_id,
+            "trainer_name": trainer_name,
+            "requirement_id": requirement_id,
+            "from_email": meta.get("from_email") or "",
+            "from_name": meta.get("from_name") or "",
+            "to_email": meta.get("from_email") or "",
+            "subject": meta.get("subject") or "",
+            "body": body,
+            "direction": "received",
+            "status": "received",
+            "mail_type": "reply",
+            "source": "client_inbox_trainer_thread",
+            "sent_at": meta.get("received_at") or now,
+            "created_at": now,
+        })
+
+    extracted = {
+        "is_training_request": False,
+        "client_email": meta.get("from_email") or "",
+        "client_name": meta.get("from_name") or None,
+        "email_subject": meta.get("subject") or "",
+        "email_summary": "Inbound message matched an existing trainer outreach thread and was routed as a trainer reply.",
+        "confidence": 0.99,
+        "routed_to_trainer_reply": True,
+    }
+    inbox_doc = {
+        **meta,
+        "extracted": extracted,
+        "generated_reply": {},
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_name,
+        "status": "routed_to_trainer_reply",
+        "confidence": 0.99,
+        "extraction_error": "",
+        "auto_send_eligible": False,
+        "sent_at": None,
+        "sent_by": None,
+        "trainer_reply_source_email_id": trainer_thread.get("email_id") or "",
+        "trainer_reply_mail_type": trainer_thread.get("mail_type") or "",
+        "whatsapp_notified": False,
+        "created_at": now,
+        "updated_at": now,
+    }
+    await db["client_emails"].update_one(
+        {"email_id": email_id},
+        {"$setOnInsert": inbox_doc},
+        upsert=True,
+    )
+    return inbox_doc
+
+
 async def get_email_auto_smtp_config(db) -> Dict[str, Any]:
     settings_doc = await db["admin_settings"].find_one(
         {"settings_id": "default"},
@@ -1538,13 +1908,197 @@ async def get_email_auto_imap_config(db) -> Dict[str, Any]:
     email_cfg = await get_email_auto_smtp_config(db)
     smtp_host = str(email_cfg.get("smtpHost") or "").lower()
     smtp_user = str(email_cfg.get("smtpUser") or "").strip()
+    env_gmail_user = _settings_value("gmail_user")
+    env_gmail_pass = _settings_value("gmail_app_password") or _settings_value("gmail_pass")
     hostinger = "hostinger" in smtp_host or smtp_user.endswith("@clahantechnologies.com")
     return {
         "imapHost": email_cfg.get("imapHost") or ("imap.hostinger.com" if hostinger else "imap.gmail.com"),
         "imapPort": int(email_cfg.get("imapPort") or 993),
-        "imapUser": email_cfg.get("imapUser") or email_cfg.get("smtpUser") or "",
-        "imapPass": email_cfg.get("imapPass") or email_cfg.get("smtpPass") or "",
+        "imapUser": email_cfg.get("imapUser") or email_cfg.get("smtpUser") or env_gmail_user or "",
+        "imapPass": email_cfg.get("imapPass") or email_cfg.get("smtpPass") or env_gmail_pass or "",
     }
+
+
+def parse_client_domain_csv(value: str) -> List[str]:
+    return [item.strip().lower() for item in (value or "").split(",") if item.strip()]
+
+
+async def get_client_inbox_auto_settings(db) -> Dict[str, Any]:
+    settings_doc = await db["admin_settings"].find_one(
+        {"settings_id": "default"},
+        {"_id": 0, "clientInboxCfg": 1, "twilioCfg": 1},
+    )
+    cfg = (settings_doc or {}).get("clientInboxCfg") or {}
+    twilio = (settings_doc or {}).get("twilioCfg") or {}
+    return {
+        "autoSendEnabled": bool(cfg.get("autoSendEnabled", True)),
+        "autoSendThreshold": float(cfg.get("autoSendThreshold", 70)),
+        "clientDomainsWhitelist": cfg.get("clientDomainsWhitelist", ""),
+        "replySignature": cfg.get("replySignature") or "Best Regards,\nRecruitment Team\nClahan Technologies",
+        "vendorWhatsAppNumber": cfg.get("vendorWhatsAppNumber") or twilio.get("vendorWhatsAppNumber", ""),
+        "inboxProvider": str(cfg.get("inboxProvider") or "gmail_api").strip().lower(),
+    }
+
+
+def client_reply_auto_send_eligible(
+    extracted: Dict[str, Any],
+    generated_reply: Dict[str, Any],
+    confidence: float,
+    settings: Dict[str, Any],
+    domain_is_allowed: bool,
+) -> bool:
+    if extracted.get("client_request_closed"):
+        return False
+    if not domain_is_allowed:
+        return False
+    threshold = float(settings.get("autoSendThreshold") or 70) / 100
+    if confidence >= threshold:
+        return True
+
+    if not extracted.get("is_training_request"):
+        return False
+    if not has_actionable_training_domain(extracted.get("technology_needed")):
+        return False
+    if not (generated_reply or {}).get("body"):
+        return False
+    if not ((generated_reply or {}).get("asks_for_clarification") or extracted.get("needs_clarification")):
+        return False
+    return confidence >= 0.55
+
+
+def is_client_clarification_reply(extracted: Dict[str, Any], generated_reply: Dict[str, Any]) -> bool:
+    reply = generated_reply or {}
+    subject = str(reply.get("subject") or "").lower()
+    body = str(reply.get("body") or "").lower()
+    return bool(
+        reply.get("asks_for_clarification")
+        or (extracted or {}).get("needs_clarification")
+        or "request for additional details" in subject
+        or "kindly provide the following details" in body
+    )
+
+
+async def find_existing_client_clarification_request(
+    db,
+    *,
+    from_email: str,
+    requirement_id: str = "",
+    generated_reply: Optional[Dict[str, Any]] = None,
+    extracted: Optional[Dict[str, Any]] = None,
+    exclude_email_id: str = "",
+) -> Optional[dict]:
+    if not from_email or not is_client_clarification_reply(extracted or {}, generated_reply or {}):
+        return None
+    query: Dict[str, Any] = {
+        "from_email": {"$regex": f"^{re.escape(from_email)}$", "$options": "i"},
+        "sent_at": {"$nin": [None, ""]},
+        "status": {"$in": ["auto_sent", "approved"]},
+        "$or": [
+            {"generated_reply.asks_for_clarification": True},
+            {"generated_reply.subject": {"$regex": "request for additional details|additional details required", "$options": "i"}},
+            {"generated_reply.body": {"$regex": "kindly provide the following details", "$options": "i"}},
+        ],
+    }
+    if requirement_id:
+        query["requirement_id"] = requirement_id
+    if exclude_email_id:
+        query["email_id"] = {"$ne": exclude_email_id}
+    return await db["client_emails"].find_one(
+        query,
+        {"_id": 0, "email_id": 1, "sent_at": 1, "subject": 1, "generated_reply.subject": 1},
+        sort=[("sent_at", -1), ("created_at", -1)],
+    )
+
+
+async def mark_duplicate_client_clarification_skipped(db, email_id: str, existing: dict) -> None:
+    if not email_id:
+        return
+    await db["client_emails"].update_one(
+        {"email_id": email_id, "sent_at": None},
+        {"$set": {
+            "status": "auto_skipped_duplicate_clarification",
+            "auto_send_eligible": False,
+            "duplicate_clarification_email_id": (existing or {}).get("email_id", ""),
+            "duplicate_clarification_sent_at": (existing or {}).get("sent_at"),
+            "duplicate_clarification_checked_at": utc_now(),
+        }},
+    )
+
+
+async def auto_send_pending_client_replies_smtp(db, limit: int = 25) -> List[Dict[str, Any]]:
+    settings = await get_client_inbox_auto_settings(db)
+    if not settings.get("autoSendEnabled"):
+        return []
+
+    smtp_config = await get_email_auto_smtp_config(db)
+    docs = await db["client_emails"].find(
+        {"status": "pending_approval", "sent_at": None},
+        {"_id": 0},
+    ).sort("created_at", -1).limit(max(1, min(int(limit or 25), 100))).to_list(max(1, min(int(limit or 25), 100)))
+
+    sent: List[Dict[str, Any]] = []
+    whitelist = set(parse_client_domain_csv(settings.get("clientDomainsWhitelist", "")))
+    for doc in docs:
+        extracted = doc.get("extracted") or {}
+        generated_reply = doc.get("generated_reply") or {}
+        confidence = float(doc.get("confidence") or extracted.get("confidence") or 0)
+        domain = sender_domain(doc.get("from_email", ""))
+        domain_is_allowed = not whitelist or domain in whitelist
+        if not client_reply_auto_send_eligible(extracted, generated_reply, confidence, settings, domain_is_allowed):
+            continue
+        if not doc.get("from_email") or not generated_reply.get("body"):
+            continue
+
+        existing_clarification = await find_existing_client_clarification_request(
+            db,
+            from_email=doc.get("from_email", ""),
+            requirement_id=doc.get("requirement_id") or "",
+            generated_reply=generated_reply,
+            extracted=extracted,
+            exclude_email_id=doc.get("email_id") or "",
+        )
+        if existing_clarification:
+            await mark_duplicate_client_clarification_skipped(db, doc.get("email_id", ""), existing_clarification)
+            sent.append({
+                "status": "auto_skipped_duplicate_clarification",
+                "email_id": doc.get("email_id"),
+                "requirement_id": doc.get("requirement_id"),
+                "existing_email_id": existing_clarification.get("email_id"),
+            })
+            continue
+
+        subject = generated_reply.get("subject") or f"Re: {doc.get('subject') or 'Training Requirement'}"
+        success, error = await send_email_async(
+            doc.get("from_email", ""),
+            subject,
+            generated_reply.get("body") or "",
+            smtp_config,
+            "",
+        )
+        if not success:
+            await db["client_emails"].update_one(
+                {"email_id": doc.get("email_id"), "status": "pending_approval", "sent_at": None},
+                {"$set": {"extraction_error": error or "SMTP send failed", "auto_send_eligible": True}},
+            )
+            continue
+
+        now = utc_now()
+        await db["client_emails"].update_one(
+            {"email_id": doc.get("email_id"), "status": "pending_approval", "sent_at": None},
+            {"$set": {
+                "status": "auto_sent",
+                "auto_send_eligible": True,
+                "sent_at": now,
+                "sent_by": "auto_imap_pending",
+                "smtp_send_result": {"success": True, "provider": "smtp_imap_mode"},
+            }},
+        )
+        sent.append({
+            "status": "auto_sent",
+            "email_id": doc.get("email_id"),
+            "requirement_id": doc.get("requirement_id"),
+        })
+    return sent
 
 
 async def auto_contact_shortlisted_trainers(db, requirement: dict, shortlist: dict) -> dict:
@@ -1761,7 +2315,7 @@ async def auto_match_trainers_for_requirement(db, requirement: dict) -> dict:
         return {"success": False, "error": "requirement_id missing"}
 
     existing = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0})
-    if existing:
+    if existing and existing.get("top_trainers"):
         outreach = await auto_contact_shortlisted_trainers(db, requirement, existing)
         return {"success": True, "already_exists": True, "outreach": outreach, "shortlist": existing}
 
@@ -1916,9 +2470,21 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
 
     processed = 0
     smtp_config = await get_email_auto_smtp_config(db)
+    inbox_settings = await get_client_inbox_auto_settings(db)
+    auto_sent_existing = await auto_send_pending_client_replies_smtp(db)
     mail = imaplib.IMAP4_SSL(imap_host, imap_port)
     try:
-        mail.login(imap_user, imap_pass)
+        try:
+            mail.login(imap_user, imap_pass)
+        except imaplib.IMAP4.error as exc:
+            return {
+                "processed": 0,
+                "skipped": "IMAP authentication failed; update the mailbox username/password in Admin > Email Configuration or backend .env",
+                "imap_user": imap_user,
+                "imap_host": imap_host,
+                "error": str(exc),
+                "auto_sent_existing": len(auto_sent_existing),
+            }
         mail.select("inbox")
         _, unseen_ids = mail.search(None, "UNSEEN")
         _, all_ids = mail.search(None, "ALL")
@@ -1948,7 +2514,10 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
             raw_id_text = raw_id.decode("utf-8", errors="ignore") if isinstance(raw_id, bytes) else str(raw_id)
             stable_source = message_id_header or f"{imap_user}:{raw_id_text}:{subject}:{from_email}"
             pseudo_id = f"IMAP-{hashlib.sha1(stable_source.encode('utf-8', errors='ignore')).hexdigest()[:12].upper()}"
-            if await db["client_emails"].find_one({"email_id": pseudo_id}, {"_id": 1}):
+            existing_query = {"$or": [{"email_id": pseudo_id}]}
+            if message_id_header:
+                existing_query["$or"].append({"message_id_header": message_id_header})
+            if await db["client_emails"].find_one(existing_query, {"_id": 1}):
                 continue
 
             body = ""
@@ -1961,6 +2530,78 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                 body = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
 
             clean_body = clean_email_body(body)
+            meta = {
+                "email_id": pseudo_id,
+                "thread_id": "",
+                "received_at": utc_now(),
+                "from_email": from_email,
+                "from_name": from_name,
+                "subject": subject,
+                "message_id_header": message_id_header,
+                "raw_body": body,
+                "clean_body": clean_body,
+                "attachments_text": "",
+            }
+            trainer_thread = await find_matching_trainer_outbound_thread(db, from_email, subject, clean_body or body)
+            if trainer_thread:
+                await record_trainer_reply_from_client_inbox(db, meta, trainer_thread)
+                processed += 1
+                continue
+
+            if looks_like_client_requirement_closed(clean_body or body):
+                reason = client_requirement_closure_reason(clean_body or body)
+                extracted = client_requirement_closure_extraction(meta, reason)
+                reply = generate_client_requirement_closed_reply(
+                    meta,
+                    reason,
+                    inbox_settings.get("replySignature"),
+                )
+                requirement_id = await mark_client_requirement_closed(
+                    db,
+                    from_email=from_email,
+                    reason=reason,
+                    email_id=pseudo_id,
+                    subject=subject,
+                    body=clean_body or body,
+                )
+                send_success = False
+                send_error = ""
+                sent_at = None
+                if inbox_settings.get("autoSendEnabled") and from_email and reply.get("body"):
+                    send_success, send_error = await send_email_async(
+                        from_email,
+                        reply.get("subject") or f"Re: {subject or 'Training Requirement'}",
+                        reply.get("body") or "",
+                        smtp_config,
+                        "",
+                    )
+                    if send_success:
+                        sent_at = utc_now()
+                await db["client_emails"].update_one(
+                    {"email_id": pseudo_id},
+                    {"$setOnInsert": {
+                        **meta,
+                        "extracted": extracted,
+                        "generated_reply": reply,
+                        "requirement_id": requirement_id,
+                        "status": "client_closed_requirement",
+                        "confidence": float(extracted.get("confidence") or 0.98),
+                        "extraction_error": send_error,
+                        "auto_send_eligible": bool(inbox_settings.get("autoSendEnabled")),
+                        "sent_at": sent_at,
+                        "sent_by": "auto_imap_client_closure_ack" if send_success else None,
+                        "smtp_send_result": {"success": True, "provider": "smtp_imap_mode"} if send_success else None,
+                        "duplicate_clarification_email_id": "",
+                        "duplicate_clarification_sent_at": None,
+                        "client_closure_ack_sent": send_success,
+                        "client_closure_ack_error": send_error,
+                        "whatsapp_notified": False,
+                        "created_at": utc_now(),
+                    }},
+                    upsert=True,
+                )
+                processed += 1
+                continue
             if not is_likely_training_email(subject, from_email, body_preview=clean_body[:1000]):
                 office_category = classify_office_mail(subject, from_email, clean_body[:1500])
                 reply = generate_office_mail_reply(office_category, from_name, subject)
@@ -2090,12 +2731,52 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                     "missing_fields": ["AI extraction unavailable; review manually"],
                 }
             try:
-                reply = await generate_calhan_reply(extracted, {"subject": subject})
+                reply = await generate_calhan_reply(extracted, {
+                    "subject": subject,
+                    "reply_signature": inbox_settings.get("replySignature"),
+                })
             except Exception:
-                reply = ""
+                reply = {}
             requirement_id = None
             if extracted.get("is_training_request"):
                 requirement_id = await ensure_requirement_from_email(extracted, pseudo_id, db)
+
+            confidence = float(extracted.get("confidence") or 0)
+            domain = sender_domain(from_email)
+            whitelist = set(parse_client_domain_csv(inbox_settings.get("clientDomainsWhitelist", "")))
+            domain_is_allowed = not whitelist or domain in whitelist
+            auto_send_eligible = client_reply_auto_send_eligible(
+                extracted,
+                reply if isinstance(reply, dict) else {},
+                confidence,
+                inbox_settings,
+                domain_is_allowed,
+            )
+            send_success = False
+            send_error = ""
+            sent_at = None
+            duplicate_clarification = None
+            if auto_send_eligible and inbox_settings.get("autoSendEnabled") and isinstance(reply, dict) and reply.get("body"):
+                duplicate_clarification = await find_existing_client_clarification_request(
+                    db,
+                    from_email=from_email,
+                    requirement_id=requirement_id or "",
+                    generated_reply=reply,
+                    extracted=extracted,
+                    exclude_email_id=pseudo_id,
+                )
+                if duplicate_clarification:
+                    auto_send_eligible = False
+                else:
+                    send_success, send_error = await send_email_async(
+                        from_email,
+                        reply.get("subject") or f"Re: {subject or 'Training Requirement'}",
+                        reply.get("body") or "",
+                        smtp_config,
+                        "",
+                    )
+                    if send_success:
+                        sent_at = utc_now()
 
             await db["client_emails"].update_one(
                 {"email_id": pseudo_id},
@@ -2104,12 +2785,20 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                     "extracted": extracted,
                     "generated_reply": reply,
                     "requirement_id": requirement_id,
-                    "status": "pending_approval",
-                    "confidence": extracted.get("confidence", 0),
-                    "extraction_error": extraction_error,
-                    "auto_send_eligible": False,
-                    "sent_at": None,
-                    "sent_by": None,
+                    "status": (
+                        "auto_sent"
+                        if send_success else
+                        "auto_skipped_duplicate_clarification"
+                        if duplicate_clarification else
+                        "pending_approval"
+                    ),
+                    "confidence": confidence,
+                    "extraction_error": send_error or extraction_error,
+                    "auto_send_eligible": auto_send_eligible,
+                    "sent_at": sent_at,
+                    "sent_by": "auto_imap" if send_success else None,
+                    "duplicate_clarification_email_id": (duplicate_clarification or {}).get("email_id", ""),
+                    "duplicate_clarification_sent_at": (duplicate_clarification or {}).get("sent_at"),
                     "whatsapp_notified": False,
                     "created_at": utc_now(),
                 }},
@@ -2122,11 +2811,21 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
             mail.logout()
         except Exception:
             pass
-    return {"processed": processed, "imap_user": imap_user, "imap_host": imap_host}
+    return {
+        "processed": processed,
+        "imap_user": imap_user,
+        "imap_host": imap_host,
+        "auto_sent_existing": len(auto_sent_existing),
+    }
 
 
 async def _extract_from_text(meta: Dict[str, Any]) -> Dict[str, Any]:
     body_for_gemini = meta.get("clean_body") or meta.get("raw_body") or ""
+    if looks_like_client_requirement_closed(body_for_gemini):
+        return client_requirement_closure_extraction(
+            meta,
+            client_requirement_closure_reason(body_for_gemini),
+        )
     prompt = f"""You are an intelligent email analyst for Clahan Technologies,
 a corporate training company in India.
 
