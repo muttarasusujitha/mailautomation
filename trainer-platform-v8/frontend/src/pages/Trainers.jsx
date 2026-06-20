@@ -124,7 +124,7 @@ const PIPELINE_MAIL_TEMPLATES = [
 const DOMAIN_BADGES = {
   cloud: 'bg-sky-50 text-sky-700 border-sky-200',
   devops: 'bg-blue-50 text-blue-700 border-blue-200',
-  sre: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+  sre: 'bg-blue-50 text-blue-700 border-blue-200',
   cybersecurity: 'bg-red-50 text-red-700 border-red-200',
   blockchain: 'bg-violet-50 text-violet-700 border-violet-200',
   'data engineering': 'bg-teal-50 text-teal-700 border-teal-200',
@@ -343,11 +343,11 @@ function TrainerPipelinePanel({ trainer, onStartAutomation, sendingAutomation })
           return (
           <div key={item.step} className={clsx('rounded-lg border px-3 py-2.5', stateClass[state])}>
             <div className="flex items-center gap-2">
-              <span className="flex h-6 min-w-6 items-center justify-center rounded-md bg-white/80 px-1 text-[11px] font-black">
+              <span className="flex h-6 min-w-6 items-center justify-center rounded-md bg-white px-1 text-[11px] font-black">
                 {state === 'done' ? 'OK' : state === 'rejected' ? 'NO' : item.code}
               </span>
               <span className="text-sm font-bold">{item.title}</span>
-              <span className="ml-auto rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+              <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
                 {stateLabel(state)}
               </span>
             </div>
@@ -358,9 +358,9 @@ function TrainerPipelinePanel({ trainer, onStartAutomation, sendingAutomation })
       </div>
 
       <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-        <div className="rounded-lg border border-cyan-100 bg-cyan-50 px-3 py-2">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-cyan-700">Client Mail</p>
-          <p className="mt-0.5 truncate text-xs font-semibold text-cyan-700">{clientEmail || 'Add in automation popup'}</p>
+        <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-blue-700">Client Mail</p>
+          <p className="mt-0.5 truncate text-xs font-semibold text-blue-700">{clientEmail || 'Add in automation popup'}</p>
           {clientName && <p className="mt-0.5 truncate text-[11px] text-cyan-600">{clientName}</p>}
         </div>
         <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
@@ -401,7 +401,7 @@ function threadDirectionLabel(msg) {
 
 function threadTone(msg) {
   if (msg.direction === 'received') return 'border-emerald-100 bg-emerald-50/70'
-  if (msg.direction === 'client_sent') return 'border-cyan-100 bg-cyan-50/70'
+  if (msg.direction === 'client_sent') return 'border-blue-100 bg-blue-50/70'
   if (msg.direction === 'client_received') return 'border-amber-100 bg-amber-50/70'
   return 'border-blue-100 bg-blue-50/70'
 }
@@ -464,15 +464,15 @@ function TrainerConversationThread({ trainer }) {
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs font-bold text-slate-800">{threadDirectionLabel(msg)}</span>
-                  {msg.mail_type && <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-semibold text-slate-500">{msg.mail_type}</span>}
-                  {msg.status && <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-semibold text-slate-500">{msg.status}</span>}
+                  {msg.mail_type && <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-500">{msg.mail_type}</span>}
+                  {msg.status && <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-slate-500">{msg.status}</span>}
                 </div>
                 <span className="text-[11px] font-medium text-slate-500">{formatThreadTime(msg.sent_at)}</span>
               </div>
               {msg.subject && <p className="mb-1 text-xs font-semibold text-slate-700">{msg.subject}</p>}
               {msg.to_email && <p className="mb-1 text-[11px] text-slate-500">To: {msg.to_email}</p>}
               {msg.client_email && msg.direction?.startsWith('client') && (
-                <p className="mb-1 text-[11px] text-cyan-700">Client: {msg.client_name || 'Client'} ({msg.client_email})</p>
+                <p className="mb-1 text-[11px] text-blue-700">Client: {msg.client_name || 'Client'} ({msg.client_email})</p>
               )}
               {msg.slot_ref && <p className="mb-1 text-[11px] text-slate-500">Slot ref: {msg.slot_ref}</p>}
               <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-700">{msg.body || 'No body saved.'}</p>
@@ -521,11 +521,11 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
       <div className="bg-white rounded-2xl shadow-card-lg w-full max-w-3xl max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2.5rem)] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-white flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-100 to-brand-50 flex items-center justify-center flex-shrink-0">
-              <span className="font-display font-bold text-brand-600 text-lg">{t.name?.charAt(0).toUpperCase()}</span>
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0">
+              <span className="font-jakarta font-bold text-blue-600 text-lg">{t.name?.charAt(0).toUpperCase()}</span>
             </div>
             <div className="min-w-0">
-              <h2 className="font-display font-bold text-slate-900 text-lg truncate">{t.name}</h2>
+              <h2 className="font-jakarta font-bold text-slate-900 text-lg truncate">{t.name}</h2>
               <div className="flex flex-wrap gap-1 mt-1">
                 <span className={clsx('text-xs', STATUS_COLORS[t.status] || 'badge-slate')}>{t.status || 'new'}</span>
                 <span className={clsx('px-2 py-0.5 rounded-full border text-xs font-semibold', domainBadge(t.domain))}>
@@ -541,11 +541,11 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
         </div>
 
         <div className="p-5 space-y-5 overflow-y-auto flex-1">
-          <div className="rounded-xl border border-brand-100 bg-brand-50/60 p-4">
+          <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
             <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold text-brand-600 uppercase tracking-wider">Trainer Profile</p>
-                <p className="mt-0.5 text-xs text-brand-500">Resume details only. Open single shortlist when you want automation.</p>
+                <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Trainer Profile</p>
+                <p className="mt-0.5 text-xs text-blue-600">Resume details only. Open single shortlist when you want automation.</p>
               </div>
               <button
                 type="button"
@@ -589,8 +589,8 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {t.email && (
               <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl min-w-0">
-                <Mail className="w-4 h-4 text-brand-500 flex-shrink-0" />
-                <a href={`mailto:${t.email}`} className="text-sm text-slate-700 hover:text-brand-500 truncate">{t.email}</a>
+                <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <a href={`mailto:${t.email}`} className="text-sm text-slate-700 hover:text-blue-600 truncate">{t.email}</a>
               </div>
             )}
             {t.phone && (
@@ -751,7 +751,7 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
               type="button"
               onClick={() => onRequestResume(t)}
               disabled={requestingResume}
-              className="flex items-center gap-2 px-4 py-2 bg-brand-50 text-brand-600 rounded-xl text-sm font-medium hover:bg-brand-100 transition-colors disabled:opacity-60"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-sm font-medium hover:bg-blue-100 transition-colors disabled:opacity-60"
             >
               {requestingResume ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Request Resume
@@ -794,21 +794,21 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           onView(t)
         }
       }}
-      className="card-hover cursor-pointer p-4 flex items-start gap-4 animate-fade-in group focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+      className="card-hover cursor-pointer p-4 flex items-start gap-4 animate-fade-in group focus:outline-none focus:ring-2 focus:ring-blue-500/30"
     >
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onView(t) }}
-        className="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-100 to-brand-50 flex items-center justify-center flex-shrink-0 hover:from-brand-200 hover:to-brand-100 transition-all"
+        className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 hover:from-blue-200 hover:to-blue-100 transition-all"
         aria-label={`View ${t.name || 'trainer'}`}
       >
-        <span className="font-display font-bold text-brand-600 text-base">{t.name?.charAt(0).toUpperCase()}</span>
+        <span className="font-jakarta font-bold text-blue-600 text-base">{t.name?.charAt(0).toUpperCase()}</span>
       </button>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <button type="button" className="text-left min-w-0 flex-1" onClick={(e) => { e.stopPropagation(); onView(t) }}>
-            <h3 className="font-medium text-slate-900 group-hover:text-brand-600 transition-colors truncate">{t.name}</h3>
+            <h3 className="font-medium text-slate-900 group-hover:text-blue-600 transition-colors truncate">{t.name}</h3>
             <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{t.technologies || t.summary}</p>
             {tags.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
@@ -899,7 +899,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           type="button"
           onClick={(e) => { e.stopPropagation(); onRequestResume(t) }}
           disabled={requestingResume}
-          className="p-2 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-all disabled:opacity-50"
+          className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-50"
           title="Request updated resume"
           aria-label={`Request updated resume from ${t.name || 'trainer'}`}
         >
@@ -908,7 +908,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onView(t) }}
-          className="p-2 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-all"
+          className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
           title="View trainer details"
           aria-label={`View details for ${t.name || 'trainer'}`}
         >
@@ -918,7 +918,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           type="button"
           onClick={(e) => { e.stopPropagation(); onRecategorise(t) }}
           disabled={recategorising}
-          className="p-2 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-brand-50 transition-all disabled:opacity-50"
+          className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-50"
           title="Re-categorise trainer"
           aria-label={`Re-categorise ${t.name || 'trainer'}`}
         >
@@ -1750,7 +1750,7 @@ export default function Trainers() {
               return (
                 <button key={p} onClick={() => setPage(p)}
                   className={clsx('w-8 h-8 rounded-lg text-sm font-medium',
-                    page === p ? 'bg-brand-500 text-white' : 'btn-secondary py-0 px-0')}>
+                    page === p ? 'bg-blue-500 text-white' : 'btn-secondary py-0 px-0')}>
                   {p}
                 </button>
               )

@@ -1064,86 +1064,382 @@ def _field_from_text(text: str, label: str) -> Optional[str]:
 
 
 def _heuristic_training_extraction(meta: Dict[str, Any]) -> Dict[str, Any]:
+    """Advanced heuristic fallback for extracting training requirements from client emails.
+
+    Used when AI extraction fails (rate limits, network issues). Handles:
+    - Structured emails with labeled fields (Technology: ..., Duration: ...)
+    - Unstructured natural language emails
+    - Mixed language (English/Hinglish/Regional)
+    - Multiple technology mentions
+    - Various date/time formats
+    - Budget in INR/USD with different formats
+    """
     body = meta.get("clean_body") or meta.get("raw_body") or ""
     subject = meta.get("subject") or ""
     haystack = f"{subject}\n{body}"
+    haystack_lower = haystack.lower()
+
+    # --- Technology extraction (multi-pass) ---
+    # Pass 1: Explicit labeled field
     tech = _field_from_text(body, "Technology")
+    if not tech:
+        tech = _field_from_text(body, "Domain")
+    if not tech:
+        tech = _field_from_text(body, "Skill")
+    if not tech:
+        tech = _field_from_text(body, "Training on")
+    if not tech:
+        tech = _field_from_text(body, "Subject")
+
+    # Pass 2: Technology keywords in context (prioritize subject line)
+    EXTENDED_TECH_KEYWORDS = [
+        # Cloud & DevOps
+        "aws", "azure", "gcp", "google cloud", "devops", "kubernetes", "docker",
+        "terraform", "ansible", "jenkins", "ci/cd", "cicd", "openshift",
+        "cloudformation", "eks", "aks", "gke", "helm", "istio", "argocd",
+        # Programming
+        "python", "java", "javascript", "typescript", "golang", "go lang",
+        "c#", "c++", "rust", "kotlin", "swift", "scala", "ruby",
+        # Web/Mobile
+        "react", "angular", "vue", "node.js", "nodejs", "express",
+        "full stack", "fullstack", "frontend", "backend", "mern", "mean",
+        "next.js", "nextjs", "flutter", "react native", "spring boot",
+        # Data & AI
+        "data science", "machine learning", "deep learning", "artificial intelligence",
+        "genai", "generative ai", "llm", "nlp", "computer vision",
+        "data engineering", "data analytics", "big data", "spark", "hadoop",
+        "snowflake", "databricks", "airflow", "kafka",
+        # BI & Visualization
+        "power bi", "tableau", "looker", "qlik", "excel", "advanced excel",
+        # Database
+        "sql", "mysql", "postgresql", "mongodb", "oracle", "sql server",
+        "nosql", "dynamodb", "redis", "cassandra",
+        # Enterprise
+        "sap", "sap s/4hana", "sap hana", "sap fico", "sap mm", "sap sd",
+        "salesforce", "servicenow", "workday", "oracle erp",
+        # Security
+        "cybersecurity", "cyber security", "information security", "ethical hacking",
+        "penetration testing", "soc", "siem", "network security",
+        # Testing
+        "selenium", "playwright", "cypress", "jmeter", "api testing",
+        "automation testing", "manual testing", "performance testing",
+        # Agile/Management
+        "agile", "scrum", "safe", "project management", "pmp",
+        "itil", "prince2", "six sigma", "lean",
+        # Soft Skills
+        "communication skills", "leadership", "soft skills",
+        "presentation skills", "team building", "conflict resolution",
+    ]
+
+    secondary_techs = []
+    if not tech:
+        # Check subject first (highest priority)
+        for keyword in EXTENDED_TECH_KEYWORDS:
+            if re.search(rf"\b{re.escape(keyword)}\b", subject, re.IGNORECASE):
+                tech = keyword.title()
+                break
+
+    if not tech:
+        # Check body
+        for keyword in EXTENDED_TECH_KEYWORDS:
+            if re.search(rf"\b{re.escape(keyword)}\b", haystack, re.IGNORECASE):
+                if not tech:
+                    tech = keyword.title()
+                elif keyword.title() != tech:
+                    secondary_techs.append(keyword.title())
+                if len(secondary_techs) >= 4:
+                    break
+    else:
+        # Still look for secondary technologies
+        for keyword in EXTENDED_TECH_KEYWORDS:
+            if keyword.title() != tech and re.search(rf"\b{re.escape(keyword)}\b", haystack, re.IGNORECASE):
+                secondary_techs.append(keyword.title())
+                if len(secondary_techs) >= 4:
+                    break
+
+    # --- Client contact extraction ---
     client_phone = (
         _field_from_text(body, "Phone")
         or _field_from_text(body, "Mobile")
-        or _field_from_text(body, "Contact")
+        or _field_from_text(body, "Contact No")
+        or _field_from_text(body, "Contact Number")
         or _field_from_text(body, "WhatsApp")
+        or _field_from_text(body, "Cell")
+        or _field_from_text(body, "Mob")
     )
-    if not tech:
-        for keyword in TECHNOLOGY_KEYWORDS:
-            if re.search(rf"\b{re.escape(keyword)}\b", haystack, re.IGNORECASE):
-                tech = keyword.title()
-                break
+    # Also try regex for phone numbers in body
+    if not client_phone:
+        phone_match = re.search(r"(?:\+?91[\s.-]?)?[6-9]\d[\s.-]?\d[\s.-]?\d[\s.-]?\d[\s.-]?\d[\s.-]?\d[\s.-]?\d[\s.-]?\d[\s.-]?\d", body)
+        if phone_match:
+            client_phone = re.sub(r"[\s.-]", "", phone_match.group(0))
+
+    # --- Client company extraction ---
+    client_company = (
+        _field_from_text(body, "Company")
+        or _field_from_text(body, "Organization")
+        or _field_from_text(body, "Organisation")
+        or _field_from_text(body, "Client")
+        or _field_from_text(body, "Firm")
+    )
+    # Try to extract from email signature domain
+    if not client_company:
+        from_email = meta.get("from_email", "")
+        if "@" in from_email:
+            domain = from_email.split("@")[1]
+            if domain and not any(free in domain for free in ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "rediffmail.com"]):
+                client_company = domain.split(".")[0].title()
+
+    # --- Participant count extraction ---
     participants = _field_from_text(body, "Participants")
+    if not participants:
+        participants = _field_from_text(body, "Batch Size")
+    if not participants:
+        participants = _field_from_text(body, "No of Participants")
+    if not participants:
+        participants = _field_from_text(body, "Number of Participants")
+    if not participants:
+        participants = _field_from_text(body, "Headcount")
+    # Try regex: "15 participants", "batch of 20"
+    if not participants:
+        part_match = re.search(r"(\d{1,3})\s*(?:participants?|people|attendees?|learners?|candidates?)", haystack_lower)
+        if part_match:
+            participants = part_match.group(1)
+        else:
+            batch_match = re.search(r"batch\s*(?:of|size)?\s*[:\-]?\s*(\d{1,3})", haystack_lower)
+            if batch_match:
+                participants = batch_match.group(1)
+
+    participant_count = None
+    if participants:
+        participant_match = re.search(r"\d+", str(participants))
+        if participant_match:
+            participant_count = int(participant_match.group(0))
+
+    # --- Duration extraction ---
     duration = _field_from_text(body, "Duration")
+    if not duration:
+        duration = _field_from_text(body, "Training Duration")
+    if not duration:
+        duration = _field_from_text(body, "No of Days")
+    if not duration:
+        duration = _field_from_text(body, "Number of Days")
+
+    duration_days = None
+    duration_hours = None
+    if duration:
+        days_match = re.search(r"(\d+)\s*(?:days?|d\b)", duration, re.IGNORECASE)
+        hours_match = re.search(r"(\d+)\s*(?:hours?|hrs?|h\b)", duration, re.IGNORECASE)
+        weeks_match = re.search(r"(\d+)\s*(?:weeks?|wks?)", duration, re.IGNORECASE)
+        if days_match:
+            duration_days = int(days_match.group(1))
+        elif weeks_match:
+            duration_days = int(weeks_match.group(1)) * 5  # business days
+        if hours_match:
+            duration_hours = int(hours_match.group(1))
+    else:
+        # Try to find in body: "5 days training", "40 hours"
+        dur_match = re.search(r"(\d{1,3})\s*(?:days?|d)\s*(?:training|program|course)?", haystack_lower)
+        if dur_match:
+            duration_days = int(dur_match.group(1))
+        else:
+            hrs_match = re.search(r"(\d{1,3})\s*(?:hours?|hrs?)\s*(?:training|program|course)?", haystack_lower)
+            if hrs_match:
+                duration_hours = int(hrs_match.group(1))
+
+    # --- Daily timing extraction ---
     daily_timing = (
         _field_from_text(body, "Daily Timings")
         or _field_from_text(body, "Daily Timing")
         or _field_from_text(body, "Timings")
         or _field_from_text(body, "Timing")
         or _field_from_text(body, "Time")
+        or _field_from_text(body, "Training Time")
+        or _field_from_text(body, "Session Time")
+        or _field_from_text(body, "Schedule")
     )
+    # Try regex for time ranges
+    if not daily_timing:
+        time_match = re.search(
+            r"(\d{1,2}(?::\d{2})?\s*(?:am|pm))\s*(?:to|-|–)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm))",
+            haystack, re.IGNORECASE
+        )
+        if time_match:
+            daily_timing = f"{time_match.group(1)} to {time_match.group(2)}"
+
+    # --- Timeline/dates extraction ---
     timeline_start = (
         _field_from_text(body, "Start Date")
+        or _field_from_text(body, "Training Date")
         or _field_from_text(body, "Training Dates")
+        or _field_from_text(body, "Preferred Date")
         or _field_from_text(body, "Dates")
         or _field_from_text(body, "Date")
+        or _field_from_text(body, "From")
+        or _field_from_text(body, "Starting")
+        or _field_from_text(body, "Commence")
     )
-    budget = _field_from_text(body, "Budget")
-    budget_number = None
-    if budget:
-        number_match = re.search(r"[\d,]+", budget)
-        if number_match:
-            budget_number = int(number_match.group(0).replace(",", ""))
-    participant_count = None
-    if participants:
-        participant_match = re.search(r"\d+", participants)
-        if participant_match:
-            participant_count = int(participant_match.group(0))
-    duration_days = None
-    if duration:
-        duration_match = re.search(r"\d+", duration)
-        if duration_match and "day" in duration.lower():
-            duration_days = int(duration_match.group(0))
 
+    # --- Audience level extraction ---
+    audience_level = (
+        _field_from_text(body, "Audience Level")
+        or _field_from_text(body, "Level")
+        or _field_from_text(body, "Audience")
+        or _field_from_text(body, "Skill Level")
+    )
+    if not audience_level:
+        if re.search(r"\b(beginner|basic|foundation|introduct)", haystack_lower):
+            audience_level = "beginner"
+        elif re.search(r"\b(intermediate|mid.?level)", haystack_lower):
+            audience_level = "intermediate"
+        elif re.search(r"\b(advanced|expert|senior|deep.?dive)", haystack_lower):
+            audience_level = "advanced"
+        elif re.search(r"\b(mixed|all levels?|varied)", haystack_lower):
+            audience_level = "mixed"
+
+    # --- Mode extraction ---
+    mode = (_field_from_text(body, "Mode") or _field_from_text(body, "Training Mode") or "").lower() or None
+    if not mode:
+        if re.search(r"\b(online|virtual|remote|zoom|teams|webex|google meet)\b", haystack_lower):
+            mode = "online"
+        elif re.search(r"\b(offline|classroom|in.?person|onsite|on.?site|physical)\b", haystack_lower):
+            mode = "offline"
+        elif re.search(r"\b(hybrid|blended)\b", haystack_lower):
+            mode = "hybrid"
+
+    # --- Location extraction ---
+    location = _field_from_text(body, "Location") or _field_from_text(body, "City") or _field_from_text(body, "Venue")
+
+    # --- Budget extraction ---
+    budget = (
+        _field_from_text(body, "Budget")
+        or _field_from_text(body, "Rate")
+        or _field_from_text(body, "Commercial")
+        or _field_from_text(body, "Charges")
+        or _field_from_text(body, "Cost")
+        or _field_from_text(body, "Price")
+    )
+    budget_number = None
+    budget_currency = None
+    is_per_day = False
+    if budget:
+        number_match = re.search(r"[\d,]+(?:\.\d+)?", budget)
+        if number_match:
+            budget_number = int(float(number_match.group(0).replace(",", "")))
+        if re.search(r"\binr\b|rs\.?|₹|rupee", budget, re.IGNORECASE):
+            budget_currency = "INR"
+        elif re.search(r"\busd\b|\$|dollar", budget, re.IGNORECASE):
+            budget_currency = "USD"
+        is_per_day = bool(re.search(r"per\s*day|/day|per\s*session|daily", budget, re.IGNORECASE))
+    else:
+        # Try to find budget mentions in body
+        budget_match = re.search(
+            r"(?:budget|rate|commercial|charges?|cost)\s*[:\-]?\s*(?:(?:inr|rs\.?|₹|usd|\$)\s*)?(\d[\d,]*(?:\.\d+)?)",
+            haystack_lower
+        )
+        if budget_match:
+            budget_number = int(float(budget_match.group(1).replace(",", "")))
+            context = haystack_lower[max(0, budget_match.start() - 20):budget_match.end() + 30]
+            if re.search(r"inr|rs\.?|₹|rupee", context):
+                budget_currency = "INR"
+            elif re.search(r"usd|\$|dollar", context):
+                budget_currency = "USD"
+            is_per_day = bool(re.search(r"per\s*day|/day|per\s*session|daily", context))
+
+    # --- Urgency detection ---
+    urgency = "normal"
+    if re.search(r"\b(urgent|asap|immediately|critical|priority|rush)\b", haystack_lower):
+        urgency = "urgent"
+    elif re.search(r"\b(flexible|no rush|whenever|at your convenience)\b", haystack_lower):
+        urgency = "flexible"
+
+    # --- Language of training ---
+    language = "English"
+    if re.search(r"\bhindi\b", haystack_lower):
+        language = "Hindi"
+    elif re.search(r"\btamil\b", haystack_lower):
+        language = "Tamil"
+    elif re.search(r"\btelugu\b", haystack_lower):
+        language = "Telugu"
+    elif re.search(r"\bkannada\b", haystack_lower):
+        language = "Kannada"
+
+    # --- Special requirements ---
+    special_requirements = _field_from_text(body, "Special Requirements")
+    if not special_requirements:
+        special_requirements = _field_from_text(body, "Requirements")
+    if not special_requirements:
+        special_requirements = _field_from_text(body, "Additional Requirements")
+    if not special_requirements:
+        special_requirements = _field_from_text(body, "Lab")
+    if not special_requirements:
+        special_requirements = _field_from_text(body, "Tools")
+
+    # --- Needs clarification ---
     needs = []
     if not tech:
         needs.append("Training domain/technology")
-    if not _field_from_text(body, "Audience Level"):
-        needs.append("audience level")
-    if not _field_from_text(body, "Start Date"):
-        needs.append("start date")
+    if not audience_level:
+        needs.append("Audience level (Beginner / Intermediate / Advanced)")
+    if not timeline_start:
+        needs.append("Preferred training dates")
+    if not daily_timing:
+        needs.append("Daily training timings")
+    if not mode:
+        needs.append("Training mode (Online / Offline / Hybrid)")
+    if not duration_days and not duration_hours:
+        needs.append("Training duration")
+
+    # --- Confidence calculation ---
+    confidence = 0.40  # base
+    if tech:
+        confidence += 0.20
+    if participant_count:
+        confidence += 0.08
+    if duration_days or duration_hours:
+        confidence += 0.08
+    if daily_timing:
+        confidence += 0.05
+    if timeline_start:
+        confidence += 0.05
+    if budget_number:
+        confidence += 0.05
+    if mode:
+        confidence += 0.04
+    if audience_level:
+        confidence += 0.03
+    if location:
+        confidence += 0.02
+    confidence = round(min(confidence, 0.92), 2)
 
     return {
         "client_name": meta.get("from_name") or None,
-        "client_company": None,
+        "client_company": client_company,
         "client_email": meta.get("from_email"),
         "client_phone": client_phone,
         "technology_needed": tech,
-        "secondary_technologies": [],
+        "secondary_technologies": secondary_techs[:5],
         "duration_days": duration_days,
-        "duration_hours": None,
+        "duration_hours": duration_hours,
         "daily_timing": daily_timing,
         "participant_count": participant_count,
-        "audience_level": None,
-        "mode": (_field_from_text(body, "Mode") or "").lower() or None,
-        "location": _field_from_text(body, "Location"),
-        "budget_per_day": budget_number if budget and "day" in budget.lower() else None,
-        "budget_total": budget_number if budget and "day" not in budget.lower() else None,
-        "budget_currency": "INR" if budget and re.search(r"\binr\b|rs\.?|₹", budget, re.IGNORECASE) else None,
+        "audience_level": audience_level,
+        "mode": mode,
+        "location": location,
+        "budget_per_day": budget_number if is_per_day else None,
+        "budget_total": budget_number if budget_number and not is_per_day else None,
+        "budget_currency": budget_currency,
         "timeline_start": timeline_start,
-        "timeline_flexible": False,
-        "urgency": "normal",
-        "special_requirements": None,
-        "language_of_training": "English",
+        "timeline_flexible": bool(re.search(r"\bflexible\b|\btentative\b|\bapprox", haystack_lower)),
+        "urgency": urgency,
+        "special_requirements": special_requirements,
+        "language_of_training": language,
         "email_subject": subject,
-        "email_summary": f"Client needs {tech or 'a'} trainer for a corporate training requirement.",
-        "confidence": 0.72,
+        "email_summary": f"Client needs {tech or 'a'} trainer for a corporate training requirement." + (
+            f" Duration: {duration_days} days." if duration_days else ""
+        ) + (
+            f" {participant_count} participants." if participant_count else ""
+        ),
+        "confidence": confidence,
         "needs_clarification": needs,
         "is_training_request": True,
         "sender_is_known_client": False,
@@ -1292,83 +1588,90 @@ async def process_client_email(message_id, gmail_service, meta: Optional[Dict[st
     if meta.get("attachments_text"):
         body_for_gemini = f"{body_for_gemini}\n\nPDF/RFP attachment text:\n{meta['attachments_text']}"
 
-    prompt = f"""You are an intelligent email analyst for Clahan Technologies,
-a corporate training company in India.
+    prompt = f"""You are an expert email analyst for Clahan Technologies, a premium corporate training company in India that connects clients with freelance trainers.
 
-Read this client email and extract all training requirement details.
-The client may write in formal English, casual English, Hinglish,
-Hindi, Tamil, Telugu, or any Indian regional language mixed with
-English. Understand the intent regardless of language or writing
-style.
+TASK: Read this client email and extract ALL training requirement details with high accuracy.
 
-Important business rule:
-- The client does not need to mention any trainer name.
-- If the client mentions only the training domain or technology, such as DevOps,
-  Full Stack Development, React, Azure, Python, Java, Data Science, or AWS,
-  that is enough to begin trainer matching.
-- If the domain/technology is not mentioned or is only generic, set
-  technology_needed to null and include "Training domain/technology" in
-  needs_clarification.
-- Never ask the client for a trainer name.
+LANGUAGE HANDLING:
+- The client may write in formal English, casual English, Hinglish, Hindi, Tamil, Telugu, Kannada, Malayalam, Marathi, or any Indian regional language mixed with English.
+- Understand the intent regardless of language, slang, abbreviations, or writing style.
+- Common abbreviations: "pls" = please, "req" = requirement, "dev" = development, "tech" = technology, "trng" = training, "avail" = availability/available
 
-Important business rule:
-- The client does not need to mention any trainer name.
-- If the client mentions only the training domain or technology, such as DevOps,
-  Full Stack Development, React, Azure, Python, Java, Data Science, or AWS,
-  that is enough to begin trainer matching.
-- If the domain/technology is not mentioned or is only generic, set
-  technology_needed to null and include "Training domain/technology" in
-  needs_clarification.
-- Never ask the client for a trainer name.
+CRITICAL BUSINESS RULES:
+1. Technology/Domain is the MOST IMPORTANT field. Extract it even if mentioned casually.
+   - "We need someone for DevOps" → technology_needed: "DevOps"
+   - "Python ka trainer chahiye" → technology_needed: "Python"
+   - "AWS + Kubernetes training" → technology_needed: "AWS", secondary: ["Kubernetes"]
+   - If ONLY generic words like "training" or "trainer" without domain → technology_needed: null
 
-Extract and return ONLY valid JSON with no extra text:
+2. Do NOT ask for trainer name. Clahan finds trainers. Only extract what the CLIENT provides.
+
+3. Extract client_phone ONLY if explicitly written (not from email signatures of other forwarded emails).
+
+4. For budget: Extract the NUMBER and CURRENCY. "25k per day" = budget_per_day: 25000, budget_currency: "INR". "1.5L total" = budget_total: 150000.
+
+5. For dates: Convert relative dates. "Next Monday" = actual date. "2nd week of July" = approximate date string.
+
+6. Confidence scoring:
+   - 0.9+ = All critical fields present (tech, duration, dates, mode, participants)
+   - 0.7-0.9 = Technology + some details present
+   - 0.5-0.7 = Technology present but many details missing
+   - 0.3-0.5 = Might be a training request but very unclear
+   - <0.3 = Probably not a training request
+
+7. is_training_request = true ONLY if the email is genuinely asking for a trainer or training service. NOT for:
+   - Job applications, vendor pitches, newsletters, invoices, general follow-ups
+   - "Expression of interest" from trainers wanting to join Clahan's panel
+
+EXTRACTION OUTPUT (return ONLY valid JSON, no markdown, no explanation):
 {{
-  "client_name": "full name if found else null",
-  "client_company": "company name if found else null",
-  "client_email": "reply-to email address",
-  "client_phone": "client phone or WhatsApp number if explicitly found else null",
-  "technology_needed": "primary technology or skill/domain required, or null if not mentioned",
-  "secondary_technologies": ["array of additional skills if any"],
-  "duration_days": number or null,
-  "duration_hours": number or null,
-  "daily_timing": "daily class time like 9 AM to 4 PM or null",
-  "participant_count": number or null,
+  "client_name": "full name of the person requesting training (from email body or signature, not just From header) or null",
+  "client_company": "company/organization name if mentioned or inferable from email domain, else null",
+  "client_email": "the email to reply to (usually from_email unless different reply-to is specified)",
+  "client_phone": "phone/WhatsApp number if EXPLICITLY provided in body, else null",
+  "technology_needed": "primary technology/domain/skill for the training, null if not mentioned",
+  "secondary_technologies": ["additional technologies if training covers multiple areas"],
+  "duration_days": "number of training days or null",
+  "duration_hours": "total training hours if specified differently from days, or null",
+  "daily_timing": "daily training schedule like '9:30 AM to 5:30 PM IST' or null",
+  "participant_count": "number of participants/learners or null",
   "audience_level": "beginner or intermediate or advanced or mixed or null",
   "mode": "online or offline or hybrid or null",
-  "location": "city or null if offline",
-  "budget_per_day": number or null,
-  "budget_total": number or null,
+  "location": "city/venue for offline training or null",
+  "budget_per_day": "numeric budget per day/session or null",
+  "budget_total": "numeric total budget or null",
   "budget_currency": "INR or USD or null",
-  "timeline_start": "date string or description like next week or null",
-  "timeline_flexible": true or false,
-  "urgency": "urgent or normal or flexible",
-  "special_requirements": "any specific tools versions labs etc or null",
-  "language_of_training": "English or Hindi or Tamil etc",
-  "email_subject": "original subject line",
-  "email_summary": "2 sentence summary of what client needs",
-  "confidence": number from 0 to 1 how complete the extraction is,
-  "needs_clarification": ["list of important fields that are missing and the client should be asked about"],
-  "is_training_request": true or false,
-  "sender_is_known_client": false
+  "timeline_start": "training start date or description or null",
+  "timeline_flexible": "true if dates are flexible/tentative, false otherwise",
+  "urgency": "urgent (need within days) or normal (standard 1-2 weeks) or flexible (no rush)",
+  "special_requirements": "any specific tool versions, lab setup, prerequisites, certification prep, etc. or null",
+  "language_of_training": "English or Hindi or Tamil or Telugu or Kannada or other, default English",
+  "email_subject": "original email subject line",
+  "email_summary": "2-3 sentence concise summary of what the client needs and key details",
+  "confidence": "0.0 to 1.0 based on extraction completeness",
+  "needs_clarification": ["list of critical missing fields the client should be asked about"],
+  "is_training_request": "true or false - is this genuinely a training requirement email?"
 }}
 
-Email metadata:
-From name: {meta.get("from_name") or ""}
-From email: {meta.get("from_email") or ""}
-Subject: {meta.get("subject") or ""}
+EMAIL METADATA:
+From name: {meta.get("from_name") or "Unknown"}
+From email: {meta.get("from_email") or "Unknown"}
+Subject: {meta.get("subject") or "(no subject)"}
 
-Email text:
+EMAIL BODY:
 ---
 {body_for_gemini[:45000]}
 ---"""
 
     try:
-        extracted = await _ai_json(prompt, max_tokens=1800)
+        extracted = await _ai_json(prompt, max_tokens=2000)
     except httpx.HTTPStatusError as exc:
         if exc.response.status_code not in {429, 503}:
             raise
         extracted = _heuristic_training_extraction(meta)
     except (ValueError, json.JSONDecodeError):
+        extracted = _heuristic_training_extraction(meta)
+    except Exception:
         extracted = _heuristic_training_extraction(meta)
     meta["extracted"] = _normalise_extraction(extracted, meta)
     return meta

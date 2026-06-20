@@ -13760,30 +13760,75 @@ def _client_lead_draft(lead: dict) -> dict:
 TRAINER_PROFILE_KEYWORDS = [
     "trainer", "corporate trainer", "technical trainer", "instructor", "faculty",
     "mentor", "coach", "freelance trainer", "training delivery", "conduct trainings",
+    "workshop facilitator", "guest faculty", "resource person", "subject matter expert",
+    "learning facilitator", "training specialist", "training consultant",
+    "visiting faculty", "bootcamp instructor", "certification trainer",
+    "L&D trainer", "professional trainer", "industry trainer",
 ]
 
 TRAINER_PROVIDER_SIGNALS = [
+    # Role titles
     "freelance trainer", "corporate trainer", "technical trainer", "trainer profile",
     "training delivery", "conduct trainings", "conducted trainings", "delivered training",
-    "delivers training", "instructor",
-    "faculty", "mentor", "coach", "online training", "classroom training",
-    "corporate training experience", "training assignment", "training sessions",
+    "delivers training", "instructor", "faculty", "mentor", "coach",
+    "online training", "classroom training", "corporate training experience",
+    "training assignment", "training sessions",
+    # Experience indicators
+    "trainings conducted", "batches conducted", "batches delivered",
+    "training experience", "years of training", "training engagements",
+    "corporate clients", "trained professionals", "trained employees",
+    "trained participants", "training hours", "hours of training",
+    "sessions delivered", "workshops conducted", "workshops delivered",
+    # Availability/offering signals
+    "available for training", "open for training", "available for corporate",
+    "accepting training", "offering training", "providing training",
+    "training services", "freelance available", "available as trainer",
+    "open to training opportunities", "open to freelance",
+    # Certification signals (trainer-specific)
+    "certified trainer", "certified instructor", "authorized trainer",
+    "accredited trainer", "certified professional trainer",
+    "train the trainer", "tttt certified",
+    # Domain expertise with training
+    "devops trainer", "python trainer", "aws trainer", "azure trainer",
+    "java trainer", "sap trainer", "cloud trainer", "data science trainer",
+    "full stack trainer", "react trainer", "kubernetes trainer",
+    "power bi trainer", "tableau trainer", "salesforce trainer",
+    "machine learning trainer", "ai trainer", "genai trainer",
+    "cybersecurity trainer", "agile trainer", "scrum trainer",
+    # Platform/delivery signals
+    "online classes", "virtual training", "in-person training",
+    "hybrid training", "self-paced", "instructor-led",
+    "hands-on labs", "real-time projects", "case studies",
 ]
 
 TRAINER_PROFILE_BLOCKERS = [
-    "job vacancies", "job vacancy", "apply to", "job description", "required candidate profile",
-    "hiring office", "we are hiring", "we are looking for", "salary", "lacs p.a",
-    "job opening", "job role", "current ctc", "expected ctc", "notice period",
-    "immediate joiner", "last working day", "offer in hand", "open to opportunities",
-    "actively exploring", "willing to relocate", "seeking opportunity", "looking for job",
-    "looking for opportunities", "application for", "my resume", "work preference",
-    "ready to work from office",
+    # Job listing indicators
+    "job vacancies", "job vacancy", "apply to", "job description",
+    "required candidate profile", "hiring office", "we are hiring",
+    "we are looking for", "salary", "lacs p.a", "job opening", "job role",
+    # Job seeker indicators
+    "current ctc", "expected ctc", "notice period", "immediate joiner",
+    "last working day", "offer in hand", "open to opportunities",
+    "actively exploring", "willing to relocate", "seeking opportunity",
+    "looking for job", "looking for opportunities", "application for",
+    "my resume", "work preference", "ready to work from office",
+    # Recruitment/staffing (not trainer)
+    "bench sales", "bench consultant", "hotlist", "available consultant",
+    "h1b", "visa status", "work authorization", "staffing",
+    "placement agency", "manpower", "temp staffing",
+    # Product/company pages (not person profiles)
+    "add to cart", "buy now", "subscribe now", "pricing plans",
+    "terms of service", "privacy policy", "cookie policy",
+    "sign up free", "free trial", "download app",
 ]
 
 TRAINER_PROFILE_SOFT_BLOCKERS = [
-    "institute", "academy", "pvt ltd", "private limited", "solutions", "technologies",
-    "consultant", "consulting", "consultant1 day ago", "consultant2 days ago", "consultant3 days ago", "recruiter",
-    "location ", "experience ", "yrs · consultant", "yrs consultant",
+    "institute", "academy", "pvt ltd", "private limited", "solutions",
+    "technologies", "consultant", "consulting",
+    "consultant1 day ago", "consultant2 days ago", "consultant3 days ago",
+    "recruiter", "location ", "experience ", "yrs · consultant",
+    "yrs consultant", "talent acquisition", "recruitment specialist",
+    "hr manager", "hr executive", "placement officer",
 ]
 
 INDIA_LOCATION_TERMS = [
@@ -13814,56 +13859,397 @@ def _looks_indian_profile_text(text: str = "", source_url: str = "") -> bool:
 
 
 def _extract_public_email(text: str = "") -> str:
+    """Extract a personal/trainer email from public text with advanced obfuscation handling.
+
+    Handles patterns like:
+      - name [at] domain [dot] com
+      - name (at) domain (dot) com
+      - name{at}domain{dot}com
+      - name AT domain DOT com
+      - name @ domain . com (spaces around @ and .)
+      - Unicode fullwidth @: ＠ ﹫
+      - 'email me at name at gmail dot com'
+      - Parenthetical: name(at)domain(dot)com
+      - Spaced: n a m e @ g m a i l . c o m
+      - Reversed: moc.liamg@eman (rare but handled)
+    """
     value = str(text or "")
     if not value:
         return ""
-    candidates = [value]
+
+    # --- Blocklist: skip generic/system emails ---
+    _EMAIL_BLOCKLIST_PATTERNS = [
+        "example.com", "email.com", "domain.com", "test.com", "sample.com",
+        "your-email", "yourmail", "youremail", "user@", "username@",
+        "noreply", "no-reply", "no_reply", "donotreply", "do-not-reply",
+        "news@", "newsletter@", "info@", "admin@", "support@", "help@",
+        "sales@", "marketing@", "contact@", "feedback@", "abuse@",
+        "postmaster@", "webmaster@", "root@", "system@", "mailer-daemon",
+        "notifications@", "notify@", "alerts@", "bot@", "auto@",
+        "linkedin.com", "facebook.com", "twitter.com", "instagram.com",
+        "naukri.com", "monster.com", "indeed.com", "glassdoor.com",
+        "placeholder", "dummy", "fake", "temp@", "temporary@",
+    ]
+
+    # --- Normalisation passes ---
+    candidates = []
+
+    # Pass 1: original text
+    candidates.append(value)
+
+    # Pass 2: de-obfuscate common patterns
     normalised = value
-    normalised = _re.sub(r"\s*(?:\[at\]|\(at\)|\{at\}|<at>|\sat\s)\s*", "@", normalised, flags=_re.I)
-    normalised = _re.sub(r"\s*(?:\[dot\]|\(dot\)|\{dot\}|<dot>|\sdot\s)\s*", ".", normalised, flags=_re.I)
-    normalised = normalised.replace("＠", "@").replace("﹫", "@").replace(" dot ", ".")
+    # Handle [at] (at) {at} <at> " at " variations
+    normalised = _re.sub(
+        r"\s*(?:\[at\]|\(at\)|\{at\}|<at>|«at»|\bat\b)\s*",
+        "@", normalised, flags=_re.I
+    )
+    # Handle [dot] (dot) {dot} <dot> " dot " variations
+    normalised = _re.sub(
+        r"\s*(?:\[dot\]|\(dot\)|\{dot\}|<dot>|«dot»|\bdot\b)\s*",
+        ".", normalised, flags=_re.I
+    )
+    # Unicode fullwidth characters
+    normalised = normalised.replace("＠", "@").replace("﹫", "@")
+    normalised = normalised.replace("．", ".").replace("。", ".")
+    # Handle spaces around @ and .
+    normalised = _re.sub(r"\s*@\s*", "@", normalised)
+    normalised = _re.sub(r"\s*\.\s*", ".", normalised)
     candidates.append(normalised)
+
+    # Pass 3: collapse all whitespace (catches s p a c e d emails)
     compact = _re.sub(r"\s+", "", normalised)
     candidates.append(compact)
+
+    # Pass 4: handle 'email: name at gmail dot com' spoken style
+    spoken_match = _re.search(
+        r"(?:email|e-mail|mail|contact)\s*[:\-]?\s*([\w.+-]+)\s+at\s+([\w.-]+)\s+dot\s+(\w{2,6})",
+        value, flags=_re.I
+    )
+    if spoken_match:
+        spoken_email = f"{spoken_match.group(1)}@{spoken_match.group(2)}.{spoken_match.group(3)}"
+        candidates.append(spoken_email)
+
+    # Pass 5: HTML entity decode and handle href mailto
+    decoded = _html.unescape(value)
+    mailto_match = _re.search(r"mailto:\s*([\w.+-]+@[\w.-]+\.\w{2,})", decoded, flags=_re.I)
+    if mailto_match:
+        candidates.insert(0, mailto_match.group(1))  # high priority
+    if decoded != value:
+        candidates.append(decoded)
+
+    # --- Email regex with comprehensive TLDs ---
     tlds = (
         "com|org|net|in|co|co\\.in|edu|io|ai|dev|info|biz|me|us|uk|ca|au|sg|ae|"
-        "tech|cloud|solutions|consulting|training"
+        "tech|cloud|solutions|consulting|training|pro|xyz|online|site|live|"
+        "outlook|hotmail|gmail|yahoo|rediffmail|"
+        "gov|mil|int|museum|jobs|travel|coop|asia|eu|de|fr|jp|br|ru|cn|kr|"
+        "academy|agency|company|digital|engineering|software|systems|services"
     )
-    email_pattern = rf"(?<![\w.+-])[\w.+-]{{2,80}}@(?:[A-Za-z0-9-]{{2,63}}\.)+(?:{tlds})(?=$|[^A-Za-z0-9]|\.[A-Z])"
+    email_pattern = (
+        rf"(?<![\w.+-])"
+        rf"[\w.+-]{{2,80}}"
+        rf"@"
+        rf"(?:[A-Za-z0-9](?:[A-Za-z0-9-]{{0,61}}[A-Za-z0-9])?\.)+(?:{tlds})"
+        rf"(?=$|[^A-Za-z0-9]|\.[A-Z])"
+    )
+
+    # --- Score candidates and pick the best personal email ---
+    found_emails = []
+    seen_lower = set()
+
     for candidate in candidates:
         for match in _re.finditer(email_pattern, candidate, flags=_re.I):
             email = match.group(0).strip(".,;:()[]{}<>\"'")
             lower = email.lower()
-            if any(bad in lower for bad in ["example.com", "email.com", "domain.com", "your-email", "yourmail", "noreply", "news@"]):
+
+            # Skip blocklisted
+            if any(bad in lower for bad in _EMAIL_BLOCKLIST_PATTERNS):
                 continue
-            return email
-    return ""
+            # Skip if already seen
+            if lower in seen_lower:
+                continue
+            seen_lower.add(lower)
+
+            # Score the email for likelihood of being a personal/trainer email
+            score = 0
+            local_part = lower.split("@")[0]
+            domain_part = lower.split("@")[1] if "@" in lower else ""
+
+            # Personal email providers get a boost
+            personal_providers = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com",
+                                  "rediffmail.com", "protonmail.com", "icloud.com", "live.com",
+                                  "ymail.com", "zoho.com", "aol.com", "mail.com"]
+            if domain_part in personal_providers:
+                score += 30
+
+            # Name-like local parts (not just numbers or generic words)
+            if _re.match(r"^[a-z][a-z0-9._+-]{2,}", local_part):
+                score += 20
+            if _re.search(r"[a-z]{3,}", local_part):
+                score += 10
+
+            # Context: is it near contact/resume/trainer words?
+            email_pos = candidate.lower().find(lower)
+            if email_pos >= 0:
+                context_window = candidate[max(0, email_pos - 200):email_pos + len(email) + 200].lower()
+                contact_words = ["email", "e-mail", "mail", "contact", "reach", "resume",
+                                 "cv", "phone", "mobile", "whatsapp", "trainer", "instructor"]
+                if any(word in context_window for word in contact_words):
+                    score += 25
+
+            # Penalize generic prefixes
+            generic_prefixes = ["info", "admin", "support", "sales", "hr", "contact",
+                                "team", "office", "careers", "jobs", "recruitment"]
+            if any(local_part.startswith(prefix) for prefix in generic_prefixes):
+                score -= 40
+
+            # Penalize very short local parts
+            if len(local_part) < 4:
+                score -= 15
+
+            found_emails.append((email, score))
+
+    if not found_emails:
+        return ""
+
+    # Return the highest scoring email
+    found_emails.sort(key=lambda x: x[1], reverse=True)
+    return found_emails[0][0]
 
 
 def _extract_contact_context_email(text: str = "") -> str:
+    """Extract a trainer's personal email from text using context analysis.
+
+    This function goes beyond simple regex matching — it uses surrounding context
+    to determine if an email belongs to the trainer/person themselves (not a company
+    or third-party contact). Returns empty string if the email doesn't look like a
+    personal trainer contact.
+    """
     value = str(text or "")
+    if not value:
+        return ""
+
     email = _extract_public_email(value)
     if not email:
         return ""
+
     lower = value.lower()
-    email_pos = lower.find(email.lower())
+    email_lower = email.lower()
+    email_pos = lower.find(email_lower)
     if email_pos < 0:
         return ""
-    context = lower[max(0, email_pos - 180): email_pos + len(email) + 180]
-    contact_markers = ["email", "e-mail", "mail", "contact", "reach", "resume", "curriculum vitae", "cv", "phone", "mobile"]
-    wrong_person_markers = ["privacy", "terms", "support@", "info@", "admin@", "sales@", "noreply", "no-reply", "linkedin"]
-    if any(marker in context for marker in wrong_person_markers):
+
+    # Get a wider context window around the email
+    context_start = max(0, email_pos - 300)
+    context_end = min(len(lower), email_pos + len(email) + 300)
+    context = lower[context_start:context_end]
+
+    # --- Strong negative signals: definitely NOT the trainer's personal email ---
+    hard_reject_markers = [
+        "privacy policy", "terms of service", "terms and conditions",
+        "cookie policy", "unsubscribe", "opt out", "opt-out",
+        "powered by", "built with", "developed by",
+        "copyright ©", "all rights reserved",
+        "customer support", "customer service", "helpdesk",
+        "report abuse", "spam", "phishing",
+    ]
+    if any(marker in context for marker in hard_reject_markers):
         return ""
-    if any(marker in context for marker in contact_markers):
+
+    # --- Soft negative signals: likely not personal email ---
+    soft_reject_markers = [
+        "support@", "info@", "admin@", "sales@", "hr@", "careers@",
+        "noreply", "no-reply", "do-not-reply", "donotreply",
+        "team@", "contact@", "office@", "enquiry@", "enquiries@",
+        "recruitment@", "jobs@", "marketing@", "billing@",
+        "linkedin.com", "facebook.com", "naukri.com", "indeed.com",
+    ]
+    if any(marker in context for marker in soft_reject_markers):
+        # But if there's also a strong positive signal, allow it
+        strong_personal_signals = [
+            "my email", "my mail", "reach me", "contact me", "mail me",
+            "write to me", "drop me", "email me", "ping me",
+        ]
+        if not any(signal in context for signal in strong_personal_signals):
+            return ""
+
+    # --- Positive signals: this IS a personal/trainer contact email ---
+    strong_positive_markers = [
+        # Direct personal indicators
+        "my email", "my mail", "my id", "my contact",
+        "reach me", "contact me", "mail me", "email me",
+        "write to me", "drop me a mail", "ping me",
+        "get in touch", "feel free to reach",
+        # Resume/CV/profile context
+        "resume", "curriculum vitae", "cv", "biodata", "bio-data",
+        "profile", "about me", "personal details", "personal info",
+        # Trainer/professional context
+        "trainer", "instructor", "faculty", "mentor", "coach",
+        "freelance", "corporate trainer", "training consultant",
+        "subject matter expert", "sme",
+        # Contact section markers
+        "contact details", "contact information", "personal details",
+        "email:", "e-mail:", "mail:", "email id:", "email address:",
+        "contact:", "reach:", "connect:",
+        # Social/portfolio context (personal page)
+        "portfolio", "personal website", "my website", "my blog",
+    ]
+
+    moderate_positive_markers = [
+        # General contact words
+        "email", "e-mail", "mail", "contact", "reach",
+        "phone", "mobile", "whatsapp", "call",
+        # Professional context
+        "experience", "years", "certified", "certification",
+        "skills", "expertise", "specialization",
+        "training delivery", "conducted", "delivered",
+        "available", "availability", "open to",
+    ]
+
+    # Score the context
+    score = 0
+    for marker in strong_positive_markers:
+        if marker in context:
+            score += 30
+            break  # One strong signal is enough
+
+    for marker in moderate_positive_markers:
+        if marker in context:
+            score += 10
+
+    # Check if email local part looks like a person's name
+    local_part = email_lower.split("@")[0]
+    domain_part = email_lower.split("@")[1] if "@" in email_lower else ""
+
+    # Personal email providers are a strong signal
+    personal_providers = [
+        "gmail.com", "yahoo.com", "outlook.com", "hotmail.com",
+        "rediffmail.com", "protonmail.com", "icloud.com", "live.com",
+        "ymail.com", "zoho.com", "aol.com", "mail.com",
+    ]
+    if domain_part in personal_providers:
+        score += 25
+
+    # Name-like local part (letters with dots/underscores, not just numbers)
+    if _re.match(r"^[a-z][a-z._-]{2,}", local_part) and _re.search(r"[a-z]{3,}", local_part):
+        score += 15
+
+    # Penalize very generic local parts
+    generic_locals = ["info", "admin", "support", "contact", "office",
+                      "team", "hr", "sales", "help", "service"]
+    if local_part in generic_locals:
+        score -= 50
+
+    # If score is high enough, return the email
+    # Threshold: at least one moderate signal or personal provider match
+    if score >= 20:
         return email
+
     return ""
 
 
 def _extract_public_phone(text: str = "") -> str:
-    match = _re.search(r"(?:\+?91[\s-]?)?[6-9]\d{9}", str(text or ""))
-    if not match:
+    """Extract an Indian mobile/WhatsApp number from public profile text with high accuracy.
+
+    Handles patterns like:
+      - +91 98765 43210, +91-9876543210, 91 9876543210
+      - 09876543210 (leading zero)
+      - 9876543210 (bare 10-digit)
+      - (+91) 98765-43210
+      - WhatsApp: 9876543210
+      - Call/SMS: +91 98765 43210
+      - Obfuscated: 98765-432-10, 9876 543 210
+      - With country code variations: 0091, +91, 91-
+      - Landline Indian numbers: 040-12345678, 080 1234 5678
+    """
+    value = str(text or "")
+    if not value:
         return ""
-    return match.group(0).replace(" ", "").replace("-", "")
+
+    # --- Blocklist patterns: skip phone numbers in wrong context ---
+    _PHONE_BLOCK_CONTEXT = [
+        "fax", "toll free", "1800", "1-800", "helpline", "grievance",
+        "customer care", "ivr", "press 1", "ext.", "extension",
+    ]
+
+    # --- Phone number patterns (most specific to least specific) ---
+    phone_patterns = [
+        # +91 / 91 / 0091 followed by 10-digit mobile (starts with 6-9)
+        r"(?:\+91|0091|91)[\s.\-/()]*([6-9]\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d)",
+        # Leading 0 + 10-digit mobile
+        r"(?<!\d)0([6-9]\d{9})(?!\d)",
+        # Bare 10-digit Indian mobile with separators
+        r"(?<!\d)([6-9]\d[\s.\-/]*\d[\s.\-/]*\d[\s.\-/]*\d[\s.\-/]*\d[\s.\-/]*\d[\s.\-/]*\d[\s.\-/]*\d[\s.\-/]*\d)(?!\d)",
+        # WhatsApp/Call/Mobile/Phone label followed by number
+        r"(?:whatsapp|wa|call|mobile|mob|phone|ph|cell|contact|reach\s*(?:me|us)?)\s*[:\-#.]*\s*(?:\+?91[\s.\-/()]*)?([6-9]\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d[\s.\-/()]*\d)",
+    ]
+
+    found_phones = []
+    seen_numbers = set()
+
+    for pattern in phone_patterns:
+        for match in _re.finditer(pattern, value, flags=_re.I):
+            # Extract the captured group (the 10-digit part)
+            raw = match.group(1) if match.lastindex else match.group(0)
+            # Strip all non-digit characters
+            digits = _re.sub(r"\D", "", raw)
+
+            # Ensure we have exactly 10 digits starting with 6-9
+            if len(digits) == 10 and digits[0] in "6789":
+                if digits in seen_numbers:
+                    continue
+                seen_numbers.add(digits)
+
+                # Check context for blocklisted patterns
+                start = max(0, match.start() - 80)
+                end = min(len(value), match.end() + 80)
+                context = value[start:end].lower()
+                if any(block in context for block in _PHONE_BLOCK_CONTEXT):
+                    continue
+
+                # Score: prefer numbers near contact/trainer context
+                score = 0
+                contact_words = ["whatsapp", "wa", "mobile", "mob", "phone", "ph",
+                                 "cell", "call", "contact", "reach", "trainer",
+                                 "resume", "cv", "profile", "personal"]
+                if any(word in context for word in contact_words):
+                    score += 30
+
+                # Prefer numbers with country code prefix
+                full_match_text = match.group(0).lower()
+                if "+91" in full_match_text or "0091" in full_match_text or full_match_text.startswith("91"):
+                    score += 20
+
+                # Penalize numbers that look like IDs or years
+                preceding = value[max(0, match.start() - 10):match.start()].lower()
+                if any(word in preceding for word in ["id", "reg", "ref", "order", "pin", "zip", "code", "otp", "aadhaar", "pan"]):
+                    score -= 50
+
+                found_phones.append((digits, score))
+
+            elif len(digits) == 11 and digits[0] == "0" and digits[1] in "6789":
+                # Leading zero variant
+                clean = digits[1:]
+                if clean in seen_numbers:
+                    continue
+                seen_numbers.add(clean)
+                found_phones.append((clean, 5))
+
+            elif len(digits) == 12 and digits[:2] == "91" and digits[2] in "6789":
+                # 91 prefix without +
+                clean = digits[2:]
+                if clean in seen_numbers:
+                    continue
+                seen_numbers.add(clean)
+                found_phones.append((clean, 15))
+
+    if not found_phones:
+        return ""
+
+    # Return the highest-scored phone number
+    found_phones.sort(key=lambda x: x[1], reverse=True)
+    return found_phones[0][0]
 
 
 def _public_resume_urls(text: str = "", base_url: str = "") -> list[str]:
@@ -13982,38 +14368,172 @@ async def _extract_public_website_contact(client, public_text: str = "", source_
 
 
 def _analyse_trainer_profile_lead(payload: dict) -> dict:
+    """Analyse a public LinkedIn/Naukri profile to determine if it's a trainer.
+
+    Uses multi-signal scoring with:
+    - Provider signals (explicit trainer role/experience mentions)
+    - Domain expertise signals
+    - India location detection
+    - Contact information availability
+    - Blocker detection (job seekers, recruiters, companies)
+    - Contextual confidence calibration
+    """
     text = _lead_text(payload)
     haystack = text.lower()
+
+    # --- Signal detection ---
     matched = [kw for kw in TRAINER_PROFILE_KEYWORDS if kw in haystack]
     provider_signals = [kw for kw in TRAINER_PROVIDER_SIGNALS if kw in haystack]
     blockers = [kw for kw in TRAINER_PROFILE_BLOCKERS if kw in haystack]
     soft_blockers = [kw for kw in TRAINER_PROFILE_SOFT_BLOCKERS if kw in haystack]
     domains = [domain for domain in LEAD_DOMAINS if domain in haystack]
     extracted_email = _extract_public_email(text)
-    phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", text)
+    extracted_phone = _extract_public_phone(text)
     indian_profile = _looks_indian_profile_text(text, payload.get("source_url") or "")
     source_url = str(payload.get("source_url") or "").lower()
     is_public_linkedin_profile = "linkedin.com/in" in source_url or "linkedin.com/pub" in source_url
-    has_trainer_provider_evidence = bool(provider_signals) and not bool(blockers)
-    confidence = 0.35
-    confidence += min(len(provider_signals), 3) * 0.08
-    confidence += min(len(domains), 2) * 0.07
-    confidence += 0.08 if indian_profile else 0
-    if is_public_linkedin_profile:
+    is_naukri_profile = "naukri.com" in source_url
+
+    # --- Advanced trainer detection logic ---
+
+    # Check for years of experience mentions
+    experience_match = _re.search(
+        r"(\d{1,2})\+?\s*(?:years?|yrs?)[\s.]*(?:of\s+)?(?:training|teaching|instructing|coaching)",
+        haystack
+    )
+    has_training_experience = bool(experience_match)
+    experience_years = int(experience_match.group(1)) if experience_match else 0
+
+    # Check for number of trainings/batches conducted
+    batches_match = _re.search(
+        r"(\d+)\+?\s*(?:trainings?|batches?|sessions?|workshops?)\s*(?:conducted|delivered|completed)",
+        haystack
+    )
+    has_batch_count = bool(batches_match)
+
+    # Check for client names (indicates active trainer)
+    client_indicators = _re.findall(
+        r"(?:trained\s+(?:at|for)|clients?\s*(?:include|:)|worked\s+with)\s*[:\-]?\s*([A-Z][A-Za-z\s,&]+)",
+        text
+    )
+    has_client_mentions = bool(client_indicators)
+
+    # Check for certification count
+    cert_patterns = _re.findall(
+        r"(?:certified|certification|certificate)\s+(?:in\s+)?[\w\s]+",
+        haystack
+    )
+    cert_count = len(cert_patterns)
+
+    # --- Confidence scoring (multi-factor) ---
+    confidence = 0.30  # Base
+
+    # Provider signals: strongest indicator
+    signal_count = len(provider_signals)
+    if signal_count >= 5:
+        confidence += 0.25
+    elif signal_count >= 3:
+        confidence += 0.18
+    elif signal_count >= 1:
+        confidence += 0.10
+
+    # Domain expertise
+    domain_count = len(domains)
+    if domain_count >= 3:
+        confidence += 0.12
+    elif domain_count >= 1:
+        confidence += 0.07
+
+    # India location
+    if indian_profile:
         confidence += 0.08
-    if matched:
-        confidence += 0.06
+
+    # LinkedIn/Naukri profile URL
+    if is_public_linkedin_profile:
+        confidence += 0.07
+    elif is_naukri_profile:
+        confidence += 0.05
+
+    # Keyword matches
+    if len(matched) >= 3:
+        confidence += 0.08
+    elif matched:
+        confidence += 0.04
+
+    # Contact information (shows transparency/accessibility)
     if payload.get("contact_email") or extracted_email:
         confidence += 0.08
-    if payload.get("contact_phone") or phone_match:
-        confidence += 0.04
+    if payload.get("contact_phone") or extracted_phone:
+        confidence += 0.05
+
+    # Training experience years (strong signal)
+    if experience_years >= 10:
+        confidence += 0.12
+    elif experience_years >= 5:
+        confidence += 0.08
+    elif has_training_experience:
+        confidence += 0.05
+
+    # Batch/training count
+    if has_batch_count:
+        confidence += 0.06
+
+    # Client mentions
+    if has_client_mentions:
+        confidence += 0.06
+
+    # Certifications
+    if cert_count >= 3:
+        confidence += 0.06
+    elif cert_count >= 1:
+        confidence += 0.03
+
+    # --- Negative adjustments ---
     if blockers:
-        confidence -= 0.25
-    elif soft_blockers and not is_public_linkedin_profile and len(provider_signals) < 2:
-        confidence -= 0.12
+        # Hard blockers significantly reduce confidence
+        blocker_penalty = min(len(blockers), 4) * 0.12
+        confidence -= blocker_penalty
+    elif soft_blockers:
+        # Soft blockers only penalize if there's not strong trainer evidence
+        if not is_public_linkedin_profile and signal_count < 2:
+            confidence -= min(len(soft_blockers), 3) * 0.06
+        elif signal_count < 4:
+            confidence -= min(len(soft_blockers), 2) * 0.03
+
+    # --- Determine if this is a trainer profile lead ---
+    # More nuanced decision: not just "has provider signals and no blockers"
+    is_trainer_lead = False
+
+    if blockers:
+        # Even with blockers, if overwhelming positive evidence exists, consider it
+        if signal_count >= 5 and has_training_experience and confidence > 0.55:
+            is_trainer_lead = True
+    elif signal_count >= 1:
+        is_trainer_lead = True
+    elif has_training_experience and (matched or domains):
+        is_trainer_lead = True
+    elif is_public_linkedin_profile and len(matched) >= 2 and domains:
+        # LinkedIn profile with multiple trainer keywords + domain match
+        is_trainer_lead = True
+
+    # Build candidate reason
+    reasons = []
+    if provider_signals:
+        reasons.append(f"trainer signals: {', '.join(provider_signals[:3])}")
+    if has_training_experience:
+        reasons.append(f"{experience_years}+ years training experience")
+    if has_batch_count:
+        reasons.append("quantified training delivery")
+    if has_client_mentions:
+        reasons.append("corporate client mentions")
+    if domains:
+        reasons.append(f"domain expertise: {', '.join(domains[:3])}")
+    candidate_reason = "; ".join(reasons) if reasons else ""
+
     primary_domain = payload.get("domain") or (domains[0].title() if domains else "")
+
     return {
-        "is_trainer_profile_lead": has_trainer_provider_evidence,
+        "is_trainer_profile_lead": is_trainer_lead,
         "matched_keywords": matched,
         "provider_signals": provider_signals,
         "blocked_keywords": blockers,
@@ -14021,9 +14541,14 @@ def _analyse_trainer_profile_lead(payload: dict) -> dict:
         "domain": primary_domain,
         "domains_found": domains,
         "contact_email": payload.get("contact_email") or extracted_email,
-        "contact_phone": payload.get("contact_phone") or (phone_match.group(0) if phone_match else ""),
+        "contact_phone": payload.get("contact_phone") or extracted_phone,
         "indian_profile": indian_profile,
-        "confidence": round(max(0, min(confidence, 0.95)), 2),
+        "confidence": round(max(0.0, min(confidence, 0.98)), 2),
+        "candidate_reason": candidate_reason,
+        "training_experience_years": experience_years,
+        "has_batch_count": has_batch_count,
+        "has_client_mentions": has_client_mentions,
+        "certification_count": cert_count,
     }
 
 

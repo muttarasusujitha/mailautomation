@@ -125,7 +125,7 @@ function MetricCard({ icon: Icon, label, value, sub, tone = 'blue', onClick }) {
     green: 'bg-emerald-50 text-emerald-600',
     amber: 'bg-amber-50 text-amber-600',
     purple: 'bg-violet-50 text-violet-600',
-    cyan: 'bg-cyan-50 text-cyan-600',
+    cyan: 'bg-blue-50 text-blue-600',
     red: 'bg-red-50 text-red-600',
   }
 
@@ -171,7 +171,7 @@ const EXPENSE_TONE = {
   whatsapp: 'border-emerald-100 bg-emerald-50 text-emerald-700',
   teams: 'border-blue-100 bg-blue-50 text-blue-700',
   gemini: 'border-violet-100 bg-violet-50 text-violet-700',
-  client_storage: 'border-cyan-100 bg-cyan-50 text-cyan-700',
+  client_storage: 'border-blue-100 bg-blue-50 text-blue-700',
 }
 
 const BILLING_LINK_GROUPS = [
@@ -204,7 +204,7 @@ const BILLING_LINK_GROUPS = [
     title: 'Google Cloud APIs',
     subtitle: 'Gmail watch, Pub/Sub, Calendar API, and client storage costs',
     icon: Cloud,
-    tone: 'border-cyan-100 bg-cyan-50 text-cyan-700',
+    tone: 'border-blue-100 bg-blue-50 text-blue-700',
     links: [
       { label: 'Cloud Billing', href: 'https://console.cloud.google.com/billing' },
       { label: 'APIs & Services Usage', href: 'https://console.cloud.google.com/apis/dashboard' },
