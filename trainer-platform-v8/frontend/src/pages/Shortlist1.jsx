@@ -230,8 +230,8 @@ const STAGES = {
   toc_requested:        { label: 'ToC Requested 📄',      color: 'bg-teal-100 text-teal-700',       step: 6 },
   toc_received_pending: { label: 'ToC Received 📄',       color: 'bg-teal-100 text-teal-700',       step: 6 },
   training_confirmed:   { label: 'Training Confirmed 🎓', color: 'bg-green-100 text-green-700',     step: 7 },
-  po_requested:         { label: 'PO Requested',           color: 'bg-cyan-100 text-cyan-700',       step: 8 },
-  client_po_received:   { label: 'Client PO Received',     color: 'bg-cyan-100 text-cyan-700',       step: 8 },
+  po_requested:         { label: 'PO Requested',           color: 'bg-cyan-100 text-blue-700',       step: 8 },
+  client_po_received:   { label: 'Client PO Received',     color: 'bg-cyan-100 text-blue-700',       step: 8 },
   invoice_generated:    { label: 'Invoice Generated',      color: 'bg-emerald-100 text-emerald-700', step: 9 },
   invoice_sent:         { label: 'Invoice Sent',           color: 'bg-green-100 text-green-700',     step: 10 },
 }
@@ -1975,8 +1975,8 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
               </div>
             </div>
           </div>
-          <div className="rounded-xl border border-cyan-200 bg-cyan-50 p-4">
-            <p className="text-xs text-cyan-700 font-semibold uppercase">Client Invoice</p>
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+            <p className="text-xs text-blue-700 font-semibold uppercase">Client Invoice</p>
             <p className="mt-1 text-sm font-bold text-cyan-900">
               {invoice ? `${invoice.invoice_number} · ${invoice.status}` : req.client_email ? `Ready for ${req.client_email}` : 'Client email missing'}
             </p>
@@ -2000,7 +2000,7 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
             Send Email + WhatsApp
           </button>
           <button onClick={handleGenerateInvoice} disabled={!!invoiceBusy || generating || sending}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white font-semibold text-sm disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-cyan-700 text-white font-semibold text-sm disabled:opacity-50">
             {invoiceBusy === 'generate' ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
             {form.client_po_number.trim() ? 'Generate Invoice From Client PO' : 'Generate Invoice'}
           </button>
@@ -3894,9 +3894,9 @@ export default function Shortlist1() {
               <p className="font-bold">Client handoff</p>
               <p className="mt-0.5 text-emerald-600">Slots, interview, selection, ToC</p>
             </div>
-            <div className="rounded-xl bg-cyan-50 px-3 py-2 text-cyan-700">
+            <div className="rounded-xl bg-blue-50 px-3 py-2 text-blue-700">
               <p className="font-bold">Commercial closure</p>
-              <p className="mt-0.5 text-cyan-600">PO request, invoice generation, invoice sent</p>
+              <p className="mt-0.5 text-blue-600">PO request, invoice generation, invoice sent</p>
             </div>
           </div>
 

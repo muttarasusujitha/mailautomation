@@ -1,25 +1,9 @@
-import { Zap } from 'lucide-react'
 import clsx from 'clsx'
 
 const SIZES = {
-  sm: {
-    mark: 'h-8 w-8 rounded-lg',
-    icon: 'h-4 w-4',
-    title: 'text-sm',
-    subtitle: 'text-[10px]',
-  },
-  md: {
-    mark: 'h-9 w-9 rounded-lg',
-    icon: 'h-5 w-5',
-    title: 'text-base',
-    subtitle: 'text-xs',
-  },
-  lg: {
-    mark: 'h-11 w-11 rounded-lg',
-    icon: 'h-5 w-5',
-    title: 'text-xl',
-    subtitle: 'text-xs',
-  },
+  sm: { wrap: 'h-8 w-8 rounded-lg', textSize: 'text-[11px]', title: 'text-sm', sub: 'text-[10px]' },
+  md: { wrap: 'h-9 w-9 rounded-[9px]', textSize: 'text-xs', title: 'text-[15px]', sub: 'text-[11px]' },
+  lg: { wrap: 'h-11 w-11 rounded-xl', textSize: 'text-sm', title: 'text-lg', sub: 'text-xs' },
 }
 
 export default function BrandMark({
@@ -38,23 +22,49 @@ export default function BrandMark({
       type={onClick ? 'button' : undefined}
       onClick={onClick}
       className={clsx(
-        'flex items-center gap-3 text-left',
-        onClick && 'cursor-pointer border-0 bg-transparent p-0 font-inherit transition hover:opacity-85',
+        'flex items-center gap-3 text-left select-none',
+        onClick && 'cursor-pointer border-0 bg-transparent p-0 transition-opacity hover:opacity-80',
         className
       )}
     >
-      <span className={clsx(
-        'flex shrink-0 items-center justify-center bg-blue-600 text-white shadow-sm shadow-blue-600/25',
-        cfg.mark,
-        isDark && 'ring-1 ring-white/15'
-      )}>
-        <Zap className={cfg.icon} />
+      {/* Logo mark — blue square with TS monogram */}
+      <span
+        className={clsx(
+          'flex shrink-0 items-center justify-center font-bold leading-none',
+          cfg.wrap
+        )}
+        style={{
+          background: isDark
+            ? 'linear-gradient(135deg,#1d4ed8,#2563eb)'
+            : 'linear-gradient(135deg,#2563eb,#3b82f6)',
+          boxShadow: isDark
+            ? '0 0 0 1px rgba(255,255,255,0.12),0 4px 12px -2px rgba(37,99,235,0.5)'
+            : '0 2px 8px -2px rgba(37,99,235,0.4)',
+          color: 'white',
+        }}
+      >
+        <span className={clsx('tracking-tight', cfg.textSize)} style={{ fontFamily: "'Plus Jakarta Sans',sans-serif", fontWeight: 800 }}>
+          TS
+        </span>
       </span>
-      <span className="min-w-0">
-        <span className={clsx('block truncate font-bold leading-none', cfg.title, isDark ? 'text-white' : 'text-slate-950')}>
+
+      {/* Text */}
+      <span className="min-w-0 leading-none">
+        <span
+          className={clsx('block truncate font-bold tracking-tight leading-snug', cfg.title)}
+          style={{
+            fontFamily: "'Plus Jakarta Sans',sans-serif",
+            fontWeight: 800,
+            letterSpacing: '-0.03em',
+            color: isDark ? '#ffffff' : '#0f172a',
+          }}
+        >
           TrainerSync
         </span>
-        <span className={clsx('mt-0.5 block truncate font-medium', cfg.subtitle, isDark ? 'text-white/70' : 'text-slate-500')}>
+        <span
+          className={clsx('mt-0.5 block truncate font-medium leading-tight', cfg.sub)}
+          style={{ color: isDark ? 'rgba(255,255,255,0.55)' : '#64748b' }}
+        >
           {subtitle}
         </span>
       </span>

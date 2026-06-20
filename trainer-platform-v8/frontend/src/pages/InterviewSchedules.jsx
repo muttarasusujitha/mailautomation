@@ -39,7 +39,7 @@ function Stat({ icon: Icon, label, value }) {
           <p className="text-sm font-semibold text-slate-500">{label}</p>
           <p className="mt-1 text-2xl font-bold text-slate-950">{value}</p>
         </div>
-        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-50 text-cyan-700">
+        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-700">
           <Icon className="h-5 w-5" />
         </span>
       </div>
@@ -103,7 +103,7 @@ export default function InterviewSchedules() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h1 className="page-title flex items-center gap-2">
-            <CalendarCheck className="h-6 w-6 text-cyan-700" />
+            <CalendarCheck className="h-6 w-6 text-blue-700" />
             Interview Scheduled
           </h1>
           <p className="mt-1 text-sm text-slate-500">
@@ -158,7 +158,7 @@ export default function InterviewSchedules() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h2 className="text-lg font-bold text-slate-950">{item.domain || 'Training'}</h2>
-                    <span className="rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-bold text-cyan-700">
+                    <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-bold text-blue-700">
                       {statusLabel(item.status)}
                     </span>
                     {item.requirement_id && (
