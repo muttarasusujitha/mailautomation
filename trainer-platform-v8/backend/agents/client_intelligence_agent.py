@@ -27,6 +27,8 @@ from googleapiclient.http import MediaFileUpload
 from config import get_settings
 from agents.email_agent import compose_shortlist_first_email, send_email_async
 from agents.pipeline import run_pipeline
+from agents.email_classifier import classify_email, should_auto_reply
+from agents.reply_templates import build_auto_reply
 
 
 logger = logging.getLogger(__name__)
@@ -1753,152 +1755,220 @@ Return ONLY valid JSON:
 
 
 async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
-    has_domain = has_actionable_training_domain(extracted.get("technology_needed"))
-    technology = extracted.get("technology_needed") if has_domain else "your training"
-    raw_needs = list(extracted.get("needs_clarification") or [])
-    budget = extracted.get("budget_total") or extracted.get("budget_per_day")
-    original_subject = extracted.get("email_subject") or context.get("subject") or "Training Requirement"
+    """
+    Generate an auto-reply for any incoming email to Clahan Technologies.
+
+    Flow:
+      1. Classify the email using email_classifier (zero cost, instant).
+      2. If safe_to_reply=False or requires_human=True → return a human-flag dict.
+      3. Build the correct reply using reply_templates (zero cost, instant).
+      4. For complete training requirements only, optionally polish with Gemini.
+         (Step 4 only runs when ENABLE_GEMINI_POLISH=true in .env)
+
+    Result: ~95% of replies are free. Gemini used only for complete requirements.
+    """
+    # ── Normalise context ────────────────────────────────────────────────────
+    original_subject = (
+        extracted.get("email_subject")
+        or context.get("subject")
+        or "Training Requirement"
+    )
     signature = context.get("reply_signature") or "Best Regards,\nRecruitment Team\nClahan Technologies"
     if signature.strip() == "Regards,\nRecruitment Team,\nClahan Technologies":
         signature = "Best Regards,\nRecruitment Team\nClahan Technologies"
 
-    def has_any(*keys: str) -> bool:
-        return any(str(extracted.get(key) or "").strip() for key in keys)
+    from_email = extracted.get("client_email") or context.get("from_email") or ""
+    from_name  = extracted.get("client_name")  or context.get("from_name")  or ""
+    body_text  = context.get("clean_body") or context.get("raw_body") or ""
+    headers    = context.get("headers") or {}
 
-    field_terms = {
-        "duration": ("duration", "days", "hours", "training hours"),
-        "dates": ("date", "start date", "end date", "schedule", "timeline"),
-        "timings": ("timing", "time", "daily"),
-        "audience": ("audience", "level", "basic", "beginner", "intermediate", "advanced", "mixed"),
-        "mode": ("mode", "online", "offline", "classroom", "hybrid"),
-        "budget": ("budget", "commercial", "charge", "rate", "price", "cost"),
-    }
-    provided = {
-        "domain": has_domain,
-        "duration": has_any("duration_days", "duration_hours", "duration_text", "training_duration"),
-        "dates": has_any("timeline_start", "timeline_end", "training_dates", "start_date", "end_date"),
-        "timings": has_any("daily_timing", "timing", "training_timing", "daily_timings"),
-        "audience": has_any("audience_level", "level"),
-        "mode": has_any("mode", "training_mode", "preferred_mode"),
-        "budget": bool(budget),
-    }
+    # ── Step 1: Classify ─────────────────────────────────────────────────────
+    classification = classify_email(
+        from_email=from_email,
+        subject=original_subject,
+        body=body_text,
+        from_name=from_name,
+        headers=headers,
+        history={
+            "is_known_client":  bool(context.get("is_known_client")),
+            "is_known_trainer": bool(context.get("is_known_trainer")),
+        },
+    )
 
-    def need_is_known_detail_field(item: str) -> bool:
-        text = str(item or "").lower()
-        return any(any(term in text for term in terms) for terms in field_terms.values())
-
-    needs = [item for item in raw_needs if item and not need_is_known_detail_field(str(item))]
-    required_missing = [
-        ("domain", "Training domain/technology"),
-        ("duration", "Training duration"),
-        ("dates", "Preferred training dates"),
-        ("timings", "Daily training timings"),
-        ("audience", "Audience level (Beginner / Intermediate / Advanced)"),
-        ("mode", "Training mode (Online / Offline / Hybrid)"),
-    ]
-    existing_need_text = {str(item).strip().lower() for item in needs}
-    for key, label in required_missing:
-        if key == "domain":
-            missing = not has_domain
-        else:
-            missing = not provided[key]
-        if missing and label.lower() not in existing_need_text:
-            needs.append(label)
-    if not provided["budget"] and not any("commercial" in str(item).lower() or "budget" in str(item).lower() or "charge" in str(item).lower() for item in needs):
-        needs.append("Budget or expected commercial charges per day/session")
-    needs_text = "\n".join(f"- {item}" for item in needs) if needs else "- No clarification required"
-
-    prompt = f"""You are the recruitment team at Clahan Technologies, a premium
-corporate training company based in India.
-
-Write a professional reply to this client email. The client has
-enquired about {technology} training. Your reply must:
-- Acknowledge their specific requirement by name
-- If important details are missing, do not promise final trainer profiles yet.
-  Ask the client to share the missing details, but clearly say Clahan will begin an initial trainer search
-  based on the available technology/domain details.
-- If enough details are available, confirm you are shortlisting trainers and will share profiles within 24 hours.
-- Missing details to ask for, if listed:
-{needs_text}
-- If budget is mentioned acknowledge it
-- Keep it under 150 words
-- End with: Regards, Recruitment Team, Clahan Technologies
-
-Client extraction JSON:
-{json.dumps(extracted, ensure_ascii=False)}
-
-Original subject: {original_subject}
-Budget mentioned: {budget if budget else "not mentioned"}
-Required signature:
-{signature}
-
-Return ONLY valid JSON:
-{{
-  "subject": "reply subject line starting with Re:",
-  "body": "full professional email body",
-  "whatsapp_message": "short WhatsApp version under 300 chars",
-  "tone": "formal or friendly or neutral",
-  "asks_for_clarification": true or false
-}}"""
-
-    if needs:
-        body = (
-            f"Dear Client,\n\n"
-            f"Thank you for sharing your {technology} training requirement.\n\n"
-            "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
-            + "\n".join(f"* {item}" for item in needs)
-            + (
-                f"\n\nMeanwhile, we will begin an initial trainer search based on the {technology} domain "
-                "and the information currently available. Once we receive the above details, we will refine the shortlist "
-                "and share the most relevant trainer profiles for your review.\n\n"
-                if has_domain else
-                "\n\nOnce you confirm the domain/technology, we will begin trainer matching and share the most relevant profiles for your review.\n\n"
-            )
-            + "We look forward to your response.\n\n"
-            f"{signature}"
-        )
+    # ── Step 2: Safety / human escalation ────────────────────────────────────
+    if not classification.get("safe_to_reply"):
+        reason = classification.get("no_reply_reason", "unsafe")
+        logger.info("Auto-reply suppressed for %s — reason: %s", from_email, reason)
         return {
-            "subject": f"Request for Additional Details - {technology.title() if not has_domain else technology} Trainer Requirement",
-            "body": body,
-            "whatsapp_message": (
-                f"Client shared {technology} requirement. Start initial trainer matching by domain; details can be refined later."
-                if has_domain else
-                "Client shared a training requirement, but domain/technology is missing. Ask for the domain before trainer matching."
-            ),
-            "tone": "formal",
-            "asks_for_clarification": True,
+            "subject": "",
+            "body": "",
+            "whatsapp_message": "",
+            "tone": "none",
+            "asks_for_clarification": False,
+            "skip_reply": True,
+            "skip_reason": reason,
+            "classification": classification,
+            "llm_used": False,
         }
 
-    try:
-        reply = await _ai_json(prompt, max_tokens=900)
-    except Exception:
-        reply = {
+    if classification.get("requires_human"):
+        scenario = classification.get("scenario", "unknown")
+        logger.info("Human escalation required for %s — scenario: %s", from_email, scenario)
+        return {
+            "subject": "",
+            "body": "",
+            "whatsapp_message": "",
+            "tone": "none",
+            "asks_for_clarification": False,
+            "requires_human": True,
+            "escalation_reason": scenario,
+            "classification": classification,
+            "llm_used": False,
+        }
+
+    # ── Step 3: Build missing fields list (training emails only) ─────────────
+    has_domain = has_actionable_training_domain(extracted.get("technology_needed"))
+    budget     = extracted.get("budget_total") or extracted.get("budget_per_day")
+
+    def has_any(*keys: str) -> bool:
+        return any(str(extracted.get(k) or "").strip() for k in keys)
+
+    provided = {
+        "domain":    has_domain,
+        "duration":  has_any("duration_days", "duration_hours"),
+        "dates":     has_any("timeline_start", "timeline_end"),
+        "timings":   has_any("daily_timing", "timing"),
+        "audience":  has_any("audience_level", "level"),
+        "mode":      has_any("mode", "training_mode"),
+        "budget":    bool(budget),
+    }
+
+    raw_needs = list(extracted.get("needs_clarification") or [])
+    known_terms = {
+        "duration": ("duration", "days", "hours"),
+        "dates":    ("date", "start date", "schedule", "timeline"),
+        "timings":  ("timing", "time", "daily"),
+        "audience": ("audience", "level", "beginner", "intermediate", "advanced"),
+        "mode":     ("mode", "online", "offline", "classroom", "hybrid"),
+        "budget":   ("budget", "commercial", "charge", "rate", "cost"),
+    }
+    needs = [
+        item for item in raw_needs
+        if item and not any(
+            any(term in str(item).lower() for term in terms)
+            for terms in known_terms.values()
+        )
+    ]
+
+    required_missing = [
+        ("domain",    "Training domain/technology"),
+        ("duration",  "Training duration"),
+        ("dates",     "Preferred training dates"),
+        ("timings",   "Daily training timings"),
+        ("audience",  "Audience level (Beginner / Intermediate / Advanced)"),
+        ("mode",      "Training mode (Online / Offline / Hybrid)"),
+    ]
+    existing_lower = {str(i).strip().lower() for i in needs}
+    for key, label in required_missing:
+        if not provided[key] and label.lower() not in existing_lower:
+            needs.append(label)
+    if not provided["budget"] and not any(
+        w in str(i).lower() for i in needs for w in ("budget", "commercial", "charge")
+    ):
+        needs.append("Budget or expected commercial charges per day/session")
+
+    # ── Step 4: Build template reply ─────────────────────────────────────────
+    reply_context = {
+        **context,
+        "reply_signature": signature,
+        "from_name":       from_name,
+        "from_email":      from_email,
+        "subject":         original_subject,
+    }
+    template_reply = build_auto_reply(
+        classification=classification,
+        extracted=extracted,
+        context=reply_context,
+        needs=needs,
+    )
+
+    if template_reply is None:
+        # build_auto_reply returned None → use safe fallback
+        template_reply = {
             "subject": f"Re: {original_subject}",
             "body": (
-                f"Hi,\n\nThank you for sharing the {technology} training requirement. "
-                "We are reviewing suitable trainer profiles and will get back to you shortly. "
-                "If there are any additional details around schedule, audience level, or delivery expectations, "
-                "please share them with us.\n\nRegards,\nRecruitment Team,\nClahan Technologies"
+                f"Dear Client,\n\n"
+                "Thank you for reaching out to Clahan Technologies.\n\n"
+                "Our team will review your message and get back to you shortly.\n\n"
+                f"{signature}"
             ),
-            "whatsapp_message": f"New {technology} training requirement received. Please review the client inbox.",
+            "whatsapp_message": "Thank you for reaching out. Our team will respond shortly.",
             "tone": "formal",
-            "asks_for_clarification": bool(needs),
+            "asks_for_clarification": False,
+            "template_used": "fallback",
+            "llm_used": False,
         }
-    subject = str(reply.get("subject") or f"Re: {original_subject}").strip()
+
+    # ── Step 5: Optional Gemini polish (complete training requirements only) ─
+    # Only runs when ENABLE_GEMINI_POLISH=true AND no missing fields AND
+    # the email is a training requirement from a corporate client.
+    enable_polish = (
+        os.getenv("ENABLE_GEMINI_POLISH", "false").lower() == "true"
+        and not needs
+        and has_domain
+        and classification.get("person_type") in {"corporate_client", "existing_client"}
+        and classification.get("scenario") in {
+            "new_training_requirement", "repeat_requirement"
+        }
+    )
+
+    if enable_polish:
+        technology = extracted.get("technology_needed", "your training")
+        prompt = (
+            f"You are the recruitment team at Clahan Technologies.\n"
+            f"Polish this draft reply to make it professional and warm. "
+            f"Keep it under 150 words. Do not change the facts or structure.\n\n"
+            f"Draft:\n{template_reply['body']}\n\n"
+            f"Return ONLY valid JSON: "
+            f'{{ "subject": "...", "body": "...", "whatsapp_message": "...", '
+            f'"tone": "formal", "asks_for_clarification": false }}'
+        )
+        try:
+            polished = await _ai_json(prompt, max_tokens=600)
+            polished_body = str(polished.get("body") or "").strip()
+            if polished_body and len(polished_body) > 50:
+                if "Clahan Technologies" not in polished_body:
+                    polished_body = f"{polished_body.rstrip()}\n\n{signature}"
+                template_reply["body"]             = polished_body
+                template_reply["subject"]          = str(polished.get("subject") or template_reply["subject"]).strip()
+                template_reply["whatsapp_message"] = str(polished.get("whatsapp_message") or template_reply["whatsapp_message"])[:300]
+                template_reply["llm_used"]         = True
+                template_reply["template_used"]    = f"{template_reply.get('template_used', '')}+gemini_polish"
+        except Exception as polish_exc:
+            logger.warning("Gemini polish failed (%s), using template reply.", polish_exc)
+
+    # ── Normalise output ─────────────────────────────────────────────────────
+    subject = str(template_reply.get("subject") or f"Re: {original_subject}").strip()
     if not subject.lower().startswith("re:"):
         subject = f"Re: {subject}"
-    body = str(reply.get("body") or "").strip()
+
+    body = str(template_reply.get("body") or "").strip()
     if "Clahan Technologies" not in body:
-        body = f"{body.rstrip()}\n\n{signature}"
-    whatsapp_message = re.sub(r"\s+", " ", str(reply.get("whatsapp_message") or "")).strip()
-    if len(whatsapp_message) > 300:
-        whatsapp_message = whatsapp_message[:297].rstrip() + "..."
+        body = f"{body}\n\n{signature}"
+
+    whatsapp = re.sub(r"\s+", " ", str(template_reply.get("whatsapp_message") or "")).strip()
+    if len(whatsapp) > 300:
+        whatsapp = whatsapp[:297].rstrip() + "..."
+
     return {
-        "subject": subject,
-        "body": body,
-        "whatsapp_message": whatsapp_message,
-        "tone": reply.get("tone") or "neutral",
-        "asks_for_clarification": bool(reply.get("asks_for_clarification", needs)),
+        "subject":              subject,
+        "body":                 body,
+        "whatsapp_message":     whatsapp,
+        "tone":                 template_reply.get("tone") or "formal",
+        "asks_for_clarification": bool(template_reply.get("asks_for_clarification", bool(needs))),
+        "llm_used":             bool(template_reply.get("llm_used", False)),
+        "template_used":        template_reply.get("template_used", "unknown"),
+        "classification":       classification,
     }
 
 

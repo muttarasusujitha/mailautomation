@@ -254,11 +254,12 @@ const CSS = `
   }
   .workflow-grid {
     display: grid;
-    grid-template-columns: repeat(7, minmax(142px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(7, minmax(148px, 1fr));
+    gap: 12px;
     overflow-x: auto;
     padding: 20px 4px 18px;
     scrollbar-gutter: stable;
+    -webkit-overflow-scrolling: touch;
   }
   .workflow-step {
     position: relative;
@@ -287,7 +288,7 @@ const CSS = `
     background: linear-gradient(180deg, ${T.surface} 0%, ${T.bg} 100%);
     border: 1.5px solid ${T.border};
     border-radius: 12px;
-    padding: 20px 12px 16px;
+    padding: 20px 10px 16px;
     text-align: center;
     position: relative;
     cursor: default;
@@ -337,11 +338,13 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
+    word-break: break-word;
   }
   .workflow-desc {
     min-height: 48px;
     display: flex;
     align-items: flex-start;
+    word-break: break-word;
   }
   .workflow-arrow {
     position: absolute;
@@ -368,6 +371,7 @@ const CSS = `
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
+    min-width: 0;
   }
   .workflow-message-card {
     background: ${T.surface};
@@ -378,6 +382,9 @@ const CSS = `
     box-shadow: ${T.shadow};
     animation: workflowMessageIn 7.2s ease-in-out infinite;
     animation-delay: var(--message-delay);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
   .workflow-message-head {
     display: flex;
@@ -410,6 +417,12 @@ const CSS = `
     line-height: 1.55;
     color: ${T.textSecondary};
     margin: 0;
+    flex: 1;
+    word-break: break-word;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
   }
   .workflow-message-action {
     margin-top: 11px;
@@ -674,9 +687,12 @@ const CSS = `
   .integration-pipeline-row {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(6, minmax(120px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(6, minmax(130px, 1fr));
+    gap: 10px;
     align-items: stretch;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
   }
   .integration-pipeline-row::before {
     content: '';
@@ -698,8 +714,9 @@ const CSS = `
     padding: 13px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     box-shadow: ${T.shadow};
+    overflow: hidden;
   }
   .integration-pipeline-head {
     display: flex;
@@ -717,7 +734,7 @@ const CSS = `
   }
   .integration-event-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
   }
   .integration-event-card {
@@ -729,23 +746,29 @@ const CSS = `
     grid-template-columns: 38px 1fr;
     gap: 11px;
     align-items: start;
+    overflow: hidden;
   }
 
   /* Pipeline step */
   .pipe-step-active { animation: borderAnim 2s ease-in-out infinite; }
 
   /* Responsive */
+  @media(max-width:1024px){
+    .workflow-grid { grid-template-columns: repeat(7, 152px); }
+    .integration-pipeline-row { grid-template-columns: repeat(6, 148px); }
+  }
   @media(max-width:768px){
     .hide-mobile { display:none !important; }
     .cols-mobile-1 { grid-template-columns: 1fr !important; }
     .cols-mobile-2 { grid-template-columns: repeat(2,1fr) !important; }
+    .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 28px !important; }
     .feature-scroll-card { flex-basis: 300px; width: 300px; }
     .feature-scroll-track { animation-duration: 44s; }
     .feature-scroll-shell::before,
     .feature-scroll-shell::after { width: 34px; }
-    .workflow-grid { grid-template-columns: repeat(7, 170px); gap: 12px; padding-inline: 2px; }
-    .workflow-step { min-width: 170px; }
-    .workflow-card { min-height: 168px; }
+    .workflow-grid { grid-template-columns: repeat(7, 158px); gap: 10px; padding-inline: 2px; }
+    .workflow-step { min-width: 158px; }
+    .workflow-card { min-height: 168px; padding: 20px 8px 14px; }
     .workflow-arrow { right: -14px; }
     .workflow-step::after { width: 14px; }
     .workflow-conversation { grid-template-columns: 1fr; }
@@ -755,15 +778,18 @@ const CSS = `
     .integration-logo-node { width: 104px; height: 76px; border-radius: 20px; }
     .integration-logo-label { font-size: 11.5px; }
     .integration-core-node { width: 86px; height: 86px; border-radius: 26px; }
-    .integration-pipeline-panel { padding: 18px; }
-    .integration-pipeline-row { grid-template-columns: repeat(6, 168px); overflow-x: auto; padding-bottom: 4px; }
-    .integration-pipeline-row::before { left: 36px; right: auto; width: 920px; }
+    .integration-pipeline-panel { padding: 16px; }
+    .integration-pipeline-row { grid-template-columns: repeat(6, 148px); overflow-x: auto; padding-bottom: 4px; }
+    .integration-pipeline-row::before { left: 36px; right: auto; width: 860px; }
     .integration-event-grid { grid-template-columns: 1fr; }
     .integration-marquee-shell::before,
     .integration-marquee-shell::after { width: 34px; }
   }
   @media(max-width:480px){
     .cols-mobile-2 { grid-template-columns: 1fr !important; }
+    .workflow-conversation { grid-template-columns: 1fr; }
+    .integration-event-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
   }
   @media(prefers-reduced-motion: reduce){
     .feature-scroll-track { animation: none; overflow-x: auto; }
@@ -1013,7 +1039,7 @@ function FeatureCard({ feature, delay }) {
   return (
     <div
       className="card-hover fade-up"
-      style={{ height: '100%', animationDelay: delay, background: T.surface, border: `1.5px solid ${hov ? feature.color + '30' : T.border}`, borderRadius: 14, padding: '24px', boxShadow: hov ? T.shadowMd : T.shadow, transition: 'all 0.2s', cursor: 'default' }}
+      style={{ height: '100%', width: '100%', animationDelay: delay, background: T.surface, border: `1.5px solid ${hov ? feature.color + '30' : T.border}`, borderRadius: 14, padding: '24px', boxShadow: hov ? T.shadowMd : T.shadow, transition: 'all 0.2s', cursor: 'default', display: 'flex', flexDirection: 'column' }}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -1406,7 +1432,7 @@ function ConversationThread() {
           <Badge color={T.teal} bg={T.tealLight}>ToC received</Badge>
         </div>
       </div>
-      <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8, height: 280, overflowY: 'auto', scrollbarGutter: 'stable' }}>
+      <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8, height: 300, overflowY: 'auto', scrollbarGutter: 'stable', WebkitOverflowScrolling: 'touch' }}>
         {msgs.map((m, i) => (
           <div key={i} style={{ display: 'flex', flexDirection: m.dir === 'out' ? 'row-reverse' : 'row', gap: 8, alignItems: 'flex-end' }}>
             <div style={{
@@ -1500,7 +1526,7 @@ export default function Home() {
           HERO
       ══════════════════════════════════════════════ */}
       <section style={{ padding: '96px 28px 64px', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: 56, alignItems: 'center' }} className="cols-mobile-1">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center' }} className="cols-mobile-1">
 
           {/* Left copy */}
           <div>
@@ -1711,8 +1737,8 @@ export default function Home() {
           PIPELINE SECTION
       ══════════════════════════════════════════════ */}
       <section id="pipeline" style={{ padding: '72px 28px', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'start' }} className="cols-mobile-1">
-          <div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'start' }} className="cols-mobile-1">
+          <div style={{ minWidth: 0 }}>
             <SectionHeader
               label="7-Stage Pipeline"
               labelIcon={SquareKanban}
@@ -1721,7 +1747,7 @@ export default function Home() {
             />
             <PipelineSection />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
             <ConversationThread />
             <ClientInboxPreview />
           </div>
@@ -1741,11 +1767,11 @@ export default function Home() {
             center
           />
           <div className="feature-scroll-shell" aria-label="TrainerSync platform features">
-            <div className="feature-scroll-track">
+            <div className="feature-scroll-track" style={{ alignItems: 'stretch' }}>
               {SCROLLING_FEATURES.map((feature, i) => {
                 const cycle = i < FEATURES.length ? 'first' : 'second'
                 return (
-                  <div className="feature-scroll-card" key={`${feature.title}-${cycle}`}>
+                  <div className="feature-scroll-card" key={`${feature.title}-${cycle}`} style={{ display: 'flex' }}>
                     <FeatureCard feature={feature} delay={`${(i % FEATURES.length) * 0.07}s`} />
                   </div>
                 )
@@ -1759,9 +1785,9 @@ export default function Home() {
           CLIENT OPS: Inbox + Smart Reply
       ══════════════════════════════════════════════ */}
       <section style={{ padding: '72px 28px', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'start' }} className="cols-mobile-1">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'start' }} className="cols-mobile-1">
           {/* Smart Reply Detection */}
-          <div>
+          <div style={{ minWidth: 0 }}>
             <SectionHeader
               label="Smart Reply Handling"
               labelIcon={BotMessageSquare}
@@ -1798,7 +1824,7 @@ export default function Home() {
           </div>
 
           {/* Outreach channels */}
-          <div>
+          <div style={{ minWidth: 0 }}>
             <SectionHeader
               label="Outreach Automation"
               labelIcon={Send}
@@ -2059,7 +2085,7 @@ export default function Home() {
       ══════════════════════════════════════════════ */}
       <footer style={{ background: T.textPrimary, padding: '44px 28px 28px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1fr 1fr 1fr', gap: 40, marginBottom: 36 }} className="cols-mobile-2">
+          <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr 1fr', gap: 32, marginBottom: 36 }} className="cols-mobile-2 footer-grid">
             {/* Brand */}
             <div>
               <BrandMark size="sm" theme="dark" className="mb-3" onClick={() => navigate('/home')} />
