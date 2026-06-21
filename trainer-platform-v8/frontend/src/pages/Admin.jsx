@@ -71,6 +71,11 @@ const Toggle = ({ checked, onChange, label, desc }) => (
   </div>
 )
 
+const normalizeClientInboxCfg = (cfg = {}) => ({
+  ...cfg,
+  inboxProvider: cfg.inboxProvider === 'gmail_api' ? 'smtp_only' : (cfg.inboxProvider || 'smtp_only'),
+})
+
 export default function Admin() {
   const [showPass, setShowPass]   = useState(false)
   const [saving,   setSaving]     = useState(false)
@@ -125,13 +130,15 @@ export default function Admin() {
 
   const [gmailStatus, setGmailStatus] = useState({ connected: false })
   const [clientInboxCfg, setClientInboxCfg] = useState({
-    inboxProvider: 'gmail_api',
+    inboxProvider: 'smtp_only',
     autoSendEnabled: true,
     autoSendThreshold: 70,
     clientDomainsWhitelist: '',
     vendorWhatsAppNumber: '',
     replySignature: 'Best Regards,\nRecruitment Team\nClahan Technologies',
   })
+  const currentInboxProvider = clientInboxCfg.inboxProvider || 'smtp_only'
+  const usingGmailApi = currentInboxProvider === 'gmail_api'
   const [teamsCfg, setTeamsCfg] = useState({
     webhookUrl: '',
   })
@@ -200,7 +207,7 @@ export default function Admin() {
         if (parsed.profile) setProfile({...profile, ...parsed.profile})
         if (parsed.emailCfg) setEmailCfg({...emailCfg, ...parsed.emailCfg})
         if (parsed.twilioCfg) setTwilioCfg({...twilioCfg, ...parsed.twilioCfg})
-        if (parsed.clientInboxCfg) setClientInboxCfg({...clientInboxCfg, ...parsed.clientInboxCfg})
+        if (parsed.clientInboxCfg) setClientInboxCfg({...clientInboxCfg, ...normalizeClientInboxCfg(parsed.clientInboxCfg)})
         if (parsed.teamsCfg) setTeamsCfg({...teamsCfg, ...parsed.teamsCfg})
         if (parsed.teamsDirectCfg) setTeamsDirectCfg({...teamsDirectCfg, ...parsed.teamsDirectCfg})
         if (parsed.notif) setNotif({...notif, ...parsed.notif})
@@ -220,7 +227,7 @@ export default function Admin() {
       if (settings.profile) setProfile(prev => ({ ...prev, ...settings.profile }))
       if (settings.emailCfg) setEmailCfg(prev => ({ ...prev, ...settings.emailCfg }))
       if (settings.twilioCfg) setTwilioCfg(prev => ({ ...prev, ...settings.twilioCfg }))
-      if (settings.clientInboxCfg) setClientInboxCfg(prev => ({ ...prev, ...settings.clientInboxCfg }))
+      if (settings.clientInboxCfg) setClientInboxCfg(prev => ({ ...prev, ...normalizeClientInboxCfg(settings.clientInboxCfg) }))
       if (settings.teamsCfg) setTeamsCfg(prev => ({ ...prev, ...settings.teamsCfg }))
       if (settings.teamsDirectCfg) setTeamsDirectCfg(prev => ({ ...prev, ...settings.teamsDirectCfg }))
       if (settings.notif) setNotif(prev => ({ ...prev, ...settings.notif }))
@@ -404,6 +411,10 @@ export default function Admin() {
   const connectGmail = async () => {
     setSaving(true)
     try {
+      if (!usingGmailApi) {
+        toast.success('SMTP/IMAP mode is active. Google OAuth skipped.')
+        return
+      }
       if (!gmailStatus.connected) {
         const redirectUri = `${window.location.origin}/auth/callback`
         const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
@@ -428,6 +439,10 @@ export default function Admin() {
   const renewGoogleAccess = async () => {
     setSaving(true)
     try {
+      if (!usingGmailApi) {
+        toast.success('SMTP/IMAP mode is active. Google OAuth skipped.')
+        return
+      }
       const redirectUri = `${window.location.origin}/auth/callback`
       const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
       const oauthData = await oauthRes.json().catch(() => ({}))
@@ -698,7 +713,7 @@ export default function Admin() {
                 onClick={() => setClientInboxCfg({ ...clientInboxCfg, inboxProvider: value })}
                 className={clsx(
                   'rounded-lg px-3 py-2 text-sm font-semibold transition',
-                  (clientInboxCfg.inboxProvider || 'gmail_api') === value
+                  currentInboxProvider === value
                     ? 'bg-brand-500 text-white shadow-sm'
                     : 'text-slate-600 hover:bg-slate-50'
                 )}
@@ -715,7 +730,9 @@ export default function Admin() {
             <p className="text-xs text-slate-400 mt-0.5">
               {gmailStatus.connected
                 ? (gmailStatus.calendar_connected ? 'Gmail and Google Calendar are ready for inbox sync and Meet scheduling' : 'Gmail is connected. Calendar/Meet is optional and can be renewed when needed.')
-                : 'Connect Google once to enable Gmail inbox sync and Calendar/Meet scheduling'}
+                : usingGmailApi
+                  ? 'Connect Google once to enable Gmail API inbox sync and Calendar/Meet scheduling'
+                  : 'Using SMTP/IMAP mode. Google OAuth is skipped for now.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -733,15 +750,23 @@ export default function Admin() {
               <span className={clsx('h-2 w-2 rounded-full', gmailStatus.calendar_connected ? 'bg-emerald-500' : 'bg-amber-500')} />
               {gmailStatus.calendar_connected ? 'Calendar Ready' : 'Calendar Optional'}
             </span>
-            <button className="btn-secondary text-sm" onClick={connectGmail} disabled={saving}>
-              <RefreshCw className="w-4 h-4" /> {gmailStatus.connected ? 'Renew Watch' : 'Connect'}
-            </button>
-            <button className="btn-secondary text-sm" onClick={renewGoogleAccess} disabled={saving}>
-              <RefreshCw className="w-4 h-4" /> Renew Access
-            </button>
-            <button className="btn-secondary text-sm text-red-600" onClick={disconnectGmail} disabled={saving || !gmailStatus.connected}>
-              Disconnect
-            </button>
+            {usingGmailApi ? (
+              <>
+                <button className="btn-secondary text-sm" onClick={connectGmail} disabled={saving}>
+                  <RefreshCw className="w-4 h-4" /> {gmailStatus.connected ? 'Renew Watch' : 'Connect'}
+                </button>
+                <button className="btn-secondary text-sm" onClick={renewGoogleAccess} disabled={saving}>
+                  <RefreshCw className="w-4 h-4" /> Renew Access
+                </button>
+                <button className="btn-secondary text-sm text-red-600" onClick={disconnectGmail} disabled={saving || !gmailStatus.connected}>
+                  Disconnect
+                </button>
+              </>
+            ) : (
+              <span className="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
+                SMTP/IMAP Active
+              </span>
+            )}
           </div>
         </div>
 

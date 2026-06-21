@@ -54,11 +54,6 @@ function clientRequestTitle(item = {}) {
   const domain = e.technology_needed || e.domain || e.primary_skill || ''
   return domain ? `Client requesting ${domain} trainer` : item.subject || 'New client trainer request'
 }
-function clientRequestSummary(item = {}) {
-  const e = item.extracted || {}
-  return e.email_summary || item.clean_body || item.raw_body || item.subject || ''
-}
-
 /* ─── Tooltip ──────────────────────────────────────────────── */
 function TooltipBox({ active, payload, label }) {
   if (!active || !payload?.length) return null

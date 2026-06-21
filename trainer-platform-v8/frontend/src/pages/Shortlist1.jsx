@@ -290,12 +290,6 @@ const ACTIVE_PIPELINE_STAGES = new Set([
   'toc_received_pending',
 ])
 
-function backendStoppedStage(trainer) {
-  return ['stopped_selected', 'role_filled', 'requirement_filled'].includes(trainer?.pipeline_status || trainer?.status)
-    ? 'stopped_selected'
-    : ''
-}
-
 const BACKEND_AUTHORITATIVE_STAGES = new Set([
   'stopped_selected',
   'role_filled',
@@ -2881,31 +2875,6 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
           setStage(activeTrainer, 'slot_booked')
           runningRef.current = false
           return
-        }
-
-        // No trainer is currently past Mail 1. Start Mail 2 for the first
-        // positive Mail 1 responder, ordered by reply time.
-        const nextResponder = trainers
-          .filter(t => false && getStage(t) === 'mail1_replied')
-          .sort((a, b) => {
-            const aTime = nextStates[a.trainer_id]?.mail1ReplyAt || Number.MAX_SAFE_INTEGER
-            const bTime = nextStates[b.trainer_id]?.mail1ReplyAt || Number.MAX_SAFE_INTEGER
-            return aTime - bTime || trainers.indexOf(a) - trainers.indexOf(b)
-          })[0]
-
-        if (nextResponder) {
-          const { subject, body } = mail2Template(nextResponder, req)
-          const res = await api.post('/shortlists/send-mail', {
-            trainer_id:     nextResponder.trainer_id,
-            trainer_name:   nextResponder.name,
-            to_email:       nextResponder.email,
-            requirement_id: req.requirement_id,
-            subject, body,
-            mail_type: 'mail2',
-          })
-          showSendStatusToast({ trainerName: nextResponder.name, result: res.data, title: 'Details request sent' })
-          toast(`🤖 Auto: sent Details Request (Mail 2) to ${nextResponder.name}`, { icon: '📋', duration: 4000 })
-          setStage(nextResponder, 'waiting_reply2')
         }
 
       } catch (e) {

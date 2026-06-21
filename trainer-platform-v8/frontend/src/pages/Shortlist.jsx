@@ -147,12 +147,6 @@ function syncShortlistRepliesIfDue(force = false) {
   return shortlistReplyCheckPromise
 }
 
-function backendStoppedStage(trainer) {
-  return ['stopped_selected', 'role_filled', 'requirement_filled'].includes(trainer?.pipeline_status || trainer?.status)
-    ? 'stopped_selected'
-    : ''
-}
-
 const BACKEND_AUTHORITATIVE_STAGES = new Set([
   'stopped_selected',
   'role_filled',

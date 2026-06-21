@@ -75,18 +75,14 @@ function NavItem({ item, pendingInbox, onClick }) {
         clsx('nav-item group', isActive && 'active')
       }
     >
-      {({ isActive }) => (
-        <>
-          <span className="nav-icon">
-            <Icon className="h-[15px] w-[15px]" />
-          </span>
-          <span className="min-w-0 flex-1 truncate text-[13.5px]">{item.label}</span>
-          {item.to === '/client-requests' && pendingInbox > 0 && (
-            <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
-              {pendingInbox > 99 ? '99+' : pendingInbox}
-            </span>
-          )}
-        </>
+      <span className="nav-icon">
+        <Icon className="h-[15px] w-[15px]" />
+      </span>
+      <span className="min-w-0 flex-1 truncate text-[13.5px]">{item.label}</span>
+      {item.to === '/client-requests' && pendingInbox > 0 && (
+        <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+          {pendingInbox > 99 ? '99+' : pendingInbox}
+        </span>
       )}
     </NavLink>
   )

@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { forgotPassword } from '../utils/api'
 import {
-  Mail, Lock, User, Eye, EyeOff, ArrowRight,
+  Mail, Lock, User, Eye, EyeOff,
   CheckCircle, Briefcase, Users, GraduationCap,
   Building2, Phone, Sparkles, Chrome, Github,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
-import { randomBetween, randomInt } from '../utils/random'
+import { randomBetween } from '../utils/random'
 import BrandMark from '../components/BrandMark'
 
 /* ─── Particle canvas ──────────────────────────────────────── */

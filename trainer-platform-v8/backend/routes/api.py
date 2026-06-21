@@ -14,6 +14,7 @@ import html as _html
 import smtplib
 import asyncio
 import hashlib
+import httpx
 from urllib.parse import urljoin as _urljoin
 from email.utils import parseaddr as _parseaddr
 from email.header import decode_header as _decode_header, make_header as _make_header
@@ -60,7 +61,7 @@ from agents.categorisation_agent import (
 )
 from agents.email_agent import (
     check_email_replies,
-    send_email_async, compose_retry_email, compose_interview_email,
+    send_email_async, compose_interview_email,
     compose_shortlist_first_email,
     get_gmail_password,
     send_gmail_oauth_message,
@@ -70,7 +71,6 @@ from agents.client_slot_agent import (
     ClientSlotError,
     client_budget_for_trainer_commercial,
     extract_trainer_commercial_details,
-    looks_like_trainer_slots,
     send_client_slot_options_email,
     send_client_slots_for_email_log,
     send_pending_client_slot_replies,
@@ -84,8 +84,6 @@ from agents.teams_direct_agent import (
     send_trainer_teams_direct_message,
 )
 from agents.client_intelligence_agent import (
-    check_if_duplicate,
-    create_requirement_from_email,
     ensure_requirement_from_email,
     extract_client_slot_confirmation,
     fetch_gmail_email,
@@ -113,9 +111,14 @@ from agents.client_intelligence_agent import (
     upload_file_to_drive,
 )
 from agents.scheduler import (
-    get_config as get_scheduler_config,
     load_config_from_db as load_scheduler_config_from_db,
     save_config_to_db as save_scheduler_config_to_db,
+)
+from agents.trainer_slot_agent import (
+    looks_like_trainer_slot_response,
+    notify_client_with_trainer_slots,
+    process_trainer_slot_response,
+    send_trainer_slot_confirmation,
 )
 from agents.interview_reminder_scheduler import (
     cancel_interview_reminder,
@@ -150,6 +153,7 @@ TRACKING_PIXEL = (
     b"\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01"
     b"\x00\x00\x02\x02D\x01\x00;"
 )
+
 
 
 def _id_text(value) -> str:
@@ -739,8 +743,6 @@ def _toc_domain_plan(technology: str) -> dict:
 def _fallback_toc_data(payload: dict, reason: str = "") -> dict:
     technology = payload.get("technology") or "Training"
     duration_days = max(1, min(int(payload.get("duration_days") or 3), 100))
-    audience_level = payload.get("audience_level") or "intermediate"
-    mode = payload.get("mode") or "Online"
     plan = _toc_domain_plan(technology)
     themes = plan["themes"]
 
@@ -1564,7 +1566,6 @@ async def _send_next_trainer_after_decline(
     request: Optional[Request],
     *,
     declined_log: dict,
-    reply: dict,
 ) -> dict:
     requirement_id = declined_log.get("requirement_id") or ""
     declined_trainer_id = declined_log.get("trainer_id") or ""
@@ -2069,7 +2070,7 @@ async def _client_inbox_settings(db) -> dict:
         "clientDomainsWhitelist": cfg.get("clientDomainsWhitelist", ""),
         "replySignature": cfg.get("replySignature") or "Best Regards,\nRecruitment Team\nClahan Technologies",
         "vendorWhatsAppNumber": cfg.get("vendorWhatsAppNumber") or twilio.get("vendorWhatsAppNumber", ""),
-        "inboxProvider": str(cfg.get("inboxProvider") or "gmail_api").strip().lower(),
+        "inboxProvider": str(cfg.get("inboxProvider") or "smtp_only").strip().lower(),
     }
 
 
@@ -2183,7 +2184,7 @@ def _enrich_lead_response(lead: dict) -> dict:
     return lead
 
 
-async def _is_duplicate_linkedin_lead(db, source_url: str, contact_email: str = "", trainer_name: str = "") -> Optional[str]:
+async def _is_duplicate_linkedin_lead(db, source_url: str, contact_email: str = "") -> Optional[str]:
     if source_url:
         existing = await db["trainer_profile_leads"].find_one(
             {"source_url": source_url},
@@ -5830,11 +5831,6 @@ async def generate_training_toc(payload: dict, request: Request):
         str(payload.get("trainer_email") or "").strip()
         or str(trainer_doc.get("email") or trainer_doc.get("trainer_email") or "").strip()
     )
-    trainer = {
-        "trainer_id": payload.get("trainer_id"),
-        "name": trainer_name,
-        "email": trainer_email,
-    }
     missing_client_inputs = _toc_missing_client_inputs(requirement, {**payload, "duration_days": duration_days})
 
     generation_error = ""
@@ -6193,11 +6189,7 @@ def _render_invoice_html(invoice_doc: dict) -> str:
         round(float(commercials.get("total_amount") or 0) / float(qty), 2)
         if str(qty).replace(".", "", 1).isdigit() and float(qty or 0) else 0
     )
-    start_date = invoice_doc.get("start_date") or requirement.get("start_date") or requirement.get("training_dates") or "As per PO"
-    end_date = invoice_doc.get("end_date") or requirement.get("end_date") or requirement.get("training_dates") or "As per PO"
     hsn_sac = invoice_doc.get("hsn_sac") or "999293"
-    po_date = invoice_doc.get("po_date") or invoice_doc.get("client_po_date") or ""
-    payment_terms = invoice_doc.get("payment_terms") or "As per client PO."
     gst_rate = float(commercials.get("gst_rate") or 0)
     gst_label = invoice_doc.get("tax_type") or ("IGST" if gst_rate else "Tax")
     due_date = _invoice_due_date_display(invoice_doc)
@@ -6317,10 +6309,7 @@ th {{ background:#1f4578; color:white; font-weight:900; text-align:left; font-si
 
 
 def _invoice_pdf_from_doc(invoice_doc: dict) -> bytes:
-    try:
-        return _simple_invoice_pdf_bytes(invoice_doc)
-    except Exception:
-        return _simple_invoice_pdf_bytes(invoice_doc)
+    return _simple_invoice_pdf_bytes(invoice_doc)
 
 
 def _invoice_display_company(invoice_doc: dict) -> dict:
@@ -6341,7 +6330,6 @@ def _invoice_display_company(invoice_doc: dict) -> dict:
 
 def _simple_invoice_pdf_bytes(invoice_doc: dict) -> bytes:
     company = _invoice_display_company(invoice_doc)
-    trainer = invoice_doc.get("trainer") or {}
     client = invoice_doc.get("client") or {}
     requirement = invoice_doc.get("requirement") or {}
     commercials = invoice_doc.get("commercials") or {}
@@ -7309,7 +7297,7 @@ async def generate_invoice_from_purchase_order(po_id: str, payload: dict, reques
             "client_name": client_name,
         },
         "commercials": po_doc.get("commercials") or {},
-        "payment_terms": payload.get("payment_terms") or po_doc.get("payment_terms") or DEFAULT_PAYMENT_TERMS if "DEFAULT_PAYMENT_TERMS" in globals() else po_doc.get("payment_terms", ""),
+        "payment_terms": payload.get("payment_terms") or po_doc.get("payment_terms") or "As per client PO.",
         "source": "purchase_order",
         "created_at": now,
         "download_url": _invoice_download_url(request, invoice_id),
@@ -8530,17 +8518,36 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
     requested_detail_text = "\n".join(line for line in requested_detail_lines if line)
 
     if mail_type == "mail2":
+        # Build list of missing client details dynamically
+        missing_client_details = []
+        
+        if not duration or duration == "[Hours/Days]":
+            missing_client_details.append("* Training duration")
+        if not training_dates:
+            missing_client_details.append("* Preferred training dates")
+        if not mode or mode == "[Online/Offline]":
+            missing_client_details.append("* Daily training timings")
+        if not participants or participants == "[Number]":
+            missing_client_details.append("* Participant count")
+        if not venue or venue == "[Online/Offline]":
+            missing_client_details.append("* Location")
+        if not context.get("audience_level"):
+            missing_client_details.append("* Audience level (Beginner / Intermediate / Advanced)")
+        
+        missing_details_text = "\n".join(missing_client_details) if missing_client_details else "* Participant count\n* Location"
+        
         return {
             "mail_type": mail_type,
             "subject": f"Training Requirement - {domain} | Additional Details Required",
             "body": (
                 f"{greeting}\n\n"
-                "Thank you for your response.\n\n"
-                "Please find the current requirement details below:\n\n"
-                f"{chr(10).join(known_detail_lines)}\n\n"
-                "To proceed further, kindly share the below details:\n\n"
-                f"{requested_detail_text}\n\n"
-                "Best Regards,\nRecruitment Team\nClahan Technologies"
+                f"Thank you for sharing your {domain} training requirement.\n\n"
+                "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
+                f"{missing_details_text}\n\n"
+                f"Meanwhile, we will begin an initial trainer search based on the {domain} domain and the information currently available. "
+                "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
+                "We look forward to your response.\n\n"
+                "Regards,\nRecruitment Team,\nClahan Technologies"
             ),
         }
 
@@ -8552,21 +8559,26 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
                 f"{greeting}\n\n"
                 "Thank you for confirming your interest.\n\n"
                 "To proceed further, kindly share the above requested details:\n\n"
-                "* Total years of experience\n"
-                "* Number of trainings conducted previously\n"
-                "* Relevant certifications\n"
-                "* Preferred training mode (Online / Offline)\n"
-                "* Availability for Full-Day or Half-Day sessions\n"
-                "* Expected commercial charges per day/session\n"
-                "* Current location\n"
-                "* Availability for the mentioned dates\n\n"
+                f"{requested_detail_text}\n\n"
                 "Once we receive these details, we can move ahead with the next step.\n\n"
                 "Regards,\nTrainerSync Team"
             ),
         }
 
+    if mail_type == "mail_trainer_details_pending":
+        return {
+            "mail_type": mail_type,
+            "subject": f"Training Requirement - {domain} | Details Being Collected",
+            "body": (
+                f"Dear {trainer_name or 'Trainer'},\n\n"
+                f"Thank you for your interest in this {domain} training requirement.\n\n"
+                "We are collecting the required details from the client and will get back to you shortly.\n\n"
+                "Regards,\nClahan Technologies"
+            ),
+        }
+
     if mail_type == "mail3":
-        slot_lines = slots or "* [Slot 1]\n* [Slot 2]\n* [Slot 3]"
+        slot_lines = slots or "• [Slot 1]\n• [Slot 2]\n• [Slot 3]"
         return {
             "mail_type": mail_type,
             "subject": f"Interview Slot Booking - {domain}",
@@ -8593,6 +8605,62 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
                 f"Meeting Link: {interview_link or '[Meeting Link]'}\n\n"
                 "Please join on time. Let us know if you need any assistance.\n\n"
                 "Regards,\nTrainerSync Team"
+            ),
+        }
+
+    if mail_type == "mail_budget_confirm":
+        client_budget = str(payload.get("client_budget") or payload.get("budget") or "[Budget]").strip()
+        
+        return {
+            "mail_type": mail_type,
+            "subject": f"Training Budget - {domain} | Confirmation Required",
+            "body": (
+                f"{greeting}\n\n"
+                f"We have identified a suitable trainer for your {domain} training.\n\n"
+                "Budget Details:\n"
+                f"Total Training Cost: INR {client_budget}\n\n"
+                "This includes the trainer's fees, food, accommodation, and travel charges.\n\n"
+                "Please confirm if you are comfortable with this budget. If yes, we will proceed with the trainer. "
+                "If not, we will search for another trainer within your budget.\n\n"
+                "We look forward to your confirmation.\n\n"
+                "Regards,\nRecruitment Team,\nClahan Technologies"
+            ),
+        }
+
+    if mail_type == "mail_trainer_budget_negotiate":
+        client_budget = str(payload.get("client_budget") or payload.get("budget") or "[Budget]").strip()
+        clahan_commission = 5000
+        trainer_charges = client_budget
+        if client_budget.isdigit():
+            trainer_charges = str(int(client_budget) - clahan_commission)
+        
+        return {
+            "mail_type": mail_type,
+            "subject": "Training Assignment - Budget Confirmation Required",
+            "body": (
+                f"Dear {trainer_name or 'Trainer'},\n\n"
+                f"The client has confirmed their training budget is INR {client_budget}.\n\n"
+                f"Your charges would be: INR {trainer_charges}\n\n"
+                "This includes food, accommodation, and all travel charges we will provide to you.\n\n"
+                "Can you proceed with this rate? Please confirm.\n\n"
+                "Regards,\nClahan Technologies"
+            ),
+        }
+
+    if mail_type == "mail_trainer_decline":
+        client_budget = str(payload.get("client_budget") or payload.get("budget") or "[Budget]").strip()
+        
+        return {
+            "mail_type": mail_type,
+            "subject": "Training Assignment - Budget Confirmation",
+            "body": (
+                f"Dear {trainer_name or 'Trainer'},\n\n"
+                f"Thank you for your response. However, the client's budget is fixed at INR {client_budget}. "
+                f"We cannot accommodate the additional charges you've requested.\n\n"
+                "Please note that Clahan Technologies provides food, accommodation, and travel charges as complete hospitality to trainers.\n\n"
+                "We will search for another suitable trainer for this opportunity and get back to you in case of "
+                "future requirements where your charges align with the client's budget.\n\n"
+                "Best Regards,\nClahan Technologies"
             ),
         }
 
@@ -8634,6 +8702,29 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
                 "We will keep your profile on record and reach out for future opportunities.\n\n"
                 "Thank you once again for your cooperation.\n\n"
                 "Regards,\nTrainerSync Team"
+            ),
+        }
+
+    if mail_type == "mail_client_lab_requirements":
+        return {
+            "mail_type": mail_type,
+            "subject": f"Lab Setup Requirements - {domain} Training",
+            "body": (
+                f"{greeting}\n\n"
+                f"Great news! We have confirmed your {domain} trainer.\n\n"
+                "Before the training starts, we need to confirm lab and environment setup requirements.\n\n"
+                "Do you need any of the following for hands-on training?\n\n"
+                "* Dedicated lab environment or servers\n"
+                "* Specific software or tools installation\n"
+                "* Database setup or configurations\n"
+                "* Hardware or network requirements\n\n"
+                "If YES, please provide details:\n"
+                "- What tools/software are needed?\n"
+                "- Any servers or databases required?\n"
+                "- Any specific configurations?\n\n"
+                "This will help us prepare everything in advance and ensure smooth training delivery.\n\n"
+                "Please confirm at your earliest convenience.\n\n"
+                "Regards,\nRecruitment Team,\nClahan Technologies"
             ),
         }
 
@@ -10490,13 +10581,15 @@ async def get_whatsapp_logs(requirement_id: Optional[str] = None, page: int = 1,
 
 # ─── Check Replies ────────────────────────────────────────────────────────────
 
-async def _auto_send_client_slots_from_trainer_reply(db, request: Request, log: dict, reply: dict) -> dict:
-    return {"skipped": True, "reason": "Client slot mails are manual only"}
-    if (log or {}).get("mail_type") not in {"mail3", "mail3_slot_followup"}:
-        return {"skipped": True, "reason": "Not an interview slot booking reply"}
-    if not looks_like_trainer_slots(reply.get("body") or ""):
+async def _auto_send_client_slots_from_trainer_reply(db, log: dict, reply: dict) -> dict:
+    # Check if this is a trainer response with availability slots
+    if (log or {}).get("mail_type") not in {"mail3", "mail3_slot_followup", "mail1", "mail2"}:
+        return {"skipped": True, "reason": "Not an outreach/booking reply"}
+    
+    if not looks_like_trainer_slot_response(reply.get("body") or ""):
         return {"skipped": True, "reason": "Trainer reply does not contain concrete interview slots"}
-    previous_result = (log or {}).get("client_slot_auto_result") or {}
+    
+    previous_result = (log or {}).get("trainer_slot_auto_result") or {}
     if previous_result.get("success"):
         return {
             "skipped": True,
@@ -10505,35 +10598,72 @@ async def _auto_send_client_slots_from_trainer_reply(db, request: Request, log: 
             "email_id": previous_result.get("email_id"),
         }
 
-    payload = {
-        "trainer_id": log.get("trainer_id") or "",
-        "trainer_name": log.get("trainer_name") or "the trainer",
-        "requirement_id": log.get("requirement_id") or "",
-        "slot_text": reply.get("body") or "",
-        "force": False,
-        "client_email": log.get("client_email") or "",
-        "client_name": log.get("client_name") or "",
-        "source_email_id": log.get("email_id") or "",
-        "source_message_id": reply.get("message_id_header") or "",
-    }
+    trainer_id = log.get("trainer_id") or ""
+    trainer_email = log.get("to_email") or ""
+    trainer_name = log.get("trainer_name") or "Trainer"
+    requirement_id = log.get("requirement_id") or ""
+    email_log_id = log.get("email_id") or ""
+    clean_body = reply.get("body") or ""
+
+    if not all([trainer_id, trainer_email, requirement_id]):
+        return {"success": False, "error": "Missing trainer or requirement info"}
+
+    # Process trainer slots
     try:
-        result = await send_client_slot_options_email(
+        slot_result = await process_trainer_slot_response(
             db,
-            payload,
-            tracking_url_builder=lambda email_id: build_tracking_url(request, email_id),
-            source="trainer_reply_auto",
-            request_base_url=_request_base_url(request),
+            email_log_id,
+            trainer_id,
+            trainer_email,
+            trainer_name,
+            requirement_id,
+            clean_body,
+            source="trainer_reply_webhook",
         )
-    except ClientSlotError as exc:
-        result = {"success": False, "error": str(exc), "already_sent": False}
+
+        if not slot_result.get("success"):
+            return slot_result
+
+        slots = slot_result.get("slots", [])
+        
+        # Send confirmation to trainer
+        trainer_confirm_success, trainer_confirm_error = await send_trainer_slot_confirmation(
+            trainer_email,
+            trainer_name,
+            log.get("technology") or "Training",
+            slots,
+        )
+
+        # Notify client with slot options
+        client_notify_result = await notify_client_with_trainer_slots(
+            db,
+            requirement_id,
+            trainer_name,
+            slots,
+        )
+
+        result = {
+            "success": True,
+            "slot_response_id": slot_result.get("slot_response_id"),
+            "slots_count": len(slots),
+            "slots": slots,
+            "trainer_confirmation": {
+                "success": trainer_confirm_success,
+                "error": trainer_confirm_error if not trainer_confirm_success else "",
+            },
+            "client_notification": client_notify_result,
+            "status": "slots_processed_and_notified",
+        }
+
     except Exception as exc:
-        result = {"success": False, "error": str(exc), "already_sent": False}
+        result = {"success": False, "error": str(exc), "status": "processing_failed"}
 
     await db["email_logs"].update_one(
         {"email_id": log.get("email_id")},
         {"$set": {
-            "client_slot_auto_result": result,
-            "client_slot_auto_checked_at": utc_now(),
+            "trainer_slot_auto_result": result,
+            "trainer_slot_auto_checked_at": utc_now(),
+            "trainer_slots_processed": result.get("success", False),
         }},
     )
     return result
@@ -10914,6 +11044,7 @@ async def _generate_extra_training_question_reply(db, log: dict, reply: dict, re
     fallback = _extra_training_reply_fallback(log, reply, requirement)
     if fallback.get("reply_kind") == "profile_details_request":
         return fallback
+    settings = get_settings()
     api_key = (os.getenv("GEMINI_API_KEY", "") or getattr(settings, "gemini_api_key", "")).strip()
     if _is_placeholder_api_key(api_key):
         return fallback
@@ -10962,7 +11093,7 @@ Latest mail stage: {log.get('mail_type') or ''}
 """
     try:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-        async with _httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=30) as client:
             res = await client.post(url, json={
                 "contents": [{"parts": [{"text": prompt}]}],
                 "generationConfig": {"temperature": 0.25, "maxOutputTokens": 700},
@@ -11412,7 +11543,7 @@ async def manual_reply_check(request: Request):
                     sort=[("sent_at", -1), ("created_at", -1)],
                 )
                 if slot_log:
-                    slot_result = await _auto_send_client_slots_from_trainer_reply(db, request, slot_log, reply)
+                    slot_result = await _auto_send_client_slots_from_trainer_reply(db, slot_log, reply)
                     if slot_result and not slot_result.get("skipped"):
                         client_slot_auto_results.append(slot_result)
                         if slot_result.get("success"):
@@ -11643,7 +11774,7 @@ async def manual_reply_check(request: Request):
                     reply=reply,
                 )
                 next_trainer_followups.append(followup_result)
-            slot_result = await _auto_send_client_slots_from_trainer_reply(db, request, log, reply)
+            slot_result = await _auto_send_client_slots_from_trainer_reply(db, log, reply)
             if slot_result and not slot_result.get("skipped"):
                 client_slot_auto_results.append(slot_result)
                 if slot_result.get("success"):
@@ -11908,7 +12039,7 @@ async def get_dashboard_stats():
             {"$bucket": {"groupBy": "$match_score", "boundaries": [0, 20, 40, 60, 80, 101],
                           "default": "Other", "output": {"count": {"$sum": 1}}}}
         ]).to_list(10)
-    except:
+    except Exception:
         score_dist = []
 
     return {
@@ -12184,19 +12315,6 @@ async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks
             iso = current.isocalendar()
             key = _week_key(iso.year, iso.week)
 
-            w_whatsapp_outbound = await db["whatsapp_logs"].count_documents({
-                **_range_match("created_at", w_start, week_end),
-                "direction": "outbound",
-                "status": {"$in": ["queued", "sent", "delivered", "read"]},
-            })
-            w_whatsapp_inbound = await db["whatsapp_logs"].count_documents({
-                **_range_match("created_at", w_start, week_end),
-                "direction": "inbound",
-            })
-            w_teams_sent = await db["teams_logs"].count_documents({
-                **_range_match("created_at", w_start, week_end),
-                "status": "sent",
-            })
             w_gemini = await _actual_cost_inr(db, "ai_usage_logs", _range_match("created_at", w_start, week_end))
             w_storage = await _actual_cost_inr(db, "client_emails", _range_match("received_at", w_start, week_end))
             w_whatsapp = await _actual_cost_inr(db, "whatsapp_logs", _range_match("created_at", w_start, week_end))
@@ -12696,7 +12814,7 @@ async def analyze_reply_intent(payload: dict):
         return {"intent": "neutral", "reason": "Empty reply body", "confidence": 0.5, "ai_used": False}
 
     # Strip quoted lines (lines starting with ">") — only analyze the trainer's own words
-    clean_lines = [l for l in reply_body.splitlines() if not l.strip().startswith(">")]
+    clean_lines = [line for line in reply_body.splitlines() if not line.strip().startswith(">")]
     clean_body  = "\n".join(clean_lines).strip() or reply_body
 
     # Try Gemini AI first
@@ -14963,6 +15081,7 @@ async def search_public_client_leads(payload: dict = {}):
                     "lead_id": f"LEAD-{uuid.uuid4().hex[:8].upper()}",
                     "source": lead_payload["source"],
                     "source_url": source_url,
+                    "image_url": image_url,
                     "company_name": "",
                     "contact_name": lead_payload["contact_name"],
                     "contact_email": analysis.get("contact_email") or "",
@@ -17048,10 +17167,7 @@ async def gmail_oauth_url(redirect_uri: Optional[str] = None):
     try:
         return get_gmail_oauth_url(redirect_uri)
     except FileNotFoundError as exc:
-        raise HTTPException(
-            400,
-            f"{exc}. Download OAuth credentials from Google Cloud and save them as backend/config/credentials.json.",
-        )
+        raise HTTPException(400, str(exc))
     except Exception as exc:
         raise HTTPException(400, str(exc))
 

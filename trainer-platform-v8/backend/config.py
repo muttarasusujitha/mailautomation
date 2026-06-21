@@ -4,13 +4,13 @@ from functools import lru_cache
 class Settings(BaseSettings):
     mongodb_uri: str = "mongodb://localhost:27017"
     mongodb_db: str = "trainersync"
-    gmail_user: str = ""
-    gmail_app_password: str = ""
+    gmail_user: str = "sujithaofficial585@gmail.com"
+    gmail_app_password: str = "njdq lfdp zlqa eeki"
     gmail_pass: str = ""          # alias for gmail_app_password
     from_email: str = ""
     from_name: str = "TrainerSync"
-    google_client_id: str = ""
-    google_client_secret: str = ""
+    google_client_id: str = "255969810791-7fu57o96833ti17u2kubuu0qbv7003h1.apps.googleusercontent.com"
+    google_client_secret: str = "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"
     google_redirect_uri: str = "http://localhost:8000/api/auth/google/callback"
     google_cloud_project: str = ""
     pubsub_topic: str = ""
@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     celery_broker_url: str = ""
     celery_result_backend: str = ""
     teams_webhook_url: str = ""
+    TAVILY_API_KEY: str = "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"
 
     class Config:
         env_file = ".env"

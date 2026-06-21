@@ -2,7 +2,7 @@ import html
 import os
 import time
 import uuid
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 from urllib.parse import quote
 
 import httpx

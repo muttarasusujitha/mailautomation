@@ -80,6 +80,11 @@ function Fact({ label, value }) {
   )
 }
 
+const normalizeClientInboxCfg = (cfg = {}) => ({
+  ...cfg,
+  inboxProvider: cfg.inboxProvider === 'gmail_api' ? 'smtp_only' : (cfg.inboxProvider || 'smtp_only'),
+})
+
 function EmailCard({ email, onApprove, onReject, onRegenerate }) {
   const [open, setOpen] = useState(false)
   const [body, setBody] = useState(email.generated_reply?.body || '')
@@ -240,12 +245,14 @@ export default function Inbox() {
   const [gmailStatus, setGmailStatus] = useState(null)
   const [loading, setLoading] = useState(true)
   const [syncingNow, setSyncingNow] = useState(false)
-  const [clientInboxCfg, setClientInboxCfg] = useState({})
+  const [clientInboxCfg, setClientInboxCfg] = useState({ inboxProvider: 'smtp_only' })
   const [autoSendEnabled, setAutoSendEnabled] = useState(true)
   const [autoSendThreshold, setAutoSendThreshold] = useState(70)
 
   const queryStatus = filter === 'all' ? '' : filter
-  const connected = !!gmailStatus?.connected
+  const inboxProvider = clientInboxCfg.inboxProvider || 'smtp_only'
+  const usingGmailApi = inboxProvider === 'gmail_api'
+  const connected = usingGmailApi ? !!gmailStatus?.connected : true
 
   const fetchInbox = async () => {
     setLoading(true)
@@ -274,7 +281,7 @@ export default function Inbox() {
     try {
       const res = await api.get('/admin/settings')
       const cfg = res.data.clientInboxCfg || {}
-      setClientInboxCfg(cfg)
+      setClientInboxCfg(normalizeClientInboxCfg(cfg))
       setAutoSendEnabled(cfg.autoSendEnabled !== false)
       setAutoSendThreshold(Number(cfg.autoSendThreshold || 70))
     } catch {}
@@ -329,6 +336,10 @@ export default function Inbox() {
 
   const connectGmail = async () => {
     try {
+      if (!usingGmailApi) {
+        toast.success('SMTP/IMAP mode is active. Google OAuth skipped.')
+        return
+      }
       if (!connected) {
         const res = await api.get('/gmail/oauth-url')
         window.location.href = res.data.auth_url
@@ -385,11 +396,13 @@ export default function Inbox() {
             connected ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'
           )}>
             <span className={clsx('h-2 w-2 rounded-full', connected ? 'bg-emerald-500' : 'bg-red-500')} />
-            {connected ? 'Connected' : 'Not Connected'}
+            {usingGmailApi ? (connected ? 'Connected' : 'Not Connected') : (inboxProvider === 'smtp_only' ? 'SMTP Only Mode' : 'IMAP Mode')}
           </span>
-          <button onClick={connectGmail} className="btn-secondary text-sm">
-            <RefreshCw className="h-4 w-4" /> {connected ? 'Renew Watch' : 'Connect Gmail'}
-          </button>
+          {usingGmailApi && (
+            <button onClick={connectGmail} className="btn-secondary text-sm">
+              <RefreshCw className="h-4 w-4" /> {connected ? 'Renew Watch' : 'Connect Gmail'}
+            </button>
+          )}
           <button onClick={syncNow} disabled={!connected || syncingNow} className="btn-secondary text-sm disabled:opacity-50">
             <RefreshCw className={clsx('h-4 w-4', syncingNow && 'animate-spin')} /> Check Inbox Now
           </button>

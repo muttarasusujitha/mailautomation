@@ -2,9 +2,8 @@
 PDF Processing Utility — Extract text from PDF files using PyMuPDF
 """
 
-import io
 import logging
-from typing import Optional, Tuple
+from typing import Tuple
 try:
     import fitz  # PyMuPDF
 except ImportError:

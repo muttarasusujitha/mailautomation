@@ -45,12 +45,80 @@ DRIVE_SCOPES = [
     "https://www.googleapis.com/auth/drive.file",
 ]
 GOOGLE_OAUTH_SCOPES = GMAIL_SCOPES + CALENDAR_SCOPES + DRIVE_SCOPES
+DEFAULT_GOOGLE_AUTH_URI = "https://accounts.google.com/o/oauth2/auth"
+DEFAULT_GOOGLE_TOKEN_URI = "https://oauth2.googleapis.com/token"
+DEFAULT_GOOGLE_CERT_URL = "https://www.googleapis.com/oauth2/v1/certs"
+DEFAULT_GOOGLE_CALLBACK = "http://localhost:5173/auth/callback"
 
 BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+PROJECT_DIR = os.path.abspath(os.path.join(BACKEND_DIR, ".."))
 CONFIG_DIR = os.path.join(BACKEND_DIR, "config")
 ENV_PATH = os.path.join(BACKEND_DIR, ".env")
-CREDENTIALS_PATH = os.getenv("GOOGLE_CREDENTIALS_FILE", os.path.join(CONFIG_DIR, "credentials.json"))
-TOKEN_PATH = os.getenv("GOOGLE_TOKEN_FILE", os.path.join(CONFIG_DIR, "token.json"))
+
+
+def _is_placeholder_value(value: str) -> bool:
+    lowered = (value or "").strip().lower()
+    return (
+        lowered in {"yourgmail@gmail.com", "your_gmail_app_password", "your-project-id"}
+        or "your_project_id" in lowered
+        or lowered.startswith("your-")
+        or "projects/your" in lowered
+        or lowered.startswith("your_")
+    )
+
+
+def _env_file_value(name: str) -> str:
+    if not os.path.exists(ENV_PATH):
+        return ""
+    prefix = f"{name.upper()}="
+    values: List[str] = []
+    try:
+        with open(ENV_PATH, "r", encoding="utf-8") as env_file:
+            for line in env_file:
+                stripped = line.strip()
+                if stripped.startswith(prefix):
+                    values.append(stripped.split("=", 1)[1].strip().strip("\"'"))
+    except OSError:
+        return ""
+    for value in reversed(values):
+        if value and not _is_placeholder_value(value):
+            return value
+    return ""
+
+
+def _google_config_path(env_name: str, default_filename: str) -> str:
+    configured = (
+        os.getenv(env_name, "")
+        or _env_file_value(env_name)
+        or getattr(get_settings(), env_name.lower(), "")
+    )
+    configured = str(configured or "").strip().strip("\"'")
+    if not configured or _is_placeholder_value(configured):
+        return os.path.join(CONFIG_DIR, default_filename)
+
+    configured = os.path.expanduser(os.path.expandvars(configured))
+    if os.path.isabs(configured):
+        return os.path.abspath(configured)
+
+    normalized = configured.replace("\\", "/").lstrip("./")
+    if normalized.startswith("backend/"):
+        return os.path.abspath(os.path.join(PROJECT_DIR, configured))
+    if normalized.startswith("config/"):
+        return os.path.abspath(os.path.join(BACKEND_DIR, configured))
+
+    candidates = [
+        os.path.abspath(os.path.join(BACKEND_DIR, configured)),
+        os.path.abspath(os.path.join(PROJECT_DIR, configured)),
+        os.path.abspath(configured),
+    ]
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            return candidate
+    return candidates[0]
+
+
+CREDENTIALS_PATH = _google_config_path("GOOGLE_CREDENTIALS_FILE", "credentials.json")
+TOKEN_PATH = _google_config_path("GOOGLE_TOKEN_FILE", "token.json")
 
 TRAINING_KEYWORDS = [
     "training", "trainer", "workshop", "corporate training", "need trainer",
@@ -85,35 +153,6 @@ TRAINER_THREAD_MAIL_TYPES = {
 }
 
 
-def _is_placeholder_value(value: str) -> bool:
-    lowered = (value or "").strip().lower()
-    return (
-        lowered in {"yourgmail@gmail.com", "your_gmail_app_password", "your-project-id"}
-        or "your_project_id" in lowered
-        or "projects/your" in lowered
-        or lowered.startswith("your_")
-    )
-
-
-def _env_file_value(name: str) -> str:
-    if not os.path.exists(ENV_PATH):
-        return ""
-    prefix = f"{name.upper()}="
-    values: List[str] = []
-    try:
-        with open(ENV_PATH, "r", encoding="utf-8") as env_file:
-            for line in env_file:
-                stripped = line.strip()
-                if stripped.startswith(prefix):
-                    values.append(stripped.split("=", 1)[1].strip())
-    except OSError:
-        return ""
-    for value in reversed(values):
-        if value and not _is_placeholder_value(value):
-            return value
-    return ""
-
-
 def _settings_value(name: str, default: str = "") -> str:
     settings = get_settings()
     candidates = [
@@ -129,15 +168,58 @@ def _settings_value(name: str, default: str = "") -> str:
     return default
 
 
+def _split_env_values(value: str) -> List[str]:
+    return [part.strip() for part in re.split(r"[,;\s]+", str(value or "")) if part.strip()]
+
+
+def _oauth_redirect_uris_from_env() -> List[str]:
+    redirects: List[str] = []
+    for name in ("GOOGLE_REDIRECT_URI", "GOOGLE_REDIRECT_URIS"):
+        for value in _split_env_values(os.getenv(name, "") or _env_file_value(name)):
+            if value not in redirects:
+                redirects.append(value)
+
+    frontend_url = _settings_value("frontend_url", "http://localhost:5173").rstrip("/")
+    frontend_callback = f"{frontend_url}/auth/callback"
+    for value in (frontend_callback, DEFAULT_GOOGLE_CALLBACK):
+        if value not in redirects:
+            redirects.append(value)
+    return redirects
+
+
+def _oauth_client_config_from_env() -> Optional[Tuple[str, Dict[str, Any]]]:
+    client_id = _settings_value("google_client_id")
+    client_secret = _settings_value("google_client_secret")
+    if not client_id or not client_secret:
+        return None
+
+    return "web", {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "auth_uri": DEFAULT_GOOGLE_AUTH_URI,
+        "token_uri": DEFAULT_GOOGLE_TOKEN_URI,
+        "auth_provider_x509_cert_url": DEFAULT_GOOGLE_CERT_URL,
+        "redirect_uris": _oauth_redirect_uris_from_env(),
+    }
+
+
 def _load_oauth_client_config() -> Tuple[str, Dict[str, Any]]:
-    if not os.path.exists(CREDENTIALS_PATH):
-        raise FileNotFoundError(f"Google OAuth credentials not found at {CREDENTIALS_PATH}")
-    with open(CREDENTIALS_PATH, "r", encoding="utf-8") as credentials_file:
-        config = json.load(credentials_file)
-    client_type = "web" if "web" in config else "installed" if "installed" in config else ""
-    if not client_type:
-        raise RuntimeError("Google OAuth credentials must contain a 'web' or 'installed' client.")
-    return client_type, config[client_type]
+    if os.path.exists(CREDENTIALS_PATH):
+        with open(CREDENTIALS_PATH, "r", encoding="utf-8") as credentials_file:
+            config = json.load(credentials_file)
+        client_type = "web" if "web" in config else "installed" if "installed" in config else ""
+        if not client_type:
+            raise RuntimeError("Google OAuth credentials must contain a 'web' or 'installed' client.")
+        return client_type, config[client_type]
+
+    env_config = _oauth_client_config_from_env()
+    if env_config:
+        return env_config
+
+    raise FileNotFoundError(
+        "Google OAuth credentials not configured. Save the Google OAuth client JSON at "
+        f"{CREDENTIALS_PATH}, or set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in backend/.env."
+    )
 
 
 def _default_redirect_uri() -> str:
@@ -148,10 +230,11 @@ def _default_redirect_uri() -> str:
 
 def _oauth_flow(redirect_uri: Optional[str] = None) -> Flow:
     redirect = redirect_uri or _default_redirect_uri()
+    client_type, client = _load_oauth_client_config()
     if redirect.startswith("http://localhost") or redirect.startswith("http://127.0.0.1"):
         os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")  # NOSONAR: local OAuth callback only
-    return Flow.from_client_secrets_file(
-        CREDENTIALS_PATH,
+    return Flow.from_client_config(
+        {client_type: client},
         scopes=GOOGLE_OAUTH_SCOPES,
         redirect_uri=redirect,
     )
@@ -188,7 +271,7 @@ def save_gmail_oauth_token(code: str, redirect_uri: Optional[str] = None) -> Dic
             f"Missing scopes: {', '.join(missing_scopes)}. "
             "Reconnect and approve Gmail, Calendar, and Drive permissions."
         )
-    os.makedirs(CONFIG_DIR, exist_ok=True)
+    os.makedirs(os.path.dirname(TOKEN_PATH) or CONFIG_DIR, exist_ok=True)
     with open(TOKEN_PATH, "w", encoding="utf-8") as token_file:
         token_file.write(creds.to_json())
 
@@ -332,8 +415,9 @@ def looks_like_client_requirement_closed(text: str) -> bool:
         r"\brequirement\s+(?:is\s+|was\s+)?withdrawn\b",
         r"\bposition\s+(?:is\s+|was\s+)?closed\b",
         r"\brole\s+(?:is\s+|was\s+)?closed\b",
-        r"\bno\s+longer\s+(?:required|needed)\b",
-        r"\bnot\s+required\s+anymore\b",
+        r"\bno\s+longer\s+(?:required|needed|interested)\b",
+        r"\bnot\s+(?:required|interested)\s+anymore\b",
+        r"\bnot\s+interested\b",
         r"\bfound\s+(?:another|other)\s+trainer\b",
         r"\balready\s+(?:finali[sz]ed|closed|hired|got)\b",
         r"\b(?:too|so|very)\s+late\b",
@@ -344,6 +428,8 @@ def looks_like_client_requirement_closed(text: str) -> bool:
 def client_requirement_closure_reason(text: str) -> str:
     clean = re.sub(r"\s+", " ", clean_email_body(text or "")).strip()
     lowered = clean.lower()
+    if re.search(r"\bnot\s+interested\b", lowered):
+        return "Client indicated they are not interested in this requirement."
     if re.search(r"\b(?:too|so|very)?\s*late\b", lowered):
         return "Client said the requirement is closed because the response was late."
     if re.search(r"\bfound\s+(?:another|other)\s+trainer\b", lowered):
@@ -556,7 +642,7 @@ def _google_credentials(scopes: Optional[List[str]] = None):
         )
     if creds.expired and creds.refresh_token:
         creds.refresh(GoogleAuthRequest())
-        os.makedirs(CONFIG_DIR, exist_ok=True)
+        os.makedirs(os.path.dirname(TOKEN_PATH) or CONFIG_DIR, exist_ok=True)
         with open(TOKEN_PATH, "w", encoding="utf-8") as token_file:
             token_file.write(creds.to_json())
 
@@ -1041,12 +1127,11 @@ def generate_client_requirement_closed_reply(
         if delay_context else
         "Thank you for the update."
     )
-    footer = (signature or "Regards,\nRecruitment Team,\nClahan Technologies").strip()
+    footer = (signature or "Regards,\nRecruitment Team,\nCalhan Technologies").strip()
     body = (
         f"Dear {client_name},\n\n"
         f"{opening} We understand that this requirement has been closed, and we will not proceed further on it.\n\n"
-        "For any future training requirements, please feel free to contact us. "
-        "We will be happy to support you with suitable trainer profiles promptly.\n\n"
+        "For any future training requirements, please feel free to contact us. We will be happy to support you with suitable trainer profiles promptly.\n\n"
         f"{footer}"
     )
     return {

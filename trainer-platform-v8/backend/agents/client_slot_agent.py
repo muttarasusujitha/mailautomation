@@ -1,4 +1,3 @@
-from datetime import datetime
 from utils.time_utils import utc_now
 import hashlib
 import re

@@ -374,7 +374,7 @@ async def poll_client_inbox_fallback_job():
             {"settings_id": "default"},
             {"_id": 0, "clientInboxCfg.inboxProvider": 1},
         ) or {}
-        inbox_provider = str(((settings_doc.get("clientInboxCfg") or {}).get("inboxProvider")) or "gmail_api").strip().lower()
+        inbox_provider = str(((settings_doc.get("clientInboxCfg") or {}).get("inboxProvider")) or "smtp_only").strip().lower()
         if inbox_provider in {"smtp_only", "smtp"}:
             # SMTP-only test mode intentionally skips inbox polling.
             auto_sent_existing = await auto_send_pending_client_replies_smtp(db)
@@ -405,7 +405,7 @@ async def poll_client_inbox_fallback_job():
         if status.get("valid"):
             try:
                 async with httpx.AsyncClient(timeout=180) as client:
-                    response = await client.post("http://127.0.0.1:8001/api/gmail/sync-now?limit=25")
+                    response = await client.post("http://127.0.0.1:8000/api/gmail/sync-now?limit=25")
                     response.raise_for_status()
                     result = response.json()
                 if result.get("processed_count") or result.get("auto_sent_existing_count"):
@@ -450,7 +450,7 @@ async def discover_linkedin_client_leads_job():
     try:
         async with httpx.AsyncClient(timeout=240) as client:
             response = await client.post(
-                "http://127.0.0.1:8001/api/client-leads/search-public",
+                "http://127.0.0.1:8000/api/client-leads/search-public",
                 json={
                     "auto_discover": True,
                     "max_results": 8,

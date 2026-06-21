@@ -3,7 +3,7 @@ import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import {
   CheckCircle2, ExternalLink, Mail, RefreshCw,
-  Search, Send, Target, Trash2, Linkedin, Users, BookOpen,
+  Search, Send, Trash2, Linkedin, Users, BookOpen,
 } from 'lucide-react'
 import api from '../utils/api'
 
@@ -45,12 +45,6 @@ function buildTrainerQueries(domain) {
     { q: `"hiring ${d} trainer" site:linkedin.com`,                intent: 'requirement' },
     { q: `"${d} training for our team" site:linkedin.com`,         intent: 'requirement' },
   ]
-}
-
-// Visible query pill labels for the search preview
-const QUERY_INTENT_LABELS = {
-  trainer:     'Trainer Profiles',
-  requirement: 'Client Requirements',
 }
 
 // ─── Styling helpers ───────────────────────────────────────────────────────────

@@ -4,7 +4,6 @@ import { Suspense, lazy, useState } from 'react'
 import Layout from './components/Layout'
 import ChatAssistant from './components/ChatAssistant'
 import FloatingIntegrations from './components/FloatingIntegrations'
-import ThemeToggle from './components/ThemeToggle'
 
 const Login = lazy(() => import('./pages/Login'))
 const Home = lazy(() => import('./pages/Home'))
@@ -114,7 +113,6 @@ export default function App() {
       {/* Chat assistant — visible on all authenticated pages */}
       {isLoggedIn && (
         <>
-          <ThemeToggle floating />
           <FloatingIntegrations />
           <ChatAssistant />
         </>

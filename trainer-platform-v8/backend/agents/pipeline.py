@@ -3,9 +3,8 @@ LangGraph Orchestrator
 Agents: Parser → Validation → Ranking → Email → Reply Monitor → Retry Scheduler
 """
 
-from typing import TypedDict, List, Dict, Any, Optional
+from typing import TypedDict, List, Dict, Any
 from langgraph.graph import StateGraph, END
-from datetime import datetime
 from utils.time_utils import utc_now
 from config import get_settings
 import anthropic
@@ -372,7 +371,6 @@ def email_composer_agent(state: PipelineState) -> PipelineState:
         if not t.get("email"):
             continue
 
-        skills_preview = ", ".join(t.get("skills", [])[:3]) or tech
         subject = f"Training Opportunity — {tech} | Ref: {req_id}"
 
         body = f"""Dear {t['name']},

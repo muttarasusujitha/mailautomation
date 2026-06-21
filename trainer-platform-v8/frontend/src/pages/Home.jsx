@@ -2,13 +2,14 @@
 // Professional SaaS Operations Home Page
 // Uses: lucide-react, react-router-dom, inline styles only (Tailwind-free for portability)
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom'
 import BrandMark from '../components/BrandMark'
 import {
   ArrowRight, CheckCircle, Play,
-  Brain, Mail, MessageSquare, Users,
-  TrendingUp, Shield, ChevronRight, BarChart2,
+  Brain, Mail, MessageSquare,
+  Shield, ChevronLeft, ChevronRight,
   Filter, Send, Calendar, Sparkles,
   Inbox, FileText, UserCheck, PhoneCall,
   Bell, Search,
@@ -16,7 +17,7 @@ import {
   AlertCircle,
   Cpu,
   MailCheck, MailOpen, Reply,
-  Award, Target, Repeat2,
+  Award, Repeat2,
   BotMessageSquare,
   SquareKanban, Webhook, CloudCog,
   LayoutDashboard
@@ -73,9 +74,11 @@ const CSS = `
   ::selection { background: ${T.brandLight}; color: ${T.brand}; }
 
   /* scrollbar */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+  html { scrollbar-width: thin; scrollbar-color: #94A3B8 #EDF2F7; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #EDF2F7; }
+  ::-webkit-scrollbar-thumb { background: #94A3B8; border: 2px solid #EDF2F7; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #64748B; }
 
   /* animations */
   @keyframes fadeUp   { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
@@ -85,7 +88,10 @@ const CSS = `
   @keyframes scaleIn  { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
   @keyframes ping     { 0%{transform:scale(1);opacity:0.7} 100%{transform:scale(2);opacity:0} }
   @keyframes ticker   { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-  @keyframes featureScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  @keyframes workflowAccent {
+    0%, 11% { transform: scaleX(1); opacity: 1; }
+    18%, 100% { transform: scaleX(0.18); opacity: 0.22; }
+  }
   @keyframes pulse2   { 0%,100%{opacity:1} 50%{opacity:0.5} }
   @keyframes shimmer  { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
   @keyframes floatUp  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
@@ -203,47 +209,178 @@ const CSS = `
   }
 
   /* Ticker */
-  .ticker-wrap { overflow: hidden; }
-  .ticker-track { display:flex; width:max-content; animation: ticker 30s linear infinite; }
+  .ticker-wrap {
+    min-width: 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+  }
+  .ticker-track {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    min-height: 52px;
+    white-space: nowrap;
+    animation: ticker 24s linear infinite;
+    will-change: transform;
+  }
   .ticker-track:hover { animation-play-state:paused; }
+  .ticker-item {
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 26px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    line-height: 1;
+    isolation: isolate;
+  }
+  .ticker-item + .ticker-item { border-left: 1px solid ${T.borderLight}; }
+  .ticker-item span {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    color: ${T.textSecondary};
+  }
+  .hero-ticker {
+    min-height: 52px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: stretch;
+    overflow: hidden;
+    background: ${T.surface};
+    border-top: 1px solid ${T.border};
+    border-bottom: 1px solid ${T.border};
+    box-shadow: 0 -8px 30px rgba(15,23,42,0.05);
+  }
+  .hero-ticker-label {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 24px;
+    background: linear-gradient(135deg, ${T.brand}, ${T.brandDark});
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .hero-ticker-label::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -18px;
+    width: 36px;
+    height: 100%;
+    background: ${T.brandDark};
+    transform: skewX(-18deg);
+    z-index: -1;
+  }
+  .hero-ticker .ticker-wrap {
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    padding-left: 18px;
+  }
+
+  /* First screen: navigation + hero + live capability ticker */
+  .hero-stage {
+    height: 100svh;
+    min-height: 640px;
+    padding-top: 56px;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 76% 32%, rgba(26,86,219,0.10), transparent 32%),
+      ${T.bg};
+  }
+  .hero-main {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 28px 18px;
+    display: flex;
+    align-items: center;
+    min-height: 0;
+  }
+  .hero-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(420px, 1.05fr);
+    gap: clamp(28px, 4vw, 56px);
+    align-items: center;
+  }
+  .hero-image-panel { min-height: clamp(420px, 64vh, 520px); }
 
   /* Feature scroller */
   .feature-scroll-shell {
     position: relative;
-    overflow: hidden;
-    padding: 4px 0 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: ${T.brand}35 ${T.borderLight};
+    overscroll-behavior-inline: contain;
+    padding: 6px 2px 18px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
   }
-  .feature-scroll-shell::before,
-  .feature-scroll-shell::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 82px;
-    z-index: 2;
-    pointer-events: none;
-  }
-  .feature-scroll-shell::before {
-    left: 0;
-    background: linear-gradient(90deg, ${T.surface} 0%, rgba(255,255,255,0) 100%);
-  }
-  .feature-scroll-shell::after {
-    right: 0;
-    background: linear-gradient(270deg, ${T.surface} 0%, rgba(255,255,255,0) 100%);
-  }
+  .feature-scroll-shell::-webkit-scrollbar { height: 8px; }
+  .feature-scroll-shell::-webkit-scrollbar-track { background: ${T.borderLight}; border-radius: 999px; }
+  .feature-scroll-shell::-webkit-scrollbar-thumb { background: ${T.brand}55; border: 1px solid ${T.borderLight}; }
+  .feature-scroll-shell::-webkit-scrollbar-thumb:hover { background: ${T.brand}88; }
   .feature-scroll-track {
     display: flex;
     align-items: stretch;
     gap: 16px;
     width: max-content;
-    animation: featureScroll 38s linear infinite;
-    will-change: transform;
+    padding: 0 22px;
   }
-  .feature-scroll-shell:hover .feature-scroll-track { animation-play-state: paused; }
   .feature-scroll-card {
     flex: 0 0 360px;
     width: 360px;
     max-width: 82vw;
+    height: 430px;
+    scroll-snap-align: start;
+  }
+  .feature-card-inner {
+    height: 100%;
+    overflow: hidden;
+  }
+  .feature-controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin: -30px 2px 14px;
+  }
+  .feature-control {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid ${T.border};
+    background: ${T.surface};
+    color: ${T.textSecondary};
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: ${T.shadow};
+    transition: transform 0.18s, color 0.18s, border-color 0.18s, box-shadow 0.18s;
+  }
+  .feature-control:hover {
+    color: ${T.brand};
+    border-color: ${T.brand}55;
+    transform: translateY(-2px);
+    box-shadow: ${T.shadowMd};
   }
 
   /* Workflow step connector */
@@ -254,15 +391,14 @@ const CSS = `
   }
   .workflow-grid {
     display: grid;
-    grid-template-columns: repeat(7, minmax(142px, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 14px;
-    overflow-x: auto;
-    padding: 20px 4px 18px;
-    scrollbar-gutter: stable;
+    overflow: visible;
+    padding: 20px 14px 10px;
   }
   .workflow-step {
     position: relative;
-    min-width: 142px;
+    min-width: 0;
     display: flex;
     --workflow-soft: rgba(26,86,219,0.10);
   }
@@ -283,7 +419,7 @@ const CSS = `
   .workflow-step:last-child::after { display: none; }
   .workflow-card {
     width: 100%;
-    min-height: 172px;
+    height: 190px;
     background: linear-gradient(180deg, ${T.surface} 0%, ${T.bg} 100%);
     border: 1.5px solid ${T.border};
     border-radius: 12px;
@@ -298,6 +434,19 @@ const CSS = `
     animation: workflowCardRun 8.4s ease-in-out infinite;
     animation-delay: var(--workflow-delay);
     will-change: transform, box-shadow;
+  }
+  .workflow-card::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: 0;
+    height: 3px;
+    border-radius: 0 0 999px 999px;
+    background: var(--workflow-color);
+    transform-origin: center;
+    animation: workflowAccent 8.4s ease-in-out infinite;
+    animation-delay: var(--workflow-delay);
   }
   .workflow-number {
     position: absolute;
@@ -339,9 +488,30 @@ const CSS = `
     justify-content: center;
   }
   .workflow-desc {
-    min-height: 48px;
+    min-height: 50px;
     display: flex;
     align-items: flex-start;
+    justify-content: center;
+  }
+  .workflow-step-state {
+    margin-top: auto;
+    padding-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--workflow-color);
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .workflow-step-state span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--workflow-color);
+    box-shadow: 0 0 0 4px var(--workflow-soft);
   }
   .workflow-arrow {
     position: absolute;
@@ -374,10 +544,12 @@ const CSS = `
     border: 1px solid ${T.border};
     border-radius: 12px;
     padding: 14px;
-    min-height: 150px;
+    min-height: 172px;
     box-shadow: ${T.shadow};
     animation: workflowMessageIn 7.2s ease-in-out infinite;
     animation-delay: var(--message-delay);
+    display: flex;
+    flex-direction: column;
   }
   .workflow-message-head {
     display: flex;
@@ -412,7 +584,8 @@ const CSS = `
     margin: 0;
   }
   .workflow-message-action {
-    margin-top: 11px;
+    margin-top: auto;
+    padding-top: 11px;
     display: flex;
     align-items: center;
     gap: 7px;
@@ -691,7 +864,7 @@ const CSS = `
   .integration-pipeline-step {
     position: relative;
     z-index: 1;
-    min-height: 132px;
+    height: 142px;
     border-radius: 14px;
     border: 1px solid ${T.border};
     background: #fff;
@@ -700,6 +873,12 @@ const CSS = `
     flex-direction: column;
     gap: 12px;
     box-shadow: ${T.shadow};
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+  .integration-pipeline-step:hover {
+    transform: translateY(-3px);
+    border-color: rgba(26,86,219,0.26);
+    box-shadow: ${T.shadowMd};
   }
   .integration-pipeline-head {
     display: flex;
@@ -735,38 +914,56 @@ const CSS = `
   .pipe-step-active { animation: borderAnim 2s ease-in-out infinite; }
 
   /* Responsive */
+  @media(max-width:1100px){
+    .hero-grid { grid-template-columns: minmax(0, 0.95fr) minmax(380px, 1.05fr); gap: 30px; }
+    .workflow-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .workflow-arrow,
+    .workflow-step::after { display: none; }
+    .integration-pipeline-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .integration-pipeline-row::before { display: none; }
+  }
+  @media(max-width:900px){
+    .hero-stage { height: auto; min-height: auto; overflow: visible; }
+    .hero-main { padding-top: 42px; padding-bottom: 42px; }
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-image-panel { min-height: 480px; }
+    .workflow-conversation { grid-template-columns: 1fr; }
+    .workflow-message-card { min-height: 0; }
+  }
   @media(max-width:768px){
     .hide-mobile { display:none !important; }
     .cols-mobile-1 { grid-template-columns: 1fr !important; }
     .cols-mobile-2 { grid-template-columns: repeat(2,1fr) !important; }
-    .feature-scroll-card { flex-basis: 300px; width: 300px; }
-    .feature-scroll-track { animation-duration: 44s; }
-    .feature-scroll-shell::before,
-    .feature-scroll-shell::after { width: 34px; }
-    .workflow-grid { grid-template-columns: repeat(7, 170px); gap: 12px; padding-inline: 2px; }
-    .workflow-step { min-width: 170px; }
-    .workflow-card { min-height: 168px; }
-    .workflow-arrow { right: -14px; }
-    .workflow-step::after { width: 14px; }
-    .workflow-conversation { grid-template-columns: 1fr; }
-    .ai-signal-row { grid-template-columns: 1fr; }
+    .hero-main { padding: 34px 20px; }
+    .hero-image-panel { min-height: 430px; border-radius: 22px !important; }
+    .hero-ticker { min-height: 48px; grid-template-columns: 1fr; }
+    .hero-ticker-label { display: none; }
+    .feature-scroll-card { flex-basis: min(320px, 84vw); width: min(320px, 84vw); height: 450px; }
+    .feature-controls { margin-top: -22px; }
+    .workflow-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-inline: 0; }
+    .workflow-card { height: 188px; }
     .integration-layout { min-height: 420px; }
     .integration-cycle { height: 420px; }
     .integration-logo-node { width: 104px; height: 76px; border-radius: 20px; }
     .integration-logo-label { font-size: 11.5px; }
     .integration-core-node { width: 86px; height: 86px; border-radius: 26px; }
     .integration-pipeline-panel { padding: 18px; }
-    .integration-pipeline-row { grid-template-columns: repeat(6, 168px); overflow-x: auto; padding-bottom: 4px; }
-    .integration-pipeline-row::before { left: 36px; right: auto; width: 920px; }
+    .integration-pipeline-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .integration-event-grid { grid-template-columns: 1fr; }
     .integration-marquee-shell::before,
     .integration-marquee-shell::after { width: 34px; }
   }
   @media(max-width:480px){
     .cols-mobile-2 { grid-template-columns: 1fr !important; }
+    .hero-main { padding-inline: 16px; }
+    .hero-image-panel { min-height: 390px; }
+    .workflow-grid,
+    .integration-pipeline-row { grid-template-columns: 1fr; }
+    .workflow-card { height: 176px; }
+    .feature-scroll-card { height: 480px; }
+    .feature-controls { justify-content: center; margin-top: -20px; }
   }
   @media(prefers-reduced-motion: reduce){
-    .feature-scroll-track { animation: none; overflow-x: auto; }
     .integration-marquee-track { animation: none; overflow-x: auto; }
     .workflow-card,
     .workflow-icon,
@@ -774,6 +971,7 @@ const CSS = `
     .workflow-arrow,
     .workflow-step::after,
     .workflow-message-card,
+    .workflow-card::before,
     .ai-mini-panel::before,
     .ai-signal,
     .ai-match-bar span { animation: none; }
@@ -783,18 +981,25 @@ const CSS = `
 // ─── Utility Components ───────────────────────────────────────
 function Card({ children, style, className = '', onClick }) {
   return (
-    <div
+    <button
       onClick={onClick}
       className={`card-hover ${className}`}
       style={{
         background: T.surface, border: `1px solid ${T.border}`,
         borderRadius: 12, overflow: 'hidden',
-        boxShadow: T.shadow, ...style
+        boxShadow: T.shadow, ...style, cursor: 'pointer'
       }}
     >
       {children}
-    </div>
+    </button>
   )
+}
+
+Card.propTypes = {
+  children: PropTypes.node.isRequired,
+  style: PropTypes.object,
+  className: PropTypes.string,
+  onClick: PropTypes.func,
 }
 
 function Badge({ children, color = T.brand, bg, style }) {
@@ -803,6 +1008,13 @@ function Badge({ children, color = T.brand, bg, style }) {
       {children}
     </span>
   )
+}
+
+Badge.propTypes = {
+  children: PropTypes.node.isRequired,
+  color: PropTypes.string,
+  bg: PropTypes.string,
+  style: PropTypes.object,
 }
 
 function SectionLabel({ icon: Icon, children }) {
@@ -814,20 +1026,38 @@ function SectionLabel({ icon: Icon, children }) {
   )
 }
 
+SectionLabel.propTypes = {
+  icon: PropTypes.elementType,
+  children: PropTypes.node.isRequired,
+}
+
 function SectionHeader({ label, labelIcon, title, sub, center }) {
+  const textAlign = center ? 'center' : 'left'
+  const justify = center ? 'center' : 'flex-start'
+  const maxWidth = center ? 560 : '100%'
+  const margin = center ? '0 auto' : 0
+  
   return (
-    <div style={{ textAlign: center ? 'center' : 'left', marginBottom: 48 }}>
-      {label && <div style={{ marginBottom: 12, display: 'flex', justifyContent: center ? 'center' : 'flex-start' }}>
+    <div style={{ textAlign, marginBottom: 48 }}>
+      {label && <div style={{ marginBottom: 12, display: 'flex', justifyContent: justify }}>
         <SectionLabel icon={labelIcon}>{label}</SectionLabel>
       </div>}
       <h2 style={{ fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, color: T.textPrimary, lineHeight: 1.2, marginBottom: 10 }}>
         {title}
       </h2>
-      {sub && <p style={{ fontSize: 15.5, color: T.textSecondary, maxWidth: center ? 560 : '100%', margin: center ? '0 auto' : 0, lineHeight: 1.65 }}>
+      {sub && <p style={{ fontSize: 15.5, color: T.textSecondary, maxWidth, margin, lineHeight: 1.65 }}>
         {sub}
       </p>}
     </div>
   )
+}
+
+SectionHeader.propTypes = {
+  label: PropTypes.string,
+  labelIcon: PropTypes.elementType,
+  title: PropTypes.string.isRequired,
+  sub: PropTypes.string,
+  center: PropTypes.bool,
 }
 
 // ─── Animated Counter ─────────────────────────────────────────
@@ -839,50 +1069,12 @@ function StatusBadge({ status }) {
   )
 }
 
-function useCounter(target, duration = 1600) {
-  const [val, setVal] = useState(0)
-  const ref = useRef(null)
-  const started = useRef(false)
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !started.current) {
-        started.current = true
-        const t0 = performance.now()
-        const tick = now => {
-          const p = Math.min((now - t0) / duration, 1)
-          setVal(Math.floor((1 - Math.pow(1 - p, 3)) * target))
-          if (p < 1) requestAnimationFrame(tick)
-          else setVal(target)
-        }
-        requestAnimationFrame(tick)
-      }
-    }, { threshold: 0.3 })
-    if (ref.current) obs.observe(ref.current)
-    return () => obs.disconnect()
-  }, [target, duration])
-  return { val, ref }
+StatusBadge.propTypes = {
+  status: PropTypes.string.isRequired,
 }
 
 // ─── Live Activity Feed ───────────────────────────────────────
 // ─── Stat Card ────────────────────────────────────────────────
-function StatCard({ icon: Icon, color, label, target, suffix = '', trend, delay = '0s' }) {
-  const { val, ref } = useCounter(target)
-  return (
-    <div ref={ref} className="card-hover fade-up" style={{ animationDelay: delay, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '20px', boxShadow: T.shadow }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div style={{ width: 38, height: 38, borderRadius: 10, background: `${color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon size={18} color={color} />
-        </div>
-        {trend && <Badge color={T.green} bg={T.greenLight}><TrendingUp size={9}/> {trend}</Badge>}
-      </div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: T.textPrimary, lineHeight: 1, marginBottom: 4 }} className="mono">
-        {val}{suffix}
-      </div>
-      <div style={{ fontSize: 13, color: T.textSecondary, fontWeight: 500 }}>{label}</div>
-    </div>
-  )
-}
-
 // ─── Pipeline Stages ─────────────────────────────────────────
 const PIPELINE_STAGES = [
   { n: '01', label: 'First Contact',       icon: Send,        color: T.brand,  desc: 'Initial email + WhatsApp outreach to matched trainers' },
@@ -914,21 +1106,36 @@ function PipelineSection() {
 
         {PIPELINE_STAGES.map((st, i) => {
           const done = i < active, curr = i === active
+          let bgColor, iconColor, textColor
+          if (curr) {
+            bgColor = st.color
+            iconColor = '#fff'
+            textColor = st.color
+          } else if (done) {
+            bgColor = `${st.color}20`
+            iconColor = st.color
+            textColor = st.color
+          } else {
+            bgColor = T.surface
+            iconColor = T.textMuted
+            textColor = T.textMuted
+          }
+          const iconSize = curr || done ? 15 : 14
           return (
-            <button key={i} onClick={() => { setActive(i); setRunning(false) }}
+            <button key={`stage-${i}-${st.label}`} onClick={() => { setActive(i); setRunning(false) }}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', zIndex: 1 }}>
               <div style={{
                 width: 38, height: 38, borderRadius: '50%',
-                background: curr ? st.color : done ? `${st.color}20` : T.surface,
+                background: bgColor,
                 border: `2px solid ${curr || done ? st.color : T.border}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transform: curr ? 'scale(1.18)' : 'scale(1)',
                 boxShadow: curr ? `0 0 0 5px ${st.color}18, 0 4px 16px ${st.color}30` : 'none',
                 transition: 'all 0.35s cubic-bezier(0.34,1.56,0.64,1)'
               }}>
-                <st.icon size={curr || done ? 15 : 14} color={curr ? '#fff' : done ? st.color : T.textMuted} />
+                <st.icon size={iconSize} color={iconColor} />
               </div>
-              <span style={{ fontSize: 10, fontWeight: 600, color: curr ? st.color : done ? st.color : T.textMuted, textAlign: 'center', lineHeight: 1.2 }} className="hide-mobile">
+              <span style={{ fontSize: 10, fontWeight: 600, color: textColor, textAlign: 'center', lineHeight: 1.2 }} className="hide-mobile">
                 {st.label}
               </span>
             </button>
@@ -1006,15 +1213,18 @@ const FEATURES = [
   },
 ]
 
-const SCROLLING_FEATURES = [...FEATURES, ...FEATURES]
-
 function FeatureCard({ feature, delay }) {
   const [hov, setHov] = useState(false)
+  const borderColor = hov ? feature.color + '30' : T.border
+  const boxShadow = hov ? T.shadowMd : T.shadow
+  
   return (
-    <div
-      className="card-hover fade-up"
-      style={{ height: '100%', animationDelay: delay, background: T.surface, border: `1.5px solid ${hov ? feature.color + '30' : T.border}`, borderRadius: 14, padding: '24px', boxShadow: hov ? T.shadowMd : T.shadow, transition: 'all 0.2s', cursor: 'default' }}
-      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+    <button
+      className="card-hover fade-up feature-card-inner"
+      style={{ height: '100%', animationDelay: delay, background: T.surface, border: `1.5px solid ${borderColor}`, borderRadius: 14, padding: '24px', boxShadow, transition: 'all 0.2s', cursor: 'pointer', display: 'block', width: '100%', textAlign: 'left' }}
+      onMouseEnter={() => setHov(true)} 
+      onMouseLeave={() => setHov(false)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setHov(!hov) }}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
         <div style={{ width: 44, height: 44, borderRadius: 12, background: feature.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s', transform: hov ? 'scale(1.08)' : 'scale(1)' }}>
@@ -1025,8 +1235,8 @@ function FeatureCard({ feature, delay }) {
       <h3 style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary, margin: '0 0 8px' }}>{feature.title}</h3>
       <p style={{ fontSize: 13.5, color: T.textSecondary, lineHeight: 1.6, margin: '0 0 14px' }}>{feature.desc}</p>
       <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 5 }}>
-        {feature.points.map((p, i) => (
-          <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: T.textSecondary }}>
+        {feature.points.map((p) => (
+          <li key={p} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: T.textSecondary }}>
             <CheckCircle size={12} color={feature.color} /> {p}
           </li>
         ))}
@@ -1038,8 +1248,8 @@ function FeatureCard({ feature, delay }) {
               ['Resume', 'Parsed', '0s'],
               ['Skills', '92%', '0.25s'],
               ['Match', 'Ranked', '0.5s'],
-            ].map(([label, value, itemDelay]) => (
-              <div key={label} className="ai-signal" style={{ '--ai-delay': itemDelay }}>
+            ].map(([label, value, itemDelay], idx) => (
+              <div key={`signal-${idx}-${label}`} className="ai-signal" style={{ '--ai-delay': itemDelay }}>
                 <span className="ai-signal-label">{label}</span>
                 <span className="ai-signal-value">{value}</span>
               </div>
@@ -1050,8 +1260,21 @@ function FeatureCard({ feature, delay }) {
           </div>
         </div>
       )}
-    </div>
+    </button>
   )
+}
+
+FeatureCard.propTypes = {
+  feature: PropTypes.shape({
+    icon: PropTypes.elementType.isRequired,
+    color: PropTypes.string.isRequired,
+    bg: PropTypes.string.isRequired,
+    tag: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    desc: PropTypes.string.isRequired,
+    points: PropTypes.arrayOf(PropTypes.string).isRequired,
+  }).isRequired,
+  delay: PropTypes.string,
 }
 
 // ─── Integration logos ────────────────────────────────────────
@@ -1148,13 +1371,13 @@ const TRAINER_ROWS = [
   { name: 'Vikram Nair',  skill: 'Java Spring Boot',  loc: 'Mumbai',    score: 82, status: 'No Reply',    email: false, wa: false },
 ]
 
-function _DashboardPreview() {
+function DashboardPreview() {
   return (
     <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: T.shadowXl }}>
       {/* Title bar */}
       <div style={{ padding: '11px 16px', background: T.bg, borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', gap: 5 }}>
-          {['#FF5F57','#FFBD2E','#28C840'].map((c,i) => <div key={i} style={{ width:10,height:10,borderRadius:'50%',background:c }} />)}
+          {['#FF5F57','#FFBD2E','#28C840'].map((c) => <div key={c} style={{ width:10,height:10,borderRadius:'50%',background:c }} />)}
         </div>
         <span style={{ fontSize: 12, fontWeight: 600, color: T.textMuted }} className="mono">trainersync — shortlist view</span>
         <div style={{ width: 10 }} />
@@ -1186,7 +1409,7 @@ function _DashboardPreview() {
 
       {/* Rows */}
       {TRAINER_ROWS.map(t => (
-        <div key={t.name} style={{ minWidth: 620, display: 'grid', gridTemplateColumns: '1fr 90px 70px 90px 60px 60px', gap: 0, padding: '9px 16px', borderBottom: `1px solid ${T.borderLight}`, transition: 'background 0.12s', cursor: 'default', alignItems: 'center' }}
+        <button key={`trainer-${t.name}`} style={{ minWidth: 620, display: 'grid', gridTemplateColumns: '1fr 90px 70px 90px 60px 60px', gap: 0, padding: '9px 16px', borderBottom: `1px solid ${T.borderLight}`, transition: 'background 0.12s', cursor: 'pointer', alignItems: 'center', background: 'transparent', border: 'none', width: '100%', textAlign: 'left' }}
           onMouseEnter={e => e.currentTarget.style.background = T.bg}
           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
           <div>
@@ -1200,7 +1423,17 @@ function _DashboardPreview() {
           </div>
           <div style={{ fontSize: 11.5, color: T.textSecondary, textAlign: 'center' }}>{t.loc}</div>
           <div style={{ textAlign: 'center' }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: t.score >= 90 ? T.green : t.score >= 80 ? T.brand : T.amber }} className="mono">{t.score}%</span>
+            {(() => {
+              let scoreColor
+              if (t.score >= 90) {
+                scoreColor = T.green
+              } else if (t.score >= 80) {
+                scoreColor = T.brand
+              } else {
+                scoreColor = T.amber
+              }
+              return <span style={{ fontSize: 13, fontWeight: 700, color: scoreColor }} className="mono">{t.score}%</span>
+            })()}
           </div>
           <div style={{ textAlign: 'center' }}><StatusBadge status={t.status} /></div>
           <div style={{ textAlign: 'center' }}>
@@ -1209,7 +1442,7 @@ function _DashboardPreview() {
           <div style={{ textAlign: 'center' }}>
             <span style={{ fontSize: 13 }}>{t.wa ? '✅' : '—'}</span>
           </div>
-        </div>
+        </button>
       ))}
       </div>
 
@@ -1233,9 +1466,8 @@ function HeroImagePanel() {
   ]
 
   return (
-    <div style={{
+    <div className="hero-image-panel" style={{
       position: 'relative',
-      minHeight: 520,
       borderRadius: 28,
       overflow: 'hidden',
       border: `1px solid ${T.border}`,
@@ -1271,14 +1503,26 @@ function HeroImagePanel() {
         display: 'grid',
         gap: 10,
       }}>
-        {cards.map((card, i) => (
+        {cards.map((card, i) => {
+          let widthPercent, marginLeftVal
+          if (i === 1) {
+            widthPercent = '88%'
+            marginLeftVal = 'auto'
+          } else if (i === 2) {
+            widthPercent = '76%'
+            marginLeftVal = 0
+          } else {
+            widthPercent = '82%'
+            marginLeftVal = 0
+          }
+          return (
           <div
             key={card.label}
             className="fade-up"
             style={{
               animationDelay: `${0.14 + i * 0.06}s`,
-              width: i === 1 ? '88%' : i === 2 ? '76%' : '82%',
-              marginLeft: i === 1 ? 'auto' : 0,
+              width: widthPercent,
+              marginLeft: marginLeftVal,
               borderRadius: 16,
               border: '1px solid rgba(255,255,255,0.22)',
               background: 'rgba(255,255,255,0.9)',
@@ -1307,7 +1551,8 @@ function HeroImagePanel() {
               <span style={{ display: 'block', marginTop: 2, fontSize: 11.5, fontWeight: 600, color: T.textSecondary }}>{card.value}</span>
             </span>
           </div>
-        ))}
+        )
+        })}
       </div>
 
       <div style={{
@@ -1351,8 +1596,10 @@ function ClientInboxPreview() {
         </div>
         <button style={{ fontSize: 11, color: T.brand, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>View all →</button>
       </div>
-      {CLIENT_EMAILS.map((e, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 16px', borderBottom: i < CLIENT_EMAILS.length - 1 ? `1px solid ${T.borderLight}` : 'none', transition: 'background 0.12s', cursor: 'pointer' }}
+      {CLIENT_EMAILS.map((e, i) => {
+        const borderBottom = i < CLIENT_EMAILS.length - 1 ? `1px solid ${T.borderLight}` : 'none'
+        return (
+        <button key={`email-${e.from}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 16px', borderBottom, transition: 'background 0.12s', cursor: 'pointer', background: 'transparent', border: 'none', width: '100%', textAlign: 'left' }}
           onMouseEnter={ev => ev.currentTarget.style.background = T.bg}
           onMouseLeave={ev => ev.currentTarget.style.background = 'transparent'}>
           {e.unread && <div className="dot-blue" />}
@@ -1364,12 +1611,27 @@ function ClientInboxPreview() {
             </div>
             <p style={{ fontSize: 12.5, fontWeight: e.unread ? 600 : 400, color: e.unread ? T.textPrimary : T.textSecondary, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.subject}</p>
           </div>
-          <Badge color={e.badge === 'New' ? T.orange : e.badge === 'Parsed' ? T.brand : T.green}
-                 bg={e.badge === 'New' ? T.orangeLight : e.badge === 'Parsed' ? T.brandLight : T.greenLight}>
-            {e.badge}
-          </Badge>
-        </div>
-      ))}
+          {(() => {
+            let badgeColor, badgeBg
+            if (e.badge === 'New') {
+              badgeColor = T.orange
+              badgeBg = T.orangeLight
+            } else if (e.badge === 'Parsed') {
+              badgeColor = T.brand
+              badgeBg = T.brandLight
+            } else {
+              badgeColor = T.green
+              badgeBg = T.greenLight
+            }
+            return (
+              <Badge color={badgeColor} bg={badgeBg}>
+                {e.badge}
+              </Badge>
+            )
+          })()}
+        </button>
+        )
+      })}
     </Card>
   )
 }
@@ -1407,12 +1669,24 @@ function ConversationThread() {
         </div>
       </div>
       <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8, height: 280, overflowY: 'auto', scrollbarGutter: 'stable' }}>
-        {msgs.map((m, i) => (
-          <div key={i} style={{ display: 'flex', flexDirection: m.dir === 'out' ? 'row-reverse' : 'row', gap: 8, alignItems: 'flex-end' }}>
+        {msgs.map((m, i) => {
+          const flexDir = m.dir === 'out' ? 'row-reverse' : 'row'
+          const borderRadius = m.dir === 'out' ? '12px 12px 2px 12px' : '12px 12px 12px 2px'
+          let bgColor
+          if (m.dir === 'out') {
+            bgColor = T.brand
+          } else if (m.dir === 'client') {
+            bgColor = T.orangeLight
+          } else {
+            bgColor = T.bg
+          }
+          const border = m.dir === 'in' ? `1px solid ${T.border}` : 'none'
+          return (
+          <div key={`msg-${i}-${m.from}`} style={{ display: 'flex', flexDirection: flexDir, gap: 8, alignItems: 'flex-end' }}>
             <div style={{
-              maxWidth: '72%', padding: '8px 12px', borderRadius: m.dir === 'out' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
-              background: m.dir === 'out' ? T.brand : m.dir === 'client' ? T.orangeLight : T.bg,
-              border: m.dir === 'in' ? `1px solid ${T.border}` : 'none',
+              maxWidth: '72%', padding: '8px 12px', borderRadius,
+              background: bgColor,
+              border,
               boxShadow: T.shadow
             }}>
               {m.auto && <div style={{ fontSize: 10, color: m.dir === 'out' ? 'rgba(255,255,255,0.7)' : T.textMuted, marginBottom: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -1422,7 +1696,8 @@ function ConversationThread() {
               <div style={{ fontSize: 10, color: m.dir === 'out' ? 'rgba(255,255,255,0.6)' : T.textMuted, marginTop: 3, textAlign: 'right' }}>{m.time}</div>
             </div>
           </div>
-        ))}
+        )
+        })}
       </div>
       <div style={{ padding: '10px 14px', borderTop: `1px solid ${T.borderLight}`, display: 'flex', gap: 6 }}>
         <div style={{ flex: 1, background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: '7px 10px', fontSize: 12, color: T.textMuted }}>Reply to Arjun...</div>
@@ -1438,12 +1713,34 @@ function ConversationThread() {
 export default function Home() {
   const navigate = useNavigate()
   const [navScrolled, setNavScrolled] = useState(false)
+  const [featurePaused, setFeaturePaused] = useState(false)
+  const featureScrollRef = useRef(null)
 
   useEffect(() => {
     const fn = () => setNavScrolled(window.scrollY > 30)
     window.addEventListener('scroll', fn)
     return () => window.removeEventListener('scroll', fn)
   }, [])
+
+  const moveFeatureRail = useCallback((direction = 1) => {
+    const rail = featureScrollRef.current
+    const firstCard = rail?.querySelector('.feature-scroll-card')
+    if (!rail || !firstCard) return
+
+    const step = firstCard.getBoundingClientRect().width + 16
+    const atEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - step * 0.6
+    const nextLeft = direction > 0 && atEnd
+      ? 0
+      : Math.max(0, rail.scrollLeft + (step * direction))
+
+    rail.scrollTo({ left: nextLeft, behavior: 'smooth' })
+  }, [])
+
+  useEffect(() => {
+    if (featurePaused) return undefined
+    const timer = globalThis.setInterval(() => moveFeatureRail(1), 3600)
+    return () => globalThis.clearInterval(timer)
+  }, [featurePaused, moveFeatureRail])
 
   const NAV_LINKS = [
     ['Workflow', '#workflow'],
@@ -1499,13 +1796,14 @@ export default function Home() {
       {/* ══════════════════════════════════════════════
           HERO
       ══════════════════════════════════════════════ */}
-      <section style={{ padding: '96px 28px 64px', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: 56, alignItems: 'center' }} className="cols-mobile-1">
+      <div className="hero-stage">
+      <section className="hero-main">
+        <div className="hero-grid">
 
           {/* Left copy */}
           <div>
             {/* Eyebrow */}
-            <div className="fade-up" style={{ animationDelay: '0s', marginBottom: 20 }}>
+            <div className="fade-up" style={{ animationDelay: '0s', marginBottom: 14 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 100, padding: '5px 14px', boxShadow: T.shadow }}>
                 <div className="live-ping">
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green, position: 'relative', zIndex: 1, display: 'block' }} />
@@ -1517,49 +1815,49 @@ export default function Home() {
             </div>
 
             {/* Headline */}
-            <h1 className="fade-up" style={{ animationDelay: '0.07s', fontSize: 'clamp(2rem, 4.5vw, 3rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.04em', color: T.textPrimary, marginBottom: 18 }}>
+            <h1 className="fade-up" style={{ animationDelay: '0.07s', fontSize: 'clamp(1.8rem, 3.8vw, 2.65rem)', fontWeight: 800, lineHeight: 1.06, letterSpacing: '-0.04em', color: T.textPrimary, marginBottom: 14 }}>
               Trainer Matching &<br />
               <span style={{ color: T.brand }}>Operations Platform</span><br />
               <span style={{ color: T.textSecondary, fontSize: '0.82em', fontWeight: 600 }}>for Clahan Technologies</span>
             </h1>
 
-            <p className="fade-up" style={{ animationDelay: '0.14s', fontSize: 16, color: T.textSecondary, lineHeight: 1.7, marginBottom: 28, maxWidth: 480 }}>
+            <p className="fade-up" style={{ animationDelay: '0.14s', fontSize: 14.5, color: T.textSecondary, lineHeight: 1.55, marginBottom: 20, maxWidth: 500 }}>
               From client email to trainer confirmation — fully automated.
               AI matches trainers, sends outreach via email & WhatsApp, tracks replies, detects incomplete responses, and manages the full 7-stage pipeline.
             </p>
 
             {/* Checklist */}
-            <ul className="fade-up" style={{ animationDelay: '0.18s', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 28 }}>
+            <ul className="fade-up" style={{ animationDelay: '0.18s', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
               {[
                 { text: 'Resume upload → AI parsing → ranked matching', icon: Brain, color: T.brand },
                 { text: 'Email + WhatsApp outreach with auto follow-up', icon: Send, color: T.sky },
                 { text: 'Smart reply detection for missing trainer details', icon: Repeat2, color: T.violet },
                 { text: 'Client inbox + auto-generated requirement cards', icon: Inbox, color: T.orange },
-              ].map((item, i) => (
-                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 22, height: 22, borderRadius: 6, background: `${item.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <item.icon size={12} color={item.color} />
+              ].map((item) => (
+                <li key={item.text} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: 6, background: `${item.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <item.icon size={11} color={item.color} />
                   </div>
-                  <span style={{ fontSize: 13.5, color: T.textSecondary, fontWeight: 500 }}>{item.text}</span>
+                  <span style={{ fontSize: 12.5, lineHeight: 1.35, color: T.textSecondary, fontWeight: 500 }}>{item.text}</span>
                 </li>
               ))}
             </ul>
 
             {/* CTAs */}
-            <div className="fade-up" style={{ animationDelay: '0.24s', display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 28 }}>
-              <button onClick={() => navigate('/dashboard')} className="btn-primary" style={{ padding: '11px 22px', fontSize: 14.5 }}>
-                <LayoutDashboard size={15} /> Open Dashboard
+            <div className="fade-up" style={{ animationDelay: '0.24s', display: 'flex', gap: 9, flexWrap: 'wrap', marginBottom: 20 }}>
+              <button onClick={() => navigate('/dashboard')} className="btn-primary" style={{ padding: '9px 18px', fontSize: 13.5 }}>
+                <LayoutDashboard size={14} /> Open Dashboard
               </button>
-              <a href="#workflow" className="btn-secondary" style={{ padding: '11px 20px', fontSize: 14.5, textDecoration: 'none' }}>
-                <Play size={14} /> See Workflow
+              <a href="#workflow" className="btn-secondary" style={{ padding: '9px 17px', fontSize: 13.5, textDecoration: 'none' }}>
+                <Play size={13} /> See Workflow
               </a>
             </div>
 
             {/* Social proof */}
             <div className="fade-up" style={{ animationDelay: '0.3s', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }} aria-label="Trainer community">
                 {[T.brand, T.green, T.violet, T.orange, T.teal].map((c, i) => (
-                  <div key={i} style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid white', background: `${c}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: c, marginLeft: i ? -6 : 0, boxShadow: T.shadow }}>
+                  <div key={`trainer-avatar-${c}`} style={{ width: 28, height: 28, borderRadius: '50%', border: `1px solid ${c}35`, background: `${c}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 10, lineHeight: 1, fontWeight: 800, color: c, boxShadow: T.shadow }}>
                     {['A','P','R','S','K'][i]}
                   </div>
                 ))}
@@ -1577,7 +1875,7 @@ export default function Home() {
 
           {/* Right — Dashboard preview */}
           <div className="slide-r" style={{ animationDelay: '0.1s' }}>
-            {import.meta.env.VITE_SHOW_LEGACY_DASHBOARD === 'true' ? <_DashboardPreview /> : <HeroImagePanel />}
+            {import.meta.env.VITE_SHOW_LEGACY_DASHBOARD === 'true' ? <DashboardPreview /> : <HeroImagePanel />}
 
             {/* Floating cards */}
             <div className="float-up" style={{ display: 'none' }}>
@@ -1609,30 +1907,22 @@ export default function Home() {
       {/* ══════════════════════════════════════════════
           TRUST TICKER
       ══════════════════════════════════════════════ */}
-      <div style={{ borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}`, background: T.surface, overflow: 'hidden', padding: '12px 0' }}>
+      <div className="hero-ticker" aria-label="Live TrainerSync automation capabilities">
+        <div className="hero-ticker-label">
+          <Sparkles size={14} /> Live automation flow
+        </div>
         <div className="ticker-wrap">
           <div className="ticker-track">
             {[...TICK, ...TICK].map((t, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 24px', flexShrink: 0, whiteSpace: 'nowrap' }}>
+              <div key={`tick-${i}-${t}`} className="ticker-item">
                 <div style={{ width: 4, height: 4, borderRadius: '50%', background: T.brand, opacity: 0.5 }} />
-                <span style={{ fontSize: 12.5, fontWeight: 500, color: T.textSecondary }}>{t}</span>
+                <span>{t}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
-
-      {/* ══════════════════════════════════════════════
-          STATS ROW
-      ══════════════════════════════════════════════ */}
-      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '56px 28px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }} className="cols-mobile-2">
-          <StatCard icon={Users}       color={T.brand}  label="Trainer Profiles"   target={500}  suffix="+" trend="+12 this week" delay="0s" />
-          <StatCard icon={Target}      color={T.green}  label="Match Accuracy"     target={98}   suffix="%" trend="↑ 2% vs last month" delay="0.06s" />
-          <StatCard icon={TrendingUp}  color={T.violet} label="Faster Hiring"      target={3}    suffix="×" delay="0.12s" />
-          <StatCard icon={BarChart2}   color={T.amber}  label="Active Pipelines"   target={24}   suffix="" delay="0.18s" />
-        </div>
-      </section>
+      </div>
 
       {/* ══════════════════════════════════════════════
           WORKFLOW (end-to-end)
@@ -1666,6 +1956,7 @@ export default function Home() {
                   </div>
                   <div className="workflow-title" style={{ fontSize: 12.5, fontWeight: 700, color: T.textPrimary, marginBottom: 6, lineHeight: 1.25 }}>{w.label}</div>
                   <div className="workflow-desc" style={{ fontSize: 11, color: T.textMuted, lineHeight: 1.45 }}>{w.desc}</div>
+                  <div className="workflow-step-state"><span /> Automated</div>
                 </div>
                 {i < WORKFLOW.length - 1 && (
                   <div className="workflow-arrow">
@@ -1737,21 +2028,42 @@ export default function Home() {
             label="Platform Features"
             labelIcon={Sparkles}
             title="Everything Ops Needs in One Platform"
-            sub="Six core modules covering every step — from client requirement to trainer confirmation."
+            sub="Five connected modules covering every step — from client requirement to trainer confirmation."
             center
           />
-          <div className="feature-scroll-shell" aria-label="TrainerSync platform features">
-            <div className="feature-scroll-track">
-              {SCROLLING_FEATURES.map((feature, i) => {
-                const cycle = i < FEATURES.length ? 'first' : 'second'
-                return (
-                  <div className="feature-scroll-card" key={`${feature.title}-${cycle}`}>
-                    <FeatureCard feature={feature} delay={`${(i % FEATURES.length) * 0.07}s`} />
-                  </div>
-                )
-              })}
-            </div>
+          <div className="feature-controls">
+            <span className="hide-mobile" style={{ marginRight: 6, fontSize: 12, color: T.textMuted }}>
+              Auto-scrolling · hover to pause
+            </span>
+            <button className="feature-control" type="button" aria-label="Previous feature" onClick={() => moveFeatureRail(-1)}>
+              <ChevronLeft size={17} />
+            </button>
+            <button className="feature-control" type="button" aria-label="Next feature" onClick={() => moveFeatureRail(1)}>
+              <ChevronRight size={17} />
+            </button>
           </div>
+          <button
+            ref={featureScrollRef}
+            className="feature-scroll-shell"
+            type="button"
+            aria-label="TrainerSync platform features carousel - use arrow keys or hover to navigate"
+            onMouseEnter={() => setFeaturePaused(true)}
+            onMouseLeave={() => setFeaturePaused(false)}
+            onTouchStart={() => setFeaturePaused(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowRight') { moveFeatureRail(1); e.preventDefault() }
+              if (e.key === 'ArrowLeft') { moveFeatureRail(-1); e.preventDefault() }
+            }}
+            style={{ display: 'block', width: '100%', padding: 0, border: 'none', background: 'transparent', cursor: 'auto' }}
+          >
+            <div className="feature-scroll-track">
+              {FEATURES.map((feature, i) => (
+                <div className="feature-scroll-card" key={feature.title}>
+                  <FeatureCard feature={feature} delay={`${i * 0.07}s`} />
+                </div>
+              ))}
+            </div>
+          </button>
         </div>
       </section>
 
@@ -1776,8 +2088,8 @@ export default function Home() {
                   { field: 'Profile / CV',  status: 'missing',  color: T.red    },
                   { field: 'ToC Document',  status: 'missing',  color: T.red    },
                   { field: 'Domain Topics', status: 'received', color: T.green  },
-                ].map((r, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', borderRadius: 8, background: T.bg, border: `1px solid ${T.borderLight}` }}>
+                ].map((r) => (
+                  <div key={`field-${r.field}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', borderRadius: 8, background: T.bg, border: `1px solid ${T.borderLight}` }}>
                     <span style={{ fontSize: 13, fontWeight: 500, color: T.textPrimary }}>{r.field}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       {r.status === 'received'
@@ -1986,15 +2298,19 @@ export default function Home() {
             </div>
 
             <div className="integration-route">
-              {INTEGRATION_FLOW.map((item, i) => (
-                <div className="integration-route-step" key={item.label}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
-                    <span className="mono" style={{ color: '#727A8A', fontSize: 10, fontWeight: 800 }}>0{i + 1}</span>
-                    <item.icon size={15} color="#EEF0F4" />
+              {INTEGRATION_FLOW && INTEGRATION_FLOW.length > 0 ? (
+                INTEGRATION_FLOW.map((item, i) => (
+                  <div className="integration-route-step" key={item.label}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+                      <span className="mono" style={{ color: '#727A8A', fontSize: 10, fontWeight: 800 }}>0{i + 1}</span>
+                      <item.icon size={15} color="#EEF0F4" />
+                    </div>
+                    <div style={{ color: '#D8DBE2', fontSize: 12, fontWeight: 700, lineHeight: 1.35 }}>{item.label}</div>
                   </div>
-                  <div style={{ color: '#D8DBE2', fontSize: 12, fontWeight: 700, lineHeight: 1.35 }}>{item.label}</div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div style={{ color: '#727A8A', fontSize: 12, padding: '12px 0' }}>No integration flow data</div>
+              )}
             </div>
 
             <div style={{ padding: '13px 16px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -2006,19 +2322,23 @@ export default function Home() {
             </div>
 
             <div className="integration-log-list">
-              {INTEGRATION_LOGS.map(log => (
-                <div className="integration-log-row" key={`${log.time}-${log.source}`}>
-                  <span className="mono" style={{ color: '#A6ADBB', fontSize: 11.5 }}>{log.time}</span>
-                  <div style={{ width: 34, height: 34, borderRadius: 10, background: `${log.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <log.icon size={15} color={log.color} />
+              {INTEGRATION_LOGS && INTEGRATION_LOGS.length > 0 ? (
+                INTEGRATION_LOGS.map(log => (
+                  <div className="integration-log-row" key={`${log.time}-${log.source}`}>
+                    <span className="mono" style={{ color: '#A6ADBB', fontSize: 11.5 }}>{log.time}</span>
+                    <div style={{ width: 34, height: 34, borderRadius: 10, background: `${log.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <log.icon size={15} color={log.color} />
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div className="integration-log-message">{log.source}: {log.message}</div>
+                      <div className="integration-log-meta">{log.meta}</div>
+                    </div>
+                    <span className="integration-log-status" style={{ justifySelf: 'end', color: log.color, background: `${log.color}18`, border: `1px solid ${log.color}33`, borderRadius: 999, padding: '4px 8px', fontSize: 10.5, fontWeight: 800 }}>{log.status}</span>
                   </div>
-                  <div style={{ minWidth: 0 }}>
-                    <div className="integration-log-message">{log.source}: {log.message}</div>
-                    <div className="integration-log-meta">{log.meta}</div>
-                  </div>
-                  <span className="integration-log-status" style={{ justifySelf: 'end', color: log.color, background: `${log.color}18`, border: `1px solid ${log.color}33`, borderRadius: 999, padding: '4px 8px', fontSize: 10.5, fontWeight: 800 }}>{log.status}</span>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div style={{ color: '#727A8A', fontSize: 12, padding: '12px 0' }}>No integration logs available</div>
+              )}
             </div>
           </div>
         </div>
@@ -2078,9 +2398,9 @@ export default function Home() {
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {links.map(l => (
                     <li key={l}>
-                      <span style={{ fontSize: 13, color: '#6B7280', cursor: 'pointer', transition: 'color 0.15s' }}
+                      <button style={{ fontSize: 13, color: '#6B7280', cursor: 'pointer', transition: 'color 0.15s', background: 'none', border: 'none', padding: 0, font: 'inherit' }}
                         onMouseEnter={e => e.target.style.color = '#fff'}
-                        onMouseLeave={e => e.target.style.color = '#6B7280'}>{l}</span>
+                        onMouseLeave={e => e.target.style.color = '#6B7280'}>{l}</button>
                     </li>
                   ))}
                 </ul>
