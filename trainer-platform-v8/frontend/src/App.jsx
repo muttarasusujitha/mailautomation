@@ -29,7 +29,7 @@ const GmailCallback = lazy(() => import('./pages/GmailCallback'))
 const Admin = lazy(() => import('./pages/Admin'))
 const TocKnowledge = lazy(() => import('./pages/TocKnowledge'))
 const Shortlist = lazy(() => import('./pages/Shortlist'))
-const Shortlist1 = lazy(() => import('./pages/Shortlist1'))
+// MAINT-001: Shortlist1 is a dead-code duplicate of Shortlist — route removed
 const Profile = lazy(() => import('./pages/Profile'))
 
 function PrivateRoute({ children, isLoggedIn }) {
@@ -47,14 +47,16 @@ function PageLoader() {
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     try {
-      const auth = JSON.parse(localStorage.getItem('ts_auth') || '{}')
+      // SEC-009: Use sessionStorage so auth token is not persisted across browser sessions,
+      // reducing XSS exposure. Tokens are cleared when the tab/browser is closed.
+      const auth = JSON.parse(sessionStorage.getItem('ts_auth') || '{}')
       return !!auth.loggedIn
     } catch { return false }
   })
 
   const handleLogin = () => setIsLoggedIn(true)
   const handleLogout = () => {
-    localStorage.removeItem('ts_auth')
+    sessionStorage.removeItem('ts_auth')
     setIsLoggedIn(false)
   }
 
@@ -104,7 +106,8 @@ export default function App() {
             <Route path="toc-knowledge" element={<TocKnowledge />} />
             <Route path="interviews"   element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="shortlist"    element={<Shortlist />} />
-            <Route path="shortlist1"   element={<Shortlist1 />} />
+            {/* MAINT-001: shortlist1 route removed — Shortlist1.jsx is dead-code duplicate */}
+            <Route path="shortlist1"   element={<Navigate to="/shortlist" replace />} />
             <Route path="profile"      element={<Profile />} />
           </Route>
           <Route path="*" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} />
