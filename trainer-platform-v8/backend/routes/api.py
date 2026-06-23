@@ -4080,6 +4080,7 @@ async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_r
             "auto_sent_existing_count": int(result.get("auto_sent_existing") or 0),
             "errors": [],
             "message": result.get("message"),
+        }
     
     # Fallback to IMAP if configured
     if settings.get("inboxProvider") in {"imap", "imap_poll", "imap_polling"}:
