@@ -60,8 +60,9 @@ function TooltipBox({ active, payload, label }) {
   return (
     <div className="rounded-xl border border-slate-100 bg-white px-4 py-3 text-sm shadow-xl">
       <p className="mb-1 font-semibold text-slate-700">{label}</p>
-      {payload.map((p, i) => (
-        <p key={i} style={{ color: p.color }} className="font-medium">{p.name}: {p.value}</p>
+      {/* BUG-011: use stable key from data (name+color) instead of array index */}
+      {payload.map((p) => (
+        <p key={`${p.name}-${p.color}`} style={{ color: p.color }} className="font-medium">{p.name}: {p.value}</p>
       ))}
     </div>
   )
@@ -167,6 +168,8 @@ export default function Dashboard() {
   const load = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true); else setLoading(true)
     try {
+      // BUG-009: Promise.allSettled already handles rejections per-request;
+      // each settled result is checked individually so no rejection goes unhandled.
       const [statsRes, inboxRes, gmailRes] = await Promise.allSettled([
         getDashboardStats(),
         api.get('/inbox', { params: { limit: 5 } }),
@@ -174,10 +177,27 @@ export default function Dashboard() {
       ])
       if (statsRes.status === 'fulfilled') setStats(statsRes.value.data)
       else toast.error(statsRes.reason?.message || 'Could not load stats')
-      setClientInbox(inboxRes.status === 'fulfilled' ? inboxRes.value.data || { emails: [], stats: {}, whatsapp_logs: [] } : { emails: [], stats: {}, whatsapp_logs: [] })
-      setGmailStatus(gmailRes.status === 'fulfilled' ? gmailRes.value.data : { connected: false })
-    } finally { setLoading(false); setRefreshing(false) }
+      setClientInbox(
+        inboxRes.status === 'fulfilled'
+          ? inboxRes.value.data || { emails: [], stats: {}, whatsapp_logs: [] }
+          : { emails: [], stats: {}, whatsapp_logs: [] }
+      )
+      if (inboxRes.status === 'rejected') {
+        toast.error(inboxRes.reason?.message || 'Could not load inbox')
+      }
+      setGmailStatus(
+        gmailRes.status === 'fulfilled' ? gmailRes.value.data : { connected: false }
+      )
+    } catch (err) {
+      toast.error(err?.message || 'Failed to load dashboard data')
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
   }
+
+  // BUG-008: empty dependency array [] is intentional — load once on mount only
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load() }, [])
 
   const handleClear = async () => {
@@ -396,7 +416,7 @@ export default function Dashboard() {
               <button onClick={() => navigate('/client-requests')} className="text-xs font-bold text-blue-600 hover:text-blue-800">View all</button>
             </div>
             {loading ? (
-              <div className="space-y-2">{[0,1,2].map(i => <div key={i} className="skeleton h-14 w-full" />)}</div>
+              <div className="space-y-2">{['sk-0','sk-1','sk-2'].map(k => <div key={k} className="skeleton h-14 w-full" />)}</div>
             ) : recentClientEmails.length ? (
               <div className="space-y-2">
                 {recentClientEmails.slice(0, 4).map(item => (
@@ -554,8 +574,8 @@ export default function Dashboard() {
       {stats?.recent_emails?.length > 0 && (
         <Panel title="Recent Outreach" badge={`${stats.recent_emails.length} latest`}>
           <div className="space-y-1">
-            {stats.recent_emails.map((email, i) => (
-              <button key={`${email.email_id || i}`} onClick={() => navigate('/emails')}
+            {stats.recent_emails.map((email) => (
+              <button key={email.email_id || email.to_email} onClick={() => navigate('/emails')}
                 className="group/row flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-left transition hover:bg-blue-50">
                 <div className="avatar avatar-sm bg-blue-50 text-blue-600 flex-shrink-0">
                   <Mail className="h-3.5 w-3.5" />
@@ -578,10 +598,10 @@ export default function Dashboard() {
       {stats?.recent_whatsapp?.length > 0 && (
         <Panel title="Recent WhatsApp Messages" badge={`${stats.recent_whatsapp.length} latest`}>
           <div className="space-y-2">
-            {stats.recent_whatsapp.map((msg, i) => {
+            {stats.recent_whatsapp.map((msg) => {
               const ctx = msg.context || {}
               return (
-                <div key={`${msg.whatsapp_id || i}`} className="flex items-start gap-4 rounded-xl border border-slate-100 bg-slate-50 px-3 py-3">
+                <div key={msg.whatsapp_id || msg.to_number} className="flex items-start gap-4 rounded-xl border border-slate-100 bg-slate-50 px-3 py-3">
                   <div className="avatar avatar-sm bg-emerald-50 text-emerald-600 flex-shrink-0">
                     <Send className="h-3.5 w-3.5" />
                   </div>

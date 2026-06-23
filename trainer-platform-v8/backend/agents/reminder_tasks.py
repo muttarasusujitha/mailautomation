@@ -261,6 +261,11 @@ async def _send_interview_reminder(reminder_id: str, celery_task_id: str = "") -
         client.close()
 
 
-@celery_app.task(bind=True, name="trainersync.send_interview_reminder")
+@celery_app.task(bind=True, name="trainersync.send_interview_reminder", max_retries=3)
 def send_interview_reminder_task(self, reminder_id: str) -> Dict[str, Any]:
-    return asyncio.run(_send_interview_reminder(reminder_id, self.request.id))
+    # BUG-002: Exceptions are caught and retried with exponential back-off.
+    # On final failure the error is returned (not swallowed) so Celery marks the task FAILED.
+    try:
+        return asyncio.run(_send_interview_reminder(reminder_id, self.request.id))
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=60 * (2 ** self.request.retries))

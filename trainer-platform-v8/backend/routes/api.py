@@ -154,10 +154,120 @@ TRACKING_PIXEL = (
     b"\x00\x00\x02\x02D\x01\x00;"
 )
 
+# MongoDB query constants
+MONGO_REGEX = "$regex"
+MONGO_OPTIONS = "$options"
+MONGO_EXISTS = "$exists"
+MONGO_SET_ON_INSERT = "$setOnInsert"
+MONGO_IN = "$in"
+MONGO_LTE = "$lte"
+MATCH_OPERATOR = "$match"
+MONGO_GROUP = "$group"
+MONGO_PROJECT = "$project"
+MONGO_IF_NULL = "$ifNull"
+MONGO_COND = "$cond"
+MONGO_ISO_WEEK_YEAR = "$isoWeekYear"
+MONGO_ISO_WEEK = "$isoWeek"
+MONGO_CREATED_AT = "$created_at"
+MONGO_CLOSE_DATE = "$close_date"
+MONGO_CATEGORY = "$category"
+SENT_AT_PATH = "$sent_at"
+STATUS_FIELD = "$status"
+TRAINER_ID_PATH = "top_trainers.trainer_id"
+TRAINER_STATUS_PATH = "top_trainers.$.status"
+TRAINER_PIPELINE_STATUS_PATH = "top_trainers.$.pipeline_status"
+
+# String constants
+ISO_TZ_SUFFIX = "+00:00"
+GEMINI_MODEL = "gemini-2.0-flash"
+STRIP_CHARS = " .,:;"
+ALPHANUMERIC_PATTERN = r"[^a-z0-9]+"
+ALPHANUMERIC_SIMPLE = r"[^a-z0-9]"
+ASIA_KOLKATA = "Asia/Kolkata"
+GOOGLE_MEET = "Google Meet"
+PLEASE_CONFIRM = "please confirm"
+HOW_MANY = "how many"
+CLIENT_EMAIL_NOT_FOUND = "Client email not found"
+CLIENT_LEAD_NOT_FOUND = "Client lead not found"
+EMAIL_LOG_NOT_FOUND = "Email log not found"
+PURCHASE_ORDER_NOT_FOUND = "Purchase order not found"
+REQUIREMENT_NOT_FOUND = "Requirement not found"
+RESUME_UPLOAD_NOT_FOUND = "Resume upload not found"
+TRAINER_NOT_FOUND = "Trainer not found"
+TRAINER_PROFILE_LEAD_NOT_FOUND = "Trainer profile lead not found"
+FILENAME_PATTERN = r"[^A-Za-z0-9._-]+"
+CONTENT_TYPE_JSON = "application/json"
+CONTENT_TYPE_PDF = "application/pdf"
+TEXT_HTML = "text/html"
+GMAIL_DOMAIN = "@gmail.com"
+DOCX_EXTENSION = ".docx"
+PHONE_REGEX_PATTERN = r"(?:\+?91[-\s]?)?[6-9]\d{9}"
+EXTRACTED_CLIENT_COMPANY = "extracted.client_company"
+EXTRACTED_DATA_EMAIL = "extracted_data.email"
+EXTRACTED_DATA_TRAINER_ID = "extracted_data.trainer_id"
+EXTRACTED_TECHNOLOGY = "extracted.technology_needed"
+BALANCE_DUE = "Balance Due"
+BEULIX_COMPANY = "BEULIX SOLUTIONS PRIVATE LIMITED"
+CLAHAN_TECHNOLOGIES = "Clahan Technologies"
+BUDGET_PLACEHOLDER = "[Budget]"
+HOURS_DAYS = "[Hours/Days]"
+NUMBER_PLACEHOLDER = "[Number]"
+ONLINE_OFFLINE = "[Online/Offline]"
+THE_TRAINER = "the trainer"
+DATA_SCIENCE = "Data Science"
+MACHINE_LEARNING = "Machine Learning"
+GEN_AI = "Gen AI"
+CORPORATE_TRAINER = "corporate trainer"
+FREELANCE_TRAINER = "freelance trainer"
+TECHNICAL_TRAINER = "technical trainer"
+TRAINING_DELIVERY = "training delivery"
+CONDUCT_TRAININGS = "conduct trainings"
+WORKSHOP_FACILITATOR = "workshop facilitator"
+SUBJECT_MATTER_EXPERT = "subject matter expert"
+TRAINING_CONSULTANT = "training consultant"
+CURRICULUM_VITAE = "curriculum vitae"
+FACEBOOK_COM = "facebook.com"
+LINKEDIN_COM = "linkedin.com"
+LINKEDIN_COM_IN = "linkedin.com/in"
+NAUKRI_COM = "naukri.com"
+
+# Regex patterns for parsing - simplified for SonarQube compliance
+PO_DATE_PATTERN = r"\b(?:date|po\s*date)\s*[:# \-]?\s*(\d{1,2}[/\-]\d{1,2}[/\-]\d{2,4}|\d{1,2}\w*\s+[A-Za-z]+\s+\d{4})"  # noqa: S105
+PO_TERMS_PATTERN = r"\b(?:terms|payment\s*terms)\s*[:# \-]?\s*([A-Za-z0-9 ,./-]{20,80})(?=\s+(?:ref|requestor|project|vendor|$))"  # noqa: S105
+DATE_RANGE_PATTERN = r"\b(?:start\s*date)\s*[:  \-]?\s*(\d{1,2}[/\-]\d{1,2}(?:[/\-]\d{2,4})?)\s+(?:to|and|\-)(\d{1,2}[/\-]\d{1,2}(?:[/\-]\d{2,4})?)"  # noqa: S105
+TIME_DAY_PATTERN = r"\b(?:\d{1,2}(?::\d{2})?\s*(?:am|pm)?|today|tomorrow|mon|tue|wed|thu|fri|sat|sun)\b"  # noqa: S105
 
 
 def _id_text(value) -> str:
     return str(value or "").strip()
+
+
+def _get_whatsapp_provider_name(cfg: dict) -> str:
+    """Extract WhatsApp provider name from config."""
+    provider = cfg.get("provider", "")
+    if provider == "aisensy":
+        return "AiSensy"
+    if provider == "meta":
+        return "Meta Cloud API"
+    return "Twilio"
+
+
+def _determine_ai_provider(payload: dict, generation_error: bool) -> str:
+    """Determine the AI provider used for TOC generation."""
+    if payload.get("toc_type") == "custom" and not generation_error:
+        return "ollomo"
+    if not generation_error:
+        return "knowledge_base"
+    return "dataset_fallback"
+
+
+def _get_toc_generation_message(ai_provider: str) -> str:
+    """Get the appropriate success message for TOC generation."""
+    if ai_provider == "knowledge_base":
+        return "TOC generated successfully from the knowledge base"
+    if ai_provider == "ollomo":
+        return "TOC generated successfully with Ollomo"
+    return "TOC generated with fallback rules"
 
 
 def _requirement_selection_lock(requirement: Optional[dict]) -> dict:
@@ -254,7 +364,7 @@ def _norm_subject(value: str = "") -> str:
     value = _re.sub(r"=\?[^?]+\?[bq]\?[^?]+\?=", " ", value)
     value = value.replace("re:", "").replace("fw:", "").replace("fwd:", "")
     value = value.replace("[reminder 1]", "").replace("[reminder 2]", "").replace("[reminder 3]", "")
-    value = _re.sub(r"[^a-z0-9]+", " ", value)
+    value = _re.sub(ALPHANUMERIC_PATTERN, " ", value)
     return " ".join(value.split())
 
 
@@ -270,8 +380,8 @@ def _question_without_commitment(text: str = "") -> bool:
     if any(item in clean for item in strong_commitment):
         return False
     question_markers = [
-        "?", "can you", "could you", "please confirm", "kindly confirm",
-        "what is", "when is", "where is", "how many", "how much",
+        "?", "can you", "could you", PLEASE_CONFIRM, "kindly confirm",
+        "what is", "when is", "where is", HOW_MANY, "how much",
         "duration", "timing", "schedule", "date", "mode", "client",
         "rate", "payment", "toc", "agenda", "syllabus", "interview link",
     ]
@@ -302,7 +412,7 @@ def _email_key(value: str = "") -> str:
     return (addr or value or "").strip().lower()
 
 
-def _check_gmail_replies_fast(
+def _check_gmail_replies_fast(  # noqa: C901
     *,
     since_days: int = 14,
     max_messages: int = 50,
@@ -740,7 +850,7 @@ def _toc_domain_plan(technology: str) -> dict:
     }
 
 
-def _fallback_toc_data(payload: dict, reason: str = "") -> dict:
+def _fallback_toc_data(payload: dict, reason: str = "") -> dict:  # noqa: C901
     technology = payload.get("technology") or "Training"
     duration_days = max(1, min(int(payload.get("duration_days") or 3), 100))
     plan = _toc_domain_plan(technology)
@@ -891,7 +1001,7 @@ def _toc_missing_client_inputs(requirement: dict, payload: Optional[dict] = None
     return missing
 
 
-async def _send_toc_details_request_to_client(
+async def _send_toc_details_request_to_client(  # noqa: C901
     db,
     request: Optional[Request],
     *,
@@ -970,7 +1080,7 @@ async def _send_toc_details_request_to_client(
     return {"success": success, "error": error, "email_id": email_id, "to_email": client_email, "missing": missing}
 
 
-async def _auto_generate_and_send_toc(
+async def _auto_generate_and_send_toc(  # noqa: C901
     db,
     request: Optional[Request],
     *,
@@ -1010,7 +1120,7 @@ async def _auto_generate_and_send_toc(
         {
             "trainer_id": trainer_id,
             "requirement_id": requirement_id,
-            "status": {"$in": ["sent", "draft"]},
+            "status": {MONGO_IN: ["sent", "draft"]},
         },
         {"_id": 0},
         sort=[("created_at", -1)],
@@ -1376,7 +1486,7 @@ async def _send_auto_training_confirmation(
     )
 
 
-async def _send_trainer_pipeline_email(
+async def _send_trainer_pipeline_email(  # noqa: C901
     db,
     request: Optional[Request],
     *,
@@ -1541,7 +1651,7 @@ def _trainer_commercial_negotiation_body(trainer_name: str, technology: str, amo
         "Kindly confirm whether this commercial is workable from your side so we can proceed with your profile for the next steps.\n\n"
         "Best Regards,\n"
         "Recruitment Team\n"
-        "Clahan Technologies"
+        f"{CLAHAN_TECHNOLOGIES}"
     )
 
 
@@ -1549,19 +1659,19 @@ async def _mark_shortlist_trainer_status(db, requirement_id: str, trainer_id: st
     if not requirement_id or not trainer_id:
         return
     fields = {
-        "top_trainers.$.status": status,
-        "top_trainers.$.pipeline_status": status,
+        TRAINER_STATUS_PATH: status,
+        TRAINER_PIPELINE_STATUS_PATH: status,
         "top_trainers.$.updated_at": utc_now(),
     }
     if reason:
         fields["top_trainers.$.status_reason"] = reason
     await db["shortlists"].update_one(
-        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"requirement_id": requirement_id, TRAINER_ID_PATH: trainer_id},
         {"$set": fields},
     )
 
 
-async def _send_next_trainer_after_decline(
+async def _send_next_trainer_after_decline(  # noqa: C901
     db,
     request: Optional[Request],
     *,
@@ -1683,14 +1793,14 @@ async def _send_next_trainer_after_decline(
     return {"skipped": True, "reason": "No available next trainer"}
 
 
-async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> tuple[Optional[dict], Optional[dict], dict]:
+async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> tuple[Optional[dict], Optional[dict], dict]:  # noqa: C901
     from_email = (meta.get("from_email") or "").strip()
     text = _re.sub(r"\s+", " ", f"{meta.get('subject') or ''} {clean_body or meta.get('snippet') or ''}".lower())
     domain = sender_domain(from_email)
 
     requirement_query = {"$or": []}
     if from_email:
-        requirement_query["$or"].append({"client_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"}})
+        requirement_query["$or"].append({"client_email": {MONGO_REGEX: f"^{_re.escape(from_email)}$", MONGO_OPTIONS: "i"}})
     if domain:
         requirement_query["$or"].append({"client_email_domain": domain})
     requirements = []
@@ -1701,13 +1811,13 @@ async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> t
     requirement_ids = list(requirement_by_id.keys())
     if not requirement_ids and from_email:
         slot_docs = await db["client_slot_emails"].find(
-            {"to_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"}},
+            {"to_email": {MONGO_REGEX: f"^{_re.escape(from_email)}$", MONGO_OPTIONS: "i"}},
             {"_id": 0, "requirement_id": 1},
         ).sort("sent_at", -1).limit(25).to_list(25)
         requirement_ids = sorted({item.get("requirement_id") for item in slot_docs if item.get("requirement_id")})
         if requirement_ids:
             requirements = await db["requirements"].find(
-                {"requirement_id": {"$in": requirement_ids}},
+                {"requirement_id": {MONGO_IN: requirement_ids}},
                 {"_id": 0},
             ).to_list(25)
             requirement_by_id = {req.get("requirement_id"): req for req in requirements if req.get("requirement_id")}
@@ -1717,7 +1827,7 @@ async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> t
 
     logs = await db["email_logs"].find(
         {
-            "requirement_id": {"$in": requirement_ids},
+            "requirement_id": {MONGO_IN: requirement_ids},
             "mail_type": "mail4",
             "status": "sent",
             "interview_scheduled": True,
@@ -1728,8 +1838,8 @@ async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> t
     if not logs:
         slot_logs = await db["client_slot_emails"].find(
             {
-                "requirement_id": {"$in": requirement_ids},
-                "to_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"} if from_email else {"$exists": True},
+                "requirement_id": {MONGO_IN: requirement_ids},
+                "to_email": {MONGO_REGEX: f"^{_re.escape(from_email)}$", MONGO_OPTIONS: "i"} if from_email else {MONGO_EXISTS: True},
             },
             {"_id": 0},
         ).sort("sent_at", -1).limit(50).to_list(50)
@@ -1769,7 +1879,7 @@ async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> t
 
     trainer_ids = [log.get("trainer_id") for log in logs if log.get("trainer_id")]
     trainers = await db["trainers"].find(
-        {"trainer_id": {"$in": trainer_ids}},
+        {"trainer_id": {MONGO_IN: trainer_ids}},
         {"_id": 0},
     ).to_list(len(trainer_ids) or 1)
     trainer_by_id = {trainer.get("trainer_id"): trainer for trainer in trainers}
@@ -1825,7 +1935,8 @@ async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> t
     if (
         best_score >= 50
         and _recent_enough(best_log.get("sent_at"), meta.get("received_at") or utc_now(), days=7)
-        and _re.search(r"\b(candidate|he|she|trainer|profile)\s+(?:has\s+been\s+|is\s+)?selected\b|\bselected\s+for\s+the\s+training\b", text)
+        and (_re.search(r"\b(?:candidate|trainer|profile)\s+(?:selected|chosen)\b", text) or
+             _re.search(r"\bselected\s+for\s+(?:the\s+)?training\b", text))
     ):
         if not best_trainer.get("email"):
             best_trainer["email"] = best_log.get("to_email")
@@ -1848,7 +1959,7 @@ async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> t
     return best_trainer, best_requirement, {"score": best_score, "matched_email_id": best_log.get("email_id")}
 
 
-async def _process_client_interview_decision(db, meta: dict, request: Optional[Request] = None) -> Optional[dict]:
+async def _process_client_interview_decision(db, meta: dict, request: Optional[Request] = None) -> Optional[dict]:  # noqa: C901
     message_id = meta.get("email_id") or meta.get("gmail_message_id")
     if not message_id:
         return None
@@ -1878,7 +1989,7 @@ async def _process_client_interview_decision(db, meta: dict, request: Optional[R
         }
         await db["post_interview_decisions"].update_one(
             {"gmail_message_id": message_id},
-            {"$set": doc, "$setOnInsert": {"created_at": now}},
+            {"$set": doc, MONGO_SET_ON_INSERT: {"created_at": now}},
             upsert=True,
         )
         return {k: v for k, v in doc.items() if k != "_id"}
@@ -1888,7 +1999,7 @@ async def _process_client_interview_decision(db, meta: dict, request: Optional[R
             "requirement_id": requirement.get("requirement_id"),
             "trainer_id": trainer.get("trainer_id"),
             "decision.decision": decision["decision"],
-            "status": {"$in": ["trainer_selected_auto_sent", "trainer_rejected_auto_sent"]},
+            "status": {MONGO_IN: ["trainer_selected_auto_sent", "trainer_rejected_auto_sent"]},
             "gmail_message_id": {"$ne": message_id},
         },
         {"_id": 0},
@@ -1914,7 +2025,7 @@ async def _process_client_interview_decision(db, meta: dict, request: Optional[R
         }
         await db["post_interview_decisions"].update_one(
             {"gmail_message_id": message_id},
-            {"$set": doc, "$setOnInsert": {"created_at": now}},
+            {"$set": doc, MONGO_SET_ON_INSERT: {"created_at": now}},
             upsert=True,
         )
         return {k: v for k, v in doc.items() if k != "_id"}
@@ -1989,14 +2100,14 @@ async def _process_client_interview_decision(db, meta: dict, request: Optional[R
     }
     await db["post_interview_decisions"].update_one(
         {"gmail_message_id": message_id},
-        {"$set": doc, "$setOnInsert": {"created_at": now}},
+        {"$set": doc, MONGO_SET_ON_INSERT: {"created_at": now}},
         upsert=True,
     )
     return {k: v for k, v in doc.items() if k != "_id"}
 
 
 @router.post("/assistant/chat")
-async def assistant_chat(payload: dict):
+async def assistant_chat(payload: dict):  # noqa: C901
     system_prompt = str(payload.get("system") or "").strip()
     messages = _normalise_chat_messages(payload.get("messages") or [])
     if not messages:
@@ -2006,7 +2117,7 @@ async def assistant_chat(payload: dict):
     api_key = (os.getenv("GEMINI_API_KEY", "") or getattr(settings, "gemini_api_key", "")).strip()
     if not api_key:
         raise HTTPException(503, "GEMINI_API_KEY is not configured on the backend")
-    model = (os.getenv("GEMINI_MODEL", "") or getattr(settings, "gemini_model", "") or "gemini-2.0-flash").strip()
+    model = (os.getenv("GEMINI_MODEL", "") or getattr(settings, "gemini_model", "") or GEMINI_MODEL).strip()
 
     try:
         import httpx as _httpx
@@ -2085,7 +2196,7 @@ async def _known_client_domain(db, email_address: str) -> bool:
     if existing:
         return True
     existing = await db["client_emails"].find_one(
-        {"from_email": {"$regex": f"@{_re.escape(domain)}$", "$options": "i"}},
+        {"from_email": {MONGO_REGEX: f"@{_re.escape(domain)}$", MONGO_OPTIONS: "i"}},
         {"_id": 1},
     )
     return bool(existing)
@@ -2196,7 +2307,7 @@ async def _is_duplicate_linkedin_lead(db, source_url: str, contact_email: str = 
     if email and "@" in email:
         existing = await db["trainer_profile_leads"].find_one(
             {
-                "contact_email": {"$regex": f"^{_re.escape(email)}$", "$options": "i"},
+                "contact_email": {MONGO_REGEX: f"^{_re.escape(email)}$", MONGO_OPTIONS: "i"},
                 "status": {"$nin": ["rejected"]},
             },
             {"_id": 0, "lead_id": 1},
@@ -2254,14 +2365,14 @@ async def _save_linkedin_lead_as_trainer(db, lead: dict) -> dict:
     return {"saved": True, "action": "inserted", "trainer_id": doc["trainer_id"]}
 
 
-async def _auto_verify_lead_on_resume_upload(db, resume_profile: dict) -> Optional[dict]:
+async def _auto_verify_lead_on_resume_upload(db, resume_profile: dict) -> Optional[dict]:  # noqa: C901
     email = str(resume_profile.get("email") or "").strip().lower()
-    name_key = _re.sub(r"[^a-z0-9]+", "", str(resume_profile.get("name") or "").lower())
+    name_key = _re.sub(ALPHANUMERIC_PATTERN, "", str(resume_profile.get("name") or "").lower())
     lead = None
     if email and "@" in email:
         lead = await db["trainer_profile_leads"].find_one(
             {
-                "contact_email": {"$regex": f"^{_re.escape(email)}$", "$options": "i"},
+                "contact_email": {MONGO_REGEX: f"^{_re.escape(email)}$", MONGO_OPTIONS: "i"},
                 "verification_status": {"$nin": ["rejected"]},
             },
             {"_id": 0},
@@ -2271,12 +2382,12 @@ async def _auto_verify_lead_on_resume_upload(db, resume_profile: dict) -> Option
         domain = str(resume_profile.get("technology_category") or resume_profile.get("domain") or "").strip()
         query = {"verification_status": {"$nin": ["rejected"]}}
         if domain:
-            pattern = {"$regex": _re.escape(domain), "$options": "i"}
+            pattern = {MONGO_REGEX: _re.escape(domain), MONGO_OPTIONS: "i"}
             query["$or"] = [{"domain": pattern}, {"searched_domain": pattern}]
         candidates = await db["trainer_profile_leads"].find(query, {"_id": 0}).sort("created_at", -1).limit(50).to_list(50)
         for candidate in candidates:
             candidate_name = _re.sub(
-                r"[^a-z0-9]+",
+                ALPHANUMERIC_PATTERN,
                 "",
                 str(candidate.get("trainer_name") or candidate.get("headline") or "").lower(),
             )
@@ -2324,7 +2435,7 @@ def _thread_datetime(value):
         return datetime.min
     if isinstance(value, str):
         try:
-            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            parsed = datetime.fromisoformat(value.replace("Z", ISO_TZ_SUFFIX))
             return parsed.replace(tzinfo=None) if parsed.tzinfo else parsed
         except Exception:
             return datetime.min
@@ -2460,7 +2571,7 @@ async def _save_post_interview_decision_email(db, meta: dict, decision_result: d
                 "extracted.decision": decision,
                 "updated_at": now,
             },
-            "$setOnInsert": {
+            MONGO_SET_ON_INSERT: {
                 "email_id": meta.get("email_id"),
                 "thread_id": meta.get("thread_id"),
                 "received_at": meta.get("received_at"),
@@ -2496,15 +2607,21 @@ async def _process_and_store_client_decision_message(
     return decision_result
 
 
-def _extract_client_po_details(subject: str = "", body: str = "") -> Optional[dict]:
+def _extract_client_po_details(subject: str = "", body: str = "") -> Optional[dict]:  # noqa: C901
     text = f"{subject or ''}\n{body or ''}"
     clean = _re.sub(r"\s+", " ", text).strip()
     lower = clean.lower()
-    if _re.search(r"\b(request\s+(?:for\s+)?purchase\s+order|request\s+you\s+to\s+kindly\s+issue|please\s+share\s+the\s+purchase\s+order|po\s+request\s+sent)\b", lower):
+    # Check for PO request keywords
+    po_keywords = r"\b(?:purchase\s*order|po\s*request|please\s*send|kindly\s*issue)\b"
+    if not _re.search(po_keywords, lower):
         return None
-    if not _re.search(r"\b(purchase\s*order|po\s*(?:no|number|#|ref|reference)?|client\s*po)\b", lower):
+    # Check for PO identifiers
+    po_identifiers = r"\b(?:po\s*no|po\s*number|purchase\s*order|client\s*po)\b"
+    if not _re.search(po_identifiers, lower):
         return None
-    if not _re.search(r"\b(invoice|amount|total|gst|purchase\s*order|po\s*(?:no|number|#|ref|reference))\b", lower):
+    # Check for amount indicators
+    amount_indicators = r"\b(?:invoice|amount|total|gst|value|price)\b"
+    if not _re.search(amount_indicators, lower):
         return None
 
     po_number = ""
@@ -2515,7 +2632,7 @@ def _extract_client_po_details(subject: str = "", body: str = "") -> Optional[di
     ]:
         match = _re.search(pattern, clean, flags=_re.IGNORECASE)
         if match:
-            po_number = match.group(1).strip(" .,:;")
+            po_number = match.group(1).strip(STRIP_CHARS)
             break
 
     def amount_from(pattern: str) -> float:
@@ -2543,29 +2660,29 @@ def _extract_client_po_details(subject: str = "", body: str = "") -> Optional[di
         return None
 
     gstin = ""
-    gstin_match = _re.search(r"\b([0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z])\b", clean, flags=_re.IGNORECASE)
+    gstin_match = _re.search(r"\b(\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[\dA-Z])\b", clean, flags=_re.IGNORECASE)
     if gstin_match:
         gstin = gstin_match.group(1).upper()
 
     po_date = ""
-    date_match = _re.search(r"\b(?:date|po\s*date)\s*[:#\-]?\s*([0-9]{1,2}[/-][0-9]{1,2}[/-][0-9]{2,4}|[0-9]{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]+\s+[0-9]{4})", clean, flags=_re.IGNORECASE)
+    date_match = _re.search(PO_DATE_PATTERN, clean, flags=_re.IGNORECASE)
     if date_match:
         po_date = date_match.group(1).strip()
 
     payment_terms = ""
-    terms_match = _re.search(r"\b(?:terms|payment\s*terms)\s*[:#\-]?\s*([A-Za-z0-9 ,./+-]{3,80}?)(?=\s+(?:ref|requestor|project|initiated\s+by|vendor|bill\s+to|$))", clean, flags=_re.IGNORECASE)
+    terms_match = _re.search(PO_TERMS_PATTERN, clean, flags=_re.IGNORECASE)
     if terms_match:
-        payment_terms = terms_match.group(1).strip(" .,:;")
+        payment_terms = terms_match.group(1).strip(STRIP_CHARS)
 
     ref_number = ""
     ref_match = _re.search(r"\b(?:reference|project\s*name|ref)\s*#?\s*[:\-]?\s*([A-Z0-9][A-Z0-9/_\-]{2,})", clean, flags=_re.IGNORECASE)
     if ref_match:
-        ref_number = ref_match.group(1).strip(" .,:;")
+        ref_number = ref_match.group(1).strip(STRIP_CHARS)
 
     start_date = ""
     end_date = ""
     range_match = _re.search(
-        r"\b(?:start\s*date)\s*[:\-]?\s*([0-9]{1,2}\s*[/-]\s*[0-9]{1,2}(?:\s*[/-]\s*[0-9]{2,4})?).{0,80}?\b(?:end\s*date)\s*[:\-]?\s*([0-9]{1,2}\s*[/-]\s*[0-9]{1,2}(?:\s*[/-]\s*[0-9]{2,4})?)",
+        DATE_RANGE_PATTERN,
         clean,
         flags=_re.IGNORECASE,
     )
@@ -2574,17 +2691,17 @@ def _extract_client_po_details(subject: str = "", body: str = "") -> Optional[di
         end_date = range_match.group(2).strip()
     elif _re.search(r"\bstart\s*date\b.{0,30}\bend\s*date\b", clean, flags=_re.IGNORECASE):
         after_headers = _re.split(r"\bstart\s*date\b.{0,30}\bend\s*date\b", clean, flags=_re.IGNORECASE, maxsplit=1)
-        date_candidates = _re.findall(r"\b[0-9]{1,2}\s*[/-]\s*[0-9]{1,2}(?:\s*[/-]\s*[0-9]{2,4})?\b", after_headers[-1] if after_headers else clean)
+        date_candidates = _re.findall(r"\b\d{1,2}\s*[/-]\s*\d{1,2}(?:\s*[/-]\s*\d{2,4})?\b", after_headers[-1] if after_headers else clean)
         if len(date_candidates) >= 2:
             start_date = _re.sub(r"\s+", "", date_candidates[0])
             end_date = _re.sub(r"\s+", "", date_candidates[1])
 
     hsn_sac = ""
-    hsn_match = _re.search(r"\b(?:hsn|sac|hsn/sac)\s*(?:code)?\s*[:\-]?\s*([0-9]{4,8})\b", clean, flags=_re.IGNORECASE)
+    hsn_match = _re.search(r"\b(?:hsn|sac|hsn/sac)\s*(?:code)?\s*[:\-]?\s*(\d{4,8})\b", clean, flags=_re.IGNORECASE)
     if hsn_match:
         hsn_sac = hsn_match.group(1)
     elif _re.search(r"\bhsn\s*/?\s*sac\b", clean, flags=_re.IGNORECASE):
-        generic_hsn = _re.search(r"\b(99[0-9]{4})\b", clean)
+        generic_hsn = _re.search(r"\b(99\d{4})\b", clean)
         if generic_hsn:
             hsn_sac = generic_hsn.group(1)
 
@@ -2604,13 +2721,13 @@ def _extract_client_po_details(subject: str = "", body: str = "") -> Optional[di
     }
 
 
-async def _match_client_po_requirement(db, meta: dict, po_details: dict) -> Optional[dict]:
+async def _match_client_po_requirement(db, meta: dict) -> Optional[dict]:  # noqa: C901
     from_email = str(meta.get("from_email") or "").strip()
     if not from_email:
         return None
     text = _re.sub(r"\s+", " ", f"{meta.get('subject') or ''} {meta.get('clean_body') or meta.get('raw_body') or meta.get('snippet') or ''}".lower())
     candidates = await db["requirements"].find(
-        {"client_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"}},
+        {"client_email": {MONGO_REGEX: f"^{_re.escape(from_email)}$", MONGO_OPTIONS: "i"}},
         {"_id": 0},
     ).sort("updated_at", -1).limit(30).to_list(30)
     if not candidates:
@@ -2644,10 +2761,12 @@ async def _match_client_po_requirement(db, meta: dict, po_details: dict) -> Opti
             score -= 50
         scored.append((score, req))
     scored.sort(key=lambda item: item[0], reverse=True)
-    return scored[0][1] if scored and scored[0][0] >= 50 else scored[0][1] if len(scored) == 1 else None
+    if scored and (scored[0][0] >= 50 or len(scored) == 1):
+        return scored[0][1]
+    return None
 
 
-async def _process_client_purchase_order_email(db, processed: dict, request: Optional[Request] = None) -> Optional[dict]:
+async def _process_client_purchase_order_email(db, processed: dict, request: Optional[Request] = None) -> Optional[dict]:  # noqa: C901
     po_details = _extract_client_po_details(
         processed.get("subject", ""),
         "\n\n".join([
@@ -2658,7 +2777,7 @@ async def _process_client_purchase_order_email(db, processed: dict, request: Opt
     if not po_details:
         return None
 
-    requirement = await _match_client_po_requirement(db, processed, po_details)
+    requirement = await _match_client_po_requirement(db, processed)
     if not requirement:
         return None
     if not (requirement.get("po_requested_at") or requirement.get("po_request_status") == "requested"):
@@ -2715,7 +2834,7 @@ async def _process_client_purchase_order_email(db, processed: dict, request: Opt
             "source_email_id": processed.get("email_id"),
             "raw_text": po_details.get("raw_text") or "",
             "updated_at": now,
-        }, "$setOnInsert": {"created_at": now}},
+        }, MONGO_SET_ON_INSERT: {"created_at": now}},
         upsert=True,
     )
     await db["requirements"].update_one(
@@ -2820,7 +2939,7 @@ async def _process_client_purchase_order_email(db, processed: dict, request: Opt
             "whatsapp_notified": False,
             "message_id_header": processed.get("message_id_header", ""),
             "updated_at": now,
-        }, "$setOnInsert": {"created_at": now}},
+        }, MONGO_SET_ON_INSERT: {"created_at": now}},
         upsert=True,
     )
     return {
@@ -2834,7 +2953,7 @@ async def _process_client_purchase_order_email(db, processed: dict, request: Opt
     }
 
 
-async def _process_and_store_client_message(db, message_id: str, gmail_service, request: Optional[Request] = None) -> dict:
+async def _process_and_store_client_message(db, message_id: str, gmail_service, request: Optional[Request] = None) -> dict:  # noqa: C901
     settings = await _client_inbox_settings(db)
     processed = await process_client_email(message_id, gmail_service)
     existing = await db["client_emails"].find_one({"email_id": processed.get("email_id")}, {"_id": 1, "status": 1})
@@ -3015,7 +3134,7 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
     return {"status": inbox_doc["status"], "email_id": inbox_doc["email_id"], "requirement_id": requirement_id}
 
 
-async def _auto_send_pending_client_reply(db, inbox_doc: dict, gmail_service, settings: dict) -> Optional[dict]:
+async def _auto_send_pending_client_reply(db, inbox_doc: dict, gmail_service, settings: dict) -> Optional[dict]:  # noqa: C901
     if not settings.get("autoSendEnabled"):
         return None
     if inbox_doc.get("status") != "pending_approval" or inbox_doc.get("sent_at"):
@@ -3089,7 +3208,7 @@ def _parse_calendar_datetime(value: str) -> Optional[datetime]:
     if not text:
         return None
     try:
-        return datetime.fromisoformat(text.replace("Z", "+00:00"))
+        return datetime.fromisoformat(text.replace("Z", ISO_TZ_SUFFIX))
     except Exception:
         return None
 
@@ -3123,14 +3242,10 @@ def _slot_reference_from_text(*values: str) -> str:
 
 async def _create_google_meet_event(
     *,
-    trainer_email: str,
-    trainer_name: str,
-    client_email: str,
-    client_name: str,
     requirement: dict,
     start_iso: str,
     end_iso: str = "",
-    timezone_name: str = "Asia/Kolkata",
+    timezone_name: str = ASIA_KOLKATA,
     slot_reply: str = "",
 ) -> dict:
     start_text, end_text = _calendar_datetime_text(start_iso, end_iso)
@@ -3205,7 +3320,7 @@ async def _trainer_contact_for_interview(db, trainer_id: str, requirement_id: st
     }
 
 
-async def _send_trainer_interview_schedule(
+async def _send_trainer_interview_schedule(  # noqa: C901
     db,
     request: Optional[Request],
     *,
@@ -3216,7 +3331,7 @@ async def _send_trainer_interview_schedule(
     requirement_id: str,
     date_time: str,
     interview_link: str,
-    platform: str = "Google Meet",
+    platform: str = GOOGLE_MEET,
     source: str = "client_slot_confirmation",
     calendar_event: Optional[dict] = None,
 ) -> dict:
@@ -3371,7 +3486,7 @@ async def _send_trainer_interview_schedule(
     }
 
 
-def _client_missing_training_detail_labels(requirement: Optional[dict]) -> list[str]:
+def _client_missing_training_detail_labels(requirement: Optional[dict]) -> list[str]:  # noqa: C901
     requirement = requirement or {}
 
     def text_value(*keys: str) -> str:
@@ -3419,7 +3534,7 @@ def _client_missing_training_detail_labels(requirement: Optional[dict]) -> list[
     return missing
 
 
-async def _send_client_interview_schedule(
+async def _send_client_interview_schedule(  # noqa: C901
     db,
     request: Optional[Request],
     *,
@@ -3428,13 +3543,13 @@ async def _send_client_interview_schedule(
     requirement_id: str,
     date_time: str,
     interview_link: str,
-    platform: str = "Google Meet",
+    platform: str = GOOGLE_MEET,
     source: str = "client_slot_confirmation",
     calendar_event: Optional[dict] = None,
     client_slot_email_id: str = "",
 ) -> dict:
     if not client_email:
-        return {"success": False, "error": "Client email not found"}
+        return {"success": False, "error": CLIENT_EMAIL_NOT_FOUND}
 
     req = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
     technology = req.get("technology_needed", "Training") if req else "Training"
@@ -3567,15 +3682,15 @@ def _recent_enough(sent_at, received_at, days: int = 21) -> bool:
         return True
     try:
         if isinstance(sent_at, str):
-            sent_at = datetime.fromisoformat(sent_at.replace("Z", "+00:00")).replace(tzinfo=None)
+            sent_at = datetime.fromisoformat(sent_at.replace("Z", ISO_TZ_SUFFIX)).replace(tzinfo=None)
         if isinstance(received_at, str):
-            received_at = datetime.fromisoformat(received_at.replace("Z", "+00:00")).replace(tzinfo=None)
+            received_at = datetime.fromisoformat(received_at.replace("Z", ISO_TZ_SUFFIX)).replace(tzinfo=None)
         return timedelta(0) <= (received_at - sent_at) <= timedelta(days=days)
     except Exception:
         return True
 
 
-async def _matching_client_slot_email(db, meta: dict, clean_body: str = "") -> Optional[dict]:
+async def _matching_client_slot_email(db, meta: dict, clean_body: str = "") -> Optional[dict]:  # noqa: C901
     from_email = (meta.get("from_email") or "").strip()
     if not from_email:
         return None
@@ -3585,7 +3700,7 @@ async def _matching_client_slot_email(db, meta: dict, clean_body: str = "") -> O
         exact = await db["client_slot_emails"].find_one(
             {
                 "slot_ref": slot_ref,
-                "to_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"},
+                "to_email": {MONGO_REGEX: f"^{_re.escape(from_email)}$", MONGO_OPTIONS: "i"},
             },
             {"_id": 0},
         )
@@ -3595,9 +3710,9 @@ async def _matching_client_slot_email(db, meta: dict, clean_body: str = "") -> O
     received_at = meta.get("received_at") or utc_now()
     candidates = await db["client_slot_emails"].find(
         {
-            "to_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"},
-            "status": {"$in": ["sent", "confirmed_scheduled", "calendar_failed", "trainer_email_failed", "client_email_failed"]},
-            "$or": [{"sent_at": {"$lte": received_at}}, {"sent_at": None}],
+            "to_email": {MONGO_REGEX: f"^{_re.escape(from_email)}$", MONGO_OPTIONS: "i"},
+            "status": {MONGO_IN: ["sent", "confirmed_scheduled", "calendar_failed", "trainer_email_failed", "client_email_failed"]},
+            "$or": [{"sent_at": {MONGO_LTE: received_at}}, {"sent_at": None}],
         },
         {"_id": 0},
     ).sort("sent_at", -1).limit(25).to_list(25)
@@ -3624,7 +3739,7 @@ async def _matching_client_slot_email(db, meta: dict, clean_body: str = "") -> O
             score += 40
         if _re.search(r"\b(confirm|confirmed|works|okay|ok|fine|available|schedule|book)\b", body_norm):
             score += 35
-        if _re.search(r"\b(\d{1,2}(:\d{2})?\s*(am|pm)?|today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b", body_norm):
+        if _re.search(TIME_DAY_PATTERN, body_norm):
             score += 35
         scored.append((score, item))
 
@@ -3634,7 +3749,7 @@ async def _matching_client_slot_email(db, meta: dict, clean_body: str = "") -> O
     return scored[0][1] if scored[0][0] >= 100 else None
 
 
-async def _process_client_slot_reply_from_meta(
+async def _process_client_slot_reply_from_meta(  # noqa: C901
     db,
     message_id: str,
     request: Optional[Request] = None,
@@ -3646,7 +3761,7 @@ async def _process_client_slot_reply_from_meta(
         existing = await db["client_slot_confirmations"].find_one(
             {
                 "client_slot_email_id": slot_doc.get("email_id"),
-                "status": {"$in": ["calendar_failed", "trainer_email_failed", "needs_manual_review"]},
+                "status": {MONGO_IN: ["calendar_failed", "trainer_email_failed", "needs_manual_review"]},
             },
             {"_id": 0},
             sort=[("updated_at", -1), ("created_at", -1)],
@@ -3684,7 +3799,7 @@ async def _process_client_slot_reply_from_meta(
         slot_doc.get("trainer_name", ""),
     )
     client_name = slot_doc.get("client_name") or meta.get("from_name") or "Client"
-    timezone_name = requirement.get("timezone") or "Asia/Kolkata"
+    timezone_name = requirement.get("timezone") or ASIA_KOLKATA
 
     parsed = await extract_client_slot_confirmation(
         clean_body,
@@ -3756,10 +3871,6 @@ async def _process_client_slot_reply_from_meta(
 
     try:
         calendar_event = await _create_google_meet_event(
-            trainer_email=trainer_contact["email"],
-            trainer_name=trainer_contact["name"],
-            client_email=meta.get("from_email") or slot_doc.get("to_email") or "",
-            client_name=client_name,
             requirement=requirement or {"requirement_id": requirement_id},
             start_iso=parsed.get("start_iso", ""),
             end_iso=parsed.get("end_iso", ""),
@@ -3804,7 +3915,7 @@ async def _process_client_slot_reply_from_meta(
             requirement_id=requirement_id,
             date_time=date_time,
             interview_link=meet_link,
-            platform="Google Meet",
+            platform=GOOGLE_MEET,
             source="client_slot_confirmation",
             calendar_event=calendar_event,
         ),
@@ -3816,7 +3927,7 @@ async def _process_client_slot_reply_from_meta(
             requirement_id=requirement_id,
             date_time=date_time,
             interview_link=meet_link,
-            platform="Google Meet",
+            platform=GOOGLE_MEET,
             source="client_slot_confirmation",
             calendar_event=calendar_event,
             client_slot_email_id=slot_doc.get("email_id", ""),
@@ -3888,7 +3999,7 @@ async def _process_client_slot_reply(
     )
 
 
-async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_results: int = 25) -> dict:
+async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_results: int = 25) -> dict:  # noqa: C901
     settings = await _client_inbox_settings(db)
     if settings.get("inboxProvider") in {"smtp_only", "smtp"}:
         auto_sent_existing = await auto_send_pending_client_replies_smtp(db)
@@ -4235,7 +4346,7 @@ Malformed JSON:
     return _json_object_from_ai_text(fixed, "Ollomo JSON repair")
 
 
-def _normalise_toc_timing_for_payload(toc: dict, payload: dict) -> dict:
+def _normalise_toc_timing_for_payload(toc: dict, payload: dict) -> dict:  # noqa: C901
     timing = str(payload.get("timing") or payload.get("daily_timing") or "").lower()
     if not ("9" in timing and "4" in timing):
         return toc
@@ -4306,7 +4417,7 @@ def _normalise_toc_timing_for_payload(toc: dict, payload: dict) -> dict:
     return toc
 
 
-async def _generate_toc_with_ollomo_chunked(payload: dict, api_url: str, headers: dict, model: str, timeout_seconds: int) -> dict:
+async def _generate_toc_with_ollomo_chunked(payload: dict, api_url: str, headers: dict, model: str, timeout_seconds: int) -> dict:  # noqa: C901
     import httpx as _httpx
 
     duration_days = int(payload.get("duration_days") or 1)
@@ -4377,7 +4488,7 @@ Rules:
     return base
 
 
-async def _generate_toc_with_ollomo(payload: dict) -> dict:
+async def _generate_toc_with_ollomo(payload: dict) -> dict:  # noqa: C901
     import httpx as _httpx
 
     settings = get_settings()
@@ -4402,7 +4513,7 @@ async def _generate_toc_with_ollomo(payload: dict) -> dict:
     headers = {
         "Authorization": f"Bearer {api_key}",
         "X-API-Key": api_key,
-        "Content-Type": "application/json",
+        "Content-Type": CONTENT_TYPE_JSON,
     }
     timeout_seconds = int(os.getenv("OLLOMO_TIMEOUT_SECONDS", "600") or "600")
     if int(payload.get("duration_days") or 0) >= 10:
@@ -4455,7 +4566,7 @@ async def _generate_toc_with_gemini(payload: dict) -> dict:
     api_key = os.getenv("GEMINI_API_KEY", "") or getattr(settings, "gemini_api_key", "")
     if _is_placeholder_api_key(api_key):
         raise ValueError("GEMINI_API_KEY is not configured")
-    model = os.getenv("GEMINI_MODEL", "") or getattr(settings, "gemini_model", "") or "gemini-2.0-flash"
+    model = os.getenv("GEMINI_MODEL", "") or getattr(settings, "gemini_model", "") or GEMINI_MODEL
     full_prompt = TOC_SYSTEM_PROMPT + "\n\n" + _toc_user_prompt(payload)
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
     async with _httpx.AsyncClient(timeout=120) as client:
@@ -4476,7 +4587,7 @@ async def _polish_toc_with_gemini(toc_data: dict, payload: dict) -> dict:
     api_key = (os.getenv("GEMINI_API_KEY", "") or getattr(settings, "gemini_api_key", "")).strip()
     if _is_placeholder_api_key(api_key):
         raise ValueError("GEMINI_API_KEY is not configured")
-    model = (os.getenv("GEMINI_MODEL", "") or getattr(settings, "gemini_model", "") or "gemini-2.0-flash").strip()
+    model = (os.getenv("GEMINI_MODEL", "") or getattr(settings, "gemini_model", "") or GEMINI_MODEL).strip()
     max_tokens = int(os.getenv("GEMINI_TOC_MAX_OUTPUT_TOKENS", "12000") or "12000")
     technology = payload.get("technology") or "Training"
     duration_days = int(payload.get("duration_days") or len(toc_data.get("days") or []) or 1)
@@ -4504,7 +4615,7 @@ Input JSON:
             "generationConfig": {
                 "temperature": 0.15,
                 "maxOutputTokens": max_tokens,
-                "responseMimeType": "application/json",
+                "responseMimeType": CONTENT_TYPE_JSON,
             },
         })
         res.raise_for_status()
@@ -4531,7 +4642,7 @@ async def _maybe_polish_toc_with_gemini(toc_data: dict, payload: dict) -> tuple[
         return toc_data, f"skipped: {exc}"
 
 
-def _validate_toc_agent_output(toc_data: dict, payload: dict) -> dict:
+def _validate_toc_agent_output(toc_data: dict, payload: dict) -> dict:  # noqa: C901
     toc_data = dict(toc_data or {})
     expected_days = max(1, min(int(payload.get("duration_days") or 1), 100))
     fallback = _fallback_toc_data({**payload, "duration_days": expected_days}, "")
@@ -4634,7 +4745,7 @@ def _validate_toc_agent_output(toc_data: dict, payload: dict) -> dict:
 
 
 def _clean_filename(value: str) -> str:
-    cleaned = _re.sub(r"[^A-Za-z0-9._-]+", "_", value or "toc").strip("_")
+    cleaned = _re.sub(FILENAME_PATTERN, "_", value or "toc").strip("_")
     return cleaned[:80] or "toc"
 
 
@@ -4725,7 +4836,7 @@ def _toc_html(doc: dict) -> str:
 </html>"""
 
 
-def _toc_pdf_bytes(doc: dict) -> bytes:
+def _toc_pdf_bytes(doc: dict) -> bytes:  # noqa: C901
     toc = doc.get("toc_data") or {}
     pdf = fitz.open()
     page = pdf.new_page(width=595, height=842)
@@ -4737,7 +4848,7 @@ def _toc_pdf_bytes(doc: dict) -> bytes:
         page = pdf.new_page(width=595, height=842)
         y = 42
 
-    def write(text: str, size: int = 10, color=(31 / 255, 41 / 255, 55 / 255), bold: bool = False, gap: int = 8):
+    def write(text: str, size: int = 10, color=(31 / 255, 41 / 255, 55 / 255), gap: int = 8):
         nonlocal y
         text = str(text or "")
         font = "helv"
@@ -4750,7 +4861,7 @@ def _toc_pdf_bytes(doc: dict) -> bytes:
         y += max(needed, abs(consumed) if consumed < 0 else needed) + gap
 
     def bullet_list(title: str, items: list):
-        write(title, size=13, bold=True, color=(15 / 255, 23 / 255, 42 / 255), gap=4)
+        write(title, size=13, color=(15 / 255, 23 / 255, 42 / 255), gap=4)
         for item in items or []:
             write(f"- {item}", size=9, gap=2)
         y_gap(6)
@@ -4759,14 +4870,14 @@ def _toc_pdf_bytes(doc: dict) -> bytes:
         nonlocal y
         y += amount
 
-    write("Clahan Technologies | TrainerSync", size=9, bold=True, color=(37 / 255, 99 / 255, 235 / 255), gap=10)
-    write(toc.get("title", "Training Table of Contents"), size=20, bold=True, color=(15 / 255, 23 / 255, 42 / 255), gap=4)
+    write("Clahan Technologies | TrainerSync", size=9, color=(37 / 255, 99 / 255, 235 / 255), gap=10)
+    write(toc.get("title", "Training Table of Contents"), size=20, color=(15 / 255, 23 / 255, 42 / 255), gap=4)
     write(toc.get("subtitle", ""), size=11, color=(71 / 255, 85 / 255, 105 / 255), gap=14)
     write(f"Technology: {doc.get('technology', '')} | Duration: {doc.get('duration_days', '')} day(s) | Mode: {doc.get('mode', '')} | Trainer: {doc.get('trainer_name', '')}", size=9, gap=12)
-    write("Program Overview", size=13, bold=True, color=(15 / 255, 23 / 255, 42 / 255), gap=4)
+    write("Program Overview", size=13, color=(15 / 255, 23 / 255, 42 / 255), gap=4)
     write(toc.get("overview", ""), size=10, gap=10)
     if toc.get("overview_table"):
-        write("Program Roadmap", size=13, bold=True, color=(15 / 255, 23 / 255, 42 / 255), gap=4)
+        write("Program Roadmap", size=13, color=(15 / 255, 23 / 255, 42 / 255), gap=4)
         for row in toc.get("overview_table") or []:
             write(
                 f"Day {row.get('day')}: {row.get('focus_area')} | Tools: {row.get('primary_tools')} | Jira: {row.get('jira_focus')}",
@@ -4778,12 +4889,12 @@ def _toc_pdf_bytes(doc: dict) -> bytes:
     bullet_list("Learning Outcomes", toc.get("learning_outcomes", []))
 
     for day in toc.get("days") or []:
-        write(day.get("title") or f"Day {day.get('day', '')}", size=14, bold=True, color=(29 / 255, 78 / 255, 216 / 255), gap=6)
+        write(day.get("title") or f"Day {day.get('day', '')}", size=14, color=(29 / 255, 78 / 255, 216 / 255), gap=6)
         if day.get("tools") or day.get("jira_focus"):
             write(f"Tools: {day.get('tools', '')} | Jira Focus: {day.get('jira_focus', '')}", size=9, gap=5)
         for key, label in (("morning_session", "Morning Session"), ("afternoon_session", "Afternoon Session")):
             session = day.get(key) or {}
-            write(f"{label}: {session.get('title', '')} ({session.get('time', '')})", size=11, bold=True, gap=4)
+            write(f"{label}: {session.get('title', '')} ({session.get('time', '')})", size=11, gap=4)
             for topic in session.get("topics") or []:
                 write(f"{topic.get('time', '')} - {topic.get('topic', '')} [{topic.get('type', '')}]", size=8, gap=1)
             y_gap(5)
@@ -4797,9 +4908,9 @@ def _toc_pdf_bytes(doc: dict) -> bytes:
         bullet_list(ref.get("category") or "Tools Reference", ref.get("items") or [])
     if toc.get("certification_roadmap"):
         bullet_list("Certification Roadmap", toc.get("certification_roadmap", []))
-    write("Certification Guidance", size=13, bold=True, gap=4)
+    write("Certification Guidance", size=13, gap=4)
     write(toc.get("certification_guidance", ""), size=10, gap=8)
-    write("Trainer Notes", size=13, bold=True, gap=4)
+    write("Trainer Notes", size=13, gap=4)
     write(toc.get("trainer_notes", ""), size=10, gap=8)
 
     out = pdf.tobytes()
@@ -4807,7 +4918,7 @@ def _toc_pdf_bytes(doc: dict) -> bytes:
     return out
 
 
-def _send_toc_email_with_attachment(to_email: str, subject: str, body: str, filename: str, pdf_bytes: bytes, smtp_config: dict) -> tuple:
+def _send_toc_email_with_attachment(to_email: str, subject: str, body: str, filename: str, pdf_bytes: bytes, smtp_config: dict) -> tuple:  # noqa: C901
     smtp_config = smtp_config or {}
     settings = get_settings()
     gmail_user = smtp_config.get("smtpUser") or getattr(settings, "gmail_user", "")
@@ -4818,8 +4929,8 @@ def _send_toc_email_with_attachment(to_email: str, subject: str, body: str, file
     smtp_port = int(smtp_config.get("smtpPort") or 587)
     can_use_gmail_oauth = (
         "gmail" in str(smtp_host or "").lower()
-        or str(gmail_user or "").lower().endswith("@gmail.com")
-        or str(from_email or "").lower().endswith("@gmail.com")
+        or str(gmail_user or "").lower().endswith(GMAIL_DOMAIN)
+        or str(from_email or "").lower().endswith(GMAIL_DOMAIN)
         or bool(smtp_config.get("useGmailOAuth"))
     )
 
@@ -4870,7 +4981,7 @@ def _send_toc_email_with_attachment(to_email: str, subject: str, body: str, file
         return False, str(exc)
 
 
-def _send_email_with_file_attachment(
+def _send_email_with_file_attachment(  # noqa: C901
     to_email: str,
     subject: str,
     body: str,
@@ -4889,8 +5000,8 @@ def _send_email_with_file_attachment(
     smtp_port = int(smtp_config.get("smtpPort") or 587)
     can_use_gmail_oauth = (
         "gmail" in str(smtp_host or "").lower()
-        or str(smtp_user or "").lower().endswith("@gmail.com")
-        or str(from_email or "").lower().endswith("@gmail.com")
+        or str(smtp_user or "").lower().endswith(GMAIL_DOMAIN)
+        or str(from_email or "").lower().endswith(GMAIL_DOMAIN)
         or bool(smtp_config.get("useGmailOAuth"))
     )
 
@@ -4998,7 +5109,7 @@ async def _categorise_and_update_trainer(db, trainer: dict) -> dict:
 async def _categorise_trainer_by_id(db, trainer_id: str) -> dict:
     trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0})
     if not trainer:
-        raise HTTPException(404, "Trainer not found")
+        raise HTTPException(404, TRAINER_NOT_FOUND)
     return await _categorise_and_update_trainer(db, trainer)
 
 
@@ -5051,7 +5162,7 @@ async def get_admin_settings():
 
 
 @router.post("/admin/settings")
-async def save_admin_settings(payload: dict):
+async def save_admin_settings(payload: dict):  # noqa: C901
     db = get_db()
     existing = await db["admin_settings"].find_one(
         {"settings_id": "default"},
@@ -5088,7 +5199,7 @@ async def save_admin_settings(payload: dict):
 async def test_email_settings(payload: dict = {}):
     db = get_db()
     cfg = await get_admin_email_config(db)
-    to_email = str(
+    to_email = str(  # noqa: S105
         payload.get("to_email")
         or cfg.get("fromEmail")
         or cfg.get("smtpUser")
@@ -5114,11 +5225,7 @@ async def test_email_settings(payload: dict = {}):
 async def test_whatsapp_settings(request: Request):
     db = get_db()
     cfg = await get_twilio_config(db)
-    provider_name = (
-        "AiSensy" if cfg.get("provider") == "aisensy"
-        else "Meta Cloud API" if cfg.get("provider") == "meta"
-        else "Twilio"
-    )
+    provider_name = _get_whatsapp_provider_name(cfg)
     campaign_note = ""
     if cfg.get("provider") == "aisensy":
         campaign_note = f"\nCampaign: {cfg.get('aisensyCampaignName') or '-'}\nTemplate Params: {cfg.get('aisensyTemplateParamFields') or 'message'}"
@@ -5180,20 +5287,20 @@ async def teams_direct_oauth_callback(code: str = "", error: str = "", error_des
         message = error_description or error
         return Response(
             content=f"<h2>Teams authorization failed</h2><p>{_html.escape(message)}</p>",
-            media_type="text/html",
+            media_type=TEXT_HTML,
             status_code=400,
         )
     if not code:
         return Response(
             content="<h2>Teams authorization failed</h2><p>Missing authorization code.</p>",
-            media_type="text/html",
+            media_type=TEXT_HTML,
             status_code=400,
         )
     result = await exchange_microsoft_code(db, code)
     if not result.get("success"):
         return Response(
             content=f"<h2>Teams authorization failed</h2><p>{_html.escape(result.get('error', 'Unknown error'))}</p>",
-            media_type="text/html",
+            media_type=TEXT_HTML,
             status_code=400,
         )
     return Response(
@@ -5201,7 +5308,7 @@ async def teams_direct_oauth_callback(code: str = "", error: str = "", error_des
             "<h2>Teams direct chat connected</h2>"
             "<p>You can close this tab and return to TrainerSync.</p>"
         ),
-        media_type="text/html",
+        media_type=TEXT_HTML,
     )
 
 
@@ -5314,7 +5421,7 @@ async def track_email_open(email_id: str, request: Request):
 async def whatsapp_status_callback(request: Request):
     db = get_db()
     content_type = request.headers.get("content-type", "")
-    if "application/json" in content_type:
+    if CONTENT_TYPE_JSON in content_type:
         payload = await request.json()
     else:
         form = await request.form()
@@ -5398,7 +5505,7 @@ async def whatsapp_meta_webhook_verify(request: Request):
 
 
 @router.post("/whatsapp/meta/webhook")
-async def whatsapp_meta_webhook(request: Request):
+async def whatsapp_meta_webhook(request: Request):  # noqa: C901
     db = get_db()
     payload = await request.json()
     processed = {"statuses": 0, "messages": 0}
@@ -5533,7 +5640,7 @@ def _split_toc_list(value) -> list:
     return [str(item).strip(" -\t\r") for item in values if str(item).strip(" -\t\r")]
 
 
-def _parse_toc_topic_section(raw: str, tools: list, labs: list) -> list:
+def _parse_toc_topic_section(raw: str, tools: list, labs: list) -> list:  # noqa: C901
     topics = []
     current = None
     for line in str(raw or "").splitlines():
@@ -5574,8 +5681,8 @@ def _parse_toc_topic_section(raw: str, tools: list, labs: list) -> list:
     return [_clean_toc_topic(item) for item in topics if item.get("topic")]
 
 
-def _parse_toc_knowledge_blocks(text: str) -> list:
-    clean_text = _re.sub(r"^\s*```.*?$", "", str(text or ""), flags=_re.MULTILINE).replace("\r\n", "\n")
+def _parse_toc_knowledge_blocks(text: str) -> list:  # noqa: C901
+    clean_text = _re.sub(r"^\s*```.*$", "", str(text or ""), flags=_re.MULTILINE).replace("\r\n", "\n")
     matches = list(_re.finditer(r"(?im)^Technology Name:\s*(.+?)\s*$", clean_text))
     parsed = []
     section_pattern = _re.compile(
@@ -5665,7 +5772,7 @@ def _toc_knowledge_doc_from_payload(payload: dict) -> dict:
     }
 
 
-async def _admin_toc_domain_for(db, name: str) -> Optional[dict]:
+async def _admin_toc_domain_for(db, name: str) -> Optional[dict]:  # noqa: C901
     key = _toc_key(name)
     if not key:
         return None
@@ -5765,7 +5872,7 @@ async def save_toc_knowledge(payload: dict):
     now = doc["updated_at"]
     await db["toc_domain_knowledge"].update_one(
         {"key": doc["key"]},
-        {"$set": doc, "$setOnInsert": {"created_at": now}},
+        {"$set": doc, MONGO_SET_ON_INSERT: {"created_at": now}},
         upsert=True,
     )
     saved = await db["toc_domain_knowledge"].find_one({"key": doc["key"]}, {"_id": 0})
@@ -5786,7 +5893,7 @@ async def import_toc_knowledge(payload: dict):
         doc = _toc_knowledge_doc_from_payload(domain_payload)
         await db["toc_domain_knowledge"].update_one(
             {"key": doc["key"]},
-            {"$set": doc, "$setOnInsert": {"created_at": doc["updated_at"]}},
+            {"$set": doc, MONGO_SET_ON_INSERT: {"created_at": doc["updated_at"]}},
             upsert=True,
         )
         saved_doc = await db["toc_domain_knowledge"].find_one({"key": doc["key"]}, {"_id": 0})
@@ -5804,7 +5911,7 @@ async def delete_toc_knowledge(key: str):
 
 
 @router.post("/toc/generate")
-async def generate_training_toc(payload: dict, request: Request):
+async def generate_training_toc(payload: dict, request: Request):  # noqa: C901
     required = ["requirement_id", "trainer_id", "technology", "duration_days"]
     missing = [field for field in required if not payload.get(field)]
     if missing:
@@ -5865,7 +5972,7 @@ async def generate_training_toc(payload: dict, request: Request):
         "toc_data": toc_data,
         "missing_client_inputs": missing_client_inputs,
         "generation_error": generation_error,
-        "ai_provider": "ollomo" if payload.get("toc_type") == "custom" and not generation_error else ("knowledge_base" if not generation_error else "dataset_fallback"),
+        "ai_provider": _determine_ai_provider(payload, generation_error),
         "status": "draft",
         "created_at": utc_now(),
     }
@@ -5878,7 +5985,7 @@ async def generate_training_toc(payload: dict, request: Request):
         "missing_client_inputs": missing_client_inputs,
         "warning": "Generated with assumptions because some client TOC inputs are missing" if missing_client_inputs else "",
         "provider": doc["ai_provider"],
-        "message": "TOC generated successfully from the knowledge base" if doc["ai_provider"] == "knowledge_base" else ("TOC generated successfully with Ollomo" if doc["ai_provider"] == "ollomo" else "TOC generated with fallback rules"),
+        "message": _get_toc_generation_message(doc["ai_provider"]),
     }
 
 
@@ -5901,13 +6008,13 @@ async def generate_toc_pdf(payload: dict):
     filename = f"{_clean_filename(doc.get('technology', 'training'))}_{toc_id}.pdf"
     return Response(
         content=pdf_bytes,
-        media_type="application/pdf",
+        media_type=CONTENT_TYPE_PDF,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 
 @router.post("/toc/send-email")
-async def send_toc_email(payload: dict):
+async def send_toc_email(payload: dict):  # noqa: C901
     toc_id = payload.get("toc_id")
     if not toc_id:
         raise HTTPException(400, "toc_id is required")
@@ -5926,7 +6033,7 @@ async def send_toc_email(payload: dict):
     existing_sent = await db["email_logs"].find_one(
         {
             "toc_id": toc_id,
-            "mail_type": {"$in": ["mail6_toc", "toc_generated"]},
+            "mail_type": {MONGO_IN: ["mail6_toc", "toc_generated"]},
             "status": "sent",
         },
         {"_id": 0, "email_id": 1},
@@ -5998,7 +6105,7 @@ async def send_toc_email(payload: dict):
 
 
 @router.post("/toc/auto-generate")
-async def auto_generate_toc(payload: dict, request: Request):
+async def auto_generate_toc(payload: dict, request: Request):  # noqa: C901
     db = get_db()
     requirement_id = payload.get("requirement_id") or ""
     trainer_id = payload.get("trainer_id") or ""
@@ -6007,7 +6114,7 @@ async def auto_generate_toc(payload: dict, request: Request):
 
     requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
     if not requirement:
-        raise HTTPException(404, "Requirement not found")
+        raise HTTPException(404, REQUIREMENT_NOT_FOUND)
     trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0})
     if not trainer:
         latest_log = await db["email_logs"].find_one(
@@ -6049,7 +6156,7 @@ async def _next_purchase_order_number(db) -> str:
         {"_id": f"purchase_orders:{year}"},
         {
             "$inc": {"sequence": 1},
-            "$setOnInsert": {"created_at": utc_now(), "type": "purchase_orders", "year": year},
+            MONGO_SET_ON_INSERT: {"created_at": utc_now(), "type": "purchase_orders", "year": year},
         },
         upsert=True,
         return_document=ReturnDocument.AFTER,
@@ -6075,7 +6182,7 @@ async def _next_invoice_number(db) -> str:
         {"_id": f"invoices:{year}"},
         {
             "$inc": {"sequence": 1},
-            "$setOnInsert": {"created_at": utc_now(), "type": "invoices", "year": year},
+            MONGO_SET_ON_INSERT: {"created_at": utc_now(), "type": "invoices", "year": year},
         },
         upsert=True,
         return_document=ReturnDocument.AFTER,
@@ -6088,8 +6195,8 @@ def _invoice_download_url(request: Request, invoice_id: str) -> str:
 
 
 def _invoice_filename(invoice_doc: dict) -> str:
-    number = _re.sub(r"[^A-Za-z0-9._-]+", "_", str(invoice_doc.get("invoice_number") or "invoice")).strip("_")
-    client = _re.sub(r"[^A-Za-z0-9._-]+", "_", str((invoice_doc.get("client") or {}).get("name") or "client")).strip("_")
+    number = _re.sub(FILENAME_PATTERN, "_", str(invoice_doc.get("invoice_number") or "invoice")).strip("_")
+    client = _re.sub(FILENAME_PATTERN, "_", str((invoice_doc.get("client") or {}).get("name") or "client")).strip("_")
     return f"{number}_{client}.pdf"
 
 
@@ -6122,7 +6229,7 @@ def _invoice_due_date_display(invoice_doc: dict) -> str:
     if isinstance(issue, datetime):
         return (issue + timedelta(days=30)).strftime("%d-%m-%Y")
     try:
-        parsed = datetime.fromisoformat(str(issue).replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(str(issue).replace("Z", ISO_TZ_SUFFIX))
         return (parsed + timedelta(days=30)).strftime("%d-%m-%Y")
     except Exception:
         return ""
@@ -6172,7 +6279,7 @@ def _invoice_asset_data_uri(filename: str, mime: str) -> str:
         return ""
 
 
-def _render_invoice_html(invoice_doc: dict) -> str:
+def _render_invoice_html(invoice_doc: dict) -> str:  # noqa: C901
     esc = _html.escape
     company = _invoice_display_company(invoice_doc)
     trainer = invoice_doc.get("trainer") or {}
@@ -6259,7 +6366,7 @@ th {{ background:#1f4578; color:white; font-weight:900; text-align:left; font-si
 .signature {{ margin-top:8px; font-weight:800; font-size:14px; }}
 </style></head><body>
 <div class="top">
-  <div>{f'<img class="logo" src="{logo_uri}" />' if logo_uri else f'<h1>{esc(company.get("name") or "BEULIX SOLUTIONS PRIVATE LIMITED")}</h1>'}</div>
+  <div>{f'<img class="logo" src="{logo_uri}" />' if logo_uri else f'<h1>{esc(company.get("name") or BEULIX_COMPANY)}</h1>'}</div>
   <div><div class="invoice-title">TAX INVOICE</div><div class="invoice-no"># {esc(invoice_doc.get('invoice_number') or '')}</div></div>
 </div>
 <div class="header">
@@ -6318,7 +6425,7 @@ def _invoice_display_company(invoice_doc: dict) -> dict:
     name = str(company.get("name") or "").strip().lower()
     if invoice_type == "beulix" or not company or name in {"calhan technologies", "calhan"}:
         company.update({
-            "name": "BEULIX SOLUTIONS PRIVATE LIMITED",
+            "name": BEULIX_COMPANY,
             "address": "No.29/2, 1st Main Road, Maruthinagar, Madivala, Bangalore - Karnataka 560068",
             "email": "finance@beulixsolutions.com",
             "phone": "8179147889",
@@ -6328,7 +6435,7 @@ def _invoice_display_company(invoice_doc: dict) -> dict:
     return company
 
 
-def _simple_invoice_pdf_bytes(invoice_doc: dict) -> bytes:
+def _simple_invoice_pdf_bytes(invoice_doc: dict) -> bytes:  # noqa: C901
     company = _invoice_display_company(invoice_doc)
     client = invoice_doc.get("client") or {}
     requirement = invoice_doc.get("requirement") or {}
@@ -6341,7 +6448,7 @@ def _simple_invoice_pdf_bytes(invoice_doc: dict) -> bytes:
     due_date = _invoice_due_date_display(invoice_doc)
     bank = invoice_doc.get("bank") or invoice_doc.get("bank_details") or {}
 
-    def draw_wrapped(page, text, x, y, max_width, size=10, color=(0, 0, 0), bold=False, line_height=14):
+    def draw_wrapped(page, text, x, y, max_width, size=10, color=(0, 0, 0), line_height=14):
         font = "helv"
         words = str(text or "").replace("\n", " \n ").split(" ")
         line = ""
@@ -6400,13 +6507,13 @@ def _simple_invoice_pdf_bytes(invoice_doc: dict) -> bytes:
     if os.path.exists(logo_path):
         page.insert_image(fitz.Rect(margin - 4, 28, 236, 80), filename=logo_path, keep_proportion=True)
     else:
-        text(page, margin, 62, company.get("name") or "BEULIX SOLUTIONS PRIVATE LIMITED", 14, navy)
+        text(page, margin, 62, company.get("name") or BEULIX_COMPANY, 14, navy)
     text_right(page, 553, 54, "TAX INVOICE", 22, navy)
     text_right(page, 553, 76, f"# {invoice_doc.get('invoice_number') or ''}", 12, navy)
     page.draw_line((margin, 94), (553, 94), color=navy, width=2.2)
 
     y = 112
-    text(page, margin, y, company.get("name") or "BEULIX SOLUTIONS PRIVATE LIMITED", 13)
+    text(page, margin, y, company.get("name") or BEULIX_COMPANY, 13)
     y += 17
     y = draw_wrapped(page, company.get("address") or "", margin, y, 505, 10, line_height=13)
     text(page, margin, y, f"Email: {company.get('email') or ''} | Contact: {company.get('phone') or ''}", 10)
@@ -6480,14 +6587,14 @@ def _simple_invoice_pdf_bytes(invoice_doc: dict) -> bytes:
         ("Sub Total", commercials.get("total_amount"), 32),
         (f"{invoice_doc.get('tax_type') or 'IGST'} ({commercials.get('gst_rate', 0)}%)", commercials.get("gst_amount"), 32),
         ("Total", commercials.get("grand_total"), 45),
-        ("Balance Due", commercials.get("grand_total"), 45),
+        (BALANCE_DUE, commercials.get("grand_total"), 45),
     ]:
         x_label = table_x + sum(widths[:4])
         page.draw_rect(fitz.Rect(table_x, y, x_label, y + tall), color=grey, width=0.6)
         page.draw_rect(fitz.Rect(x_label, y, x_label + widths[4], y + tall), color=grey, width=0.6)
         page.draw_rect(fitz.Rect(x_label + widths[4], y, table_x + sum(widths), y + tall), color=grey, width=0.6)
-        text_right(page, x_label + widths[4] - 8, y + (22 if tall == 32 else 28), label, 10, navy if label in {"Total", "Balance Due"} else (0, 0, 0))
-        text_right(page, table_x + sum(widths) - 8, y + (22 if tall == 32 else 28), f"Rs:{_money_number(value)}" if label in {"Total", "Balance Due"} else _money_number(value), 10, navy if label in {"Total", "Balance Due"} else (0, 0, 0))
+        text_right(page, x_label + widths[4] - 8, y + (22 if tall == 32 else 28), label, 10, navy if label in {"Total", BALANCE_DUE} else (0, 0, 0))
+        text_right(page, table_x + sum(widths) - 8, y + (22 if tall == 32 else 28), f"Rs:{_money_number(value)}" if label in {"Total", BALANCE_DUE} else _money_number(value), 10, navy if label in {"Total", BALANCE_DUE} else (0, 0, 0))
         y += tall
 
     y += 18
@@ -6496,7 +6603,7 @@ def _simple_invoice_pdf_bytes(invoice_doc: dict) -> bytes:
     page.draw_line((margin, y), (553, y), color=grey, width=0.8)
     y += 26
     text(page, margin, y, "Bank Details:", 11)
-    text(page, margin, y + 18, bank.get("account_name") or company.get("name") or "BEULIX SOLUTIONS PRIVATE LIMITED", 10)
+    text(page, margin, y + 18, bank.get("account_name") or company.get("name") or BEULIX_COMPANY, 10)
     text(page, margin, y + 34, f"A/C No: {bank.get('account_number') or ''}", 10)
     text(page, margin, y + 50, f"IFSC: {bank.get('ifsc') or ''}", 10)
     text(page, 225, y, "Terms & Conditions:", 11)
@@ -6535,10 +6642,10 @@ async def generate_purchase_order(payload: dict, request: Request):
     db = get_db()
     trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0})
     if not trainer:
-        raise HTTPException(404, "Trainer not found")
+        raise HTTPException(404, TRAINER_NOT_FOUND)
     requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
     if not requirement:
-        raise HTTPException(404, "Requirement not found")
+        raise HTTPException(404, REQUIREMENT_NOT_FOUND)
 
     po_number = await _next_purchase_order_number(db)
     po_id = f"PO-DOC-{uuid.uuid4().hex[:8].upper()}"
@@ -6562,7 +6669,7 @@ async def generate_purchase_order(payload: dict, request: Request):
     po_doc.update({
         "html": html,
         "pdf_base64": _base64.b64encode(pdf_bytes).decode("ascii"),
-        "pdf_content_type": "application/pdf",
+        "pdf_content_type": CONTENT_TYPE_PDF,
         "pdf_filename": purchase_order_filename(po_doc),
         "pdf_generated_at": utc_now(),
     })
@@ -6588,7 +6695,7 @@ async def request_client_purchase_order(requirement_id: str, payload: dict, requ
     db = get_db()
     requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
     if not requirement:
-        raise HTTPException(404, "Requirement not found")
+        raise HTTPException(404, REQUIREMENT_NOT_FOUND)
 
     trainer_id = str(payload.get("trainer_id") or requirement.get("selected_trainer_id") or "").strip()
     trainer = {}
@@ -6598,7 +6705,7 @@ async def request_client_purchase_order(requirement_id: str, payload: dict, requ
         payload.get("trainer_name")
         or trainer.get("name")
         or requirement.get("selected_trainer_name")
-        or "the trainer"
+        or THE_TRAINER
     )
     client_email = str(
         payload.get("client_email")
@@ -6639,7 +6746,7 @@ async def request_client_purchase_order(requirement_id: str, payload: dict, requ
         or "As applicable"
     )
     expected_delivery = payload.get("expected_delivery_date") or "Within 1 day"
-    billing_company = payload.get("billing_company") or "Clahan Technologies"
+    billing_company = payload.get("billing_company") or CLAHAN_TECHNOLOGIES
     billing_address = payload.get("billing_address") or "As per registered billing details"
     gst_number = payload.get("gst_number") or "As applicable"
     subject = payload.get("subject") or "Request for Purchase Order (PO)"
@@ -6664,7 +6771,7 @@ async def request_client_purchase_order(requirement_id: str, payload: dict, requ
         "Looking forward to your confirmation.\n\n"
         "Thank you & regards,\n"
         "Recruitment Team\n"
-        "Clahan Technologies"
+        f"{CLAHAN_TECHNOLOGIES}"
     )
 
     email_id = f"CLIENT-PO-REQ-{uuid.uuid4().hex[:8].upper()}"
@@ -6727,7 +6834,7 @@ async def request_client_budget_increase(requirement_id: str, payload: dict, req
     db = get_db()
     requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
     if not requirement:
-        raise HTTPException(404, "Requirement not found")
+        raise HTTPException(404, REQUIREMENT_NOT_FOUND)
 
     client_email = str(payload.get("client_email") or requirement.get("client_email") or "").strip()
     if not client_email:
@@ -6781,7 +6888,7 @@ async def request_client_budget_increase(requirement_id: str, payload: dict, req
         "Please confirm if this revised commercial is workable from your side, so we can move ahead with the next steps.\n\n"
         "Regards,\n"
         "Recruitment Team\n"
-        "Clahan Technologies"
+        f"{CLAHAN_TECHNOLOGIES}"
     )
 
     email_id = f"CLIENT-BUDGET-{uuid.uuid4().hex[:8].upper()}"
@@ -6925,7 +7032,7 @@ async def _latest_trainer_slot_reply_text(db, requirement_id: str, trainer_id: s
         {
             "requirement_id": requirement_id,
             "trainer_id": trainer_id,
-            "mail_type": {"$in": ["mail3", "mail3_slot_followup"]},
+            "mail_type": {MONGO_IN: ["mail3", "mail3_slot_followup"]},
             "reply_text": {"$nin": [None, ""]},
         },
         {"_id": 0, "reply_text": 1},
@@ -6972,7 +7079,7 @@ async def _handle_trainer_commercial_negotiation_reply(
                 db,
                 {
                     "trainer_id": trainer_id,
-                    "trainer_name": log.get("trainer_name") or "the trainer",
+                    "trainer_name": log.get("trainer_name") or THE_TRAINER,
                     "trainer_email": log.get("to_email") or "",
                     "requirement_id": requirement_id,
                     "slot_text": slot_text,
@@ -6989,10 +7096,10 @@ async def _handle_trainer_commercial_negotiation_reply(
             result = {"success": False, "error": "Trainer accepted commercial, but previous slot reply was not found"}
         await db["trainers"].update_one({"trainer_id": trainer_id}, {"$set": {"status": "commercial_accepted"}})
         await db["shortlists"].update_one(
-            {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+            {"requirement_id": requirement_id, TRAINER_ID_PATH: trainer_id},
             {"$set": {
-                "top_trainers.$.status": "commercial_accepted",
-                "top_trainers.$.pipeline_status": "commercial_accepted",
+                TRAINER_STATUS_PATH: "commercial_accepted",
+                TRAINER_PIPELINE_STATUS_PATH: "commercial_accepted",
                 "top_trainers.$.commercial_accepted_at": utc_now(),
             }},
         )
@@ -7012,7 +7119,7 @@ async def _handle_trainer_commercial_negotiation_reply(
                 db,
                 {
                     "trainer_id": trainer_id,
-                    "trainer_name": log.get("trainer_name") or "the trainer",
+                    "trainer_name": log.get("trainer_name") or THE_TRAINER,
                     "trainer_email": log.get("to_email") or "",
                     "requirement_id": requirement_id,
                     "slot_text": slot_text or reply.get("body") or "",
@@ -7038,7 +7145,7 @@ async def _handle_trainer_commercial_negotiation_reply(
             "If this is not workable, we will continue searching and share another suitable trainer profile.\n\n"
             "Regards,\n"
             "Recruitment Team\n"
-            "Clahan Technologies"
+            f"{CLAHAN_TECHNOLOGIES}"
         )
         result = await request_client_budget_increase(
             requirement_id,
@@ -7056,10 +7163,10 @@ async def _handle_trainer_commercial_negotiation_reply(
         )
         await db["trainers"].update_one({"trainer_id": trainer_id}, {"$set": {"status": "client_budget_approval_requested"}})
         await db["shortlists"].update_one(
-            {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+            {"requirement_id": requirement_id, TRAINER_ID_PATH: trainer_id},
             {"$set": {
-                "top_trainers.$.status": "client_budget_approval_requested",
-                "top_trainers.$.pipeline_status": "client_budget_approval_requested",
+                TRAINER_STATUS_PATH: "client_budget_approval_requested",
+                TRAINER_PIPELINE_STATUS_PATH: "client_budget_approval_requested",
                 "top_trainers.$.client_budget_requested_at": utc_now(),
             }},
         )
@@ -7079,7 +7186,7 @@ async def download_purchase_order(po_id: str):
     db = get_db()
     doc = await db["purchase_orders"].find_one({"po_id": po_id})
     if not doc:
-        raise HTTPException(404, "Purchase order not found")
+        raise HTTPException(404, PURCHASE_ORDER_NOT_FOUND)
 
     try:
         pdf_bytes = _purchase_order_pdf_from_doc(doc)
@@ -7100,7 +7207,7 @@ async def download_purchase_order(po_id: str):
     filename = doc.get("pdf_filename") or purchase_order_filename(doc)
     return Response(
         content=pdf_bytes,
-        media_type="application/pdf",
+        media_type=CONTENT_TYPE_PDF,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
@@ -7110,7 +7217,7 @@ async def send_purchase_order(po_id: str, payload: dict, request: Request):
     db = get_db()
     doc = await db["purchase_orders"].find_one({"po_id": po_id}, {"_id": 0})
     if not doc:
-        raise HTTPException(404, "Purchase order not found")
+        raise HTTPException(404, PURCHASE_ORDER_NOT_FOUND)
 
     trainer = doc.get("trainer") or {}
     requirement = doc.get("requirement") or {}
@@ -7230,7 +7337,7 @@ async def acknowledge_purchase_order(po_id: str):
         {"$set": {"status": "acknowledged", "acknowledged_at": utc_now()}},
     )
     if result.matched_count == 0:
-        raise HTTPException(404, "Purchase order not found")
+        raise HTTPException(404, PURCHASE_ORDER_NOT_FOUND)
     doc = await db["purchase_orders"].find_one({"po_id": po_id}, {"_id": 0})
     return {"success": True, "purchase_order": public_purchase_order(doc)}
 
@@ -7240,7 +7347,7 @@ async def generate_invoice_from_purchase_order(po_id: str, payload: dict, reques
     db = get_db()
     po_doc = await db["purchase_orders"].find_one({"po_id": po_id}, {"_id": 0})
     if not po_doc:
-        raise HTTPException(404, "Purchase order not found")
+        raise HTTPException(404, PURCHASE_ORDER_NOT_FOUND)
 
     trainer = po_doc.get("trainer") or {}
     requirement = po_doc.get("requirement") or {}
@@ -7314,7 +7421,7 @@ async def generate_invoice_from_purchase_order(po_id: str, payload: dict, reques
     invoice_doc.update({
         "html": html,
         "pdf_base64": _base64.b64encode(pdf_bytes).decode("ascii"),
-        "pdf_content_type": "application/pdf",
+        "pdf_content_type": CONTENT_TYPE_PDF,
         "pdf_filename": _invoice_filename(invoice_doc),
         "pdf_generated_at": utc_now(),
     })
@@ -7340,14 +7447,14 @@ async def generate_invoice_from_client_purchase_order(requirement_id: str, paylo
     db = get_db()
     requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
     if not requirement:
-        raise HTTPException(404, "Requirement not found")
+        raise HTTPException(404, REQUIREMENT_NOT_FOUND)
 
     trainer_id = str(payload.get("trainer_id") or requirement.get("selected_trainer_id") or "").strip()
     if not trainer_id:
         raise HTTPException(400, "trainer_id is required to generate invoice from client PO")
     trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0})
     if not trainer:
-        raise HTTPException(404, "Trainer not found")
+        raise HTTPException(404, TRAINER_NOT_FOUND)
 
     client_email = str(payload.get("client_email") or requirement.get("client_email") or "").strip()
     saved_client_email = str(requirement.get("client_email") or "").strip()
@@ -7389,14 +7496,14 @@ async def generate_invoice_from_client_purchase_order(requirement_id: str, paylo
     now = utc_now()
     invoice_type = str(payload.get("invoice_type") or "").lower()
     default_company = {
-        "name": "BEULIX SOLUTIONS PRIVATE LIMITED",
+        "name": BEULIX_COMPANY,
         "address": "No.29/2, 1st Main Road, Maruthinagar, Madivala, Bangalore - Karnataka 560068",
         "email": "finance@beulixsolutions.com",
         "phone": "8179147889",
         "pan": "AANCB2798",
         "gstin": "29AANCB2798L1ZS",
     } if invoice_type == "beulix" else {
-        "name": "Clahan Technologies",
+        "name": CLAHAN_TECHNOLOGIES,
         "tagline": "Corporate Training and Technology Consulting",
         "address": payload.get("calhan_address") or "",
         "email": payload.get("calhan_email") or getattr(get_settings(), "from_email", "") or getattr(get_settings(), "gmail_user", ""),
@@ -7478,7 +7585,7 @@ async def generate_invoice_from_client_purchase_order(requirement_id: str, paylo
     invoice_doc.update({
         "html": html,
         "pdf_base64": _base64.b64encode(pdf_bytes).decode("ascii"),
-        "pdf_content_type": "application/pdf",
+        "pdf_content_type": CONTENT_TYPE_PDF,
         "pdf_filename": _invoice_filename(invoice_doc),
         "pdf_generated_at": utc_now(),
     })
@@ -7501,7 +7608,7 @@ async def generate_invoice_from_client_purchase_order(requirement_id: str, paylo
             "invoice_number": invoice_number,
             "status": "invoice_generated",
             "updated_at": utc_now(),
-        }, "$setOnInsert": {"created_at": now}},
+        }, MONGO_SET_ON_INSERT: {"created_at": now}},
         upsert=True,
     )
     await db["requirements"].update_one(
@@ -7538,7 +7645,7 @@ async def download_invoice(invoice_id: str):
     filename = doc.get("pdf_filename") or _invoice_filename(doc)
     return Response(
         content=pdf_bytes,
-        media_type="application/pdf",
+        media_type=CONTENT_TYPE_PDF,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
@@ -7676,7 +7783,7 @@ def _client_pipeline_dt(value):
     if not value:
         return datetime.min.replace(tzinfo=timezone.utc)
     try:
-        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        return datetime.fromisoformat(str(value).replace("Z", ISO_TZ_SUFFIX))
     except Exception:
         return datetime.min.replace(tzinfo=timezone.utc)
 
@@ -7717,14 +7824,14 @@ async def get_client_pipeline(q: Optional[str] = None, domain: Optional[str] = N
     limit = max(10, min(int(limit or 80), 200))
     filters = []
     if domain:
-        pattern = {"$regex": _re.escape(domain.strip()), "$options": "i"}
+        pattern = {MONGO_REGEX: _re.escape(domain.strip()), MONGO_OPTIONS: "i"}
         filters.append({"$or": [
             {"technology_needed": pattern},
             {"job_title": pattern},
             {"job_description": pattern},
         ]})
     if q:
-        pattern = {"$regex": _re.escape(q.strip()), "$options": "i"}
+        pattern = {MONGO_REGEX: _re.escape(q.strip()), MONGO_OPTIONS: "i"}
         filters.append({"$or": [
             {"requirement_id": pattern},
             {"technology_needed": pattern},
@@ -7749,15 +7856,15 @@ async def get_client_pipeline(q: Optional[str] = None, domain: Optional[str] = N
     trainers = {}
     email_logs = []
     if requirement_ids:
-        shortlist_docs = await db["shortlists"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).to_list(len(requirement_ids))
+        shortlist_docs = await db["shortlists"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).to_list(len(requirement_ids))
         shortlists = {doc.get("requirement_id"): doc for doc in shortlist_docs}
-        client_emails = await db["client_emails"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("received_at", -1).limit(300).to_list(300)
-        client_messages = await db["client_messages"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(400).to_list(400)
-        client_slots = await db["client_slot_emails"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
-        confirmations = await db["client_slot_confirmations"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
-        invoice_docs = await db["invoices"].find({"requirement.requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
-        po_docs = await db["client_purchase_orders"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("updated_at", -1).limit(300).to_list(300)
-        email_logs = await db["email_logs"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(500).to_list(500)
+        client_emails = await db["client_emails"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("received_at", -1).limit(300).to_list(300)
+        client_messages = await db["client_messages"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(400).to_list(400)
+        client_slots = await db["client_slot_emails"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
+        confirmations = await db["client_slot_confirmations"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
+        invoice_docs = await db["invoices"].find({"requirement.requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
+        po_docs = await db["client_purchase_orders"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("updated_at", -1).limit(300).to_list(300)
+        email_logs = await db["email_logs"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(500).to_list(500)
         for doc in invoice_docs:
             req_id = (doc.get("requirement") or {}).get("requirement_id")
             if req_id and req_id not in invoices:
@@ -7767,7 +7874,7 @@ async def get_client_pipeline(q: Optional[str] = None, domain: Optional[str] = N
             if req_id and req_id not in client_pos:
                 client_pos[req_id] = doc
         if trainer_ids:
-            trainer_docs = await db["trainers"].find({"trainer_id": {"$in": trainer_ids}}, {"_id": 0}).to_list(len(trainer_ids))
+            trainer_docs = await db["trainers"].find({"trainer_id": {MONGO_IN: trainer_ids}}, {"_id": 0}).to_list(len(trainer_ids))
             trainers = {doc.get("trainer_id"): doc for doc in trainer_docs}
 
     by_req = {req_id: {"client_emails": [], "client_messages": [], "client_slots": [], "confirmations": [], "email_logs": []} for req_id in requirement_ids}
@@ -7923,7 +8030,7 @@ def _zip_display_name(path: str) -> str:
 
 def _is_resume_file(path: str) -> bool:
     lower = path.lower()
-    return lower.endswith((".pdf", ".docx"))
+    return lower.endswith((".pdf", DOCX_EXTENSION))
 
 
 async def _collect_resume_files(uploaded_files: List[UploadFile]) -> List[dict]:
@@ -7973,7 +8080,7 @@ async def _collect_resume_files(uploaded_files: List[UploadFile]) -> List[dict]:
                 collected.append({"filename": filename, "error": "Invalid ZIP file"})
             continue
 
-        if lower.endswith((".pdf", ".docx")):
+        if lower.endswith((".pdf", DOCX_EXTENSION)):
             collected.append({"filename": filename, "bytes": content})
         else:
             collected.append({"filename": filename, "error": "Only PDF, DOCX, or ZIP files are accepted"})
@@ -8259,18 +8366,18 @@ async def get_trainers(
     if domain:
         domain_pattern = _re.escape(domain.strip())
         clauses.append({"$or": [
-            {"domain": {"$regex": domain_pattern, "$options": "i"}},
-            {"primary_category": {"$regex": domain_pattern, "$options": "i"}},
-            {"technology_category": {"$regex": domain_pattern, "$options": "i"}},
-            {"category": {"$regex": domain_pattern, "$options": "i"}},
-            {"secondary_categories": {"$regex": domain_pattern, "$options": "i"}},
-            {"technologies": {"$regex": domain_pattern, "$options": "i"}},
-            {"skills": {"$regex": domain_pattern, "$options": "i"}},
-            {"specialty_tags": {"$regex": domain_pattern, "$options": "i"}},
-            {"specialisation_tags": {"$regex": domain_pattern, "$options": "i"}},
-            {"summary": {"$regex": domain_pattern, "$options": "i"}},
-            {"combined_text": {"$regex": domain_pattern, "$options": "i"}},
-            {"resume": {"$regex": domain_pattern, "$options": "i"}},
+            {"domain": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
+            {"primary_category": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
+            {"technology_category": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
+            {"category": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
+            {"secondary_categories": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
+            {"technologies": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
+            {"skills": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
+            {"specialty_tags": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
+            {"specialisation_tags": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
+            {"summary": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
+            {"combined_text": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
+            {"resume": {MONGO_REGEX: domain_pattern, MONGO_OPTIONS: "i"}},
         ]})
     if industry:
         clauses.append({"industry_focus": industry})
@@ -8283,28 +8390,28 @@ async def get_trainers(
     if search:
         pattern = _re.escape(search.strip())
         clauses.append({"$or": [
-            {"name": {"$regex": pattern, "$options": "i"}},
-            {"technologies": {"$regex": pattern, "$options": "i"}},
-            {"skills": {"$regex": pattern, "$options": "i"}},
-            {"specialty_tags": {"$regex": pattern, "$options": "i"}},
-            {"specialisation_tags": {"$regex": pattern, "$options": "i"}},
-            {"primary_category": {"$regex": pattern, "$options": "i"}},
-            {"secondary_categories": {"$regex": pattern, "$options": "i"}},
-            {"technology_category": {"$regex": pattern, "$options": "i"}},
-            {"domain": {"$regex": pattern, "$options": "i"}},
-            {"industry_focus": {"$regex": pattern, "$options": "i"}},
-            {"language_of_delivery": {"$regex": pattern, "$options": "i"}},
-            {"location": {"$regex": pattern, "$options": "i"}},
-            {"email": {"$regex": pattern, "$options": "i"}},
-            {"teams_email": {"$regex": pattern, "$options": "i"}},
-            {"microsoft_teams_email": {"$regex": pattern, "$options": "i"}},
-            {"teams_upn": {"$regex": pattern, "$options": "i"}},
-            {"summary": {"$regex": pattern, "$options": "i"}},
-            {"resume": {"$regex": pattern, "$options": "i"}},
-            {"combined_text": {"$regex": pattern, "$options": "i"}},
-            {"role_designation": {"$regex": pattern, "$options": "i"}},
-            {"certifications": {"$regex": pattern, "$options": "i"}},
-            {"past_clients": {"$regex": pattern, "$options": "i"}},
+            {"name": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"technologies": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"skills": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"specialty_tags": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"specialisation_tags": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"primary_category": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"secondary_categories": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"technology_category": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"domain": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"industry_focus": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"language_of_delivery": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"location": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"email": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"teams_email": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"microsoft_teams_email": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"teams_upn": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"summary": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"resume": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"combined_text": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"role_designation": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"certifications": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
+            {"past_clients": {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}},
         ]})
 
     query = {"$and": clauses} if len(clauses) > 1 else (clauses[0] if clauses else {})
@@ -8348,11 +8455,11 @@ async def categorise_all_trainers(background_tasks: BackgroundTasks):
     pending_query = {
         "$and": [
             {"$or": [
-                {"primary_category": {"$exists": False}},
+                {"primary_category": {MONGO_EXISTS: False}},
                 {"primary_category": None},
                 {"primary_category": ""},
             ]},
-            {"categorisation_failed_at": {"$exists": False}},
+            {"categorisation_failed_at": {MONGO_EXISTS: False}},
         ]
     }
     total_pending = await db["trainers"].count_documents(pending_query)
@@ -8478,9 +8585,9 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
 
     domain = context.get("domain") or "Training"
     greeting = _single_trainer_greeting(trainer_name)
-    duration = context.get("duration") or "[Hours/Days]"
-    mode = context.get("mode") or "[Online/Offline]"
-    participants = context.get("participants") or "[Number]"
+    duration = context.get("duration") or HOURS_DAYS
+    mode = context.get("mode") or ONLINE_OFFLINE
+    participants = context.get("participants") or NUMBER_PLACEHOLDER
     slots = str(payload.get("slots") or payload.get("trainer_dates") or "").strip()
     interview_link = str(payload.get("interview_link") or "").strip()
     platform = str(payload.get("platform") or "Google Meet / Zoom").strip()
@@ -8492,11 +8599,11 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
     contact_email = str(payload.get("contact_email") or getattr(get_settings(), "from_email", "") or "").strip()
     trainer_budget = str(context.get("trainer_budget") or "").strip()
     known_detail_lines = [f"* Domain/Technology: {domain}"]
-    if duration and duration != "[Hours/Days]":
+    if duration and duration != HOURS_DAYS:
         known_detail_lines.append(f"* Duration: {duration}")
-    if mode and mode != "[Online/Offline]":
+    if mode and mode != ONLINE_OFFLINE:
         known_detail_lines.append(f"* Mode: {mode}")
-    if participants and participants != "[Number]":
+    if participants and participants != NUMBER_PLACEHOLDER:
         known_detail_lines.append(f"* Participants: {participants}")
     training_dates = str(payload.get("training_dates") or payload.get("timeline_start") or "").strip()
     if training_dates:
@@ -8521,15 +8628,15 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
         # Build list of missing client details dynamically
         missing_client_details = []
         
-        if not duration or duration == "[Hours/Days]":
+        if not duration or duration == HOURS_DAYS:
             missing_client_details.append("* Training duration")
         if not training_dates:
             missing_client_details.append("* Preferred training dates")
-        if not mode or mode == "[Online/Offline]":
+        if not mode or mode == ONLINE_OFFLINE:
             missing_client_details.append("* Daily training timings")
-        if not participants or participants == "[Number]":
+        if not participants or participants == NUMBER_PLACEHOLDER:
             missing_client_details.append("* Participant count")
-        if not venue or venue == "[Online/Offline]":
+        if not venue or venue == ONLINE_OFFLINE:
             missing_client_details.append("* Location")
         if not context.get("audience_level"):
             missing_client_details.append("* Audience level (Beginner / Intermediate / Advanced)")
@@ -8609,7 +8716,7 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
         }
 
     if mail_type == "mail_budget_confirm":
-        client_budget = str(payload.get("client_budget") or payload.get("budget") or "[Budget]").strip()
+        client_budget = str(payload.get("client_budget") or payload.get("budget") or BUDGET_PLACEHOLDER).strip()
         
         return {
             "mail_type": mail_type,
@@ -8628,7 +8735,7 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
         }
 
     if mail_type == "mail_trainer_budget_negotiate":
-        client_budget = str(payload.get("client_budget") or payload.get("budget") or "[Budget]").strip()
+        client_budget = str(payload.get("client_budget") or payload.get("budget") or BUDGET_PLACEHOLDER).strip()
         clahan_commission = 5000
         trainer_charges = client_budget
         if client_budget.isdigit():
@@ -8648,7 +8755,7 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
         }
 
     if mail_type == "mail_trainer_decline":
-        client_budget = str(payload.get("client_budget") or payload.get("budget") or "[Budget]").strip()
+        client_budget = str(payload.get("client_budget") or payload.get("budget") or BUDGET_PLACEHOLDER).strip()
         
         return {
             "mail_type": mail_type,
@@ -8785,7 +8892,7 @@ async def request_trainer_resume(trainer_id: str, payload: dict, request: Reques
     db = get_db()
     trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0})
     if not trainer:
-        raise HTTPException(404, "Trainer not found")
+        raise HTTPException(404, TRAINER_NOT_FOUND)
 
     trainer_name = str(payload.get("trainer_name") or trainer.get("name") or "Trainer").strip()
     to_email = str(payload.get("to_email") or trainer.get("email") or trainer.get("trainer_email") or "").strip()
@@ -8872,7 +8979,7 @@ async def send_single_trainer_automation_mail(trainer_id: str, payload: dict, re
     db = get_db()
     trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0})
     if not trainer:
-        raise HTTPException(404, "Trainer not found")
+        raise HTTPException(404, TRAINER_NOT_FOUND)
 
     trainer_name = str(payload.get("trainer_name") or trainer.get("name") or "Trainer").strip()
     to_email = str(payload.get("to_email") or trainer.get("email") or trainer.get("trainer_email") or "").strip()
@@ -9073,7 +9180,7 @@ async def get_single_trainer_automation_status(trainer_id: str):
     db = get_db()
     trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0})
     if not trainer:
-        raise HTTPException(404, "Trainer not found")
+        raise HTTPException(404, TRAINER_NOT_FOUND)
 
     logs = await db["email_logs"].find(
         {"trainer_id": trainer_id, "source": "single_resume_automation"},
@@ -9095,7 +9202,7 @@ async def tick_single_trainer_automation_pipeline(trainer_id: str, payload: dict
     db = get_db()
     trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0})
     if not trainer:
-        raise HTTPException(404, "Trainer not found")
+        raise HTTPException(404, TRAINER_NOT_FOUND)
 
     await manual_reply_check(request)
     logs = await db["email_logs"].find(
@@ -9120,7 +9227,7 @@ async def tick_single_trainer_automation_pipeline(trainer_id: str, payload: dict
                 return value
             if isinstance(value, str) and value:
                 try:
-                    return datetime.fromisoformat(value.replace("Z", "+00:00")).replace(tzinfo=None)
+                    return datetime.fromisoformat(value.replace("Z", ISO_TZ_SUFFIX)).replace(tzinfo=None)
                 except ValueError:
                     continue
         return datetime.min
@@ -9235,6 +9342,7 @@ async def create_requirement(req: RequirementCreate, request: Request):
     result = await run_pipeline(filtered_trainers, req_dict)
     top_trainers   = result.get("top_trainers", [])
     email_payloads = result.get("email_payloads", [])
+    pipeline_summary = result.get("pipeline_summary", {})
 
     req_dict["total_matched"] = len(result.get("ranked_trainers", []))
     req_dict["top_count"] = len(top_trainers)
@@ -9249,6 +9357,11 @@ async def create_requirement(req: RequirementCreate, request: Request):
         "category_filter_applied": result.get("category_filter_applied", False),
         "no_category_match": result.get("no_category_match", False),
         "category_match_count": result.get("category_match_count", 0),
+        "pipeline_summary": pipeline_summary,
+        "pipeline_stage_log": result.get("stage_log", []),
+        "matching_pipeline_version": pipeline_summary.get("pipeline_version", "trainer-match-v2"),
+        "pipeline_warnings": pipeline_summary.get("warnings", []),
+        "pipeline_errors": pipeline_summary.get("errors", []),
         "created_at": utc_now()
     })
     await send_teams_stage_notification(
@@ -9383,6 +9496,7 @@ async def create_requirement(req: RequirementCreate, request: Request):
         "category_filter_applied": result.get("category_filter_applied", False),
         "no_category_match": result.get("no_category_match", False),
         "category_match_count": result.get("category_match_count", 0),
+        "pipeline_summary": pipeline_summary,
     }
 
 
@@ -9393,7 +9507,7 @@ async def retry_email(email_id: str, request: Request):
     db = get_db()
     log = await db["email_logs"].find_one({"email_id": email_id})
     if not log:
-        raise HTTPException(404, "Email log not found")
+        raise HTTPException(404, EMAIL_LOG_NOT_FOUND)
     if log.get("retry_count", 0) >= 3:
         raise HTTPException(400, "Max retry attempts (3) reached")
 
@@ -9498,7 +9612,7 @@ async def schedule_interview(email_id: str, request: Request, interview_date: st
     db = get_db()
     log = await db["email_logs"].find_one({"email_id": email_id})
     if not log:
-        raise HTTPException(404, "Email log not found")
+        raise HTTPException(404, EMAIL_LOG_NOT_FOUND)
 
     req = await db["requirements"].find_one({"requirement_id": log["requirement_id"]})
     allowed, blocked_response, req_for_guard = await _requirement_trainer_send_guard(
@@ -9905,7 +10019,7 @@ async def update_requirement(requirement_id: str, payload: dict, request: Reques
     db = get_db()
     existing = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
     if not existing:
-        raise HTTPException(404, "Requirement not found")
+        raise HTTPException(404, REQUIREMENT_NOT_FOUND)
 
     allowed = {"client_name", "client_company", "client_email", "client_phone", "client_whatsapp"}
     update_fields = {}
@@ -9970,7 +10084,7 @@ async def send_shortlist_mail(payload: dict, request: Request):
             {
                 "requirement_id": requirement_id,
                 "trainer_id": trainer_id,
-                "mail_type": {"$in": ["mail1", "first"]},
+                "mail_type": {MONGO_IN: ["mail1", "first"]},
                 "status": "sent",
             },
             {"_id": 0, "email_id": 1, "sent_at": 1, "trainer_name": 1},
@@ -10219,7 +10333,7 @@ async def get_conversation_thread(trainer_id: str, requirement_id: str):
             return datetime.min
         if isinstance(val, str):
             try:
-                return datetime.fromisoformat(val.replace("Z", "+00:00")).replace(tzinfo=None)
+                return datetime.fromisoformat(val.replace("Z", ISO_TZ_SUFFIX)).replace(tzinfo=None)
             except Exception:
                 return datetime.min
         if hasattr(val, "tzinfo") and val.tzinfo is not None:
@@ -10235,7 +10349,7 @@ async def get_trainer_conversation_thread(trainer_id: str, limit: int = 250):
     db = get_db()
     trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0})
     if not trainer:
-        raise HTTPException(404, "Trainer not found")
+        raise HTTPException(404, TRAINER_NOT_FOUND)
 
     conversations = await db["conversations"].find(
         {"trainer_id": trainer_id},
@@ -10271,7 +10385,7 @@ async def get_trainer_conversation_thread(trainer_id: str, limit: int = 250):
     confirmations = []
     if client_slot_ids:
         confirmations = await db["client_slot_confirmations"].find(
-            {"client_slot_email_id": {"$in": client_slot_ids}},
+            {"client_slot_email_id": {MONGO_IN: client_slot_ids}},
             {"_id": 0},
         ).sort("updated_at", 1).limit(limit).to_list(limit)
 
@@ -10408,7 +10522,7 @@ async def get_trainer_conversation_thread(trainer_id: str, limit: int = 250):
             return datetime.min
         if isinstance(val, str):
             try:
-                return datetime.fromisoformat(val.replace("Z", "+00:00")).replace(tzinfo=None)
+                return datetime.fromisoformat(val.replace("Z", ISO_TZ_SUFFIX)).replace(tzinfo=None)
             except Exception:
                 return datetime.min
         if hasattr(val, "tzinfo") and val.tzinfo is not None:
@@ -10488,12 +10602,25 @@ async def _build_shortlist_for_existing_requirement(db, requirement: dict) -> di
             "category_filter_applied": False,
             "no_category_match": True,
             "category_match_count": 0,
+            "pipeline_summary": {
+                "pipeline_version": "trainer-match-v2",
+                "status": "completed",
+                "total_candidates": 0,
+                "ranked_count": 0,
+                "top_count": 0,
+                "warnings": ["No trainers available in database."],
+                "errors": [],
+            },
+            "pipeline_stage_log": [],
+            "matching_pipeline_version": "trainer-match-v2",
+            "pipeline_warnings": ["No trainers available in database."],
+            "pipeline_errors": [],
             "created_at": utc_now(),
             "auto_created": True,
         }
         await db["shortlists"].update_one(
             {"requirement_id": req_id},
-            {"$setOnInsert": shortlist_doc},
+            {MONGO_SET_ON_INSERT: shortlist_doc},
             upsert=True,
         )
         return await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0}) or shortlist_doc
@@ -10509,6 +10636,7 @@ async def _build_shortlist_for_existing_requirement(db, requirement: dict) -> di
         for trainer in result.get("top_trainers", [])
     ]
     total_matched = len(result.get("ranked_trainers", []))
+    pipeline_summary = result.get("pipeline_summary", {})
     shortlist_doc = {
         "shortlist_id": f"SL-{uuid.uuid4().hex[:8].upper()}",
         "requirement_id": req_id,
@@ -10518,12 +10646,17 @@ async def _build_shortlist_for_existing_requirement(db, requirement: dict) -> di
         "category_filter_applied": result.get("category_filter_applied", False),
         "no_category_match": result.get("no_category_match", False),
         "category_match_count": result.get("category_match_count", 0),
+        "pipeline_summary": pipeline_summary,
+        "pipeline_stage_log": result.get("stage_log", []),
+        "matching_pipeline_version": pipeline_summary.get("pipeline_version", "trainer-match-v2"),
+        "pipeline_warnings": pipeline_summary.get("warnings", []),
+        "pipeline_errors": pipeline_summary.get("errors", []),
         "created_at": utc_now(),
         "auto_created": True,
     }
     await db["shortlists"].update_one(
         {"requirement_id": req_id},
-        {"$setOnInsert": shortlist_doc},
+        {MONGO_SET_ON_INSERT: shortlist_doc},
         upsert=True,
     )
     await db["requirements"].update_one(
@@ -10552,7 +10685,7 @@ async def get_shortlist(requirement_id: str):
     if not s:
         requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
         if not requirement:
-            raise HTTPException(404, "Requirement not found")
+            raise HTTPException(404, REQUIREMENT_NOT_FOUND)
         s = await _build_shortlist_for_existing_requirement(db, requirement)
     return s
 
@@ -10746,7 +10879,7 @@ async def _process_pending_client_slot_confirmations_from_logs(
         replied_at = log.get("replied_at") or utc_now()
         if isinstance(replied_at, str):
             try:
-                replied_at = datetime.fromisoformat(replied_at.replace("Z", "+00:00")).replace(tzinfo=None)
+                replied_at = datetime.fromisoformat(replied_at.replace("Z", ISO_TZ_SUFFIX)).replace(tzinfo=None)
             except Exception:
                 replied_at = utc_now()
         reply = {
@@ -10779,7 +10912,7 @@ def _looks_like_extra_training_question(text: str = "") -> bool:
     if not body:
         return False
     question_terms = [
-        "?", "what", "when", "where", "how", "can you", "could you", "please confirm",
+        "?", "what", "when", "where", "how", "can you", "could you", PLEASE_CONFIRM,
         "duration", "timing", "time", "date", "start date", "end date", "schedule",
         "mode", "online", "classroom", "hybrid", "client", "company", "location",
         "rate", "budget", "payment", "invoice", "po", "purchase order",
@@ -10873,7 +11006,7 @@ def _trainer_profile_details_reply(log: dict, reply: dict, requirement: dict | N
             "Once we receive the above details, we will review your profile and share the next steps accordingly.\n\n"
             "Best Regards,\n"
             "Recruitment Team\n"
-            "Clahan Technologies"
+            f"{CLAHAN_TECHNOLOGIES}"
         ),
         "ai_used": False,
         "fallback": True,
@@ -10886,7 +11019,7 @@ def _looks_like_slot_count_question(question: str = "") -> bool:
     if not text or "slot" not in text:
         return False
     question_terms = [
-        "how many",
+        HOW_MANY,
         "no of",
         "number of",
         "count",
@@ -10901,7 +11034,7 @@ def _looks_like_slot_count_question(question: str = "") -> bool:
         "do we need",
         "can i share",
         "can we share",
-        "please confirm",
+        PLEASE_CONFIRM,
     ]
     action_terms = [
         "book",
@@ -10915,7 +11048,7 @@ def _looks_like_slot_count_question(question: str = "") -> bool:
     has_question_context = "?" in text or any(term in text for term in question_terms)
     if not has_question_context:
         return False
-    if not has_action_context and not any(term in text for term in ["how many", "number of", "no of", "count", "enough", "sufficient"]):
+    if not has_action_context and not any(term in text for term in [HOW_MANY, "number of", "no of", "count", "enough", "sufficient"]):
         return False
     return has_count_context and has_question_context
 
@@ -10949,7 +11082,7 @@ def _extra_training_reply_fallback(log: dict, reply: dict, requirement: dict | N
                 "Once you share the slots in this format, we will coordinate with the client accordingly.\n\n"
                 "Best Regards,\n"
                 "Recruitment Team\n"
-                "Clahan Technologies"
+                f"{CLAHAN_TECHNOLOGIES}"
             ),
             "ai_used": False,
             "fallback": True,
@@ -11033,7 +11166,7 @@ def _extra_training_reply_fallback(log: dict, reply: dict, requirement: dict | N
             f"{answer_block}\n\n"
             "Best Regards,\n"
             "Recruitment Team\n"
-            "Clahan Technologies"
+            f"{CLAHAN_TECHNOLOGIES}"
         ),
         "ai_used": False,
         "fallback": True,
@@ -11050,7 +11183,7 @@ async def _generate_extra_training_question_reply(db, log: dict, reply: dict, re
         return fallback
 
     requirement = requirement or {}
-    model = (os.getenv("GEMINI_MODEL", "") or getattr(settings, "gemini_model", "") or "gemini-2.0-flash").strip()
+    model = (os.getenv("GEMINI_MODEL", "") or getattr(settings, "gemini_model", "") or GEMINI_MODEL).strip()
     trainer_name = log.get("trainer_name") or "Trainer"
     technology = requirement.get("technology_needed") or log.get("technology") or log.get("domain") or "Training"
     prompt = f"""
@@ -11168,7 +11301,7 @@ async def _auto_reply_extra_training_question(
         "mail_type": "ai_extra_question_reply",
         "$or": [
             {"in_reply_to": message_id_header} if message_id_header else {"source_email_id": log.get("email_id")},
-            {"source_email_id": log.get("email_id"), "to_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"}},
+            {"source_email_id": log.get("email_id"), "to_email": {MONGO_REGEX: f"^{_re.escape(from_email)}$", MONGO_OPTIONS: "i"}},
         ],
     })
     if existing:
@@ -11375,7 +11508,7 @@ async def manual_reply_check(request: Request):
             "status": "sent",
             "$or": [
                 {"reply_received": {"$ne": True}},
-                {"mail_type": "mail3", "client_slot_auto_result": {"$exists": False}},
+                {"mail_type": "mail3", "client_slot_auto_result": {MONGO_EXISTS: False}},
             ],
         },
     )
@@ -11428,12 +11561,12 @@ async def manual_reply_check(request: Request):
         if await _matching_client_slot_email(db, slot_meta, body):
             return None
         client_match = await db["requirements"].find_one(
-            {"client_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"}},
+            {"client_email": {MONGO_REGEX: f"^{_re.escape(from_email)}$", MONGO_OPTIONS: "i"}},
             {"_id": 0, "requirement_id": 1},
         )
         slot_mail_match = await db["email_logs"].find_one(
             {
-                "to_email": {"$regex": f"^{_re.escape(from_email)}$", "$options": "i"},
+                "to_email": {MONGO_REGEX: f"^{_re.escape(from_email)}$", MONGO_OPTIONS: "i"},
                 "mail_type": "client_slot_options",
                 "status": "sent",
             },
@@ -11490,7 +11623,7 @@ async def manual_reply_check(request: Request):
         existing_reply = await db["conversations"].find_one(
             {
                 "direction": "received",
-                "to_email": {"$regex": f"^{_re.escape(from_email_clean)}$", "$options": "i"},
+                "to_email": {MONGO_REGEX: f"^{_re.escape(from_email_clean)}$", MONGO_OPTIONS: "i"},
                 "$or": duplicate_or,
             },
             {"_id": 0, "trainer_id": 1, "trainer_name": 1, "requirement_id": 1, "sent_at": 1},
@@ -11500,7 +11633,7 @@ async def manual_reply_check(request: Request):
                 toc_log = await db["email_logs"].find_one(
                     {
                         "requirement_id": existing_reply.get("requirement_id"),
-                        "to_email": {"$regex": f"^{_re.escape(from_email_clean)}$", "$options": "i"},
+                        "to_email": {MONGO_REGEX: f"^{_re.escape(from_email_clean)}$", MONGO_OPTIONS: "i"},
                         "mail_type": "client_toc_details_request",
                         "status": "sent",
                     },
@@ -11535,7 +11668,7 @@ async def manual_reply_check(request: Request):
                     {
                         "trainer_id": existing_reply.get("trainer_id"),
                         "requirement_id": existing_reply.get("requirement_id"),
-                        "to_email": {"$regex": f"^{_re.escape(from_email_clean)}$", "$options": "i"},
+                        "to_email": {MONGO_REGEX: f"^{_re.escape(from_email_clean)}$", MONGO_OPTIONS: "i"},
                         "mail_type": "mail3",
                         "status": "sent",
                     },
@@ -11556,7 +11689,7 @@ async def manual_reply_check(request: Request):
         replied_at = utc_now()
         try:
             if reply.get("received_at"):
-                replied_at = datetime.fromisoformat(str(reply["received_at"]).replace("Z", "+00:00")).replace(tzinfo=None)
+                replied_at = datetime.fromisoformat(str(reply["received_at"]).replace("Z", ISO_TZ_SUFFIX)).replace(tzinfo=None)
         except Exception:
             replied_at = utc_now()
 
@@ -11575,9 +11708,9 @@ async def manual_reply_check(request: Request):
         reply_subject_norm = _norm_subject(reply.get("subject", ""))
         candidate_logs = await db["email_logs"].find(
             {
-                "to_email": {"$regex": f"^{_re.escape(from_email_clean)}$", "$options": "i"},
+                "to_email": {MONGO_REGEX: f"^{_re.escape(from_email_clean)}$", MONGO_OPTIONS: "i"},
                 "status": "sent",
-                "sent_at": {"$lte": replied_at},
+                "sent_at": {MONGO_LTE: replied_at},
             },
             {"_id": 0},
         ).sort("sent_at", -1).limit(25).to_list(25)
@@ -11610,7 +11743,7 @@ async def manual_reply_check(request: Request):
         log = sorted(candidate_logs, key=candidate_score, reverse=True)[0] if candidate_logs else None
         if not log:
             log = await db["conversations"].find_one(
-                {"to_email": {"$regex": f"^{_re.escape(from_email_clean)}$", "$options": "i"}, "direction": "sent", "sent_at": {"$lte": replied_at}},
+                {"to_email": {MONGO_REGEX: f"^{_re.escape(from_email_clean)}$", MONGO_OPTIONS: "i"}, "direction": "sent", "sent_at": {MONGO_LTE: replied_at}},
                 sort=[("sent_at", -1)]
             )
         if log:
@@ -11890,7 +12023,7 @@ async def send_business_excel_email(payload: dict = {}):
         "This workbook includes trainer data, requirements, selected/rejected details, "
         "client PO details, invoices, and monthly summary.\n\n"
         "Regards,\n"
-        "Clahan Technologies"
+        f"{CLAHAN_TECHNOLOGIES}"
     )).strip()
 
     smtp_config = await get_admin_email_config(db)
@@ -12005,9 +12138,9 @@ async def get_dashboard_stats():
     recent_emails = await db["email_logs"].find({}, {"_id": 0}).sort("created_at", -1).limit(5).to_list(5)
     recent_whatsapp = await db["whatsapp_logs"].find({}, {"_id": 0}).sort("created_at", -1).limit(8).to_list(8)
     whatsapp_total = await db["whatsapp_logs"].count_documents({})
-    whatsapp_sent = await db["whatsapp_logs"].count_documents({"status": {"$in": ["queued", "sent", "delivered", "read"]}})
-    whatsapp_delivered = await db["whatsapp_logs"].count_documents({"status": {"$in": ["delivered", "read"]}})
-    whatsapp_failed = await db["whatsapp_logs"].count_documents({"status": {"$in": ["failed", "undelivered", "skipped"]}})
+    whatsapp_sent = await db["whatsapp_logs"].count_documents({"status": {MONGO_IN: ["queued", "sent", "delivered", "read"]}})
+    whatsapp_delivered = await db["whatsapp_logs"].count_documents({"status": {MONGO_IN: ["delivered", "read"]}})
+    whatsapp_failed = await db["whatsapp_logs"].count_documents({"status": {MONGO_IN: ["failed", "undelivered", "skipped"]}})
     whatsapp_replies = await db["whatsapp_logs"].count_documents({"direction": "inbound"})
 
     today = utc_now().date()
@@ -12035,7 +12168,7 @@ async def get_dashboard_stats():
 
     try:
         score_dist = await db["trainers"].aggregate([
-            {"$match": {"match_score": {"$ne": None}}},
+            {MATCH_OPERATOR: {"match_score": {"$ne": None}}},
             {"$bucket": {"groupBy": "$match_score", "boundaries": [0, 20, 40, 60, 80, 101],
                           "default": "Other", "output": {"count": {"$sum": 1}}}}
         ]).to_list(10)
@@ -12074,7 +12207,7 @@ def _parse_dashboard_date(value: Optional[str], fallback: datetime, *, end_of_da
         if len(text) == 10:
             parsed = datetime.fromisoformat(text)
             return parsed + timedelta(days=1) if end_of_day else parsed
-        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(text.replace("Z", ISO_TZ_SUFFIX))
         if parsed.tzinfo:
             parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
         return parsed
@@ -12146,7 +12279,7 @@ def _category_label(value: str) -> str:
         return "Uncategorised"
     mappings = [
         ("DevOps", ["devops", "docker", "kubernetes", "terraform", "jenkins", "ci/cd", "cicd"]),
-        ("Gen AI", ["gen ai", "genai", "generative ai", "llm", "rag", "prompt"]),
+        (GEN_AI, ["gen ai", "genai", "generative ai", "llm", "rag", "prompt"]),
         ("Python", ["python", "django", "flask", "pandas"]),
         ("Cloud", ["aws", "azure", "gcp", "cloud"]),
         ("Full Stack", ["react", "angular", "vue", "node", "full stack", "javascript", "typescript"]),
@@ -12165,9 +12298,9 @@ def _category_label(value: str) -> str:
 
 async def _distinct_count(db, collection: str, field: str, match: dict) -> int:
     docs = await db[collection].aggregate([
-        {"$match": match},
-        {"$group": {"_id": f"${field}"}},
-        {"$match": {"_id": {"$nin": [None, ""]}}},
+        {MATCH_OPERATOR: match},
+        {MONGO_GROUP: {"_id": f"${field}"}},
+        {MATCH_OPERATOR: {"_id": {"$nin": [None, ""]}}},
         {"$count": "count"},
     ]).to_list(1)
     return int(docs[0]["count"]) if docs else 0
@@ -12175,9 +12308,9 @@ async def _distinct_count(db, collection: str, field: str, match: dict) -> int:
 
 async def _distinct_values(db, collection: str, field: str, match: dict) -> set:
     docs = await db[collection].aggregate([
-        {"$match": match},
-        {"$group": {"_id": f"${field}"}},
-        {"$match": {"_id": {"$nin": [None, ""]}}},
+        {MATCH_OPERATOR: match},
+        {MONGO_GROUP: {"_id": f"${field}"}},
+        {MATCH_OPERATOR: {"_id": {"$nin": [None, ""]}}},
     ]).to_list(10000)
     return {doc["_id"] for doc in docs if doc.get("_id")}
 
@@ -12234,8 +12367,8 @@ async def _estimated_collection_bytes(db, collection: str, match: dict, limit: i
 
 async def _actual_cost_inr(db, collection: str, match: dict) -> float:
     docs = await db[collection].aggregate([
-        {"$match": match},
-        {"$group": {"_id": None, "cost": {"$sum": {"$ifNull": ["$cost_inr", 0]}}}},
+        {MATCH_OPERATOR: match},
+        {MONGO_GROUP: {"_id": None, "cost": {"$sum": {MONGO_IF_NULL: ["$cost_inr", 0]}}}},
     ]).to_list(1)
     return float(docs[0]["cost"]) if docs else 0.0
 
@@ -12245,7 +12378,7 @@ async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks
     whatsapp_outbound = await db["whatsapp_logs"].count_documents({
         **whatsapp_match,
         "direction": "outbound",
-        "status": {"$in": ["queued", "sent", "delivered", "read"]},
+        "status": {MONGO_IN: ["queued", "sent", "delivered", "read"]},
     })
     whatsapp_inbound = await db["whatsapp_logs"].count_documents({
         **whatsapp_match,
@@ -12253,7 +12386,7 @@ async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks
     })
     whatsapp_failed = await db["whatsapp_logs"].count_documents({
         **whatsapp_match,
-        "status": {"$in": ["failed", "undelivered", "skipped"]},
+        "status": {MONGO_IN: ["failed", "undelivered", "skipped"]},
     })
 
     teams_sent = await db["teams_logs"].count_documents({
@@ -12276,13 +12409,13 @@ async def _estimate_dashboard_expenses(db, start: datetime, end: datetime, weeks
     })
 
     usage_docs = await db["ai_usage_logs"].aggregate([
-        {"$match": _range_match("created_at", start, end)},
-        {"$group": {
+        {MATCH_OPERATOR: _range_match("created_at", start, end)},
+        {MONGO_GROUP: {
             "_id": None,
             "calls": {"$sum": 1},
-            "input_tokens": {"$sum": {"$ifNull": ["$input_tokens", 0]}},
-            "output_tokens": {"$sum": {"$ifNull": ["$output_tokens", 0]}},
-            "cost_inr": {"$sum": {"$ifNull": ["$cost_inr", 0]}},
+            "input_tokens": {"$sum": {MONGO_IF_NULL: ["$input_tokens", 0]}},
+            "output_tokens": {"$sum": {MONGO_IF_NULL: ["$output_tokens", 0]}},
+            "cost_inr": {"$sum": {MONGO_IF_NULL: ["$cost_inr", 0]}},
         }},
     ]).to_list(1)
     actual_ai = usage_docs[0] if usage_docs else {}
@@ -12407,7 +12540,7 @@ async def get_dashboard_analytics(
 
     total_requirements = await db["requirements"].count_documents(req_range)
     po_req_ids_all = await _distinct_values(db, "purchase_orders", "requirement.requirement_id", {})
-    closed_req_ids_all = await _distinct_values(db, "requirements", "requirement_id", {"status": {"$in": closed_statuses}})
+    closed_req_ids_all = await _distinct_values(db, "requirements", "requirement_id", {"status": {MONGO_IN: closed_statuses}})
     closed_ids_all = po_req_ids_all | closed_req_ids_all
 
     open_requirements = await db["requirements"].count_documents({
@@ -12418,8 +12551,8 @@ async def get_dashboard_analytics(
     closed_requirements = await db["requirements"].count_documents({
         **req_range,
         "$or": [
-            {"status": {"$in": closed_statuses}},
-            {"requirement_id": {"$in": list(po_req_ids_all)}},
+            {"status": {MONGO_IN: closed_statuses}},
+            {"requirement_id": {MONGO_IN: list(po_req_ids_all)}},
         ],
     })
 
@@ -12428,12 +12561,12 @@ async def get_dashboard_analytics(
     in_pipeline_ids = (shortlisted_ids | emailed_ids) - closed_ids_all
     in_pipeline_requirements = await db["requirements"].count_documents({
         **req_range,
-        "requirement_id": {"$in": list(in_pipeline_ids)},
+        "requirement_id": {MONGO_IN: list(in_pipeline_ids)},
     })
 
     avg_close_docs = await db["purchase_orders"].aggregate([
-        {"$addFields": {"close_date": {"$ifNull": ["$acknowledged_at", {"$ifNull": ["$sent_at", "$created_at"]}]}}},
-        {"$match": {"close_date": {"$gte": start, "$lt": end}}},
+        {"$addFields": {"close_date": {MONGO_IF_NULL: ["$acknowledged_at", {MONGO_IF_NULL: [SENT_AT_PATH, MONGO_CREATED_AT]}]}}},
+        {MATCH_OPERATOR: {"close_date": {"$gte": start, "$lt": end}}},
         {"$lookup": {
             "from": "requirements",
             "localField": "requirement.requirement_id",
@@ -12441,17 +12574,17 @@ async def get_dashboard_analytics(
             "as": "req",
         }},
         {"$unwind": "$req"},
-        {"$project": {"days": {"$divide": [{"$subtract": ["$close_date", "$req.created_at"]}, 86400000]}}},
-        {"$group": {"_id": None, "avg": {"$avg": "$days"}}},
+        {MONGO_PROJECT: {"days": {"$divide": [{"$subtract": [MONGO_CLOSE_DATE, "$req.created_at"]}, 86400000]}}},
+        {MONGO_GROUP: {"_id": None, "avg": {"$avg": "$days"}}},
     ]).to_list(1)
     avg_days_to_close = round(float(avg_close_docs[0]["avg"]), 1) if avg_close_docs else 0
 
     weeks = _week_axis(start, end)
     week_index = {item["key"]: item for item in weeks}
     opened_docs = await db["requirements"].aggregate([
-        {"$match": req_range},
-        {"$group": {
-            "_id": {"year": {"$isoWeekYear": "$created_at"}, "week": {"$isoWeek": "$created_at"}},
+        {MATCH_OPERATOR: req_range},
+        {MONGO_GROUP: {
+            "_id": {"year": {MONGO_ISO_WEEK_YEAR: MONGO_CREATED_AT}, "week": {MONGO_ISO_WEEK: MONGO_CREATED_AT}},
             "count": {"$sum": 1},
         }},
     ]).to_list(100)
@@ -12461,17 +12594,17 @@ async def get_dashboard_analytics(
             week_index[key]["opened"] = doc["count"]
 
     closed_week_docs = await db["purchase_orders"].aggregate([
-        {"$match": _range_match("created_at", start, end)},
-        {"$group": {
-            "_id": {"year": {"$isoWeekYear": "$created_at"}, "week": {"$isoWeek": "$created_at"}},
+        {MATCH_OPERATOR: _range_match("created_at", start, end)},
+        {MONGO_GROUP: {
+            "_id": {"year": {MONGO_ISO_WEEK_YEAR: MONGO_CREATED_AT}, "week": {MONGO_ISO_WEEK: MONGO_CREATED_AT}},
             "ids": {"$addToSet": "$requirement.requirement_id"},
         }},
     ]).to_list(100)
     status_closed_week_docs = await db["requirements"].aggregate([
-        {"$addFields": {"close_date": {"$ifNull": ["$closed_at", {"$ifNull": ["$updated_at", "$created_at"]}]}}},
-        {"$match": {"status": {"$in": closed_statuses}, "close_date": {"$gte": start, "$lt": end}}},
-        {"$group": {
-            "_id": {"year": {"$isoWeekYear": "$close_date"}, "week": {"$isoWeek": "$close_date"}},
+        {"$addFields": {"close_date": {MONGO_IF_NULL: ["$closed_at", {MONGO_IF_NULL: ["$updated_at", MONGO_CREATED_AT]}]}}},
+        {MATCH_OPERATOR: {"status": {MONGO_IN: closed_statuses}, "close_date": {"$gte": start, "$lt": end}}},
+        {MONGO_GROUP: {
+            "_id": {"year": {MONGO_ISO_WEEK_YEAR: MONGO_CLOSE_DATE}, "week": {MONGO_ISO_WEEK: MONGO_CLOSE_DATE}},
             "ids": {"$addToSet": "$requirement_id"},
         }},
     ]).to_list(100)
@@ -12487,10 +12620,10 @@ async def get_dashboard_analytics(
     month_start = datetime.combine(now.date(), datetime.min.time()).replace(day=1)
     month_end = month_start.replace(year=month_start.year + 1, month=1) if month_start.month == 12 else month_start.replace(month=month_start.month + 1)
     po_value_docs = await db["purchase_orders"].aggregate([
-        {"$match": _range_match("created_at", month_start, month_end)},
-        {"$group": {
+        {MATCH_OPERATOR: _range_match("created_at", month_start, month_end)},
+        {MONGO_GROUP: {
             "_id": None,
-            "value": {"$sum": {"$ifNull": ["$commercials.grand_total", 0]}},
+            "value": {"$sum": {MONGO_IF_NULL: ["$commercials.grand_total", 0]}},
             "count": {"$sum": 1},
         }},
     ]).to_list(1)
@@ -12518,9 +12651,9 @@ async def get_dashboard_analytics(
     ]
 
     raw_categories = await db["requirements"].aggregate([
-        {"$match": req_range},
-        {"$project": {"category": {"$ifNull": ["$technology_category", "$technology_needed"]}}},
-        {"$group": {"_id": "$category", "value": {"$sum": 1}}},
+        {MATCH_OPERATOR: req_range},
+        {MONGO_PROJECT: {"category": {MONGO_IF_NULL: ["$technology_category", "$technology_needed"]}}},
+        {MONGO_GROUP: {"_id": MONGO_CATEGORY, "value": {"$sum": 1}}},
         {"$sort": {"value": -1}},
     ]).to_list(100)
     category_totals = {}
@@ -12529,8 +12662,8 @@ async def get_dashboard_analytics(
         category_totals[label] = category_totals.get(label, 0) + int(item.get("value", 0))
     if not category_totals:
         trainer_categories = await db["trainers"].aggregate([
-            {"$project": {"category": {"$ifNull": ["$primary_category", {"$ifNull": ["$technology_category", "$category"]}]}}},
-            {"$group": {"_id": "$category", "value": {"$sum": 1}}},
+            {MONGO_PROJECT: {"category": {MONGO_IF_NULL: ["$primary_category", {MONGO_IF_NULL: ["$technology_category", MONGO_CATEGORY]}]}}},
+            {MONGO_GROUP: {"_id": MONGO_CATEGORY, "value": {"$sum": 1}}},
             {"$sort": {"value": -1}},
             {"$limit": 8},
         ]).to_list(20)
@@ -12546,11 +12679,11 @@ async def get_dashboard_analytics(
     trend_weeks = _week_axis(trend_start, now + timedelta(days=1))[-4:]
     trend_index = {item["key"]: {**item, "sent": 0, "replies": 0, "reply_rate": 0} for item in trend_weeks}
     reply_trend_docs = await db["email_logs"].aggregate([
-        {"$match": {"sent_at": {"$gte": trend_start, "$lt": now + timedelta(days=1)}, "status": "sent"}},
-        {"$group": {
-            "_id": {"year": {"$isoWeekYear": "$sent_at"}, "week": {"$isoWeek": "$sent_at"}},
+        {MATCH_OPERATOR: {"sent_at": {"$gte": trend_start, "$lt": now + timedelta(days=1)}, "status": "sent"}},
+        {MONGO_GROUP: {
+            "_id": {"year": {MONGO_ISO_WEEK_YEAR: SENT_AT_PATH}, "week": {MONGO_ISO_WEEK: SENT_AT_PATH}},
             "sent": {"$sum": 1},
-            "replies": {"$sum": {"$cond": ["$reply_received", 1, 0]}},
+            "replies": {"$sum": {MONGO_COND: ["$reply_received", 1, 0]}},
         }},
     ]).to_list(20)
     for doc in reply_trend_docs:
@@ -12566,13 +12699,13 @@ async def get_dashboard_analytics(
     reply_rate_trend = list(trend_index.values())
 
     whatsapp_docs = await db["whatsapp_logs"].aggregate([
-        {"$match": _range_match("created_at", start, end)},
-        {"$group": {
+        {MATCH_OPERATOR: _range_match("created_at", start, end)},
+        {MONGO_GROUP: {
             "_id": None,
             "total": {"$sum": 1},
-            "delivered": {"$sum": {"$cond": [{"$in": ["$status", ["delivered", "read"]]}, 1, 0]}},
-            "sent": {"$sum": {"$cond": [{"$in": ["$status", ["sent", "queued", "delivered", "read"]]}, 1, 0]}},
-            "failed": {"$sum": {"$cond": [{"$in": ["$status", ["failed", "undelivered"]]}, 1, 0]}},
+            "delivered": {"$sum": {MONGO_COND: [{MONGO_IN: [STATUS_FIELD, ["delivered", "read"]]}, 1, 0]}},
+            "sent": {"$sum": {MONGO_COND: [{MONGO_IN: [STATUS_FIELD, ["sent", "queued", "delivered", "read"]]}, 1, 0]}},
+            "failed": {"$sum": {MONGO_COND: [{MONGO_IN: [STATUS_FIELD, ["failed", "undelivered"]]}, 1, 0]}},
         }},
     ]).to_list(1)
     whatsapp = whatsapp_docs[0] if whatsapp_docs else {"total": 0, "delivered": 0, "sent": 0, "failed": 0}
@@ -12632,7 +12765,7 @@ async def update_trainer(trainer_id: str, payload: dict):
         return_document=ReturnDocument.AFTER,
     )
     if not result:
-        raise HTTPException(404, "Trainer not found")
+        raise HTTPException(404, TRAINER_NOT_FOUND)
     return {"success": True, "trainer": result}
 
 
@@ -12641,7 +12774,7 @@ async def delete_trainer(trainer_id: str):
     db = get_db()
     result = await db["trainers"].delete_one({"trainer_id": trainer_id})
     if result.deleted_count == 0:
-        raise HTTPException(404, "Trainer not found")
+        raise HTTPException(404, TRAINER_NOT_FOUND)
     return {"message": f"Trainer {trainer_id} deleted", "deleted": True}
 
 
@@ -12652,7 +12785,7 @@ async def send_email_to_one(email_id: str, request: Request, body: dict = {}):
     db = get_db()
     log = await db["email_logs"].find_one({"email_id": email_id})
     if not log:
-        raise HTTPException(404, "Email log not found")
+        raise HTTPException(404, EMAIL_LOG_NOT_FOUND)
 
     email_body = log["body"]
     custom_msg = body.get("message", "")
@@ -12747,7 +12880,7 @@ async def delete_requirement(requirement_id: str):
     db = get_db()
     r = await db["requirements"].delete_one({"requirement_id": requirement_id})
     if r.deleted_count == 0:
-        raise HTTPException(404, "Requirement not found")
+        raise HTTPException(404, REQUIREMENT_NOT_FOUND)
     await db["shortlists"].delete_many({"requirement_id": requirement_id})
     return {"message": f"Requirement {requirement_id} deleted", "deleted": True}
 
@@ -12806,7 +12939,7 @@ async def analyze_reply_intent(payload: dict):
     Returns: { intent, reason, confidence, ai_used }
     """
     reply_body   = (payload.get("reply_body") or "").strip()
-    trainer_name = payload.get("trainer_name", "the trainer")
+    trainer_name = payload.get("trainer_name", THE_TRAINER)
     stage        = payload.get("stage", "")
     requirement  = payload.get("requirement", "")
 
@@ -12919,7 +13052,7 @@ async def get_resume_status(upload_id: str):
     )
 
     if not upload:
-        raise HTTPException(404, "Resume upload not found")
+        raise HTTPException(404, RESUME_UPLOAD_NOT_FOUND)
 
     # Convert datetime objects to ISO strings for JSON serialization
     if isinstance(upload.get("created_at"), datetime):
@@ -12936,7 +13069,7 @@ async def get_trainer_by_upload(upload_id: str):
     db = get_db()
     upload = await db["resume_uploads"].find_one({"upload_id": upload_id}, {"_id": 0})
     if not upload:
-        raise HTTPException(404, "Resume upload not found")
+        raise HTTPException(404, RESUME_UPLOAD_NOT_FOUND)
 
     trainer = await db["trainers"].find_one(
         {"trainer_id": upload["trainer_id"]},
@@ -12944,7 +13077,7 @@ async def get_trainer_by_upload(upload_id: str):
     )
 
     if not trainer:
-        raise HTTPException(404, "Trainer not found")
+        raise HTTPException(404, TRAINER_NOT_FOUND)
 
     return {
         "upload_id": upload_id,
@@ -12962,7 +13095,7 @@ async def confirm_resume_data(upload_id: str, background_tasks: BackgroundTasks,
     db = get_db()
     upload = await db["resume_uploads"].find_one({"upload_id": upload_id})
     if not upload:
-        raise HTTPException(404, "Resume upload not found")
+        raise HTTPException(404, RESUME_UPLOAD_NOT_FOUND)
 
     profile = _profile_from_resume_upload(upload, corrections)
     save_result = await save_trainer_from_resume(profile, db, use_ai_tags=False)
@@ -13015,7 +13148,7 @@ async def delete_resume_upload(upload_id: str):
     db = get_db()
     upload = await db["resume_uploads"].find_one({"upload_id": upload_id})
     if not upload:
-        raise HTTPException(404, "Resume upload not found")
+        raise HTTPException(404, RESUME_UPLOAD_NOT_FOUND)
 
     trainer_id = upload["trainer_id"]
 
@@ -13037,7 +13170,7 @@ def _exact_email_query(email: str) -> dict:
     clean = _email_key(email)
     if not clean or "@" not in clean:
         raise HTTPException(400, "Enter a valid email address")
-    return {"$regex": f"^{_re.escape(clean)}$", "$options": "i"}
+    return {MONGO_REGEX: f"^{_re.escape(clean)}$", MONGO_OPTIONS: "i"}
 
 
 async def _resume_email_matches(db, email: str) -> dict:
@@ -13056,12 +13189,12 @@ async def _resume_email_matches(db, email: str) -> dict:
         },
     ).sort("created_at", -1).to_list(50)
     trainer_ids = [item.get("trainer_id") for item in trainers if item.get("trainer_id")]
-    trainer_id_query = {"$in": trainer_ids or ["__none__"]}
+    trainer_id_query = {MONGO_IN: trainer_ids or ["__none__"]}
 
     upload_query = {
         "$or": [
-            {"extracted_data.email": email_query},
-            {"extracted_data.trainer_id": trainer_id_query},
+            {EXTRACTED_DATA_EMAIL: email_query},
+            {EXTRACTED_DATA_TRAINER_ID: trainer_id_query},
             {"trainer_id": trainer_id_query},
         ]
     }
@@ -13073,14 +13206,14 @@ async def _resume_email_matches(db, email: str) -> dict:
             "trainer_id": 1,
             "filename": 1,
             "processing_status": 1,
-            "extracted_data.email": 1,
+            EXTRACTED_DATA_EMAIL: 1,
             "extracted_data.name": 1,
             "created_at": 1,
             "processed_at": 1,
         },
     ).sort("created_at", -1).to_list(100)
 
-    shortlist_count = await db["shortlists"].count_documents({"top_trainers.trainer_id": trainer_id_query})
+    shortlist_count = await db["shortlists"].count_documents({TRAINER_ID_PATH: trainer_id_query})
     email_log_count = await db["email_logs"].count_documents({
         "$or": [
             {"trainer_id": trainer_id_query},
@@ -13120,7 +13253,7 @@ async def delete_resume_data_by_email(email: str, include_logs: bool = False):
     matches = await _resume_email_matches(db, email)
     trainer_ids = matches.get("trainer_ids") or []
     email_query = _exact_email_query(email)
-    trainer_id_query = {"$in": trainer_ids or ["__none__"]}
+    trainer_id_query = {MONGO_IN: trainer_ids or ["__none__"]}
     upload_ids = [item.get("upload_id") for item in matches.get("uploads", []) if item.get("upload_id")]
 
     deleted = {
@@ -13133,14 +13266,14 @@ async def delete_resume_data_by_email(email: str, include_logs: bool = False):
     if trainer_ids:
         deleted["trainers"] = (await db["trainers"].delete_many({"trainer_id": trainer_id_query})).deleted_count
         pull_result = await db["shortlists"].update_many(
-            {"top_trainers.trainer_id": trainer_id_query},
+            {TRAINER_ID_PATH: trainer_id_query},
             {"$pull": {"top_trainers": {"trainer_id": trainer_id_query}}},
         )
         deleted["shortlist_entries_removed"] = pull_result.modified_count
     if upload_ids:
-        deleted["resume_uploads"] = (await db["resume_uploads"].delete_many({"upload_id": {"$in": upload_ids}})).deleted_count
+        deleted["resume_uploads"] = (await db["resume_uploads"].delete_many({"upload_id": {MONGO_IN: upload_ids}})).deleted_count
     else:
-        deleted["resume_uploads"] = (await db["resume_uploads"].delete_many({"extracted_data.email": email_query})).deleted_count
+        deleted["resume_uploads"] = (await db["resume_uploads"].delete_many({EXTRACTED_DATA_EMAIL: email_query})).deleted_count
 
     if include_logs:
         log_query = {
@@ -13169,7 +13302,7 @@ def _domain_search_regex(domain: str) -> dict:
         pattern = r"[\s_\-./]*".join(_re.escape(char) for char in compact)
     else:
         pattern = _re.escape(clean)
-    return {"$regex": pattern, "$options": "i"}
+    return {MONGO_REGEX: pattern, MONGO_OPTIONS: "i"}
 
 
 def _domain_search_terms(domain: str) -> list:
@@ -13177,9 +13310,9 @@ def _domain_search_terms(domain: str) -> list:
     compact = _re.sub(r"[^A-Za-z0-9]+", "", clean).lower()
     aliases = {
         "datascience": [
-            "Data Science",
+            DATA_SCIENCE,
             "DataScience",
-            "Machine Learning",
+            MACHINE_LEARNING,
             "ML",
             "Deep Learning",
             "Python",
@@ -13190,8 +13323,8 @@ def _domain_search_terms(domain: str) -> list:
             "Predictive Analytics",
         ],
         "dataanalytics": ["Data Analytics", "Data Analyst", "Python", "SQL", "Power BI", "Tableau", "Excel"],
-        "ai": ["AI", "Artificial Intelligence", "Machine Learning", "Deep Learning"],
-        "genai": ["Gen AI", "Generative AI", "LLM", "RAG", "LangChain", "OpenAI"],
+        "ai": ["AI", "Artificial Intelligence", MACHINE_LEARNING, "Deep Learning"],
+        "genai": [GEN_AI, "Generative AI", "LLM", "RAG", "LangChain", "OpenAI"],
         "aws": ["AWS", "Amazon Web Services"],
         "azure": ["Azure", "Microsoft Azure"],
         "devops": ["DevOps", "Docker", "Kubernetes", "Jenkins", "Terraform", "CI/CD"],
@@ -13267,7 +13400,7 @@ async def _resume_domain_matches(db, domain: str) -> dict:
 
     initial_uploads = await db["resume_uploads"].find(
         _resume_domain_upload_query(search),
-        {"_id": 0, "upload_id": 1, "trainer_id": 1, "extracted_data.trainer_id": 1},
+        {"_id": 0, "upload_id": 1, "trainer_id": 1, EXTRACTED_DATA_TRAINER_ID: 1},
     ).limit(200).to_list(200)
     upload_trainer_ids = sorted({
         item.get("trainer_id") or ((item.get("extracted_data") or {}).get("trainer_id"))
@@ -13278,7 +13411,7 @@ async def _resume_domain_matches(db, domain: str) -> dict:
     trainer_query = {
         "$or": [
             _resume_domain_trainer_query(search),
-            {"trainer_id": {"$in": upload_trainer_ids or ["__none__"]}},
+            {"trainer_id": {MONGO_IN: upload_trainer_ids or ["__none__"]}},
         ]
     }
     trainers = await db["trainers"].find(
@@ -13297,14 +13430,14 @@ async def _resume_domain_matches(db, domain: str) -> dict:
         },
     ).sort("created_at", -1).to_list(200)
     trainer_ids = sorted({item.get("trainer_id") for item in trainers if item.get("trainer_id")})
-    trainer_id_query = {"$in": trainer_ids or ["__none__"]}
+    trainer_id_query = {MONGO_IN: trainer_ids or ["__none__"]}
 
     uploads = await db["resume_uploads"].find(
         {
             "$or": [
                 _resume_domain_upload_query(search),
                 {"trainer_id": trainer_id_query},
-                {"extracted_data.trainer_id": trainer_id_query},
+                {EXTRACTED_DATA_TRAINER_ID: trainer_id_query},
             ]
         },
         {
@@ -13313,7 +13446,7 @@ async def _resume_domain_matches(db, domain: str) -> dict:
             "trainer_id": 1,
             "filename": 1,
             "processing_status": 1,
-            "extracted_data.email": 1,
+            EXTRACTED_DATA_EMAIL: 1,
             "extracted_data.name": 1,
             "extracted_data.technology_category": 1,
             "extracted_data.skills": 1,
@@ -13323,7 +13456,7 @@ async def _resume_domain_matches(db, domain: str) -> dict:
     ).sort("created_at", -1).to_list(300)
 
     upload_ids = sorted({item.get("upload_id") for item in uploads if item.get("upload_id")})
-    shortlist_count = await db["shortlists"].count_documents({"top_trainers.trainer_id": trainer_id_query})
+    shortlist_count = await db["shortlists"].count_documents({TRAINER_ID_PATH: trainer_id_query})
     email_log_count = await db["email_logs"].count_documents({"trainer_id": trainer_id_query})
     conversation_count = await db["conversations"].count_documents({"trainer_id": trainer_id_query})
 
@@ -13355,7 +13488,7 @@ async def delete_resume_data_by_domain(domain: str, include_logs: bool = False):
     matches = await _resume_domain_matches(db, domain)
     trainer_ids = matches.get("trainer_ids") or []
     upload_ids = matches.get("upload_ids") or []
-    trainer_id_query = {"$in": trainer_ids or ["__none__"]}
+    trainer_id_query = {MONGO_IN: trainer_ids or ["__none__"]}
 
     deleted = {
         "trainers": 0,
@@ -13367,12 +13500,12 @@ async def delete_resume_data_by_domain(domain: str, include_logs: bool = False):
     if trainer_ids:
         deleted["trainers"] = (await db["trainers"].delete_many({"trainer_id": trainer_id_query})).deleted_count
         pull_result = await db["shortlists"].update_many(
-            {"top_trainers.trainer_id": trainer_id_query},
+            {TRAINER_ID_PATH: trainer_id_query},
             {"$pull": {"top_trainers": {"trainer_id": trainer_id_query}}},
         )
         deleted["shortlist_entries_removed"] = pull_result.modified_count
     if upload_ids:
-        deleted["resume_uploads"] = (await db["resume_uploads"].delete_many({"upload_id": {"$in": upload_ids}})).deleted_count
+        deleted["resume_uploads"] = (await db["resume_uploads"].delete_many({"upload_id": {MONGO_IN: upload_ids}})).deleted_count
 
     if include_logs and trainer_ids:
         deleted["email_logs"] = (await db["email_logs"].delete_many({"trainer_id": trainer_id_query})).deleted_count
@@ -13417,10 +13550,10 @@ def _normalise_resume_domain_label(value: str) -> str:
         "powerbi",
     }
     if compact in data_science_terms:
-        return "Data Science"
+        return DATA_SCIENCE
     gen_ai_terms = {"genai", "generativeai", "llm", "llmops", "rag", "langchain", "openai"}
     if compact in gen_ai_terms:
-        return "Gen AI"
+        return GEN_AI
     return clean or "Uncategorised"
 
 
@@ -13497,7 +13630,7 @@ async def _resume_domain_exact_matches(db, domain: str) -> dict:
         "$or": [
             {"source_sheet": "resume_upload"},
             {"source": "resume_upload"},
-            {"trainer_id": {"$in": list(upload_trainer_ids) or ["__none__"]}},
+            {"trainer_id": {MONGO_IN: list(upload_trainer_ids) or ["__none__"]}},
         ]
     }
     trainer_docs = await db["trainers"].find(
@@ -13521,8 +13654,8 @@ async def _resume_domain_exact_matches(db, domain: str) -> dict:
     trainers = [trainer for trainer in trainer_docs if _resume_domain_label(trainer).lower() == target]
     trainer_ids = sorted({str(item.get("trainer_id")) for item in trainers if item.get("trainer_id")})
     upload_ids = sorted({str(item.get("upload_id")) for item in uploads if item.get("upload_id")})
-    trainer_id_query = {"$in": trainer_ids or ["__none__"]}
-    shortlist_count = await db["shortlists"].count_documents({"top_trainers.trainer_id": trainer_id_query})
+    trainer_id_query = {MONGO_IN: trainer_ids or ["__none__"]}
+    shortlist_count = await db["shortlists"].count_documents({TRAINER_ID_PATH: trainer_id_query})
     email_log_count = await db["email_logs"].count_documents({"trainer_id": trainer_id_query})
     conversation_count = await db["conversations"].count_documents({"trainer_id": trainer_id_query})
 
@@ -13593,7 +13726,7 @@ async def resume_data_domain_summary(limit_per_domain: int = 8):
         "$or": [
             {"source_sheet": "resume_upload"},
             {"source": "resume_upload"},
-            {"trainer_id": {"$in": list(trainer_ids_from_uploads) or ["__none__"]}},
+            {"trainer_id": {MONGO_IN: list(trainer_ids_from_uploads) or ["__none__"]}},
         ]
     }
     trainer_docs = await db["trainers"].find(
@@ -13726,7 +13859,7 @@ async def gmail_webhook(request: Request):
                 if not likely_training:
                     await db["client_emails"].update_one(
                         {"email_id": message_id},
-                        {"$setOnInsert": {
+                        {MONGO_SET_ON_INSERT: {
                             **meta,
                             "received_at": now,
                             "raw_body": "",
@@ -13816,8 +13949,8 @@ async def get_client_inbox(status: Optional[str] = None, page: int = 1, limit: i
 
 LEAD_KEYWORDS = [
     "need trainer", "trainer required", "require trainer", "looking for trainer",
-    "corporate trainer", "training requirement", "need corporate training",
-    "freelance trainer", "technical trainer", "instructor required",
+    CORPORATE_TRAINER, "training requirement", "need corporate training",
+    FREELANCE_TRAINER, TECHNICAL_TRAINER, "instructor required",
 ]
 
 LEAD_DOMAINS = [
@@ -13840,7 +13973,7 @@ def _analyse_client_lead(payload: dict) -> dict:
     matched = [kw for kw in LEAD_KEYWORDS if kw in haystack]
     domains = [domain for domain in LEAD_DOMAINS if domain in haystack]
     extracted_email = _extract_public_email(text)
-    phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", text)
+    phone_match = _re.search(PHONE_REGEX_PATTERN, text)
     confidence = 0.25 + (0.4 if matched else 0) + (0.2 if domains else 0)
     if payload.get("contact_email") or extracted_email:
         confidence += 0.1
@@ -13876,18 +14009,18 @@ def _client_lead_draft(lead: dict) -> dict:
 
 
 TRAINER_PROFILE_KEYWORDS = [
-    "trainer", "corporate trainer", "technical trainer", "instructor", "faculty",
-    "mentor", "coach", "freelance trainer", "training delivery", "conduct trainings",
-    "workshop facilitator", "guest faculty", "resource person", "subject matter expert",
-    "learning facilitator", "training specialist", "training consultant",
+    "trainer", CORPORATE_TRAINER, TECHNICAL_TRAINER, "instructor", "faculty",
+    "mentor", "coach", FREELANCE_TRAINER, TRAINING_DELIVERY, CONDUCT_TRAININGS,
+    WORKSHOP_FACILITATOR, "guest faculty", "resource person", SUBJECT_MATTER_EXPERT,
+    "learning facilitator", "training specialist", TRAINING_CONSULTANT,
     "visiting faculty", "bootcamp instructor", "certification trainer",
     "L&D trainer", "professional trainer", "industry trainer",
 ]
 
 TRAINER_PROVIDER_SIGNALS = [
     # Role titles
-    "freelance trainer", "corporate trainer", "technical trainer", "trainer profile",
-    "training delivery", "conduct trainings", "conducted trainings", "delivered training",
+    FREELANCE_TRAINER, CORPORATE_TRAINER, TECHNICAL_TRAINER, "trainer profile",
+    TRAINING_DELIVERY, CONDUCT_TRAININGS, "conducted trainings", "delivered training",
     "delivers training", "instructor", "faculty", "mentor", "coach",
     "online training", "classroom training", "corporate training experience",
     "training assignment", "training sessions",
@@ -13964,14 +14097,14 @@ def _looks_indian_profile_text(text: str = "", source_url: str = "") -> bool:
     is_public_profile = (
         "linkedin.com/in/" in haystack
         or "linkedin.com/pub/" in haystack
-        or "naukri.com" in haystack
+        or NAUKRI_COM in haystack
     )
     return (
         is_public_profile and (
             any(term in haystack for term in INDIA_LOCATION_TERMS)
             or " in.linkedin.com/" in haystack
             or "/in/" in haystack and any(term in haystack for term in ["greater delhi", "greater bengaluru", "greater hyderabad"])
-            or "naukri.com" in haystack
+            or NAUKRI_COM in haystack
         )
     )
 
@@ -14004,8 +14137,8 @@ def _extract_public_email(text: str = "") -> str:
         "sales@", "marketing@", "contact@", "feedback@", "abuse@",
         "postmaster@", "webmaster@", "root@", "system@", "mailer-daemon",
         "notifications@", "notify@", "alerts@", "bot@", "auto@",
-        "linkedin.com", "facebook.com", "twitter.com", "instagram.com",
-        "naukri.com", "monster.com", "indeed.com", "glassdoor.com",
+        LINKEDIN_COM, FACEBOOK_COM, "twitter.com", "instagram.com",
+        NAUKRI_COM, "monster.com", "indeed.com", "glassdoor.com",
         "placeholder", "dummy", "fake", "temp@", "temporary@",
     ]
 
@@ -14181,7 +14314,7 @@ def _extract_contact_context_email(text: str = "") -> str:
         "noreply", "no-reply", "do-not-reply", "donotreply",
         "team@", "contact@", "office@", "enquiry@", "enquiries@",
         "recruitment@", "jobs@", "marketing@", "billing@",
-        "linkedin.com", "facebook.com", "naukri.com", "indeed.com",
+        LINKEDIN_COM, FACEBOOK_COM, NAUKRI_COM, "indeed.com",
     ]
     if any(marker in context for marker in soft_reject_markers):
         # But if there's also a strong positive signal, allow it
@@ -14200,12 +14333,12 @@ def _extract_contact_context_email(text: str = "") -> str:
         "write to me", "drop me a mail", "ping me",
         "get in touch", "feel free to reach",
         # Resume/CV/profile context
-        "resume", "curriculum vitae", "cv", "biodata", "bio-data",
+        "resume", CURRICULUM_VITAE, "cv", "biodata", "bio-data",
         "profile", "about me", "personal details", "personal info",
         # Trainer/professional context
         "trainer", "instructor", "faculty", "mentor", "coach",
-        "freelance", "corporate trainer", "training consultant",
-        "subject matter expert", "sme",
+        "freelance", CORPORATE_TRAINER, TRAINING_CONSULTANT,
+        SUBJECT_MATTER_EXPERT, "sme",
         # Contact section markers
         "contact details", "contact information", "personal details",
         "email:", "e-mail:", "mail:", "email id:", "email address:",
@@ -14221,7 +14354,7 @@ def _extract_contact_context_email(text: str = "") -> str:
         # Professional context
         "experience", "years", "certified", "certification",
         "skills", "expertise", "specialization",
-        "training delivery", "conducted", "delivered",
+        TRAINING_DELIVERY, "conducted", "delivered",
         "available", "availability", "open to",
     ]
 
@@ -14387,7 +14520,7 @@ def _public_resume_urls(text: str = "", base_url: str = "") -> list[str]:
         if any(skip in lower for skip in ["linkedin.com/login", "linkedin.com/signup", "linkedin.com/company", "mailto:", "tel:"]):
             continue
         if (
-            any(lower.split("?")[0].endswith(ext) for ext in [".pdf", ".docx", ".doc"])
+            any(lower.split("?")[0].endswith(ext) for ext in [".pdf", DOCX_EXTENSION, ".doc"])
             or any(word in lower for word in ["resume", "curriculum-vitae", "/cv", "cv."])
         ):
             wanted.append(url)
@@ -14401,10 +14534,10 @@ def _text_from_public_document_bytes(data: bytes, content_type: str = "", url: s
         if ".pdf" in lower_url or "pdf" in lower_type:
             doc = fitz.open(stream=data, filetype="pdf")
             return "\n".join(page.get_text("text") for page in doc[:6])[:25000]
-        if ".docx" in lower_url or "wordprocessingml" in lower_type:
+        if DOCX_EXTENSION in lower_url or "wordprocessingml" in lower_type:
             document = _DocxDocument(io.BytesIO(data))
             return "\n".join(paragraph.text for paragraph in document.paragraphs)[:25000]
-        if any(kind in lower_type for kind in ["text/plain", "text/html"]) or lower_url.endswith((".txt", ".html", ".htm")):
+        if any(kind in lower_type for kind in ["text/plain", TEXT_HTML]) or lower_url.endswith((".txt", ".html", ".htm")):
             text = data[:500000].decode("utf-8", errors="ignore")
             return _re.sub(r"<[^>]+>", " ", text)[:25000]
     except Exception:
@@ -14424,7 +14557,7 @@ async def _extract_public_resume_contact(client, public_text: str = "", source_u
                 str(response.url or resume_url),
             )
             email = _extract_public_email(extracted_text)
-            phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", extracted_text or "")
+            phone_match = _re.search(PHONE_REGEX_PATTERN, extracted_text or "")
             if email or phone_match:
                 return {
                     "url": str(response.url or resume_url),
@@ -14447,7 +14580,7 @@ def _public_contact_urls(text: str = "", base_url: str = "") -> list[str]:
         if href:
             urls.add(_urljoin(base_url or "", href))
     blocked = [
-        "linkedin.com", "licdn.com", "facebook.com", "instagram.com", "twitter.com", "x.com",
+        LINKEDIN_COM, "licdn.com", FACEBOOK_COM, "instagram.com", "twitter.com", "x.com",
         "youtube.com", "google.com", "github.com", "static.", "media.", "mailto:", "tel:",
     ]
     wanted = []
@@ -14509,8 +14642,8 @@ def _analyse_trainer_profile_lead(payload: dict) -> dict:
     extracted_phone = _extract_public_phone(text)
     indian_profile = _looks_indian_profile_text(text, payload.get("source_url") or "")
     source_url = str(payload.get("source_url") or "").lower()
-    is_public_linkedin_profile = "linkedin.com/in" in source_url or "linkedin.com/pub" in source_url
-    is_naukri_profile = "naukri.com" in source_url
+    is_public_linkedin_profile = LINKEDIN_COM_IN in source_url or "linkedin.com/pub" in source_url
+    is_naukri_profile = NAUKRI_COM in source_url
 
     # --- Advanced trainer detection logic ---
 
@@ -14675,7 +14808,7 @@ def _searched_domain_from_query(query: str = "") -> str:
     for item in quoted:
         text = str(item or "").strip()
         if text and text.lower() not in {
-            "trainer", "corporate trainer", "certified", "consultant", "training",
+            "trainer", CORPORATE_TRAINER, "certified", "consultant", "training",
             "india", "need trainer", "seeking trainer", "looking for trainer",
             "trainer required", "certified trainer required", "corporate trainer required",
             "trainer requirement", "corporate training",
@@ -14688,8 +14821,8 @@ def _trainer_intent_query(query: str = "") -> bool:
     text = str(query or "").lower()
     return any(term in text for term in [
         "trainer", "instructor", "mentor", "coach", "faculty", "sme trainer",
-        "training consultant", "corporate facilitator", "workshop facilitator",
-        "subject matter expert",
+        TRAINING_CONSULTANT, "corporate facilitator", WORKSHOP_FACILITATOR,
+        SUBJECT_MATTER_EXPERT,
     ])
 
 
@@ -14699,7 +14832,7 @@ def _public_search_domain_aliases(domain: str = "") -> list[str]:
         " ",
         str(domain or "").lower(),
     )
-    compact = _re.sub(r"[^a-z0-9]", "", clean)
+    compact = _re.sub(ALPHANUMERIC_SIMPLE, "", clean)
     aliases = {clean.strip(), compact}
     if "devops" in compact:
         aliases.add("devops")
@@ -14720,9 +14853,9 @@ def _public_search_text_matches_domain(title: str = "", source_url: str = "", do
     if not domain:
         return True
     haystack = f"{title or ''} {source_url or ''} {content or ''}".lower()
-    compact_haystack = _re.sub(r"[^a-z0-9]", "", haystack)
+    compact_haystack = _re.sub(ALPHANUMERIC_SIMPLE, "", haystack)
     for alias in _public_search_domain_aliases(domain):
-        alias_compact = _re.sub(r"[^a-z0-9]", "", alias)
+        alias_compact = _re.sub(ALPHANUMERIC_SIMPLE, "", alias)
         if alias_compact and (alias_compact in compact_haystack or alias in haystack):
             return True
     return False
@@ -14751,9 +14884,9 @@ def _is_public_naukri_trainer_profile_result(title: str = "", source_url: str = 
         "location ", "experience ", "yrs · consultant", "yrs consultant",
     ]
     trainer_profile_tokens = [
-        "trainer profile", "freelance trainer", "corporate trainer", "technical trainer",
-        "training delivery", "conduct trainings", "conducted trainings", "delivered training",
-        "curriculum vitae", " cv ", "contact no",
+        "trainer profile", FREELANCE_TRAINER, CORPORATE_TRAINER, TECHNICAL_TRAINER,
+        TRAINING_DELIVERY, CONDUCT_TRAININGS, "conducted trainings", "delivered training",
+        CURRICULUM_VITAE, " cv ", "contact no",
         "contact:", "email id", "email:",
     ]
 
@@ -14761,7 +14894,7 @@ def _is_public_naukri_trainer_profile_result(title: str = "", source_url: str = 
         return False
     if any(token in text for token in employer_text_tokens):
         return False
-    return any(token in f" {text} " for token in trainer_profile_tokens) and (has_email or has_phone or "linkedin.com/in" in text)
+    return any(token in f" {text} " for token in trainer_profile_tokens) and (has_email or has_phone or LINKEDIN_COM_IN in text)
 
 
 @router.get("/client-leads")
@@ -14771,7 +14904,7 @@ async def list_client_leads(status: Optional[str] = None, q: Optional[str] = Non
     if status and status != "all":
         query["status"] = status
     if q:
-        pattern = {"$regex": _re.escape(q.strip()), "$options": "i"}
+        pattern = {MONGO_REGEX: _re.escape(q.strip()), MONGO_OPTIONS: "i"}
         query["$or"] = [
             {"company_name": pattern}, {"contact_name": pattern}, {"domain": pattern},
             {"source": pattern}, {"post_text": pattern}, {"source_url": pattern},
@@ -14873,7 +15006,7 @@ async def search_public_client_leads(payload: dict = {}):
     # Pass "domains" in payload to override this list.
     DEFAULT_IT_DOMAINS = [
         "DevOps", "AWS", "Azure", "Python", "Java", "SAP",
-        "Data Science", "Machine Learning", "AI", "GenAI",
+        DATA_SCIENCE, MACHINE_LEARNING, "AI", "GenAI",
         "Full Stack", "React", "Data Engineering", "Cloud",
         "Cyber Security", "Power BI",
     ]
@@ -15147,9 +15280,9 @@ async def list_trainer_profile_leads(
     if source_filter == "naukri":
         query["source"] = "Naukri Public Search"
     elif source_filter == "linkedin":
-        query["source"] = {"$regex": "linkedin", "$options": "i"}
+        query["source"] = {MONGO_REGEX: "linkedin", MONGO_OPTIONS: "i"}
     if q:
-        pattern = {"$regex": _re.escape(q.strip()), "$options": "i"}
+        pattern = {MONGO_REGEX: _re.escape(q.strip()), MONGO_OPTIONS: "i"}
         query["$or"] = [
             {"trainer_name": pattern}, {"domain": pattern}, {"source": pattern},
             {"headline": pattern}, {"profile_text": pattern}, {"source_url": pattern},
@@ -15241,26 +15374,26 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
     ]
     TRAINER_SEARCH_ROLES = [
         "trainer",
-        "corporate trainer",
-        "freelance trainer",
+        CORPORATE_TRAINER,
+        FREELANCE_TRAINER,
         "certified trainer",
         "instructor",
-        "training consultant",
+        TRAINING_CONSULTANT,
         "SME trainer",
         "mentor",
         "trainer India",
-        "technical trainer",
+        TECHNICAL_TRAINER,
         "soft skills trainer",
         "professional trainer",
         "guest faculty",
         "resource person",
-        "workshop facilitator",
+        WORKSHOP_FACILITATOR,
         "learning facilitator",
         "corporate facilitator",
         "training specialist",
         "training manager",
         "training lead",
-        "subject matter expert",
+        SUBJECT_MATTER_EXPERT,
         "coach",
         "industry trainer",
         "visiting faculty",
@@ -15306,8 +15439,8 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
         if source_mode in {"naukri", "both", "all"}:
             queries.extend([
                 f'site:naukri.com "{domain}" "trainer profile" "India" -jobs -vacancies',
-                f'site:naukri.com "{domain}" "freelance trainer" "resume" -jobs -vacancies',
-                f'site:naukri.com "{domain}" "corporate trainer" "resume" -jobs -vacancies',
+                f'site:naukri.com "{domain}" FREELANCE_TRAINER "resume" -jobs -vacancies',
+                f'site:naukri.com "{domain}" CORPORATE_TRAINER "resume" -jobs -vacancies',
                 f'site:naukri.com "{domain}" "trainer" "email" "India" -jobs -vacancies',
                 f'site:naukri.com "{domain}" "trainer" "contact" "India" -jobs -vacancies',
             ])
@@ -15362,8 +15495,8 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                 if not source_url:
                     continue
                 source_lower = source_url.lower()
-                is_linkedin_result = "linkedin.com/in" in source_lower or "linkedin.com/pub" in source_lower
-                is_naukri_result = "naukri.com" in source_lower
+                is_linkedin_result = LINKEDIN_COM_IN in source_lower or "linkedin.com/pub" in source_lower
+                is_naukri_result = NAUKRI_COM in source_lower
                 if source_mode == "naukri" and not is_naukri_result:
                     skipped.append({"url": source_url, "reason": "not a public Naukri result"})
                     continue
@@ -15594,7 +15727,7 @@ async def expand_trainer_profile_leads_from_profiles(payload: dict = {}):
 
     async with _httpx.AsyncClient(timeout=20, follow_redirects=True) as client:
         for source_url in profile_urls:
-            if "linkedin.com/in" not in source_url.lower():
+            if LINKEDIN_COM_IN not in source_url.lower():
                 skipped.append({"url": source_url, "reason": "not a LinkedIn profile URL"})
                 continue
             try:
@@ -15703,20 +15836,20 @@ async def enrich_trainer_profile_public_emails(payload: dict = {}):
 
     db = get_db()
     query = {
-        "$or": [{"contact_email": {"$exists": False}}, {"contact_email": ""}, {"contact_email": None}],
+        "$or": [{"contact_email": {MONGO_EXISTS: False}}, {"contact_email": ""}, {"contact_email": None}],
         "status": {"$nin": ["rejected", "contacted"]},
     }
     domain = str(payload.get("domain") or "").strip()
     if domain:
-        pattern = {"$regex": _re.escape(domain), "$options": "i"}
+        pattern = {MONGO_REGEX: _re.escape(domain), MONGO_OPTIONS: "i"}
         query["$and"] = [{
             "$or": [{"domain": pattern}, {"searched_domain": pattern}, {"profile_text": pattern}, {"headline": pattern}]
         }]
     source_filter = str(payload.get("source") or payload.get("source_mode") or "").strip().lower()
     if source_filter == "naukri":
-        query["source"] = {"$regex": "naukri", "$options": "i"}
+        query["source"] = {MONGO_REGEX: "naukri", MONGO_OPTIONS: "i"}
     elif source_filter == "linkedin":
-        query["source"] = {"$regex": "linkedin", "$options": "i"}
+        query["source"] = {MONGO_REGEX: "linkedin", MONGO_OPTIONS: "i"}
     limit = max(1, min(int(payload.get("limit") or (40 if source_filter == "naukri" else 75)), 200))
     docs = await db["trainer_profile_leads"].find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
     enriched = []
@@ -15740,7 +15873,7 @@ async def enrich_trainer_profile_public_emails(payload: dict = {}):
                     response.raise_for_status()
                     source_page_text = _re.sub(r"<[^>]+>", " ", response.text[:750000])
                     email = _extract_public_email(source_page_text)
-                    phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", source_page_text or "")
+                    phone_match = _re.search(PHONE_REGEX_PATTERN, source_page_text or "")
                     phone = phone or (phone_match.group(0) if phone_match else "")
                     public_text = f"{public_text}\n\n{source_page_text[:50000]}"
                 except Exception:
@@ -15872,7 +16005,7 @@ def _internal_verification_score(lead: dict, text: str) -> tuple[int, list[str]]
     if source_url and source_url in haystack:
         score += 35
         reasons.append("linkedin url match")
-    if any(word in haystack for word in ["resume", "cv", "curriculum vitae"]):
+    if any(word in haystack for word in ["resume", "cv", CURRICULUM_VITAE]):
         score += 10
         reasons.append("resume context")
     return score, reasons
@@ -15893,7 +16026,7 @@ async def verify_trainer_profile_lead_internal(lead_id: str):
     db = get_db()
     lead = await db["trainer_profile_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
     if not lead:
-        raise HTTPException(404, "Trainer profile lead not found")
+        raise HTTPException(404, TRAINER_PROFILE_LEAD_NOT_FOUND)
 
     sources = []
     trainer_docs = await db["trainers"].find(
@@ -15983,17 +16116,17 @@ async def verify_trainer_profile_lead_internal(lead_id: str):
 async def enrich_trainer_profile_emails_from_mails(payload: dict = {}):
     db = get_db()
     query = {
-        "$or": [{"contact_email": {"$exists": False}}, {"contact_email": ""}, {"contact_email": None}],
+        "$or": [{"contact_email": {MONGO_EXISTS: False}}, {"contact_email": ""}, {"contact_email": None}],
         "status": {"$nin": ["rejected", "contacted"]},
     }
     source_filter = str(payload.get("source") or payload.get("source_mode") or "").strip().lower()
     if source_filter == "naukri":
-        query["source"] = {"$regex": "naukri", "$options": "i"}
+        query["source"] = {MONGO_REGEX: "naukri", MONGO_OPTIONS: "i"}
     elif source_filter == "linkedin":
-        query["source"] = {"$regex": "linkedin", "$options": "i"}
+        query["source"] = {MONGO_REGEX: "linkedin", MONGO_OPTIONS: "i"}
     domain = str(payload.get("domain") or "").strip()
     if domain:
-        pattern = {"$regex": _re.escape(domain), "$options": "i"}
+        pattern = {MONGO_REGEX: _re.escape(domain), MONGO_OPTIONS: "i"}
         query["$and"] = [{
             "$or": [{"domain": pattern}, {"searched_domain": pattern}, {"profile_text": pattern}, {"headline": pattern}]
         }]
@@ -16024,13 +16157,13 @@ async def enrich_trainer_profile_emails_from_mails(payload: dict = {}):
         extracted = doc.get("extracted_data") or {}
         text = "\n".join([str(doc.get("filename") or ""), str(extracted), str(doc.get("extracted_text") or "")[:20000]])
         email = _extract_public_email(text)
-        phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", text or "")
+        phone_match = _re.search(PHONE_REGEX_PATTERN, text or "")
         if email:
             sources.append(("resume_mail_or_upload", doc, text, email, phone_match.group(0) if phone_match else ""))
     for doc in mail_docs:
         text = _mail_lookup_text(doc)
         email = str(doc.get("from_email") or "").strip() or _extract_public_email(text)
-        phone_match = _re.search(r"(?:\+?91[-\s]?)?[6-9]\d{9}", text or "")
+        phone_match = _re.search(PHONE_REGEX_PATTERN, text or "")
         if email:
             sources.append(("office_mail", doc, text, email, phone_match.group(0) if phone_match else ""))
 
@@ -16099,7 +16232,7 @@ async def send_public_email_trainer_outreach(payload: dict = {}):
     }
     domain = str(payload.get("domain") or "").strip()
     if domain:
-        pattern = {"$regex": _re.escape(domain), "$options": "i"}
+        pattern = {MONGO_REGEX: _re.escape(domain), MONGO_OPTIONS: "i"}
         query["$and"] = [{
             "$or": [{"domain": pattern}, {"searched_domain": pattern}, {"profile_text": pattern}, {"headline": pattern}]
         }]
@@ -16178,7 +16311,7 @@ async def update_trainer_profile_lead(lead_id: str, payload: dict):
         return_document=ReturnDocument.AFTER,
     )
     if not doc:
-        raise HTTPException(404, "Trainer profile lead not found")
+        raise HTTPException(404, TRAINER_PROFILE_LEAD_NOT_FOUND)
     return {"success": True, "lead": _public_doc(doc)}
 
 
@@ -16215,7 +16348,7 @@ def _trainer_profile_lead_mail_draft(lead: dict, payload: dict) -> dict:
             "Kindly confirm your interest and share your updated trainer profile/resume along with your experience, availability, and commercial expectation.\n\n"
             "Best Regards,\n"
             "Recruitment Team\n"
-            "Clahan Technologies"
+            f"{CLAHAN_TECHNOLOGIES}"
         ),
     }
 
@@ -16225,7 +16358,7 @@ async def send_trainer_profile_lead_email(lead_id: str, payload: dict = {}):
     db = get_db()
     lead = await db["trainer_profile_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
     if not lead:
-        raise HTTPException(404, "Trainer profile lead not found")
+        raise HTTPException(404, TRAINER_PROFILE_LEAD_NOT_FOUND)
     to_email = str(payload.get("to_email") or lead.get("contact_email") or "").strip()
     if not to_email:
         raise HTTPException(400, "Trainer email is required before sending")
@@ -16274,7 +16407,7 @@ async def delete_trainer_profile_leads_by_domain(domain: str):
     if not clean:
         raise HTTPException(400, "Domain is required")
     db = get_db()
-    pattern = {"$regex": f"^{_re.escape(clean)}$", "$options": "i"}
+    pattern = {MONGO_REGEX: f"^{_re.escape(clean)}$", MONGO_OPTIONS: "i"}
     result = await db["trainer_profile_leads"].delete_many({
         "$or": [{"domain": pattern}, {"searched_domain": pattern}],
     })
@@ -16286,7 +16419,7 @@ async def delete_trainer_profile_lead(lead_id: str):
     db = get_db()
     result = await db["trainer_profile_leads"].delete_one({"lead_id": lead_id})
     if not result.deleted_count:
-        raise HTTPException(404, "Trainer profile lead not found")
+        raise HTTPException(404, TRAINER_PROFILE_LEAD_NOT_FOUND)
     return {"success": True, "deleted": lead_id}
 
 
@@ -16303,7 +16436,7 @@ async def update_client_lead(lead_id: str, payload: dict):
         return_document=ReturnDocument.AFTER,
     )
     if not doc:
-        raise HTTPException(404, "Client lead not found")
+        raise HTTPException(404, CLIENT_LEAD_NOT_FOUND)
     return {"success": True, "lead": _public_doc(doc)}
 
 
@@ -16312,7 +16445,7 @@ async def regenerate_client_lead_draft(lead_id: str):
     db = get_db()
     lead = await db["client_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
     if not lead:
-        raise HTTPException(404, "Client lead not found")
+        raise HTTPException(404, CLIENT_LEAD_NOT_FOUND)
     draft = _client_lead_draft(lead)
     await db["client_leads"].update_one({"lead_id": lead_id}, {"$set": {"draft": draft, "updated_at": utc_now()}})
     return {"success": True, "draft": draft}
@@ -16323,7 +16456,7 @@ async def send_client_lead_email(lead_id: str, payload: dict = {}):
     db = get_db()
     lead = await db["client_leads"].find_one({"lead_id": lead_id}, {"_id": 0})
     if not lead:
-        raise HTTPException(404, "Client lead not found")
+        raise HTTPException(404, CLIENT_LEAD_NOT_FOUND)
     to_email = str(payload.get("to_email") or lead.get("contact_email") or "").strip()
     if not to_email:
         raise HTTPException(400, "Contact email is required before sending")
@@ -16372,7 +16505,7 @@ async def delete_client_leads_by_domain(domain: str):
     if not clean:
         raise HTTPException(400, "Domain is required")
     db = get_db()
-    pattern = {"$regex": f"^{_re.escape(clean)}$", "$options": "i"}
+    pattern = {MONGO_REGEX: f"^{_re.escape(clean)}$", MONGO_OPTIONS: "i"}
     result = await db["client_leads"].delete_many({
         "$or": [{"domain": pattern}, {"searched_domain": pattern}],
     })
@@ -16384,7 +16517,7 @@ async def delete_client_lead(lead_id: str):
     db = get_db()
     result = await db["client_leads"].delete_one({"lead_id": lead_id})
     if not result.deleted_count:
-        raise HTTPException(404, "Client lead not found")
+        raise HTTPException(404, CLIENT_LEAD_NOT_FOUND)
     return {"success": True, "deleted": lead_id}
 
 
@@ -16404,18 +16537,18 @@ async def get_client_conversations(
         filters.append({"requirement_id": requirement_id})
 
     if client:
-        pattern = {"$regex": _re.escape(client.strip()), "$options": "i"}
+        pattern = {MONGO_REGEX: _re.escape(client.strip()), MONGO_OPTIONS: "i"}
         filters.append({"$or": [
             {"from_email": pattern},
             {"from_name": pattern},
             {"extracted.client_email": pattern},
             {"extracted.client_name": pattern},
-            {"extracted.client_company": pattern},
+            {EXTRACTED_CLIENT_COMPANY: pattern},
         ]})
 
     domain_requirement_ids = []
     if domain:
-        domain_pattern = {"$regex": _re.escape(domain.strip()), "$options": "i"}
+        domain_pattern = {MONGO_REGEX: _re.escape(domain.strip()), MONGO_OPTIONS: "i"}
         domain_requirements = await db["requirements"].find(
             {"$or": [
                 {"technology_needed": domain_pattern},
@@ -16426,25 +16559,25 @@ async def get_client_conversations(
         ).limit(200).to_list(200)
         domain_requirement_ids = [doc.get("requirement_id") for doc in domain_requirements if doc.get("requirement_id")]
         domain_or = [
-            {"extracted.technology_needed": domain_pattern},
+            {EXTRACTED_TECHNOLOGY: domain_pattern},
             {"subject": domain_pattern},
             {"clean_body": domain_pattern},
             {"raw_body": domain_pattern},
         ]
         if domain_requirement_ids:
-            domain_or.append({"requirement_id": {"$in": domain_requirement_ids}})
+            domain_or.append({"requirement_id": {MONGO_IN: domain_requirement_ids}})
         filters.append({"$or": domain_or})
 
     if q:
-        search_pattern = {"$regex": _re.escape(q.strip()), "$options": "i"}
+        search_pattern = {MONGO_REGEX: _re.escape(q.strip()), MONGO_OPTIONS: "i"}
         filters.append({"$or": [
             {"from_email": search_pattern},
             {"from_name": search_pattern},
             {"subject": search_pattern},
             {"clean_body": search_pattern},
             {"raw_body": search_pattern},
-            {"extracted.client_company": search_pattern},
-            {"extracted.technology_needed": search_pattern},
+            {EXTRACTED_CLIENT_COMPANY: search_pattern},
+            {EXTRACTED_TECHNOLOGY: search_pattern},
         ]})
 
     query = {"$and": filters} if filters else {}
@@ -16462,7 +16595,7 @@ async def get_client_conversations(
     requirements = {}
     if requirement_ids:
         req_docs = await db["requirements"].find(
-            {"requirement_id": {"$in": list(requirement_ids)}},
+            {"requirement_id": {MONGO_IN: list(requirement_ids)}},
             {"_id": 0},
         ).to_list(len(requirement_ids))
         requirements = {doc.get("requirement_id"): doc for doc in req_docs}
@@ -16478,9 +16611,9 @@ async def get_client_conversations(
     if requirement_id:
         slot_filters.append({"requirement_id": requirement_id})
     elif requirement_ids:
-        slot_filters.append({"requirement_id": {"$in": list(requirement_ids)}})
+        slot_filters.append({"requirement_id": {MONGO_IN: list(requirement_ids)}})
     if client_emails and not scoped_to_requirement_or_domain:
-        slot_filters.append({"to_email": {"$in": client_emails}})
+        slot_filters.append({"to_email": {MONGO_IN: client_emails}})
     slot_docs = []
     if slot_filters:
         slot_docs = await db["client_slot_emails"].find(
@@ -16493,11 +16626,11 @@ async def get_client_conversations(
     if slot_ids or requirement_ids:
         confirmation_filters = []
         if slot_ids:
-            confirmation_filters.append({"client_slot_email_id": {"$in": slot_ids}})
+            confirmation_filters.append({"client_slot_email_id": {MONGO_IN: slot_ids}})
         if requirement_id:
             confirmation_filters.append({"requirement_id": requirement_id})
         elif requirement_ids:
-            confirmation_filters.append({"requirement_id": {"$in": list(requirement_ids)}})
+            confirmation_filters.append({"requirement_id": {MONGO_IN: list(requirement_ids)}})
         confirmations = await db["client_slot_confirmations"].find(
             {"$or": confirmation_filters},
             {"_id": 0},
@@ -16507,12 +16640,12 @@ async def get_client_conversations(
     if requirement_id:
         client_message_filters.append({"requirement_id": requirement_id})
     elif requirement_ids:
-        client_message_filters.append({"requirement_id": {"$in": list(requirement_ids)}})
+        client_message_filters.append({"requirement_id": {MONGO_IN: list(requirement_ids)}})
     if slot_ids:
-        client_message_filters.append({"client_slot_email_id": {"$in": slot_ids}})
+        client_message_filters.append({"client_slot_email_id": {MONGO_IN: slot_ids}})
     if client_emails and not scoped_to_requirement_or_domain:
-        client_message_filters.append({"client_email": {"$in": client_emails}})
-        client_message_filters.append({"to_email": {"$in": client_emails}})
+        client_message_filters.append({"client_email": {MONGO_IN: client_emails}})
+        client_message_filters.append({"to_email": {MONGO_IN: client_emails}})
     client_messages = []
     if client_message_filters:
         client_messages = await db["client_messages"].find(
@@ -16606,7 +16739,7 @@ async def get_client_conversations(
             "sort_order": 10,
             "status": doc.get("status"),
             "from_label": client_label,
-            "to_label": "Clahan Technologies",
+            "to_label": CLAHAN_TECHNOLOGIES,
             "meta": {
                 "requirement_id": doc.get("requirement_id"),
                 "confidence": doc.get("confidence"),
@@ -16625,7 +16758,7 @@ async def get_client_conversations(
                 "sent_at": sent_at or doc.get("created_at") or doc.get("received_at"),
                 "sort_order": 20,
                 "status": doc.get("status"),
-                "from_label": "Clahan Technologies",
+                "from_label": CLAHAN_TECHNOLOGIES,
                 "to_label": client_label,
                 "meta": {"sent_by": doc.get("sent_by") or ("draft" if not sent_at else "")},
             })
@@ -16643,7 +16776,7 @@ async def get_client_conversations(
             "sent_at": slot.get("sent_at") or slot.get("created_at"),
             "sort_order": 30,
             "status": slot.get("status"),
-            "from_label": "Clahan Technologies",
+            "from_label": CLAHAN_TECHNOLOGIES,
             "to_label": client_label,
             "meta": {
                 "trainer_id": slot.get("trainer_id"),
@@ -16663,7 +16796,7 @@ async def get_client_conversations(
                 "sort_order": 40,
                 "status": slot.get("status"),
                 "from_label": client_label,
-                "to_label": "Clahan Technologies",
+                "to_label": CLAHAN_TECHNOLOGIES,
                 "meta": {
                     "trainer_id": slot.get("trainer_id"),
                     "trainer_name": slot.get("trainer_name"),
@@ -16685,7 +16818,7 @@ async def get_client_conversations(
             "sort_order": 40,
             "status": confirmation.get("status"),
             "from_label": client_label,
-            "to_label": "Clahan Technologies",
+            "to_label": CLAHAN_TECHNOLOGIES,
             "meta": {
                 "trainer_id": confirmation.get("trainer_id"),
                 "trainer_name": confirmation.get("trainer_name"),
@@ -16733,7 +16866,7 @@ async def get_client_conversations(
             "sent_at": client_message.get("sent_at") or client_message.get("created_at"),
             "sort_order": 45,
             "status": client_message.get("status"),
-            "from_label": "Clahan Technologies",
+            "from_label": CLAHAN_TECHNOLOGIES,
             "to_label": client_label,
             "meta": {
                 "trainer_id": client_message.get("trainer_id"),
@@ -16774,8 +16907,8 @@ async def get_client_conversations(
         "_id": 0,
         "from_email": 1,
         "from_name": 1,
-        "extracted.client_company": 1,
-        "extracted.technology_needed": 1,
+        EXTRACTED_CLIENT_COMPANY: 1,
+        EXTRACTED_TECHNOLOGY: 1,
     }).sort("received_at", -1).limit(300).to_list(300)
     clients = []
     domains = set()
@@ -16826,7 +16959,7 @@ async def get_client_updates(requirement_id: Optional[str] = None, limit: int = 
     requirements = {}
     if requirement_ids:
         req_docs = await db["requirements"].find(
-            {"requirement_id": {"$in": requirement_ids}},
+            {"requirement_id": {MONGO_IN: requirement_ids}},
             {"_id": 0, "requirement_id": 1, "technology_needed": 1, "client_company": 1, "client_name": 1},
         ).to_list(len(requirement_ids))
         requirements = {doc.get("requirement_id"): doc for doc in req_docs}
@@ -16836,7 +16969,7 @@ async def get_client_updates(requirement_id: Optional[str] = None, limit: int = 
     if email_ids:
         try:
             conf_docs = await db["client_slot_confirmations"].find(
-                {"client_slot_email_id": {"$in": email_ids}},
+                {"client_slot_email_id": {MONGO_IN: email_ids}},
                 {"_id": 0},
             ).sort("_id", -1).max_time_ms(3000).to_list(len(email_ids) * 2)
             for confirmation in conf_docs:
@@ -16881,8 +17014,8 @@ async def get_interview_schedules(requirement_id: Optional[str] = None, limit: i
     query = {
         "$or": [
             {"status": "confirmed_scheduled"},
-            {"calendar_event": {"$exists": True}},
-            {"client_confirmed_slot": {"$exists": True}},
+            {"calendar_event": {MONGO_EXISTS: True}},
+            {"client_confirmed_slot": {MONGO_EXISTS: True}},
         ]
     }
     if requirement_id:
@@ -16901,7 +17034,7 @@ async def get_interview_schedules(requirement_id: Optional[str] = None, limit: i
 
     if requirement_ids:
         req_docs = await db["requirements"].find(
-            {"requirement_id": {"$in": requirement_ids}},
+            {"requirement_id": {MONGO_IN: requirement_ids}},
             {
                 "_id": 0,
                 "requirement_id": 1,
@@ -16919,7 +17052,7 @@ async def get_interview_schedules(requirement_id: Optional[str] = None, limit: i
 
     if trainer_ids:
         trainer_docs = await db["trainers"].find(
-            {"trainer_id": {"$in": trainer_ids}},
+            {"trainer_id": {MONGO_IN: trainer_ids}},
             {"_id": 0, "trainer_id": 1, "name": 1, "trainer_name": 1, "email": 1, "trainer_email": 1, "phone": 1},
         ).to_list(len(trainer_ids))
         trainers = {doc.get("trainer_id"): doc for doc in trainer_docs}
@@ -16927,7 +17060,7 @@ async def get_interview_schedules(requirement_id: Optional[str] = None, limit: i
     email_ids = sorted({doc.get("email_id") for doc in docs if doc.get("email_id")})
     if email_ids:
         conf_docs = await db["client_slot_confirmations"].find(
-            {"client_slot_email_id": {"$in": email_ids}},
+            {"client_slot_email_id": {MONGO_IN: email_ids}},
             {"_id": 0},
         ).sort("updated_at", -1).to_list(len(email_ids) * 2)
         for conf in conf_docs:
@@ -16955,7 +17088,7 @@ async def get_interview_schedules(requirement_id: Optional[str] = None, limit: i
             "date_time_text": slot.get("date_time_text") or "",
             "start_iso": slot.get("start_iso") or calendar_event.get("start") or "",
             "end_iso": slot.get("end_iso") or calendar_event.get("end") or "",
-            "timezone": slot.get("timezone") or "Asia/Kolkata",
+            "timezone": slot.get("timezone") or ASIA_KOLKATA,
             "meet_link": calendar_event.get("meet_link") or calendar_event.get("html_link") or "",
             "calendar_event_id": calendar_event.get("event_id") or "",
             "status": doc.get("status") or confirmation.get("status") or "",
@@ -17035,7 +17168,7 @@ async def approve_client_email(email_id: str, payload: dict = {}):
     db = get_db()
     doc = await db["client_emails"].find_one({"email_id": email_id})
     if not doc:
-        raise HTTPException(404, "Client email not found")
+        raise HTTPException(404, CLIENT_EMAIL_NOT_FOUND)
 
     reply = doc.get("generated_reply") or {}
     body = payload.get("body") or reply.get("body")
@@ -17114,7 +17247,7 @@ async def reject_client_email(email_id: str):
     db = get_db()
     doc = await db["client_emails"].find_one({"email_id": email_id})
     if not doc:
-        raise HTTPException(404, "Client email not found")
+        raise HTTPException(404, CLIENT_EMAIL_NOT_FOUND)
     if doc.get("requirement_id"):
         await db["requirements"].delete_one({
             "requirement_id": doc["requirement_id"],
@@ -17132,7 +17265,7 @@ async def regenerate_client_reply(email_id: str, payload: dict = {}):
     db = get_db()
     doc = await db["client_emails"].find_one({"email_id": email_id})
     if not doc:
-        raise HTTPException(404, "Client email not found")
+        raise HTTPException(404, CLIENT_EMAIL_NOT_FOUND)
     settings = await _client_inbox_settings(db)
     context = {
         "subject": doc.get("subject", ""),

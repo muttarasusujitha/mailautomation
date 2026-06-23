@@ -142,7 +142,8 @@ export default function Login({ onLogin }) {
     if (mode === 'signup' && form.password !== form.confirm) { toast.error('Passwords do not match'); return }
     setLoading(true)
     await new Promise(r => setTimeout(r, 1200))
-    localStorage.setItem('ts_auth', JSON.stringify({ name: form.name || 'User', email: form.email, role, loggedIn: true }))
+    // SEC-009: sessionStorage clears on tab/browser close — safer than localStorage for auth tokens
+    sessionStorage.setItem('ts_auth', JSON.stringify({ name: form.name || 'User', email: form.email, role, loggedIn: true }))
     toast.success(mode === 'login' ? `Welcome back!` : `Account created!`)
     setLoading(false)
     if (onLogin) onLogin()
