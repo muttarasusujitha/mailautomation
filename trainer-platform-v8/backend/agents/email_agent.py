@@ -439,20 +439,78 @@ Warm regards,
 """
 
 
+def _determine_sentiment_and_action(body_lower: str) -> tuple[str, str]:
+    """Determine sentiment and action from email body."""
+    is_pos = any(s in body_lower for s in POSITIVE_SIGNALS)
+    is_neg = any(s in body_lower for s in NEGATIVE_SIGNALS)
+    
+    if is_pos:
+        return "positive", "mark_interested"
+    elif is_neg:
+        return "negative", "mark_declined"
+    return "neutral", "requires_review"
+
+
+def _build_reply_dict(msg_id: bytes, from_addr: str, from_email: str, subject: str, 
+                     message_id_header: str, in_reply_to: str, references: str, 
+                     body: str, sentiment: str, action: str, received_at: datetime) -> dict:
+    """Build a reply dictionary from parsed email data."""
+    return {
+        "msg_id": msg_id.decode() if isinstance(msg_id, bytes) else str(msg_id),
+        "message_id_header": message_id_header,
+        "in_reply_to": in_reply_to,
+        "references": references,
+        "from_email": from_email,
+        "from_raw": from_addr,
+        "subject": subject,
+        "body": body[:2000],
+        "sentiment": sentiment,
+        "action": action,
+        "received_at": received_at.isoformat(),
+    }
+
+
+def _process_single_reply(mail, msg_id: bytes) -> Optional[dict]:
+    """Process a single email reply. Returns reply dict or None."""
+    try:
+        _, msg_data = mail.fetch(msg_id, "(RFC822)")
+        if not msg_data or not isinstance(msg_data[0], tuple):
+            return None
+        
+        raw = msg_data[0][1]
+        parsed = _parse_email_from_bytes(raw)
+        if not parsed:
+            return None
+        
+        from_addr, from_email, subject, message_id_header, in_reply_to, references, body, received_at = parsed
+        body_lower = body.lower()
+        sentiment, action = _determine_sentiment_and_action(body_lower)
+        
+        return _build_reply_dict(msg_id, from_addr, from_email, subject, message_id_header,
+                                in_reply_to, references, body, sentiment, action, received_at)
+    except Exception:
+        return None
+
+
 def _validate_email_check_config(gmail_user: str, gmail_pass: str) -> bool:
     """Validate email check configuration."""
     return bool(gmail_user and gmail_pass)
+
+
+def _filter_valid_senders(from_emails: List[str]) -> List[str]:
+    """Filter and validate sender emails."""
+    return [
+        str(item or "").strip()
+        for item in (from_emails or [])
+        if str(item or "").strip() and "@" in str(item)
+    ]
 
 
 def _search_emails_by_sender(mail, since_date: str, from_emails: List[str], max_messages: int) -> List[bytes]:
     """Search for emails from specific senders."""
     ids = []
     seen_ids = set()
-    targeted = [
-        str(item or "").strip()
-        for item in (from_emails or [])
-        if str(item or "").strip() and "@" in str(item)
-    ]
+    targeted = _filter_valid_senders(from_emails)
     
     for sender in targeted[:100]:
         _, msg_ids = mail.search(None, f'(SINCE {since_date} FROM "{sender}")')
@@ -468,6 +526,31 @@ def _search_emails_by_sender(mail, since_date: str, from_emails: List[str], max_
     return ids[-max_messages:]
 
 
+def _extract_email_body(msg) -> str:
+    """Extract email body from message."""
+    if msg.is_multipart():
+        for part in msg.walk():
+            if part.get_content_type() == "text/plain":
+                return part.get_payload(decode=True).decode("utf-8", errors="ignore")
+        return ""
+    return msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+
+
+def _extract_email_date(msg) -> datetime:
+    """Extract and parse email date."""
+    try:
+        date_header = msg.get("Date", "")
+        if date_header:
+            parsed_date = parsedate_to_datetime(date_header)
+            if parsed_date and parsed_date.tzinfo is not None:
+                parsed_date = parsed_date.astimezone().replace(tzinfo=None)
+            if parsed_date:
+                return parsed_date
+    except Exception:
+        pass
+    return utc_now()
+
+
 def _parse_email_from_bytes(raw: bytes) -> Optional[tuple]:
     """Parse email from raw bytes. Returns (from_addr, from_email, subject, message_id, in_reply_to, references, body, received_at) or None."""
     msg = email_lib.message_from_bytes(raw)
@@ -477,29 +560,8 @@ def _parse_email_from_bytes(raw: bytes) -> Optional[tuple]:
     message_id_header = msg.get("Message-ID", "") or msg.get("Message-Id", "")
     in_reply_to = msg.get("In-Reply-To", "")
     references = msg.get("References", "")
-    
-    # Extract body
-    body = ""
-    if msg.is_multipart():
-        for part in msg.walk():
-            if part.get_content_type() == "text/plain":
-                body = part.get_payload(decode=True).decode("utf-8", errors="ignore")
-                break
-    else:
-        body = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
-    
-    # Parse date
-    received_at = utc_now()
-    try:
-        date_header = msg.get("Date", "")
-        if date_header:
-            parsed_date = parsedate_to_datetime(date_header)
-            if parsed_date:
-                if parsed_date.tzinfo is not None:
-                    parsed_date = parsed_date.astimezone().replace(tzinfo=None)
-                received_at = parsed_date
-    except Exception:
-        pass
+    body = _extract_email_body(msg)
+    received_at = _extract_email_date(msg)
     
     return (from_addr, from_email, subject, message_id_header, in_reply_to, references, body, received_at)
 
@@ -530,43 +592,9 @@ def check_email_replies(
         ids = _search_emails_by_sender(mail, since_date, from_emails, max_messages)
 
         for msg_id in ids:
-            _, msg_data = mail.fetch(msg_id, "(RFC822)")
-            if not msg_data or not isinstance(msg_data[0], tuple):
-                continue
-            
-            raw = msg_data[0][1]
-            parsed = _parse_email_from_bytes(raw)
-            if not parsed:
-                continue
-            
-            from_addr, from_email, subject, message_id_header, in_reply_to, references, body, received_at = parsed
-            body_lower = body.lower()
-            is_pos = any(s in body_lower for s in POSITIVE_SIGNALS)
-            is_neg = any(s in body_lower for s in NEGATIVE_SIGNALS)
-
-            if is_pos:
-                sentiment = "positive"
-                action = "mark_interested"
-            elif is_neg:
-                sentiment = "negative"
-                action = "mark_declined"
-            else:
-                sentiment = "neutral"
-                action = "requires_review"
-
-            replies.append({
-                "msg_id": msg_id.decode() if isinstance(msg_id, bytes) else str(msg_id),
-                "message_id_header": message_id_header,
-                "in_reply_to": in_reply_to,
-                "references": references,
-                "from_email": from_email,
-                "from_raw": from_addr,
-                "subject": subject,
-                "body": body[:2000],
-                "sentiment": sentiment,
-                "action": action,
-                "received_at": received_at.isoformat(),
-            })
+            reply = _process_single_reply(mail, msg_id)
+            if reply:
+                replies.append(reply)
 
     except Exception:
         logger.exception("IMAP check failed")

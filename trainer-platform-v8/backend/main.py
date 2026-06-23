@@ -1,4 +1,3 @@
-import os
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 # SEC-001: SECRET_KEY must be explicitly set — no insecure fallback allowed
-_secret_key = os.getenv("SECRET_KEY", "").strip()
+_secret_key = str(settings.secret_key or "").strip()
 if not _secret_key:
     raise RuntimeError(
         "SECRET_KEY environment variable is not set. "

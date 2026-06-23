@@ -120,15 +120,28 @@ def _google_config_path(env_name: str, default_filename: str) -> str:
 CREDENTIALS_PATH = _google_config_path("GOOGLE_CREDENTIALS_FILE", "credentials.json")
 TOKEN_PATH = _google_config_path("GOOGLE_TOKEN_FILE", "token.json")
 
+FULL_STACK = "full stack"
+DATA_SCIENCE = "data science"
+MACHINE_LEARNING = "machine learning"
+POWER_BI = "power bi"
+TRAINING_REQUIREMENT = "training requirement"
+TRAINING_DOMAIN_TECHNOLOGY = "Training domain/technology"
+REQUIREMENT_LABEL = "Training Requirement"
+CLIENT_ASKED_TO_CLOSE = "Client asked to close the requirement."
+SIGNATURE = "Best Regards,\nRecruitment Team\nClahan Technologies"
+MONGO_REGEX = "$regex"
+MONGO_OPTIONS = "$options"
+MONGO_SETONEINSERT = "$setOnInsert"
+
 TRAINING_KEYWORDS = [
     "training", "trainer", "workshop", "corporate training", "need trainer",
     "require trainer", "kubernetes", "devops", "python", "java", "azure", "aws",
-    "data science", "machine learning", "power bi", "tableau", "cloud", "genai",
-    "sap", "salesforce", "full stack", "react", "node", "cybersecurity",
+    DATA_SCIENCE, MACHINE_LEARNING, POWER_BI, "tableau", "cloud", "genai",
+    "sap", "salesforce", FULL_STACK, "react", "node", "cybersecurity",
 ]
 
 TECHNOLOGY_KEYWORDS = [
-    "full stack", "data science", "machine learning", "power bi", "cybersecurity",
+    FULL_STACK, DATA_SCIENCE, MACHINE_LEARNING, POWER_BI, "cybersecurity",
     "kubernetes", "devops", "python", "java", "azure", "aws", "tableau", "cloud",
     "genai", "sap", "salesforce", "react", "node",
 ]
@@ -440,7 +453,7 @@ def client_requirement_closure_reason(text: str) -> str:
         return "Client cancelled or withdrew the requirement."
     if clean:
         return f"Client asked to close the requirement: {clean[:180]}"
-    return "Client asked to close the requirement."
+    return CLIENT_ASKED_TO_CLOSE
 
 
 def is_auto_reply(headers: Dict[str, str], subject: str, body: str) -> bool:
@@ -489,7 +502,7 @@ def is_likely_training_email(
 
     request_markers = (
         "need trainer", "require trainer", "required trainer", "looking for trainer",
-        "trainer requirement", "training requirement", "corporate training requirement",
+        "trainer requirement", TRAINING_REQUIREMENT, "corporate training requirement",
         "need a trainer", "we need", "we require", "please share suitable trainer",
         "share trainer profiles", "duration", "participants", "budget",
         "mode:", "technology:", "domain:",
@@ -545,7 +558,7 @@ def classify_office_mail(subject: str, from_email: str = "", body_preview: str =
 
 def generate_office_mail_reply(category: str, sender_name: str, subject: str) -> Optional[dict]:
     name = (sender_name or "").strip() or "Candidate"
-    signature = "Best Regards,\nRecruitment Team\nClahan Technologies"
+    signature = SIGNATURE
     if category == "job_application":
         return {
             "subject": f"Re: {subject or 'Application Received'}",
@@ -984,7 +997,7 @@ def has_actionable_training_domain(value: Any) -> bool:
     generic_values = {
         "training",
         "trainer",
-        "training requirement",
+        TRAINING_REQUIREMENT,
         "trainer requirement",
         "corporate training",
         "software training",
@@ -1055,7 +1068,7 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
         merged["technology_needed"] = None
         existing_needs = {str(item).strip().lower() for item in merged["needs_clarification"]}
         if "training domain/technology" not in existing_needs:
-            merged["needs_clarification"].insert(0, "Training domain/technology")
+            merged["needs_clarification"].insert(0, TRAINING_DOMAIN_TECHNOLOGY)
         if merged.get("is_training_request"):
             try:
                 merged["confidence"] = min(float(merged.get("confidence") or 0.0), 0.55)
@@ -1095,17 +1108,17 @@ def client_requirement_closure_extraction(meta: Dict[str, Any], reason: str = ""
         "client_email": meta.get("from_email"),
         "technology_needed": technology,
         "email_subject": subject,
-        "email_summary": reason or "Client asked to close the requirement.",
+        "email_summary": reason or CLIENT_ASKED_TO_CLOSE,
         "confidence": 0.98,
         "needs_clarification": [],
         "is_training_request": False,
         "client_request_closed": True,
-        "client_closed_reason": reason or "Client asked to close the requirement.",
+        "client_closed_reason": reason or CLIENT_ASKED_TO_CLOSE,
     }, meta)
     extracted["needs_clarification"] = []
     extracted["is_training_request"] = False
     extracted["client_request_closed"] = True
-    extracted["client_closed_reason"] = reason or "Client asked to close the requirement."
+    extracted["client_closed_reason"] = reason or CLIENT_ASKED_TO_CLOSE
     return extracted
 
 
@@ -1114,7 +1127,7 @@ def generate_client_requirement_closed_reply(
     reason: str = "",
     signature: str = "",
 ) -> Dict[str, Any]:
-    subject = str(meta.get("subject") or "Training Requirement").strip()
+    subject = str(meta.get("subject") or REQUIREMENT_LABEL).strip()
     if not subject.lower().startswith("re:"):
         subject = f"Re: {subject}"
     client_name = _clean_ai_text(meta.get("from_name")) or "Client"
@@ -1187,15 +1200,15 @@ def _heuristic_training_extraction(meta: Dict[str, Any]) -> Dict[str, Any]:
         "c#", "c++", "rust", "kotlin", "swift", "scala", "ruby",
         # Web/Mobile
         "react", "angular", "vue", "node.js", "nodejs", "express",
-        "full stack", "fullstack", "frontend", "backend", "mern", "mean",
+        FULL_STACK, "fullstack", "frontend", "backend", "mern", "mean",
         "next.js", "nextjs", "flutter", "react native", "spring boot",
         # Data & AI
-        "data science", "machine learning", "deep learning", "artificial intelligence",
+        DATA_SCIENCE, MACHINE_LEARNING, "deep learning", "artificial intelligence",
         "genai", "generative ai", "llm", "nlp", "computer vision",
         "data engineering", "data analytics", "big data", "spark", "hadoop",
         "snowflake", "databricks", "airflow", "kafka",
         # BI & Visualization
-        "power bi", "tableau", "looker", "qlik", "excel", "advanced excel",
+        POWER_BI, "tableau", "looker", "qlik", "excel", "advanced excel",
         # Database
         "sql", "mysql", "postgresql", "mongodb", "oracle", "sql server",
         "nosql", "dynamodb", "redis", "cassandra",
@@ -1462,7 +1475,7 @@ def _heuristic_training_extraction(meta: Dict[str, Any]) -> Dict[str, Any]:
     # --- Needs clarification ---
     needs = []
     if not tech:
-        needs.append("Training domain/technology")
+        needs.append(TRAINING_DOMAIN_TECHNOLOGY)
     if not audience_level:
         needs.append("Audience level (Beginner / Intermediate / Advanced)")
     if not timeline_start:
@@ -1842,10 +1855,10 @@ async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
     technology = extracted.get("technology_needed") if has_domain else "your training"
     raw_needs = list(extracted.get("needs_clarification") or [])
     budget = extracted.get("budget_total") or extracted.get("budget_per_day")
-    original_subject = extracted.get("email_subject") or context.get("subject") or "Training Requirement"
-    signature = context.get("reply_signature") or "Best Regards,\nRecruitment Team\nClahan Technologies"
+    original_subject = extracted.get("email_subject") or context.get("subject") or REQUIREMENT_LABEL
+    signature = context.get("reply_signature") or SIGNATURE
     if signature.strip() == "Regards,\nRecruitment Team,\nClahan Technologies":
-        signature = "Best Regards,\nRecruitment Team\nClahan Technologies"
+        signature = SIGNATURE
 
     def has_any(*keys: str) -> bool:
         return any(str(extracted.get(key) or "").strip() for key in keys)
@@ -1874,7 +1887,7 @@ async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
 
     needs = [item for item in raw_needs if item and not need_is_known_detail_field(str(item))]
     required_missing = [
-        ("domain", "Training domain/technology"),
+        ("domain", TRAINING_DOMAIN_TECHNOLOGY),
         ("duration", "Training duration"),
         ("dates", "Preferred training dates"),
         ("timings", "Daily training timings"),
@@ -1999,16 +2012,16 @@ async def find_duplicate_requirement(extracted: dict, db) -> Optional[dict]:
     client_email = _clean_ai_text(extracted.get("client_email")).lower()
     query: Dict[str, Any] = {
         "created_at": {"$gte": utc_now() - timedelta(days=7)},
-        "technology_needed": {"$regex": f"^{re.escape(technology)}$", "$options": "i"},
+        "technology_needed": {MONGO_REGEX: f"^{re.escape(technology)}$", MONGO_OPTIONS: "i"},
     }
     if not client_email:
         return None
 
-    query["client_email"] = {"$regex": f"^{re.escape(client_email)}$", "$options": "i"}
+    query["client_email"] = {MONGO_REGEX: f"^{re.escape(client_email)}$", MONGO_OPTIONS: "i"}
 
     timeline = _clean_ai_text(extracted.get("timeline_start"))
     if timeline:
-        query["timeline_start"] = {"$regex": f"^{re.escape(timeline)}$", "$options": "i"}
+        query["timeline_start"] = {MONGO_REGEX: f"^{re.escape(timeline)}$", MONGO_OPTIONS: "i"}
 
     participant_count = extracted.get("participant_count")
     if participant_count not in (None, ""):
@@ -2051,7 +2064,7 @@ async def mark_client_requirement_closed(
     client_email = _clean_ai_text(from_email).lower()
     if not req and client_email:
         active_query = {
-            "client_email": {"$regex": f"^{re.escape(client_email)}$", "$options": "i"},
+            "client_email": {MONGO_REGEX: f"^{re.escape(client_email)}$", MONGO_OPTIONS: "i"},
             "status": {"$nin": closed_statuses},
         }
         req = await db["requirements"].find_one(
@@ -2061,7 +2074,7 @@ async def mark_client_requirement_closed(
         )
     if not req and client_email:
         req = await db["requirements"].find_one(
-            {"client_email": {"$regex": f"^{re.escape(client_email)}$", "$options": "i"}},
+            {"client_email": {MONGO_REGEX: f"^{re.escape(client_email)}$", MONGO_OPTIONS: "i"}},
             {"_id": 0},
             sort=[("last_client_email_at", -1), ("created_at", -1)],
         )
@@ -2075,7 +2088,7 @@ async def mark_client_requirement_closed(
         "status": "closed",
         "close_date": closed_at,
         "client_closed_at": closed_at,
-        "client_closed_reason": reason or "Client asked to close the requirement.",
+        "client_closed_reason": reason or CLIENT_ASKED_TO_CLOSE,
         "client_closed_email_id": email_id,
         "client_closed_subject": subject or "",
         "client_closed_body_excerpt": body_excerpt,
@@ -2146,7 +2159,7 @@ async def find_matching_trainer_outbound_thread(
         return None
     candidates = await db["email_logs"].find(
         {
-            "to_email": {"$regex": f"^{re.escape(sender)}$", "$options": "i"},
+            "to_email": {MONGO_REGEX: f"^{re.escape(sender)}$", MONGO_OPTIONS: "i"},
             "status": "sent",
             "mail_type": {"$in": sorted(TRAINER_THREAD_MAIL_TYPES)},
         },
@@ -2173,7 +2186,7 @@ async def find_matching_trainer_outbound_thread(
             score += 160
         if "additional details required" in reply_subject and mail_type in {"mail2", "mail2_followup"}:
             score += 120
-        if "training requirement" in reply_subject and mail_type in {"mail1", "mail2", "mail2_followup"}:
+        if TRAINING_REQUIREMENT in reply_subject and mail_type in {"mail1", "mail2", "mail2_followup"}:
             score += 70
         if trainer_name and trainer_name in body_lower:
             score += 100
@@ -2217,7 +2230,7 @@ async def record_trainer_reply_from_client_inbox(
 
     conversation_query: Dict[str, Any] = {
         "direction": "received",
-        "from_email": {"$regex": f"^{re.escape(meta.get('from_email') or '')}$", "$options": "i"},
+        "from_email": {MONGO_REGEX: f"^{re.escape(meta.get('from_email') or '')}$", MONGO_OPTIONS: "i"},
         "source_email_id": trainer_thread.get("email_id") or "",
     }
     if message_id_header:
@@ -2277,7 +2290,7 @@ async def record_trainer_reply_from_client_inbox(
     }
     await db["client_emails"].update_one(
         {"email_id": email_id},
-        {"$setOnInsert": inbox_doc},
+        {MONGO_SETONEINSERT: inbox_doc},
         upsert=True,
     )
     return inbox_doc
@@ -2322,7 +2335,7 @@ async def get_client_inbox_auto_settings(db) -> Dict[str, Any]:
         "autoSendEnabled": bool(cfg.get("autoSendEnabled", True)),
         "autoSendThreshold": float(cfg.get("autoSendThreshold", 70)),
         "clientDomainsWhitelist": cfg.get("clientDomainsWhitelist", ""),
-        "replySignature": cfg.get("replySignature") or "Best Regards,\nRecruitment Team\nClahan Technologies",
+        "replySignature": cfg.get("replySignature") or SIGNATURE,
         "vendorWhatsAppNumber": cfg.get("vendorWhatsAppNumber") or twilio.get("vendorWhatsAppNumber", ""),
         "inboxProvider": str(cfg.get("inboxProvider") or "gmail_api").strip().lower(),
     }
@@ -2378,13 +2391,13 @@ async def find_existing_client_clarification_request(
     if not from_email or not is_client_clarification_reply(extracted or {}, generated_reply or {}):
         return None
     query: Dict[str, Any] = {
-        "from_email": {"$regex": f"^{re.escape(from_email)}$", "$options": "i"},
+        "from_email": {MONGO_REGEX: f"^{re.escape(from_email)}$", MONGO_OPTIONS: "i"},
         "sent_at": {"$nin": [None, ""]},
         "status": {"$in": ["auto_sent", "approved"]},
         "$or": [
             {"generated_reply.asks_for_clarification": True},
-            {"generated_reply.subject": {"$regex": "request for additional details|additional details required", "$options": "i"}},
-            {"generated_reply.body": {"$regex": "kindly provide the following details", "$options": "i"}},
+            {"generated_reply.subject": {MONGO_REGEX: "request for additional details|additional details required", MONGO_OPTIONS: "i"}},
+            {"generated_reply.body": {MONGO_REGEX: "kindly provide the following details", MONGO_OPTIONS: "i"}},
         ],
     }
     if requirement_id:
@@ -2639,7 +2652,7 @@ async def create_requirement_from_email(extracted: dict, email_id: str, db) -> s
     if not has_actionable_training_domain(extracted.get("technology_needed")):
         return ""
     req_id = f"REQ-{uuid.uuid4().hex[:8].upper()}"
-    technology = extracted.get("technology_needed") or "Training Requirement"
+    technology = extracted.get("technology_needed") or REQUIREMENT_LABEL
     secondary = extracted.get("secondary_technologies") or []
     required_skills = [technology, *secondary]
     required_skills = [skill for skill in required_skills if skill]
@@ -2725,12 +2738,16 @@ async def auto_match_trainers_for_requirement(db, requirement: dict) -> dict:
             category_filter_applied = result.get("category_filter_applied", False)
             no_category_match = result.get("no_category_match", False)
             category_match_count = result.get("category_match_count", 0)
+            pipeline_summary = result.get("pipeline_summary", {})
+            pipeline_stage_log = result.get("stage_log", [])
         else:
             top_trainers = []
             total_matched = 0
             category_filter_applied = False
             no_category_match = True
             category_match_count = 0
+            pipeline_summary = {}
+            pipeline_stage_log = []
 
         shortlist_doc = {
             "shortlist_id": f"SL-{uuid.uuid4().hex[:8].upper()}",
@@ -2741,6 +2758,11 @@ async def auto_match_trainers_for_requirement(db, requirement: dict) -> dict:
             "category_filter_applied": category_filter_applied,
             "no_category_match": no_category_match,
             "category_match_count": category_match_count,
+            "pipeline_summary": pipeline_summary,
+            "pipeline_stage_log": pipeline_stage_log,
+            "matching_pipeline_version": pipeline_summary.get("pipeline_version", "trainer-match-v2"),
+            "pipeline_warnings": pipeline_summary.get("warnings", []),
+            "pipeline_errors": pipeline_summary.get("errors", []),
             "created_at": utc_now(),
             "auto_created": True,
             "source": "email_auto_match",
@@ -2775,6 +2797,7 @@ async def auto_match_trainers_for_requirement(db, requirement: dict) -> dict:
             "total_available": len(filtered_trainers),
             "total_matched": total_matched,
             "top_trainers": len(top_trainers),
+            "pipeline_summary": pipeline_summary,
             "outreach": outreach,
             "shortlist": shortlist_doc,
         }
@@ -2967,7 +2990,7 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                         sent_at = utc_now()
                 await db["client_emails"].update_one(
                     {"email_id": pseudo_id},
-                    {"$setOnInsert": {
+                    {MONGO_SETONEINSERT: {
                         **meta,
                         "extracted": extracted,
                         "generated_reply": reply,
@@ -2997,7 +3020,7 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                     continue
                 existing_ack = await db["email_logs"].find_one(
                     {
-                        "to_email": {"$regex": f"^{re.escape(from_email)}$", "$options": "i"},
+                        "to_email": {MONGO_REGEX: f"^{re.escape(from_email)}$", MONGO_OPTIONS: "i"},
                         "subject": reply.get("subject") or f"Re: {subject}",
                         "office_mail_category": office_category,
                         "status": "sent",
@@ -3035,7 +3058,7 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                 }
                 await db["client_emails"].update_one(
                     {"email_id": pseudo_id},
-                    {"$setOnInsert": {
+                    {MONGO_SETONEINSERT: {
                         **meta,
                         "office_mail_category": office_category,
                         "extracted": {
@@ -3168,7 +3191,7 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
 
             await db["client_emails"].update_one(
                 {"email_id": pseudo_id},
-                {"$setOnInsert": {
+                {MONGO_SETONEINSERT: {
                     **meta,
                     "extracted": extracted,
                     "generated_reply": reply,
