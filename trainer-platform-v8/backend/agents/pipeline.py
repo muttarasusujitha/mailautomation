@@ -60,23 +60,81 @@ def _token_overlap(left: str, right: str) -> bool:
     return len(overlap) / max(min(len(left_words), len(right_words)), 1) >= 0.5
 
 
+# DevOps synonym expansion — all these should match a "DevOps" requirement
+_DOMAIN_SYNONYMS: Dict[str, List[str]] = {
+    "devops": ["devops", "dev ops", "ci/cd", "cicd", "kubernetes", "docker", "jenkins",
+               "terraform", "ansible", "helm", "argocd", "gitlab ci", "github actions",
+               "sre", "site reliability", "infrastructure", "platform engineering",
+               "cloud native", "devsecops", "gitops"],
+    "cloud":  ["cloud", "aws", "azure", "gcp", "google cloud"],
+    "data engineering": ["data engineering", "spark", "hadoop", "kafka", "etl", "airflow"],
+    "full stack": ["full stack", "fullstack", "mern", "mean", "frontend", "backend"],
+    "cybersecurity": ["cybersecurity", "security", "vapt", "ethical hacking", "soc", "appsec"],
+    "data science": ["data science", "machine learning", "deep learning", "ml", "statistics"],
+}
+
+
+def _expand_needle(needle: str) -> List[str]:
+    """Return needle plus all domain synonyms for broader matching."""
+    terms = [needle]
+    for canonical, synonyms in _DOMAIN_SYNONYMS.items():
+        if needle == canonical or needle in synonyms or canonical in needle:
+            terms.extend(synonyms)
+    return list(set(terms))
+
+
+def _trainer_searchable_text(trainer: Dict[str, Any]) -> str:
+    """Build one lower-case blob of all searchable trainer fields."""
+    skills = trainer.get("skills", [])
+    skills_text = " ".join(skills) if isinstance(skills, list) else str(skills)
+    tags = trainer.get("specialty_tags", []) or trainer.get("specialisation_tags", [])
+    tags_text = " ".join(tags) if isinstance(tags, list) else str(tags)
+    secondary = trainer.get("secondary_categories", [])
+    secondary_text = " ".join(secondary) if isinstance(secondary, list) else str(secondary)
+    parts = [
+        trainer.get("primary_category", ""),
+        trainer.get("technology_category", ""),
+        trainer.get("category", ""),
+        secondary_text,
+        trainer.get("domain", ""),
+        trainer.get("technologies", ""),
+        skills_text,
+        tags_text,
+        trainer.get("summary", ""),
+        trainer.get("combined_text", ""),
+        _text(trainer.get("skill_level_map", {})),
+        _text(trainer.get("industry_focus", [])),
+    ]
+    return " ".join(str(p) for p in parts).lower()
+
+
 def _category_matches_requirement(trainer: Dict[str, Any], technology_needed: str) -> bool:
     needle = _norm(technology_needed)
     if not needle:
         return True
 
+    # 1. Check explicit category/tag fields with synonym expansion
     category_values = [
         trainer.get("primary_category", ""),
         trainer.get("technology_category", ""),
         trainer.get("category", ""),
         *trainer.get("secondary_categories", []),
     ]
+    expanded = _expand_needle(needle)
     for value in category_values:
         hay = _norm(value)
         if not hay:
             continue
-        if needle == hay or needle in hay or hay in needle or _token_overlap(needle, hay):
+        for term in expanded:
+            if term == hay or term in hay or hay in term or _token_overlap(term, hay):
+                return True
+
+    # 2. Fallback: search full trainer text blob for any synonym
+    full_text = _trainer_searchable_text(trainer)
+    for term in expanded:
+        if len(term) > 3 and term in full_text:
             return True
+
     return False
 
 
@@ -94,6 +152,9 @@ def _category_filter_agent(state: PipelineState) -> PipelineState:
         state["category_filter_applied"] = True
         state["no_category_match"] = False
     else:
+        # No category match at all — pass ALL trainers so scoring still runs
+        # and returns the best available result rather than sending 0 emails
+        state["trainers"] = trainers
         state["category_filter_applied"] = False
         state["no_category_match"] = True
     state["status"] = "category_filtered"
@@ -342,8 +403,13 @@ async def claude_scoring_agent(state: PipelineState) -> PipelineState:
 # ─── Agent 3: Ranking Agent ───────────────────────────────────────────────────
 
 def ranking_agent(state: PipelineState) -> PipelineState:
-    """Ranks validated trainers by score, picks top N"""
-    top_n = state["requirements"].get("top_n", 5)
+    """Ranks validated trainers by score, picks top N.
+    Default top_n raised to 20 so more DevOps-matched trainers receive outreach emails.
+    Callers can pass a custom top_n in the requirement document to override.
+    """
+    top_n = int(state["requirements"].get("top_n") or 20)
+    # Guard: must be between 5 and 50 to avoid runaway sends
+    top_n = max(5, min(top_n, 50))
 
     passed = [t for t in state["validated_trainers"]
               if t.get("passed_filters") and t.get("match_score", 0) > 0]
