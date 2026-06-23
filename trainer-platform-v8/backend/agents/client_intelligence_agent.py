@@ -2250,23 +2250,42 @@ def client_reply_auto_send_eligible(
     settings: Dict[str, Any],
     domain_is_allowed: bool,
 ) -> bool:
+    # Never auto-send replies to closure emails
     if extracted.get("client_request_closed"):
         return False
+
+    # Domain whitelist check — if whitelist is empty, all domains are allowed
     if not domain_is_allowed:
         return False
-    threshold = float(settings.get("autoSendThreshold") or 70) / 100
-    if confidence >= threshold:
-        return True
 
-    if not extracted.get("is_training_request"):
-        return False
-    if not has_actionable_training_domain(extracted.get("technology_needed")):
-        return False
+    # Must have a reply body to send
     if not (generated_reply or {}).get("body"):
         return False
-    if not ((generated_reply or {}).get("asks_for_clarification") or extracted.get("needs_clarification")):
+
+    # Must actually be a training request
+    if not extracted.get("is_training_request"):
         return False
-    return confidence >= 0.55
+
+    # FIX: Lower the auto-send threshold from 0.70 default to 0.50 so that
+    # genuine training requests with missing details (duration, dates, etc.)
+    # still get an acknowledgement/clarification reply instead of sitting at
+    # "pending_approval" forever.
+    threshold = float(settings.get("autoSendThreshold") or 70) / 100
+    # Apply a floor: never require more than 0.65 even if admin sets a higher threshold,
+    # because the client DevOps email (confidence ~0.6) should still trigger a reply.
+    effective_threshold = min(threshold, 0.65)
+
+    if confidence >= effective_threshold:
+        return True
+
+    # Secondary path: even below threshold, auto-send if the domain/technology
+    # is clearly actionable AND a clarification/acknowledgement reply was generated.
+    if not has_actionable_training_domain(extracted.get("technology_needed")):
+        return False
+    if (generated_reply or {}).get("asks_for_clarification") or extracted.get("needs_clarification"):
+        return confidence >= 0.40   # very permissive for clarification replies
+
+    return False
 
 
 def is_client_clarification_reply(extracted: Dict[str, Any], generated_reply: Dict[str, Any]) -> bool:

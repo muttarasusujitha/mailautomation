@@ -401,6 +401,13 @@ async def poll_client_inbox_fallback_job():
             except Exception:
                 watch_active = False
         if status.get("valid") and watch_active:
+            # Gmail watch is active — webhook should deliver new mails.
+            # But STILL run pending-reply sweep to catch any emails that were
+            # stored as "pending_approval" but never auto-sent (e.g. low confidence
+            # emails that got reclassified, or ones that missed the first send attempt).
+            pending = await auto_send_pending_client_replies_smtp(db)
+            if pending:
+                logger.info("Gmail watch active — swept %s pending client replies", len(pending))
             return
         if status.get("valid"):
             try:
