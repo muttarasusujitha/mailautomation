@@ -103,6 +103,7 @@ from agents.client_intelligence_agent import (
     mark_client_requirement_closed,
     merge_requirement_context_for_reply,
     poll_imap_client_inbox,
+    poll_gmail_api_client_inbox,
     process_client_email,
     record_trainer_reply_from_client_inbox,
     renew_gmail_watch,
@@ -4053,6 +4054,34 @@ async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_r
             "message": "SMTP-only mode can send eligible pending replies, but it cannot read new inbox mail.",
         }
 
+    # Use Gmail API if IMAP not configured
+    result = await poll_gmail_api_client_inbox(db)
+    if not result.get("skipped"):
+        await db["gmail_sync"].update_one(
+            {"sync_id": "default"},
+            {"$set": {
+                "last_manual_sync_at": utc_now(),
+                "last_manual_sync_provider": "gmail_api",
+                "last_manual_sync_processed": int(result.get("processed") or 0),
+                "last_manual_sync_auto_sent_existing": int(result.get("auto_sent_existing") or 0),
+                "last_manual_sync_skipped": 0,
+                "last_manual_sync_errors": [],
+            }},
+            upsert=True,
+        )
+        return {
+            "success": True,
+            "provider": "gmail_api",
+            "processed": [],
+            "processed_count": int(result.get("processed") or 0),
+            "skipped": 0,
+            "already_processed": 0,
+            "auto_sent_existing": [],
+            "auto_sent_existing_count": int(result.get("auto_sent_existing") or 0),
+            "errors": [],
+            "message": result.get("message"),
+    
+    # Fallback to IMAP if configured
     if settings.get("inboxProvider") in {"imap", "imap_poll", "imap_polling"}:
         result = await poll_imap_client_inbox(db)
         await db["gmail_sync"].update_one(

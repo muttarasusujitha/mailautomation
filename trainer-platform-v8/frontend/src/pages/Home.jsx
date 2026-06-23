@@ -87,7 +87,7 @@ const CSS = `
   @keyframes slideRight{from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
   @keyframes scaleIn  { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
   @keyframes ping     { 0%{transform:scale(1);opacity:0.7} 100%{transform:scale(2);opacity:0} }
-  @keyframes ticker   { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  /* Ticker animation removed */
   @keyframes workflowAccent {
     0%, 12% { transform: scaleX(1); opacity: 1; }
     18%, 100% { transform: scaleX(0.16); opacity: 0.28; }
@@ -212,88 +212,9 @@ const CSS = `
     background:#22C55E; animation: ping 1.5s ease-out infinite; opacity:0.4;
   }
 
-  /* Ticker */
-  .ticker-wrap {
-    min-width: 0;
-    overflow: hidden;
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 36px, #000 calc(100% - 36px), transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 36px, #000 calc(100% - 36px), transparent);
-  }
-  .ticker-track {
-    display: flex;
-    align-items: center;
-    width: max-content;
-    min-height: 52px;
-    white-space: nowrap;
-    animation: ticker 24s linear infinite;
-    will-change: transform;
-  }
-  .ticker-track:hover { animation-play-state:paused; }
-  .ticker-item {
-    min-height: 52px;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 26px;
-    flex: 0 0 auto;
-    white-space: nowrap;
-    line-height: 1;
-    isolation: isolate;
-  }
-  .ticker-item + .ticker-item { border-left: 1px solid ${T.borderLight}; }
-  .ticker-item span {
-    display: block;
-    font-size: 12.5px;
-    font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: 0.01em;
-    color: ${T.textSecondary};
-  }
-  .hero-ticker {
-    min-height: 52px;
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: stretch;
-    overflow: hidden;
-    background: ${T.surface};
-    border-top: 1px solid ${T.border};
-    border-bottom: 1px solid ${T.border};
-    box-shadow: 0 -8px 30px rgba(15,23,42,0.05);
-  }
-  .hero-ticker-label {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 24px;
-    background: linear-gradient(135deg, ${T.brand}, ${T.brandDark});
-    color: #fff;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .hero-ticker-label::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: -18px;
-    width: 36px;
-    height: 100%;
-    background: ${T.brandDark};
-    transform: skewX(-18deg);
-    z-index: -1;
-  }
-  .hero-ticker .ticker-wrap {
-    display: flex;
-    align-items: center;
-    min-height: 52px;
-    padding-left: 18px;
-  }
+  /* Ticker CSS removed for reduced bundle size */
 
-  /* First screen: navigation + hero + live capability ticker */
+  /* First screen: navigation + hero */
   .hero-stage {
     height: 100svh;
     min-height: 640px;
@@ -939,8 +860,6 @@ const CSS = `
     .cols-mobile-2 { grid-template-columns: repeat(2,1fr) !important; }
     .hero-main { padding: 34px 20px; }
     .hero-image-panel { min-height: 430px; border-radius: 22px !important; }
-    .hero-ticker { min-height: 48px; grid-template-columns: 1fr; }
-    .hero-ticker-label { display: none; }
     .feature-scroll-card { flex-basis: min(270px, 80vw); width: min(270px, 80vw); height: 385px; }
     .workflow-shell { gap: 16px; }
     .workflow-panel-head { padding: 15px 15px 0; }
@@ -1305,13 +1224,7 @@ const _INTEGRATION_NODE_POSITIONS = [
   { x: '17%', y: '28%', z: '58px', scale: '1', angle: '210deg', len: '255px' },
 ]
 
-// ─── Ticker items ─────────────────────────────────────────────
-const TICK = [
-  'Gmail Integration', 'WhatsApp Outreach', 'AI Matching', 'Teams Alerts',
-  'Resume Parsing', 'Reply Tracking', 'Client Inbox', 'Auto Follow-up',
-  'Interview Scheduling', 'Gemini AI', 'Cost Tracking', 'Smart Retry',
-  'Trainer Pipeline', 'Sentiment Analysis', 'Profile Sharing',
-]
+// Live automation flow ticker removed for reduced UI
 
 // ─── Workflow Flow ────────────────────────────────────────────
 const WORKFLOW = [
@@ -1901,24 +1814,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════
-          TRUST TICKER
-      ══════════════════════════════════════════════ */}
-      <div className="hero-ticker" aria-label="Live TrainerSync automation capabilities">
-        <div className="hero-ticker-label">
-          <Sparkles size={14} /> Live automation flow
-        </div>
-        <div className="ticker-wrap">
-          <div className="ticker-track">
-            {[...TICK, ...TICK].map((t, i) => (
-              <div key={`tick-${i}-${t}`} className="ticker-item">
-                <div style={{ width: 4, height: 4, borderRadius: '50%', background: T.brand, opacity: 0.5 }} />
-                <span>{t}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
       </div>
 
       {/* ══════════════════════════════════════════════

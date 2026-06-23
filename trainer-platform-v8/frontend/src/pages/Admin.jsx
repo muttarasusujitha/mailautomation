@@ -71,9 +71,11 @@ const Toggle = ({ checked, onChange, label, desc }) => (
   </div>
 )
 
+const INBOX_PROVIDERS = new Set(['gmail_api', 'imap', 'smtp_only'])
+
 const normalizeClientInboxCfg = (cfg = {}) => ({
   ...cfg,
-  inboxProvider: cfg.inboxProvider === 'gmail_api' ? 'smtp_only' : (cfg.inboxProvider || 'smtp_only'),
+  inboxProvider: INBOX_PROVIDERS.has(cfg.inboxProvider) ? cfg.inboxProvider : 'smtp_only',
 })
 
 export default function Admin() {

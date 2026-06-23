@@ -132,6 +132,8 @@ SIGNATURE = "Best Regards,\nRecruitment Team\nClahan Technologies"
 MONGO_REGEX = "$regex"
 MONGO_OPTIONS = "$options"
 MONGO_SETONEINSERT = "$setOnInsert"
+DUPLICATE_CLARIFICATION_SUPPRESSION_HOURS = 24
+DUPLICATE_UNDATED_REQUIREMENT_HOURS = 24
 
 TRAINING_KEYWORDS = [
     "training", "trainer", "workshop", "corporate training", "need trainer",
@@ -514,6 +516,33 @@ def is_likely_training_email(
         any(marker in haystack for marker in request_markers)
         and any(keyword in haystack for keyword in TRAINING_KEYWORDS)
     )
+
+
+def looks_like_marketing_or_bulk_email(
+    subject: str = "",
+    from_email: str = "",
+    body: str = "",
+    headers: Optional[Dict[str, str]] = None,
+) -> bool:
+    headers = headers or {}
+    precedence = str(headers.get("precedence") or "").lower()
+    list_unsubscribe = str(headers.get("list-unsubscribe") or "").strip()
+    auto_submitted = str(headers.get("auto-submitted") or "").lower()
+    if precedence in {"bulk", "junk", "list"} or list_unsubscribe or (auto_submitted and auto_submitted != "no"):
+        return True
+
+    sender = str(from_email or "").lower()
+    haystack = f"{subject or ''}\n{body or ''}".lower()
+    sender_markers = ("no-reply", "noreply", "newsletter@", "marketing@", "notification@")
+    marketing_markers = (
+        "unsubscribe", "view in browser", "email preferences", "register now",
+        "free live workshop", "free workshop", "webinar", "newsletter",
+        "dear student", "batch start", "batch starts", "placement-focused",
+        "download brochure", "join the", "limited seats", "offer ends",
+    )
+    if any(marker in sender for marker in sender_markers):
+        return True
+    return any(marker in haystack for marker in marketing_markers)
 
 
 def classify_office_mail(subject: str, from_email: str = "", body_preview: str = "") -> str:
@@ -1022,6 +1051,57 @@ def _clean_ai_text(value: Any) -> str:
     return str(value).strip()
 
 
+def _is_thread_reply_subject(subject: Any) -> bool:
+    return bool(re.match(r"^\s*(re|fw|fwd)\s*:", str(subject or ""), flags=re.I))
+
+
+def _has_meaningful_context_value(value: Any) -> bool:
+    text = _clean_ai_text(value).strip().lower()
+    return bool(text and text not in {"none", "null", "n/a", "na", "unknown", "not specified"})
+
+
+def merge_requirement_context_for_reply(extracted: Dict[str, Any], requirement: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """Fill reply-only missing fields from an existing requirement without rewriting the raw extraction."""
+    merged = dict(extracted or {})
+    if not requirement:
+        return merged
+
+    field_sources = {
+        "technology_needed": ("technology_needed", "job_title"),
+        "duration_days": ("duration_days",),
+        "duration_hours": ("duration_hours",),
+        "daily_timing": ("daily_timing", "training_timing"),
+        "participant_count": ("participant_count", "participants"),
+        "audience_level": ("audience_level", "level"),
+        "mode": ("mode", "training_mode"),
+        "location": ("location", "preferred_location"),
+        "budget_per_day": ("budget_per_day",),
+        "budget_total": ("budget_total",),
+        "budget_currency": ("budget_currency",),
+        "timeline_start": ("timeline_start", "start_date", "training_dates"),
+        "timeline_end": ("timeline_end", "end_date"),
+        "special_requirements": ("special_requirements", "job_description"),
+        "language_of_training": ("language_of_training",),
+    }
+    for target, sources in field_sources.items():
+        if _has_meaningful_context_value(merged.get(target)):
+            continue
+        for source in sources:
+            value = requirement.get(source)
+            if _has_meaningful_context_value(value):
+                merged[target] = value
+                break
+
+    if not merged.get("secondary_technologies"):
+        secondary = requirement.get("preferred_skills") or requirement.get("secondary_technologies") or []
+        if secondary:
+            merged["secondary_technologies"] = secondary
+
+    merged["requirement_id"] = requirement.get("requirement_id") or merged.get("requirement_id")
+    merged["requirement_status"] = requirement.get("status") or merged.get("requirement_status")
+    return merged
+
+
 def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Dict[str, Any]:
     defaults = {
         "client_name": None,
@@ -1051,8 +1131,22 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
         "needs_clarification": [],
         "is_training_request": False,
         "sender_is_known_client": False,
+        "marketing_or_bulk_email": False,
     }
     merged = {**defaults, **(extracted or {})}
+    merged["marketing_or_bulk_email"] = looks_like_marketing_or_bulk_email(
+        meta.get("subject") or merged.get("email_subject") or "",
+        meta.get("from_email") or merged.get("client_email") or "",
+        meta.get("clean_body") or meta.get("raw_body") or meta.get("snippet") or "",
+        meta.get("headers") or {},
+    )
+    if merged["marketing_or_bulk_email"]:
+        merged["is_training_request"] = False
+        merged["needs_clarification"] = []
+        try:
+            merged["confidence"] = min(float(merged.get("confidence") or 0.0), 0.2)
+        except Exception:
+            merged["confidence"] = 0.0
     for key in [
         "client_name", "client_company", "client_email", "client_phone", "technology_needed",
         "daily_timing", "audience_level", "mode", "location", "budget_currency",
@@ -1867,6 +1961,7 @@ async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
         "duration": ("duration", "days", "hours", "training hours"),
         "dates": ("date", "start date", "end date", "schedule", "timeline"),
         "timings": ("timing", "time", "daily"),
+        "participants": ("participant", "learner", "attendee", "batch size"),
         "audience": ("audience", "level", "basic", "beginner", "intermediate", "advanced", "mixed"),
         "mode": ("mode", "online", "offline", "classroom", "hybrid"),
         "budget": ("budget", "commercial", "charge", "rate", "price", "cost"),
@@ -1876,6 +1971,7 @@ async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
         "duration": has_any("duration_days", "duration_hours", "duration_text", "training_duration"),
         "dates": has_any("timeline_start", "timeline_end", "training_dates", "start_date", "end_date"),
         "timings": has_any("daily_timing", "timing", "training_timing", "daily_timings"),
+        "participants": has_any("participant_count", "participants", "batch_size"),
         "audience": has_any("audience_level", "level"),
         "mode": has_any("mode", "training_mode", "preferred_mode"),
         "budget": bool(budget),
@@ -1891,6 +1987,7 @@ async def generate_calhan_reply(extracted: dict, context: dict) -> dict:
         ("duration", "Training duration"),
         ("dates", "Preferred training dates"),
         ("timings", "Daily training timings"),
+        ("participants", "Number of participants"),
         ("audience", "Audience level (Beginner / Intermediate / Advanced)"),
         ("mode", "Training mode (Online / Offline / Hybrid)"),
     ]
@@ -2013,6 +2110,7 @@ async def find_duplicate_requirement(extracted: dict, db) -> Optional[dict]:
     query: Dict[str, Any] = {
         "created_at": {"$gte": utc_now() - timedelta(days=7)},
         "technology_needed": {MONGO_REGEX: f"^{re.escape(technology)}$", MONGO_OPTIONS: "i"},
+        "status": {"$nin": ["closed", "completed", "fulfilled", "inactive", "cancelled", "archived"]},
     }
     if not client_email:
         return None
@@ -2022,6 +2120,13 @@ async def find_duplicate_requirement(extracted: dict, db) -> Optional[dict]:
     timeline = _clean_ai_text(extracted.get("timeline_start"))
     if timeline:
         query["timeline_start"] = {MONGO_REGEX: f"^{re.escape(timeline)}$", MONGO_OPTIONS: "i"}
+    elif not _is_thread_reply_subject(extracted.get("email_subject")):
+        query["created_at"] = {"$gte": utc_now() - timedelta(hours=DUPLICATE_UNDATED_REQUIREMENT_HOURS)}
+        query["$or"] = [
+            {"timeline_start": {"$exists": False}},
+            {"timeline_start": None},
+            {"timeline_start": ""},
+        ]
 
     participant_count = extracted.get("participant_count")
     if participant_count not in (None, ""):
@@ -2350,7 +2455,12 @@ def client_reply_auto_send_eligible(
 ) -> bool:
     if extracted.get("client_request_closed"):
         return False
+    if extracted.get("marketing_or_bulk_email"):
+        return False
     if not domain_is_allowed:
+        return False
+    whitelist = parse_client_domain_csv(settings.get("clientDomainsWhitelist", ""))
+    if not whitelist and not extracted.get("sender_is_known_client"):
         return False
     threshold = float(settings.get("autoSendThreshold") or 70) / 100
     if confidence >= threshold:
@@ -2390,9 +2500,10 @@ async def find_existing_client_clarification_request(
 ) -> Optional[dict]:
     if not from_email or not is_client_clarification_reply(extracted or {}, generated_reply or {}):
         return None
+    sent_cutoff = utc_now() - timedelta(hours=DUPLICATE_CLARIFICATION_SUPPRESSION_HOURS)
     query: Dict[str, Any] = {
         "from_email": {MONGO_REGEX: f"^{re.escape(from_email)}$", MONGO_OPTIONS: "i"},
-        "sent_at": {"$nin": [None, ""]},
+        "sent_at": {"$gte": sent_cutoff},
         "status": {"$in": ["auto_sent", "approved"]},
         "$or": [
             {"generated_reply.asks_for_clarification": True},
@@ -2868,6 +2979,89 @@ def send_gmail_reply(
         payload["threadId"] = thread_id
 
     return gmail_service.users().messages().send(userId="me", body=payload).execute()
+
+
+async def poll_gmail_api_client_inbox(db) -> Dict[str, Any]:
+    """Poll Gmail inbox using Gmail API instead of IMAP"""
+    try:
+        gmail_service = get_gmail_service()
+    except Exception as exc:
+        return {"processed": 0, "skipped": f"Gmail OAuth not configured: {str(exc)}"}
+
+    processed = 0
+    auto_sent_existing = []
+    
+    try:
+        # Fetch last 20 unread messages from inbox
+        results = gmail_service.users().messages().list(
+            userId="me",
+            q="is:unread label:INBOX",
+            maxResults=20
+        ).execute()
+        
+        message_ids = [msg['id'] for msg in results.get('messages', [])]
+        
+        for msg_id in message_ids:
+            try:
+                # Fetch full message
+                msg = gmail_service.users().messages().get(
+                    userId="me",
+                    id=msg_id,
+                    format='full'
+                ).execute()
+                
+                headers = {h['name']: h['value'] for h in msg['payload'].get('headers', [])}
+                subject = headers.get('Subject', '')
+                from_email = headers.get('From', '')
+                message_id_header = headers.get('Message-ID', '')
+                
+                # Check if already processed
+                if await db['client_emails'].find_one({'email_id': msg_id}):
+                    continue
+                
+                # Extract body
+                body = ''
+                if 'parts' in msg['payload']:
+                    for part in msg['payload']['parts']:
+                        if part['mimeType'] == 'text/plain':
+                            data = part['body'].get('data', '')
+                            if data:
+                                body = base64.urlsafe_b64decode(data).decode('utf-8')
+                                break
+                elif 'body' in msg['payload']:
+                    data = msg['payload']['body'].get('data', '')
+                    if data:
+                        body = base64.urlsafe_b64decode(data).decode('utf-8')
+                
+                # Store email in database
+                email_doc = {
+                    'email_id': msg_id,
+                    'message_id_header': message_id_header,
+                    'subject': subject,
+                    'from_email': from_email,
+                    'body': body,
+                    'received_at': utc_now(),
+                    'status': 'pending_review',
+                    'source': 'gmail_api',
+                }
+                
+                await db['client_emails'].insert_one(email_doc)
+                processed += 1
+            except Exception as e:
+                logger.error(f"Error processing Gmail message {msg_id}: {str(e)}")
+                continue
+        
+        return {
+            "processed": processed,
+            "auto_sent_existing": len(auto_sent_existing),
+            "message": f"Fetched {processed} new emails from Gmail inbox"
+        }
+    except Exception as exc:
+        return {
+            "processed": 0,
+            "skipped": f"Gmail API error: {str(exc)}",
+            "error": str(exc)
+        }
 
 
 async def poll_imap_client_inbox(db) -> Dict[str, Any]:

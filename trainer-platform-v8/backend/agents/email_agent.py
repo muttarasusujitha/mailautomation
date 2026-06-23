@@ -323,7 +323,7 @@ def _send_via_smtp(smtp_host: str, smtp_port: int, gmail_user: str, gmail_pass: 
 
 def _handle_smtp_auth_error(smtp_config: Dict[str, Any], to: str, subject: str, body: str, from_name: str, tracking_url: str, can_use_gmail_oauth: bool) -> tuple:
     """Handle SMTP authentication errors with OAuth fallback."""
-    if bool(smtp_config.get("useGmailOAuth")) and can_use_gmail_oauth:
+    if can_use_gmail_oauth:
         logger.warning("SMTP authentication failed for Gmail; falling back to Gmail OAuth")
         return send_gmail_oauth_message(to, subject, body, from_name, tracking_url)
     err = "Gmail SMTP authentication failed - use a valid 16-character Gmail App Password"
