@@ -6,6 +6,11 @@
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "python.defaultInterpreterPath": "./backend/venv/bin/python",
+    "python.analysis.diagnosticSeverityOverrides": {
+      "reportUnusedVariable": "none",
+      "reportUnusedImport": "none",
+      "reportUndefinedVariable": "warning"
+    },
     "emmet.includeLanguages": { "javascript": "javascriptreact" },
     "tailwindCSS.includeLanguages": { "javascript": "javascript", "html": "HTML" }
   },
