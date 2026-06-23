@@ -2425,7 +2425,8 @@ async def auto_contact_shortlisted_trainers(db, requirement: dict, shortlist: di
     participants = str(requirement.get("participant_count") or requirement.get("participants") or "").strip()
     results = []
 
-    outreach_limit = min(5, max(3, int(requirement.get("top_n") or 5)))
+    # Allow up to top_n trainers to be contacted; floor at 5, ceiling at 50
+    outreach_limit = min(50, max(5, int(requirement.get("top_n") or 20)))
     for item in top_trainers[:outreach_limit]:
         trainer_id = item.get("trainer_id")
         trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) if trainer_id else None
@@ -2569,7 +2570,7 @@ async def create_requirement_from_email(extracted: dict, email_id: str, db) -> s
         "preferred_location": extracted.get("location") or "",
         "must_have_linkedin": False,
         "must_have_resume": False,
-        "top_n": 5,
+        "top_n": 20,   # contact top 20 matched trainers per requirement (was hardcoded 5)
         "job_title": f"{technology} Trainer",
         "job_description": extracted.get("email_summary") or extracted.get("special_requirements") or "",
         "send_emails": True,
