@@ -101,6 +101,7 @@ from agents.client_intelligence_agent import (
     is_likely_training_email,
     is_client_clarification_reply,
     mark_client_requirement_closed,
+    merge_requirement_context_for_reply,
     poll_imap_client_inbox,
     process_client_email,
     record_trainer_reply_from_client_inbox,
@@ -3005,6 +3006,7 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
     domain_is_allowed = not whitelist or domain in whitelist
 
     duplicate_clarification = None
+    auto_send_extracted = extracted
     if extracted.get("client_request_closed"):
         requirement_id = await mark_client_requirement_closed(
             db,
@@ -3027,14 +3029,20 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
         generated_reply = {}
         requirement_id = None
     else:
-        generated_reply = await generate_calhan_reply(extracted, {
+        requirement_id = await ensure_requirement_from_email(extracted, message_id, db)
+        requirement_context = await db["requirements"].find_one(
+            {"requirement_id": requirement_id},
+            {"_id": 0},
+        ) if requirement_id else None
+        reply_extracted = merge_requirement_context_for_reply(extracted, requirement_context)
+        auto_send_extracted = reply_extracted
+        generated_reply = await generate_calhan_reply(reply_extracted, {
             "subject": processed.get("subject", ""),
             "reply_signature": settings.get("replySignature"),
         })
-        requirement_id = await ensure_requirement_from_email(extracted, message_id, db)
         confidence = float(extracted.get("confidence") or 0)
         auto_send_eligible = client_reply_auto_send_eligible(
-            extracted,
+            auto_send_extracted,
             generated_reply,
             confidence,
             settings,
@@ -3045,7 +3053,7 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
             from_email=processed.get("from_email", ""),
             requirement_id=requirement_id or "",
             generated_reply=generated_reply,
-            extracted=extracted,
+            extracted=auto_send_extracted,
             exclude_email_id=processed.get("email_id") or message_id,
         ) if auto_send_eligible else None
         if duplicate_clarification:
@@ -3057,7 +3065,7 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
     confidence = float(extracted.get("confidence") or 0)
     if not duplicate_clarification:
         auto_send_eligible = client_reply_auto_send_eligible(
-            extracted,
+            auto_send_extracted,
             generated_reply,
             confidence,
             settings,
@@ -3178,29 +3186,46 @@ async def _auto_send_pending_client_reply(db, inbox_doc: dict, gmail_service, se
             "existing_email_id": existing_clarification.get("email_id"),
         }
 
-    send_result = send_gmail_reply(
-        gmail_service,
-        to_email=inbox_doc["from_email"],
-        subject=generated_reply.get("subject") or f"Re: {inbox_doc.get('subject') or 'Training Requirement'}",
-        body=generated_reply.get("body", ""),
-        thread_id=inbox_doc.get("thread_id") or "",
-        in_reply_to=inbox_doc.get("message_id_header") or "",
-    )
-    await db["client_emails"].update_one(
-        {"email_id": inbox_doc["email_id"], "status": "pending_approval", "sent_at": None},
-        {"$set": {
+    try:
+        send_result = send_gmail_reply(
+            gmail_service,
+            to_email=inbox_doc["from_email"],
+            subject=generated_reply.get("subject") or f"Re: {inbox_doc.get('subject') or 'Training Requirement'}",
+            body=generated_reply.get("body", ""),
+            thread_id=inbox_doc.get("thread_id") or "",
+            in_reply_to=inbox_doc.get("message_id_header") or "",
+        )
+        await db["client_emails"].update_one(
+            {"email_id": inbox_doc["email_id"], "status": "pending_approval", "sent_at": None},
+            {"$set": {
+                "status": "auto_sent",
+                "auto_send_eligible": True,
+                "gmail_send_result": send_result,
+                "sent_at": utc_now(),
+                "sent_by": "auto",
+            }},
+        )
+        return {
             "status": "auto_sent",
-            "auto_send_eligible": True,
-            "gmail_send_result": send_result,
-            "sent_at": utc_now(),
-            "sent_by": "auto",
-        }},
-    )
-    return {
-        "status": "auto_sent",
-        "email_id": inbox_doc["email_id"],
-        "requirement_id": inbox_doc.get("requirement_id"),
-    }
+            "email_id": inbox_doc["email_id"],
+            "requirement_id": inbox_doc.get("requirement_id"),
+        }
+    except Exception as exc:
+        error_msg = f"Gmail send failed: {str(exc)}"
+        logger.error(f"Auto-send failed for email {inbox_doc.get('email_id')}: {error_msg}")
+        await db["client_emails"].update_one(
+            {"email_id": inbox_doc["email_id"], "status": "pending_approval", "sent_at": None},
+            {"$set": {
+                "status": "auto_send_failed",
+                "auto_send_error": error_msg,
+                "auto_send_error_at": utc_now(),
+            }},
+        )
+        return {
+            "status": "auto_send_failed",
+            "email_id": inbox_doc["email_id"],
+            "error": error_msg,
+        }
 
 
 def _parse_calendar_datetime(value: str) -> Optional[datetime]:
@@ -5219,6 +5244,47 @@ async def test_email_settings(payload: dict = {}):
     if not success:
         raise HTTPException(400, error or "Email test failed")
     return {"message": "Test email sent", "to_email": to_email}
+
+
+@router.get("/admin/auto-send/diagnose")
+async def diagnose_auto_send():
+    """Diagnose why client emails are not being auto-sent"""
+    db = get_db()
+    settings = await get_admin_email_config(db)
+    
+    diagnostics = {
+        "auto_send_enabled": settings.get("autoSendEnabled", False),
+        "auto_send_threshold": float(settings.get("autoSendThreshold", 70)) / 100,
+        "client_domains_whitelist": settings.get("clientDomainsWhitelist", "").split(",") if settings.get("clientDomainsWhitelist") else [],
+        "gmail_configured": bool(settings.get("gmailUser") or settings.get("clientId")),
+        "smtp_configured": bool(settings.get("smtpUser") and settings.get("smtpPass")),
+        "reply_signature": "✓" if settings.get("replySignature") else "✗ Missing",
+    }
+    
+    # Check for pending emails
+    pending_emails = await db["client_emails"].find(
+        {"status": "pending_approval", "sent_at": None},
+        {"_id": 0, "email_id": 1, "from_email": 1, "subject": 1, "confidence": 1, "auto_send_eligible": 1}
+    ).limit(10).to_list(10)
+    
+    # Check for failed auto-sends
+    failed_sends = await db["client_emails"].find(
+        {"status": "auto_send_failed"},
+        {"_id": 0, "email_id": 1, "from_email": 1, "auto_send_error": 1, "auto_send_error_at": 1}
+    ).sort("auto_send_error_at", -1).limit(5).to_list(5)
+    
+    return {
+        "settings": diagnostics,
+        "pending_count": len(pending_emails),
+        "pending_emails": pending_emails,
+        "failed_sends_count": len(failed_sends),
+        "failed_sends": failed_sends,
+        "requirements": {
+            "auto_send_enabled_required": "Must be TRUE for auto-send",
+            "whitelist_or_known_client_required": "Whitelist domains OR email must be from known client",
+            "confidence_threshold_required": f"Email confidence must be >= {diagnostics['auto_send_threshold']*100}%",
+        }
+    }
 
 
 @router.post("/admin/whatsapp/test")
@@ -17273,6 +17339,11 @@ async def regenerate_client_reply(email_id: str, payload: dict = {}):
         "instruction": payload.get("instruction", ""),
     }
     extracted = doc.get("extracted") or {}
+    requirement_context = await db["requirements"].find_one(
+        {"requirement_id": doc.get("requirement_id")},
+        {"_id": 0},
+    ) if doc.get("requirement_id") else None
+    extracted = merge_requirement_context_for_reply(extracted, requirement_context)
     if payload.get("instruction"):
         extracted = {
             **extracted,
