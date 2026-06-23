@@ -455,7 +455,7 @@ def _is_same_person(existing: Dict[str, Any], profile: Dict[str, Any]) -> bool:
 
     if existing_name and profile_name:
         return existing_name == profile_name
-    return True
+    return False  # If we can't verify via email or name, they are different people
 
 
 def _as_number(value: Any, default: Optional[float] = None) -> Optional[float]:
