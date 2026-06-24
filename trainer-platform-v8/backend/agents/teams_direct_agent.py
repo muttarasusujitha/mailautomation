@@ -175,6 +175,67 @@ async def _graph_get_me(access_token: str) -> Dict[str, Any]:
     return payload
 
 
+async def _find_existing_one_on_one_chat(access_token: str, sender_upn: str, recipient_upn: str) -> str:
+    """Return the chat-id of the existing 1-on-1 chat between sender and recipient.
+
+    The Graph API returns HTTP 201 with an existing chat-id when you POST
+    /chats with the same pair of members — effectively an upsert — so a
+    separate lookup is only needed as a belt-and-suspenders optimisation to
+    avoid the write round-trip on repeat messages.
+
+    Strategy:
+      1. GET /me/chats?$filter=chatType eq 'oneOnOne'&$expand=members
+         and scan for a chat whose members contain recipient_upn.
+      2. If found, return it.  If not (new conversation or API paging
+         hasn't surfaced it), fall through — the caller will POST /chats
+         which safely returns the existing chat-id via Graph's upsert
+         behaviour.
+    """
+    recipient_lower = _clean(recipient_upn).lower()
+    url = (
+        f"{GRAPH_BASE}/me/chats"
+        "?$filter=chatType eq 'oneOnOne'"
+        "&$expand=members($select=userId,email)"
+        "&$top=50"
+        "&$select=id,chatType"
+    )
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            response = await client.get(
+                url,
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+        if response.status_code >= 400:
+            # Non-fatal: fall through to create path.
+            return ""
+        data = response.json()
+        for chat in data.get("value") or []:
+            for member in chat.get("members") or []:
+                member_email = _clean(member.get("email", "")).lower()
+                member_user_id = _clean(member.get("userId", "")).lower()
+                if member_email == recipient_lower or member_user_id == recipient_lower:
+                    return chat.get("id") or ""
+    except Exception:
+        pass  # Non-fatal: fall through to create path.
+    return ""
+
+
+async def _get_or_create_one_on_one_chat(access_token: str, sender_upn: str, recipient_upn: str) -> str:
+    """Return an existing 1-on-1 chat-id or create a new one.
+
+    Always tries to find an existing chat first so that the same trainer
+    is not scattered across multiple separate chats when contacted repeatedly.
+    """
+    existing = await _find_existing_one_on_one_chat(access_token, sender_upn, recipient_upn)
+    if existing:
+        return existing
+    # Either no existing chat was found or the lookup failed gracefully.
+    # POST /chats — Graph API performs an upsert: if the pair already has
+    # a chat it returns the existing chat-id (HTTP 200) rather than
+    # creating a duplicate (HTTP 201).
+    return await _create_one_on_one_chat(access_token, sender_upn, recipient_upn)
+
+
 async def _create_one_on_one_chat(access_token: str, sender_upn: str, recipient_upn: str) -> str:
     members = [
         {
@@ -279,7 +340,7 @@ async def send_trainer_teams_direct_message(
                 "Teams Direct Chat recipient cannot be the same as the sender. "
                 "Test with another Teams user or guest account."
             )
-        chat_id = await _create_one_on_one_chat(access_token, sender_upn, teams_email)
+        chat_id = await _get_or_create_one_on_one_chat(access_token, sender_upn, teams_email)
         message_body = f"Subject: {subject}\n\n{body}" if subject else body
         message = await _send_chat_message(access_token, chat_id, message_body)
         await db["teams_direct_logs"].update_one(

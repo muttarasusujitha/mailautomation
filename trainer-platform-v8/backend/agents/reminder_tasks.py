@@ -1,4 +1,5 @@
 import asyncio
+import threading
 from utils.time_utils import utc_now
 from typing import Any, Dict
 
@@ -13,6 +14,41 @@ from agents.whatsapp_agent import (
     send_interview_whatsapp,
     send_whatsapp_message,
 )
+
+
+# ─── Per-worker MongoDB connection pool ───────────────────────────────────────
+# Celery workers cannot share a Motor client across tasks because each
+# asyncio.run() call in send_interview_reminder_task() creates a brand-new
+# event loop — a client bound to a previous loop would be unusable.
+#
+# The approach here: keep ONE client per *thread* (i.e. per worker process /
+# gevent greenlet).  threading.local() ensures each worker gets its own
+# instance, which is created once on first use and reused for all subsequent
+# tasks in that worker.  This gives real connection pooling within a worker
+# without any cross-loop sharing.
+_thread_local = threading.local()
+
+
+def _get_motor_client() -> AsyncIOMotorClient:
+    """Return the thread-local Motor client, creating it on first access."""
+    if not getattr(_thread_local, "client", None):
+        settings = get_settings()
+        # maxPoolSize=5 is conservative: a single Celery worker process runs
+        # tasks sequentially (one asyncio.run per task), so it will never
+        # open more than one socket at a time.  The pool avoids the latency
+        # of tearing down and rebuilding the TCP handshake + auth between tasks.
+        _thread_local.client = AsyncIOMotorClient(
+            settings.mongodb_uri,
+            maxPoolSize=5,
+            serverSelectionTimeoutMS=8000,
+        )
+    return _thread_local.client
+
+
+def _get_db():
+    """Return the Motor database from the thread-local pooled client."""
+    settings = get_settings()
+    return _get_motor_client()[settings.mongodb_db]
 
 
 async def _admin_email_config(db) -> Dict[str, Any]:
@@ -108,9 +144,7 @@ async def _send_teams_card(db, reminder: Dict[str, Any]) -> Dict[str, Any]:
 
 
 async def _send_interview_reminder(reminder_id: str, celery_task_id: str = "") -> Dict[str, Any]:
-    settings = get_settings()
-    client = AsyncIOMotorClient(settings.mongodb_uri)
-    db = client[settings.mongodb_db]
+    db = _get_db()
     now = utc_now()
 
     try:
@@ -272,8 +306,6 @@ async def _send_interview_reminder(reminder_id: str, celery_task_id: str = "") -
             }},
         )
         return {"success": False, "status": "failed", "error": str(exc), "reminder_id": reminder_id}
-    finally:
-        client.close()
 
 
 @celery_app.task(bind=True, name="trainersync.send_interview_reminder", max_retries=3)

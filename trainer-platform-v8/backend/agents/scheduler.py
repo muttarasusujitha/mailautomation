@@ -8,6 +8,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from datetime import datetime, timedelta
 from utils.time_utils import utc_now
 import logging
+import os
 import httpx
 from database import get_db
 from agents.email_agent import send_email_async, compose_retry_email
@@ -26,6 +27,19 @@ from agents.excel_store_agent import sync_business_excel
 
 scheduler = AsyncIOScheduler()
 logger = logging.getLogger(__name__)
+
+
+def _local_api_url(path: str) -> str:
+    """Build a localhost URL for internal self-calls.
+
+    Reads APP_HOST / APP_PORT from the environment (set by the process
+    supervisor or Docker entrypoint) so the scheduler works correctly
+    even when the app is bound to a non-default port.  Falls back to
+    127.0.0.1:8000 to preserve current behaviour for bare local runs.
+    """
+    host = os.getenv("APP_HOST", "127.0.0.1").strip()
+    port = os.getenv("APP_PORT", "8000").strip()
+    return f"http://{host}:{port}{path}"
 
 # ─── Runtime config (updated via API without restart) ─────────────────────────
 _config = {
@@ -275,14 +289,30 @@ async def check_and_update_replies():
             m = _re.search(r'<([^>]+)>', reply["from_email"])
             from_email_clean = m.group(1) if m else reply["from_email"].strip()
 
+            # Use a case-insensitive exact match instead of $regex so MongoDB
+            # can use a collation index on to_email rather than doing a full
+            # collection scan on every reply.
+            #
+            # RECOMMENDED INDEX (run once in MongoDB shell or a migration):
+            #   db.email_logs.createIndex(
+            #       { to_email: 1, status: 1 },
+            #       { collation: { locale: "en", strength: 2 }, background: true }
+            #   )
+            #   db.conversations.createIndex(
+            #       { to_email: 1, direction: 1 },
+            #       { collation: { locale: "en", strength: 2 }, background: true }
+            #   )
+            _ci_collation = {"locale": "en", "strength": 2}
             log = await db["email_logs"].find_one(
-                {"to_email": {"$regex": from_email_clean, "$options": "i"}, "status": "sent"},
-                sort=[("created_at", -1)]
+                {"to_email": from_email_clean, "status": "sent"},
+                sort=[("created_at", -1)],
+                collation=_ci_collation,
             )
             if not log:
                 log = await db["conversations"].find_one(
-                    {"to_email": {"$regex": from_email_clean, "$options": "i"}, "direction": "sent"},
-                    sort=[("sent_at", -1)]
+                    {"to_email": from_email_clean, "direction": "sent"},
+                    sort=[("sent_at", -1)],
+                    collation=_ci_collation,
                 )
             if log:
                 req_id     = log.get("requirement_id")
@@ -412,7 +442,7 @@ async def poll_client_inbox_fallback_job():
         if status.get("valid"):
             try:
                 async with httpx.AsyncClient(timeout=180) as client:
-                    response = await client.post("http://127.0.0.1:8000/api/gmail/sync-now?limit=25")
+                    response = await client.post(_local_api_url("/api/gmail/sync-now?limit=25"))
                     response.raise_for_status()
                     result = response.json()
                 if result.get("processed_count") or result.get("auto_sent_existing_count"):
@@ -457,7 +487,7 @@ async def discover_linkedin_client_leads_job():
     try:
         async with httpx.AsyncClient(timeout=240) as client:
             response = await client.post(
-                "http://127.0.0.1:8000/api/client-leads/search-public",
+                _local_api_url("/api/client-leads/search-public"),
                 json={
                     "auto_discover": True,
                     "max_results": 8,
