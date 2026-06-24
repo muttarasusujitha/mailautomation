@@ -6071,7 +6071,9 @@ async def delete_toc_knowledge(key: str):
     return {"success": True, "deleted": _toc_key(key)}
 
 
-@router.post("/toc/generate")
+@router.post("/toc/generate", responses={
+    400: {"description": "Missing required fields, invalid duration, or missing custom topics"}
+})
 async def generate_training_toc(payload: dict, request: Request):
     required = ["requirement_id", "trainer_id", "technology", "duration_days"]
     missing = [field for field in required if not payload.get(field)]
@@ -6150,7 +6152,10 @@ async def generate_training_toc(payload: dict, request: Request):
     }
 
 
-@router.post("/toc/generate-pdf")
+@router.post("/toc/generate-pdf", responses={
+    400: {"description": "Missing TOC ID"},
+    404: {"description": "TOC document not found"}
+})
 async def generate_toc_pdf(payload: dict):
     toc_id = payload.get("toc_id")
     if not toc_id:
