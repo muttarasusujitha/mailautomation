@@ -233,7 +233,8 @@ def _make_monthly_rows(data: dict) -> list[list[Any]]:
     return rows
 
 
-def _make_decision_rows(decisions: list[dict], shortlists: list[dict]) -> list[list[Any]]:
+def _make_decision_rows(decisions: list[dict]) -> list[list[Any]]:
+    """Rows for post-interview decisions only (always have a Decision ID)."""
     rows = []
     for decision in decisions:
         decision_value = (decision.get("decision") or {}).get("decision") or ""
@@ -249,19 +250,23 @@ def _make_decision_rows(decisions: list[dict], shortlists: list[dict]) -> list[l
             _first(decision, "reply_text"),
             _first(decision, "created_at", "updated_at"),
         ])
+    return rows
+
+
+def _make_shortlist_pipeline_rows(shortlists: list[dict]) -> list[list[Any]]:
+    """Rows for shortlist pipeline trainer statuses (selected / rejected / stopped)."""
+    rows = []
     for shortlist in shortlists:
         for trainer in shortlist.get("top_trainers") or []:
             status = _first(trainer, "pipeline_status", "status")
             if status in {"selected", "rejected", "declined", "stopped_selected"}:
                 rows.append([
-                    "",
+                    _first(shortlist, "shortlist_id", "requirement_id"),
                     _first(shortlist, "requirement_id"),
                     _first(trainer, "name", "trainer_name"),
                     _first(trainer, "trainer_id"),
-                    "",
-                    "selected" if status == "selected" else "rejected/stopped",
+                    "selected" if status == "selected" else "rejected / stopped",
                     status,
-                    "Shortlist pipeline status",
                     _first(trainer, "observation", "notes", "reason"),
                     _first(trainer, "updated_at", "selected_at", "stopped_at"),
                 ])
@@ -355,10 +360,14 @@ async def sync_business_excel(db) -> dict:
             "Month", "No of Requirements", "Selected People", "Rejected People", "No of Client POs",
             "No of Invoices", "PO Value", "Invoice Value",
         ], _make_monthly_rows(data)),
-        ("Selected Rejected", [
+        ("Post-Interview Decisions", [
             "Decision ID", "Requirement ID", "Trainer", "Trainer ID", "Client Email", "Decision",
             "Status", "Reason", "Observation / Reply", "Date",
-        ], _make_decision_rows(data["decisions"], data["shortlists"])),
+        ], _make_decision_rows(data["decisions"])),
+        ("Shortlist Pipeline", [
+            "Shortlist ID", "Requirement ID", "Trainer", "Trainer ID", "Decision",
+            "Pipeline Status", "Observation / Notes", "Date",
+        ], _make_shortlist_pipeline_rows(data["shortlists"])),
         ("Client PO Details", [
             "No", "PO Type", "PO Number", "Requirement ID", "Trainer", "Company / Client",
             "Client Email", "PO Date", "Status", "Amount", "Source", "Created/Updated",
@@ -392,6 +401,8 @@ async def sync_business_excel(db) -> dict:
         "counts": {
             "trainers": len(data["trainers"]),
             "requirements": len(data["requirements"]),
+            "decisions": len(data["decisions"]),
+            "shortlists": len(data["shortlists"]),
             "client_pos": len(data["client_pos"]),
             "purchase_orders": len(data["purchase_orders"]),
             "invoices": len(data["invoices"]),
