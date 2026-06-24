@@ -258,10 +258,8 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'rate_gap_resolution', label: '⚖️ Rate Gap Resolution' },
   { value: 'client_rate_gap_option1', label: '✅ Client Chose Option 1 (Proceed)' },
   { value: 'client_rate_gap_option2', label: '❌ Client Chose Option 2 (Alternative)' },
-  { value: 'trainer_rate_discussion', label: '💬 Trainer Rate Discussion' },
-  { value: 'trainer_rate_accepted', label: '✅ Trainer Rate Accepted' },
-  { value: 'trainer_rate_rejected', label: '❌ Trainer Rate Rejected' },
   { value: 'client_toc_details_request', label: '📋 Client TOC Details Request' },
+  { value: 'trainer_rate_discussion', label: '💬 Trainer Rate Discussion' },
   { value: 'mail3', label: 'Mail 3 - Slot Booking' },
   { value: 'mail4', label: 'Mail 4 - Interview Schedule' },
   { value: 'mail5_ok', label: 'Mail 5 - Selection' },
@@ -3372,25 +3370,53 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     }
     
     if (manualMailType === 'client_toc_details_request') {
-      // Ask client for TOC preparation details (day, time, session format)
-      try {
-        const tocRes = await api.post('/shortlists/send-mail', {
-          trainer_id: trainer.trainer_id,
-          trainer_name: trainer.name,
-          to_email: req.client_email,
-          requirement_id: req.requirement_id,
-          subject: `Training Preparation – ${req.technology_needed} | Please Confirm Session Details`,
-          body: `Dear ${req.client_name || 'Team'},\n\nCongratulations! Trainer ${trainer.name} has been confirmed for your ${req.technology_needed} training engagement.\n\nTo finalize the training schedule and prepare the Terms of Collaboration (ToC), we need a few details from you:\n\n**1. Preferred Training Days & Time:**\nPlease confirm your preferred schedule:\n• Days: (e.g., Monday to Friday, specific days)\n• Time: (e.g., 10:00 AM - 12:00 PM IST)\n• Duration: (Number of days/weeks)\n\n**2. Session Format:**\nPlease specify your preferred training format:\n• Online (Virtual via Zoom/Teams/Google Meet)\n• Offline (In-person at your location)\n• Hybrid (Mix of online and offline sessions)\n\n**3. Participant Details:**\n• Number of participants attending\n• Technical requirements (software, tools, setup)\n• Any specific learning objectives or focus areas\n\nOnce we receive these details, we will prepare the complete ToC document and share it with you for final approval.\n\nPlease reply with the above information at your earliest convenience so we can proceed with scheduling.\n\nWe look forward to a successful training engagement with Trainer ${trainer.name}.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
-          mail_type: 'client_toc_details_request',
-        })
-        
-        if (tocRes?.data?.success) {
-          toast.success(`📋 TOC details request sent to ${req.client_name || 'client'}`)
-        } else {
-          toast.error(tocRes?.data?.error || 'Failed to send TOC details request')
+      // Check if client sent TOC details or not
+      const clientSentDetails = confirm('Did client send TOC details?\n\nOK = Yes, details received → Send TOC to trainer\nCancel = No, not received → Send reminder to client')
+      
+      if (clientSentDetails) {
+        // CLIENT SENT DETAILS → Prepare TOC and send to trainer
+        try {
+          const tocRes = await api.post('/shortlists/send-mail', {
+            trainer_id: trainer.trainer_id,
+            trainer_name: trainer.name,
+            to_email: trainer.email,
+            requirement_id: req.requirement_id,
+            subject: `Terms of Collaboration (ToC) – ${req.technology_needed} Training | ${req.client_name || 'Client'}`,
+            body: `Dear ${trainer.name},\n\nWe are pleased to share the Terms of Collaboration (ToC) document for your upcoming training engagement.\n\n**Training Engagement Details:**\nClient: ${req.client_name || 'TBD'}\nTechnology: ${req.technology_needed}\nTraining Rate: ₹${parseInt(prompt('Enter trainer rate (e.g., 45000)') || 0).toLocaleString('en-IN')} per day\n\n**Client's Preferred Session Details:**\n${prompt('Paste client-provided session details (days, time, format, participants):') || 'Details to be confirmed'}\n\n**Next Steps:**\n1. Please review and confirm your availability for the proposed schedule\n2. Provide any special requirements or prerequisites for the training setup\n3. Confirm the training delivery approach (online/offline/hybrid as specified)\n\nOnce we receive your confirmation, we will finalize the ToC document with both parties and proceed with scheduling.\n\nPlease respond with your confirmation and any clarifications needed at your earliest convenience.\n\nWe look forward to a successful training engagement!\n\nBest Regards,\nRecruitment Team,\nClahan Technologies`,
+            mail_type: 'mail6_toc',
+          })
+          
+          if (tocRes?.data?.success) {
+            toast.success(`✅ TOC document prepared and sent to ${trainer.name}`)
+            toast.success(`📄 Client details have been shared with trainer`)
+          } else {
+            toast.error(tocRes?.data?.error || 'Failed to send TOC to trainer')
+          }
+        } catch (e) {
+          toast.error(e.response?.data?.detail || e.message || 'Error sending TOC to trainer')
         }
-      } catch (e) {
-        toast.error(e.response?.data?.detail || e.message || 'Error sending TOC details request')
+      } else {
+        // CLIENT DIDN'T SEND DETAILS → Send reminder to client
+        try {
+          const reminderRes = await api.post('/shortlists/send-mail', {
+            trainer_id: trainer.trainer_id,
+            trainer_name: trainer.name,
+            to_email: req.client_email,
+            requirement_id: req.requirement_id,
+            subject: `Follow-up: Training Session Details Required – ${req.technology_needed}`,
+            body: `Dear ${req.client_name || 'Team'},\n\nWe hope you are doing well.\n\nWe recently shared a request for training session details (preferred days, time, session format, and participant information) for your ${req.technology_needed} training engagement with Trainer ${trainer.name}.\n\nWe have not yet received your response. To proceed with finalizing the training schedule and preparing the comprehensive Terms of Collaboration (ToC) document, we urgently need the following information from you:\n\n**1. Preferred Training Days & Time:**\n• Days: (e.g., Monday to Friday, or specific days)\n• Time: (e.g., 10:00 AM - 12:00 PM IST)\n• Total Duration: (Number of days/weeks for the training)\n\n**2. Session Format:**\n• Online (Virtual via Zoom/Teams/Google Meet)\n• Offline (In-person at your location)\n• Hybrid (Mix of online and offline sessions)\n\n**3. Participant Details:**\n• Total number of participants\n• Technical requirements and setup needed\n• Specific learning objectives or focus areas\n\nOnce we receive these details, we will immediately coordinate with Trainer ${trainer.name} to finalize the schedule and prepare the ToC document for your review.\n\nKindly provide this information at your earliest convenience so we can proceed without further delay.\n\nIf you have any questions or need clarification on any points, please feel free to reach out.\n\nThank you for your prompt attention to this matter.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+            mail_type: 'client_toc_details_followup',
+          })
+          
+          if (reminderRes?.data?.success) {
+            toast.success(`🔔 Reminder sent to ${req.client_name || 'client'}`)
+            toast.info(`📋 Waiting for client to provide TOC details`)
+          } else {
+            toast.error(reminderRes?.data?.error || 'Failed to send reminder')
+          }
+        } catch (e) {
+          toast.error(e.response?.data?.detail || e.message || 'Error sending reminder')
+        }
       }
       return
     }
