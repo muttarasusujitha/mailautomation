@@ -3056,6 +3056,10 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           return
         }
         
+        // Get trainer rate (assuming trainer.rate or trainer.amount exists)
+        const trainerRate = trainer.rate || trainer.amount || 0
+        const budgetGap = trainerRate - budgetAmount
+        
         // Send email as if client is replying with budget
         const clientReplyRes = await api.post('/shortlists/send-mail', {
           trainer_id: trainer.trainer_id,
@@ -3069,7 +3073,32 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         })
         
         if (clientReplyRes?.data?.success) {
-          toast.success(`✅ Client budget reply sent (₹${budgetAmount.toLocaleString('en-IN')}/day)`)
+          // Check if there's a budget gap
+          if (budgetGap <= 0) {
+            // NO GAP - Client budget is equal or higher than trainer rate
+            // Send Mail 3 (Slot Booking) directly to trainer
+            toast.success(`✅ Client budget reply sent (₹${budgetAmount.toLocaleString('en-IN')}/day) - No gap detected`)
+            toast.success(`🎯 Client budget matches trainer rate! Sending slot booking directly...`)
+            
+            // Auto-send Mail 3 (trainer_rate_accepted scenario - slot booking)
+            const mail3Res = await api.post('/shortlists/send-mail', {
+              trainer_id: trainer.trainer_id,
+              trainer_name: trainer.name,
+              to_email: trainer.email,
+              requirement_id: req.requirement_id,
+              subject: `Training Engagement Confirmed – ${req.technology_needed} | Slot Booking Details`,
+              body: `Dear ${trainer.name},\n\nGreat news! The client has approved your training proposal without any modification.\n\n**Training Details:**\nClient: ${req.client_name || req.client_company}\nTechnology: ${req.technology_needed}\nRate: ₹${budgetAmount.toLocaleString('en-IN')}/day\n\nPlease confirm your availability and provide preferred training dates and session format.\n\nWe will prepare the Terms of Collaboration (ToC) document and share it with the client for final approval.\n\nPlease confirm receipt of this email.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+              mail_type: 'trainer_rate_accepted', // Mail 3 - slot booking
+            })
+            
+            if (mail3Res?.data?.success) {
+              toast.success(`📅 Mail 3 (Slot Booking) sent to trainer`)
+            }
+          } else {
+            // GAP EXISTS - Continue with negotiation flow
+            toast.success(`✅ Client budget reply sent (₹${budgetAmount.toLocaleString('en-IN')}/day)`)
+            toast.info(`⚖️ Rate gap detected: ₹${budgetGap.toLocaleString('en-IN')} - Continue to negotiation`)
+          }
         } else {
           toast.error(clientReplyRes?.data?.error || 'Failed to send client budget reply')
         }
