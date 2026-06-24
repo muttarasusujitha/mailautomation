@@ -168,7 +168,7 @@ const CSS = `
   .btn-primary {
     display: inline-flex; align-items: center; gap: 7px;
     background: ${T.brand}; color: #fff; border: none; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
     padding: 10px 20px; border-radius: 8px;
     box-shadow: 0 1px 2px rgba(26,86,219,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
     transition: all 0.18s;
@@ -179,14 +179,14 @@ const CSS = `
   .btn-secondary {
     display: inline-flex; align-items: center; gap: 7px;
     background: ${T.surface}; color: ${T.textPrimary}; border: 1.5px solid ${T.border};
-    cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
     padding: 10px 20px; border-radius: 8px;
     transition: all 0.18s;
   }
   .btn-secondary:hover { border-color: ${T.brand}; color: ${T.brand}; background: ${T.brandLight}; transform: translateY(-1px); }
 
   .nav-link {
-    font-size: 13.5px; font-weight: 500; color: ${T.textSecondary};
+    font-size: 14.5px; font-weight: 500; color: ${T.textSecondary};
     text-decoration: none; padding: 5px 10px; border-radius: 6px;
     transition: all 0.15s;
   }
@@ -194,7 +194,7 @@ const CSS = `
 
   .badge {
     display: inline-flex; align-items: center; gap: 4px;
-    font-size: 11px; font-weight: 600; padding: 2px 8px;
+    font-size: 12.5px; font-weight: 600; padding: 2px 8px;
     border-radius: 100px; letter-spacing: 0.01em;
   }
 
@@ -242,7 +242,7 @@ const CSS = `
     gap: clamp(28px, 4vw, 56px);
     align-items: center;
   }
-  .hero-image-panel { min-height: clamp(420px, 64vh, 520px); }
+  .hero-image-panel { min-height: clamp(480px, 70vh, 600px); }
 
   /* Feature scroller */
   .feature-scroll-shell {
@@ -290,8 +290,8 @@ const CSS = `
     margin-top: 8px;
   }
   .workflow-heading > div { margin-bottom: 22px !important; }
-  .workflow-heading h2 { font-size: clamp(1.35rem, 2.4vw, 1.75rem) !important; margin-bottom: 7px !important; }
-  .workflow-heading p { font-size: 13.5px !important; line-height: 1.45 !important; }
+  .workflow-heading h2 { font-size: clamp(1.65rem, 3.2vw, 2.3rem) !important; margin-bottom: 7px !important; }
+  .workflow-heading p { font-size: 15px !important; line-height: 1.45 !important; }
   .workflow-panel {
     position: relative;
     min-width: 0;
@@ -462,14 +462,14 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11.5px;
+    font-size: 13.5px;
     font-weight: 800;
     color: ${T.textPrimary};
     line-height: 1.22;
   }
   .workflow-desc {
     min-height: 36px;
-    font-size: 9.5px;
+    font-size: 11px;
     color: ${T.textMuted};
     line-height: 1.3;
     overflow-wrap: anywhere;
@@ -961,7 +961,7 @@ function SectionHeader({ label, labelIcon, title, sub, center }) {
       {label && <div style={{ marginBottom: 12, display: 'flex', justifyContent: justify }}>
         <SectionLabel icon={labelIcon}>{label}</SectionLabel>
       </div>}
-      <h2 style={{ fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, color: T.textPrimary, lineHeight: 1.2, marginBottom: 10 }}>
+      <h2 style={{ fontSize: 'clamp(1.9rem,3.8vw,2.6rem)', fontWeight: 700, color: T.textPrimary, lineHeight: 1.2, marginBottom: 10 }}>
         {title}
       </h2>
       {sub && <p style={{ fontSize: 15.5, color: T.textSecondary, maxWidth, margin, lineHeight: 1.65 }}>
@@ -1154,7 +1154,7 @@ function FeatureCard({ feature, delay, tabIndex = 0 }) {
         </div>
         <Badge color={feature.color} bg={feature.bg}>{feature.tag}</Badge>
       </div>
-      <h3 style={{ fontSize: 14.5, fontWeight: 700, color: T.textPrimary, margin: '0 0 7px' }}>{feature.title}</h3>
+      <h3 style={{ fontSize: 16.5, fontWeight: 700, color: T.textPrimary, margin: '0 0 7px' }}>{feature.title}</h3>
       <p style={{ fontSize: 12.5, color: T.textSecondary, lineHeight: 1.5, margin: '0 0 12px' }}>{feature.desc}</p>
       <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 5 }}>
         {feature.points.map((p) => (
@@ -1725,13 +1725,13 @@ export default function Home() {
             </div>
 
             {/* Headline */}
-            <h1 className="fade-up" style={{ animationDelay: '0.07s', fontSize: 'clamp(1.8rem, 3.8vw, 2.65rem)', fontWeight: 800, lineHeight: 1.06, letterSpacing: '-0.04em', color: T.textPrimary, marginBottom: 14 }}>
+            <h1 className="fade-up" style={{ animationDelay: '0.07s', fontSize: 'clamp(2.2rem, 4.6vw, 3.5rem)', fontWeight: 800, lineHeight: 1.06, letterSpacing: '-0.04em', color: T.textPrimary, marginBottom: 14 }}>
               Trainer Matching &<br />
-              <span style={{ color: T.brand }}>Operations Platform</span><br />
+              <span style={{ color: T.brand, fontSize: '0.88em' }}>Operations Platform</span><br />
               <span style={{ color: T.textSecondary, fontSize: '0.82em', fontWeight: 600 }}>for Clahan Technologies</span>
             </h1>
 
-            <p className="fade-up" style={{ animationDelay: '0.14s', fontSize: 14.5, color: T.textSecondary, lineHeight: 1.55, marginBottom: 20, maxWidth: 500 }}>
+            <p className="fade-up" style={{ animationDelay: '0.14s', fontSize: 17, color: T.textSecondary, lineHeight: 1.55, marginBottom: 20, maxWidth: 500 }}>
               From client email to trainer confirmation — fully automated.
               AI matches trainers, sends outreach via email & WhatsApp, tracks replies, detects incomplete responses, and manages the full 7-stage pipeline.
             </p>
@@ -2245,7 +2245,7 @@ export default function Home() {
           <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255,255,255,0.06) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.04) 0%, transparent 50%)`, pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontSize: 'clamp(1.4rem,2.5vw,1.9rem)', fontWeight: 700, color: '#fff', margin: '0 0 10px', letterSpacing: '-0.03em' }}>
+            <h2 style={{ fontSize: 'clamp(1.8rem,3.3vw,2.4rem)', fontWeight: 700, color: '#fff', margin: '0 0 10px', letterSpacing: '-0.03em' }}>
               Ready to Automate Trainer Operations?
             </h2>
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.78)', margin: '0 auto 28px', maxWidth: 460, lineHeight: 1.65 }}>

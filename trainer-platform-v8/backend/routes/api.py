@@ -232,6 +232,15 @@ FACEBOOK_COM = "facebook.com"
 LINKEDIN_COM = "linkedin.com"
 LINKEDIN_COM_IN = "linkedin.com/in"
 NAUKRI_COM = "naukri.com"
+CORPORATE_TRAINING = "corporate training"
+TECHNICAL_TRAINING = "technical training"
+
+# Training signals to identify genuine requirements
+TRAINING_SIGNALS = [
+    "trainer", "training", "requirement", "devops", "dev ops",
+    "domain:", "duration:", "batch", "participants", "schedule",
+    CORPORATE_TRAINING, TECHNICAL_TRAINING,
+]
 
 # Regex patterns for parsing - simplified for SonarQube compliance
 PO_DATE_PATTERN = r"\b(?:date|po\s*date)\s*[:# \-]?\s*(\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{1,2}\w*\s+[A-Za-z]+\s+\d{4})"  # nosonar S5868
@@ -2108,7 +2117,11 @@ async def _process_client_interview_decision(db, meta: dict, request: Optional[R
     return {k: v for k, v in doc.items() if k != "_id"}
 
 
-@router.post("/assistant/chat")
+@router.post("/assistant/chat", responses={
+    400: {"description": "Send at least one user message"},
+    503: {"description": "GEMINI_API_KEY is not configured on the backend"},
+    502: {"description": "Assistant request failed"}
+})
 async def assistant_chat(payload: dict):  # nosonar
     system_prompt = str(payload.get("system") or "").strip()
     messages = _normalise_chat_messages(payload.get("messages") or [])
@@ -3031,12 +3044,7 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
         # it as a genuine requirement even if the AI returned is_training_request=False.
         body_lower = (processed.get("clean_body") or processed.get("raw_body") or "").lower()
         subject_lower = (processed.get("subject") or "").lower()
-        _training_signals = [
-            "trainer", "training", "requirement", "devops", "dev ops",
-            "domain:", "duration:", "batch", "participants", "schedule",
-            "corporate training", "technical training",
-        ]
-        has_training_signal = any(sig in body_lower or sig in subject_lower for sig in _training_signals)
+        has_training_signal = any(sig in body_lower or sig in subject_lower for sig in TRAINING_SIGNALS)
 
         if not processed.get("is_auto_reply") and has_training_signal and not extracted.get("is_training_request"):
             # Re-classify: the AI under-classified it — treat as training request
@@ -5288,7 +5296,9 @@ async def save_admin_settings(payload: dict):  # nosonar
     return {"message": "Admin settings saved"}
 
 
-@router.post("/admin/email/test")
+@router.post("/admin/email/test", responses={
+    400: {"description": "Missing SMTP username or From Email, or Email test failed"}
+})
 async def test_email_settings(payload: dict = {}):
     db = get_db()
     cfg = await get_admin_email_config(db)
