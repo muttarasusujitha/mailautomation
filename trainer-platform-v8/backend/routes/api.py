@@ -423,7 +423,7 @@ def _email_key(value: str = "") -> str:
     return (addr or value or "").strip().lower()
 
 
-def _check_gmail_replies_fast(  # nosonar
+def _check_gmail_replies_fast(  # nosonar S3776
     *,
     since_days: int = 14,
     max_messages: int = 50,
@@ -861,7 +861,7 @@ def _toc_domain_plan(technology: str) -> dict:
     }
 
 
-def _fallback_toc_data(payload: dict, reason: str = "") -> dict:  # nosonar
+def _fallback_toc_data(payload: dict, reason: str = "") -> dict:  # nosonar S3776
     technology = payload.get("technology") or "Training"
     duration_days = max(1, min(int(payload.get("duration_days") or 3), 100))
     plan = _toc_domain_plan(technology)
@@ -1012,7 +1012,7 @@ def _toc_missing_client_inputs(requirement: dict, payload: Optional[dict] = None
     return missing
 
 
-async def _send_toc_details_request_to_client(  # nosonar
+async def _send_toc_details_request_to_client(  # nosonar S3776
     db,
     request: Optional[Request],
     *,
@@ -1091,7 +1091,7 @@ async def _send_toc_details_request_to_client(  # nosonar
     return {"success": success, "error": error, "email_id": email_id, "to_email": client_email, "missing": missing}
 
 
-async def _auto_generate_and_send_toc(  # nosonar
+async def _auto_generate_and_send_toc(  # nosonar S3776
     db,
     request: Optional[Request],
     *,
@@ -1497,7 +1497,7 @@ async def _send_auto_training_confirmation(
     )
 
 
-async def _send_trainer_pipeline_email(  # nosonar
+async def _send_trainer_pipeline_email(  # nosonar S3776
     db,
     request: Optional[Request],
     *,
@@ -1682,7 +1682,7 @@ async def _mark_shortlist_trainer_status(db, requirement_id: str, trainer_id: st
     )
 
 
-async def _send_next_trainer_after_decline(  # nosonar
+async def _send_next_trainer_after_decline(  # nosonar S3776
     db,
     request: Optional[Request],
     *,
@@ -1804,7 +1804,7 @@ async def _send_next_trainer_after_decline(  # nosonar
     return {"skipped": True, "reason": "No available next trainer"}
 
 
-async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> tuple[Optional[dict], Optional[dict], dict]:  # nosonar
+async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> tuple[Optional[dict], Optional[dict], dict]:  # nosonar S3776
     from_email = (meta.get("from_email") or "").strip()
     text = _re.sub(r"\s+", " ", f"{meta.get('subject') or ''} {clean_body or meta.get('snippet') or ''}".lower())
     domain = sender_domain(from_email)
@@ -1970,7 +1970,7 @@ async def _match_client_decision_candidate(db, meta: dict, clean_body: str) -> t
     return best_trainer, best_requirement, {"score": best_score, "matched_email_id": best_log.get("email_id")}
 
 
-async def _process_client_interview_decision(db, meta: dict, request: Optional[Request] = None) -> Optional[dict]:  # nosonar
+async def _process_client_interview_decision(db, meta: dict, request: Optional[Request] = None) -> Optional[dict]:  # nosonar S3776
     message_id = meta.get("email_id") or meta.get("gmail_message_id")
     if not message_id:
         return None
@@ -2122,7 +2122,7 @@ async def _process_client_interview_decision(db, meta: dict, request: Optional[R
     503: {"description": "GEMINI_API_KEY is not configured on the backend"},
     502: {"description": "Assistant request failed"}
 })
-async def assistant_chat(payload: dict):  # nosonar
+async def assistant_chat(payload: dict):  # nosonar S3776
     system_prompt = str(payload.get("system") or "").strip()
     messages = _normalise_chat_messages(payload.get("messages") or [])
     if not messages:
@@ -2380,7 +2380,7 @@ async def _save_linkedin_lead_as_trainer(db, lead: dict) -> dict:
     return {"saved": True, "action": "inserted", "trainer_id": doc["trainer_id"]}
 
 
-async def _auto_verify_lead_on_resume_upload(db, resume_profile: dict) -> Optional[dict]:  # nosonar
+async def _auto_verify_lead_on_resume_upload(db, resume_profile: dict) -> Optional[dict]:  # nosonar S3776
     email = str(resume_profile.get("email") or "").strip().lower()
     name_key = _re.sub(ALPHANUMERIC_PATTERN, "", str(resume_profile.get("name") or "").lower())
     lead = None
@@ -2622,7 +2622,7 @@ async def _process_and_store_client_decision_message(
     return decision_result
 
 
-def _extract_client_po_details(subject: str = "", body: str = "") -> Optional[dict]:  # nosonar
+def _extract_client_po_details(subject: str = "", body: str = "") -> Optional[dict]:  # nosonar S3776
     text = f"{subject or ''}\n{body or ''}"
     clean = _re.sub(r"\s+", " ", text).strip()
     lower = clean.lower()
@@ -2736,7 +2736,7 @@ def _extract_client_po_details(subject: str = "", body: str = "") -> Optional[di
     }
 
 
-async def _match_client_po_requirement(db, meta: dict) -> Optional[dict]:  # nosonar
+async def _match_client_po_requirement(db, meta: dict) -> Optional[dict]:  # nosonar S3776
     from_email = str(meta.get("from_email") or "").strip()
     if not from_email:
         return None
@@ -2781,7 +2781,7 @@ async def _match_client_po_requirement(db, meta: dict) -> Optional[dict]:  # nos
     return None
 
 
-async def _process_client_purchase_order_email(db, processed: dict, request: Optional[Request] = None) -> Optional[dict]:  # nosonar
+async def _process_client_purchase_order_email(db, processed: dict, request: Optional[Request] = None) -> Optional[dict]:  # nosonar S3776
     po_details = _extract_client_po_details(
         processed.get("subject", ""),
         "\n\n".join([
@@ -2968,7 +2968,7 @@ async def _process_client_purchase_order_email(db, processed: dict, request: Opt
     }
 
 
-async def _process_and_store_client_message(db, message_id: str, gmail_service, request: Optional[Request] = None) -> dict:  # nosonar
+async def _process_and_store_client_message(db, message_id: str, gmail_service, request: Optional[Request] = None) -> dict:  # nosonar S3776
     settings = await _client_inbox_settings(db)
     processed = await process_client_email(message_id, gmail_service)
     existing = await db["client_emails"].find_one({"email_id": processed.get("email_id")}, {"_id": 1, "status": 1})
@@ -3189,7 +3189,7 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
     return {"status": inbox_doc["status"], "email_id": inbox_doc["email_id"], "requirement_id": requirement_id}
 
 
-async def _auto_send_pending_client_reply(db, inbox_doc: dict, gmail_service, settings: dict) -> Optional[dict]:  # nosonar
+async def _auto_send_pending_client_reply(db, inbox_doc: dict, gmail_service, settings: dict) -> Optional[dict]:  # nosonar S3776
     if not settings.get("autoSendEnabled"):
         return None
     if inbox_doc.get("status") != "pending_approval" or inbox_doc.get("sent_at"):
@@ -3392,7 +3392,7 @@ async def _trainer_contact_for_interview(db, trainer_id: str, requirement_id: st
     }
 
 
-async def _send_trainer_interview_schedule(  # nosonar
+async def _send_trainer_interview_schedule(  # nosonar S3776
     db,
     request: Optional[Request],
     *,
@@ -3558,7 +3558,7 @@ async def _send_trainer_interview_schedule(  # nosonar
     }
 
 
-def _client_missing_training_detail_labels(requirement: Optional[dict]) -> list[str]:  # nosonar
+def _client_missing_training_detail_labels(requirement: Optional[dict]) -> list[str]:  # nosonar S3776
     requirement = requirement or {}
 
     def text_value(*keys: str) -> str:
@@ -3606,7 +3606,7 @@ def _client_missing_training_detail_labels(requirement: Optional[dict]) -> list[
     return missing
 
 
-async def _send_client_interview_schedule(  # nosonar
+async def _send_client_interview_schedule(  # nosonar S3776
     db,
     request: Optional[Request],
     *,
@@ -3762,7 +3762,7 @@ def _recent_enough(sent_at, received_at, days: int = 21) -> bool:
         return True
 
 
-async def _matching_client_slot_email(db, meta: dict, clean_body: str = "") -> Optional[dict]:  # nosonar
+async def _matching_client_slot_email(db, meta: dict, clean_body: str = "") -> Optional[dict]:  # nosonar S3776
     from_email = (meta.get("from_email") or "").strip()
     if not from_email:
         return None
@@ -3821,7 +3821,7 @@ async def _matching_client_slot_email(db, meta: dict, clean_body: str = "") -> O
     return scored[0][1] if scored[0][0] >= 100 else None
 
 
-async def _process_client_slot_reply_from_meta(  # nosonar
+async def _process_client_slot_reply_from_meta(  # nosonar S3776
     db,
     message_id: str,
     request: Optional[Request] = None,
@@ -4071,7 +4071,7 @@ async def _process_client_slot_reply(
     )
 
 
-async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_results: int = 25) -> dict:  # nosonar
+async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_results: int = 25) -> dict:  # nosonar S3776
     settings = await _client_inbox_settings(db)
     if settings.get("inboxProvider") in {"smtp_only", "smtp"}:
         auto_sent_existing = await auto_send_pending_client_replies_smtp(db)
@@ -4447,7 +4447,7 @@ Malformed JSON:
     return _json_object_from_ai_text(fixed, "Ollomo JSON repair")
 
 
-def _normalise_toc_timing_for_payload(toc: dict, payload: dict) -> dict:  # nosonar
+def _normalise_toc_timing_for_payload(toc: dict, payload: dict) -> dict:  # nosonar S3776
     timing = str(payload.get("timing") or payload.get("daily_timing") or "").lower()
     if not ("9" in timing and "4" in timing):
         return toc
@@ -4518,7 +4518,7 @@ def _normalise_toc_timing_for_payload(toc: dict, payload: dict) -> dict:  # noso
     return toc
 
 
-async def _generate_toc_with_ollomo_chunked(payload: dict, api_url: str, headers: dict, model: str, timeout_seconds: int) -> dict:  # nosonar
+async def _generate_toc_with_ollomo_chunked(payload: dict, api_url: str, headers: dict, model: str, timeout_seconds: int) -> dict:  # nosonar S3776
     import httpx as _httpx
 
     duration_days = int(payload.get("duration_days") or 1)
@@ -4589,7 +4589,7 @@ Rules:
     return base
 
 
-async def _generate_toc_with_ollomo(payload: dict) -> dict:  # nosonar
+async def _generate_toc_with_ollomo(payload: dict) -> dict:  # nosonar S3776
     import httpx as _httpx
 
     settings = get_settings()
@@ -4743,7 +4743,7 @@ async def _maybe_polish_toc_with_gemini(toc_data: dict, payload: dict) -> tuple[
         return toc_data, f"skipped: {exc}"
 
 
-def _validate_toc_agent_output(toc_data: dict, payload: dict) -> dict:  # nosonar
+def _validate_toc_agent_output(toc_data: dict, payload: dict) -> dict:  # nosonar S3776
     toc_data = dict(toc_data or {})
     expected_days = max(1, min(int(payload.get("duration_days") or 1), 100))
     fallback = _fallback_toc_data({**payload, "duration_days": expected_days}, "")
@@ -4937,7 +4937,7 @@ def _toc_html(doc: dict) -> str:
 </html>"""
 
 
-def _toc_pdf_bytes(doc: dict) -> bytes:  # nosonar
+def _toc_pdf_bytes(doc: dict) -> bytes:  # nosonar S3776
     toc = doc.get("toc_data") or {}
     pdf = fitz.open()
     page = pdf.new_page(width=595, height=842)
@@ -5019,7 +5019,7 @@ def _toc_pdf_bytes(doc: dict) -> bytes:  # nosonar
     return out
 
 
-def _send_toc_email_with_attachment(to_email: str, subject: str, body: str, filename: str, pdf_bytes: bytes, smtp_config: dict) -> tuple:  # nosonar
+def _send_toc_email_with_attachment(to_email: str, subject: str, body: str, filename: str, pdf_bytes: bytes, smtp_config: dict) -> tuple:  # nosonar S3776
     smtp_config = smtp_config or {}
     settings = get_settings()
     gmail_user = smtp_config.get("smtpUser") or getattr(settings, "gmail_user", "")
@@ -5082,7 +5082,7 @@ def _send_toc_email_with_attachment(to_email: str, subject: str, body: str, file
         return False, str(exc)
 
 
-def _send_email_with_file_attachment(  # nosonar
+def _send_email_with_file_attachment(  # nosonar S3776
     to_email: str,
     subject: str,
     body: str,
@@ -5263,7 +5263,7 @@ async def get_admin_settings():
 
 
 @router.post("/admin/settings")
-async def save_admin_settings(payload: dict):  # nosonar
+async def save_admin_settings(payload: dict):  # nosonar S3776
     db = get_db()
     existing = await db["admin_settings"].find_one(
         {"settings_id": "default"},
@@ -5649,7 +5649,7 @@ async def whatsapp_meta_webhook_verify(request: Request):
 
 
 @router.post("/whatsapp/meta/webhook")
-async def whatsapp_meta_webhook(request: Request):  # nosonar
+async def whatsapp_meta_webhook(request: Request):  # nosonar S3776
     db = get_db()
     payload = await request.json()
     processed = {"statuses": 0, "messages": 0}
@@ -5784,7 +5784,7 @@ def _split_toc_list(value) -> list:
     return [str(item).strip(" -\t\r") for item in values if str(item).strip(" -\t\r")]
 
 
-def _parse_toc_topic_section(raw: str, tools: list, labs: list) -> list:  # nosonar
+def _parse_toc_topic_section(raw: str, tools: list, labs: list) -> list:  # nosonar S3776
     topics = []
     current = None
     for line in str(raw or "").splitlines():
