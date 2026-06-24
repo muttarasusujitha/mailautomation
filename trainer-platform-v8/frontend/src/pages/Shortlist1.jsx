@@ -261,6 +261,8 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'client_toc_details_request', label: '📋 Client TOC Details Request' },
   { value: 'trainer_rate_discussion', label: '💬 Trainer Rate Discussion' },
   { value: 'mail3', label: 'Mail 3 - Slot Booking' },
+  { value: 'mail3_too_many_slots', label: 'Mail 3 - Too Many Slots (Ask for 3)' },
+  { value: 'mail3_too_few_slots', label: 'Mail 3 - Too Few Slots (Ask for 3)' },
   { value: 'mail4', label: 'Mail 4 - Interview Schedule' },
   { value: 'mail5_ok', label: 'Mail 5 - Selection' },
   { value: 'mail5_no', label: 'Mail 5 - Rejection' },
@@ -439,9 +441,16 @@ function trainerCommercialNegotiationTemplate(trainer, req, quote, target) {
 }
 
 function mail3Template(trainer, req, trainerDates) {
+  // Mail template with example dates followed by empty placeholders
+  const formattedDates = trainerDates 
+    ? trainerDates.split('\n').map(date => date.trim()).filter(d => d).map(d => `• ${d}`).join('\n')
+    : '• Monday, Jan 15, 2024 - 10:00 AM IST\n• Tuesday, Jan 16, 2024 - 2:00 PM IST\n• Wednesday, Jan 17, 2024 - 4:00 PM IST'
+  
+  const slotsText = `${formattedDates}\n• [Slot 1]\n• [Slot 2]\n• [Slot 3]`
+  
   return {
     subject: `Interview Slot Booking - ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nThank you for sharing your details.\n\nWe would like to book an interview slot with you. Based on your availability, please confirm one of the following slots:\n\n${trainerDates || '• [Slot 1]\n• [Slot 2]\n• [Slot 3]'}\n\nKindly confirm your preferred slot at the earliest.\n\nRegards,\nTrainerSync Team`
+    body: `${greeting(trainer)}\n\nThank you for sharing your details.\n\nWe would like to book an interview slot with you. Based on your availability, please confirm one of the following slots:\n\nexample\n${slotsText}\n\nKindly confirm your preferred slot at the earliest.\n\nRegards,\nTrainerSync Team`
   }
 }
 
@@ -449,6 +458,13 @@ function mail3SlotClarificationTemplate(trainer) {
   return {
     subject: 'Interview Slot Details Required',
     body: `Hi ${trainer?.name || 'Trainer'},\n\nThank you for sharing the slot. Could you please provide the exact interview date and time, including whether it is AM or PM?\n\nAlso, please share 3 available slots with the corresponding dates so that we can schedule the interview accordingly.\n\nThanks.`
+  }
+}
+
+function mail3TooManySlotsTemplate(trainer) {
+  return {
+    subject: 'Re: Interview Slot Booking',
+    body: `Hi ${trainer?.name || 'Trainer'},\n\nThank you for your availability. For our scheduling process, we typically work with 3 slots as it helps us coordinate efficiently.\n\nCould you please share your top 3 preferred slots with dates and times?\n\nThank you.`
   }
 }
 
@@ -462,7 +478,7 @@ function mail4Template(trainer, req, interviewLink, platform, dateTime) {
 function mail5SelectedTemplate(trainer, req) {
   return {
     subject: `Congratulations! You have been Selected – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nCongratulations! We are pleased to inform you that you have been selected for the ${req.technology_needed} training requirement.\n\nTo proceed further, kindly share the following:\n\n* Table of Contents (ToC) / Course Agenda for the training\n* Any prerequisite materials or tools required\n\nWe look forward to working with you!\n\nRegards,\nTrainerSync Team`
+    body: `${greeting(trainer)}\n\nCongratulations! We are pleased to inform you that you have been selected for the ${req.technology_needed} training requirement.\n\nRegards,\nTrainerSync Team`
   }
 }
 
@@ -754,6 +770,32 @@ function hasProperInterviewSlots(text = '') {
   return hasOneExactSlot || hasThreeSlotOptions
 }
 
+function countSlotsInReply(text = '') {
+  const clean = stripQuotedEmail(text).toLowerCase()
+  if (!clean) return 0
+  
+  // Count date occurrences (each date might represent a slot)
+  const dates = [
+    /\b\d{1,2}\s*[/-]\s*\d{1,2}(?:\s*[/-]\s*\d{2,4})?\b/g,
+    /\b\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\b/g,
+    /\b(mon|tue|wed|thu|fri|sat|sun)(day)?\b/g,
+  ].reduce((sum, rx) => sum + ((clean.match(rx) || []).length), 0)
+  
+  // Count bullet points or "slot" mentions
+  const bulletSlots = (clean.match(/[•\-*]\s*\d{1,2}|slot\s*\d{1,2}/g) || []).length
+  
+  return Math.max(dates, bulletSlots)
+}
+
+function hasTooManySlots(text = '') {
+  return countSlotsInReply(text) > 3
+}
+
+function hasTooFewSlots(text = '') {
+  const slotCount = countSlotsInReply(text)
+  return slotCount > 0 && slotCount < 3
+}
+
 async function sendSlotClarificationMail({ trainer, req }) {
   const { subject, body } = mail3SlotClarificationTemplate(trainer)
   const res = await api.post('/shortlists/send-mail', {
@@ -971,11 +1013,25 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages }) 
   const [aiUsed, setAiUsed]             = useState(false)
 
   const getTemplatePreview = () => {
+    const latestReply = threadMessages?.findLast(m => m.direction === 'received')?.body || ''
+    
     switch (mailType) {
       case 'mail1':          return mail1Template(trainer, req, false, {})
       case 'mail2':          return mail2Template(trainer, req)
       case 'mail2_followup': return mail2FollowupTemplate(trainer, req)
-      case 'mail3':          return mail3Template(trainer, req, trainerDates)
+      case 'mail3':          
+        // Check if trainer provided wrong number of slots
+        if (latestReply) {
+          if (hasTooManySlots(latestReply)) {
+            return mail3TooManySlotsTemplate(trainer)
+          }
+          if (hasTooFewSlots(latestReply)) {
+            return mail3SlotClarificationTemplate(trainer)
+          }
+        }
+        return mail3Template(trainer, req, trainerDates)
+      case 'mail3_too_many_slots': return mail3TooManySlotsTemplate(trainer)
+      case 'mail3_too_few_slots':  return mail3SlotClarificationTemplate(trainer)
       case 'mail4':          return mail4Template(trainer, req, interviewLink, platform, dateTime)
       case 'mail5_ok':       return mail5SelectedTemplate(trainer, req)
       case 'mail5_no':       return mail5RejectedTemplate(trainer, req)
