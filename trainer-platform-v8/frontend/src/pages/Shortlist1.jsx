@@ -255,6 +255,7 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'trainer_commercials_to_client', label: '💼 Send Commercials to Client' },
   { value: 'client_budget_reply', label: '📧 Client Budget Reply' },
   { value: 'client_budget_acknowledgment', label: '🤝 Client Budget Acknowledgment' },
+  { value: 'rate_gap_resolution', label: '⚖️ Rate Gap Resolution' },
   { value: 'mail3', label: 'Mail 3 - Slot Booking' },
   { value: 'mail4', label: 'Mail 4 - Interview Schedule' },
   { value: 'mail5_ok', label: 'Mail 5 - Selection' },
@@ -3103,6 +3104,51 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         }
       } catch (e) {
         toast.error(e.response?.data?.detail || e.message || 'Error sending budget acknowledgment')
+      }
+      return
+    }
+    
+    if (manualMailType === 'rate_gap_resolution') {
+      // Send rate gap resolution options to client
+      const trainerRate = prompt('Enter trainer rate (e.g., 50000)')
+      if (!trainerRate) return
+      
+      const clientBudget = prompt('Enter client budget (e.g., 45000)')
+      if (!clientBudget) return
+      
+      try {
+        const trainerAmount = parseInt(trainerRate.replace(/[₹,]/g, ''))
+        const clientAmount = parseInt(clientBudget.replace(/[₹,]/g, ''))
+        
+        if (isNaN(trainerAmount) || isNaN(clientAmount) || trainerAmount <= 0 || clientAmount <= 0) {
+          toast.error('❌ Invalid amounts')
+          return
+        }
+        
+        const gap = trainerAmount - clientAmount
+        
+        if (gap <= 0) {
+          toast.error('❌ Trainer rate should be higher than client budget for this email')
+          return
+        }
+        
+        const gapRes = await api.post('/shortlists/send-mail', {
+          trainer_id: trainer.trainer_id,
+          trainer_name: trainer.name,
+          to_email: req.client_email,
+          requirement_id: req.requirement_id,
+          subject: `Rate Adjustment – ${req.technology_needed} Training | Trainer ${trainer.name}`,
+          body: `Hi ${req.client_name || 'Team'},\n\nThank you for your budget confirmation. We have reviewed Trainer ${trainer.name}'s profile and qualifications for your ${req.technology_needed} requirement.\n\nTrainer Rate: ₹${trainerAmount.toLocaleString('en-IN')} per day\nYour Budget: ₹${clientAmount.toLocaleString('en-IN')} per day\nGap: ₹${gap.toLocaleString('en-IN')} per day\n\nWe have two options for you:\n\n**Option 1: Proceed with Trainer ${trainer.name}**\nThe trainer has excellent experience and proven track record in ${req.technology_needed}. The additional ₹${gap.toLocaleString('en-IN')} per day investment is justified by their expertise and delivery quality.\n\n**Option 2: Alternative Trainer**\nWe can identify another trainer who matches your budget of ₹${clientAmount.toLocaleString('en-IN')} per day and fits your requirements.\n\nPlease let us know which option works best for you. We will proceed accordingly.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+          mail_type: 'rate_gap_resolution',
+        })
+        
+        if (gapRes?.data?.success) {
+          toast.success(`✅ Rate gap email sent (Gap: ₹${gap.toLocaleString('en-IN')}/day)`)
+        } else {
+          toast.error(gapRes?.data?.error || 'Failed to send rate gap resolution email')
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending rate gap resolution email')
       }
       return
     }
