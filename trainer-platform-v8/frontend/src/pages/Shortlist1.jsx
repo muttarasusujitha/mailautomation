@@ -252,6 +252,7 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'mail2', label: 'Mail 2 - Details Request' },
   { value: 'mail2_followup', label: 'Mail 2 Follow-up' },
   { value: 'trainer_commercials_to_client', label: '💼 Send Commercials to Client' },
+  { value: 'client_budget_reply', label: '📧 Client Budget Reply' },
   { value: 'mail3', label: 'Mail 3 - Slot Booking' },
   { value: 'mail4', label: 'Mail 4 - Interview Schedule' },
   { value: 'mail5_ok', label: 'Mail 5 - Selection' },
@@ -3009,6 +3010,41 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   const sendManualPipelineTemplate = async () => {
     if (manualMailType === 'mail6_toc') {
       handleTocRequest()
+      return
+    }
+    
+    if (manualMailType === 'client_budget_reply') {
+      // Simulate client replying with their budget
+      const clientBudget = prompt('Enter client budget per day (e.g., 40000)')
+      if (!clientBudget) return
+      
+      try {
+        const budgetAmount = parseInt(clientBudget.replace(/[₹,]/g, ''))
+        if (isNaN(budgetAmount) || budgetAmount <= 0) {
+          toast.error('❌ Invalid budget amount')
+          return
+        }
+        
+        // Send email as if client is replying with budget
+        const clientReplyRes = await api.post('/shortlists/send-mail', {
+          trainer_id: trainer.trainer_id,
+          trainer_name: trainer.name,
+          to_email: req.client_email,
+          requirement_id: req.requirement_id,
+          subject: `RE: Trainer Commercials for Approval – ${req.technology_needed} | ${trainer.name}`,
+          body: `Hi Team,\n\nThank you for sharing the commercial rates. Our budget for this ${req.technology_needed} requirement is ₹${budgetAmount.toLocaleString('en-IN')} per day.\n\nPlease confirm if the trainer can work within this budget.\n\nRegards,\n${req.client_name || 'Client Team'}`,
+          mail_type: 'client_budget_reply',
+          direction: 'received', // Mark as incoming
+        })
+        
+        if (clientReplyRes?.data?.success) {
+          toast.success(`✅ Client budget reply sent (₹${budgetAmount.toLocaleString('en-IN')}/day)`)
+        } else {
+          toast.error(clientReplyRes?.data?.error || 'Failed to send client budget reply')
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending client budget reply')
+      }
       return
     }
     
