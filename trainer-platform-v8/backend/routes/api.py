@@ -15111,27 +15111,7 @@ async def create_client_lead(payload: dict):
 
 @router.post("/client-leads/search-public")
 async def search_public_client_leads(payload: dict = {}):
-    import httpx as _httpx
-
-    api_key = (
-        os.getenv("TAVILY_API_KEY", "")
-        or getattr(get_settings(), "tavily_api_key", "")
-    ).strip()
-    if not api_key:
-        raise HTTPException(
-            400,
-            {
-                "message": "TAVILY_API_KEY is not set. Public lead search requires a Tavily API key.",
-                "required_env": "TAVILY_API_KEY",
-                "how_to_fix": [
-                    "1. Go to https://app.tavily.com and sign up (free)",
-                    "2. Copy your API key from the dashboard",
-                    "3. Add TAVILY_API_KEY=tvly-your-key to backend/.env",
-                    "4. Restart the backend server",
-                ],
-                "free_plan": "1000 searches/month — enough for daily lead searches",
-            },
-        )
+    from agents.free_search_agent import bulk_free_search, is_configured as _search_configured
 
     db = get_db()
     auto_discover = bool(payload.get("auto_discover"))
@@ -15256,45 +15236,27 @@ async def search_public_client_leads(payload: dict = {}):
 
     queries = list(dict.fromkeys(queries))
 
-    # ── HARD CAP on queries to protect credits ────────────────────────────────
-    # Default: max 8 queries per run = max 8 × 3 = 24 Tavily calls
-    # deep_search: max 18 queries
+    # ── HARD CAP on queries ────────────────────────────────────────────────────
+    # Default: max 8 queries per run for speed; deep_search allows up to 18
     max_queries_default = 18 if payload.get("deep_search") else 8
     max_queries = min(int(payload.get("max_queries") or max_queries_default), 18)
     queries = queries[:max_queries]
 
     search_timeout = 45
-    # Reduce concurrency — fewer parallel calls = more controlled credit usage
     search_concurrency = max(1, min(int(payload.get("concurrency") or 3), 6))
+
+    # ── Run queries via free search engine (no API key required) ─────────────
+    query_results = await bulk_free_search(
+        queries,
+        max_results=max_results,
+        timeout=search_timeout,
+        concurrency=search_concurrency,
+    )
+    failed_query_count = 0
+
+    # Enrichment (resume/website contact fetch) still needs its own HTTP client
+    import httpx as _httpx
     async with _httpx.AsyncClient(timeout=search_timeout) as client:
-        semaphore = asyncio.Semaphore(search_concurrency)
-
-        async def _run_public_trainer_query(query: str):
-            async with semaphore:
-                try:
-                    response = await client.post(
-                        "https://api.tavily.com/search",
-                        json={
-                            "api_key": api_key,
-                            "query": query,
-                            "search_depth": "basic",
-                            "max_results": max_results,
-                            "include_answer": False,
-                            "include_raw_content": True,
-                        },
-                    )
-                    response.raise_for_status()
-                    return query, response.json(), None
-                except _httpx.HTTPStatusError as exc:
-                    status_code = exc.response.status_code if exc.response is not None else "unknown"
-                    detail = (exc.response.text or exc.response.reason_phrase or "").strip() if exc.response is not None else ""
-                    return query, None, f"Tavily search failed ({status_code}): {detail[:300]}"
-                except Exception as exc:
-                    return query, None, str(exc)
-
-        query_results = await asyncio.gather(*[_run_public_trainer_query(query) for query in queries])
-        failed_query_count = 0
-
         for query, data, error in query_results:
             if error:
                 failed_query_count += 1
@@ -15473,21 +15435,8 @@ async def list_trainer_profile_leads(
 
 @router.post("/trainer-profile-leads/search-public")
 async def search_public_trainer_profile_leads(payload: dict = {}):
+    from agents.free_search_agent import bulk_free_search as _bulk_free_search
     import httpx as _httpx
-
-    api_key = (
-        os.getenv("TAVILY_API_KEY", "")
-        or getattr(get_settings(), "tavily_api_key", "")
-    ).strip()
-    if not api_key:
-        raise HTTPException(
-            400,
-            {
-                "message": "TAVILY_API_KEY is required for automatic public trainer profile search.",
-                "required_env": "TAVILY_API_KEY",
-                "setup": "Create a Tavily API key and add it to backend/.env, then restart backend.",
-            },
-        )
 
     db = get_db()
     domains = payload.get("domains") or ["SAP S/4HANA", "Apache APISIX", "DevOps", "AWS", "Python"]
@@ -15586,35 +15535,18 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
 
     search_timeout = 30 if source_mode == "naukri" else 45
     search_concurrency = max(1, min(int(payload.get("concurrency") or 6), 10))
+
+    # ── Run queries via free search engine (no API key required) ─────────────
+    query_results = await _bulk_free_search(
+        queries,
+        max_results=max_results,
+        timeout=search_timeout,
+        concurrency=search_concurrency,
+    )
+    failed_query_count = 0
+
+    # Enrichment (resume/website contact fetch) still needs its own HTTP client
     async with _httpx.AsyncClient(timeout=search_timeout) as client:
-        semaphore = asyncio.Semaphore(search_concurrency)
-
-        async def _run_public_trainer_query(query: str):
-            async with semaphore:
-                try:
-                    response = await client.post(
-                        "https://api.tavily.com/search",
-                        json={
-                            "api_key": api_key,
-                            "query": query,
-                            "search_depth": "basic",
-                            "max_results": max_results,
-                            "include_answer": False,
-                            "include_raw_content": True,
-                        },
-                    )
-                    response.raise_for_status()
-                    return query, response.json(), None
-                except _httpx.HTTPStatusError as exc:
-                    status_code = exc.response.status_code if exc.response is not None else "unknown"
-                    detail = (exc.response.text or exc.response.reason_phrase or "").strip() if exc.response is not None else ""
-                    return query, None, f"Tavily search failed ({status_code}): {detail[:300]}"
-                except Exception as exc:
-                    return query, None, str(exc)
-
-        query_results = await asyncio.gather(*[_run_public_trainer_query(query) for query in queries])
-        failed_query_count = 0
-
         for query, data, error in query_results:
             if error:
                 failed_query_count += 1
