@@ -5262,7 +5262,9 @@ async def get_admin_settings():
     return settings or {}
 
 
-@router.post("/admin/settings")
+@router.post("/admin/settings", responses={
+    400: {"description": "Settings update failed"}
+})
 async def save_admin_settings(payload: dict):  # nosonar S3776
     db = get_db()
     existing = await db["admin_settings"].find_one(
@@ -5838,7 +5840,7 @@ def _parse_toc_topic_section(raw: str, tools: list, labs: list) -> list:  # noso
     return [_clean_toc_topic(item) for item in topics if item.get("topic")]
 
 
-def _parse_toc_knowledge_blocks(text: str) -> list:
+def _parse_toc_knowledge_blocks(text: str) -> list:  # nosonar S3776
     clean_text = _re.sub(r"^\s*```.*$", "", str(text or ""), flags=_re.MULTILINE).replace("\r\n", "\n")
     matches = list(_re.finditer(r"(?im)^Technology Name:\s*(.+?)\s*$", clean_text))
     parsed = []
@@ -6137,7 +6139,7 @@ async def generate_training_toc(payload: dict, request: Request):
         "toc_data": toc_data,
         "missing_client_inputs": missing_client_inputs,
         "generation_error": generation_error,
-        "ai_provider": _determine_ai_provider(payload, generation_error, doc),
+        "ai_provider": _determine_ai_provider(payload, generation_error),
         "status": "draft",
         "created_at": utc_now(),
     }
@@ -6276,7 +6278,11 @@ async def send_toc_email(payload: dict):
     return {"success": True, "message": "TOC sent to trainer successfully", "toc_id": toc_id}
 
 
-@router.post("/toc/auto-generate")
+@router.post("/toc/auto-generate", responses={
+    400: {"description": "Missing required fields or invalid input"},
+    404: {"description": "Requirement or trainer not found"},
+    500: {"description": "Auto TOC generation failed"}
+})
 async def auto_generate_toc(payload: dict, request: Request):
     db = get_db()
     requirement_id = payload.get("requirement_id") or ""
@@ -6451,7 +6457,7 @@ def _invoice_asset_data_uri(filename: str, mime: str) -> str:
         return ""
 
 
-def _render_invoice_html(invoice_doc: dict) -> str:
+def _render_invoice_html(invoice_doc: dict) -> str:  # nosonar S3776
     esc = _html.escape
     company = _invoice_display_company(invoice_doc)
     trainer = invoice_doc.get("trainer") or {}
