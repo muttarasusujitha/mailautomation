@@ -3022,7 +3022,6 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     
     if (manualMailType === 'trainer_acknowledgment') {
       // Send acknowledgment to trainer for their commercial rates
-      // + Send TOC details request to client right after selection
       try {
         const ackRes = await api.post('/shortlists/send-mail', {
           trainer_id: trainer.trainer_id,
@@ -3036,23 +3035,6 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         
         if (ackRes?.data?.success) {
           toast.success(`✅ Trainer acknowledgment sent to ${trainer.name}`)
-          
-          // Also send TOC details request to client right after selection
-          const tocRes = await api.post('/shortlists/send-mail', {
-            trainer_id: trainer.trainer_id,
-            trainer_name: trainer.name,
-            to_email: req.client_email,
-            requirement_id: req.requirement_id,
-            subject: `Training Preparation – ${req.technology_needed} | Please Confirm Session Details`,
-            body: `Dear ${req.client_name || 'Team'},\n\nGreat news! We have identified a suitable trainer (${trainer.name}) for your ${req.technology_needed} training requirement.\n\nTo accelerate the onboarding process, we request you to provide the following details for training preparation:\n\n**1. Preferred Training Days & Time:**\nPlease confirm your preferred schedule:\n• Days: (e.g., Monday to Friday, specific days)\n• Time: (e.g., 10:00 AM - 12:00 PM IST)\n• Duration: (Number of days/weeks)\n\n**2. Session Format:**\nPlease specify your preferred training format:\n• Online (Virtual via Zoom/Teams/Google Meet)\n• Offline (In-person at your location)\n• Hybrid (Mix of online and offline sessions)\n\n**3. Participant Details:**\n• Number of participants attending\n• Technical requirements (software, tools, setup)\n• Any specific learning objectives or focus areas\n\nWe will simultaneously share the trainer's commercial proposal with you for approval. Once you confirm both the session details and agree to the commercial terms, we will proceed with finalizing the engagement.\n\nPlease reply with the above information at your earliest convenience.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
-            mail_type: 'client_toc_details_request',
-          })
-          
-          if (tocRes?.data?.success) {
-            toast.success(`📋 TOC details request sent to ${req.client_name || 'client'}`)
-          } else {
-            toast.info(`⚠️ Could not send TOC details request to client`)
-          }
         } else {
           toast.error(ackRes?.data?.error || 'Failed to send trainer acknowledgment')
         }
@@ -3195,6 +3177,23 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         
         if (gapRes?.data?.success) {
           toast.success(`✅ Rate gap email sent (Gap: ₹${gap.toLocaleString('en-IN')}/day)`)
+          
+          // Also send TOC details request to client after rate gap resolution
+          const tocRes = await api.post('/shortlists/send-mail', {
+            trainer_id: trainer.trainer_id,
+            trainer_name: trainer.name,
+            to_email: req.client_email,
+            requirement_id: req.requirement_id,
+            subject: `Training Preparation – ${req.technology_needed} | Please Confirm Session Details`,
+            body: `Dear ${req.client_name || 'Team'},\n\nThank you for your consideration of the training engagement with Trainer ${trainer.name}.\n\nTo ensure we have all necessary information for preparing the training schedule and Terms of Collaboration (ToC), we request you to provide the following details:\n\n**1. Preferred Training Days & Time:**\nPlease confirm your preferred schedule:\n• Days: (e.g., Monday to Friday, specific days)\n• Time: (e.g., 10:00 AM - 12:00 PM IST)\n• Duration: (Number of days/weeks)\n\n**2. Session Format:**\nPlease specify your preferred training format:\n• Online (Virtual via Zoom/Teams/Google Meet)\n• Offline (In-person at your location)\n• Hybrid (Mix of online and offline sessions)\n\n**3. Participant Details:**\n• Number of participants attending\n• Technical requirements (software, tools, setup)\n• Any specific learning objectives or focus areas\n\nPlease provide these details along with your preference regarding the trainer's commercial proposal (Option 1 or Option 2).\n\nOnce we receive your confirmation on both fronts, we will proceed with scheduling and preparing the comprehensive ToC document.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+            mail_type: 'client_toc_details_request',
+          })
+          
+          if (tocRes?.data?.success) {
+            toast.success(`📋 TOC details request sent to ${req.client_name || 'client'}`)
+          } else {
+            toast.info(`⚠️ Could not send TOC details request`)
+          }
         } else {
           toast.error(gapRes?.data?.error || 'Failed to send rate gap resolution email')
         }
