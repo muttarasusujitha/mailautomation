@@ -243,8 +243,8 @@ TRAINING_SIGNALS = [
 ]
 
 # Regex patterns for parsing - simplified for SonarQube compliance
-PO_DATE_PATTERN = r"\b(?:date|po\s*date)\s*[:# \-]?\s*(\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{1,2}\w*\s+[A-Za-z]+\s+\d{4})"  # nosonar S5868
-PO_TERMS_PATTERN = r"\b(?:terms|payment\s*terms)\s*[:# \-]?\s*([A-Za-z0-9 ,./-]{20,80})(?=\s+(?:ref|project|vendor|$))"  # nosonar S5868
+PO_DATE_PATTERN = r"\b(?:date|po\s*date)\s*[:# -]?\s*(\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{1,2}\w*\s+[A-Za-z]+\s+\d{4})"  # nosonar S5868
+PO_TERMS_PATTERN = r"\b(?:terms|payment\s*terms)\s*[:# -]?\s*([A-Za-z0-9 ,./-]{20,80})(?=\s+(?:ref|project|vendor|$))"  # nosonar S5868
 DATE_RANGE_PATTERN = r"\b(?:start\s*date)\s*[-: ]?\s*(\d{1,2}[-/]\d{1,2}(?:[-/]\d{2,4})?)\s+(?:to|and|-)\s+(\d{1,2}[-/]\d{1,2}(?:[-/]\d{2,4})?)"  # nosonar S5868
 TIME_DAY_PATTERN = r"\b(?:\d{1,2}(?::\d{2})?\s*(?:am|pm)?|today|tomorrow|mon|tue|wed|thu|fri|sat|sun)\b"  # nosonar S5868
 
@@ -5365,7 +5365,9 @@ async def diagnose_auto_send():
     }
 
 
-@router.post("/admin/whatsapp/test")
+@router.post("/admin/whatsapp/test", responses={
+    400: {"description": "Missing WhatsApp configuration or WhatsApp test failed"}
+})
 async def test_whatsapp_settings(request: Request):
     db = get_db()
     cfg = await get_twilio_config(db)
@@ -5456,7 +5458,9 @@ async def teams_direct_oauth_callback(code: str = "", error: str = "", error_des
     )
 
 
-@router.post("/admin/teams-direct/test")
+@router.post("/admin/teams-direct/test", responses={
+    400: {"description": "Missing Teams email or Teams direct chat test failed"}
+})
 async def test_teams_direct_settings(payload: dict):
     db = get_db()
     teams_email = str(payload.get("teams_email") or "").strip()
@@ -5484,7 +5488,10 @@ async def test_teams_direct_settings(payload: dict):
     return {"message": "Teams direct chat test sent", **result}
 
 
-@router.post("/auth/forgot-password")
+@router.post("/auth/forgot-password", responses={
+    400: {"description": "Invalid email address"},
+    500: {"description": "Could not send reset email"}
+})
 async def forgot_password(payload: dict):
     email = (payload.get("email") or "").strip()
     if not email or "@" not in email:
@@ -5634,7 +5641,9 @@ def _meta_message_text(message: dict) -> str:
     return str(message.get(msg_type) or "").strip()
 
 
-@router.get("/whatsapp/meta/webhook")
+@router.get("/whatsapp/meta/webhook", responses={
+    403: {"description": "WhatsApp webhook verification failed"}
+})
 async def whatsapp_meta_webhook_verify(request: Request):
     db = get_db()
     params = request.query_params
@@ -5648,7 +5657,9 @@ async def whatsapp_meta_webhook_verify(request: Request):
     raise HTTPException(status_code=403, detail="WhatsApp webhook verification failed")
 
 
-@router.post("/whatsapp/meta/webhook")
+@router.post("/whatsapp/meta/webhook", responses={
+    400: {"description": "Invalid webhook payload"}
+})
 async def whatsapp_meta_webhook(request: Request):  # nosonar S3776
     db = get_db()
     payload = await request.json()
@@ -5987,7 +5998,9 @@ async def list_toc_knowledge():
     return {"success": True, "domains": [_public_toc_domain_doc(doc) for doc in docs]}
 
 
-@router.get("/toc/knowledge/{key}")
+@router.get("/toc/knowledge/{key}", responses={
+    404: {"description": "ToC domain not found"}
+})
 async def get_toc_knowledge(key: str):
     db = get_db()
     doc = await db["toc_domain_knowledge"].find_one({"key": _toc_key(key)}, {"_id": 0})
@@ -6023,7 +6036,9 @@ async def save_toc_knowledge(payload: dict):
     return {"success": True, "domain": _public_toc_domain_doc(saved)}
 
 
-@router.post("/toc/knowledge/import")
+@router.post("/toc/knowledge/import", responses={
+    400: {"description": "Missing ToC knowledge text or no valid blocks found"}
+})
 async def import_toc_knowledge(payload: dict):
     raw_text = str(payload.get("text") or "")
     if not raw_text.strip():
@@ -6045,7 +6060,9 @@ async def import_toc_knowledge(payload: dict):
     return {"success": True, "imported": len(saved), "domains": saved}
 
 
-@router.delete("/toc/knowledge/{key}")
+@router.delete("/toc/knowledge/{key}", responses={
+    404: {"description": "ToC domain not found"}
+})
 async def delete_toc_knowledge(key: str):
     db = get_db()
     result = await db["toc_domain_knowledge"].delete_one({"key": _toc_key(key)})
@@ -14096,7 +14113,7 @@ async def get_client_inbox(status: Optional[str] = None, page: int = 1, limit: i
 
 LEAD_KEYWORDS = [
     "need trainer", "trainer required", "require trainer", "looking for trainer",
-    CORPORATE_TRAINER, "training requirement", "need corporate training",
+    CORPORATE_TRAINER, "training requirement", f"need {CORPORATE_TRAINING}",
     FREELANCE_TRAINER, TECHNICAL_TRAINER, "instructor required",
 ]
 
@@ -14139,7 +14156,7 @@ def _analyse_client_lead(payload: dict) -> dict:
 
 
 def _client_lead_draft(lead: dict) -> dict:
-    domain = lead.get("domain") or "corporate training"
+    domain = lead.get("domain") or CORPORATE_TRAINING
     contact_name = lead.get("contact_name") or "Team"
     signature = "Best Regards,\nRecruitment Team\nClahan Technologies"
     return {

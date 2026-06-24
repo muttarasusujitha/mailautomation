@@ -31,7 +31,7 @@ COPY --chown=root:root --chmod=555 scripts ./scripts
 COPY --chown=root:root --chmod=555 templates ./templates
 COPY --chown=root:root --chmod=555 utils ./utils
 COPY --chown=root:root --chmod=444 celery_app.py config.py database.py generate_token.py main.py ./
-RUN mkdir -p uploads && chown -R app:app uploads config
+RUN mkdir -p uploads assets && chown -R app:app uploads config assets
 
 EXPOSE 8000
 
