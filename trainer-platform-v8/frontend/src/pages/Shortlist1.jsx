@@ -3054,6 +3054,23 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         // Only show final client rates - don't mention trainer's original charges or Clahan markup
         const commercialDetails = `Commercial Rates for ${req.technology_needed}:\n\n${clientRates.map(c => `• ${c}`).join('\n')}`
         
+        // First, send a notification to the client that commercials are ready
+        try {
+          const notificationRes = await api.post('/shortlists/send-mail', {
+            trainer_id: trainer.trainer_id,
+            trainer_name: trainer.name,
+            to_email: req.client_email,
+            requirement_id: req.requirement_id,
+            subject: `Trainer Details Received – ${req.technology_needed} | ${trainer.name}`,
+            body: `Hi ${req.client_name || 'Team'},\n\nGood news! Trainer ${trainer.name} has confirmed their availability and shared the required details for the ${req.technology_needed} requirement.\n\nWe are now preparing the final commercials for your review. Please expect another email with the commercial rates shortly.\n\nThank you for your patience!\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+            mail_type: 'commercial_details_notification',
+          })
+        } catch (e) {
+          console.log('Notification email error (non-critical):', e)
+          // Continue with commercial email even if notification fails
+        }
+        
+        // Then send the actual commercials
         const commercialRes = await api.post('/shortlists/send-mail', {
           trainer_id: trainer.trainer_id,
           trainer_name: trainer.name,
@@ -3065,7 +3082,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         })
         
         if (commercialRes?.data?.success) {
-          toast.success(`✅ Commercials sent to ${req.client_name || 'client'}`)
+          toast.success(`✅ Notification & Commercials sent to ${req.client_name || 'client'}`)
           
           // Now send mail3 (slot booking) after commercials are approved
           try {
