@@ -4197,7 +4197,10 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center flex-wrap gap-2">
-              <span className="font-semibold text-slate-900">{trainer.name}</span>
+              <div>
+                <span className="font-semibold text-slate-900">{trainer.name}</span>
+                {trainer.title && <div className="text-xs text-slate-500 mt-0.5">{trainer.title}</div>}
+              </div>
               {trainer.match_score != null && (
                 <span className={clsx('px-2 py-0.5 rounded-lg text-xs font-bold',
                   trainer.match_score >= 80 ? 'bg-emerald-100 text-emerald-700' :

@@ -10766,7 +10766,10 @@ async def _build_shortlist_for_existing_requirement(db, requirement: dict) -> di
     ]
     result = await run_pipeline(filtered_trainers, requirement)
     top_trainers = [
-        {k: v for k, v in trainer.items() if k != "_id"}
+        {
+            **{k: v for k, v in trainer.items() if k != "_id"},
+            "title": trainer.get("role_designation") or trainer.get("title") or ""
+        }
         for trainer in result.get("top_trainers", [])
     ]
     total_matched = len(result.get("ranked_trainers", []))

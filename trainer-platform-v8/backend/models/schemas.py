@@ -29,6 +29,7 @@ class ResumeProcessingStatus(str, Enum):
 class Trainer(BaseModel):
     trainer_id: str
     name: str
+    title: str = ""
     technologies: str = ""
     skills: List[str] = []
     experience_years: float = 0
@@ -101,6 +102,7 @@ class Requirement(RequirementCreate):
 class ShortlistedTrainer(BaseModel):
     trainer_id: str
     name: str
+    title: str = ""
     email: str
     phone: str
     teams_email: str = ""
