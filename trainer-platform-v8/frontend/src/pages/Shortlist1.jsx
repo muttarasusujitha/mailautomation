@@ -257,6 +257,8 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'client_budget_acknowledgment', label: '🤝 Client Budget Acknowledgment' },
   { value: 'rate_gap_resolution', label: '⚖️ Rate Gap Resolution' },
   { value: 'trainer_rate_discussion', label: '💬 Trainer Rate Discussion' },
+  { value: 'trainer_rate_accepted', label: '✅ Trainer Rate Accepted' },
+  { value: 'trainer_rate_rejected', label: '❌ Trainer Rate Rejected' },
   { value: 'mail3', label: 'Mail 3 - Slot Booking' },
   { value: 'mail4', label: 'Mail 4 - Interview Schedule' },
   { value: 'mail5_ok', label: 'Mail 5 - Selection' },
@@ -3195,6 +3197,91 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         }
       } catch (e) {
         toast.error(e.response?.data?.detail || e.message || 'Error sending trainer rate discussion email')
+      }
+      return
+    }
+    
+    if (manualMailType === 'trainer_rate_accepted') {
+      // Client accepted the rate - send confirmation to trainer and proceed with slots
+      try {
+        const acceptRes = await api.post('/shortlists/send-mail', {
+          trainer_id: trainer.trainer_id,
+          trainer_name: trainer.name,
+          to_email: trainer.email,
+          requirement_id: req.requirement_id,
+          subject: `Engagement Confirmed – ${req.technology_needed} | Proceeding with Training`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nGreat news! The client has confirmed their acceptance of your quoted rate for the ${req.technology_needed} requirement.\n\nWe are pleased to inform you that you have been selected for this training engagement. The client is ready to move forward with scheduling the interview.\n\nWe will be sharing the slot booking details and next steps shortly.\n\nThank you for your commitment and we look forward to a successful training engagement.\n\nBest Regards,\nRecruitment Team\nClahan Technologies`,
+          mail_type: 'trainer_rate_accepted',
+        })
+        
+        if (acceptRes?.data?.success) {
+          toast.success(`✅ Rate accepted confirmation sent to ${trainer.name}`)
+          
+          // Now send slot booking mail (mail3)
+          try {
+            const { subject: mail3Subject, body: mail3Body } = mail3Template(trainer, req, '')
+            const mail3Res = await api.post('/shortlists/send-mail', {
+              trainer_id: trainer.trainer_id,
+              trainer_name: trainer.name,
+              to_email: trainer.email,
+              requirement_id: req.requirement_id,
+              subject: mail3Subject,
+              body: mail3Body,
+              mail_type: 'mail3',
+              client_email: req.client_email,
+              client_name: req.client_name || req.client_company,
+            })
+            if (mail3Res?.data?.success) {
+              toast.success(`📅 Slot booking mail sent to ${trainer.name}`)
+            }
+          } catch (e) {
+            console.error('Slot booking error:', e)
+          }
+        } else {
+          toast.error(acceptRes?.data?.error || 'Failed to send rate accepted confirmation')
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending rate accepted email')
+      }
+      return
+    }
+    
+    if (manualMailType === 'trainer_rate_rejected') {
+      // Client rejected the rate - send rejection email to trainer
+      const trainerRate = prompt('Enter trainer rate (e.g., 45000)')
+      if (!trainerRate) return
+      
+      const clientBudget = prompt('Enter client budget (e.g., 40000)')
+      if (!clientBudget) return
+      
+      try {
+        const trainerAmount = parseInt(trainerRate.replace(/[₹,]/g, ''))
+        const clientAmount = parseInt(clientBudget.replace(/[₹,]/g, ''))
+        
+        if (isNaN(trainerAmount) || isNaN(clientAmount) || trainerAmount <= 0 || clientAmount <= 0) {
+          toast.error('❌ Invalid amounts')
+          return
+        }
+        
+        const gap = trainerAmount - clientAmount
+        
+        const rejectRes = await api.post('/shortlists/send-mail', {
+          trainer_id: trainer.trainer_id,
+          trainer_name: trainer.name,
+          to_email: trainer.email,
+          requirement_id: req.requirement_id,
+          subject: `Update on ${req.technology_needed} Engagement – Client Decision`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for your time and effort in this ${req.technology_needed} training requirement.\n\nUnfortunately, the client has decided to explore an alternative trainer within their budget constraint of ₹${clientAmount.toLocaleString('en-IN')} per day. Your quoted rate of ₹${trainerAmount.toLocaleString('en-IN')} per day was slightly above their budget by ₹${gap.toLocaleString('en-IN')} per day, and they have chosen to proceed with another trainer at this time.\n\nWe truly appreciate your interest and professionalism. Your profile stands out and we will definitely approach you for future requirements that match your budget and expertise.\n\nIf you have any similar or related requirements in the future, please feel free to reach out to us.\n\nThank you for your understanding and continued partnership.\n\nBest Regards,\nRecruitment Team\nClahan Technologies`,
+          mail_type: 'trainer_rate_rejected',
+        })
+        
+        if (rejectRes?.data?.success) {
+          toast.success(`✅ Rate rejection email sent to ${trainer.name}`)
+        } else {
+          toast.error(rejectRes?.data?.error || 'Failed to send rate rejection email')
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending rate rejection email')
       }
       return
     }
