@@ -547,23 +547,50 @@ def looks_like_marketing_or_bulk_email(
 
 def classify_office_mail(subject: str, from_email: str = "", body_preview: str = "") -> str:
     haystack = f"{subject or ''}\n{from_email or ''}\n{body_preview or ''}".lower()
+
+    # ── trainer_interest must be checked BEFORE job_application ──────────────
+    # Reason: phrases like "freelance/permanent training position" and
+    # "training position" are genuine trainer self-introductions, but they
+    # could contain incidental job-seeker words ("position", "interest").
+    # Checking trainer interest first prevents those emails from falling into
+    # job_application incorrectly.
     if any(marker in haystack for marker in (
+        "expression of interest", "express my interest", "trainer position",
+        "freelance/permanent training position", "training position",
+        "freelance trainer", "i am a trainer", "i am an experienced trainer",
+        "as a trainer", "corporate trainer",
+    )):
+        return "trainer_interest"
+
+    # ── job_application ───────────────────────────────────────────────────────
+    # "software testing" is a QA job-seeker term, but only classify as
+    # job_application when explicit job-seeker signals are also present
+    # (resume attachment, CTC, notice period, etc.) to avoid mis-classifying
+    # a client asking for a "software testing" trainer requirement.
+    _job_primary_markers = (
         "my resume", "attached resume", "pfa my resume", "please find attached my resume",
         "resume attached", "find my resume attached", "resume for your review",
         "application for", "job application", "immediate joiner", "looking for job",
         "job change", "seeking opportunity", "suitable opportunity", "exploring",
         "open to onsite", "open to hybrid", "open to remote", "willing to relocate",
         "offer in hand", "last working day", "current ctc",
-        "expected ctc", "notice period", "manual and automation test engineer",
+        "expected ctc", "notice period",
+        "manual and automation test engineer",
         "qa engineer", "qa automation", "automation engineer", "tester", "istqb",
-        "playwright", "tosca automation", "postman", "software testing",
-    )):
+        "playwright", "tosca automation", "postman",
+    )
+    _job_secondary_markers = ("software testing",)
+    _job_seeker_signals = (
+        "my resume", "resume attached", "current ctc", "expected ctc", "notice period",
+        "looking for job", "job change", "immediate joiner", "offer in hand", "last working day",
+    )
+    if any(marker in haystack for marker in _job_primary_markers):
         return "job_application"
-    if any(marker in haystack for marker in (
-        "expression of interest", "express my interest", "trainer position",
-        "freelance/permanent training position", "training position",
-    )):
-        return "trainer_interest"
+    # "software testing" alone is ambiguous — require at least one job-seeker
+    # signal alongside it before classifying as a job application.
+    if any(marker in haystack for marker in _job_secondary_markers):
+        if any(signal in haystack for signal in _job_seeker_signals):
+            return "job_application"
     if any(marker in haystack for marker in (
         "hotlist", "bench sales", "available consultant", "available candidates",
     )):
