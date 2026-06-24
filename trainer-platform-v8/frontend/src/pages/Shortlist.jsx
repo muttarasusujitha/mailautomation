@@ -19,6 +19,67 @@ function money(v) {
   return `INR ${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
+// ─── Date Parser ──────────────────────────────────────────────────────────────
+function parseTrainingDate(dateStr) {
+  if (!dateStr) return null
+  const str = String(dateStr).trim()
+  if (!str || str === 'null' || str === '') return null
+  try {
+    const d = new Date(str)
+    if (!isNaN(d) && d.getFullYear() > 2000 && d.getFullYear() < 2100) {
+      return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    }
+  } catch (e) {}
+  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+  for (let i = 0; i < dayNames.length; i++) {
+    if (str.toLowerCase().includes(`next ${dayNames[i]}`) || str.toLowerCase().includes(`this ${dayNames[i]}`)) {
+      const today = new Date()
+      const currentDay = today.getDay()
+      let daysAhead = i - currentDay
+      if (daysAhead <= 0) daysAhead += 7
+      const result = new Date(today)
+      result.setDate(result.getDate() + daysAhead)
+      return result.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    }
+  }
+  const dateMatch = str.match(/(\d{1,2})(st|nd|rd|th)?\s+([a-zA-Z]+)\s*(\d{4})?/)
+  if (dateMatch) {
+    const day = dateMatch[1]
+    const month = dateMatch[3]
+    const year = dateMatch[4] || new Date().getFullYear()
+    try {
+      const d = new Date(`${month} ${day}, ${year}`)
+      if (!isNaN(d)) return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    } catch (e) {}
+  }
+  const slashMatch = str.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/)
+  if (slashMatch) {
+    try {
+      const d = new Date(slashMatch[3], slashMatch[2] - 1, slashMatch[1])
+      if (!isNaN(d)) return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    } catch (e) {}
+  }
+  const weekMatch = str.match(/(\d+)(?:st|nd|rd|th)?\s+(?:week|Week)\s+(?:of\s+)?([a-zA-Z]+)\s*(\d{4})?/i)
+  if (weekMatch) {
+    const weekNum = parseInt(weekMatch[1])
+    const month = weekMatch[2]
+    const year = weekMatch[3] || new Date().getFullYear()
+    try {
+      const d = new Date(`${month} 1, ${year}`)
+      d.setDate(d.getDate() + (weekNum - 1) * 7)
+      if (!isNaN(d)) return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    } catch (e) {}
+  }
+  if (str.toLowerCase() === 'today') return new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  if (str.toLowerCase() === 'tomorrow') {
+    const d = new Date()
+    d.setDate(d.getDate() + 1)
+    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+  }
+  if (str.length > 20) return str.substring(0, 17) + '...'
+  return str.length > 0 ? str : null
+}
+
 // ─── Pipeline stages ──────────────────────────────────────────────────────────
 function channelStatus(label, result, successLabel = 'sent') {
   if (!result) return { label, value: 'Not returned', tone: 'warn', detail: '' }
@@ -3186,19 +3247,58 @@ export default function Shortlist() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {reqs.map(r => (
+              {reqs.map(r => {
+                const hiringStartDate = r.timeline_start || r.training_dates
+                let trainingDateDisplay = 'TBD'
+                if (hiringStartDate) {
+                  try {
+                    // Try ISO date first
+                    let d = new Date(hiringStartDate)
+                    if (!isNaN(d) && d.getFullYear() > 2000) {
+                      trainingDateDisplay = d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+                    } else {
+                      // Try parsing text like "21 June 2026"
+                      const textMatch = hiringStartDate.match(/(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*(\d{4})?/i)
+                      if (textMatch) {
+                        const [_, day, month, year] = textMatch
+                        const yr = year || new Date().getFullYear()
+                        const dateObj = new Date(`${month} ${day}, ${yr}`)
+                        trainingDateDisplay = dateObj.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+                      } else {
+                        trainingDateDisplay = hiringStartDate.substring(0, 12)
+                      }
+                    }
+                  } catch (e) {
+                    trainingDateDisplay = hiringStartDate.substring(0, 12)
+                  }
+                }
+                return (
                 <div key={r.requirement_id}
                   className="flex items-center gap-2 rounded-xl border bg-white border-slate-200 p-2 transition-all hover:border-blue-300 hover:bg-blue-50 group">
                   <button onClick={() => setSelectedReq(r)}
-                    className="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 text-left">
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <Star className="w-4 h-4 text-blue-500" />
+                    className="flex min-w-0 flex-1 flex-col gap-1 rounded-lg p-1 text-left">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <Star className="w-4 h-4 text-blue-500" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-sm truncate text-slate-800">{r.technology_needed}</p>
+                      <p className="text-xs text-slate-400">{r.requirement_id} · Top {r.top_n}</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 opacity-30 group-hover:opacity-70 flex-shrink-0" />
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-sm truncate text-slate-800">{r.technology_needed}</p>
-                    <p className="text-xs text-slate-400">{r.requirement_id} · Top {r.top_n}</p>
+                  <div className="flex items-center gap-4 pl-10 text-xs">
+                    <div className="flex items-center gap-1.5" style={{ color: trainingDateDisplay !== 'TBD' ? '#4b5563' : '#c4b5fd' }}>
+                      <Calendar className="w-3.5 h-3.5" style={{ color: trainingDateDisplay !== 'TBD' ? '#b45309' : '#a78bfa', flexShrink: 0 }} />
+                      <span className="truncate">{trainingDateDisplay}</span>
+                    </div>
+                    {r.client_name && (
+                      <div className="flex items-center gap-1.5 text-slate-600">
+                        <Users className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                        <span className="truncate">{r.client_name}</span>
+                      </div>
+                    )}
                   </div>
-                  <ChevronRight className="w-4 h-4 opacity-30 group-hover:opacity-70 flex-shrink-0" />
                   </button>
                   <button
                     type="button"
@@ -3209,7 +3309,8 @@ export default function Shortlist() {
                     {deletingReqId === r.requirement_id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                   </button>
                 </div>
-              ))}
+              )
+              })}
             </div>
           )}
         </div>
@@ -3220,6 +3321,45 @@ export default function Shortlist() {
               <h2 className="text-lg font-bold text-slate-900">
                 Shortlisted for: <span className="text-blue-600">{selectedReq.technology_needed}</span>
               </h2>
+              <div className="flex flex-wrap gap-3 mt-2">
+                <p className="text-xs text-slate-400">{selectedReq.requirement_id} · Top {selectedReq.top_n}</p>
+                {(() => {
+                  const hiringStart = selectedReq.timeline_start || selectedReq.training_dates
+                  let dateDisplay = 'TBD'
+                  if (hiringStart) {
+                    try {
+                      let d = new Date(hiringStart)
+                      if (!isNaN(d) && d.getFullYear() > 2000) {
+                        dateDisplay = d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+                      } else {
+                        const textMatch = hiringStart.match(/(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*(\d{4})?/i)
+                        if (textMatch) {
+                          const [_, day, month, year] = textMatch
+                          const yr = year || new Date().getFullYear()
+                          const dateObj = new Date(`${month} ${day}, ${yr}`)
+                          dateDisplay = dateObj.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+                        } else {
+                          dateDisplay = hiringStart.substring(0, 12)
+                        }
+                      }
+                    } catch (e) {
+                      dateDisplay = hiringStart.substring(0, 12)
+                    }
+                  }
+                  return (
+                    <div className="flex items-center gap-1.5 text-xs" style={{ color: dateDisplay !== 'TBD' ? '#b45309' : '#a78bfa' }}>
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>{dateDisplay}</span>
+                    </div>
+                  )
+                })()}
+                {selectedReq.client_name && (
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-600">
+                    <Users className="w-3.5 h-3.5" />
+                    <span className="font-semibold">{selectedReq.client_name}</span>
+                  </div>
+                )}
+              </div>
               <div className={clsx('mt-1 inline-flex items-center gap-2 rounded-xl border px-2.5 py-1 text-xs font-semibold',
                 selectedReq.client_email ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-700'
               )}>
@@ -3229,7 +3369,6 @@ export default function Shortlist() {
                   {selectedReq.client_email ? 'Edit' : 'Add'}
                 </button>
               </div>
-              <p className="text-xs text-slate-400">{selectedReq.requirement_id} · Top {selectedReq.top_n}</p>
             </div>
             <div className="flex gap-2">
               <button onClick={() => setSelectedReq(null)}

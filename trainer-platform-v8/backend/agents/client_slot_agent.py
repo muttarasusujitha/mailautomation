@@ -587,6 +587,24 @@ async def send_client_slot_options_email(
         raise ClientSlotError("Trainer reply does not contain concrete interview slot availability")
 
     trainer_commercial_details = extract_trainer_commercial_details(slot_text, payload)
+    
+    # If no commercial found in slot reply, look up trainer's previous commercial from mail2 response
+    if not trainer_commercial_details and trainer_id and requirement_id:
+        try:
+            mail2_reply = await db["email_logs"].find_one({
+                "trainer_id": trainer_id,
+                "requirement_id": requirement_id,
+                "mail_type": {"$in": ["mail2", "mail2_followup"]},
+                "direction": "received",
+            }, sort=[("sent_at", -1)])
+            if mail2_reply and mail2_reply.get("reply_text"):
+                trainer_commercial_details = extract_trainer_commercial_details(
+                    mail2_reply.get("reply_text", ""), 
+                    {}
+                )
+        except Exception as e:
+            pass  # Continue without previous commercial if lookup fails
+    
     trainer_commercial = _commercial_text(trainer_commercial_details)
     budget_issue = client_commercial_budget_issue(requirement, trainer_commercial_details)
     if budget_issue:

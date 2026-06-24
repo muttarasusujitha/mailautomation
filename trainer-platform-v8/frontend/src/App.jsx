@@ -28,7 +28,7 @@ const GmailCallback = lazy(() => import('./pages/GmailCallback'))
 const Admin = lazy(() => import('./pages/Admin'))
 const TocKnowledge = lazy(() => import('./pages/TocKnowledge'))
 const Shortlist = lazy(() => import('./pages/Shortlist'))
-// MAINT-001: Shortlist1 is a dead-code duplicate of Shortlist — route removed
+const Shortlist1 = lazy(() => import('./pages/Shortlist1'))
 const Profile = lazy(() => import('./pages/Profile'))
 
 function PrivateRoute({ children, isLoggedIn }) {
@@ -105,8 +105,8 @@ export default function App() {
             <Route path="toc-knowledge" element={<TocKnowledge />} />
             <Route path="interviews"   element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="shortlist"    element={<Shortlist />} />
-            {/* MAINT-001: shortlist1 route removed — Shortlist1.jsx is dead-code duplicate */}
-            <Route path="shortlist1"   element={<Navigate to="/shortlist" replace />} />
+            <Route path="ai-pipeline"  element={<Shortlist1 />} />
+            <Route path="shortlist1"   element={<Shortlist1 />} />
             <Route path="profile"      element={<Profile />} />
           </Route>
           <Route path="*" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} />

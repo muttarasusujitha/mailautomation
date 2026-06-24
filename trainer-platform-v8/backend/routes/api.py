@@ -3026,9 +3026,47 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
         )
         auto_send_eligible = False
     elif processed.get("is_auto_reply") or not extracted.get("is_training_request"):
-        status = "spam"
-        generated_reply = {}
-        requirement_id = None
+        # FIX: Before marking as spam, apply a secondary heuristic check.
+        # If the email body clearly mentions a training domain keyword, treat
+        # it as a genuine requirement even if the AI returned is_training_request=False.
+        body_lower = (processed.get("clean_body") or processed.get("raw_body") or "").lower()
+        subject_lower = (processed.get("subject") or "").lower()
+        _training_signals = [
+            "trainer", "training", "requirement", "devops", "dev ops",
+            "domain:", "duration:", "batch", "participants", "schedule",
+            "corporate training", "technical training",
+        ]
+        has_training_signal = any(sig in body_lower or sig in subject_lower for sig in _training_signals)
+
+        if not processed.get("is_auto_reply") and has_training_signal and not extracted.get("is_training_request"):
+            # Re-classify: the AI under-classified it — treat as training request
+            extracted["is_training_request"] = True
+            # Re-run reply and requirement creation below
+            generated_reply = await generate_calhan_reply(extracted, {
+                "subject": processed.get("subject", ""),
+                "reply_signature": settings.get("replySignature"),
+            })
+            requirement_id = await ensure_requirement_from_email(extracted, message_id, db)
+            confidence = float(extracted.get("confidence") or 0.55)
+            extracted["confidence"] = confidence
+            auto_send_eligible = client_reply_auto_send_eligible(
+                extracted, generated_reply, confidence, settings, domain_is_allowed,
+            )
+            duplicate_clarification = await find_existing_client_clarification_request(
+                db,
+                from_email=processed.get("from_email", ""),
+                requirement_id=requirement_id or "",
+                generated_reply=generated_reply,
+                extracted=extracted,
+                exclude_email_id=processed.get("email_id") or message_id,
+            ) if auto_send_eligible else None
+            if duplicate_clarification:
+                auto_send_eligible = False
+            status = "auto_sent" if auto_send_eligible and settings.get("autoSendEnabled") else "pending_approval"
+        else:
+            status = "spam"
+            generated_reply = {}
+            requirement_id = None
     else:
         requirement_id = await ensure_requirement_from_email(extracted, message_id, db)
         requirement_context = await db["requirements"].find_one(
