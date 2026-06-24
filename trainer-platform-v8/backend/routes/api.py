@@ -17430,3 +17430,168 @@ async def gmail_disconnect():
 
 
 
+
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Contact Finder API
+# ─────────────────────────────────────────────────────────────────────────────
+
+@router.post("/contact-finder/find")
+async def find_trainer_contact(payload: dict):
+    """
+    Find email + phone for a LinkedIn trainer profile.
+    Uses 6 free strategies in cascade — no API key needed.
+
+    Request body:
+        {
+            "name":         "Rajesh Kumar",
+            "company":      "TCS",
+            "domain":       "Python",
+            "linkedin_url": "https://linkedin.com/in/rajesh-kumar",
+            "profile_text": "...scraped profile text..."
+        }
+
+    Response:
+        {
+            "found":      true,
+            "email":      "rajesh.kumar@gmail.com",
+            "phone":      "+919876543210",
+            "source":     "naukri_profile",
+            "confidence": 0.85
+        }
+    """
+    from agents.contact_finder_agent import find_contact_for_trainer
+    result = await find_contact_for_trainer(
+        name=str(payload.get("name") or "").strip(),
+        company=str(payload.get("company") or "").strip(),
+        domain=str(payload.get("domain") or "").strip(),
+        linkedin_url=str(payload.get("linkedin_url") or "").strip(),
+        profile_text=str(payload.get("profile_text") or "").strip(),
+    )
+    return {"success": True, **result}
+
+
+@router.post("/contact-finder/bulk")
+async def bulk_find_trainer_contacts(payload: dict):
+    """
+    Find contacts for multiple trainers at once.
+
+    Request body:
+        {
+            "trainers": [
+                {"name": "Rajesh", "company": "TCS", "domain": "Python"},
+                {"name": "Priya",  "company": "Infosys", "domain": "DevOps"}
+            ],
+            "concurrency": 3
+        }
+    """
+    from agents.contact_finder_agent import bulk_find_contacts
+    trainers = payload.get("trainers") or []
+    concurrency = max(1, min(int(payload.get("concurrency") or 3), 5))
+    results = await bulk_find_contacts(trainers, concurrency=concurrency)
+    found_count = sum(1 for r in results if r.get("contact_result", {}).get("found"))
+    return {
+        "success": True,
+        "total": len(results),
+        "found_count": found_count,
+        "results": results,
+    }
+
+
+@router.post("/contact-finder/find-and-send-mail")
+async def find_contact_and_send_mail(payload: dict):
+    """
+    Find contact for a trainer lead and immediately send the first outreach email.
+    Combines contact finding + mail sending in one call.
+
+    Request body:
+        {
+            "name":         "Rajesh Kumar",
+            "company":      "TCS",
+            "domain":       "Python",
+            "linkedin_url": "https://linkedin.com/in/rajesh-kumar",
+            "profile_text": "...profile text...",
+            "requirement_id": "REQ-123",
+            "technology":   "Python"
+        }
+    """
+    from agents.contact_finder_agent import find_contact_for_trainer
+    from agents.email_agent import send_email_async
+
+    db = get_db()
+    name = str(payload.get("name") or "").strip()
+    domain = str(payload.get("domain") or payload.get("technology") or "Training").strip()
+
+    # Step 1: Find contact
+    contact = await find_contact_for_trainer(
+        name=name,
+        company=str(payload.get("company") or "").strip(),
+        domain=domain,
+        linkedin_url=str(payload.get("linkedin_url") or "").strip(),
+        profile_text=str(payload.get("profile_text") or "").strip(),
+    )
+
+    if not contact.get("email"):
+        return {
+            "success": False,
+            "found": False,
+            "error": "Could not find email address for this trainer.",
+            "contact": contact,
+        }
+
+    # Step 2: Send first outreach email
+    to_email = contact["email"]
+    requirement_id = str(payload.get("requirement_id") or "").strip()
+    subject = f"Training Requirement — {domain}"
+    body = (
+        f"Dear {name or 'Trainer'},\n\n"
+        f"We came across your profile and believe your expertise in {domain} is a great fit "
+        f"for a current training requirement we are coordinating.\n\n"
+        "Kindly let us know:\n"
+        "1. Your availability for the proposed schedule\n"
+        "2. Expected commercial charges per day/session\n"
+        "3. Preferred training mode (Online/Offline)\n"
+        "4. Any relevant certifications or past training experience\n\n"
+        "We look forward to hearing from you.\n\n"
+        "Regards,\nRecruitment Team\nClahan Technologies"
+    )
+
+    smtp_config = {}
+    settings_doc = await db["admin_settings"].find_one({"settings_id": "default"}, {"_id": 0, "emailCfg": 1})
+    if settings_doc:
+        cfg = (settings_doc or {}).get("emailCfg") or {}
+        smtp_config = {k: v for k, v in cfg.items() if v not in (None, "")}
+
+    success, error = await send_email_async(to_email, subject, body, smtp_config)
+
+    # Step 3: Log to DB
+    now = utc_now()
+    email_id = f"CF-{uuid.uuid4().hex[:8].upper()}"
+    await db["email_logs"].insert_one({
+        "email_id": email_id,
+        "to_email": to_email,
+        "trainer_name": name,
+        "requirement_id": requirement_id,
+        "subject": subject,
+        "body": body,
+        "status": "sent" if success else "failed",
+        "error_message": error or "",
+        "mail_type": "mail1",
+        "source": "contact_finder",
+        "contact_source": contact.get("source"),
+        "contact_confidence": contact.get("confidence"),
+        "linkedin_url": payload.get("linkedin_url") or "",
+        "sent_at": now if success else None,
+        "created_at": now,
+    })
+
+    return {
+        "success": success,
+        "found": True,
+        "email_sent": success,
+        "to_email": to_email,
+        "email_id": email_id,
+        "contact": contact,
+        "error": error or "",
+    }
