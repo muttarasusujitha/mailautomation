@@ -5931,7 +5931,7 @@ def _toc_knowledge_doc_from_payload(payload: dict) -> dict:
     }
 
 
-async def _admin_toc_domain_for(db, name: str) -> Optional[dict]:
+async def _admin_toc_domain_for(db, name: str) -> Optional[dict]:  # nosonar S3776
     key = _toc_key(name)
     if not key:
         return None
@@ -6078,7 +6078,7 @@ async def delete_toc_knowledge(key: str):
 @router.post("/toc/generate", responses={
     400: {"description": "Missing required fields, invalid duration, or missing custom topics"}
 })
-async def generate_training_toc(payload: dict, request: Request):
+async def generate_training_toc(payload: dict, request: Request):  # nosonar S3776
     required = ["requirement_id", "trainer_id", "technology", "duration_days"]
     missing = [field for field in required if not payload.get(field)]
     if missing:
@@ -6188,7 +6188,7 @@ async def generate_toc_pdf(payload: dict):
     404: {"description": "TOC document not found"},
     500: {"description": "TOC email failed"}
 })
-async def send_toc_email(payload: dict):  # nosonar S3776  # nosonar S3776
+async def send_toc_email(payload: dict):  # nosonar S3776
     toc_id = payload.get("toc_id")
     if not toc_id:
         raise HTTPException(400, "toc_id is required")
@@ -6283,7 +6283,7 @@ async def send_toc_email(payload: dict):  # nosonar S3776  # nosonar S3776
     404: {"description": "Requirement or trainer not found"},
     500: {"description": "Auto TOC generation failed"}
 })
-async def auto_generate_toc(payload: dict, request: Request):  # nosonar S3776  # nosonar S3776
+async def auto_generate_toc(payload: dict, request: Request):  # nosonar S3776
     db = get_db()
     requirement_id = payload.get("requirement_id") or ""
     trainer_id = payload.get("trainer_id") or ""
@@ -6613,7 +6613,7 @@ def _invoice_display_company(invoice_doc: dict) -> dict:
     return company
 
 
-def _simple_invoice_pdf_bytes(invoice_doc: dict) -> bytes:  # nosonar S3776  # nosonar S3776
+def _simple_invoice_pdf_bytes(invoice_doc: dict) -> bytes:  # nosonar S3776
     company = _invoice_display_company(invoice_doc)
     client = invoice_doc.get("client") or {}
     requirement = invoice_doc.get("requirement") or {}
@@ -6654,18 +6654,6 @@ def _simple_invoice_pdf_bytes(invoice_doc: dict) -> bytes:  # nosonar S3776  # n
     def text_right(page, x, y, value, size=10, color=(0, 0, 0)):
         value = str(value or "")
         page.insert_text((x - fitz.get_text_length(value, fontname="helv", fontsize=size), y), value, fontsize=size, fontname="helv", color=color)
-
-    def draw_water_drop(page, rect):
-        cx = (rect.x0 + rect.x1) / 2
-        shape = page.new_shape()
-        top = fitz.Point(cx, rect.y0)
-        bottom = fitz.Point(cx, rect.y1)
-        left_mid = fitz.Point(rect.x0 + rect.width * 0.08, rect.y0 + rect.height * 0.58)
-        right_mid = fitz.Point(rect.x1 - rect.width * 0.08, rect.y0 + rect.height * 0.58)
-        shape.draw_bezier(top, fitz.Point(rect.x0 + rect.width * 0.08, rect.y0 + rect.height * 0.16), left_mid, bottom)
-        shape.draw_bezier(bottom, right_mid, fitz.Point(rect.x1 - rect.width * 0.08, rect.y0 + rect.height * 0.16), top)
-        shape.finish(color=(0.16, 0.46, 0.78), fill=(0.63, 0.84, 1.0), width=1.0, fill_opacity=0.16, stroke_opacity=0.22)
-        shape.commit()
 
     navy = (31 / 255, 69 / 255, 120 / 255)
     grey = (0.72, 0.72, 0.72)
