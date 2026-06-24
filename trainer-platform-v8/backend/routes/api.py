@@ -263,7 +263,7 @@ def _get_whatsapp_provider_name(cfg: dict) -> str:
     return "Twilio"
 
 
-def _determine_ai_provider(payload: dict, generation_error: bool) -> str:
+def _determine_ai_provider(payload: dict, generation_error: str) -> str:
     """Determine the AI provider used for TOC generation."""
     if payload.get("toc_type") == "custom" and not generation_error:
         return "ollomo"
