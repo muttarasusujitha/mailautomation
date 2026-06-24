@@ -256,6 +256,8 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'client_budget_reply', label: '📧 Client Budget Reply' },
   { value: 'client_budget_acknowledgment', label: '🤝 Client Budget Acknowledgment' },
   { value: 'rate_gap_resolution', label: '⚖️ Rate Gap Resolution' },
+  { value: 'client_rate_gap_option1', label: '✅ Client Chose Option 1 (Proceed)' },
+  { value: 'client_rate_gap_option2', label: '❌ Client Chose Option 2 (Alternative)' },
   { value: 'trainer_rate_discussion', label: '💬 Trainer Rate Discussion' },
   { value: 'trainer_rate_accepted', label: '✅ Trainer Rate Accepted' },
   { value: 'trainer_rate_rejected', label: '❌ Trainer Rate Rejected' },
@@ -3177,28 +3179,64 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         
         if (gapRes?.data?.success) {
           toast.success(`✅ Rate gap email sent (Gap: ₹${gap.toLocaleString('en-IN')}/day)`)
-          
-          // Also send TOC details request to client after rate gap resolution
-          const tocRes = await api.post('/shortlists/send-mail', {
-            trainer_id: trainer.trainer_id,
-            trainer_name: trainer.name,
-            to_email: req.client_email,
-            requirement_id: req.requirement_id,
-            subject: `Training Preparation – ${req.technology_needed} | Please Confirm Session Details`,
-            body: `Dear ${req.client_name || 'Team'},\n\nThank you for your consideration of the training engagement with Trainer ${trainer.name}.\n\nTo ensure we have all necessary information for preparing the training schedule and Terms of Collaboration (ToC), we request you to provide the following details:\n\n**1. Preferred Training Days & Time:**\nPlease confirm your preferred schedule:\n• Days: (e.g., Monday to Friday, specific days)\n• Time: (e.g., 10:00 AM - 12:00 PM IST)\n• Duration: (Number of days/weeks)\n\n**2. Session Format:**\nPlease specify your preferred training format:\n• Online (Virtual via Zoom/Teams/Google Meet)\n• Offline (In-person at your location)\n• Hybrid (Mix of online and offline sessions)\n\n**3. Participant Details:**\n• Number of participants attending\n• Technical requirements (software, tools, setup)\n• Any specific learning objectives or focus areas\n\nPlease provide these details along with your preference regarding the trainer's commercial proposal (Option 1 or Option 2).\n\nOnce we receive your confirmation on both fronts, we will proceed with scheduling and preparing the comprehensive ToC document.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
-            mail_type: 'client_toc_details_request',
-          })
-          
-          if (tocRes?.data?.success) {
-            toast.success(`📋 TOC details request sent to ${req.client_name || 'client'}`)
-          } else {
-            toast.info(`⚠️ Could not send TOC details request`)
-          }
+          toast.info(`📋 Waiting for client to choose Option 1 or Option 2...`)
         } else {
           toast.error(gapRes?.data?.error || 'Failed to send rate gap resolution email')
         }
       } catch (e) {
         toast.error(e.response?.data?.detail || e.message || 'Error sending rate gap resolution email')
+      }
+      return
+    }
+    
+    if (manualMailType === 'client_rate_gap_option1') {
+      // Client chose Option 1: Proceed with trainer at higher rate
+      // Send TOC details request to client
+      try {
+        const tocRes = await api.post('/shortlists/send-mail', {
+          trainer_id: trainer.trainer_id,
+          trainer_name: trainer.name,
+          to_email: req.client_email,
+          requirement_id: req.requirement_id,
+          subject: `Training Preparation – ${req.technology_needed} | Please Confirm Session Details`,
+          body: `Dear ${req.client_name || 'Team'},\n\nThank you for confirming your preference to proceed with Trainer ${trainer.name} for your ${req.technology_needed} training requirement.\n\nWe truly appreciate your confidence in ${trainer.name}'s expertise and experience. We are excited to work with both parties to deliver excellent training outcomes.\n\nTo accelerate the scheduling and prepare the comprehensive Terms of Collaboration (ToC) document, we kindly request you to provide the following details:\n\n**1. Preferred Training Days & Time:**\nPlease confirm your preferred schedule:\n• Days: (e.g., Monday to Friday, or specific days)\n• Time: (e.g., 10:00 AM - 12:00 PM IST)\n• Total Duration: (Number of days/weeks for the training)\n\n**2. Session Format:**\nPlease specify your preferred training delivery format:\n• Online (Virtual via Zoom/Teams/Google Meet)\n• Offline (In-person at your location)\n• Hybrid (Mix of online and offline sessions)\n\n**3. Participant Details:**\n• Total number of participants attending\n• Technical requirements (software, tools, setup required for the training)\n• Any specific learning objectives or focus areas for the training\n\nOnce we receive these details, we will coordinate with Trainer ${trainer.name} to finalize the schedule and prepare the complete ToC document for your review and approval.\n\nPlease reply with the above information at your earliest convenience.\n\nWe look forward to a successful training engagement!\n\nWarm Regards,\nRecruitment Team,\nClahan Technologies`,
+          mail_type: 'client_toc_details_request',
+        })
+        
+        if (tocRes?.data?.success) {
+          toast.success(`✅ Client confirmed Option 1 (Proceed)`)
+          toast.success(`📋 TOC details request sent to ${req.client_name || 'client'}`)
+        } else {
+          toast.error(tocRes?.data?.error || 'Failed to send TOC details request')
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending TOC details request')
+      }
+      return
+    }
+    
+    if (manualMailType === 'client_rate_gap_option2') {
+      // Client chose Option 2: Find alternative trainer within budget
+      // Send acknowledgment and inform about next steps
+      try {
+        const option2Res = await api.post('/shortlists/send-mail', {
+          trainer_id: trainer.trainer_id,
+          trainer_name: trainer.name,
+          to_email: req.client_email,
+          requirement_id: req.requirement_id,
+          subject: `Training Engagement – Exploring Alternative Options | ${req.technology_needed}`,
+          body: `Dear ${req.client_name || 'Team'},\n\nThank you for your prompt response regarding Trainer ${trainer.name}'s proposal for your ${req.technology_needed} training requirement.\n\nWe respect your decision to explore alternative trainers within your budget of ₹${parseInt(prompt('Enter client budget (e.g., 40000)') || 0).toLocaleString('en-IN')} per day.\n\nWe will now initiate our search for other qualified trainers who can deliver excellent training in ${req.technology_needed} within your specified budget and requirements.\n\n**Next Steps:**\n1. We will identify potential trainers matching your criteria\n2. We will conduct initial screening to ensure quality and experience\n3. We will present shortlisted options with their profiles and availability\n\nWe typically complete this process within 3-5 business days. We will keep you updated on our progress and reach out as soon as we have suitable alternatives for your review.\n\nIn the meantime, if you have any additional requirements or preferences for the alternative trainer, please do not hesitate to share them.\n\nThank you for your patience and understanding. We are committed to finding the best fit for your organization's training needs.\n\nBest Regards,\nRecruitment Team,\nClahan Technologies`,
+          mail_type: 'client_rate_gap_option2',
+        })
+        
+        if (option2Res?.data?.success) {
+          toast.success(`✅ Client confirmed Option 2 (Find Alternative)`)
+          toast.success(`🔄 Alternative trainer search initiated`)
+        } else {
+          toast.error(option2Res?.data?.error || 'Failed to send option 2 acknowledgment')
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending option 2 email')
       }
       return
     }
