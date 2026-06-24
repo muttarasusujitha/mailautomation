@@ -1,8 +1,11 @@
 from utils.time_utils import utc_now
 import hashlib
+import logging
 import re
 import uuid
 from typing import Callable, Optional
+
+logger = logging.getLogger(__name__)
 
 from agents.email_agent import send_email_async
 from agents.teams_agent import send_teams_stage_notification
@@ -599,11 +602,15 @@ async def send_client_slot_options_email(
             }, sort=[("sent_at", -1)])
             if mail2_reply and mail2_reply.get("reply_text"):
                 trainer_commercial_details = extract_trainer_commercial_details(
-                    mail2_reply.get("reply_text", ""), 
+                    mail2_reply.get("reply_text", ""),
                     {}
                 )
         except Exception as e:
-            pass  # Continue without previous commercial if lookup fails
+            logger.warning(
+                "client_slot_agent: failed to fetch mail2 commercial fallback for "
+                "trainer_id=%s requirement_id=%s — %s: %s",
+                trainer_id, requirement_id, type(e).__name__, e,
+            )
     
     trainer_commercial = _commercial_text(trainer_commercial_details)
     budget_issue = client_commercial_budget_issue(requirement, trainer_commercial_details)
@@ -678,9 +685,14 @@ async def send_client_slot_options_email(
     )
     if payload.get("body") and client_commercial and "commercial" not in body.lower():
         body = f"{body.rstrip()}\n\nCommercial: {client_commercial}"
-    if slot_ref not in subject:
+
+    # Use word-boundary match so "SLOT-AB12" doesn't falsely suppress when
+    # "SLOT-AB12CD34" (a different ref) is already present, and so a longer
+    # ref like "SLOT-AB12CD3456" doesn't prevent appending "SLOT-AB12CD34".
+    _slot_ref_pattern = re.compile(r"(?<![A-Z0-9\-])" + re.escape(slot_ref) + r"(?![A-Z0-9\-])", re.IGNORECASE)
+    if not _slot_ref_pattern.search(subject):
         subject = f"{subject} | {slot_ref}"
-    if slot_ref not in body:
+    if not _slot_ref_pattern.search(body):
         body = f"{body.rstrip()}\n\nReference: {requirement_id} / {slot_ref}"
 
     email_id = f"CLIENT-SLOT-{uuid.uuid4().hex[:8].upper()}"
