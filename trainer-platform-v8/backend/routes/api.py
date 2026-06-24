@@ -234,6 +234,7 @@ LINKEDIN_COM_IN = "linkedin.com/in"
 NAUKRI_COM = "naukri.com"
 CORPORATE_TRAINING = "corporate training"
 TECHNICAL_TRAINING = "technical training"
+REQUIREMENT_ID_FIELD = "requirement.requirement_id"
 
 # Training signals to identify genuine requirements
 TRAINING_SIGNALS = [
@@ -8028,7 +8029,7 @@ async def get_client_pipeline(q: Optional[str] = None, domain: Optional[str] = N
         client_messages = await db["client_messages"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(400).to_list(400)
         client_slots = await db["client_slot_emails"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
         confirmations = await db["client_slot_confirmations"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
-        invoice_docs = await db["invoices"].find({"requirement.requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
+        invoice_docs = await db["invoices"].find({REQUIREMENT_ID_FIELD: {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(300).to_list(300)
         po_docs = await db["client_purchase_orders"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("updated_at", -1).limit(300).to_list(300)
         email_logs = await db["email_logs"].find({"requirement_id": {MONGO_IN: requirement_ids}}, {"_id": 0}).sort("created_at", -1).limit(500).to_list(500)
         for doc in invoice_docs:
@@ -12710,7 +12711,7 @@ async def get_dashboard_analytics(
     req_range = _range_match("created_at", start, end)
 
     total_requirements = await db["requirements"].count_documents(req_range)
-    po_req_ids_all = await _distinct_values(db, "purchase_orders", "requirement.requirement_id", {})
+    po_req_ids_all = await _distinct_values(db, "purchase_orders", REQUIREMENT_ID_FIELD, {})
     closed_req_ids_all = await _distinct_values(db, "requirements", "requirement_id", {"status": {MONGO_IN: closed_statuses}})
     closed_ids_all = po_req_ids_all | closed_req_ids_all
 
@@ -12740,7 +12741,7 @@ async def get_dashboard_analytics(
         {MATCH_OPERATOR: {"close_date": {"$gte": start, "$lt": end}}},
         {"$lookup": {
             "from": "requirements",
-            "localField": "requirement.requirement_id",
+            "localField": REQUIREMENT_ID_FIELD,
             "foreignField": "requirement_id",
             "as": "req",
         }},
@@ -12768,7 +12769,7 @@ async def get_dashboard_analytics(
         {MATCH_OPERATOR: _range_match("created_at", start, end)},
         {MONGO_GROUP: {
             "_id": {"year": {MONGO_ISO_WEEK_YEAR: MONGO_CREATED_AT}, "week": {MONGO_ISO_WEEK: MONGO_CREATED_AT}},
-            "ids": {"$addToSet": "$requirement.requirement_id"},
+            "ids": {"$addToSet": f"${REQUIREMENT_ID_FIELD}"},
         }},
     ]).to_list(100)
     status_closed_week_docs = await db["requirements"].aggregate([
@@ -12818,7 +12819,7 @@ async def get_dashboard_analytics(
             "status": "sent",
             "sent_at": {"$gte": start, "$lt": end},
         })},
-        {"stage": "PO", "value": await _distinct_count(db, "purchase_orders", "requirement.requirement_id", _range_match("created_at", start, end))},
+        {"stage": "PO", "value": await _distinct_count(db, "purchase_orders", REQUIREMENT_ID_FIELD, _range_match("created_at", start, end))},
     ]
 
     raw_categories = await db["requirements"].aggregate([
