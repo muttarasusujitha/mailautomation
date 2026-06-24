@@ -2970,9 +2970,32 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       })
 
       if (negotiationRes?.data?.success) {
-        toast.success(`📧 Negotiation sent: ₹${trainerOffer.toLocaleString('en-IN')}/day (Client budget: ₹${budgetAmount.toLocaleString('en-IN')}/day)`)
-        setShowNegotiationModal(false)
-        setClientBudget('')
+        // Also send confirmation email to client
+        try {
+          const clientRes = await api.post('/shortlists/send-mail', {
+            trainer_id: trainer.trainer_id,
+            trainer_name: trainer.name,
+            to_email: req.client_email,
+            requirement_id: req.requirement_id,
+            subject: `Trainer Found – Rate Negotiation in Progress | ${req.technology_needed}`,
+            body: `Hi ${req.client_name || 'Team'},\n\nGood news! We have found a suitable trainer (${trainer.name}) for your ${req.technology_needed} requirement.\n\nWe are currently negotiating the commercial rates with the trainer based on your budget of ₹${budgetAmount.toLocaleString('en-IN')}/day.\n\nIf the trainer agrees to match your budget, we will proceed with them immediately. We will update you within 24 hours with the confirmation.\n\nThank you for your patience!\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+            mail_type: 'trainer_negotiation_client_update',
+          })
+          
+          if (clientRes?.data?.success) {
+            toast.success(`📧 Trainer negotiation sent ✅\n📧 Client update sent ✅`)
+            setShowNegotiationModal(false)
+            setClientBudget('')
+          } else {
+            toast.success(`📧 Trainer negotiation sent ✅\n⚠️ Failed to send client update`)
+            setShowNegotiationModal(false)
+            setClientBudget('')
+          }
+        } catch (e) {
+          toast.success(`📧 Trainer negotiation sent ✅\n⚠️ Could not send client update`)
+          setShowNegotiationModal(false)
+          setClientBudget('')
+        }
       } else {
         toast.error(negotiationRes?.data?.error || 'Failed to send negotiation email')
       }
