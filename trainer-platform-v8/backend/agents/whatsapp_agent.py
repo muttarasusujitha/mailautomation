@@ -48,7 +48,11 @@ META_PIPELINE_TEMPLATES = {
 
 def _default_country_code(value: Any = "+91") -> str:
     digits = re.sub(r"\D", "", str(value or ""))
-    if not digits or len(digits) > 4:
+    # A valid country calling code is 1–3 digits (ITU-T E.164).
+    # If the digit string is empty or longer than 3, the caller passed a full
+    # phone number (e.g. "+919876543210") instead of just a code (e.g. "+91").
+    # In either case fall back to India (+91).
+    if not digits or len(digits) > 3:
         digits = "91"
     return f"+{digits}"
 

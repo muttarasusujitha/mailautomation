@@ -36,6 +36,18 @@ AVAILABILITY_WEIGHT = 5
 MAX_AI_CANDIDATES = 30
 DEFAULT_TOP_N = 5
 
+# Token-overlap thresholds for _best_token_overlap() comparisons.
+# CATEGORY_FILTER_OVERLAP  — minimum ratio to pass a trainer through the
+#   category pre-filter even when no exact keyword matched.  0.6 means at
+#   least 60 % of the requirement tokens must appear in the trainer profile.
+# TECHNOLOGY_STRONG_OVERLAP — minimum ratio to award the "Strong token
+#   overlap" technology score (25 pts) in the scoring stage.
+# TECHNOLOGY_PARTIAL_OVERLAP — minimum ratio for the weaker "Partial token
+#   overlap" score (16 pts).  Trainers below this threshold score 0 for tech.
+CATEGORY_FILTER_OVERLAP: float = 0.60
+TECHNOLOGY_STRONG_OVERLAP: float = 0.75
+TECHNOLOGY_PARTIAL_OVERLAP: float = 0.45
+
 TECH_ALIASES: Dict[str, List[str]] = {
     "full stack": ["fullstack", "mern", "mean", "react node", "frontend backend"],
     "frontend": ["front end", "react", "angular", "vue", "javascript ui"],
@@ -318,7 +330,7 @@ def _category_matches_requirement(trainer: Dict[str, Any], requirement: Dict[str
     category_text = _trainer_category_text(trainer)
     if _matching_terms(required_terms, category_text):
         return True
-    return _best_token_overlap(required_terms, category_text) >= 0.6
+    return _best_token_overlap(required_terms, category_text) >= CATEGORY_FILTER_OVERLAP
 
 
 def _category_filter_agent(state: PipelineState) -> PipelineState:
@@ -419,10 +431,10 @@ def _score_technology(requirement: Dict[str, Any], trainer: Dict[str, Any], prof
     elif profile_matches:
         score = 30
         reason = "Profile evidence match"
-    elif overlap >= 0.75:
+    elif overlap >= TECHNOLOGY_STRONG_OVERLAP:
         score = 25
         reason = "Strong token overlap"
-    elif overlap >= 0.45:
+    elif overlap >= TECHNOLOGY_PARTIAL_OVERLAP:
         score = 16
         reason = "Partial token overlap"
     else:
