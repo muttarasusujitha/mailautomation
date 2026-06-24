@@ -259,6 +259,7 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'trainer_rate_discussion', label: '💬 Trainer Rate Discussion' },
   { value: 'trainer_rate_accepted', label: '✅ Trainer Rate Accepted' },
   { value: 'trainer_rate_rejected', label: '❌ Trainer Rate Rejected' },
+  { value: 'client_toc_details_request', label: '📋 Client TOC Details Request' },
   { value: 'mail3', label: 'Mail 3 - Slot Booking' },
   { value: 'mail4', label: 'Mail 4 - Interview Schedule' },
   { value: 'mail5_ok', label: 'Mail 5 - Selection' },
@@ -3282,6 +3283,30 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         }
       } catch (e) {
         toast.error(e.response?.data?.detail || e.message || 'Error sending rate rejection email')
+      }
+      return
+    }
+    
+    if (manualMailType === 'client_toc_details_request') {
+      // Ask client for TOC preparation details (day, time, session format)
+      try {
+        const tocRes = await api.post('/shortlists/send-mail', {
+          trainer_id: trainer.trainer_id,
+          trainer_name: trainer.name,
+          to_email: req.client_email,
+          requirement_id: req.requirement_id,
+          subject: `Training Preparation – ${req.technology_needed} | Please Confirm Session Details`,
+          body: `Dear ${req.client_name || 'Team'},\n\nCongratulations! Trainer ${trainer.name} has been confirmed for your ${req.technology_needed} training engagement.\n\nTo finalize the training schedule and prepare the Terms of Collaboration (ToC), we need a few details from you:\n\n**1. Preferred Training Days & Time:**\nPlease confirm your preferred schedule:\n• Days: (e.g., Monday to Friday, specific days)\n• Time: (e.g., 10:00 AM - 12:00 PM IST)\n• Duration: (Number of days/weeks)\n\n**2. Session Format:**\nPlease specify your preferred training format:\n• Online (Virtual via Zoom/Teams/Google Meet)\n• Offline (In-person at your location)\n• Hybrid (Mix of online and offline sessions)\n\n**3. Participant Details:**\n• Number of participants attending\n• Technical requirements (software, tools, setup)\n• Any specific learning objectives or focus areas\n\nOnce we receive these details, we will prepare the complete ToC document and share it with you for final approval.\n\nPlease reply with the above information at your earliest convenience so we can proceed with scheduling.\n\nWe look forward to a successful training engagement with Trainer ${trainer.name}.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+          mail_type: 'client_toc_details_request',
+        })
+        
+        if (tocRes?.data?.success) {
+          toast.success(`📋 TOC details request sent to ${req.client_name || 'client'}`)
+        } else {
+          toast.error(tocRes?.data?.error || 'Failed to send TOC details request')
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending TOC details request')
       }
       return
     }
