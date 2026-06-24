@@ -5396,7 +5396,9 @@ async def test_whatsapp_settings(request: Request):
     return {"message": "WhatsApp test sent", **result}
 
 
-@router.get("/teams-direct/oauth-url")
+@router.get("/teams-direct/oauth-url", responses={
+    400: {"description": "Missing Microsoft Graph settings"}
+})
 async def teams_direct_oauth_url():
     db = get_db()
     cfg = await get_teams_direct_config(db)
@@ -6135,7 +6137,7 @@ async def generate_training_toc(payload: dict, request: Request):
         "toc_data": toc_data,
         "missing_client_inputs": missing_client_inputs,
         "generation_error": generation_error,
-        "ai_provider": _determine_ai_provider(payload, generation_error),
+        "ai_provider": _determine_ai_provider(payload, generation_error, doc),
         "status": "draft",
         "created_at": utc_now(),
     }
@@ -6179,7 +6181,11 @@ async def generate_toc_pdf(payload: dict):
     )
 
 
-@router.post("/toc/send-email")
+@router.post("/toc/send-email", responses={
+    400: {"description": "Missing TOC ID or trainer email"},
+    404: {"description": "TOC document not found"},
+    500: {"description": "TOC email failed"}
+})
 async def send_toc_email(payload: dict):
     toc_id = payload.get("toc_id")
     if not toc_id:
@@ -10107,7 +10113,9 @@ async def cancel_interview_reminder_route(reminder_id: str, payload: dict = {}):
     return result
 
 
-@router.post("/admin/teams/test")
+@router.post("/admin/teams/test", responses={
+    400: {"description": "Missing Teams settings or test failed"}
+})
 async def test_teams_settings(request: Request):
     db = get_db()
     result = await send_teams_stage_notification(
