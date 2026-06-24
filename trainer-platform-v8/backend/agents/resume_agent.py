@@ -765,7 +765,11 @@ def _specialist_evidence_category(resume_text: str, skills: Optional[List[str]] 
     for category, keyword_patterns, role_patterns in SPECIALIST_RULES:
         score = 0
         for pattern in keyword_patterns:
-            score += len(re.findall(pattern, text, flags=re.IGNORECASE))
+            # Cap each keyword at 1 point regardless of how many times it appears
+            # in the document.  A trainer who writes "Docker" ten times is not
+            # a better DevOps expert than one who writes it once alongside many
+            # other relevant tools.  Presence matters; repetition does not.
+            score += 1 if re.search(pattern, text, flags=re.IGNORECASE) else 0
         for pattern in role_patterns:
             match = re.search(pattern, headline, flags=re.IGNORECASE)
             if match:
