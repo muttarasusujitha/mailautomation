@@ -251,6 +251,7 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'mail1', label: 'Mail 1 - First Contact' },
   { value: 'mail2', label: 'Mail 2 - Details Request' },
   { value: 'mail2_followup', label: 'Mail 2 Follow-up' },
+  { value: 'trainer_acknowledgment', label: '✅ Trainer Acknowledgment' },
   { value: 'trainer_commercials_to_client', label: '💼 Send Commercials to Client' },
   { value: 'client_budget_reply', label: '📧 Client Budget Reply' },
   { value: 'mail3', label: 'Mail 3 - Slot Booking' },
@@ -3010,6 +3011,30 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   const sendManualPipelineTemplate = async () => {
     if (manualMailType === 'mail6_toc') {
       handleTocRequest()
+      return
+    }
+    
+    if (manualMailType === 'trainer_acknowledgment') {
+      // Send acknowledgment to trainer for their commercial rates
+      try {
+        const ackRes = await api.post('/shortlists/send-mail', {
+          trainer_id: trainer.trainer_id,
+          trainer_name: trainer.name,
+          to_email: trainer.email,
+          requirement_id: req.requirement_id,
+          subject: `RE: Commercial Details Confirmation – ${req.technology_needed}`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for sharing your commercial details and availability for the ${req.technology_needed} requirement.\n\nWe have received your information and are now sharing it with our client for review and approval.\n\nOnce the client approves, we will proceed with scheduling the interview.\n\nWe will keep you updated on the next steps.\n\nBest Regards,\nRecruitment Team\nClahan Technologies`,
+          mail_type: 'trainer_acknowledgment',
+        })
+        
+        if (ackRes?.data?.success) {
+          toast.success(`✅ Trainer acknowledgment sent to ${trainer.name}`)
+        } else {
+          toast.error(ackRes?.data?.error || 'Failed to send trainer acknowledgment')
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending trainer acknowledgment')
+      }
       return
     }
     
