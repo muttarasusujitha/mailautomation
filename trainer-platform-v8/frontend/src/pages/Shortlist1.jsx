@@ -251,6 +251,7 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'mail1', label: 'Mail 1 - First Contact' },
   { value: 'mail2', label: 'Mail 2 - Details Request' },
   { value: 'mail2_followup', label: 'Mail 2 Follow-up' },
+  { value: 'trainer_commercials_to_client', label: '💼 Send Commercials to Client' },
   { value: 'mail3', label: 'Mail 3 - Slot Booking' },
   { value: 'mail4', label: 'Mail 4 - Interview Schedule' },
   { value: 'mail5_ok', label: 'Mail 5 - Selection' },
@@ -2546,6 +2547,20 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
 
         if (activeStage === 'details_received') {
           const messages = await getThread(activeTrainer)
+          
+          // AUTO: Send trainer commercials to client after mail2 reply received
+          const clientCommercialsSent = messages.some(m => m.direction === 'sent' && m.mail_type === 'trainer_commercials_to_client')
+          
+          // ⚠️ IMPORTANT: Don't auto-send mail3 until commercials are approved
+          // Only proceed to mail3 if commercials are already sent
+          if (!clientCommercialsSent) {
+            // Commercials not sent yet - wait for manual approval
+            toast(`⏳ Waiting for commercials to be sent to ${req.client_name || 'client'} and approved. Use "Send Commercials to Client" button.`, { icon: '⏳', duration: 4000 })
+            runningRef.current = false
+            return
+          }
+
+          // Commercials sent - now proceed with slot booking
           const mail3AlreadySent = messages.some(m => m.direction === 'sent' && m.mail_type === 'mail3')
           if (!mail3AlreadySent) {
             const { subject, body } = mail3Template(activeTrainer, req, '')
@@ -2560,7 +2575,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
               client_name: req.client_name || req.client_company,
             })
             showSendStatusToast({ trainerName: activeTrainer.name, result: res.data, title: 'Slot booking sent' })
-            toast(`Auto: Slot Booking mail sent to ${activeTrainer.name}. Next trainer will wait until this pipeline finishes.`, { icon: '📅', duration: 5000 })
+            toast(`✅ After commercial approval: Slot Booking mail sent to ${activeTrainer.name}. Next trainer will wait until this pipeline finishes.`, { icon: '📅', duration: 5000 })
           }
           setStage(activeTrainer, 'slot_booked')
           runningRef.current = false
@@ -2902,17 +2917,117 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   const [sendingToc, setSendingToc] = useState(false)
   const [sendingClientPo, setSendingClientPo] = useState(false)
   const [sendingClientSlots, setSendingClientSlots] = useState(false)
+  const [sendingCommercials, setSendingCommercials] = useState(false)
   const [clientEmailRequest, setClientEmailRequest] = useState(null)
   const [threadMessages, setThreadMessages] = useState([])
   const [showTemplates, setShowTemplates] = useState(false)
 
   const BTN = 'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white transition-all active:scale-95 shadow-sm'
 
-  const sendManualPipelineTemplate = () => {
+  const getThread = async trainer => {
+    const res = await api.get(
+      `/shortlists/thread?trainer_id=${trainer.trainer_id}&requirement_id=${req.requirement_id}`
+    )
+    return (res.data.messages || []).filter(m =>
+      (!m.trainer_id     || String(m.trainer_id)     === String(trainer.trainer_id)) &&
+      (!m.requirement_id || String(m.requirement_id) === String(req.requirement_id))
+    )
+  }
+
+  const sendManualPipelineTemplate = async () => {
     if (manualMailType === 'mail6_toc') {
       handleTocRequest()
       return
     }
+    
+    if (manualMailType === 'trainer_commercials_to_client') {
+      // Send trainer commercials to client
+      setSendingCommercials(true)
+      try {
+        const messages = await getThread(trainer)
+        
+        // Try to find mail2 reply first, then any received email that's not mail1/mail3
+        let mail2Reply = messages.find(m => m.direction === 'received' && (m.mail_type === 'mail2' || m.mail_type === 'mail2_followup'))
+        
+        if (!mail2Reply) {
+          // Fallback: look for any recent received email that might be trainer's response
+          mail2Reply = messages.filter(m => 
+            m.direction === 'received' && 
+            m.mail_type !== 'mail1' && 
+            m.mail_type !== 'mail3'
+          ).sort((a, b) => new Date(b.sent_at || 0) - new Date(a.sent_at || 0))[0]
+        }
+        
+        if (!mail2Reply) {
+          toast.error('❌ No trainer reply found. Trainer must respond to the details request first.')
+          setSendingCommercials(false)
+          return
+        }
+        
+        const replyContent = mail2Reply.body || mail2Reply.reply_text || mail2Reply.content || ''
+        const commercialMatches = replyContent.match(/₹[\d,]+|inr\s*[\d,]+/gi) || []
+        
+        if (commercialMatches.length === 0) {
+          toast.error('❌ No charges/commercials found in trainer reply. Ask trainer to mention their rates.')
+          setSendingCommercials(false)
+          return
+        }
+        
+        // Build client rates with Clahan markup
+        const clientRates = commercialMatches.map(c => {
+          const amount = parseInt(c.replace(/[₹,inr\s]/gi, ''))
+          return `₹${(amount + 5000).toLocaleString('en-IN')}`
+        })
+        
+        // Only show final client rates - don't mention trainer's original charges or Clahan markup
+        const commercialDetails = `Commercial Rates for ${req.technology_needed}:\n\n${clientRates.map(c => `• ${c}`).join('\n')}`
+        
+        const commercialRes = await api.post('/shortlists/send-mail', {
+          trainer_id: trainer.trainer_id,
+          trainer_name: trainer.name,
+          to_email: req.client_email,
+          requirement_id: req.requirement_id,
+          subject: `Trainer Commercials for Approval – ${req.technology_needed} | ${trainer.name}`,
+          body: `Hi ${req.client_name || 'Team'},\n\nTrainer ${trainer.name} has shared their commercial rates for the ${req.technology_needed} requirement.\n\n${commercialDetails}\n\nPlease review and confirm if these rates are acceptable. Once you approve, we will proceed with interview scheduling.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+          mail_type: 'trainer_commercials_to_client',
+        })
+        
+        if (commercialRes?.data?.success) {
+          toast.success(`✅ Commercials sent to ${req.client_name || 'client'}`)
+          
+          // Now send mail3 (slot booking) after commercials are approved
+          try {
+            const { subject: mail3Subject, body: mail3Body } = mail3Template(trainer, req, '')
+            const mail3Res = await api.post('/shortlists/send-mail', {
+              trainer_id: trainer.trainer_id,
+              trainer_name: trainer.name,
+              to_email: trainer.email,
+              requirement_id: req.requirement_id,
+              subject: mail3Subject,
+              body: mail3Body,
+              mail_type: 'mail3',
+              client_email: req.client_email,
+              client_name: req.client_name || req.client_company,
+            })
+            if (mail3Res?.data?.success) {
+              toast.success(`📅 Slot booking mail sent to ${trainer.name}`)
+              onStatusUpdate(trainer.trainer_id, 'slot_booked')
+            }
+          } catch (e) {
+            toast.error('Failed to send slot booking after commercials')
+            console.error('Slot booking error:', e)
+          }
+        } else {
+          toast.error(commercialRes?.data?.error || 'Failed to send commercials')
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending commercials')
+      } finally {
+        setSendingCommercials(false)
+      }
+      return
+    }
+    
     setMailModal(manualMailType)
   }
 
@@ -2944,10 +3059,12 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           <button
             type="button"
             onClick={sendManualPipelineTemplate}
-            disabled={manualMailType === 'mail6_toc' && sendingToc}
+            disabled={(manualMailType === 'mail6_toc' && sendingToc) || (manualMailType === 'trainer_commercials_to_client' && sendingCommercials)}
             className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-60"
           >
-            {manualMailType === 'mail6_toc' && sendingToc ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+            {(manualMailType === 'mail6_toc' && sendingToc) || (manualMailType === 'trainer_commercials_to_client' && sendingCommercials) ? 
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 
+              <Send className="h-3.5 w-3.5" />}
             Send
           </button>
         </div>
@@ -3853,6 +3970,32 @@ export default function Shortlist1() {
                       <Mail className="h-3 w-3" />
                       {r.client_email ? 'Client email saved' : 'Client email missing'}
                     </p>
+                    {r.client_name && <p className="text-xs text-slate-600">👤 {r.client_name}</p>}
+                    {(() => {
+                      const hiringStartDate = r.timeline_start || r.training_dates
+                      if (!hiringStartDate) return <p className="text-xs text-slate-400">📅 TBD</p>
+                      try {
+                        // Try parsing as ISO date first
+                        let d = new Date(hiringStartDate)
+                        if (!isNaN(d) && d.getFullYear() > 2000) {
+                          const monthYear = d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+                          return <p className="text-xs text-amber-600">📅 {monthYear}</p>
+                        }
+                        // If ISO didn't work, try extracting dates from text like "21 June 2026"
+                        const textMatch = hiringStartDate.match(/(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*(\d{4})?/i)
+                        if (textMatch) {
+                          const [_, day, month, year] = textMatch
+                          const yr = year || new Date().getFullYear()
+                          const dateObj = new Date(`${month} ${day}, ${yr}`)
+                          const monthYear = dateObj.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+                          return <p className="text-xs text-amber-600">📅 {monthYear}</p>
+                        }
+                        // Fallback: show first 12 chars of the date string
+                        return <p className="text-xs text-amber-600">📅 {hiringStartDate.substring(0, 12)}</p>
+                      } catch (e) {
+                        return <p className="text-xs text-slate-400">📅 {hiringStartDate.substring(0, 12)}</p>
+                      }
+                    })()}
                     <p className="text-xs text-slate-400">{r.requirement_id} · Top {r.top_n}</p>
                   </div>
                   <ChevronRight className="w-4 h-4 opacity-30 group-hover:opacity-70 flex-shrink-0" />
