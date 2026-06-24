@@ -254,6 +254,7 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'trainer_acknowledgment', label: '✅ Trainer Acknowledgment' },
   { value: 'trainer_commercials_to_client', label: '💼 Send Commercials to Client' },
   { value: 'client_budget_reply', label: '📧 Client Budget Reply' },
+  { value: 'client_budget_acknowledgment', label: '🤝 Client Budget Acknowledgment' },
   { value: 'mail3', label: 'Mail 3 - Slot Booking' },
   { value: 'mail4', label: 'Mail 4 - Interview Schedule' },
   { value: 'mail5_ok', label: 'Mail 5 - Selection' },
@@ -3069,6 +3070,39 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         }
       } catch (e) {
         toast.error(e.response?.data?.detail || e.message || 'Error sending client budget reply')
+      }
+      return
+    }
+    
+    if (manualMailType === 'client_budget_acknowledgment') {
+      // Send acknowledgment to client after they reply with budget
+      const clientBudget = prompt('Enter the client budget they mentioned (e.g., 40000)')
+      if (!clientBudget) return
+      
+      try {
+        const budgetAmount = parseInt(clientBudget.replace(/[₹,]/g, ''))
+        if (isNaN(budgetAmount) || budgetAmount <= 0) {
+          toast.error('❌ Invalid budget amount')
+          return
+        }
+        
+        const ackRes = await api.post('/shortlists/send-mail', {
+          trainer_id: trainer.trainer_id,
+          trainer_name: trainer.name,
+          to_email: req.client_email,
+          requirement_id: req.requirement_id,
+          subject: `RE: Budget Confirmation – ${req.technology_needed} | Negotiation in Progress`,
+          body: `Hi ${req.client_name || 'Team'},\n\nThank you for confirming your budget of ₹${budgetAmount.toLocaleString('en-IN')} per day for the ${req.technology_needed} requirement.\n\nWe have received your budget constraint and are now negotiating with Trainer ${trainer.name} to see if they can align with your budget. If the trainer agrees to work within your budget, we will proceed immediately.\n\nIf the trainer's rates cannot be adjusted to your budget, we will identify an alternative trainer according to your requirements and share their details with you shortly.\n\nWe will update you within 24 hours with the outcome.\n\nThank you for your patience!\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+          mail_type: 'client_budget_acknowledgment',
+        })
+        
+        if (ackRes?.data?.success) {
+          toast.success(`✅ Budget acknowledgment sent to ${req.client_name || 'client'}`)
+        } else {
+          toast.error(ackRes?.data?.error || 'Failed to send budget acknowledgment')
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending budget acknowledgment')
       }
       return
     }
