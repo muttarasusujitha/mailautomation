@@ -256,6 +256,7 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'client_budget_reply', label: '📧 Client Budget Reply' },
   { value: 'client_budget_acknowledgment', label: '🤝 Client Budget Acknowledgment' },
   { value: 'rate_gap_resolution', label: '⚖️ Rate Gap Resolution' },
+  { value: 'trainer_rate_discussion', label: '💬 Trainer Rate Discussion' },
   { value: 'mail3', label: 'Mail 3 - Slot Booking' },
   { value: 'mail4', label: 'Mail 4 - Interview Schedule' },
   { value: 'mail5_ok', label: 'Mail 5 - Selection' },
@@ -3149,6 +3150,51 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         }
       } catch (e) {
         toast.error(e.response?.data?.detail || e.message || 'Error sending rate gap resolution email')
+      }
+      return
+    }
+    
+    if (manualMailType === 'trainer_rate_discussion') {
+      // Send rate discussion message to trainer
+      const trainerRate = prompt('Enter trainer rate (e.g., 50000)')
+      if (!trainerRate) return
+      
+      const clientBudget = prompt('Enter client budget (e.g., 45000)')
+      if (!clientBudget) return
+      
+      try {
+        const trainerAmount = parseInt(trainerRate.replace(/[₹,]/g, ''))
+        const clientAmount = parseInt(clientBudget.replace(/[₹,]/g, ''))
+        
+        if (isNaN(trainerAmount) || isNaN(clientAmount) || trainerAmount <= 0 || clientAmount <= 0) {
+          toast.error('❌ Invalid amounts')
+          return
+        }
+        
+        const gap = trainerAmount - clientAmount
+        
+        if (gap <= 0) {
+          toast.error('❌ Trainer rate should be higher than client budget for this email')
+          return
+        }
+        
+        const trainerRes = await api.post('/shortlists/send-mail', {
+          trainer_id: trainer.trainer_id,
+          trainer_name: trainer.name,
+          to_email: trainer.email,
+          requirement_id: req.requirement_id,
+          subject: `Training Engagement Update – ${req.technology_needed} | Rate Discussion`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nWe hope you are doing well. We are writing to update you on the progress of the ${req.technology_needed} requirement with our client.\n\n**Requirement Summary:**\nTechnology: ${req.technology_needed}\nClient: ${req.client_name || 'Pending confirmation'}\n\n**Rate Discussion:**\nYour Proposed Rate: ₹${trainerAmount.toLocaleString('en-IN')} per day\nClient's Budget: ₹${clientAmount.toLocaleString('en-IN')} per day\nRate Gap: ₹${gap.toLocaleString('en-IN')} per day\n\nThe client has confirmed their budget for this training engagement. While there is a small gap of ₹${gap.toLocaleString('en-IN')} per day between your quoted rate and their budget, we believe your expertise makes this engagement valuable for them.\n\nWe are currently presenting this opportunity to the client with two options:\n1. Proceeding with your training at the quoted rate of ₹${trainerAmount.toLocaleString('en-IN')} per day\n2. Identifying an alternative trainer within their budget\n\nWe will keep you updated on the client's decision. Your profile and experience stand out, and we hope they will choose to proceed with you.\n\nWe appreciate your patience and will update you within the next 24 hours with their decision.\n\nBest Regards,\nRecruitment Team\nClahan Technologies`,
+          mail_type: 'trainer_rate_discussion',
+        })
+        
+        if (trainerRes?.data?.success) {
+          toast.success(`✅ Rate discussion email sent to ${trainer.name}`)
+        } else {
+          toast.error(trainerRes?.data?.error || 'Failed to send trainer rate discussion email')
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending trainer rate discussion email')
       }
       return
     }
