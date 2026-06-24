@@ -142,10 +142,25 @@ async def _send_interview_reminder(reminder_id: str, celery_task_id: str = "") -
             )
             return {"success": True, "status": "skipped_requirement_selected", "reminder_id": reminder_id}
 
-        await db["interview_reminders"].update_one(
-            {"reminder_id": reminder_id, "status": {"$ne": "cancelled"}},
+        # Atomic status lock: only transition to "sending" if still not cancelled.
+        # This is the last line of defence against the race where cancel_interview_reminder()
+        # wrote "cancelled" to the DB AFTER the task was already dequeued by a worker.
+        lock_result = await db["interview_reminders"].update_one(
+            {"reminder_id": reminder_id, "status": {"$nin": ["cancelled", "sending", "sent"]}},
             {"$set": {"status": "sending", "started_at": now, "updated_at": now}},
         )
+        if lock_result.modified_count == 0:
+            # Either already cancelled, already sending (duplicate task), or already sent.
+            refreshed = await db["interview_reminders"].find_one(
+                {"reminder_id": reminder_id}, {"_id": 0, "status": 1}
+            )
+            current_status = (refreshed or {}).get("status", "unknown")
+            return {
+                "success": True,
+                "status": current_status,
+                "reminder_id": reminder_id,
+                "detail": f"Aborted before sending — DB status was '{current_status}' at execution time.",
+            }
 
         subject = _reminder_subject(reminder)
         body = _reminder_body(reminder)

@@ -43,25 +43,44 @@ async def cancel_interview_reminder(
 
     reminders = await db["interview_reminders"].find(query, {"_id": 0}).to_list(20)
     cancelled = []
+    late_cancel_warnings = []   # reminders that were already "sending" when revoke was issued
+
     for reminder in reminders:
+        reminder_id_val = reminder.get("reminder_id")
         task_id = reminder.get("task_id")
+        already_running = reminder.get("status") == "sending"
+
+        # --- Step 1: mark DB as cancelled FIRST (atomic guard) ---
+        # The Celery task checks this field before sending, so writing it
+        # before calling revoke() gives the task a chance to self-abort even
+        # if the broker-level revoke arrives too late.
+        now = utc_now()
+        await db["interview_reminders"].update_one(
+            {"reminder_id": reminder_id_val, "status": {"$nin": ["sent", "failed"]}},
+            {"$set": {
+                "status": "cancelled",
+                "cancel_reason": reason,
+                "cancelled_at": now,
+                "updated_at": now,
+            }},
+        )
+
+        # --- Step 2: tell the broker to discard the queued task ---
+        # terminate=False means: drop from queue if not yet started, but do
+        # NOT kill a worker process that is already executing it.  That is the
+        # correct safe default; terminating mid-send could leave channels in a
+        # half-fired state.  The DB guard in the task handles the race.
         if task_id:
             try:
                 celery_app.control.revoke(task_id, terminate=False)
             except Exception as exc:
+                # Log revoke failure but keep going — DB is already cancelled.
                 await db["interview_reminders"].update_one(
-                    {"reminder_id": reminder.get("reminder_id")},
+                    {"reminder_id": reminder_id_val},
                     {"$set": {"revoke_error": str(exc), "updated_at": utc_now()}},
                 )
-        await db["interview_reminders"].update_one(
-            {"reminder_id": reminder.get("reminder_id")},
-            {"$set": {
-                "status": "cancelled",
-                "cancel_reason": reason,
-                "cancelled_at": utc_now(),
-                "updated_at": utc_now(),
-            }},
-        )
+
+        # --- Step 3: update email_logs ---
         if reminder.get("email_id"):
             await db["email_logs"].update_one(
                 {"email_id": reminder.get("email_id")},
@@ -71,9 +90,27 @@ async def cancel_interview_reminder(
                     "interview_reminder_cancelled_at": utc_now(),
                 }},
             )
-        cancelled.append(reminder.get("reminder_id"))
 
-    return {"cancelled": bool(cancelled), "reminder_ids": cancelled}
+        cancelled.append(reminder_id_val)
+
+        # Warn caller if the task was mid-execution when we cancelled —
+        # revoke() cannot stop a task already running in the worker.
+        # The DB guard inside _send_interview_reminder will prevent sending,
+        # but only if the worker re-checks status before each channel fires.
+        if already_running:
+            late_cancel_warnings.append(reminder_id_val)
+
+    result: Dict[str, Any] = {"cancelled": bool(cancelled), "reminder_ids": cancelled}
+    if late_cancel_warnings:
+        result["late_cancel_warning"] = (
+            "These reminders were already executing in a Celery worker when cancel "
+            "was requested. The broker-level revoke() cannot stop a running task. "
+            "The DB status has been set to 'cancelled' so the task's own guard will "
+            "abort before sending channels — but if the task was past that check, "
+            "notifications may still have been delivered."
+        )
+        result["late_cancel_reminder_ids"] = late_cancel_warnings
+    return result
 
 
 async def schedule_interview_reminder(
