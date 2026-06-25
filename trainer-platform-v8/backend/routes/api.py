@@ -15226,13 +15226,14 @@ async def search_public_client_leads(payload: dict = {}):
     )
 
     if auto_discover:
-        for phrase in client_requirement_phrases[:3]:   # limit auto-discover too
-            queries.append(f'site:linkedin.com/posts "{phrase}"')
+        for phrase in client_requirement_phrases[:3]:
+            queries.append(f'"{phrase}" India linkedin')
 
     for domain in domains:
-        for phrase in client_requirement_phrases[:3]:   # max 3 phrases per domain
-            queries.append(f'site:linkedin.com/posts "{phrase}" "{domain}"')
-        queries.append(f'site:linkedin.com/company "{domain}" "trainer required"')
+        for phrase in client_requirement_phrases[:3]:
+            queries.append(f'"{phrase}" "{domain}" India')
+            queries.append(f'"{domain}" trainer required India')
+        queries.append(f'"{domain}" "training requirement" India contact')
 
     queries = list(dict.fromkeys(queries))
 
@@ -15513,22 +15514,32 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
     ]
     for domain in domains:
         if source_mode in {"linkedin", "both", "all"}:
-            for role in TRAINER_SEARCH_ROLES:
-                queries.append(f'site:linkedin.com/in "{domain}" "{role}"')
+            # ── Queries that actually work from cloud IPs ──────────────────────
+            # site:linkedin.com is blocked by search engines from cloud server IPs.
+            # These formats return real cached LinkedIn results.
             queries.extend([
-                f'site:linkedin.com/in "{domain}" "certified" "trainer" India',
-                f'site:linkedin.com/in "{domain}" "experienced" "trainer" India',
-                f'site:linkedin.com/in "{domain}" "years experience" "trainer" India',
+                f'"{domain}" "corporate trainer" India linkedin',
+                f'"{domain}" "freelance trainer" India linkedin',
+                f'"{domain}" "certified trainer" India linkedin',
+                f'"{domain}" trainer India linkedin profile',
+                f'"{domain}" "technical trainer" India linkedin',
+                f'"{domain}" instructor trainer India linkedin',
+                f'"{domain}" trainer India "years experience" linkedin',
+                f'"{domain}" trainer India contact email',
+                f'"{domain}" trainer resume India',
+                f'"{domain}" "training consultant" India linkedin',
+                f'"{domain}" "subject matter expert" trainer India',
             ])
-            for location in LOCATIONS:
-                queries.append(f'site:linkedin.com/in "{domain}" trainer "{location}"')
+            for location in LOCATIONS[:15]:
+                queries.append(f'"{domain}" trainer "{location}" linkedin profile')
+                queries.append(f'"{domain}" trainer "{location}" contact email')
         if source_mode in {"naukri", "both", "all"}:
             queries.extend([
-                f'site:naukri.com "{domain}" "trainer profile" "India" -jobs -vacancies',
-                f'site:naukri.com "{domain}" FREELANCE_TRAINER "resume" -jobs -vacancies',
-                f'site:naukri.com "{domain}" CORPORATE_TRAINER "resume" -jobs -vacancies',
-                f'site:naukri.com "{domain}" "trainer" "email" "India" -jobs -vacancies',
-                f'site:naukri.com "{domain}" "trainer" "contact" "India" -jobs -vacancies',
+                f'"{domain}" trainer naukri.com India',
+                f'"{domain}" trainer resume naukri India',
+                f'"{domain}" "corporate trainer" naukri India',
+                f'"{domain}" trainer naukri email contact',
+                f'"{domain}" trainer naukri profile India',
             ])
     queries = list(dict.fromkeys(queries))
     queries = queries[: int(payload.get("max_queries") or 120)]

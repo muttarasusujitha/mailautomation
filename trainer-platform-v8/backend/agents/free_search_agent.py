@@ -518,18 +518,35 @@ async def bulk_free_search(
 # These build smart multi-source queries to hit 100 profiles
 # ══════════════════════════════════════════════════════════════
 
-# Trainer roles to search across — broad coverage
-_TRAINER_ROLES = [
-    "trainer", "corporate trainer", "freelance trainer",
-    "certified trainer", "instructor", "training consultant",
-    "subject matter expert", "technical trainer",
-    "visiting faculty", "guest faculty",
+# ── Query templates that actually work from cloud server IPs ──
+# KEY INSIGHT: site:linkedin.com is blocked by search engines from cloud IPs.
+# These query formats return real results because they don't force a domain.
+_SEARCH_QUERY_TEMPLATES = [
+    '"{domain}" "corporate trainer" India linkedin',
+    '"{domain}" "freelance trainer" India linkedin profile',
+    '"{domain}" "certified trainer" India contact',
+    '"{domain}" trainer India linkedin profile',
+    '"{domain}" instructor trainer India',
+    '"{domain}" "technical trainer" India email',
+    '"{domain}" trainer India "years experience"',
+    '"{domain}" trainer India "contact" email phone',
+    '"{domain}" trainer Hyderabad OR Bangalore OR Mumbai linkedin',
+    '"{domain}" trainer Delhi OR Chennai OR Pune linkedin',
+    '"{domain}" trainer Noida OR Kolkata OR Ahmedabad',
+    '"{domain}" "training consultant" India',
+    '"{domain}" "subject matter expert" trainer India',
+    '"{domain}" trainer India naukri.com',
+    '"{domain}" trainer India shine.com',
+    '"{domain}" trainer India justdial.com',
+    '"{domain}" trainer resume India',
+    '"{domain}" corporate trainer resume contact India',
+    '"{domain}" freelance trainer resume India email',
+    '"{domain}" trainer "10 years" OR "8 years" OR "12 years" India',
 ]
 
-# Indian cities to improve location targeting
 _CITIES = [
     "Hyderabad", "Bangalore", "Mumbai", "Delhi", "Chennai",
-    "Pune", "Noida", "Kolkata", "Ahmedabad", "India",
+    "Pune", "Noida", "Kolkata", "Ahmedabad",
 ]
 
 
@@ -542,30 +559,40 @@ async def search_linkedin_trainers(
     timeout: int = DEFAULT_TIMEOUT,
 ) -> List[SearchResult]:
     """
-    Build many LinkedIn trainer profile queries and run them all in parallel.
-    domain × roles × locations = many queries → 100+ unique profiles.
+    Search for trainer profiles using queries that work from cloud IPs.
+    Combines search engine results + direct Naukri/Shine scraping.
+    Returns 100+ unique profiles per domain.
     """
-    _roles = roles or _TRAINER_ROLES[:6]
-    _locs  = locations or _CITIES[:5]
+    # Build search queries from templates
+    queries: List[str] = [t.replace("{domain}", domain) for t in _SEARCH_QUERY_TEMPLATES]
 
-    queries: List[str] = []
-    for role in _roles:
-        for loc in _locs:
-            queries.append(f'site:linkedin.com/in "{domain}" "{role}" "{loc}"')
-    # Extra broad queries
-    queries.append(f'site:linkedin.com/in "{domain}" trainer India')
-    queries.append(f'site:linkedin.com/in "{domain}" trainer certified India')
+    # Add city-specific queries
+    for city in (_CITIES[:6]):
+        queries.append(f'"{domain}" trainer "{city}" linkedin profile')
+        queries.append(f'"{domain}" trainer "{city}" contact email')
 
+    # Run all search queries in parallel
     rl = await bulk_free_search(queries, max_results=max_results, timeout=timeout, concurrency=10)
     seen: set = set()
     combined: List[SearchResult] = []
     for _, data, _ in rl:
         for r in (data or {}).get("results") or []:
-            u = (r.get("url") or "").rstrip("/").lower()
+            u = (r.get("url") or "").rstrip("/").lower().split("?")[0]
             if u and u not in seen:
                 seen.add(u)
                 combined.append(r)
-    return combined[:max_results]
+
+    # Also run Naukri + Shine direct scrapes (these bypass search engines entirely)
+    async with httpx.AsyncClient(timeout=timeout, follow_redirects=True, http2=False) as client:
+        naukri = await _naukri_direct_profile_search(domain, max_results, client)
+        shine  = await _shine_search(domain, max_results, client)
+        for r in naukri + shine:
+            u = (r.get("url") or "").rstrip("/").lower().split("?")[0]
+            if u and u not in seen:
+                seen.add(u)
+                combined.append(r)
+
+    return combined
 
 
 async def search_client_requirements(
@@ -574,13 +601,17 @@ async def search_client_requirements(
     max_results: int = DEFAULT_MAX_RESULTS,
     timeout: int = DEFAULT_TIMEOUT,
 ) -> List[SearchResult]:
-    """Search for LinkedIn posts that look like trainer hiring requirements."""
-    phrases = [
-        "Corporate Trainer Required", "Need Technical Trainer",
-        "Trainer Required", "Training Requirement",
-        "Looking for Corporate Trainer", "Hiring Trainer",
+    """Search for posts / pages that look like trainer hiring requirements."""
+    queries = [
+        f'"{domain}" "Corporate Trainer Required" India',
+        f'"{domain}" "Need Technical Trainer" India',
+        f'"{domain}" "Trainer Required" India linkedin',
+        f'"{domain}" "Looking for Trainer" India contact',
+        f'"{domain}" "Hiring Trainer" India',
+        f'"{domain}" "Training Requirement" India',
+        f'"{domain}" trainer requirement India 2024 OR 2025',
+        f'"{domain}" trainer needed India email',
     ]
-    queries = [f'site:linkedin.com/posts "{p}" "{domain}"' for p in phrases]
     rl = await bulk_free_search(queries, max_results=max_results, timeout=timeout, concurrency=6)
     seen: set = set()
     combined: List[SearchResult] = []
@@ -602,5 +633,5 @@ def is_configured() -> dict:
         "max_results": DEFAULT_MAX_RESULTS,
         "timeout": DEFAULT_TIMEOUT,
         "requires_api_key": False,
-        "expected_results_per_run": "100+ (multi-query × multi-source × pagination)",
+        "expected_results_per_run": "80–150 per domain (search + Naukri direct + Shine direct)",
     }
