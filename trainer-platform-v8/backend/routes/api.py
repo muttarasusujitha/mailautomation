@@ -15148,7 +15148,7 @@ async def search_public_client_leads(payload: dict = {}):
     max_domains = min(int(payload.get("max_domains") or 4), 6)
     domains = domains[:max_domains]
 
-    max_results = max(1, min(int(payload.get("max_results") or 3), 5))
+    max_results = max(1, min(int(payload.get("max_results") or 10), 20))
 
     saved = []
     skipped = []
@@ -15237,13 +15237,13 @@ async def search_public_client_leads(payload: dict = {}):
     queries = list(dict.fromkeys(queries))
 
     # ── HARD CAP on queries ────────────────────────────────────────────────────
-    # Default: max 8 queries per run for speed; deep_search allows up to 18
-    max_queries_default = 18 if payload.get("deep_search") else 8
-    max_queries = min(int(payload.get("max_queries") or max_queries_default), 18)
+    # Default: max 30 queries per run for speed; deep_search allows up to 60
+    max_queries_default = 60 if payload.get("deep_search") else 30
+    max_queries = min(int(payload.get("max_queries") or max_queries_default), 60)
     queries = queries[:max_queries]
 
     search_timeout = 45
-    search_concurrency = max(1, min(int(payload.get("concurrency") or 3), 6))
+    search_concurrency = max(1, min(int(payload.get("concurrency") or 6), 10))
 
     # ── Run queries via free search engine (no API key required) ─────────────
     query_results = await bulk_free_search(
@@ -15356,9 +15356,9 @@ async def search_public_client_leads(payload: dict = {}):
 async def auto_discover_client_leads_now():
     return await search_public_client_leads({
         "auto_discover": True,
-        "max_results": 8,
+        "max_results": 20,
         "max_queries": 180,
-        "concurrency": 4,
+        "concurrency": 6,
     })
 
 
@@ -15443,7 +15443,7 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
     domains = [str(item).strip() for item in domains if str(item).strip()][:12]
     source_mode = str(payload.get("source") or payload.get("source_mode") or "linkedin").strip().lower()
     deep_enrich = bool(payload.get("deep_enrich", source_mode not in {"naukri"}))
-    max_results = max(1, min(int(payload.get("max_results") or 5), 10))
+    max_results = max(1, min(int(payload.get("max_results") or 10), 20))
     saved = []
     skipped = []
     queries = []
@@ -15531,10 +15531,10 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                 f'site:naukri.com "{domain}" "trainer" "contact" "India" -jobs -vacancies',
             ])
     queries = list(dict.fromkeys(queries))
-    queries = queries[: int(payload.get("max_queries") or 60)]
+    queries = queries[: int(payload.get("max_queries") or 120)]
 
     search_timeout = 30 if source_mode == "naukri" else 45
-    search_concurrency = max(1, min(int(payload.get("concurrency") or 6), 10))
+    search_concurrency = max(1, min(int(payload.get("concurrency") or 8), 12))
 
     # ── Run queries via free search engine (no API key required) ─────────────
     query_results = await _bulk_free_search(
