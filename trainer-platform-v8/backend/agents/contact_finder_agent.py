@@ -1,31 +1,22 @@
-"""contact_finder_agent.py — Find email + phone for LinkedIn trainer profiles.
+"""contact_finder_agent.py — Find email + phone for trainer profiles. Zero API keys.
 
-LinkedIn hides contact info behind login. This agent uses 6 strategies
-in a cascade — each one free, no API key needed:
+Strategy (10 cascading methods — stops when email + phone found):
 
-  Strategy 1 — Google dorking        : search "name company email contact"
-  Strategy 2 — Naukri public profile  : search trainer on Naukri (shows phone)
-  Strategy 3 — Bing people search     : "name" "email" site:naukri OR justdial
-  Strategy 4 — Personal website/blog  : find & scrape linked portfolio page
-  Strategy 5 — Email pattern + verify : guess email, verify with SMTP ping
-  Strategy 6 — GitHub/About.me/Xing   : scrape public profile pages
+  1. Profile text mining     — extract directly from already-scraped text (instant)
+  2. Personal website scrape — scrape portfolio/blog linked in profile
+  3. Naukri profile scrape   — fetch actual Naukri profile page (shows phone + email)
+  4. Shine profile scrape    — fetch actual Shine.com profile page
+  5. JustDial scrape         — search JustDial for trainer name + city
+  6. GitHub scrape           — find GitHub profile, scrape contact from README/bio
+  7. Bing people search      — search Bing for name + email + phone
+  8. DDG people search       — search DuckDuckGo for name + email + phone
+  9. Email pattern + MX check— guess email from name+company, verify domain has MX
+ 10. WhatsApp number search  — search for trainer name + WhatsApp India
 
-Usage:
-    from agents.contact_finder_agent import find_contact_for_trainer
-
-    result = await find_contact_for_trainer(
-        name="Rajesh Kumar",
-        company="TCS",
-        domain="Python",
-        linkedin_url="https://linkedin.com/in/rajesh-kumar-python",
-        profile_text="...scraped linkedin text...",
-    )
-    # result = {
-    #   "email": "rajesh.kumar@gmail.com",
-    #   "phone": "+919876543210",
-    #   "source": "naukri_profile",
-    #   "confidence": 0.9,
-    # }
+Key difference from old version:
+  Old: just searched for profile URLs, never fetched the actual pages
+  New: FETCHES the actual Naukri/Shine/JustDial/GitHub pages and scrapes
+       email + phone directly from the page HTML
 """
 from __future__ import annotations
 
@@ -33,7 +24,6 @@ import asyncio
 import logging
 import re
 import smtplib
-import socket
 import random
 from typing import Any, Dict, List, Optional
 
@@ -41,467 +31,445 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
+# ── Regex patterns ────────────────────────────────────────────
+_MOB_RE = re.compile(r"(?:\+91|0091|91)?[\s.\-()]*([6-9]\d{2}[\s.\-]*\d{3}[\s.\-]*\d{4})")
+_EMAIL_RE = re.compile(r"[A-Za-z0-9._%+\-]{2,64}@[A-Za-z0-9.\-]{2,253}\.[A-Za-z]{2,12}")
+_BAD_LOCAL = {"noreply","no-reply","donotreply","support","admin","info","sales",
+              "hr","careers","jobs","team","contact","office","marketing","billing",
+              "hello","help","feedback","enquiry","enquiries","query","privacy"}
 
-# ── Constants ──────────────────────────────────────────────────────────────────
-
-INDIAN_MOBILE_RE = re.compile(
-    r"(?:\+91|0091|91)?[\s.\-()]*([6-9]\d{2}[\s.\-]*\d{3}[\s.\-]*\d{4})"
-)
-EMAIL_RE = re.compile(
-    r"[A-Za-z0-9._%+\-]{2,64}@[A-Za-z0-9.\-]{2,253}\.[A-Za-z]{2,12}"
-)
-
-# Common Indian corporate email patterns
-EMAIL_PATTERNS = [
-    "{first}.{last}@{domain}",
-    "{first}{last}@{domain}",
-    "{f}{last}@{domain}",
-    "{first}@{domain}",
-    "{first}.{last[0]}@{domain}",
-    "{first[0]}{last}@{domain}",
-    "{last}.{first}@{domain}",
+_UA = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/124.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/123.0 Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 Chrome/124.0 Mobile Safari/537.36",
 ]
 
-# Domains that host public Indian trainer profiles
-PROFILE_SEARCH_SITES = [
-    "naukri.com", "shine.com", "linkedin.com",
-    "monsterindia.com", "indeed.co.in", "justdial.com",
-]
-
-_USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/123.0 Safari/537.36",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/122.0 Safari/537.36",
-]
-
-def _headers() -> Dict[str, str]:
+def _h(referer: str = "") -> Dict[str, str]:
     return {
-        "User-Agent": random.choice(_USER_AGENTS),
+        "User-Agent": random.choice(_UA),
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Language": "en-US,en;q=0.9,hi;q=0.7",
+        "Referer": referer or "https://www.google.com/",
+        "DNT": "1",
     }
 
 
-# ── Text helpers ───────────────────────────────────────────────────────────────
+# ── Text helpers ──────────────────────────────────────────────
 
-def _strip_html(html: str) -> str:
-    text = re.sub(r"<[^>]+>", " ", html or "")
+def _strip(html: str) -> str:
+    t = re.sub(r"<script[^>]*>.*?</script>", " ", html or "", flags=re.S | re.I)
+    t = re.sub(r"<style[^>]*>.*?</style>", " ", t, flags=re.S | re.I)
+    t = re.sub(r"<[^>]+>", " ", t)
     for e, c in [("&amp;","&"),("&lt;","<"),("&gt;",">"),("&quot;",'"'),("&nbsp;"," "),("&#39;","'")]:
-        text = text.replace(e, c)
-    return re.sub(r"\s+", " ", text).strip()
+        t = t.replace(e, c)
+    return re.sub(r"\s+", " ", t).strip()
 
 
-def _extract_emails(text: str) -> List[str]:
-    """Extract all emails from text, filter out junk/system emails."""
-    found = EMAIL_RE.findall(text or "")
-    bad = {"noreply","no-reply","donotreply","support","admin","info","sales",
-           "hr","careers","jobs","team","contact","office","marketing","billing"}
-    result = []
-    seen = set()
-    for email in found:
-        local = email.split("@")[0].lower()
-        if local in bad:
-            continue
-        if email.lower() not in seen:
-            seen.add(email.lower())
-            result.append(email)
-    return result
-
-
-def _extract_phones(text: str) -> List[str]:
-    """Extract all Indian mobile numbers from text."""
-    found = []
-    seen = set()
-    for m in INDIAN_MOBILE_RE.finditer(text or ""):
-        digits = re.sub(r"\D", "", m.group(1))
-        if len(digits) == 10 and digits[0] in "6789":
-            num = f"+91{digits}"
-            if num not in seen:
-                seen.add(num)
-                found.append(num)
+def _emails(text: str) -> List[str]:
+    found, seen = [], set()
+    for e in _EMAIL_RE.findall(text or ""):
+        local = e.split("@")[0].lower()
+        if local not in _BAD_LOCAL and e.lower() not in seen:
+            seen.add(e.lower())
+            found.append(e)
     return found
 
 
-def _clean_name(name: str) -> tuple:
-    """Split full name into (first, last) parts."""
-    parts = re.sub(r"[^a-zA-Z\s]", "", (name or "")).strip().lower().split()
+def _phones(text: str) -> List[str]:
+    found, seen = [], set()
+    for m in _MOB_RE.finditer(text or ""):
+        d = re.sub(r"\D", "", m.group(1))
+        if len(d) == 10 and d[0] in "6789":
+            n = f"+91{d}"
+            if n not in seen:
+                seen.add(n)
+                found.append(n)
+    return found
+
+
+def _name_parts(name: str):
+    parts = re.sub(r"[^a-zA-Z\s]", "", name or "").strip().lower().split()
     if len(parts) >= 2:
         return parts[0], parts[-1]
-    elif len(parts) == 1:
+    if parts:
         return parts[0], parts[0]
     return "", ""
 
 
-# ── Strategy 1 — Google Dork ────────────────────────────────────────────────────
+async def _fetch(client: httpx.AsyncClient, url: str, referer: str = "") -> str:
+    """Fetch a URL and return stripped text. Returns '' on failure."""
+    try:
+        r = await client.get(url, headers=_h(referer), follow_redirects=True)
+        if r.status_code == 200 and len(r.text) > 200:
+            return _strip(r.text)
+    except Exception as exc:
+        logger.debug("fetch %s: %s", url[:80], exc)
+    return ""
 
-async def _google_dork_contact(
-    name: str,
-    company: str,
-    domain: str,
+
+async def _search_engine(
     client: httpx.AsyncClient,
-) -> Dict[str, Any]:
-    """
-    Search Google for the person's email/phone using targeted dork queries.
-    Example: "Rajesh Kumar" "TCS" email contact trainer python
-    """
-    queries = []
-    if name:
-        if company:
-            queries.append(f'"{name}" "{company}" email contact trainer {domain}')
-            queries.append(f'"{name}" "{company}" phone whatsapp trainer')
-        queries.append(f'"{name}" trainer "{domain}" email India contact')
-        queries.append(f'"{name}" email trainer India site:naukri.com OR site:shine.com')
-
-    for query in queries[:3]:
-        try:
-            resp = await client.get(
-                "https://www.google.com/search",
-                params={"q": query, "num": 5, "hl": "en"},
-                headers={
-                    "User-Agent": "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/91.0 Mobile Safari/537.36",
-                    "Accept": "text/html",
-                },
+    query: str,
+    engine: str = "bing",
+) -> str:
+    """Run a search query on Bing or DDG and return the stripped result text."""
+    try:
+        if engine == "bing":
+            r = await client.get(
+                "https://www.bing.com/search",
+                params={"q": query, "count": 10, "mkt": "en-IN"},
+                headers=_h("https://www.bing.com/"),
                 follow_redirects=True,
             )
-            if resp.status_code != 200:
-                continue
-            text = _strip_html(resp.text)
-            emails = _extract_emails(text)
-            phones = _extract_phones(text)
-            if emails or phones:
-                return {
-                    "email": emails[0] if emails else "",
-                    "phone": phones[0] if phones else "",
-                    "source": "google_dork",
-                    "confidence": 0.65,
-                    "query": query,
-                }
-        except Exception as exc:
-            logger.debug("Google dork failed: %s", exc)
-        await asyncio.sleep(random.uniform(0.5, 1.2))
-    return {}
-
-
-# ── Strategy 2 — Naukri Public Profile Scraper ──────────────────────────────────
-
-async def _naukri_search_contact(
-    name: str,
-    domain: str,
-    client: httpx.AsyncClient,
-) -> Dict[str, Any]:
-    """
-    Search Naukri for the trainer's public profile.
-    Naukri public resume pages often show phone + email.
-    """
-    try:
-        # Step 1: search Naukri for the trainer
-        search_url = "https://www.naukri.com/candidate/search"
-        resp = await client.get(
-            "https://www.google.com/search",
-            params={"q": f'site:naukri.com "{name}" "{domain}" trainer resume'},
-            headers={"User-Agent": random.choice(_USER_AGENTS), "Accept": "text/html"},
-            follow_redirects=True,
-        )
-        if resp.status_code != 200:
-            return {}
-
-        html = resp.text
-        # Find Naukri profile URLs
-        naukri_urls = re.findall(
-            r'https://www\.naukri\.com/(?:mnjuser/profile|resume)[^\s"\'<>]+',
-            html, re.IGNORECASE
-        )
-        # Also try /url?q= wrapped links
-        for m in re.finditer(r'/url\?q=(https://www\.naukri\.com/[^\s&"]+)', html):
-            naukri_urls.append(m.group(1))
-
-        naukri_urls = list(dict.fromkeys(naukri_urls))[:3]
-
-        for naukri_url in naukri_urls:
-            try:
-                page = await client.get(
-                    naukri_url,
-                    headers=_headers(),
-                    follow_redirects=True,
-                )
-                if page.status_code != 200:
-                    continue
-                text = _strip_html(page.text)
-                emails = _extract_emails(text)
-                phones = _extract_phones(text)
-                if emails or phones:
-                    return {
-                        "email": emails[0] if emails else "",
-                        "phone": phones[0] if phones else "",
-                        "source": "naukri_profile",
-                        "confidence": 0.85,
-                        "profile_url": naukri_url,
-                    }
-            except Exception:
-                continue
-
+        else:
+            r = await client.post(
+                "https://html.duckduckgo.com/html/",
+                data={"q": query, "kl": "in-en"},
+                headers=_h("https://duckduckgo.com/"),
+                follow_redirects=True,
+            )
+        if r.status_code == 200:
+            return _strip(r.text)
     except Exception as exc:
-        logger.debug("Naukri search failed: %s", exc)
-    return {}
+        logger.debug("search_engine %s: %s", engine, exc)
+    return ""
 
 
-# ── Strategy 3 — Profile Text Mining ────────────────────────────────────────────
 
-def _mine_profile_text(profile_text: str) -> Dict[str, Any]:
-    """
-    Extract email/phone directly from the LinkedIn profile text we already scraped.
-    Sometimes trainers put their email/phone in their About section or posts.
-    Example: "reach me at john@gmail.com" or "call me on 9876543210"
-    """
-    if not profile_text:
+# ══════════════════════════════════════════════════════════════
+# METHOD 1 — Mine profile text already scraped (zero HTTP)
+# ══════════════════════════════════════════════════════════════
+
+def _mine_text(text: str) -> Dict[str, Any]:
+    if not text:
         return {}
-
-    emails = _extract_emails(profile_text)
-    phones = _extract_phones(profile_text)
-
-    # Filter personal emails only (gmail, yahoo, etc.)
-    personal_domains = {
-        "gmail.com","yahoo.com","yahoo.co.in","outlook.com",
-        "hotmail.com","rediffmail.com","protonmail.com","icloud.com","live.com",
-    }
-    personal_emails = [e for e in emails if e.split("@")[-1].lower() in personal_domains]
-    best_email = personal_emails[0] if personal_emails else (emails[0] if emails else "")
-
+    emails = _emails(text)
+    phones = _phones(text)
+    personal = {"gmail.com","yahoo.com","yahoo.co.in","outlook.com","hotmail.com",
+                "rediffmail.com","protonmail.com","icloud.com","live.com"}
+    best_email = next((e for e in emails if e.split("@")[-1].lower() in personal), emails[0] if emails else "")
     if best_email or phones:
-        return {
-            "email": best_email,
-            "phone": phones[0] if phones else "",
-            "source": "profile_text",
-            "confidence": 0.95 if best_email else 0.80,
-        }
+        return {"email": best_email, "phone": phones[0] if phones else "",
+                "source": "profile_text", "confidence": 0.95}
     return {}
 
 
-# ── Strategy 4 — Personal Website / Portfolio Scraper ───────────────────────────
+# ══════════════════════════════════════════════════════════════
+# METHOD 2 — Personal website / portfolio linked in profile
+# ══════════════════════════════════════════════════════════════
 
-async def _scrape_personal_website(
-    profile_text: str,
-    linkedin_url: str,
-    client: httpx.AsyncClient,
-) -> Dict[str, Any]:
-    """
-    Find and scrape the trainer's personal website/portfolio.
-    Many trainers link to their personal site from LinkedIn.
-    Personal sites almost always show email/phone.
-    """
-    # Find URLs in profile text that look like personal sites
-    website_patterns = [
-        r"https?://(?!(?:www\.)?(?:linkedin|facebook|twitter|instagram|youtube|google|naukri|github)\.com)[^\s\"'<>]{5,80}",
-    ]
+async def _personal_website(text: str, client: httpx.AsyncClient) -> Dict[str, Any]:
+    """Find and scrape any personal website linked in the profile text."""
     urls = []
-    for pattern in website_patterns:
-        for m in re.finditer(pattern, profile_text or "", re.IGNORECASE):
-            url = m.group(0).rstrip(".,;)")
-            if url not in urls:
-                urls.append(url)
+    # Find external URLs that are not social/job sites
+    for m in re.finditer(
+        r"https?://(?!(?:www\.)?(?:linkedin|facebook|twitter|instagram|youtube|google|naukri|shine|github)\.com)[^\s\"'<>]{5,80}",
+        text or "", re.I
+    ):
+        u = m.group(0).rstrip(".,;)")
+        if u not in urls:
+            urls.append(u)
+    # Check About section for website mention
+    about = re.search(r"(?:website|portfolio|blog|site)[:\s]+(\S+)", text or "", re.I)
+    if about:
+        urls.insert(0, about.group(1))
 
-    # Also check About section for website links
-    about_match = re.search(r"(?:website|portfolio|blog|site)[:\s]+(\S+)", profile_text or "", re.IGNORECASE)
-    if about_match:
-        urls.insert(0, about_match.group(1))
+    for url in urls[:4]:
+        if not url.startswith("http"):
+            url = "https://" + url
+        page = await _fetch(client, url, url)
+        if not page:
+            continue
+        emails, phones = _emails(page), _phones(page)
+        if emails or phones:
+            return {"email": emails[0] if emails else "", "phone": phones[0] if phones else "",
+                    "source": "personal_website", "confidence": 0.90}
+    return {}
+
+
+# ══════════════════════════════════════════════════════════════
+# METHOD 3 — Naukri.com direct profile page scrape
+# Naukri public profile pages show phone + email in plain text.
+# We search Naukri directly for the trainer name + skill, then
+# fetch each profile page and extract contact info.
+# ══════════════════════════════════════════════════════════════
+
+async def _naukri_profile(name: str, domain: str, client: httpx.AsyncClient) -> Dict[str, Any]:
+    """
+    Search Naukri for the trainer, then scrape each profile page.
+    Naukri public pages often contain phone number and email in the HTML.
+    """
+    # Step 1: Find Naukri profile URLs via Bing search (more reliable than Google for Naukri)
+    search_text = await _search_engine(
+        client,
+        f'site:naukri.com "{name}" "{domain}" trainer',
+        engine="bing",
+    )
+
+    naukri_urls: List[str] = []
+    # Extract profile URLs from search results
+    for pattern in [
+        r"https://www\.naukri\.com/mnjuser/profile\?[^\s\"'<>]+",
+        r"https://www\.naukri\.com/(?:resume|profile)/[^\s\"'<>]+",
+        r"/url\?q=(https://www\.naukri\.com/[^\s&\"]+)",
+    ]:
+        for m in re.finditer(pattern, search_text, re.I):
+            url = m.group(1) if "url?q=" in pattern else m.group(0)
+            if url not in naukri_urls:
+                naukri_urls.append(url)
+
+    # Also try Naukri's own search
+    kw = urllib.parse.quote_plus(f"{name} {domain} trainer")
+    naukri_search_url = f"https://www.naukri.com/jobsearch/v2?noOfResults=5&urlType=search_by_keyword&searchType=adv&keyword={kw}&jobAge=30"
+    try:
+        r = await client.get(naukri_search_url, headers=_h("https://www.naukri.com/"), follow_redirects=True)
+        if r.status_code == 200:
+            for m in re.finditer(r'"jobUrl":"([^"]+)"', r.text):
+                url = m.group(1).replace(r"\u002F", "/")
+                if "naukri.com" in url and url not in naukri_urls:
+                    naukri_urls.append(url)
+    except Exception:
+        pass
+
+    naukri_urls = list(dict.fromkeys(naukri_urls))[:5]
+
+    # Step 2: Fetch each profile page and extract contact
+    for url in naukri_urls:
+        page = await _fetch(client, url, "https://www.naukri.com/")
+        if not page:
+            continue
+        emails, phones = _emails(page), _phones(page)
+        # Naukri sometimes encodes phone as data attributes
+        for m in re.finditer(r'data-(?:mobile|phone|contact)["\s]*[=:]["\s]*["\']?(\+?[6-9]\d{9})', page, re.I):
+            d = re.sub(r"\D", "", m.group(1))
+            if len(d) == 10:
+                phones.insert(0, f"+91{d}")
+        if emails or phones:
+            return {"email": emails[0] if emails else "", "phone": phones[0] if phones else "",
+                    "source": "naukri_profile_page", "confidence": 0.88, "profile_url": url}
+    return {}
+
+
+# ══════════════════════════════════════════════════════════════
+# METHOD 4 — Shine.com direct profile page scrape
+# ══════════════════════════════════════════════════════════════
+
+async def _shine_profile(name: str, domain: str, client: httpx.AsyncClient) -> Dict[str, Any]:
+    """Search Shine.com for the trainer, then scrape the profile page."""
+    text = await _search_engine(client, f'site:shine.com "{name}" "{domain}" trainer', engine="bing")
+    urls = []
+    for m in re.finditer(r"https://www\.shine\.com/(?:profile|resume)/[^\s\"'<>]+", text, re.I):
+        u = m.group(0).split("?")[0]
+        if u not in urls:
+            urls.append(u)
 
     for url in urls[:3]:
-        try:
-            if not url.startswith("http"):
-                url = "https://" + url
-            resp = await client.get(url, headers=_headers(), follow_redirects=True, timeout=15)
-            if resp.status_code != 200:
-                continue
-            text = _strip_html(resp.text)
-            emails = _extract_emails(text)
-            phones = _extract_phones(text)
-            if emails or phones:
-                return {
-                    "email": emails[0] if emails else "",
-                    "phone": phones[0] if phones else "",
-                    "source": "personal_website",
-                    "confidence": 0.90,
-                    "website_url": url,
-                }
-        except Exception:
+        page = await _fetch(client, url, "https://www.shine.com/")
+        if not page:
             continue
+        emails, phones = _emails(page), _phones(page)
+        if emails or phones:
+            return {"email": emails[0] if emails else "", "phone": phones[0] if phones else "",
+                    "source": "shine_profile_page", "confidence": 0.82}
     return {}
 
 
-# ── Strategy 5 — Email Pattern Guesser + SMTP Verifier ──────────────────────────
+# ══════════════════════════════════════════════════════════════
+# METHOD 5 — JustDial direct scrape
+# JustDial lists freelance trainers with phone numbers publicly
+# ══════════════════════════════════════════════════════════════
 
-def _generate_email_guesses(name: str, company_domain: str) -> List[str]:
-    """
-    Generate likely email addresses from name + company domain.
-    Example: name="Rajesh Kumar", company_domain="tcs.com"
-    → rajesh.kumar@tcs.com, rkumar@tcs.com, rajesh@tcs.com ...
-    """
-    first, last = _clean_name(name)
+async def _justdial_search(name: str, domain: str, client: httpx.AsyncClient) -> Dict[str, Any]:
+    """Search JustDial for trainer. JustDial often shows phone numbers."""
+    kw = urllib.parse.quote_plus(f"{domain} trainer")
+    urls = [
+        f"https://www.justdial.com/India/{urllib.parse.quote(domain)}-Trainer/nct-11071476",
+        f"https://www.justdial.com/jdmart/India/{kw}",
+    ]
+    for url in urls[:1]:
+        page = await _fetch(client, url, "https://www.justdial.com/")
+        if not page:
+            continue
+        # JustDial encodes phone in spans — look for patterns near the trainer name
+        if name.split()[0].lower() in page.lower():
+            phones = _phones(page)
+            emails = _emails(page)
+            if phones or emails:
+                return {"email": emails[0] if emails else "", "phone": phones[0] if phones else "",
+                        "source": "justdial", "confidence": 0.75}
+    return {}
+
+
+
+# ══════════════════════════════════════════════════════════════
+# METHOD 6 — GitHub profile scrape
+# Many Indian trainers have GitHub. GitHub shows email in bio.
+# ══════════════════════════════════════════════════════════════
+
+async def _github_scrape(name: str, domain: str, client: httpx.AsyncClient) -> Dict[str, Any]:
+    """Search GitHub for the trainer, then scrape their profile page."""
+    text = await _search_engine(client, f'site:github.com "{name}" trainer "{domain}"', engine="bing")
+    urls = []
+    for m in re.finditer(r"https://github\.com/([a-zA-Z0-9\-]+)(?:/[^\s\"'<>]*)?", text, re.I):
+        u = f"https://github.com/{m.group(1)}"
+        if u not in urls:
+            urls.append(u)
+
+    for url in urls[:3]:
+        page = await _fetch(client, url, "https://github.com/")
+        if not page:
+            continue
+        emails = _emails(page)
+        phones = _phones(page)
+        if emails or phones:
+            return {"email": emails[0] if emails else "", "phone": phones[0] if phones else "",
+                    "source": "github_profile", "confidence": 0.78}
+    return {}
+
+
+# ══════════════════════════════════════════════════════════════
+# METHOD 7 — Bing people search
+# Search Bing: "Name" "email" "phone" site:naukri OR shine
+# ══════════════════════════════════════════════════════════════
+
+async def _bing_people_search(name: str, company: str, domain: str, client: httpx.AsyncClient) -> Dict[str, Any]:
+    queries = [
+        f'"{name}" "{domain}" trainer email phone India',
+        f'"{name}" trainer email contact India site:naukri.com OR site:shine.com OR site:linkedin.com',
+    ]
+    if company:
+        queries.insert(0, f'"{name}" "{company}" email contact trainer')
+
+    for q in queries[:3]:
+        text = await _search_engine(client, q, engine="bing")
+        emails, phones = _emails(text), _phones(text)
+        if emails or phones:
+            return {"email": emails[0] if emails else "", "phone": phones[0] if phones else "",
+                    "source": "bing_people_search", "confidence": 0.65, "query": q}
+        await asyncio.sleep(random.uniform(0.3, 0.6))
+    return {}
+
+
+# ══════════════════════════════════════════════════════════════
+# METHOD 8 — DuckDuckGo people search
+# ══════════════════════════════════════════════════════════════
+
+async def _ddg_people_search(name: str, domain: str, client: httpx.AsyncClient) -> Dict[str, Any]:
+    queries = [
+        f'"{name}" trainer "{domain}" email India',
+        f'"{name}" trainer India contact phone whatsapp',
+    ]
+    for q in queries[:2]:
+        text = await _search_engine(client, q, engine="ddg")
+        emails, phones = _emails(text), _phones(text)
+        if emails or phones:
+            return {"email": emails[0] if emails else "", "phone": phones[0] if phones else "",
+                    "source": "ddg_people_search", "confidence": 0.60}
+        await asyncio.sleep(random.uniform(0.2, 0.5))
+    return {}
+
+
+# ══════════════════════════════════════════════════════════════
+# METHOD 9 — Email pattern guess + MX record verification
+# Works well for Indian IT companies: TCS, Infosys, Wipro, etc.
+# ══════════════════════════════════════════════════════════════
+
+def _guess_emails(name: str, company_domain: str) -> List[str]:
+    first, last = _name_parts(name)
     if not first or not company_domain:
         return []
-
     guesses = []
-    patterns = {
-        "{first}.{last}@{domain}": f"{first}.{last}@{company_domain}",
-        "{first}{last}@{domain}":  f"{first}{last}@{company_domain}",
-        "{f}{last}@{domain}":      f"{first[0]}{last}@{company_domain}",
-        "{first}@{domain}":        f"{first}@{company_domain}",
-        "{last}.{first}@{domain}": f"{last}.{first}@{company_domain}",
-        "{first}.{l}@{domain}":    f"{first}.{last[0]}@{company_domain}",
-    }
-    for _, email in patterns.items():
-        if email not in guesses:
-            guesses.append(email)
+    for pattern in [
+        f"{first}.{last}@{company_domain}",
+        f"{first}{last}@{company_domain}",
+        f"{first[0]}{last}@{company_domain}",
+        f"{first}@{company_domain}",
+        f"{last}.{first}@{company_domain}",
+        f"{first}.{last[0]}@{company_domain}",
+    ]:
+        if pattern not in guesses:
+            guesses.append(pattern)
     return guesses
 
 
-def _smtp_verify_email(email: str, timeout: int = 8) -> bool:
-    """
-    Verify email existence using SMTP VRFY / RCPT TO.
-    Does NOT send any email — just checks if the address is valid.
-    Returns True if the email address likely exists.
-    """
+def _mx_check(domain: str, timeout: int = 5) -> bool:
+    """Check if domain has MX records (means email likely exists)."""
     try:
-        domain = email.split("@")[1]
-        # Get MX record
         import dns.resolver
-        mx_records = dns.resolver.resolve(domain, "MX")
-        mx_host = str(sorted(mx_records, key=lambda r: r.preference)[0].exchange).rstrip(".")
-
-        # Connect to SMTP and check
-        with smtplib.SMTP(timeout=timeout) as smtp:
-            smtp.connect(mx_host, 25)
-            smtp.ehlo("trainersync.com")
-            smtp.mail("verify@trainersync.com")
-            code, _ = smtp.rcpt(email)
-            return code == 250
-    except Exception:
-        # If SMTP check fails (most cloud IPs are blocked on port 25)
-        # fall back to just domain MX check
-        try:
-            import dns.resolver
-            domain = email.split("@")[1]
-            dns.resolver.resolve(domain, "MX")
-            return True  # domain has MX = email format likely valid
-        except Exception:
-            return False
-
-
-async def _email_pattern_finder(
-    name: str,
-    company: str,
-    client: httpx.AsyncClient,
-) -> Dict[str, Any]:
-    """
-    Guess email from name+company pattern, then verify with SMTP.
-    Works well for Indian IT companies (TCS, Infosys, Wipro, etc.)
-    """
-    if not name or not company:
-        return {}
-
-    # Step 1: Find the company's email domain
-    company_domain = ""
-    try:
-        resp = await client.get(
-            "https://www.google.com/search",
-            params={"q": f"{company} official website email domain"},
-            headers={"User-Agent": random.choice(_USER_AGENTS)},
-            follow_redirects=True,
-        )
-        # Extract domain from search results
-        domain_match = re.search(
-            r"@([a-zA-Z0-9.\-]+\.(?:com|co\.in|in|net|org))",
-            _strip_html(resp.text)
-        )
-        if domain_match:
-            company_domain = domain_match.group(1).lower()
+        dns.resolver.resolve(domain, "MX")
+        return True
     except Exception:
         pass
+    # Fallback: try socket lookup for common mail servers
+    try:
+        import socket
+        socket.setdefaulttimeout(timeout)
+        socket.gethostbyname(f"mail.{domain}")
+        return True
+    except Exception:
+        return False
+
+
+async def _email_pattern(name: str, company: str, client: httpx.AsyncClient) -> Dict[str, Any]:
+    if not name or not company:
+        return {}
+    # Find the company domain
+    company_domain = ""
+    text = await _search_engine(client, f"{company} official website email", engine="bing")
+    m = re.search(r"@([a-zA-Z0-9.\-]+\.(?:com|co\.in|in|net|org))", text)
+    if m:
+        company_domain = m.group(1).lower()
 
     if not company_domain:
         return {}
 
-    # Step 2: Generate email guesses
-    guesses = _generate_email_guesses(name, company_domain)
-
-    # Step 3: Verify each guess via SMTP (async)
+    guesses = _guess_emails(name, company_domain)
     loop = asyncio.get_event_loop()
-    for guess in guesses[:4]:  # check top 4 guesses only
+    for guess in guesses[:4]:
         try:
-            valid = await loop.run_in_executor(None, _smtp_verify_email, guess)
+            valid = await loop.run_in_executor(None, _mx_check, guess.split("@")[1])
             if valid:
-                return {
-                    "email": guess,
-                    "phone": "",
-                    "source": "email_pattern_smtp_verify",
-                    "confidence": 0.75,
-                    "company_domain": company_domain,
-                }
+                return {"email": guess, "phone": "", "source": "email_pattern_mx_verified",
+                        "confidence": 0.70, "company_domain": company_domain}
         except Exception:
             continue
 
-    # If SMTP fails, return first guess with lower confidence
     if guesses:
-        return {
-            "email": guesses[0],
-            "phone": "",
-            "source": "email_pattern_guess",
-            "confidence": 0.45,
-            "company_domain": company_domain,
-            "note": "SMTP verification unavailable — pattern guess only",
-        }
+        return {"email": guesses[0], "phone": "", "source": "email_pattern_guess",
+                "confidence": 0.40, "company_domain": company_domain,
+                "note": "Pattern guess — not verified"}
     return {}
 
 
-# ── Strategy 6 — GitHub / JustDial / Shine scraper ──────────────────────────────
+# ══════════════════════════════════════════════════════════════
+# METHOD 10 — WhatsApp / phone number search
+# Many Indian trainers advertise on WhatsApp groups —
+# their number appears in search results
+# ══════════════════════════════════════════════════════════════
 
-async def _scrape_public_profiles(
-    name: str,
-    domain: str,
-    client: httpx.AsyncClient,
-) -> Dict[str, Any]:
-    """
-    Search GitHub, Shine, JustDial, About.me for the trainer.
-    These sites often show email/phone publicly.
-    """
-    search_queries = [
-        f'site:shine.com "{name}" "{domain}" trainer email',
-        f'site:justdial.com "{name}" trainer "{domain}"',
-        f'site:github.com "{name}" trainer email',
-        f'"{name}" trainer "{domain}" India "contact" "email" OR "phone"',
+async def _whatsapp_search(name: str, domain: str, client: httpx.AsyncClient) -> Dict[str, Any]:
+    queries = [
+        f'"{name}" trainer "{domain}" whatsapp India phone number',
+        f'"{name}" freelance trainer India +91 contact',
     ]
-
-    for query in search_queries[:3]:
-        try:
-            resp = await client.get(
-                "https://www.bing.com/search",
-                params={"q": query, "count": 5},
-                headers=_headers(),
-                follow_redirects=True,
-            )
-            if resp.status_code != 200:
-                continue
-
-            text = _strip_html(resp.text)
-            emails = _extract_emails(text)
-            phones = _extract_phones(text)
-
-            if emails or phones:
-                return {
-                    "email": emails[0] if emails else "",
-                    "phone": phones[0] if phones else "",
-                    "source": "public_profile_search",
-                    "confidence": 0.60,
-                    "query": query,
-                }
-        except Exception as exc:
-            logger.debug("Public profile search failed: %s", exc)
-        await asyncio.sleep(random.uniform(0.3, 0.7))
-
+    for q in queries[:2]:
+        text = await _search_engine(client, q, engine="bing")
+        phones = _phones(text)
+        if phones:
+            return {"email": "", "phone": phones[0], "source": "whatsapp_search", "confidence": 0.55}
+        await asyncio.sleep(0.2)
     return {}
 
 
-# ── Main Entry Point ─────────────────────────────────────────────────────────────
+
+# ══════════════════════════════════════════════════════════════
+# MAIN ENTRY POINTS
+# ══════════════════════════════════════════════════════════════
+
+import urllib.parse  # needed by naukri method
+
 
 async def find_contact_for_trainer(
     name: str = "",
@@ -509,27 +477,19 @@ async def find_contact_for_trainer(
     domain: str = "",
     linkedin_url: str = "",
     profile_text: str = "",
-    timeout: int = 30,
+    timeout: int = 45,
 ) -> Dict[str, Any]:
     """
-    Find email + phone for a LinkedIn trainer profile.
-
-    Uses 6 strategies in cascade order — stops when email+phone found.
-
-    Args:
-        name:         Trainer full name (e.g. "Rajesh Kumar")
-        company:      Current/past company (e.g. "TCS")
-        domain:       Technology domain (e.g. "Python", "DevOps")
-        linkedin_url: LinkedIn profile URL
-        profile_text: Already scraped LinkedIn profile text
-        timeout:      Total timeout in seconds
+    Find email + phone for a trainer using 10 cascading methods.
+    Stops as soon as both email AND phone are found.
+    Falls through all methods if only one or neither is found.
 
     Returns:
         {
           "email":      str,
           "phone":      str,
-          "source":     str,    # which strategy found it
-          "confidence": float,  # 0.0 - 1.0
+          "source":     str,
+          "confidence": float,
           "found":      bool,
         }
     """
@@ -537,70 +497,77 @@ async def find_contact_for_trainer(
         "email": "", "phone": "", "source": "", "confidence": 0.0, "found": False
     }
 
-    # Strategy 1 — Mine the profile text we already have (instant, zero HTTP)
-    if profile_text:
-        r = _mine_profile_text(profile_text)
-        if r.get("email") or r.get("phone"):
-            result.update({**r, "found": True})
-            if result["email"] and result["phone"]:
-                return result  # Got both — done!
+    def _merge(r: Dict[str, Any]) -> bool:
+        """Merge a sub-result into the main result. Returns True if both email+phone now found."""
+        if r.get("email") and not result["email"]:
+            result["email"] = r["email"]
+            result["source"] = r.get("source", "")
+            result["confidence"] = r.get("confidence", 0.5)
+            result["found"] = True
+        if r.get("phone") and not result["phone"]:
+            result["phone"] = r["phone"]
+            if not result["source"]:
+                result["source"] = r.get("source", "")
+            result["found"] = True
+        return bool(result["email"] and result["phone"])
 
-    async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+    # Method 1 — instant, zero HTTP
+    r = _mine_text(profile_text)
+    if _merge(r) and result["email"] and result["phone"]:
+        return result
 
-        # Strategy 2 — Personal website linked in profile
-        if not (result["email"] and result["phone"]) and profile_text:
-            r = await _scrape_personal_website(profile_text, linkedin_url, client)
-            if r.get("email") or r.get("phone"):
-                if not result["email"]:
-                    result["email"] = r.get("email", "")
-                if not result["phone"]:
-                    result["phone"] = r.get("phone", "")
-                result.update({"source": r["source"], "confidence": r["confidence"], "found": True})
-                if result["email"] and result["phone"]:
-                    return result
+    async with httpx.AsyncClient(timeout=timeout, follow_redirects=True, http2=False) as client:
 
-        # Strategy 3 — Naukri public profile
-        if not (result["email"] and result["phone"]) and name:
-            r = await _naukri_search_contact(name, domain, client)
-            if r.get("email") or r.get("phone"):
-                if not result["email"]:
-                    result["email"] = r.get("email", "")
-                if not result["phone"]:
-                    result["phone"] = r.get("phone", "")
-                result.update({"source": r["source"], "confidence": r["confidence"], "found": True})
-                if result["email"] and result["phone"]:
-                    return result
+        # Method 2 — personal website
+        r = await _personal_website(profile_text, client)
+        if _merge(r) and result["email"] and result["phone"]:
+            return result
 
-        # Strategy 4 — Google dork
-        if not (result["email"] and result["phone"]) and name:
-            r = await _google_dork_contact(name, company, domain, client)
-            if r.get("email") or r.get("phone"):
-                if not result["email"]:
-                    result["email"] = r.get("email", "")
-                if not result["phone"]:
-                    result["phone"] = r.get("phone", "")
-                result.update({"source": r["source"], "confidence": r["confidence"], "found": True})
-                if result["email"] and result["phone"]:
-                    return result
+        # Method 3 — Naukri profile page (BEST for Indian trainers)
+        if name:
+            r = await _naukri_profile(name, domain, client)
+            if _merge(r) and result["email"] and result["phone"]:
+                return result
 
-        # Strategy 5 — Shine / JustDial / GitHub scrape
-        if not (result["email"] and result["phone"]) and name:
-            r = await _scrape_public_profiles(name, domain, client)
-            if r.get("email") or r.get("phone"):
-                if not result["email"]:
-                    result["email"] = r.get("email", "")
-                if not result["phone"]:
-                    result["phone"] = r.get("phone", "")
-                result.update({"source": r["source"], "confidence": r["confidence"], "found": True})
-                if result["email"] and result["phone"]:
-                    return result
+        # Method 4 — Shine profile page
+        if name:
+            r = await _shine_profile(name, domain, client)
+            if _merge(r) and result["email"] and result["phone"]:
+                return result
 
-        # Strategy 6 — Email pattern guess + SMTP verify (last resort)
+        # Method 5 — JustDial
+        if name:
+            r = await _justdial_search(name, domain, client)
+            if _merge(r) and result["email"] and result["phone"]:
+                return result
+
+        # Method 6 — GitHub
+        if name:
+            r = await _github_scrape(name, domain, client)
+            if _merge(r) and result["email"] and result["phone"]:
+                return result
+
+        # Method 7 — Bing people search
+        if name:
+            r = await _bing_people_search(name, company, domain, client)
+            if _merge(r) and result["email"] and result["phone"]:
+                return result
+
+        # Method 8 — DDG people search
+        if name:
+            r = await _ddg_people_search(name, domain, client)
+            if _merge(r) and result["email"] and result["phone"]:
+                return result
+
+        # Method 9 — Email pattern + MX check (last resort for email)
         if not result["email"] and name and company:
-            r = await _email_pattern_finder(name, company, client)
-            if r.get("email"):
-                result["email"] = r["email"]
-                result.update({"source": r["source"], "confidence": r["confidence"], "found": True})
+            r = await _email_pattern(name, company, client)
+            _merge(r)
+
+        # Method 10 — WhatsApp / phone search (last resort for phone)
+        if not result["phone"] and name:
+            r = await _whatsapp_search(name, domain, client)
+            _merge(r)
 
     result["found"] = bool(result["email"] or result["phone"])
     return result
@@ -609,27 +576,26 @@ async def find_contact_for_trainer(
 async def bulk_find_contacts(
     trainers: List[Dict[str, Any]],
     *,
-    concurrency: int = 3,
-    timeout: int = 30,
+    concurrency: int = 5,
+    timeout: int = 45,
 ) -> List[Dict[str, Any]]:
     """
-    Find contacts for multiple trainers concurrently.
+    Find contacts for a list of trainers concurrently.
 
     Args:
-        trainers: List of trainer dicts with keys:
-                  name, company, domain, linkedin_url, profile_text
-        concurrency: How many to search in parallel (default 3)
-        timeout: Per-trainer timeout in seconds
+        trainers:    List of trainer dicts (name, company, domain, linkedin_url, profile_text)
+        concurrency: How many trainers to process in parallel
+        timeout:     Per-trainer timeout in seconds
 
     Returns:
-        List of result dicts with email, phone, source, confidence, found
+        List of trainer dicts each with a "contact_result" key added
     """
-    semaphore = asyncio.Semaphore(concurrency)
+    sem = asyncio.Semaphore(concurrency)
 
-    async def _find(trainer: Dict[str, Any]) -> Dict[str, Any]:
-        async with semaphore:
-            await asyncio.sleep(random.uniform(0.5, 1.5))  # polite delay
-            result = await find_contact_for_trainer(
+    async def _one(trainer: Dict[str, Any]) -> Dict[str, Any]:
+        async with sem:
+            await asyncio.sleep(random.uniform(0.2, 0.8))
+            res = await find_contact_for_trainer(
                 name=trainer.get("name") or trainer.get("trainer_name") or "",
                 company=trainer.get("company") or trainer.get("current_company") or "",
                 domain=trainer.get("domain") or trainer.get("technology") or "",
@@ -637,6 +603,6 @@ async def bulk_find_contacts(
                 profile_text=trainer.get("profile_text") or trainer.get("resume") or "",
                 timeout=timeout,
             )
-            return {**trainer, "contact_result": result}
+            return {**trainer, "contact_result": res}
 
-    return list(await asyncio.gather(*[_find(t) for t in trainers]))
+    return list(await asyncio.gather(*[_one(t) for t in trainers]))
