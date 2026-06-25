@@ -14091,10 +14091,16 @@ LEAD_KEYWORDS = [
 ]
 
 LEAD_DOMAINS = [
-    "devops", "full stack", "aws", "azure", "python", "java", "react", "node",
+    "devops", "full stack", "fullstack", "mern", "mean", "mevn",
+    "aws", "azure", "python", "java", "react", "node", "nodejs",
+    "javascript", "typescript", "angular", "vue",
     "power bi", "tableau", "data science", "machine learning", "genai",
     "kubernetes", "docker", "jenkins", "terraform", "salesforce", "sap",
-    "cybersecurity", "cloud", "sql", "excel", "agile", "scrum",
+    "cybersecurity", "cyber security", "cloud", "sql", "excel", "agile", "scrum",
+    "django", "flask", "spring", "springboot", "microservices",
+    "blockchain", "flutter", "android", "ios", "swift", "kotlin",
+    "ai", "artificial intelligence", "deep learning", "nlp",
+    "data engineering", "apache spark", "hadoop", "kafka",
 ]
 
 
@@ -14179,10 +14185,13 @@ TRAINER_PROVIDER_SIGNALS = [
     # Domain expertise with training
     "devops trainer", "python trainer", "aws trainer", "azure trainer",
     "java trainer", "sap trainer", "cloud trainer", "data science trainer",
-    "full stack trainer", "react trainer", "kubernetes trainer",
+    "full stack trainer", "fullstack trainer", "mern trainer", "mean trainer",
+    "react trainer", "node trainer", "javascript trainer", "angular trainer",
+    "kubernetes trainer", "docker trainer", "microservices trainer",
     "power bi trainer", "tableau trainer", "salesforce trainer",
     "machine learning trainer", "ai trainer", "genai trainer",
     "cybersecurity trainer", "agile trainer", "scrum trainer",
+    "blockchain trainer", "flutter trainer", "android trainer", "ios trainer",
     # Platform/delivery signals
     "online classes", "virtual training", "in-person training",
     "hybrid training", "self-paced", "instructor-led",
@@ -14971,18 +14980,75 @@ def _public_search_domain_aliases(domain: str = "") -> list[str]:
     )
     compact = _re.sub(ALPHANUMERIC_SIMPLE, "", clean)
     aliases = {clean.strip(), compact}
+
+    # ── Core tech domains ─────────────────────────────────────
     if "devops" in compact:
-        aliases.add("devops")
+        aliases.update({"devops", "dev ops", "ci/cd", "cicd"})
     if "python" in compact:
-        aliases.add("python")
+        aliases.update({"python", "django", "flask", "fastapi"})
     if "aws" in compact:
-        aliases.add("aws")
-    if "fullstack" in compact:
-        aliases.add("fullstack")
+        aliases.update({"aws", "amazon web services", "cloud aws"})
+    if "azure" in compact:
+        aliases.update({"azure", "microsoft azure", "az-900", "az900"})
+    if "java" in compact and "javascript" not in compact:
+        aliases.update({"java", "spring boot", "springboot", "j2ee"})
+
+    # ── Full Stack — the main domain that was giving 0 results ─
+    if "fullstack" in compact or "full" in compact:
+        aliases.update({
+            "full stack", "fullstack", "full-stack",
+            "mern", "mean", "mevn",                   # popular stacks
+            "react", "node", "nodejs", "node.js",      # component techs
+            "javascript", "typescript", "js",           # languages
+            "angular", "vue", "vuejs", "next.js", "nextjs",
+            "express", "mongodb",
+        })
+
+    # ── React ─────────────────────────────────────────────────
+    if "react" in compact:
+        aliases.update({"react", "reactjs", "react.js", "redux", "nextjs", "next.js"})
+
+    # ── Data / AI ─────────────────────────────────────────────
+    if "datascience" in compact or "data" in compact:
+        aliases.update({"data science", "datascience", "data analytics", "pandas", "numpy"})
+    if "machinelearning" in compact or "ml" in compact:
+        aliases.update({"machine learning", "machinelearning", "ml", "deep learning", "sklearn"})
+    if "genai" in compact or "generativeai" in compact:
+        aliases.update({"genai", "generative ai", "llm", "chatgpt", "openai", "langchain"})
+    if "powerbi" in compact or "power" in compact:
+        aliases.update({"power bi", "powerbi", "power-bi", "dax", "microsoft bi"})
+    if "tableau" in compact:
+        aliases.update({"tableau", "data visualization"})
+
+    # ── Cloud / Infra ─────────────────────────────────────────
+    if "kubernetes" in compact or "k8s" in compact:
+        aliases.update({"kubernetes", "k8s", "kubectl", "helm", "container"})
+    if "docker" in compact:
+        aliases.update({"docker", "containerization", "container"})
+    if "terraform" in compact:
+        aliases.update({"terraform", "iac", "infrastructure as code"})
+    if "cloud" in compact:
+        aliases.update({"cloud", "cloud computing", "aws", "azure", "gcp"})
+
+    # ── SAP ───────────────────────────────────────────────────
     if "s4hana" in compact or "sap" in compact:
-        aliases.update({"sap", "s4hana", "saps4hana"})
+        aliases.update({"sap", "s4hana", "saps4hana", "s/4hana", "s4", "hana"})
     if "apisix" in compact or "apacheapisix" in compact:
-        aliases.update({"apisix", "apacheapisix"})
+        aliases.update({"apisix", "apacheapisix", "apache apisix", "api gateway"})
+
+    # ── Cyber / Security ──────────────────────────────────────
+    if "cyber" in compact or "security" in compact:
+        aliases.update({"cybersecurity", "cyber security", "ethical hacking",
+                        "penetration testing", "pentest", "cissp"})
+
+    # ── Salesforce ────────────────────────────────────────────
+    if "salesforce" in compact:
+        aliases.update({"salesforce", "crm", "apex", "lwc", "sfdc"})
+
+    # ── Agile / Scrum ─────────────────────────────────────────
+    if "agile" in compact or "scrum" in compact:
+        aliases.update({"agile", "scrum", "kanban", "safe", "jira"})
+
     return [item for item in aliases if item]
 
 
@@ -15442,7 +15508,7 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
     db = get_db()
     domains = payload.get("domains") or ["SAP S/4HANA", "Apache APISIX", "DevOps", "AWS", "Python"]
     domains = [str(item).strip() for item in domains if str(item).strip()][:12]
-    source_mode = str(payload.get("source") or payload.get("source_mode") or "linkedin").strip().lower()
+    source_mode = str(payload.get("source") or payload.get("source_mode") or "all").strip().lower()
     deep_enrich = bool(payload.get("deep_enrich", source_mode not in {"naukri"}))
     max_results = max(1, min(int(payload.get("max_results") or 10), 20))
     saved = []
@@ -15577,10 +15643,19 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                 source_lower = source_url.lower()
                 is_linkedin_result = LINKEDIN_COM_IN in source_lower or "linkedin.com/pub" in source_lower
                 is_naukri_result = NAUKRI_COM in source_lower
+                is_shine_result = "shine.com" in source_lower
+                is_timesjobs_result = "timesjobs.com" in source_lower
+                is_freshersworld_result = "freshersworld.com" in source_lower
+                is_glassdoor_result = "glassdoor.co.in" in source_lower or "glassdoor.com" in source_lower
+                is_known_trainer_source = (
+                    is_linkedin_result or is_naukri_result or is_shine_result
+                    or is_timesjobs_result or is_freshersworld_result or is_glassdoor_result
+                )
+                # Fix 2: Accept all known trainer profile sources, not just LinkedIn
                 if source_mode == "naukri" and not is_naukri_result:
                     skipped.append({"url": source_url, "reason": "not a public Naukri result"})
                     continue
-                if source_mode not in {"naukri"} and not (is_linkedin_result or (source_mode in {"both", "all"} and is_naukri_result)):
+                if source_mode not in {"naukri"} and not is_known_trainer_source:
                     skipped.append({"url": source_url, "reason": "not a supported public trainer result"})
                     continue
                 title = str(result.get("title") or "")
@@ -15604,6 +15679,36 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                     continue
                 image_url = str(result.get("image") or result.get("favicon") or "").strip()
                 public_text = f"{title}\n\n{content}\n\n{raw_content}".strip()
+
+                # Fix 4: Fetch actual page content for non-LinkedIn sources
+                # DDG/Bing snippets are only 50-100 chars — not enough for
+                # _analyse_trainer_profile_lead to find trainer keywords.
+                # Fetching the actual page gives 2000-5000 chars of rich text.
+                fetched_page_text = ""
+                if not is_linkedin_result and deep_enrich:
+                    try:
+                        page_resp = await client.get(
+                            source_url,
+                            headers={
+                                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/125.0 Safari/537.36",
+                                "Accept": "text/html,application/xhtml+xml",
+                                "Accept-Language": "en-US,en;q=0.9",
+                            },
+                            follow_redirects=True,
+                            timeout=12,
+                        )
+                        if page_resp.status_code == 200 and len(page_resp.text) > 200:
+                            import re as _re_inline
+                            _pt = _re_inline.sub(r"<script[^>]*>.*?</script>", " ", page_resp.text, flags=_re_inline.S | _re_inline.I)
+                            _pt = _re_inline.sub(r"<style[^>]*>.*?</style>", " ", _pt, flags=_re_inline.S | _re_inline.I)
+                            _pt = _re_inline.sub(r"<[^>]+>", " ", _pt)
+                            for _e, _c in [("&amp;","&"),("&lt;","<"),("&gt;",">"),("&quot;",'"'),("&nbsp;"," ")]:
+                                _pt = _pt.replace(_e, _c)
+                            fetched_page_text = _re_inline.sub(r"\s+", " ", _pt).strip()[:8000]
+                    except Exception:
+                        pass
+                if fetched_page_text:
+                    public_text = f"{public_text}\n\n{fetched_page_text}".strip()
                 resume_contact = await _extract_public_resume_contact(client, public_text, source_url) if deep_enrich else {}
                 if resume_contact.get("text"):
                     public_text = f"{public_text}\n\nPublic linked resume/document:\n{resume_contact['text']}".strip()
@@ -15613,7 +15718,14 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                 phone_from_text = _extract_public_phone(public_text)
                 email_from_text = _extract_contact_context_email(public_text)
                 lead_payload = {
-                    "source": "Naukri Public Search" if is_naukri_result else "Public LinkedIn Search",
+                    "source": (
+                        "Naukri Public Search" if is_naukri_result
+                        else "Shine Public Search" if is_shine_result
+                        else "TimesJobs Public Search" if is_timesjobs_result
+                        else "Freshersworld Public Search" if is_freshersworld_result
+                        else "Glassdoor Public Search" if is_glassdoor_result
+                        else "Public LinkedIn Search"
+                    ),
                     "source_url": source_url,
                     "trainer_name": title[:120],
                     "post_text": public_text,
@@ -15630,7 +15742,7 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                 if website_contact.get("phone") and not analysis.get("contact_phone"):
                     analysis["contact_phone"] = website_contact["phone"]
                 if (
-                    is_linkedin_result
+                    is_known_trainer_source
                     and _trainer_intent_query(query)
                     and not analysis.get("blocked_keywords")
                     and not analysis.get("is_trainer_profile_lead")
@@ -15641,8 +15753,8 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                         "trainer search query",
                     ]
                     analysis["confidence"] = max(float(analysis.get("confidence") or 0), 0.62)
-                    analysis["candidate_reason"] = "LinkedIn profile matched the searched skill and trainer-intent query."
-                if is_linkedin_result and not analysis.get("indian_profile"):
+                    analysis["candidate_reason"] = "Profile matched the searched skill and trainer-intent query."
+                if is_known_trainer_source and not analysis.get("indian_profile"):
                     analysis["indian_profile"] = True
                     analysis["india_inferred_from_query"] = True
                 contact_email = analysis.get("contact_email") or email_from_text or ""
