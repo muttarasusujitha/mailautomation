@@ -7,6 +7,7 @@ from typing import Any, Dict, Optional
 
 import httpx
 
+from config import get_settings
 from database import get_db
 
 
@@ -57,6 +58,32 @@ def _default_country_code(value: Any = "+91") -> str:
     return f"+{digits}"
 
 
+def _is_placeholder_value(value: Any) -> bool:
+    clean = str(value or "").strip().lower()
+    compact = clean.replace("-", "_").replace(" ", "_")
+    return (
+        not clean
+        or compact.startswith("your_")
+        or compact.startswith("your.")
+        or compact.startswith("your-")
+        or compact.startswith("enter_")
+        or "xxxxxxxx" in compact
+        or compact in {"placeholder", "changeme", "change_me", "your_api_key"}
+    )
+
+
+def _config_value(value: Any, fallback: Any = "", default: str = "") -> str:
+    for candidate in (value, fallback):
+        clean = str(candidate or "").strip()
+        if clean and not _is_placeholder_value(clean):
+            return clean
+    return default
+
+
+def _settings_env(env_name: str, default: str = "") -> str:
+    return str(getattr(get_settings(), env_name.lower(), "") or os.getenv(env_name, default) or "").strip()
+
+
 async def get_twilio_config(db) -> Dict[str, Any]:
     settings_doc = await db["admin_settings"].find_one(
         {"settings_id": "default"},
@@ -65,25 +92,25 @@ async def get_twilio_config(db) -> Dict[str, Any]:
     cfg = (settings_doc or {}).get("twilioCfg") or {}
     return {
         "enabled": bool(cfg.get("enabled", False)),
-        "provider": (cfg.get("provider") or os.getenv("WHATSAPP_PROVIDER", "twilio")).strip().lower(),
-        "accountSid": (cfg.get("accountSid") or os.getenv("TWILIO_ACCOUNT_SID", "")).strip(),
-        "authToken": (cfg.get("authToken") or os.getenv("TWILIO_AUTH_TOKEN", "")).strip(),
-        "fromWhatsAppNumber": (cfg.get("fromWhatsAppNumber") or os.getenv("TWILIO_WHATSAPP_FROM", "")).strip(),
-        "vendorWhatsAppNumber": (cfg.get("vendorWhatsAppNumber") or os.getenv("VENDOR_WHATSAPP_NUMBER", "")).strip(),
+        "provider": (cfg.get("provider") or _settings_env("WHATSAPP_PROVIDER", "twilio")).strip().lower(),
+        "accountSid": _config_value(cfg.get("accountSid"), _settings_env("TWILIO_ACCOUNT_SID")),
+        "authToken": _config_value(cfg.get("authToken"), _settings_env("TWILIO_AUTH_TOKEN")),
+        "fromWhatsAppNumber": _config_value(cfg.get("fromWhatsAppNumber"), _settings_env("TWILIO_WHATSAPP_FROM")),
+        "vendorWhatsAppNumber": _config_value(cfg.get("vendorWhatsAppNumber"), _settings_env("VENDOR_WHATSAPP_NUMBER")),
         "defaultCountryCode": _default_country_code(cfg.get("defaultCountryCode") or "+91"),
-        "statusCallbackUrl": (cfg.get("statusCallbackUrl") or "").strip(),
-        "aisensyApiUrl": (cfg.get("aisensyApiUrl") or os.getenv("AISENSY_API_URL", AISENSY_API_URL)).strip(),
-        "aisensyApiKey": (cfg.get("aisensyApiKey") or os.getenv("AISENSY_API_KEY", "")).strip(),
-        "aisensyCampaignName": (cfg.get("aisensyCampaignName") or os.getenv("AISENSY_CAMPAIGN_NAME", "")).strip(),
-        "aisensySource": (cfg.get("aisensySource") or os.getenv("AISENSY_SOURCE", "TrainerSync")).strip(),
-        "aisensyTemplateParamFields": (cfg.get("aisensyTemplateParamFields") or os.getenv("AISENSY_TEMPLATE_PARAM_FIELDS", "message")).strip(),
-        "aisensyTags": (cfg.get("aisensyTags") or os.getenv("AISENSY_TAGS", "trainersync")).strip(),
-        "metaApiVersion": (cfg.get("metaApiVersion") or os.getenv("META_GRAPH_API_VERSION", "v23.0")).strip(),
-        "metaPhoneNumberId": (cfg.get("metaPhoneNumberId") or os.getenv("META_WHATSAPP_PHONE_NUMBER_ID", "")).strip(),
-        "metaAccessToken": (cfg.get("metaAccessToken") or os.getenv("META_WHATSAPP_ACCESS_TOKEN", "")).strip(),
-        "metaTemplateName": (cfg.get("metaTemplateName") or os.getenv("META_WHATSAPP_TEMPLATE_NAME", "")).strip(),
-        "metaLanguageCode": (cfg.get("metaLanguageCode") or os.getenv("META_WHATSAPP_LANGUAGE_CODE", "en_US")).strip(),
-        "metaTemplateParamFields": (cfg.get("metaTemplateParamFields") or os.getenv("META_WHATSAPP_TEMPLATE_PARAM_FIELDS", "message")).strip(),
+        "statusCallbackUrl": _config_value(cfg.get("statusCallbackUrl")),
+        "aisensyApiUrl": _config_value(cfg.get("aisensyApiUrl"), _settings_env("AISENSY_API_URL", AISENSY_API_URL), AISENSY_API_URL),
+        "aisensyApiKey": _config_value(cfg.get("aisensyApiKey"), _settings_env("AISENSY_API_KEY")),
+        "aisensyCampaignName": _config_value(cfg.get("aisensyCampaignName"), _settings_env("AISENSY_CAMPAIGN_NAME")),
+        "aisensySource": _config_value(cfg.get("aisensySource"), _settings_env("AISENSY_SOURCE", "TrainerSync"), "TrainerSync"),
+        "aisensyTemplateParamFields": _config_value(cfg.get("aisensyTemplateParamFields"), _settings_env("AISENSY_TEMPLATE_PARAM_FIELDS", "message"), "message"),
+        "aisensyTags": _config_value(cfg.get("aisensyTags"), _settings_env("AISENSY_TAGS", "trainersync"), "trainersync"),
+        "metaApiVersion": _config_value(cfg.get("metaApiVersion"), _settings_env("META_GRAPH_API_VERSION", "v23.0"), "v23.0"),
+        "metaPhoneNumberId": _config_value(cfg.get("metaPhoneNumberId"), _settings_env("META_WHATSAPP_PHONE_NUMBER_ID")),
+        "metaAccessToken": _config_value(cfg.get("metaAccessToken"), _settings_env("META_WHATSAPP_ACCESS_TOKEN")),
+        "metaTemplateName": _config_value(cfg.get("metaTemplateName"), _settings_env("META_WHATSAPP_TEMPLATE_NAME")),
+        "metaLanguageCode": _config_value(cfg.get("metaLanguageCode"), _settings_env("META_WHATSAPP_LANGUAGE_CODE", "en_US"), "en_US"),
+        "metaTemplateParamFields": _config_value(cfg.get("metaTemplateParamFields"), _settings_env("META_WHATSAPP_TEMPLATE_PARAM_FIELDS", "message"), "message"),
     }
 
 

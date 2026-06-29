@@ -293,6 +293,45 @@ SECTION_BOUNDARIES = {
     "awards", "publications", "personal details", "contact", "languages",
 }
 
+RESUME_NAME_BLOCKLIST = SECTION_BOUNDARIES | {
+    "professional summary",
+    "trainer profile",
+    "resume details",
+    "profile summary",
+    "career summary",
+    "executive summary",
+    "summary",
+    "profile",
+    "objective",
+    "cloud",
+    "devops",
+    "data science",
+    "data analytics",
+    "full stack",
+    "cybersecurity",
+    "technologies",
+    "technical skills",
+    "key skills",
+    "core skills",
+}
+
+NAME_ROLE_WORDS = {
+    "founder",
+    "leader",
+    "manager",
+    "engineer",
+    "developer",
+    "architect",
+    "consultant",
+    "trainer",
+    "expert",
+    "specialist",
+    "professional",
+    "summary",
+    "profile",
+    "resume",
+}
+
 
 def _clean_section_heading(line: str) -> str:
     cleaned = (line or "").strip(" \t\r\n#>*-:").lower()
@@ -310,6 +349,75 @@ def _is_section_heading(line: str) -> bool:
         or first_part in SECTION_BOUNDARIES
         or bool(re.fullmatch(r"[A-Z][A-Z /&+-]{2,}:?", line.strip()))
     )
+
+
+def _clean_person_name(value: Any, allow_single: bool = False) -> str:
+    clean = _as_string(value)
+    clean = re.sub(r"\s+", " ", clean).strip(" \t\r\n,;:|")
+    if not clean or len(clean) > 60:
+        return ""
+    if re.search(r"[@:/\\]|\d", clean):
+        return ""
+
+    lowered = clean.lower()
+    lowered = re.sub(r"[^a-z .'-]", " ", lowered)
+    lowered = re.sub(r"\s+", " ", lowered).strip()
+    if lowered in RESUME_NAME_BLOCKLIST or _is_section_heading(clean):
+        return ""
+
+    words = [word for word in re.split(r"\s+", clean) if word]
+    min_words = 1 if allow_single else 2
+    if not min_words <= len(words) <= 5:
+        return ""
+    if any(word.lower().strip(" .'-") in NAME_ROLE_WORDS for word in words):
+        return ""
+    if sum(1 for word in words if len(word.strip(" .'-")) <= 1) > 1:
+        return ""
+    if not all(re.fullmatch(r"[A-Za-z][A-Za-z.'-]*", word) for word in words):
+        return ""
+    return " ".join(word[:1].upper() + word[1:] for word in words)
+
+
+def clean_trainer_person_name(value: Any, allow_single: bool = False) -> str:
+    return _clean_person_name(value, allow_single=allow_single)
+
+
+def is_bad_trainer_name(value: Any) -> bool:
+    clean = _as_string(value)
+    normalized = clean.lower()
+    normalized = re.sub(r"[^a-z\s]", " ", normalized)
+    normalized = re.sub(r"\s+", " ", normalized).strip()
+    if not normalized:
+        return True
+    if normalized in RESUME_NAME_BLOCKLIST or _is_section_heading(clean):
+        return True
+    if re.search(r"resume extracted|skills found|certifications found|summary excerpt", clean, re.IGNORECASE):
+        return True
+    return bool(re.match(r"^professional\s+summary\b", clean, re.IGNORECASE))
+
+
+def trainer_display_name(profile: Dict[str, Any]) -> str:
+    raw_name = _as_string(profile.get("display_name") or profile.get("name"))
+    if raw_name and not is_bad_trainer_name(raw_name):
+        return raw_name
+
+    name = _clean_person_name(raw_name, allow_single=True)
+    if name:
+        return name
+
+    email = _as_string(profile.get("email") or profile.get("trainer_email"))
+    if "@" in email:
+        email_name = re.sub(r"[._+-]+", " ", email.split("@", 1)[0])
+        email_name = _clean_person_name(email_name.title(), allow_single=True)
+        if email_name:
+            return email_name
+
+    filename = _name_from_filename(profile.get("filename") or profile.get("source_filename") or "")
+    if filename:
+        return filename
+
+    trainer_id = _as_string(profile.get("trainer_id"))
+    return f"Trainer {trainer_id}" if trainer_id else "Trainer"
 
 
 def _section_text(resume_text: str, aliases: List[str], max_lines: int = 30) -> str:
@@ -456,6 +564,158 @@ def _is_same_person(existing: Dict[str, Any], profile: Dict[str, Any]) -> bool:
     if existing_name and profile_name:
         return existing_name == profile_name
     return False  # If we can't verify via email or name, they are different people
+
+
+def _identity_text(value: Any) -> str:
+    return re.sub(r"[^a-z0-9]+", "", _as_string(value).lower())
+
+
+def _identity_email(profile: Dict[str, Any]) -> str:
+    for field in ("email", "trainer_email", "contact_email"):
+        email = _as_string(profile.get(field)).lower()
+        if email and "@" in email:
+            return email
+    return ""
+
+
+def _identity_phone(profile: Dict[str, Any]) -> str:
+    for field in ("phone", "trainer_phone", "contact_phone"):
+        digits = re.sub(r"\D+", "", _as_string(profile.get(field)))
+        if len(digits) >= 10:
+            return digits[-10:]
+    return ""
+
+
+def _identity_url(profile: Dict[str, Any]) -> str:
+    for field in ("linkedin", "linkedin_url", "source_url", "public_resume_url", "public_website_url"):
+        url = _as_string(profile.get(field)).lower()
+        if not url:
+            continue
+        url = re.sub(r"^https?://", "", url)
+        url = re.sub(r"^www\.", "", url)
+        url = url.split("?", 1)[0].split("#", 1)[0].strip("/")
+        if url:
+            return url
+    return ""
+
+
+def _identity_skill_tokens(profile: Dict[str, Any], limit: int = 12) -> List[str]:
+    raw_skills = _as_list(profile.get("skills")) or _as_list(profile.get("technologies"))
+    tokens = []
+    seen = set()
+    for skill in raw_skills:
+        token = _identity_text(skill)
+        if not token or token in seen:
+            continue
+        seen.add(token)
+        tokens.append(token)
+        if len(tokens) >= limit:
+            break
+    return tokens
+
+
+def trainer_identity_key(profile: Dict[str, Any]) -> str:
+    email = _identity_email(profile)
+    if email:
+        return f"email:{email}"
+
+    url = _identity_url(profile)
+    if url:
+        return f"url:{url}"
+
+    phone = _identity_phone(profile)
+    if phone:
+        return f"phone:{phone}"
+
+    display_name = trainer_display_name(profile)
+    name = _name_key(display_name if display_name != "Trainer" else profile.get("name"))
+    if not name or len(name) < 4 or is_bad_trainer_name(display_name):
+        return ""
+
+    category = _identity_text(
+        profile.get("technology_category")
+        or profile.get("primary_category")
+        or profile.get("category")
+        or profile.get("domain")
+    )
+    skills = _identity_skill_tokens(profile)
+    if len(skills) >= 3:
+        experience = _as_number(profile.get("experience_years"), None)
+        experience_part = str(int(round(experience))) if experience is not None else ""
+        return f"profile:{name}|{category}|{experience_part}|{','.join(skills)}"
+
+    summary = _identity_text(profile.get("summary") or profile.get("role_designation"))
+    if category and len(summary) >= 24:
+        return f"profile:{name}|{category}|{summary[:80]}"
+
+    return ""
+
+
+async def find_existing_trainer_for_profile(db, profile: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    email = _identity_email(profile)
+    if email:
+        trainer = await db["trainers"].find_one(
+            {"email": {"$regex": f"^{re.escape(email)}$", "$options": "i"}},
+            {"_id": 0},
+        )
+        if trainer and _is_same_person(trainer, profile):
+            return trainer
+
+    url = _identity_url(profile)
+    if url:
+        trainer = await db["trainers"].find_one(
+            {"linkedin": {"$regex": f"{re.escape(url)}$", "$options": "i"}},
+            {"_id": 0},
+        )
+        if trainer and _is_same_person(trainer, profile):
+            return trainer
+
+    phone = _identity_phone(profile)
+    if phone:
+        trainer = await db["trainers"].find_one(
+            {"phone": {"$regex": f"{re.escape(phone)}$", "$options": "i"}},
+            {"_id": 0},
+        )
+        if trainer and _is_same_person(trainer, profile):
+            return trainer
+
+    identity_key = trainer_identity_key(profile)
+    if not identity_key:
+        return None
+
+    name = trainer_display_name(profile)
+    name_pattern = f"^{re.escape(name)}$"
+    category = _as_string(
+        profile.get("technology_category")
+        or profile.get("primary_category")
+        or profile.get("category")
+        or profile.get("domain")
+    )
+    query: Dict[str, Any] = {
+        "$or": [
+            {"name": {"$regex": name_pattern, "$options": "i"}},
+            {"display_name": {"$regex": name_pattern, "$options": "i"}},
+        ]
+    }
+    if category:
+        category_pattern = re.escape(category)
+        query = {
+            "$and": [
+                query,
+                {"$or": [
+                    {"technology_category": {"$regex": category_pattern, "$options": "i"}},
+                    {"primary_category": {"$regex": category_pattern, "$options": "i"}},
+                    {"category": {"$regex": category_pattern, "$options": "i"}},
+                    {"domain": {"$regex": category_pattern, "$options": "i"}},
+                ]},
+            ]
+        }
+
+    candidates = await db["trainers"].find(query, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
+    for candidate in candidates:
+        if trainer_identity_key(candidate) == identity_key:
+            return candidate
+    return None
 
 
 def _as_number(value: Any, default: Optional[float] = None) -> Optional[float]:
@@ -807,7 +1067,7 @@ def _normalize_profile(data: Dict[str, Any], extraction_source: str = "resume") 
     secondary = [item for item in secondary if item != primary][:2]
 
     normalized = {
-        "name": _as_string(profile.get("name")),
+        "name": _clean_person_name(profile.get("name")),
         "email": _as_string(profile.get("email")).lower(),
         "phone": _as_string(profile.get("phone")),
         "teams_email": _as_string(
@@ -853,16 +1113,16 @@ def _name_from_filename(filename: str) -> str:
     stem = os.path.splitext(os.path.basename(filename or ""))[0]
     stem = re.sub(r"[_\-]+", " ", stem)
     stem = re.sub(r"\b(resume|cv|profile|trainer)\b", "", stem, flags=re.IGNORECASE)
-    return re.sub(r"\s+", " ", stem).strip().title()
+    return _clean_person_name(re.sub(r"\s+", " ", stem).strip().title(), allow_single=True)
 
 
 def _first_plausible_name(resume_text: str, filename: str) -> str:
     for line in resume_text.splitlines()[:12]:
         clean = re.sub(r"[^A-Za-z .'-]", " ", line).strip()
         clean = re.sub(r"\s+", " ", clean)
-        words = clean.split()
-        if 2 <= len(words) <= 5 and not any(word.lower() in {"resume", "curriculum", "vitae", "email", "phone"} for word in words):
-            return clean.title()
+        candidate = _clean_person_name(clean)
+        if candidate:
+            return candidate
     return _name_from_filename(filename)
 
 
@@ -1213,20 +1473,21 @@ async def process_resume(file_bytes: bytes, filename: str, db) -> Dict[str, Any]
         profile["filename"] = filename
         profile = _tag_verification_source(profile, profile.get("extraction_source", "resume"))
         profile = _apply_specialist_correction(profile, raw_text)
+        if not profile.get("name"):
+            fallback_name = _first_plausible_name(raw_text, filename)
+            if fallback_name:
+                profile["name"] = fallback_name
+                profile.setdefault("field_sources", {})["name"] = "safe_name_fallback"
+            else:
+                profile["needs_review"] = True
+                profile.setdefault("field_sources", {})["name"] = "not_found"
         profile["trainer_id"] = f"TR-{uuid.uuid4().hex[:8].upper()}"
         profile["confidence_score"] = calculate_confidence(profile)
         profile["resume_rank_score"] = calculate_resume_rank_score(profile)
 
-        duplicate = None
-        if profile.get("email"):
-            duplicate = await db["trainers"].find_one(
-                {"email": {"$regex": f"^{re.escape(profile['email'])}$", "$options": "i"}},
-                {"_id": 0, "trainer_id": 1, "email": 1, "name": 1},
-            )
-            if duplicate and _is_same_person(duplicate, profile):
-                profile["trainer_id"] = duplicate["trainer_id"]
-            elif duplicate:
-                duplicate = None
+        duplicate = await find_existing_trainer_for_profile(db, profile)
+        if duplicate:
+            profile["trainer_id"] = duplicate["trainer_id"]
 
         result.update(
             {
@@ -1260,6 +1521,8 @@ def trainer_document_from_profile(profile: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "trainer_id": profile.get("trainer_id") or f"TR-{uuid.uuid4().hex[:8].upper()}",
         "name": profile.get("name", ""),
+        "display_name": trainer_display_name(profile),
+        "filename": profile.get("filename", ""),
         "email": profile.get("email", ""),
         "phone": profile.get("phone", ""),
         "teams_email": profile.get("teams_email", ""),
@@ -1298,6 +1561,7 @@ def trainer_document_from_profile(profile: Dict[str, Any]) -> Dict[str, Any]:
         "combined_text": " ".join(combined_parts).lower(),
         "source": "resume_upload",
         "source_sheet": "resume_upload",
+        "identity_key": trainer_identity_key(profile),
         "status": "new",
         "updated_at": utc_now(),
     }
@@ -1460,14 +1724,7 @@ async def save_trainer_from_resume(profile: Dict[str, Any], db, use_ai_tags: boo
     profile = {**profile, "specialty_tags": specialty_tags}
     trainer_doc = trainer_document_from_profile(profile)
 
-    existing = None
-    if trainer_doc.get("email"):
-        existing = await db["trainers"].find_one(
-            {"email": {"$regex": f"^{re.escape(trainer_doc['email'])}$", "$options": "i"}},
-            {"_id": 0},
-        )
-        if existing and not _is_same_person(existing, trainer_doc):
-            existing = None
+    existing = await find_existing_trainer_for_profile(db, trainer_doc)
 
     if existing:
         trainer_doc["trainer_id"] = existing["trainer_id"]

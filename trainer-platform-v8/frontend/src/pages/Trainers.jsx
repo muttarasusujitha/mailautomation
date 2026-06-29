@@ -38,6 +38,9 @@ import {
   Save,
   Send,
   Star,
+  CheckCircle2,
+  ShieldCheck,
+  SlidersHorizontal,
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
@@ -109,6 +112,22 @@ const EXPERIENCE_OPTIONS = [
   { value: '3-7', label: '3-7 years' },
   { value: '7+', label: '7+ years' },
 ]
+const PROFILE_FILTERS = [
+  { value: '', label: 'All profiles', icon: Users },
+  { value: 'complete', label: 'Ready profiles', icon: CheckCircle2 },
+  { value: 'email', label: 'Has email', icon: Mail },
+  { value: 'phone', label: 'Has phone', icon: Phone },
+  { value: 'linkedin', label: 'LinkedIn', icon: Linkedin },
+  { value: 'teams', label: 'Teams ready', icon: MessageSquare },
+  { value: 'rated', label: 'Rated', icon: Star },
+  { value: 'needs_review', label: 'Needs review', icon: ShieldCheck },
+]
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest first' },
+  { value: 'rating_desc', label: 'Best rated' },
+  { value: 'experience_desc', label: 'Most experience' },
+  { value: 'name_asc', label: 'Name A-Z' },
+]
 const PIPELINE_MAIL_TEMPLATES = [
   { value: 'mail1', label: 'Mail 1 - First Contact' },
   { value: 'mail2', label: 'Mail 2 - Details Request' },
@@ -176,6 +195,19 @@ function skillLevels(t) {
   return Object.entries(map).filter(([skill]) => skill).slice(0, 3)
 }
 
+function technologyList(t) {
+  return uniqueCompact([
+    ...asArray(t.skills),
+    ...asArray(t.technical_skills),
+    ...asArray(t.core_skills),
+    ...asArray(t.key_skills),
+    ...asArray(t.tools),
+    ...specialisationTags(t),
+    ...Object.keys(t.skill_level_map || {}),
+    ...String(t.technologies || '').split(/[,;|\n]/),
+  ]).slice(0, 12)
+}
+
 function trainerRating(t) {
   const ratingFields = [
     t.rating,
@@ -186,10 +218,37 @@ function trainerRating(t) {
     t.star_rating,
   ]
   const explicitRating = ratingFields.find(value => Number.isFinite(Number(value)) && Number(value) > 0)
-  const raw = explicitRating ?? t.resume_rank_score ?? t.match_score ?? t.confidence_score ?? t.confidence ?? 0
-  let rating = Number(raw) || 0
-  if (rating > 5) rating /= 20
-  else if (rating > 0 && rating <= 1) rating *= 5
+  if (explicitRating != null) {
+    let explicit = Number(explicitRating) || 0
+    if (explicit > 5) explicit /= 20
+    else if (explicit > 0 && explicit <= 1) explicit *= 5
+    return Math.max(0, Math.min(5, Math.round(explicit * 10) / 10))
+  }
+
+  const skills = technologyList(t)
+  const hasContact = [t.email, t.phone, t.linkedin, t.teams_email, t.microsoft_teams_email, t.teams_upn].some(hasProfileValue)
+  const hasExperience = hasProfileValue(t.experience_raw) || Number(t.experience_years || 0) > 0
+  const hasSummary = hasProfileValue(t.summary) || hasProfileValue(t.objective)
+  const hasCategory = hasProfileValue(primaryCategory(t)) && primaryCategory(t).toLowerCase() !== 'uncategorised'
+  if (!skills.length && !hasContact && !hasSummary && !hasCategory) return 0
+
+  const profileChecks = [
+    !isBadTrainerName(t?.display_name || t?.name || t?.role_designation),
+    hasContact,
+    skills.length > 0,
+    hasCategory,
+    hasExperience,
+    hasSummary,
+  ]
+  const profileRatio = profileChecks.filter(Boolean).length / profileChecks.length
+  let rating = 2.8 + (profileRatio * 1.2)
+  if (skills.length >= 8) rating += 0.4
+  else if (skills.length >= 4) rating += 0.25
+  if (hasExperience) rating += 0.15
+  if (hasContact) rating += 0.15
+
+  const score = Math.max(Number(t.resume_rank_score || 0), Number(t.match_score || 0))
+  if (score >= 40) rating = Math.max(rating, score / 20)
   return Math.max(0, Math.min(5, Math.round(rating * 10) / 10))
 }
 
@@ -220,23 +279,224 @@ function compactResumeText(value) {
   return text.length > 520 ? `${text.slice(0, 520).trim()}...` : text
 }
 
-function trainerDescription(t) {
-  const skills = asArray(t.skills).slice(0, 6)
-  const tags = specialisationTags(t).slice(0, 4)
-  const certs = asArray(t.certifications).slice(0, 3)
-  const category = primaryCategory(t)
-  const experience = t.experience_raw || (t.experience_years ? `${t.experience_years}+ years` : '')
-  const role = t.role_designation || category
+const BAD_TRAINER_NAMES = new Set([
+  'professional summary',
+  'trainer profile',
+  'profile summary',
+  'career summary',
+  'executive summary',
+  'resume details',
+  'summary',
+  'profile',
+  'objective',
+  'skills',
+  'technical skills',
+  'technologies',
+  'cloud',
+])
 
-  const parts = []
-  if (role || experience) {
-    parts.push(`Resume extracted: ${[role, experience].filter(Boolean).join(' | ')}.`)
+function titleFromText(value) {
+  return String(value || '')
+    .replace(/\.[^.]+$/, '')
+    .replace(/\b(resume|cv|profile|trainer)\b/gi, ' ')
+    .replace(/[_\-+.]+/g, ' ')
+    .replace(/\d+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ')
+}
+
+function normalizeTrainerText(value) {
+  return String(value || '').replace(/\s+/g, ' ').trim()
+}
+
+function isDuplicateTrainerText(value, trainer) {
+  const text = normalizeTrainerText(value).toLowerCase()
+  if (!text) return false
+  const candidates = [
+    trainer?.display_name,
+    trainer?.name,
+    trainer?.role_designation,
+    trainer?.summary,
+    trainer?.technologies,
+    trainer?.objective,
+  ].map(normalizeTrainerText).filter(Boolean)
+  return candidates.some(candidate => candidate.toLowerCase() === text && candidate !== normalizeTrainerText(value))
+}
+
+function hasProfileValue(value) {
+  if (Array.isArray(value)) return value.some(item => hasProfileValue(item))
+  const text = normalizeTrainerText(value)
+  if (!text) return false
+  return !['-', 'na', 'n/a', 'none', 'null', 'unknown'].includes(text.toLowerCase())
+}
+
+function uniqueCompact(values) {
+  const seen = new Set()
+  return values
+    .map(normalizeTrainerText)
+    .filter(Boolean)
+    .filter(item => {
+      const key = item.toLowerCase()
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+}
+
+function joinPhrase(items) {
+  const values = uniqueCompact(items)
+  if (values.length <= 1) return values[0] || ''
+  if (values.length === 2) return `${values[0]} and ${values[1]}`
+  return `${values.slice(0, -1).join(', ')}, and ${values[values.length - 1]}`
+}
+
+function trainerSubtitleText(t) {
+  const category = primaryCategory(t)
+  const role = normalizeTrainerText(t.role_designation)
+  const experience = t.experience_raw || (t.experience_years ? `${t.experience_years}+ years` : '')
+  return uniqueCompact([role || category, experience, t.location]).join(' | ') || category
+}
+
+function isBadTrainerName(value) {
+  const clean = String(value || '').trim()
+  const normalized = clean.toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim()
+  if (!normalized) return true
+  if (BAD_TRAINER_NAMES.has(normalized)) return true
+  if (/resume extracted|skills found|certifications found|summary excerpt/i.test(clean)) return true
+  if (/^professional\s+summary\b/i.test(clean)) return true
+  return false
+}
+
+function trainerDisplayName(t) {
+  if (!isBadTrainerName(t?.display_name)) return String(t.display_name).trim()
+  if (!isBadTrainerName(t?.name)) return String(t.name).trim()
+  if (!isBadTrainerName(t?.role_designation)) return String(t.role_designation).trim()
+  const emailName = titleFromText(String(t?.email || '').split('@')[0])
+  if (emailName && !isBadTrainerName(emailName)) return emailName
+  const fileName = titleFromText(t?.filename || t?.source_filename || '')
+  if (fileName && !isBadTrainerName(fileName)) return fileName
+  return t?.trainer_id ? `Trainer ${t.trainer_id}` : 'Trainer'
+}
+
+function trainerInitial(t) {
+  return trainerDisplayName(t).charAt(0).toUpperCase()
+}
+
+function cleanProfileText(value) {
+  return normalizeTrainerText(value)
+    .replace(/^resume\s+extracted\s*:\s*/i, '')
+    .replace(/^resume\s+summary\s+excerpt\s*:\s*/i, '')
+    .replace(/^professional\s+summary\s*:\s*/i, '')
+}
+
+function truncateText(value, max = 280) {
+  const text = cleanProfileText(value)
+  return text.length > max ? `${text.slice(0, max).trim()}...` : text
+}
+
+function objectiveRole(t) {
+  const role = cleanProfileText(t.role_designation)
+  if (role && !isBadTrainerName(role) && role.length <= 90) {
+    return role.replace(/\s*\|\s*/g, ' and ')
   }
-  if (skills.length) parts.push(`Skills found in resume: ${skills.join(', ')}.`)
-  if (tags.length) parts.push(`Specialisation tags from resume skills: ${tags.join(', ')}.`)
-  if (certs.length) parts.push(`Certifications found in resume: ${certs.join(', ')}.`)
-  if (t.summary) parts.push(`Resume summary excerpt: ${String(t.summary)}`)
-  return parts.join(' ')
+  const category = primaryCategory(t)
+  const tags = specialisationTags(t).filter(tag => !String(tag).match(/trainer|training/i))
+  const roleParts = uniqueCompact([category, ...tags]).slice(0, 2)
+  return joinPhrase(roleParts) || 'Technology Professional'
+}
+
+function objectiveWorkAreas(skills) {
+  const text = skills.join(' ').toLowerCase()
+  const areas = []
+  if (/react|javascript|typescript|html|css|frontend|full stack|mern|node|django|fastapi|flask|web/.test(text)) {
+    areas.push('web applications')
+  }
+  if (/api|fastapi|flask|django|spring|node|express|rest/.test(text)) {
+    areas.push('REST APIs')
+  }
+  if (/power bi|tableau|dashboard|analytics|excel|sql|data/.test(text)) {
+    areas.push('interactive dashboards')
+  }
+  if (/trainer|training|corporate|faculty|instructor/.test(text)) {
+    areas.push('hands-on training programs')
+  }
+  return areas.length ? areas : ['real-world technology solutions']
+}
+
+function objectiveStrengths(skills) {
+  const text = skills.join(' ').toLowerCase()
+  const strengths = []
+  if (/ai|machine learning|ml|gen ai|generative|llm|prompt/.test(text)) strengths.push('AI-powered solutions')
+  if (/data|sql|analytics|analysis|power bi|tableau|visualization|visualisation/.test(text)) strengths.push('data analysis and visualization')
+  if (/react|javascript|python|fastapi|flask|mongo|sql|full stack|mern/.test(text)) strengths.push('scalable application development')
+  return strengths.length ? strengths : ['problem solving and practical delivery']
+}
+
+function objectiveInterests(skills) {
+  const text = skills.join(' ').toLowerCase()
+  const interests = []
+  if (/machine learning|ml/.test(text)) interests.push('Machine Learning')
+  if (/gen ai|generative|llm|prompt/.test(text)) interests.push('Generative AI')
+  if (/data|analytics|analysis|sql|power bi/.test(text)) interests.push('data-driven problem solving')
+  if (/cloud|devops|aws|azure|docker|kubernetes/.test(text)) interests.push('cloud and automation')
+  return interests
+}
+
+function trainerDescription(t) {
+  const objective = !isDuplicateTrainerText(t.objective, t) ? truncateText(t.objective, 520) : ''
+  if (objective) return objective
+
+  const skills = technologyList(t)
+  const category = primaryCategory(t)
+  const summary = !isDuplicateTrainerText(t.summary, t) ? truncateText(t.summary, 220) : ''
+  const role = objectiveRole(t)
+  const skillPhrase = joinPhrase(skills.slice(0, 9))
+  const workAreas = objectiveWorkAreas([role, category, ...skills])
+  const strengths = objectiveStrengths([role, category, ...skills])
+  const interests = objectiveInterests([role, category, ...skills])
+  const parts = []
+
+  parts.push(`${role}${skillPhrase ? ` with hands-on experience in ${skillPhrase}` : ''}.`)
+  parts.push(`Experienced in developing ${joinPhrase(workAreas)} using practical, real-world scenarios.`)
+  parts.push(`Skilled in ${joinPhrase(strengths)}${interests.length ? `, with a strong interest in ${joinPhrase(interests)}` : ''}.`)
+  parts.push('Passionate about building scalable applications and delivering impactful technology solutions.')
+  if (summary) parts.push(summary)
+
+  return parts.join(' ') || `${trainerDisplayName(t)} is listed for ${category}. Add skills, contact details, and an objective to complete this database profile.`
+}
+
+function trainerProfileQuality(t) {
+  const category = primaryCategory(t)
+  const checks = [
+    { key: 'name', label: 'name', ok: !isBadTrainerName(t?.display_name || t?.name || t?.role_designation) },
+    { key: 'email', label: 'email', ok: hasProfileValue(t.email) },
+    { key: 'phone', label: 'phone', ok: hasProfileValue(t.phone) },
+    { key: 'linkedin', label: 'LinkedIn', ok: hasProfileValue(t.linkedin) },
+    { key: 'skills', label: 'skills', ok: technologyList(t).length > 0 },
+    { key: 'category', label: 'category', ok: hasProfileValue(category) && category.toLowerCase() !== 'uncategorised' },
+    { key: 'experience', label: 'experience', ok: hasProfileValue(t.experience_raw) || Number(t.experience_years || 0) > 0 },
+    { key: 'summary', label: 'summary', ok: hasProfileValue(t.summary) || hasProfileValue(t.objective) },
+  ]
+  const completed = checks.filter(item => item.ok).length
+  return {
+    completed,
+    total: checks.length,
+    percent: Math.round((completed / checks.length) * 100),
+    missing: checks.filter(item => !item.ok).map(item => item.label),
+  }
+}
+
+function trainerContactChannels(t) {
+  return [
+    { key: 'email', label: 'Email', value: t.email, Icon: Mail, tone: 'text-blue-600 bg-blue-50 border-blue-100' },
+    { key: 'phone', label: 'Phone', value: t.phone, Icon: Phone, tone: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
+    { key: 'linkedin', label: 'LinkedIn', value: t.linkedin && t.linkedin !== '-' ? t.linkedin : '', Icon: Linkedin, tone: 'text-sky-600 bg-sky-50 border-sky-100' },
+    { key: 'teams', label: 'Teams', value: t.teams_email || t.microsoft_teams_email || t.teams_upn, Icon: MessageSquare, tone: 'text-indigo-600 bg-indigo-50 border-indigo-100' },
+  ].filter(item => hasProfileValue(item.value))
 }
 
 function TrainerPipelinePanel({ trainer, onStartAutomation, sendingAutomation }) {
@@ -485,6 +745,7 @@ function TrainerConversationThread({ trainer }) {
 }
 
 function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomation, requestingResume, sendingAutomation }) {
+  const displayName = trainerDisplayName(t)
   const category = primaryCategory(t)
   const tags = specialisationTags(t)
   const industries = asArray(t.industry_focus)
@@ -492,6 +753,12 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
   const levels = skillLevels(t)
   const resumeText = compactResumeText(t.resume)
   const pastClients = asArray(t.past_clients)
+  const quality = trainerProfileQuality(t)
+  const contactChannels = trainerContactChannels(t)
+  const profileSkills = technologyList(t)
+  const profileSummary = trainerDescription(t)
+  const extractedObjective = !isDuplicateTrainerText(t.objective, t) ? truncateText(t.objective, 520) : ''
+  const headline = trainerSubtitleText(t)
   const [teamsEmail, setTeamsEmail] = useState(t.teams_email || t.microsoft_teams_email || t.teams_upn || '')
   const [savingTeams, setSavingTeams] = useState(false)
   const [showSingleShortlist, setShowSingleShortlist] = useState(false)
@@ -522,10 +789,10 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
         <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-white flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0">
-              <span className="font-jakarta font-bold text-blue-600 text-lg">{t.name?.charAt(0).toUpperCase()}</span>
+              <span className="font-jakarta font-bold text-blue-600 text-lg">{trainerInitial(t)}</span>
             </div>
             <div className="min-w-0">
-              <h2 className="font-jakarta font-bold text-slate-900 text-lg truncate">{t.name}</h2>
+              <h2 className="font-jakarta font-bold text-slate-900 text-lg truncate">{displayName}</h2>
               <div className="flex flex-wrap gap-1 mt-1">
                 <span className={clsx('text-xs', STATUS_COLORS[t.status] || 'badge-slate')}>{t.status || 'new'}</span>
                 <span className={clsx('px-2 py-0.5 rounded-full border text-xs font-semibold', domainBadge(t.domain))}>
@@ -541,11 +808,17 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
         </div>
 
         <div className="p-5 space-y-5 overflow-y-auto flex-1">
-          <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
-            <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Trainer Profile</p>
-                <p className="mt-0.5 text-xs text-blue-600">Resume details only. Open single shortlist when you want automation.</p>
+          <div className="rounded-xl border border-slate-200 bg-white p-4">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <p className="eyebrow mb-1">Professional Objective</p>
+                <h3 className="text-base font-bold text-slate-900">{headline}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-700">{profileSummary}</p>
+                {quality.missing.length > 0 && (
+                  <p className="mt-2 text-xs text-slate-500">
+                    Missing: {quality.missing.slice(0, 4).join(', ')}{quality.missing.length > 4 ? ` +${quality.missing.length - 4}` : ''}
+                  </p>
+                )}
               </div>
               <button
                 type="button"
@@ -558,18 +831,43 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
                 )}
               >
                 <Sparkles className="h-4 w-4" />
-                {showSingleShortlist ? 'Hide Single Shortlist' : 'Single Shortlist / Pipeline'}
+                {showSingleShortlist ? 'Hide Pipeline' : 'Open Pipeline'}
               </button>
             </div>
-            <p className="text-sm leading-6 text-slate-700">{trainerDescription(t)}</p>
+
+            <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+              {[
+                ['Profile score', `${quality.percent}%`, `${quality.completed}/${quality.total} fields`],
+                ['Contact', `${contactChannels.length}`, 'channels saved'],
+                ['Skills', `${profileSkills.length}`, 'profile skills'],
+                ['Rating', trainerRating(t) ? trainerRating(t).toFixed(1) : 'New', 'trainer score'],
+              ].map(([label, value, sub]) => (
+                <div key={label} className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                  <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">{label}</p>
+                  <p className="mt-1 text-lg font-black text-slate-900">{value}</p>
+                  <p className="text-[11px] text-slate-400">{sub}</p>
+                </div>
+              ))}
+            </div>
+
+            {contactChannels.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {contactChannels.map(({ key, label, Icon, tone }) => (
+                  <span key={key} className={clsx('inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold', tone)}>
+                    <Icon className="h-3.5 w-3.5" />
+                    {label}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {showSingleShortlist && (
             <div className="space-y-4 rounded-2xl border border-blue-100 bg-blue-50/40 p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Single Person Shortlist</p>
-                  <p className="mt-0.5 text-xs text-blue-600">Pipeline and communication only for this trainer.</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Single Trainer Pipeline</p>
+                  <p className="mt-0.5 text-xs text-blue-600">Use this only when a client requirement is ready for this trainer.</p>
                 </div>
                 <button
                   type="button"
@@ -666,6 +964,13 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
             </div>
           )}
 
+          {extractedObjective && extractedObjective !== profileSummary && (
+            <div>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Extracted Objective</p>
+              <p className="text-sm text-slate-700 bg-slate-50 rounded-xl p-3 leading-relaxed whitespace-pre-wrap">{extractedObjective}</p>
+            </div>
+          )}
+
           {resumeText && (
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Resume Snapshot</p>
@@ -673,11 +978,11 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
             </div>
           )}
 
-          {asArray(t.skills).length > 0 && (
+          {profileSkills.length > 0 && (
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Skills</p>
               <div className="flex flex-wrap gap-2">
-                {asArray(t.skills).map(skill => <span key={skill} className="badge-blue text-xs">{skill}</span>)}
+                {profileSkills.map(skill => <span key={skill} className="badge-blue text-xs">{skill}</span>)}
               </div>
             </div>
           )}
@@ -776,12 +1081,16 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
 }
 
 function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onStartAutomation, recategorising, requestingResume, sendingAutomation }) {
+  const displayName = trainerDisplayName(t)
   const category = primaryCategory(t)
   const tags = specialisationTags(t)
   const industries = asArray(t.industry_focus)
   const deliveryLanguages = asArray(t.language_of_delivery)
   const levels = skillLevels(t)
-  const skills = asArray(t.skills)
+  const skills = technologyList(t)
+  const quality = trainerProfileQuality(t)
+  const contactChannels = trainerContactChannels(t)
+  const profileSummary = trainerDescription(t)
 
   return (
     <div
@@ -800,16 +1109,17 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
         type="button"
         onClick={(e) => { e.stopPropagation(); onView(t) }}
         className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 hover:from-blue-200 hover:to-blue-100 transition-all"
-        aria-label={`View ${t.name || 'trainer'}`}
+        aria-label={`View ${displayName}`}
       >
-        <span className="font-jakarta font-bold text-blue-600 text-base">{t.name?.charAt(0).toUpperCase()}</span>
+        <span className="font-jakarta font-bold text-blue-600 text-base">{trainerInitial(t)}</span>
       </button>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <button type="button" className="text-left min-w-0 flex-1" onClick={(e) => { e.stopPropagation(); onView(t) }}>
-            <h3 className="font-medium text-slate-900 group-hover:text-blue-600 transition-colors truncate">{t.name}</h3>
-            <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{t.technologies || t.summary}</p>
+            <h3 className="font-medium text-slate-900 group-hover:text-blue-600 transition-colors truncate">{displayName}</h3>
+            <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{trainerSubtitleText(t)}</p>
+            <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{profileSummary}</p>
             {tags.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {tags.slice(0, 3).map(tag => <span key={tag} className="badge-purple text-xs">{tag}</span>)}
@@ -819,6 +1129,14 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
 
           <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
             <TrainerRatingStars trainer={t} />
+            <span className={clsx(
+              'rounded-full border px-2.5 py-1 text-xs font-semibold',
+              quality.percent >= 80 ? 'border-emerald-200 bg-emerald-50 text-emerald-700' :
+              quality.percent >= 60 ? 'border-blue-200 bg-blue-50 text-blue-700' :
+                                      'border-amber-200 bg-amber-50 text-amber-700'
+            )}>
+              {quality.percent}% profile
+            </span>
             <span className={clsx('px-2.5 py-1 rounded-full border text-xs font-semibold', domainBadge(t.domain))}>{category}</span>
             {t.match_score != null && (
               <div className={clsx(
@@ -848,6 +1166,17 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           )}
           {t.phone && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {t.phone}</span>}
         </div>
+
+        {contactChannels.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {contactChannels.map(({ key, label, Icon, tone }) => (
+              <span key={key} className={clsx('inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold', tone)}>
+                <Icon className="h-3 w-3" />
+                {label}
+              </span>
+            ))}
+          </div>
+        )}
 
         {skills.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
@@ -891,7 +1220,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           disabled={sendingAutomation}
           className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-50"
           title="Start automation pipeline"
-          aria-label={`Start automation pipeline for ${t.name || 'trainer'}`}
+          aria-label={`Start automation pipeline for ${displayName}`}
         >
           {sendingAutomation ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
         </button>
@@ -901,7 +1230,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           disabled={requestingResume}
           className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-50"
           title="Request updated resume"
-          aria-label={`Request updated resume from ${t.name || 'trainer'}`}
+          aria-label={`Request updated resume from ${displayName}`}
         >
           {requestingResume ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
         </button>
@@ -910,7 +1239,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           onClick={(e) => { e.stopPropagation(); onView(t) }}
           className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
           title="View trainer details"
-          aria-label={`View details for ${t.name || 'trainer'}`}
+          aria-label={`View details for ${displayName}`}
         >
           <Eye className="w-4 h-4" />
         </button>
@@ -920,7 +1249,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           disabled={recategorising}
           className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-50"
           title="Re-categorise trainer"
-          aria-label={`Re-categorise ${t.name || 'trainer'}`}
+          aria-label={`Re-categorise ${displayName}`}
         >
           <RefreshCw className={clsx('w-4 h-4', recategorising && 'animate-spin')} />
         </button>
@@ -929,7 +1258,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           onClick={(e) => { e.stopPropagation(); onDelete(t) }}
           className="p-2 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
           title="Delete trainer"
-          aria-label={`Delete ${t.name || 'trainer'}`}
+          aria-label={`Delete ${displayName}`}
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -949,6 +1278,8 @@ export default function Trainers() {
   const [category, setCategory] = useState('')
   const [industry, setIndustry] = useState('')
   const [experience, setExperience] = useState('')
+  const [profileFilter, setProfileFilter] = useState('')
+  const [sortBy, setSortBy] = useState('newest')
   const [categories, setCategories] = useState([])
   const [domains, setDomains] = useState([])
   const [industries, setIndustries] = useState([])
@@ -1014,6 +1345,8 @@ export default function Trainers() {
         category: category || undefined,
         industry: industry || undefined,
         experience: experience || undefined,
+        profile_filter: profileFilter || undefined,
+        sort: sortBy || undefined,
       })
       setTrainers(res.data.trainers || [])
       setTotal(res.data.total || 0)
@@ -1026,7 +1359,7 @@ export default function Trainers() {
     } finally {
       setLoading(false)
     }
-  }, [page, search, status, domain, category, industry, experience])
+  }, [page, search, status, domain, category, industry, experience, profileFilter, sortBy])
 
   const stopPolling = useCallback(() => {
     if (pollRef.current) clearTimeout(pollRef.current)
@@ -1106,13 +1439,15 @@ export default function Trainers() {
     setCategory('')
     setIndustry('')
     setExperience('')
+    setProfileFilter('')
+    setSortBy('newest')
     setPage(1)
   }
 
   const handleDelete = async (trainer) => {
     try {
       await deleteTrainer(trainer.trainer_id)
-      toast.success(`${trainer.name} deleted`)
+      toast.success(`${trainerDisplayName(trainer)} deleted`)
       setConfirmDelete(null)
       load(page)
       loadMeta()
@@ -1128,7 +1463,7 @@ export default function Trainers() {
       const updated = res.data.trainer
       setTrainers(prev => prev.map(item => item.trainer_id === trainer.trainer_id ? updated : item))
       setSelectedTrainer(current => current?.trainer_id === trainer.trainer_id ? updated : current)
-      toast.success(`${trainer.name} categorised`)
+      toast.success(`${trainerDisplayName(trainer)} categorised`)
       loadMeta()
     } catch (error) {
       toast.error(error.message)
@@ -1173,7 +1508,7 @@ export default function Trainers() {
         setTrainers(prev => prev.map(item => item.trainer_id === updated.trainer_id ? updated : item))
         setSelectedTrainer(current => current?.trainer_id === updated.trainer_id ? updated : current)
       }
-      toast.success(`Resume request sent to ${resumeRequestTrainer.name || 'trainer'}`)
+      toast.success(`Resume request sent to ${trainerDisplayName(resumeRequestTrainer)}`)
       setResumeRequestTrainer(null)
       setResumeRequestDomain('')
     } catch (error) {
@@ -1247,6 +1582,7 @@ export default function Trainers() {
         domain: overrides.domain || automationForm.domain || trainer.last_automation_mail_domain || trainer.primary_category || trainer.domain || 'Training',
         client_email: clientEmail,
         client_name: overrides.client_name || trainer.last_automation_client_name || trainer.client_name || '',
+        trainer_name: trainerDisplayName(trainer),
       })
       applyUpdatedTrainer(res.data.trainer)
       if (res.data.sent_next) {
@@ -1284,13 +1620,14 @@ export default function Trainers() {
       const res = await sendTrainerAutomationMail(trainerId, {
         ...automationForm,
         domain: automationForm.domain.trim() || automationMailTrainer.primary_category || automationMailTrainer.domain || 'Training',
+        trainer_name: trainerDisplayName(automationMailTrainer),
       })
       const updated = res.data.trainer
       if (updated?.trainer_id) {
         setTrainers(prev => prev.map(item => item.trainer_id === updated.trainer_id ? updated : item))
         setSelectedTrainer(current => current?.trainer_id === updated.trainer_id ? updated : current)
       }
-      toast.success(`Automation mail sent to ${automationMailTrainer.name || 'trainer'}`)
+      toast.success(`Automation mail sent to ${trainerDisplayName(automationMailTrainer)}`)
       setAutomationMailTrainer(null)
       setAutomationForm({
         mail_type: 'mail1',
@@ -1342,6 +1679,8 @@ export default function Trainers() {
   const domainOptions = uniqueSorted(softwareDomainsOnly([...SOFTWARE_DOMAINS, ...domains]))
   const categoryOptions = uniqueSorted(categories)
   const industryOptions = uniqueSorted(industries)
+  const activeProfileFilter = PROFILE_FILTERS.find(item => item.value === profileFilter) || PROFILE_FILTERS[0]
+  const activeFilterCount = [search, status, domain, category, industry, experience, profileFilter].filter(Boolean).length
 
   return (
     <>
@@ -1365,8 +1704,8 @@ export default function Trainers() {
                 <h3 className="font-bold text-slate-900">{automationMode === 'auto_start' ? 'Start Automation' : 'Send Automation Mail'}</h3>
                 <p className="text-sm text-slate-500 mt-1">
                   {automationMode === 'auto_start'
-                    ? <>Add client details once. Mail 1 starts automatically for <strong>{automationMailTrainer.name || 'Trainer'}</strong>.</>
-                    : <>Send one trainer pipeline template only to <strong>{automationMailTrainer.name || 'Trainer'}</strong>.</>}
+                    ? <>Add client details once. Mail 1 starts automatically for <strong>{trainerDisplayName(automationMailTrainer)}</strong>.</>
+                    : <>Send one trainer pipeline template only to <strong>{trainerDisplayName(automationMailTrainer)}</strong>.</>}
                 </p>
               </div>
               <button onClick={closeAutomationMail} className="p-2 rounded-lg hover:bg-slate-100" aria-label="Close automation mail">
@@ -1573,7 +1912,7 @@ export default function Trainers() {
               <div>
                 <h3 className="font-bold text-slate-900">Request Updated Resume</h3>
                 <p className="text-sm text-slate-500 mt-1">
-                  Send a resume/profile request to <strong>{resumeRequestTrainer.name || 'Trainer'}</strong>.
+                  Send a resume/profile request to <strong>{trainerDisplayName(resumeRequestTrainer)}</strong>.
                 </p>
               </div>
               <button onClick={closeResumeRequest} className="p-2 rounded-lg hover:bg-slate-100" aria-label="Close resume request">
@@ -1613,7 +1952,7 @@ export default function Trainers() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-card-lg p-6 max-w-sm w-full animate-slide-up">
             <h3 className="font-bold text-slate-900 mb-2">Delete Trainer?</h3>
-            <p className="text-sm text-slate-500 mb-4">Remove <strong>{confirmDelete.name}</strong> from the database? This cannot be undone.</p>
+            <p className="text-sm text-slate-500 mb-4">Remove <strong>{trainerDisplayName(confirmDelete)}</strong> from the database? This cannot be undone.</p>
             <div className="flex gap-3">
               <button onClick={() => handleDelete(confirmDelete)} className="btn-danger flex-1 justify-center">
                 <Trash2 className="w-4 h-4" /> Delete
@@ -1645,18 +1984,26 @@ export default function Trainers() {
         </div>
         </div>
 
-        <div className="card p-4 space-y-3">
-        <div className="flex items-center gap-2 text-sm font-medium text-slate-600">
-          <Filter className="w-4 h-4 text-slate-400" />
-          Trainer filters
+        <div className="card p-4 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <SlidersHorizontal className="w-4 h-4 text-slate-400" />
+            Trainer database filters
+            {activeFilterCount > 0 && <span className="badge-blue text-xs">{activeFilterCount} active</span>}
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <span className="font-semibold text-slate-600">{activeProfileFilter.label}</span>
+            <span>{total.toLocaleString('en-IN')} matching trainers</span>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-3">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-3">
           <form onSubmit={handleSearch} className="md:col-span-2 xl:col-span-2 flex gap-2">
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 className="input pl-9"
-                placeholder="Search name or skill"
+                placeholder="Search name, skill, email, location"
                 value={searchInput}
                 onChange={e => setSearchInput(e.target.value)}
               />
@@ -1682,15 +2029,44 @@ export default function Trainers() {
           <select className="input" value={experience} onChange={e => { setExperience(e.target.value); setPage(1) }}>
             {EXPERIENCE_OPTIONS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
           </select>
-        </div>
 
-        <div className="flex flex-wrap gap-2">
-          <select className="input w-44" value={status} onChange={e => { setStatus(e.target.value); setPage(1) }}>
+          <select className="input" value={status} onChange={e => { setStatus(e.target.value); setPage(1) }}>
             <option value="">All Statuses</option>
             {STATUSES.filter(Boolean).map(item => (
               <option key={item} value={item}>{item.replace('_', ' ')}</option>
             ))}
           </select>
+
+          <select className="input" value={sortBy} onChange={e => { setSortBy(e.target.value); setPage(1) }}>
+            {SORT_OPTIONS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
+          </select>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+          <div className="flex items-center gap-1.5 pr-1 text-xs font-bold uppercase tracking-wide text-slate-400">
+            <Filter className="h-3.5 w-3.5" />
+            Profile quality
+          </div>
+          {PROFILE_FILTERS.map(item => {
+            const Icon = item.icon
+            const active = profileFilter === item.value
+            return (
+              <button
+                key={item.value || 'all'}
+                type="button"
+                onClick={() => { setProfileFilter(item.value); setPage(1) }}
+                className={clsx(
+                  'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition',
+                  active
+                    ? 'border-blue-200 bg-blue-50 text-blue-700'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50'
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {item.label}
+              </button>
+            )
+          })}
           <button type="button" onClick={handleClearFilters} className="btn-secondary px-4">
             <X className="w-4 h-4" /> Clear all filters
           </button>

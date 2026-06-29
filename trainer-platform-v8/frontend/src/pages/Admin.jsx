@@ -393,7 +393,7 @@ export default function Admin() {
       const status = await statusRes.json().catch(() => ({}))
       if (statusRes.ok) setTeamsDirectStatus(status)
       if (!status.connected) {
-        throw new Error('Teams Direct is not connected yet. Click Connect Direct Chat, accept Microsoft permissions, then test again.')
+        throw new Error(status.error || 'Teams Direct is not connected yet. Click Connect Direct Chat, accept Microsoft permissions, then test again.')
       }
       const testRes = await fetch('/api/admin/teams-direct/test', {
         method: 'POST',
@@ -417,7 +417,7 @@ export default function Admin() {
         toast.success('SMTP/IMAP mode is active. Google OAuth skipped.')
         return
       }
-      if (!gmailStatus.connected) {
+      if (!gmailStatus.connected || gmailStatus.google_reconnect_required) {
         const redirectUri = `${window.location.origin}/auth/callback`
         const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
         const oauthData = await oauthRes.json().catch(() => ({}))
@@ -560,7 +560,7 @@ export default function Admin() {
                 : <Key className="h-4 w-4" />}
               {teamsDirectStatus.connected
                 ? `Direct chat connected${teamsDirectStatus.sender_user ? ` as ${teamsDirectStatus.sender_user}` : ''}`
-                : 'Direct chat not connected. Click Connect Direct Chat before testing.'}
+                : teamsDirectStatus.error || 'Direct chat not connected. Click Connect Direct Chat before testing.'}
             </span>
             <button type="button" onClick={loadTeamsDirectStatus} className="font-bold underline underline-offset-2">
               Refresh status
@@ -731,7 +731,11 @@ export default function Admin() {
             <p className="text-sm font-semibold text-slate-800">Gmail OAuth Status</p>
             <p className="text-xs text-slate-400 mt-0.5">
               {gmailStatus.connected
-                ? (gmailStatus.calendar_connected ? 'Gmail and Google Calendar are ready for inbox sync and Meet scheduling' : 'Gmail is connected. Calendar/Meet is optional and can be renewed when needed.')
+                ? (
+                    gmailStatus.google_reconnect_required
+                      ? 'Gmail is connected, but Google permissions are incomplete. Renew access to grant Calendar and Drive permissions.'
+                      : (gmailStatus.calendar_connected ? 'Gmail and Google Calendar are ready for inbox sync and Meet scheduling' : 'Gmail is connected. Calendar/Meet is optional and can be renewed when needed.')
+                  )
                 : usingGmailApi
                   ? 'Connect Google once to enable Gmail API inbox sync and Calendar/Meet scheduling'
                   : 'Using SMTP/IMAP mode. Google OAuth is skipped for now.'}
@@ -752,10 +756,17 @@ export default function Admin() {
               <span className={clsx('h-2 w-2 rounded-full', gmailStatus.calendar_connected ? 'bg-emerald-500' : 'bg-amber-500')} />
               {gmailStatus.calendar_connected ? 'Calendar Ready' : 'Calendar Optional'}
             </span>
+            <span className={clsx(
+              'inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold',
+              gmailStatus.drive_connected ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-700'
+            )}>
+              <span className={clsx('h-2 w-2 rounded-full', gmailStatus.drive_connected ? 'bg-emerald-500' : 'bg-amber-500')} />
+              {gmailStatus.drive_connected ? 'Drive Ready' : 'Drive Optional'}
+            </span>
             {usingGmailApi ? (
               <>
                 <button className="btn-secondary text-sm" onClick={connectGmail} disabled={saving}>
-                  <RefreshCw className="w-4 h-4" /> {gmailStatus.connected ? 'Renew Watch' : 'Connect'}
+                  <RefreshCw className="w-4 h-4" /> {gmailStatus.google_reconnect_required ? 'Renew Access' : gmailStatus.connected ? 'Renew Watch' : 'Connect'}
                 </button>
                 <button className="btn-secondary text-sm" onClick={renewGoogleAccess} disabled={saving}>
                   <RefreshCw className="w-4 h-4" /> Renew Access

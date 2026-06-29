@@ -412,16 +412,7 @@ async def poll_client_inbox_fallback_job():
                 logger.info("SMTP-only client inbox sent %s pending replies", len(auto_sent_existing))
             return
 
-        if inbox_provider in {"imap", "imap_poll", "imap_polling"}:
-            result = await poll_imap_client_inbox(db)
-            if result.get("processed"):
-                logger.info("IMAP fallback processed %s client emails", result.get("processed"))
-            if result.get("auto_sent_existing"):
-                logger.info("IMAP fallback auto-sent %s pending client replies", result.get("auto_sent_existing"))
-            elif result.get("skipped"):
-                logger.warning("IMAP fallback skipped: %s", result.get("skipped"))
-            return
-
+        # Gmail API only: do not use IMAP fallback for client inbox polling.
         status = await get_gmail_auth_status(db)
         watch_expiration = status.get("watch_expiration")
         watch_active = False
@@ -441,19 +432,18 @@ async def poll_client_inbox_fallback_job():
             return
         if status.get("valid"):
             try:
-                async with httpx.AsyncClient(timeout=180) as client:
-                    response = await client.post(_local_api_url("/api/gmail/sync-now?limit=25"))
-                    response.raise_for_status()
-                    result = response.json()
+                from routes.api import _sync_recent_client_inbox
+
+                result = await _sync_recent_client_inbox(db, None, 25)
                 if result.get("processed_count") or result.get("auto_sent_existing_count"):
                     logger.info(
-                        "Gmail API fallback sync processed=%s auto_sent_existing=%s",
+                        "Gmail API sync processed=%s auto_sent_existing=%s",
                         result.get("processed_count"),
                         result.get("auto_sent_existing_count"),
                     )
                 return
             except Exception:
-                logger.exception("Gmail API fallback sync failed; continuing with IMAP poll")
+                logger.exception("Gmail API sync failed; continuing with IMAP poll")
         result = await poll_imap_client_inbox(db)
         if result.get("processed"):
             logger.info("IMAP fallback processed %s client emails", result.get("processed"))
@@ -507,6 +497,7 @@ async def discover_linkedin_client_leads_job():
 
 
 def start_scheduler():
+    first_run = datetime.now() + timedelta(seconds=30)
     scheduler.add_job(
         retry_unreplied_trainers,
         trigger=_interval_trigger_from_config(_config["retry_interval_unit"], _config["retry_interval_value"]),
@@ -526,19 +517,19 @@ def start_scheduler():
         poll_client_inbox_fallback_job,
         trigger=IntervalTrigger(minutes=int(_config["gmail_fallback_interval"])),
         id="client_inbox_imap_fallback_job", name="Client Inbox IMAP Fallback", replace_existing=True,
-        next_run_time=utc_now(),
+        next_run_time=first_run,
     )
     scheduler.add_job(
         sync_business_excel_job,
         trigger=IntervalTrigger(minutes=int(_config["excel_sync_interval"])),
         id="business_excel_sync_job", name="Business Excel Register Sync", replace_existing=True,
-        next_run_time=utc_now(),
+        next_run_time=first_run,
     )
     scheduler.add_job(
         discover_linkedin_client_leads_job,
         trigger=IntervalTrigger(minutes=int(_config["linkedin_client_lead_interval"])),
         id="linkedin_client_lead_discovery_job", name="LinkedIn Client Lead Discovery", replace_existing=True,
-        next_run_time=utc_now(),
+        next_run_time=first_run,
     )
     scheduler.start()
     logger.info(

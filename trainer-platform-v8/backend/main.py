@@ -1,6 +1,7 @@
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
 
 from database import connect_db, close_db
@@ -28,7 +29,10 @@ async def lifespan(app: FastAPI):
     start_scheduler()
     yield
     # Shutdown
-    await close_db()
+    try:
+        await close_db()
+    except Exception:
+        logger.exception("Database shutdown failed")
     stop_scheduler()
 
 
@@ -69,3 +73,16 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def frontend_route_fallback(full_path: str, request: Request):
+    if full_path == "api" or full_path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    frontend_url = str(settings.frontend_url or "http://localhost:5173").rstrip("/")
+    target = f"{frontend_url}/{full_path.lstrip('/')}"
+    query = str(request.url.query or "").strip()
+    if query:
+        target = f"{target}?{query}"
+    return RedirectResponse(target, status_code=302)

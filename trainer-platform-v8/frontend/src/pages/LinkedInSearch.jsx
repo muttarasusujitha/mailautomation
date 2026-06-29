@@ -64,6 +64,54 @@ function isTrainerProviderProfile(lead) {
   return Boolean(lead)
 }
 
+function buildLinkedInProfileQueries(domain) {
+  const d = String(domain || '').trim()
+  if (!d) return []
+  return [
+    `"${d}" trainer India site:linkedin.com/in`,
+    `"${d}" "corporate trainer" India site:linkedin.com/in`,
+    `"${d}" "freelance trainer" India site:linkedin.com/in`,
+    `"${d}" "technical trainer" India site:linkedin.com/in`,
+    `"${d}" "training consultant" India site:linkedin.com/in`,
+    `"${d}" instructor India site:linkedin.com/in`,
+    `"${d}" trainer Bangalore OR Hyderabad OR Mumbai OR Pune site:linkedin.com/in`,
+    `"${d}" trainer India linkedin profile`,
+    `"${d}" trainer India "years experience" linkedin`,
+    `"${d}" "freelance trainer" India contact email linkedin`,
+  ].map(q => ({ domain: d, q, intent: 'trainer' }))
+}
+
+function buildClientPostQueries(domain) {
+  const d = String(domain || '').trim()
+  const queries = d ? [
+    `"${d}" "trainer required" India linkedin 2025`,
+    `"${d}" "corporate trainer needed" India`,
+    `"${d}" "training requirement" India company`,
+    `"need ${d} trainer" India HR`,
+    `"${d}" "looking for trainer" India`,
+    `"${d}" "technical training requirement" India`,
+  ] : [
+    `"trainer required" India linkedin corporate 2025`,
+    `"looking for trainer" India IT company 2025`,
+    `"training requirement" India corporate immediate`,
+    `"need trainer" India company HR linkedin`,
+  ]
+  return queries.map(query => ({ domain: d, q: query, intent: 'client_requirement' }))
+}
+
+function skippedReasonSummary(skipped = []) {
+  const counts = skipped.reduce((acc, item) => {
+    const reason = item?.reason || 'skipped'
+    acc[reason] = (acc[reason] || 0) + 1
+    return acc
+  }, {})
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 2)
+    .map(([reason, count]) => `${count} ${reason}`)
+    .join(', ')
+}
+
 export default function LinkedInSearch() {
   const [mode, setMode] = useState('client')
   const [leads, setLeads] = useState([])
@@ -111,19 +159,28 @@ export default function LinkedInSearch() {
       // deep_search: false = use high-signal phrases only (saves 6x credits)
       const payload = {
         source:      isTrainer ? 'linkedin' : undefined,
-        max_results: 3,
-        max_queries: 8,
+        max_results: isTrainer ? 8 : 3,
+        max_queries: isTrainer ? 24 : 8,
         max_domains: 4,
         concurrency: 3,
         deep_search: false,
+        deep_enrich: isTrainer,
       }
       if (domains.length) {
         payload.domains = domains
       }
-      if (!isTrainer && !domains.length) {
-        payload.auto_discover = true
-        payload.max_queries   = 6    // was 180 — now credit safe
-        payload.max_results   = 3
+      if (isTrainer && domains.length) {
+        const queries = domains.flatMap(buildLinkedInProfileQueries)
+        payload.queries = queries
+        payload.max_queries = queries.length
+        payload.concurrency = 5
+      }
+      if (!isTrainer) {
+        const queries = (domains.length ? domains : ['']).flatMap(buildClientPostQueries)
+        payload.queries = queries
+        payload.max_queries = queries.length
+        payload.max_results = 4
+        payload.concurrency = 4
       }
       const res = await api.post(endpoint, payload)
       const savedCount = res.data.saved_count || 0
@@ -133,7 +190,8 @@ export default function LinkedInSearch() {
       } else if (res.data.search_error) {
         toast.error(`Public search failed: ${res.data.search_error}`)
       } else if (isTrainer && skippedCount) {
-        toast.success(`No new profiles saved; ${skippedCount} result${skippedCount === 1 ? '' : 's'} checked/skipped`)
+        const reasonText = skippedReasonSummary(res.data.skipped)
+        toast(`No new profiles saved; ${skippedCount} checked (${reasonText || 'mostly duplicates/no profile match'})`)
       } else {
         toast.success('No new public results saved')
       }

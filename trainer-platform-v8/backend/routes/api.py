@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException, Request, Response, BackgroundTasks
+from fastapi.responses import RedirectResponse
 from typing import Optional, List
 from datetime import datetime, timedelta, timezone
 from utils.time_utils import utc_from_timestamp, utc_now
@@ -14,8 +15,15 @@ import html as _html
 import smtplib
 import asyncio
 import hashlib
+import secrets
 import httpx
-from urllib.parse import urljoin as _urljoin
+from urllib.parse import (
+    parse_qs as _parse_qs,
+    unquote as _url_unquote,
+    urlencode as _urlencode,
+    urljoin as _urljoin,
+    urlparse as _urlparse,
+)
 from email.utils import parseaddr as _parseaddr
 from email.header import decode_header as _decode_header, make_header as _make_header
 from email.mime.application import MIMEApplication
@@ -24,6 +32,8 @@ from email.mime.text import MIMEText
 
 import fitz
 from docx import Document as _DocxDocument
+from google.auth.transport.requests import Request as GoogleAuthRequest
+from google.oauth2 import id_token as google_id_token
 from pymongo import ReturnDocument
 from pymongo.errors import ExecutionTimeout
 
@@ -44,12 +54,15 @@ from agents.resume_agent import (
     TIER_WEIGHT,
     find_matching_trainer_for_lead,
     get_contact_verification_summary,
+    is_bad_trainer_name,
     linkedin_lead_to_unverified_profile,
     merge_linkedin_with_resume_profile,
     process_resume,
     public_resume_result,
     save_trainer_from_resume,
+    trainer_display_name,
     trainer_document_from_profile,
+    trainer_identity_key,
 )
 from agents.categorisation_agent import (
     SOFTWARE_TECH_DOMAINS,
@@ -155,6 +168,7 @@ TRACKING_PIXEL = (
     b"\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01"
     b"\x00\x00\x02\x02D\x01\x00;"
 )
+PASSWORD_RESET_TOKEN_TTL_MINUTES = 30
 
 # MongoDB query constants
 MONGO_REGEX = "$regex"
@@ -4120,7 +4134,7 @@ async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_r
             "message": result.get("message"),
         }
     
-    # Fallback to IMAP if configured
+    # Fallback to IMAP if Gmail API is unavailable and IMAP is configured.
     if settings.get("inboxProvider") in {"imap", "imap_poll", "imap_polling"}:
         result = await poll_imap_client_inbox(db)
         await db["gmail_sync"].update_one(
@@ -5402,13 +5416,35 @@ async def teams_direct_status():
     db = get_db()
     cfg = await get_teams_direct_config(db)
     now_ts = int(datetime.now(timezone.utc).timestamp())
-    token_valid = bool(cfg.get("accessToken")) and int(cfg.get("expiresAt") or 0) > now_ts + 60
+    try:
+        expires_at = int(cfg.get("expiresAt") or 0)
+    except (TypeError, ValueError):
+        expires_at = 0
+    token_valid = bool(cfg.get("accessToken")) and expires_at > now_ts + 60
     has_refresh_token = bool(cfg.get("refreshToken"))
+    missing_settings = [
+        label
+        for key, label in (
+            ("clientId", "Microsoft client ID"),
+            ("clientSecret", "Microsoft client secret"),
+            ("redirectUri", "Microsoft redirect URI"),
+        )
+        if not cfg.get(key)
+    ]
+    status_error = ""
+    if not cfg.get("enabled"):
+        status_error = "Teams Direct Chat is disabled."
+    elif missing_settings:
+        status_error = f"Missing {', '.join(missing_settings)}."
+    elif not token_valid and not has_refresh_token:
+        status_error = "Teams Direct is not connected. Click Connect Direct Chat to authorize Microsoft Graph."
     return {
         "enabled": bool(cfg.get("enabled")),
         "connected": bool(cfg.get("enabled")) and (token_valid or has_refresh_token),
         "token_valid": token_valid,
         "has_refresh_token": has_refresh_token,
+        "missing_settings": missing_settings,
+        "error": status_error,
         "sender_user": cfg.get("senderUser", ""),
         "redirect_uri": cfg.get("redirectUri", ""),
     }
@@ -5474,6 +5510,123 @@ async def test_teams_direct_settings(payload: dict):
     return {"message": "Teams direct chat test sent", **result}
 
 
+@router.get("/auth/google/callback")
+async def google_oauth_compat_callback(request: Request):
+    settings = get_settings()
+    frontend_url = str(settings.frontend_url or "http://localhost:5173").rstrip("/")
+    callback_url = f"{frontend_url}/auth/callback"
+    query = str(request.url.query or "").strip()
+    redirect_hint = _urlencode({"oauth_redirect_uri": str(request.url).split("?", 1)[0]})
+    query = f"{query}&{redirect_hint}" if query else redirect_hint
+    if query:
+        callback_url = f"{callback_url}?{query}"
+    return RedirectResponse(callback_url, status_code=302)
+
+
+def _google_login_client_id() -> str:
+    settings = get_settings()
+    return str(settings.google_client_id or "").strip()
+
+
+async def _google_profile_from_access_token(access_token: str, client_id: str) -> dict:
+    async with httpx.AsyncClient(timeout=15) as client:
+        token_info_res = await client.get(
+            "https://oauth2.googleapis.com/tokeninfo",
+            params={"access_token": access_token},
+        )
+        if token_info_res.status_code != 200:
+            raise HTTPException(401, "Google login token is invalid or expired")
+        token_info = token_info_res.json()
+        token_audience = str(token_info.get("aud") or "").strip()
+        if token_audience and token_audience != client_id:
+            raise HTTPException(401, "Google login token was issued for another app")
+
+        userinfo_res = await client.get(
+            "https://openidconnect.googleapis.com/v1/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        if userinfo_res.status_code != 200:
+            raise HTTPException(401, "Could not read Google profile")
+        return userinfo_res.json()
+
+
+def _google_profile_from_id_token(credential: str, client_id: str) -> dict:
+    try:
+        return google_id_token.verify_oauth2_token(
+            credential,
+            GoogleAuthRequest(),
+            client_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(401, "Google login token is invalid or expired") from exc
+
+
+def _google_email_verified(profile: dict) -> bool:
+    value = profile.get("email_verified")
+    if isinstance(value, bool):
+        return value
+    return str(value or "").lower() in {"true", "1", "yes"}
+
+
+@router.get("/auth/google/client-id")
+async def google_login_client_id():
+    client_id = _google_login_client_id()
+    if not client_id:
+        raise HTTPException(500, "Google client ID is not configured")
+    return {"client_id": client_id}
+
+
+@router.post("/auth/google/login")
+async def google_login(payload: dict):
+    client_id = _google_login_client_id()
+    if not client_id:
+        raise HTTPException(500, "Google client ID is not configured")
+
+    access_token = str(payload.get("access_token") or "").strip()
+    credential = str(payload.get("credential") or payload.get("id_token") or "").strip()
+    if credential:
+        profile = _google_profile_from_id_token(credential, client_id)
+    elif access_token:
+        profile = await _google_profile_from_access_token(access_token, client_id)
+    else:
+        raise HTTPException(400, "Google login token is missing")
+
+    email = str(profile.get("email") or "").strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(401, "Google did not return a valid email address")
+    if not _google_email_verified(profile):
+        raise HTTPException(401, "Google email address is not verified")
+
+    role = str(payload.get("role") or "recruiter").strip().lower()
+    if role not in {"recruiter", "trainer", "employee"}:
+        role = "recruiter"
+
+    now = utc_now()
+    user = {
+        "email": email,
+        "name": profile.get("name") or email.split("@", 1)[0],
+        "picture": profile.get("picture") or "",
+        "google_sub": profile.get("sub") or "",
+        "role": role,
+        "auth_provider": "google",
+        "email_verified": True,
+    }
+    db = get_db()
+    await db["auth_users"].update_one(
+        {"email": email},
+        {
+            "$set": {
+                **user,
+                "last_login_at": now,
+                "updated_at": now,
+            },
+            "$setOnInsert": {"created_at": now},
+        },
+        upsert=True,
+    )
+    return {"message": "Google login successful", "user": user, "loggedIn": True}
+
+
 @router.post("/auth/forgot-password")
 async def forgot_password(payload: dict):
     email = (payload.get("email") or "").strip()
@@ -5481,27 +5634,99 @@ async def forgot_password(payload: dict):
         raise HTTPException(400, "Enter a valid email address")
 
     db = get_db()
-    reset_link = "http://localhost:5173/login?reset=1"
+    settings = get_settings()
+    token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    now = utc_now()
+    expires_at = now + timedelta(minutes=PASSWORD_RESET_TOKEN_TTL_MINUTES)
+    frontend_url = str(settings.frontend_url or "http://localhost:5173").rstrip("/")
+    reset_link = f"{frontend_url}/login?{_urlencode({'reset_token': token, 'email': email})}"
     subject = "Reset your TrainerSync password"
     body = (
         "Hello,\n\n"
         "We received a request to reset your TrainerSync password.\n\n"
         f"Reset link: {reset_link}\n\n"
+        f"This link expires in {PASSWORD_RESET_TOKEN_TTL_MINUTES} minutes.\n\n"
         "If you did not request this, you can ignore this email.\n\n"
         "Regards,\n"
         "TrainerSync Team"
     )
+    log_doc = {
+        "email": email,
+        "token_hash": token_hash,
+        "status": "pending",
+        "created_at": now,
+        "expires_at": expires_at,
+        "used": False,
+    }
+    insert_result = await db["password_reset_logs"].insert_one(log_doc)
     smtp_config = await get_admin_email_config(db)
     success, error = await send_email_async(email, subject, body, smtp_config)
     if not success:
+        await db["password_reset_logs"].update_one(
+            {"_id": insert_result.inserted_id},
+            {"$set": {"status": "failed", "error_message": error or "Could not send reset email", "failed_at": utc_now()}},
+        )
         raise HTTPException(500, error or "Could not send reset email")
 
-    await db["password_reset_logs"].insert_one({
-        "email": email,
-        "status": "sent",
-        "sent_at": utc_now(),
-    })
+    await db["password_reset_logs"].update_one(
+        {"_id": insert_result.inserted_id},
+        {"$set": {"status": "sent", "sent_at": utc_now()}},
+    )
     return {"message": "Reset email sent"}
+
+
+@router.post("/auth/reset-password")
+async def reset_password(payload: dict):
+    email = (payload.get("email") or "").strip()
+    token = (payload.get("token") or "").strip()
+    password = str(payload.get("password") or "")
+    if not email or "@" not in email:
+        raise HTTPException(400, "Enter a valid email address")
+    if not token:
+        raise HTTPException(400, "Reset token is missing")
+    if len(password) < 8:
+        raise HTTPException(400, "Password must be at least 8 characters")
+
+    db = get_db()
+    now = utc_now()
+    token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    reset_doc = await db["password_reset_logs"].find_one_and_update(
+        {
+            "email": email,
+            "token_hash": token_hash,
+            "status": "sent",
+            "used": False,
+            "expires_at": {"$gte": now},
+        },
+        {"$set": {"used": True, "status": "used", "used_at": now}},
+        return_document=ReturnDocument.AFTER,
+    )
+    if not reset_doc:
+        raise HTTPException(400, "Reset link is invalid or expired")
+
+    salt = secrets.token_hex(16)
+    password_hash = hashlib.pbkdf2_hmac(
+        "sha256",
+        password.encode("utf-8"),
+        salt.encode("utf-8"),
+        120000,
+    ).hex()
+    await db["auth_users"].update_one(
+        {"email": email},
+        {
+            "$set": {
+                "email": email,
+                "password_hash": password_hash,
+                "password_salt": salt,
+                "password_updated_at": now,
+                "updated_at": now,
+            },
+            "$setOnInsert": {"created_at": now},
+        },
+        upsert=True,
+    )
+    return {"message": "Password reset successful"}
 
 
 @router.get("/email-open/{email_id}", name="track_email_open")
@@ -8473,6 +8698,218 @@ async def clear_database():
     return {"message": "✅ Database cleared", "deleted": results}
 
 
+async def _normalise_trainer_display_fields(db, trainers: List[dict]) -> None:
+    trainer_ids = [
+        str(trainer.get("trainer_id") or "")
+        for trainer in trainers
+        if trainer.get("trainer_id") and not trainer.get("filename")
+    ]
+    resume_filenames = {}
+    if trainer_ids:
+        uploads = await db["resume_uploads"].find(
+            {"trainer_id": {MONGO_IN: trainer_ids}},
+            {"_id": 0, "trainer_id": 1, "filename": 1},
+        ).sort("created_at", -1).to_list(len(trainer_ids) * 3)
+        for upload in uploads:
+            trainer_id = str(upload.get("trainer_id") or "")
+            if trainer_id and upload.get("filename") and trainer_id not in resume_filenames:
+                resume_filenames[trainer_id] = upload["filename"]
+
+    for trainer in trainers:
+        trainer_id = str(trainer.get("trainer_id") or "")
+        if trainer_id and not trainer.get("filename") and resume_filenames.get(trainer_id):
+            trainer["filename"] = resume_filenames[trainer_id]
+
+        display_name = trainer_display_name(trainer)
+        original_name = str(trainer.get("name") or "").strip()
+        trainer["display_name"] = display_name
+        if is_bad_trainer_name(original_name):
+            if original_name:
+                trainer["raw_name"] = original_name
+            trainer["name"] = display_name
+
+
+def _trainer_response_list(value) -> List[str]:
+    if isinstance(value, list):
+        items = value
+    elif value:
+        items = _re.split(r"[,;\n]", str(value))
+    else:
+        items = []
+    cleaned = []
+    seen = set()
+    for item in items:
+        text = str(item or "").strip()
+        key = text.lower()
+        if not text or key in seen:
+            continue
+        seen.add(key)
+        cleaned.append(text)
+    return cleaned
+
+
+def _merge_trainer_list_field(primary: dict, duplicate: dict, field: str, limit: int = 50) -> None:
+    values = _trainer_response_list(primary.get(field))
+    seen = {item.lower() for item in values}
+    for item in _trainer_response_list(duplicate.get(field)):
+        key = item.lower()
+        if key not in seen:
+            seen.add(key)
+            values.append(item)
+        if len(values) >= limit:
+            break
+    if values:
+        primary[field] = values
+
+
+def _merge_duplicate_trainer_for_response(primary: dict, duplicate: dict) -> None:
+    duplicate_ids = primary.setdefault(
+        "duplicate_trainer_ids",
+        [primary.get("trainer_id")] if primary.get("trainer_id") else [],
+    )
+    duplicate_id = duplicate.get("trainer_id")
+    if duplicate_id and duplicate_id not in duplicate_ids:
+        duplicate_ids.append(duplicate_id)
+    primary["duplicate_count"] = len(duplicate_ids)
+
+    for field in (
+        "email", "phone", "teams_email", "microsoft_teams_email", "teams_upn",
+        "linkedin", "location", "role_designation", "education", "summary",
+        "experience_raw", "technology_category", "primary_category", "category", "domain",
+    ):
+        if not primary.get(field) and duplicate.get(field):
+            primary[field] = duplicate[field]
+
+    for field in (
+        "skills", "specialty_tags", "specialisation_tags", "secondary_categories",
+        "certifications", "past_clients", "industry_focus", "language_of_delivery",
+    ):
+        _merge_trainer_list_field(primary, duplicate, field)
+
+    for field in ("match_score", "resume_rank_score", "confidence_score", "training_count"):
+        current = primary.get(field)
+        candidate = duplicate.get(field)
+        if candidate is not None and (current is None or float(candidate or 0) > float(current or 0)):
+            primary[field] = candidate
+
+    if (not primary.get("status") or primary.get("status") == "new") and duplicate.get("status"):
+        primary["status"] = duplicate["status"]
+
+
+def _dedupe_trainers_for_response(trainers: List[dict]) -> List[dict]:
+    unique = []
+    seen = {}
+    for trainer in trainers:
+        key = trainer.get("identity_key") or trainer_identity_key(trainer)
+        if key:
+            trainer["identity_key"] = key
+        if key and key in seen:
+            _merge_duplicate_trainer_for_response(seen[key], trainer)
+            continue
+        if key:
+            seen[key] = trainer
+        unique.append(trainer)
+    return unique
+
+
+def _trainer_has_value(value) -> bool:
+    if isinstance(value, list):
+        return any(_trainer_has_value(item) for item in value)
+    text = str(value or "").strip()
+    return bool(text and text.lower() not in {"-", "na", "n/a", "none", "null", "unknown"})
+
+
+def _trainer_number(value) -> float:
+    try:
+        return float(value or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _trainer_profile_skills(trainer: dict) -> List[str]:
+    values = []
+    for field in ("skills", "technical_skills", "core_skills", "key_skills", "tools", "specialisation_tags", "specialty_tags"):
+        values.extend(_trainer_response_list(trainer.get(field)))
+    values.extend(_trainer_response_list(trainer.get("technologies")))
+    if isinstance(trainer.get("skill_level_map"), dict):
+        values.extend(str(skill or "").strip() for skill in trainer["skill_level_map"].keys())
+    cleaned = []
+    seen = set()
+    for value in values:
+        text = str(value or "").strip()
+        key = text.lower()
+        if text and key not in seen:
+            seen.add(key)
+            cleaned.append(text)
+    return cleaned
+
+
+def _trainer_profile_filter_match(trainer: dict, profile_filter: str) -> bool:
+    key = (profile_filter or "").strip().lower()
+    if not key:
+        return True
+    email = _trainer_has_value(trainer.get("email"))
+    phone = _trainer_has_value(trainer.get("phone"))
+    linkedin = _trainer_has_value(trainer.get("linkedin"))
+    teams = any(_trainer_has_value(trainer.get(field)) for field in ("teams_email", "microsoft_teams_email", "teams_upn"))
+    skills = bool(_trainer_profile_skills(trainer))
+    category = any(
+        _trainer_has_value(trainer.get(field))
+        and str(trainer.get(field) or "").strip().lower() != "uncategorised"
+        for field in ("primary_category", "technology_category", "category", "domain")
+    )
+    rating = max(
+        _trainer_number(trainer.get("rating")),
+        _trainer_number(trainer.get("trainer_rating")),
+        _trainer_number(trainer.get("average_rating")),
+        _trainer_number(trainer.get("feedback_rating")),
+        _trainer_number(trainer.get("review_rating")),
+        _trainer_number(trainer.get("star_rating")),
+        _trainer_number(trainer.get("resume_rank_score")),
+        _trainer_number(trainer.get("match_score")),
+        _trainer_number(trainer.get("confidence_score")),
+        _trainer_number(trainer.get("confidence")),
+    )
+    if key == "complete":
+        return email and (phone or linkedin or teams) and skills and category
+    if key == "email":
+        return email
+    if key == "phone":
+        return phone
+    if key == "linkedin":
+        return linkedin
+    if key == "teams":
+        return teams
+    if key == "rated":
+        return rating > 0
+    if key == "needs_review":
+        return bool(trainer.get("needs_review")) or trainer.get("status") == "pending_review"
+    if key == "contactable":
+        return email or phone or linkedin or teams
+    return True
+
+
+def _trainer_sort_value(trainer: dict, sort_key: str):
+    if sort_key == "rating_desc":
+        return max(
+            _trainer_number(trainer.get("rating")),
+            _trainer_number(trainer.get("trainer_rating")),
+            _trainer_number(trainer.get("average_rating")),
+            _trainer_number(trainer.get("feedback_rating")),
+            _trainer_number(trainer.get("review_rating")),
+            _trainer_number(trainer.get("star_rating")),
+            _trainer_number(trainer.get("resume_rank_score")),
+            _trainer_number(trainer.get("match_score")),
+            _trainer_number(trainer.get("confidence_score")),
+            _trainer_number(trainer.get("confidence")),
+        )
+    if sort_key == "experience_desc":
+        return _trainer_number(trainer.get("experience_years"))
+    if sort_key == "name_asc":
+        return str(trainer.get("display_name") or trainer.get("name") or "").lower()
+    return str(trainer.get("created_at") or "")
+
+
 # ─── Get All Trainers ─────────────────────────────────────────────────────────
 
 @router.get("/trainers")
@@ -8483,6 +8920,8 @@ async def get_trainers(
     domain: Optional[str] = None,
     industry: Optional[str] = None,
     experience: Optional[str] = None,
+    profile_filter: Optional[str] = None,
+    sort: Optional[str] = "newest",
     page: int = 1,
     limit: int = 20,
 ):
@@ -8549,9 +8988,23 @@ async def get_trainers(
         ]})
 
     query = {"$and": clauses} if len(clauses) > 1 else (clauses[0] if clauses else {})
-    total = await db["trainers"].count_documents(query)
+    all_trainers = await db["trainers"].find(query, {"_id": 0}).sort("created_at", -1).to_list(None)
+    await _normalise_trainer_display_fields(db, all_trainers)
+    unique_trainers = _dedupe_trainers_for_response(all_trainers)
+    profile_filters = [item.strip() for item in str(profile_filter or "").split(",") if item.strip()]
+    if profile_filters:
+        unique_trainers = [
+            trainer for trainer in unique_trainers
+            if all(_trainer_profile_filter_match(trainer, item) for item in profile_filters)
+        ]
+    sort_key = (sort or "newest").strip().lower()
+    if sort_key == "name_asc":
+        unique_trainers.sort(key=lambda trainer: _trainer_sort_value(trainer, sort_key))
+    elif sort_key in {"rating_desc", "experience_desc"}:
+        unique_trainers.sort(key=lambda trainer: _trainer_sort_value(trainer, sort_key), reverse=True)
+    total = len(unique_trainers)
     skip = (page - 1) * limit
-    trainers = await db["trainers"].find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    trainers = unique_trainers[skip:skip + limit]
     for trainer in trainers:
         trainer["verification_summary"] = get_contact_verification_summary(trainer)
     return {
@@ -12903,6 +13356,7 @@ async def update_trainer(trainer_id: str, payload: dict):
     )
     if not result:
         raise HTTPException(404, TRAINER_NOT_FOUND)
+    await _normalise_trainer_display_fields(db, [result])
     return {"success": True, "trainer": result}
 
 
@@ -15064,6 +15518,124 @@ def _public_search_text_matches_domain(title: str = "", source_url: str = "", do
     return False
 
 
+_PUBLIC_TRAINER_PROFILE_URL_RE = _re.compile(
+    r"(?:https?://)?(?:[a-z]{2,3}\.)?(?:www\.)?"
+    r"(?:linkedin\.com/(?:in|pub)/[^\s\"'<>]+|"
+    r"naukri\.com/[^\s\"'<>]+|"
+    r"shine\.com/[^\s\"'<>]+|"
+    r"timesjobs\.com/[^\s\"'<>]+|"
+    r"freshersworld\.com/[^\s\"'<>]+|"
+    r"glassdoor(?:\.co\.in|\.com)/[^\s\"'<>]+)",
+    _re.I,
+)
+
+
+def _decode_bing_wrapped_url(value: str = "") -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    encoded = text[2:] if text.startswith(("a1", "a2")) else text
+    if encoded.startswith(("http://", "https://")):
+        return encoded
+    if not _re.fullmatch(r"[A-Za-z0-9_-]{16,}", encoded):
+        return ""
+    try:
+        padded = encoded + "=" * (-len(encoded) % 4)
+        decoded = _base64.urlsafe_b64decode(padded.encode("utf-8")).decode("utf-8", "ignore").strip()
+        return decoded if decoded.startswith(("http://", "https://")) else ""
+    except Exception:
+        return ""
+
+
+def _clean_public_profile_url(url: str = "") -> str:
+    text = _html.unescape(str(url or "")).strip()
+    if not text:
+        return ""
+    text = text.replace("\\/", "/")
+    for _ in range(2):
+        decoded = _url_unquote(text)
+        if decoded == text:
+            break
+        text = decoded
+    text = text.strip(" \t\r\n\"'<>")
+    text = _re.sub(r"[),.;:]+$", "", text)
+    if _is_supported_public_trainer_source_url(text) and not text.startswith(("http://", "https://")):
+        text = f"https://{text}"
+    parsed = _urlparse(text)
+    if parsed.scheme and parsed.netloc:
+        netloc = parsed.netloc.lower()
+        path = parsed.path or ""
+        if LINKEDIN_COM in netloc and (path.startswith("/in/") or path.startswith("/pub/")):
+            return f"{parsed.scheme}://{parsed.netloc}{path}".rstrip("/")
+        if parsed.fragment:
+            text = text.split("#", 1)[0]
+    return text.rstrip("/")
+
+
+def _decode_public_search_redirect_url(url: str = "") -> str:
+    text = _clean_public_profile_url(url)
+    if not text:
+        return ""
+
+    for _ in range(3):
+        parsed = _urlparse(text)
+        params = _parse_qs(parsed.query)
+        for key in ("uddg", "url", "u", "q", "target", "to", "redirect", "r"):
+            for raw_value in params.get(key, []):
+                candidate = _decode_bing_wrapped_url(raw_value) or raw_value
+                candidate = _clean_public_profile_url(candidate)
+                if candidate and candidate != text and candidate.startswith(("http://", "https://")):
+                    text = candidate
+                    break
+            else:
+                continue
+            break
+        else:
+            yahoo_match = _re.search(r"/RU=(https?://.*?)(?:/RK=|/RS=|$)", text, _re.I)
+            if yahoo_match:
+                candidate = _clean_public_profile_url(yahoo_match.group(1))
+                if candidate and candidate != text:
+                    text = candidate
+                    continue
+            return text
+
+    return text
+
+
+def _is_supported_public_trainer_source_url(url: str = "") -> bool:
+    lower = str(url or "").lower()
+    return (
+        LINKEDIN_COM_IN in lower
+        or "linkedin.com/pub" in lower
+        or NAUKRI_COM in lower
+        or "shine.com" in lower
+        or "timesjobs.com" in lower
+        or "freshersworld.com" in lower
+        or "glassdoor.co.in" in lower
+        or "glassdoor.com" in lower
+    )
+
+
+def _public_profile_url_from_search_result(source_url: str = "", result_text: str = "") -> str:
+    candidates = [
+        _decode_public_search_redirect_url(source_url),
+        _clean_public_profile_url(source_url),
+    ]
+    decoded_text = _html.unescape(str(result_text or "")).replace("\\/", "/")
+    for _ in range(2):
+        next_text = _url_unquote(decoded_text)
+        if next_text == decoded_text:
+            break
+        decoded_text = next_text
+    candidates.extend(match.group(0) for match in _PUBLIC_TRAINER_PROFILE_URL_RE.finditer(decoded_text))
+
+    for candidate in candidates:
+        clean = _clean_public_profile_url(_decode_public_search_redirect_url(candidate))
+        if clean and _is_supported_public_trainer_source_url(clean):
+            return clean
+    return candidates[0] or ""
+
+
 def _is_public_naukri_trainer_profile_result(title: str = "", source_url: str = "", content: str = "") -> bool:
     text = f"{title or ''} {source_url or ''} {content or ''}".lower()
     url = str(source_url or "").lower()
@@ -15098,6 +15670,358 @@ def _is_public_naukri_trainer_profile_result(title: str = "", source_url: str = 
     if any(token in text for token in employer_text_tokens):
         return False
     return any(token in f" {text} " for token in trainer_profile_tokens) and (has_email or has_phone or LINKEDIN_COM_IN in text)
+
+
+def _linkedin_search_bounded_int(value, default: int, minimum: int, maximum: int) -> int:
+    try:
+        return max(minimum, min(int(value), maximum))
+    except Exception:
+        return default
+
+
+def _linkedin_search_domains(payload: dict, mode: str) -> List[str]:
+    raw_domains = payload.get("domains") or []
+    if isinstance(raw_domains, str):
+        raw_domains = raw_domains.split(",")
+    domains = [str(item).strip() for item in raw_domains if str(item).strip()]
+    if domains:
+        return domains[:12]
+    return ["Python", "DevOps", "AWS"] if mode == "trainer" else [""]
+
+
+def _linkedin_search_queries(mode: str, domain: str) -> List[str]:
+    if mode == "trainer":
+        return [
+            f'"{domain}" trainer India site:linkedin.com/in',
+            f'"{domain}" "corporate trainer" India linkedin profile',
+            f'"{domain}" "freelance trainer" India contact email',
+            f'"{domain}" "technical trainer" India "years experience"',
+            f'"{domain}" trainer Bangalore OR Hyderabad OR Mumbai OR Pune',
+        ]
+    if domain:
+        return [
+            f'"{domain}" "trainer required" India linkedin',
+            f'"{domain}" "corporate trainer needed" India',
+            f'"{domain}" training requirement India company',
+            f'"need {domain} trainer" India HR',
+        ]
+    return [
+        '"trainer required" India linkedin corporate',
+        '"looking for trainer" India IT company',
+        '"training requirement" India corporate immediate',
+        '"need trainer" India company HR linkedin',
+    ]
+
+
+def _linkedin_search_source(url: str = "") -> str:
+    lower = str(url or "").lower()
+    if LINKEDIN_COM in lower:
+        return "linkedin"
+    if NAUKRI_COM in lower:
+        return "naukri"
+    if "shine.com" in lower:
+        return "shine"
+    if "timesjobs.com" in lower:
+        return "timesjobs"
+    if "freshersworld.com" in lower:
+        return "freshersworld"
+    if "glassdoor" in lower:
+        return "glassdoor"
+    return "other"
+
+
+def _linkedin_search_name_from_title(title: str = "", url: str = "") -> str:
+    name = str(title or "").split("|")[0].split(" - ")[0].strip()
+    if name:
+        return name[:120]
+    if "/in/" in str(url or ""):
+        return str(url).rstrip("/").split("/in/")[-1].replace("-", " ").title()[:120]
+    return "Unknown"
+
+
+def _map_linkedin_search_result(result: dict, mode: str, domain: str, query: str) -> dict:
+    raw_url = str(result.get("url") or "").strip()
+    title = str(result.get("title") or "").strip()
+    content = str(result.get("content") or result.get("snippet") or "").strip()
+    raw_content = str(result.get("raw_content") or "").strip()
+    full_text = f"{title}\n{content}\n{raw_content}"
+    source_url = (
+        _public_profile_url_from_search_result(raw_url, full_text)
+        if mode == "trainer"
+        else _decode_public_search_redirect_url(raw_url)
+    ) or raw_url
+    source_url = _clean_public_profile_url(source_url) or source_url
+    confidence = result.get("profile_confidence", result.get("score"))
+
+    if mode == "trainer":
+        return {
+            "trainer_name": _linkedin_search_name_from_title(title, source_url),
+            "headline": title,
+            "domain": domain,
+            "profile_text": (content or raw_content)[:500],
+            "source_url": source_url,
+            "contact_email": _extract_contact_context_email(full_text) or "",
+            "contact_phone": _extract_public_phone(full_text) or "",
+            "source": _linkedin_search_source(source_url),
+            "search_provider": result.get("source") or "",
+            "confidence": confidence,
+            "supported_public_profile": _is_supported_public_trainer_source_url(source_url),
+            "status": "new",
+            "query": query,
+            "_mode": "trainer",
+        }
+
+    return {
+        "company_name": _linkedin_search_name_from_title(title, source_url),
+        "contact_name": "",
+        "domain": domain,
+        "post_text": (content or raw_content)[:700],
+        "source_url": source_url,
+        "contact_email": _extract_contact_context_email(full_text) or "",
+        "source": _linkedin_search_source(source_url),
+        "search_provider": result.get("source") or "",
+        "confidence": confidence,
+        "status": "new",
+        "query": query,
+        "_mode": "client",
+    }
+
+
+def _linkedin_search_save_enabled(value) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return True
+    return str(value).strip().lower() not in {"0", "false", "no", "off"}
+
+
+def _linkedin_search_source_label(result: dict, mode: str) -> str:
+    source = str(result.get("source") or "other").strip().lower()
+    labels = {
+        "linkedin": "Public LinkedIn Search",
+        "naukri": "Naukri Public Search",
+        "shine": "Shine Public Search",
+        "timesjobs": "TimesJobs Public Search",
+        "freshersworld": "Freshersworld Public Search",
+        "glassdoor": "Glassdoor Public Search",
+    }
+    if source in labels:
+        return labels[source]
+    return "Public Trainer Search" if mode == "trainer" else "Public Web Search"
+
+
+async def _save_linkedin_search_trainer_result(db, result: dict) -> tuple:
+    source_url = str(result.get("source_url") or "").strip()
+    contact_email = str(result.get("contact_email") or "").strip()
+    if not source_url:
+        return None, {"reason": "missing source URL", "title": result.get("headline") or result.get("trainer_name") or ""}
+
+    duplicate_id = await _is_duplicate_linkedin_lead(db, source_url, contact_email)
+    if duplicate_id:
+        return None, {"url": source_url, "reason": "duplicate_email_or_url", "lead_id": duplicate_id}
+
+    query = str(result.get("query") or "")
+    profile_text = str(result.get("profile_text") or result.get("headline") or "")
+    lead_payload = {
+        "source": _linkedin_search_source_label(result, "trainer"),
+        "source_url": source_url,
+        "trainer_name": result.get("trainer_name") or result.get("headline") or "Unknown",
+        "contact_email": contact_email,
+        "contact_phone": result.get("contact_phone") or "",
+        "domain": result.get("domain") or "",
+        "post_text": profile_text,
+        "description": profile_text,
+        "notes": f"Found by /api/linkedin-search query: {query}",
+    }
+    analysis = _analyse_trainer_profile_lead(lead_payload)
+    if contact_email and not analysis.get("contact_email"):
+        analysis["contact_email"] = contact_email
+    if result.get("contact_phone") and not analysis.get("contact_phone"):
+        analysis["contact_phone"] = result.get("contact_phone")
+    if _trainer_intent_query(query) and not analysis.get("blocked_keywords"):
+        analysis["is_trainer_profile_lead"] = True
+        analysis["confidence"] = max(float(analysis.get("confidence") or 0), 0.60)
+        analysis["candidate_reason"] = analysis.get("candidate_reason") or "Saved from trainer-intent public search."
+    if not analysis.get("indian_profile") and (" india" in f" {query.lower()} " or result.get("supported_public_profile")):
+        analysis["indian_profile"] = True
+        analysis["india_inferred_from_query"] = True
+
+    now = utc_now()
+    lead = {
+        "lead_id": f"TPL-{uuid.uuid4().hex[:8].upper()}",
+        "source": lead_payload["source"],
+        "source_url": source_url,
+        "trainer_name": lead_payload["trainer_name"],
+        "contact_email": analysis.get("contact_email") or contact_email,
+        "contact_phone": analysis.get("contact_phone") or result.get("contact_phone") or "",
+        "domain": result.get("domain") or analysis.get("domain") or "",
+        "searched_domain": result.get("domain") or "",
+        "headline": result.get("headline") or "",
+        "profile_text": profile_text,
+        "notes": lead_payload["notes"],
+        "status": "new",
+        "confidence": analysis.get("confidence"),
+        "indian_profile": analysis.get("indian_profile"),
+        "india_inferred_from_query": bool(analysis.get("india_inferred_from_query")),
+        "is_trainer_profile_lead": bool(analysis.get("is_trainer_profile_lead")),
+        "candidate_reason": analysis.get("candidate_reason", ""),
+        "provider_signals": analysis.get("provider_signals") or [],
+        "matched_keywords": analysis.get("matched_keywords"),
+        "domains_found": analysis.get("domains_found"),
+        "created_at": now,
+        "updated_at": now,
+    }
+    _stamp_linkedin_signal_on_enriched(
+        lead,
+        email=lead.get("contact_email", ""),
+        phone=lead.get("contact_phone", ""),
+        name=lead.get("trainer_name", ""),
+        linkedin=lead.get("source_url", ""),
+    )
+    await db["trainer_profile_leads"].insert_one(lead)
+    try:
+        lead["trainer_save"] = await _save_linkedin_lead_as_trainer(db, lead)
+        lead["verified_trainer_id"] = lead["trainer_save"].get("trainer_id", "")
+        lead["verification_status"] = "placeholder_created" if lead["trainer_save"].get("action") == "inserted" else "linked_to_trainer"
+    except Exception as exc:
+        lead["trainer_save"] = {"saved": False, "error": str(exc)}
+    return _enrich_lead_response(lead), None
+
+
+async def _save_linkedin_search_client_result(db, result: dict) -> tuple:
+    source_url = str(result.get("source_url") or "").strip()
+    if not source_url:
+        return None, {"reason": "missing source URL", "title": result.get("company_name") or ""}
+    existing = await db["client_leads"].find_one({"source_url": source_url}, {"_id": 0, "lead_id": 1})
+    if existing:
+        return None, {"url": source_url, "reason": "duplicate", "lead_id": existing.get("lead_id")}
+
+    public_text = str(result.get("post_text") or result.get("company_name") or "")
+    lead_payload = {
+        "source": _linkedin_search_source_label(result, "client"),
+        "source_url": source_url,
+        "company_name": result.get("company_name") or "",
+        "contact_name": result.get("contact_name") or result.get("company_name") or "",
+        "contact_email": result.get("contact_email") or "",
+        "domain": result.get("domain") or "",
+        "post_text": public_text,
+        "notes": f"Found by /api/linkedin-search query: {result.get('query') or ''}",
+    }
+    analysis = _analyse_client_lead(lead_payload)
+    now = utc_now()
+    lead = {
+        "lead_id": f"LEAD-{uuid.uuid4().hex[:8].upper()}",
+        "source": lead_payload["source"],
+        "source_url": source_url,
+        "company_name": lead_payload["company_name"],
+        "contact_name": lead_payload["contact_name"],
+        "contact_email": analysis.get("contact_email") or lead_payload["contact_email"],
+        "contact_phone": analysis.get("contact_phone") or "",
+        "domain": lead_payload["domain"] or analysis.get("domain") or "",
+        "searched_domain": lead_payload["domain"],
+        "post_text": public_text,
+        "notes": lead_payload["notes"],
+        "status": "new",
+        "confidence": analysis.get("confidence"),
+        "is_trainer_requirement_lead": analysis.get("is_trainer_requirement_lead"),
+        "matched_keywords": analysis.get("matched_keywords"),
+        "domains_found": analysis.get("domains_found"),
+        "draft": _client_lead_draft({**lead_payload, **analysis}),
+        "created_at": now,
+        "updated_at": now,
+    }
+    await db["client_leads"].insert_one(lead)
+    return _public_doc(lead), None
+
+
+@router.post("/linkedin-search")
+async def linkedin_search(payload: Optional[dict] = None):
+    from agents.free_search_agent import bulk_free_search
+
+    body = payload or {}
+    mode = str(body.get("mode") or "trainer").strip().lower()
+    if mode not in {"trainer", "client"}:
+        raise HTTPException(status_code=400, detail=f"Invalid mode '{mode}'. Use 'trainer' or 'client'.")
+
+    domains = _linkedin_search_domains(body, mode)
+    queries = []
+    query_domain_map = {}
+    for item in body.get("queries") or []:
+        if isinstance(item, dict):
+            query_text = str(item.get("q") or item.get("query") or "").strip()
+            query_domain = str(item.get("domain") or "").strip()
+        else:
+            query_text = str(item or "").strip()
+            query_domain = ""
+        if query_text:
+            queries.append(query_text)
+            query_domain_map[query_text] = query_domain or _searched_domain_from_query(query_text)
+
+    if not queries:
+        for domain in domains:
+            for query in _linkedin_search_queries(mode, domain):
+                queries.append(query)
+                query_domain_map[query] = domain
+
+    queries = list(dict.fromkeys(queries))
+    max_queries = _linkedin_search_bounded_int(body.get("max_queries"), len(queries), 1, 120)
+    max_results = _linkedin_search_bounded_int(body.get("max_results"), 5, 1, 20)
+    timeout = _linkedin_search_bounded_int(body.get("timeout"), 30, 5, 90)
+    concurrency = _linkedin_search_bounded_int(body.get("concurrency"), 5, 1, 12)
+    queries = queries[:max_queries]
+
+    query_results = await bulk_free_search(
+        queries,
+        max_results=max_results,
+        timeout=timeout,
+        concurrency=concurrency,
+    )
+
+    results = []
+    skipped = []
+    seen = set()
+    for query, data, error in query_results:
+        if error:
+            skipped.append({"query": query, "reason": error})
+            continue
+        for item in (data or {}).get("results") or []:
+            mapped = _map_linkedin_search_result(
+                item,
+                mode,
+                query_domain_map.get(query) or _searched_domain_from_query(query),
+                query,
+            )
+            key = (mapped.get("source_url") or mapped.get("contact_email") or mapped.get("trainer_name") or mapped.get("company_name") or "").lower().strip()
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            results.append(mapped)
+
+    save_results = _linkedin_search_save_enabled(body.get("save", True))
+    saved = []
+    if save_results:
+        db = get_db()
+        for result in results:
+            if mode == "trainer":
+                saved_doc, skip = await _save_linkedin_search_trainer_result(db, result)
+            else:
+                saved_doc, skip = await _save_linkedin_search_client_result(db, result)
+            if saved_doc:
+                saved.append(saved_doc)
+            elif skip:
+                skipped.append(skip)
+
+    return {
+        "success": True,
+        "results": results,
+        "count": len(results),
+        "saved_count": len(saved),
+        "skipped_count": len(skipped),
+        "mode": mode,
+        "queries": queries,
+        "saved": saved,
+        "skipped": skipped[:50],
+    }
 
 
 @router.get("/client-leads")
@@ -15219,6 +16143,7 @@ async def search_public_client_leads(payload: dict = {}):
     saved = []
     skipped = []
     queries = []
+    query_domain_map = {}
 
     # ── CREDIT-SAFE phrase list ───────────────────────────────────────────────
     # Use only the most effective high-signal phrases.
@@ -15295,6 +16220,19 @@ async def search_public_client_leads(payload: dict = {}):
         for phrase in client_requirement_phrases[:3]:
             queries.append(f'"{phrase}" India linkedin')
 
+    for item in (payload.get("queries") or []):
+        if isinstance(item, dict):
+            query_text = str(item.get("q") or item.get("query") or "").strip()
+            query_domain = str(item.get("domain") or "").strip()
+        else:
+            query_text = str(item or "").strip()
+            query_domain = ""
+        if not query_text:
+            continue
+        queries.append(query_text)
+        if query_domain:
+            query_domain_map[query_text] = query_domain
+
     for domain in domains:
         for phrase in client_requirement_phrases[:3]:
             queries.append(f'"{phrase}" "{domain}" India')
@@ -15336,7 +16274,7 @@ async def search_public_client_leads(payload: dict = {}):
                 continue
 
             for result in results:
-                searched_domain = _searched_domain_from_query(query)
+                searched_domain = query_domain_map.get(query) or _searched_domain_from_query(query)
                 source_url = str(result.get("url") or "").strip()
                 if not source_url:
                     continue
@@ -15514,6 +16452,7 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
     saved = []
     skipped = []
     queries = []
+    query_domain_map = {}
     LOCATIONS = [
         "Hyderabad", "Warangal", "Karimnagar", "Nizamabad",
         "Visakhapatnam", "Vijayawada", "Guntur", "Tirupati", "Amaravati",
@@ -15578,6 +16517,19 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
         "academic trainer",
         "college trainer",
     ]
+    for item in (payload.get("queries") or []):
+        if isinstance(item, dict):
+            query_text = str(item.get("q") or item.get("query") or "").strip()
+            query_domain = str(item.get("domain") or "").strip()
+        else:
+            query_text = str(item or "").strip()
+            query_domain = ""
+        if not query_text:
+            continue
+        queries.append(query_text)
+        if query_domain:
+            query_domain_map[query_text] = query_domain
+
     for domain in domains:
         if source_mode in {"linkedin", "both", "all"}:
             # ── Queries that actually work from cloud IPs ──────────────────────
@@ -15636,8 +16588,13 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                 continue
 
             for result in results:
-                searched_domain = _searched_domain_from_query(query)
-                source_url = str(result.get("url") or "").strip()
+                searched_domain = query_domain_map.get(query) or _searched_domain_from_query(query)
+                raw_source_url = str(result.get("url") or "").strip()
+                title = str(result.get("title") or "")
+                content = str(result.get("content") or result.get("snippet") or "")
+                raw_content = str(result.get("raw_content") or "")
+                full_result_text = f"{title}\n{content}\n{raw_content}"
+                source_url = _public_profile_url_from_search_result(raw_source_url, full_result_text)
                 if not source_url:
                     continue
                 source_lower = source_url.lower()
@@ -15651,25 +16608,34 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                     is_linkedin_result or is_naukri_result or is_shine_result
                     or is_timesjobs_result or is_freshersworld_result or is_glassdoor_result
                 )
+                trainer_intent_result = _trainer_intent_query(query)
+                full_result_lower = f"{title} {content} {raw_content} {source_url}".lower()
+                has_trainer_text = any(term in full_result_lower for term in TRAINER_PROFILE_KEYWORDS)
+                has_hard_blocker = any(term in full_result_lower for term in TRAINER_PROFILE_BLOCKERS)
+                domain_matches = _public_search_text_matches_domain(title, source_url, searched_domain, f"{content}\n{raw_content}")
+                is_public_web_trainer_candidate = (
+                    source_mode not in {"naukri"}
+                    and not is_known_trainer_source
+                    and trainer_intent_result
+                    and domain_matches
+                    and has_trainer_text
+                    and not has_hard_blocker
+                )
                 # Fix 2: Accept all known trainer profile sources, not just LinkedIn
                 if source_mode == "naukri" and not is_naukri_result:
-                    skipped.append({"url": source_url, "reason": "not a public Naukri result"})
+                    skipped.append({"url": raw_source_url or source_url, "normalised_url": source_url, "reason": "not a public Naukri result"})
                     continue
-                if source_mode not in {"naukri"} and not is_known_trainer_source:
-                    skipped.append({"url": source_url, "reason": "not a supported public trainer result"})
+                if source_mode not in {"naukri"} and not (is_known_trainer_source or is_public_web_trainer_candidate):
+                    skipped.append({"url": raw_source_url or source_url, "normalised_url": source_url, "reason": "not a supported public trainer result"})
                     continue
-                title = str(result.get("title") or "")
-                content = str(result.get("content") or result.get("snippet") or "")
-                raw_content = str(result.get("raw_content") or "")
-                full_result_text = f"{content}\n{raw_content}"
-                if is_naukri_result and not _is_public_naukri_trainer_profile_result(title, source_url, full_result_text):
+                if is_naukri_result and not _is_public_naukri_trainer_profile_result(title, source_url, f"{content}\n{raw_content}"):
                     skipped.append({
                         "url": source_url,
                         "reason": "Naukri employer/job listing skipped",
                         "title": title[:120],
                     })
                     continue
-                if not _public_search_text_matches_domain(title, source_url, searched_domain, f"{content}\n{raw_content}"):
+                if not domain_matches and not (is_linkedin_result and _trainer_intent_query(query)):
                     skipped.append({
                         "url": source_url,
                         "reason": "result does not match searched domain skill",
@@ -15724,7 +16690,7 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                         else "TimesJobs Public Search" if is_timesjobs_result
                         else "Freshersworld Public Search" if is_freshersworld_result
                         else "Glassdoor Public Search" if is_glassdoor_result
-                        else "Public LinkedIn Search"
+                        else "Public Web Trainer Search"
                     ),
                     "source_url": source_url,
                     "trainer_name": title[:120],
@@ -15742,8 +16708,8 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                 if website_contact.get("phone") and not analysis.get("contact_phone"):
                     analysis["contact_phone"] = website_contact["phone"]
                 if (
-                    is_known_trainer_source
-                    and _trainer_intent_query(query)
+                    (is_known_trainer_source or is_public_web_trainer_candidate)
+                    and trainer_intent_result
                     and not analysis.get("blocked_keywords")
                     and not analysis.get("is_trainer_profile_lead")
                 ):
@@ -15754,7 +16720,7 @@ async def search_public_trainer_profile_leads(payload: dict = {}):
                     ]
                     analysis["confidence"] = max(float(analysis.get("confidence") or 0), 0.62)
                     analysis["candidate_reason"] = "Profile matched the searched skill and trainer-intent query."
-                if is_known_trainer_source and not analysis.get("indian_profile"):
+                if (is_known_trainer_source or is_public_web_trainer_candidate) and not analysis.get("indian_profile"):
                     analysis["indian_profile"] = True
                     analysis["india_inferred_from_query"] = True
                 contact_email = analysis.get("contact_email") or email_from_text or ""

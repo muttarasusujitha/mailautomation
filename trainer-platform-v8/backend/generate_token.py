@@ -23,6 +23,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.modify",
     "https://www.googleapis.com/auth/gmail.send",
     "https://www.googleapis.com/auth/calendar",
+    "https://www.googleapis.com/auth/drive.file",
 ]
 
 
@@ -41,7 +42,7 @@ def load_existing_token():
     try:
         creds = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
         if hasattr(creds, "has_scopes") and not creds.has_scopes(SCOPES):
-            logger.info("Existing token is missing required Gmail/Calendar scopes.")
+            logger.info("Existing token is missing required Google OAuth scopes.")
             backup_invalid_token()
             return None
         if creds.expired and creds.refresh_token:

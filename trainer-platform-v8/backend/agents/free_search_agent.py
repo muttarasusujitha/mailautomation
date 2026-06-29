@@ -37,12 +37,18 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
 
+from config import get_settings
+
 logger = logging.getLogger(__name__)
 
 # ── Config ────────────────────────────────────────────────────
-DEFAULT_MAX_RESULTS = int(os.getenv("FREE_SEARCH_MAX_RESULTS", "20"))
-DEFAULT_TIMEOUT     = int(os.getenv("FREE_SEARCH_TIMEOUT", "30"))
-DEFAULT_PROVIDER    = os.getenv("FREE_SEARCH_PROVIDER", "auto").strip().lower()
+_SETTINGS = get_settings()
+DEFAULT_MAX_RESULTS = int(os.getenv("FREE_SEARCH_MAX_RESULTS", "") or getattr(_SETTINGS, "free_search_max_results", 20) or 20)
+DEFAULT_TIMEOUT     = int(os.getenv("FREE_SEARCH_TIMEOUT", "") or getattr(_SETTINGS, "free_search_timeout", 30) or 30)
+DEFAULT_PROVIDER    = (os.getenv("FREE_SEARCH_PROVIDER", "") or getattr(_SETTINGS, "free_search_provider", "auto") or "auto").strip().lower()
+TAVILY_API_KEY      = (os.getenv("TAVILY_API_KEY", "") or getattr(_SETTINGS, "tavily_api_key", "")).strip()
+TAVILY_SEARCH_DEPTH = (os.getenv("TAVILY_SEARCH_DEPTH", "") or getattr(_SETTINGS, "tavily_search_depth", "basic") or "basic").strip().lower()
+TAVILY_ENDPOINT     = (os.getenv("TAVILY_ENDPOINT", "") or getattr(_SETTINGS, "tavily_endpoint", "https://api.tavily.com/search") or "https://api.tavily.com/search").strip()
 
 SearchResult = Dict[str, Any]
 
@@ -66,6 +72,11 @@ _MOB_UA = "Mozilla/5.0 (Linux; Android 13; SM-S918B) AppleWebKit/537.36 (KHTML, 
 # They find LinkedIn profiles via Google/Bing/DDG's cached index.
 _QUERY_TEMPLATES: List[str] = [
     # Direct trainer role searches
+    '"{domain}" trainer India site:linkedin.com/in',
+    '"{domain}" "corporate trainer" India site:linkedin.com/in',
+    '"{domain}" "freelance trainer" India site:linkedin.com/in',
+    '"{domain}" "technical trainer" India site:linkedin.com/in',
+    '"{domain}" "training consultant" India site:linkedin.com/in',
     '"{domain}" trainer India linkedin',
     '"{domain}" "corporate trainer" India',
     '"{domain}" "freelance trainer" India',
@@ -77,9 +88,11 @@ _QUERY_TEMPLATES: List[str] = [
     '"{domain}" "guest faculty" trainer India',
     '"{domain}" "visiting faculty" trainer India',
     # Contact / resume searches
+    '"{domain}" "freelance trainer" India contact email',
     '"{domain}" trainer India resume email',
     '"{domain}" trainer India contact phone',
     '"{domain}" trainer India "years of experience"',
+    '"{domain}" "technical trainer" India "years experience"',
     '"{domain}" trainer India profile linkedin',
     '"{domain}" trainer resume naukri.com India',
     '"{domain}" trainer profile shine.com India',
@@ -89,6 +102,7 @@ _QUERY_TEMPLATES: List[str] = [
     '"{domain}" trainer India "15+ years" OR "10+ years" OR "12+ years"',
     # City-specific (cities with most IT trainers)
     '"{domain}" trainer Hyderabad',
+    '"{domain}" trainer Bangalore OR Hyderabad OR Mumbai OR Pune',
     '"{domain}" trainer Bangalore',
     '"{domain}" trainer Mumbai',
     '"{domain}" trainer Delhi',
@@ -525,6 +539,124 @@ async def _scrape_linkedin_cached(domain: str, client: httpx.AsyncClient) -> Lis
 # For one query: DDG first, Bing if DDG returns nothing, Yahoo last
 # ══════════════════════════════════════════════════════════════
 
+def _query_include_domains(query: str) -> List[str]:
+    """Bias Tavily toward public profile/post sources implied by the query."""
+    text = str(query or "").lower()
+    domains: List[str] = []
+    if "linkedin" in text or "site:linkedin.com" in text:
+        domains.extend(["linkedin.com", "in.linkedin.com"])
+    if "naukri" in text:
+        domains.append("naukri.com")
+    if "shine.com" in text or "shine " in text:
+        domains.append("shine.com")
+    if "timesjobs" in text:
+        domains.append("timesjobs.com")
+    if "freshersworld" in text:
+        domains.append("freshersworld.com")
+    if "glassdoor" in text:
+        domains.extend(["glassdoor.co.in", "glassdoor.com"])
+    return list(dict.fromkeys(domains))
+
+
+def _normalise_tavily_result(item: Dict[str, Any]) -> SearchResult:
+    title = _strip(str(item.get("title") or ""))
+    content = _strip(str(item.get("content") or ""))
+    raw_content = item.get("raw_content")
+    if raw_content is None:
+        raw_content = content
+    return {
+        "url": str(item.get("url") or "").strip(),
+        "title": title,
+        "content": content,
+        "raw_content": _strip(str(raw_content or "")),
+        "source": "tavily",
+        "score": item.get("score"),
+        "favicon": item.get("favicon") or "",
+    }
+
+
+def _search_result_confidence(result: SearchResult, query: str = "") -> float:
+    text = f"{query} {result.get('title') or ''} {result.get('content') or ''} {result.get('url') or ''}".lower()
+    url = str(result.get("url") or "").lower()
+    score = float(result.get("score") or 0.35)
+
+    if "linkedin.com/in/" in url or "linkedin.com/pub/" in url:
+        score += 0.45
+    elif "linkedin.com" in url:
+        score += 0.20
+    elif any(source in url for source in ["naukri.com", "shine.com", "timesjobs.com", "freshersworld.com"]):
+        score += 0.15
+
+    if any(term in text for term in ["corporate trainer", "freelance trainer", "technical trainer", "training consultant"]):
+        score += 0.18
+    elif "trainer" in text or "instructor" in text:
+        score += 0.10
+    if "india" in text or any(city in text for city in ["bangalore", "bengaluru", "hyderabad", "mumbai", "pune", "chennai", "delhi", "noida"]):
+        score += 0.08
+    if re.search(r"\d+\+?\s*(?:years?|yrs?)", text):
+        score += 0.05
+
+    if any(term in text for term in ["trainer required", "looking for trainer", "need trainer", "training requirement"]):
+        score += 0.12
+    if any(term in text for term in ["job vacancy", "job vacancies", "salary", "apply to", "job description"]):
+        score -= 0.20
+    if any(term in url for term in ["linkedin.com/company", "linkedin.com/jobs", "linkedin.com/posts"]):
+        score -= 0.25
+
+    return round(max(0.0, min(score, 1.0)), 3)
+
+
+async def _search_tavily(query: str, max_results: int, client: httpx.AsyncClient) -> List[SearchResult]:
+    """Search with Tavily API using profile/source domains when the query implies them."""
+    if not TAVILY_API_KEY:
+        raise RuntimeError("TAVILY_API_KEY is not configured")
+
+    search_depth = TAVILY_SEARCH_DEPTH if TAVILY_SEARCH_DEPTH in {"basic", "advanced", "fast", "ultra-fast"} else "basic"
+    payload: Dict[str, Any] = {
+        "query": query,
+        "search_depth": search_depth,
+        "topic": "general",
+        "max_results": max(1, min(int(max_results or DEFAULT_MAX_RESULTS), 20)),
+        "include_answer": False,
+        "include_raw_content": False,
+        "include_images": False,
+        "include_favicon": True,
+        "include_usage": True,
+        "country": "india",
+    }
+    include_domains = _query_include_domains(query)
+    if include_domains:
+        payload["include_domains"] = include_domains
+
+    response = await client.post(
+        TAVILY_ENDPOINT,
+        json=payload,
+        headers={
+            "Authorization": f"Bearer {TAVILY_API_KEY}",
+            "Content-Type": "application/json",
+        },
+    )
+    response.raise_for_status()
+    data = response.json()
+    results = [_normalise_tavily_result(item) for item in data.get("results") or []]
+    for result in results:
+        result["profile_confidence"] = _search_result_confidence(result, query)
+    results.sort(
+        key=lambda item: (
+            float(item.get("profile_confidence") or 0),
+            float(item.get("score") or 0),
+        ),
+        reverse=True,
+    )
+    logger.debug(
+        "tavily search '%s' -> %d results (%s credits)",
+        query[:50],
+        len(results),
+        ((data.get("usage") or {}).get("credits")),
+    )
+    return _dedup([item for item in results if item.get("url")])[:max_results]
+
+
 _ENGINE_MAP: List[Tuple[str, Any]] = [
     ("duckduckgo", _search_duckduckgo),
     ("bing",       _search_bing),
@@ -551,7 +683,21 @@ async def free_web_search(
 
     results: List[SearchResult] = []
     try:
-        engines = [e for e in _ENGINE_MAP if chosen in ("auto", e[0])] or _ENGINE_MAP
+        use_tavily = chosen in {"auto", "tavily", "tavily_first"} and bool(TAVILY_API_KEY)
+        if use_tavily:
+            try:
+                results = await _search_tavily(query, max_results, client)
+                if results:
+                    logger.debug("free_web_search '%s' -> %d via tavily", query[:50], len(results))
+                    return [r for r in results if r.get("url")]
+            except Exception as exc:
+                if chosen == "tavily":
+                    raise
+                logger.debug("Tavily search error; falling back for '%s': %s", query[:50], exc)
+        elif chosen == "tavily":
+            raise RuntimeError("TAVILY_API_KEY is not configured")
+
+        engines = [e for e in _ENGINE_MAP if chosen in ("auto", "tavily_first", e[0])] or _ENGINE_MAP
         for name, fn in engines:
             try:
                 results = await fn(query, max_results, client)
@@ -710,14 +856,18 @@ async def search_client_requirements(
 
 
 def is_configured() -> dict:
+    tavily_enabled = bool(TAVILY_API_KEY)
     return {
+        "tavily": tavily_enabled,
         "duckduckgo": True, "bing": True, "yahoo": True,
         "naukri_direct": True, "shine_direct": True,
         "timesjobs_direct": True, "freshersworld_direct": True,
         "active_provider": DEFAULT_PROVIDER,
+        "effective_provider": "tavily_first" if DEFAULT_PROVIDER in {"auto", "tavily_first"} and tavily_enabled else DEFAULT_PROVIDER,
+        "tavily_search_depth": TAVILY_SEARCH_DEPTH,
         "max_results": DEFAULT_MAX_RESULTS,
         "timeout": DEFAULT_TIMEOUT,
-        "requires_api_key": False,
+        "requires_api_key": DEFAULT_PROVIDER == "tavily",
         "layers": 3,
         "query_templates": len(_QUERY_TEMPLATES),
         "expected_per_domain": "100–300 trainer profiles",

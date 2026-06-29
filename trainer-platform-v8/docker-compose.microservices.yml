@@ -1,0 +1,205 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  legacy-backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB: trainersync
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      FRONTEND_URL: http://localhost:5173
+    expose:
+      - "8000"
+    volumes:
+      - ./backend/config:/app/config
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      - mongo
+      - redis
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB: trainersync
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      FRONTEND_URL: http://localhost:5173
+      ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    expose:
+      - "8101"
+    depends_on:
+      - mongo
+
+  trainer-service:
+    build:
+      context: ./services/domain-proxy
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: trainer-service
+      LEGACY_BACKEND_URL: http://legacy-backend:8000
+      ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    expose:
+      - "8200"
+    depends_on:
+      - legacy-backend
+
+  requirement-service:
+    build:
+      context: ./services/domain-proxy
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: requirement-service
+      LEGACY_BACKEND_URL: http://legacy-backend:8000
+      ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    expose:
+      - "8200"
+    depends_on:
+      - legacy-backend
+
+  email-service:
+    build:
+      context: ./services/domain-proxy
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: email-service
+      LEGACY_BACKEND_URL: http://legacy-backend:8000
+      ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    expose:
+      - "8200"
+    depends_on:
+      - legacy-backend
+
+  ai-service:
+    build:
+      context: ./services/domain-proxy
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: ai-service
+      LEGACY_BACKEND_URL: http://legacy-backend:8000
+      ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    expose:
+      - "8200"
+    depends_on:
+      - legacy-backend
+
+  notification-service:
+    build:
+      context: ./services/domain-proxy
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: notification-service
+      LEGACY_BACKEND_URL: http://legacy-backend:8000
+      ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    expose:
+      - "8200"
+    depends_on:
+      - legacy-backend
+
+  document-service:
+    build:
+      context: ./services/domain-proxy
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: document-service
+      LEGACY_BACKEND_URL: http://legacy-backend:8000
+      ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    expose:
+      - "8200"
+    depends_on:
+      - legacy-backend
+
+  interview-service:
+    build:
+      context: ./services/domain-proxy
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: interview-service
+      LEGACY_BACKEND_URL: http://legacy-backend:8000
+      ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    expose:
+      - "8200"
+    depends_on:
+      - legacy-backend
+
+  admin-service:
+    build:
+      context: ./services/domain-proxy
+    restart: unless-stopped
+    environment:
+      SERVICE_NAME: admin-service
+      LEGACY_BACKEND_URL: http://legacy-backend:8000
+      ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    expose:
+      - "8200"
+    depends_on:
+      - legacy-backend
+
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+    restart: unless-stopped
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8101
+      TRAINER_SERVICE_URL: http://trainer-service:8200
+      REQUIREMENT_SERVICE_URL: http://requirement-service:8200
+      EMAIL_SERVICE_URL: http://email-service:8200
+      AI_SERVICE_URL: http://ai-service:8200
+      NOTIFICATION_SERVICE_URL: http://notification-service:8200
+      DOCUMENT_SERVICE_URL: http://document-service:8200
+      INTERVIEW_SERVICE_URL: http://interview-service:8200
+      ADMIN_SERVICE_URL: http://admin-service:8200
+      LEGACY_BACKEND_URL: http://legacy-backend:8000
+      FRONTEND_URL: http://localhost:5173
+      ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+    ports:
+      - "8000:8080"
+    depends_on:
+      - auth-service
+      - trainer-service
+      - requirement-service
+      - email-service
+      - ai-service
+      - notification-service
+      - document-service
+      - interview-service
+      - admin-service
+      - legacy-backend
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_PROXY_TARGET: http://api-gateway:8080
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api-gateway
+
+volumes:
+  mongo_data:
+  redis_data:

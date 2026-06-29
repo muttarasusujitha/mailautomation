@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { forgotPassword } from '../utils/api'
+import { useCallback, useState, useEffect, useRef } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { forgotPassword, getGoogleClientId, googleLogin, resetPassword } from '../utils/api'
 import {
   Mail, Lock, User, Eye, EyeOff,
   CheckCircle, Briefcase, Users, GraduationCap,
@@ -10,6 +10,29 @@ import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import { randomBetween } from '../utils/random'
 import BrandMark from '../components/BrandMark'
+
+const GOOGLE_IDENTITY_SCRIPT = 'https://accounts.google.com/gsi/client'
+
+function loadGoogleIdentityScript() {
+  if (window.google?.accounts?.oauth2) return Promise.resolve()
+
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${GOOGLE_IDENTITY_SCRIPT}"]`)
+    if (existing) {
+      existing.addEventListener('load', resolve, { once: true })
+      existing.addEventListener('error', () => reject(new Error('Google sign-in script failed to load')), { once: true })
+      return
+    }
+
+    const script = document.createElement('script')
+    script.src = GOOGLE_IDENTITY_SCRIPT
+    script.async = true
+    script.defer = true
+    script.onload = resolve
+    script.onerror = () => reject(new Error('Google sign-in script failed to load'))
+    document.head.appendChild(script)
+  })
+}
 
 /* ─── Particle canvas ──────────────────────────────────────── */
 function ParticleCanvas() {
@@ -113,10 +136,17 @@ export default function Login({ onLogin }) {
   const [showPass, setShowPass]   = useState(false)
   const [loading, setLoading]     = useState(false)
   const [resetting, setResetting] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
+  const [googleReady, setGoogleReady] = useState(false)
+  const [googleError, setGoogleError] = useState('')
   const [mounted, setMounted]     = useState(false)
   const [remember, setRemember]   = useState(false)
   const [step, setStep]           = useState(1)
   const navigate = useNavigate()
+  const googleTokenClientRef = useRef(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const resetToken = searchParams.get('reset_token') || searchParams.get('token') || ''
+  const resetEmail = searchParams.get('email') || ''
 
   const [form, setForm] = useState({
     name: '', email: '', password: '', confirm: '',
@@ -125,8 +155,107 @@ export default function Login({ onLogin }) {
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
   useEffect(() => { setTimeout(() => setMounted(true), 60) }, [])
+  useEffect(() => {
+    if (!resetToken) return
+    setMode('reset')
+    setStep(1)
+    setForm(f => ({
+      ...f,
+      email: resetEmail || f.email,
+      password: '',
+      confirm: '',
+    }))
+  }, [resetToken, resetEmail])
 
   const selectedRole = ROLES.find(r => r.id === role)
+
+  const switchMode = nextMode => {
+    setMode(nextMode)
+    setStep(1)
+    if (resetToken) setSearchParams({})
+    if (nextMode !== 'reset') {
+      setForm(f => ({ ...f, password: '', confirm: '' }))
+    }
+  }
+
+  const handleGoogleAccessToken = useCallback(async accessToken => {
+    if (!accessToken) {
+      toast.error('Google did not return a sign-in token')
+      setGoogleLoading(false)
+      return
+    }
+
+    try {
+      const res = await googleLogin({ access_token: accessToken, role })
+      const user = res.data?.user || {}
+      sessionStorage.setItem('ts_auth', JSON.stringify({
+        name: user.name || user.email || 'Google User',
+        email: user.email || '',
+        picture: user.picture || '',
+        role: user.role || role,
+        provider: 'google',
+        loggedIn: true,
+      }))
+      toast.success(`Welcome ${user.name || user.email || 'back'}!`)
+      if (onLogin) onLogin()
+      navigate('/dashboard')
+    } catch (e) {
+      toast.error(e.message || 'Google login failed')
+    } finally {
+      setGoogleLoading(false)
+    }
+  }, [navigate, onLogin, role])
+
+  useEffect(() => {
+    let active = true
+
+    const setupGoogleLogin = async () => {
+      if (mode === 'reset') return
+      setGoogleReady(false)
+      setGoogleError('')
+      try {
+        const clientRes = await getGoogleClientId()
+        const clientId = clientRes.data?.client_id
+        if (!clientId) throw new Error('Google client ID is not configured')
+        await loadGoogleIdentityScript()
+        if (!active) return
+        googleTokenClientRef.current = window.google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'openid email profile',
+          callback: response => {
+            if (response?.error) {
+              toast.error(response.error_description || response.error || 'Google login was cancelled')
+              setGoogleLoading(false)
+              return
+            }
+            handleGoogleAccessToken(response?.access_token)
+          },
+        })
+        setGoogleReady(true)
+      } catch (e) {
+        if (!active) return
+        setGoogleError(e.message || 'Google login is not available')
+        setGoogleReady(false)
+      }
+    }
+
+    setupGoogleLogin()
+    return () => { active = false }
+  }, [handleGoogleAccessToken, mode])
+
+  const handleGoogleLogin = () => {
+    if (!googleReady || !googleTokenClientRef.current) {
+      toast.error(googleError || 'Google login is still loading')
+      return
+    }
+    setGoogleLoading(true)
+    try {
+      googleTokenClientRef.current.requestAccessToken({ prompt: 'select_account' })
+    } catch (e) {
+      setGoogleLoading(false)
+      toast.error(e.message || 'Google login failed to start')
+    }
+  }
 
   const handleForgotPassword = async () => {
     if (!form.email.trim()) { toast.error('Enter your email address first'); return }
@@ -136,8 +265,33 @@ export default function Login({ onLogin }) {
     finally { setResetting(false) }
   }
 
+  const handleResetPasswordSubmit = async () => {
+    if (!resetToken) { toast.error('Reset link is missing or expired'); return }
+    if (!form.email.trim()) { toast.error('Enter your email address'); return }
+    if (form.password.length < 8) { toast.error('Password must be at least 8 characters'); return }
+    if (form.password !== form.confirm) { toast.error('Passwords do not match'); return }
+
+    setResetting(true)
+    try {
+      await resetPassword({
+        email: form.email.trim(),
+        token: resetToken,
+        password: form.password,
+      })
+      toast.success('Password reset successfully')
+      setSearchParams({})
+      setMode('login')
+      setForm(f => ({ ...f, password: '', confirm: '' }))
+    } catch (e) {
+      toast.error(e.message || 'Could not reset password')
+    } finally {
+      setResetting(false)
+    }
+  }
+
   const handleSubmit = async e => {
     e.preventDefault()
+    if (mode === 'reset') { await handleResetPasswordSubmit(); return }
     if (mode === 'signup' && step === 1) { setStep(2); return }
     if (mode === 'signup' && form.password !== form.confirm) { toast.error('Passwords do not match'); return }
     setLoading(true)
@@ -225,10 +379,10 @@ export default function Login({ onLogin }) {
           {/* Heading */}
           <div className="mb-5">
             <h2 className="text-xl font-bold text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
-              {mode === 'login' ? 'Welcome back' : step === 1 ? 'Create account' : 'Almost done'}
+              {mode === 'reset' ? 'Reset password' : mode === 'login' ? 'Welcome back' : step === 1 ? 'Create account' : 'Almost done'}
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              {mode === 'login' ? 'Sign in to TrainerSync' : step === 1 ? 'Choose your role to get started' : 'Set up your profile'}
+              {mode === 'reset' ? 'Choose a new TrainerSync password' : mode === 'login' ? 'Sign in to TrainerSync' : step === 1 ? 'Choose your role to get started' : 'Set up your profile'}
             </p>
           </div>
 
@@ -236,7 +390,7 @@ export default function Login({ onLogin }) {
           <div className="bg-white rounded-xl border border-slate-200 shadow-lg p-6 space-y-4">
 
             {/* Role selector */}
-            <div>
+            {mode !== 'reset' && <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
                 {mode === 'login' ? 'Sign in as' : 'I am a'}
               </p>
@@ -265,12 +419,12 @@ export default function Login({ onLogin }) {
                   )
                 })}
               </div>
-            </div>
+            </div>}
 
             {/* Mode tabs */}
-            <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+            {mode !== 'reset' && <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
               {['login', 'signup'].map(m => (
-                <button key={m} type="button" onClick={() => { setMode(m); setStep(1) }}
+                <button key={m} type="button" onClick={() => switchMode(m)}
                   className={clsx(
                     'flex-1 py-1.5 rounded-md text-sm font-semibold transition-all duration-200',
                     mode === m ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'
@@ -278,24 +432,49 @@ export default function Login({ onLogin }) {
                   {m === 'login' ? 'Sign In' : 'Sign Up'}
                 </button>
               ))}
-            </div>
+            </div>}
 
             {/* Social login */}
-            <div className="grid grid-cols-2 gap-2">
-              {[{ icon: Chrome, label: 'Google' }, { icon: Github, label: 'GitHub' }].map(s => (
-                <button key={s.label} type="button" onClick={() => toast('Social login coming soon!')}
-                  className="flex items-center justify-center gap-2 py-2 bg-white hover:bg-slate-50
-                             border border-slate-200 rounded-lg text-slate-600 text-xs font-semibold
-                             transition-all hover:shadow-sm">
-                  <s.icon className="h-4 w-4" />{s.label}
-                </button>
-              ))}
-            </div>
+            {mode !== 'reset' && <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={googleLoading || !googleReady}
+                title={googleError || (googleReady ? 'Sign in with Google' : 'Google login is loading')}
+                className="flex items-center justify-center gap-2 py-2 bg-white hover:bg-slate-50
+                           border border-slate-200 rounded-lg text-slate-600 text-xs font-semibold
+                           transition-all hover:shadow-sm disabled:opacity-60 disabled:cursor-not-allowed">
+                {googleLoading
+                  ? <span className="h-4 w-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin" />
+                  : <Chrome className="h-4 w-4" />}
+                {googleLoading ? 'Signing in...' : googleError ? 'Google unavailable' : 'Google'}
+              </button>
+              <button type="button" onClick={() => toast('GitHub login coming soon!')}
+                className="flex items-center justify-center gap-2 py-2 bg-white hover:bg-slate-50
+                           border border-slate-200 rounded-lg text-slate-600 text-xs font-semibold
+                           transition-all hover:shadow-sm">
+                <Github className="h-4 w-4" />GitHub
+              </button>
+            </div>}
 
-            <div className="divider-label">or email</div>
+            {mode !== 'reset' && <div className="divider-label">or email</div>}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-2.5">
+              {mode === 'reset' && (
+                <>
+                  <Field icon={Mail} type="email" placeholder="Email address" value={form.email} onChange={set('email')} />
+                  <Field icon={Lock} type={showPass ? 'text' : 'password'} placeholder="New password"
+                    value={form.password} onChange={set('password')}
+                    right={
+                      <button type="button" onClick={() => setShowPass(!showPass)} className="text-slate-400 hover:text-slate-600">
+                        {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    } />
+                  <Field icon={Lock} type={showPass ? 'text' : 'password'} placeholder="Confirm new password" value={form.confirm} onChange={set('confirm')} />
+                </>
+              )}
+
               {mode === 'login' && (
                 <>
                   <Field icon={Mail} type="email" placeholder="Email address" value={form.email} onChange={set('email')} />
@@ -363,25 +542,25 @@ export default function Login({ onLogin }) {
                 </button>
               )}
 
-              <button type="submit" disabled={loading}
+              <button type="submit" disabled={loading || resetting}
                 className="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 font-bold text-sm text-white
                            flex items-center justify-center gap-2 transition-all duration-150
                            hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0">
-                {loading
+                {loading || (mode === 'reset' && resetting)
                   ? <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   : <>
                       <Sparkles className="h-4 w-4" />
-                      {mode === 'login' ? 'Sign In' : step === 1 ? 'Continue →' : 'Create Account'}
+                      {mode === 'reset' ? 'Reset Password' : mode === 'login' ? 'Sign In' : step === 1 ? 'Continue →' : 'Create Account'}
                     </>
                 }
               </button>
             </form>
 
             <p className="text-center text-slate-500 text-xs">
-              {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
-              <button onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setStep(1) }}
+              {mode === 'reset' ? 'Remembered your password? ' : mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+              <button type="button" onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}
                 className="font-semibold text-blue-600 hover:text-blue-800">
-                {mode === 'login' ? 'Sign up free' : 'Sign in'}
+                {mode === 'reset' ? 'Sign in' : mode === 'login' ? 'Sign up free' : 'Sign in'}
               </button>
             </p>
           </div>

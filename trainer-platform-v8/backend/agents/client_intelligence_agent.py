@@ -194,6 +194,10 @@ def _oauth_redirect_uris_from_env() -> List[str]:
             if value not in redirects:
                 redirects.append(value)
 
+    configured_redirect = _settings_value("google_redirect_uri")
+    if configured_redirect and configured_redirect not in redirects:
+        redirects.append(configured_redirect)
+
     frontend_url = _settings_value("frontend_url", "http://localhost:5173").rstrip("/")
     frontend_callback = f"{frontend_url}/auth/callback"
     for value in (frontend_callback, DEFAULT_GOOGLE_CALLBACK):
@@ -218,6 +222,35 @@ def _oauth_client_config_from_env() -> Optional[Tuple[str, Dict[str, Any]]]:
     }
 
 
+def _oauth_client_config_from_token() -> Optional[Tuple[str, Dict[str, Any]]]:
+    if not os.path.exists(TOKEN_PATH):
+        return None
+    try:
+        with open(TOKEN_PATH, "r", encoding="utf-8") as token_file:
+            token_data = json.load(token_file)
+    except Exception:
+        return None
+
+    client_id = str(token_data.get("client_id") or "").strip()
+    client_secret = str(token_data.get("client_secret") or "").strip()
+    if (
+        not client_id
+        or not client_secret
+        or _is_placeholder_value(client_id)
+        or _is_placeholder_value(client_secret)
+    ):
+        return None
+
+    return "web", {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "auth_uri": DEFAULT_GOOGLE_AUTH_URI,
+        "token_uri": token_data.get("token_uri") or DEFAULT_GOOGLE_TOKEN_URI,
+        "auth_provider_x509_cert_url": DEFAULT_GOOGLE_CERT_URL,
+        "redirect_uris": _oauth_redirect_uris_from_env(),
+    }
+
+
 def _load_oauth_client_config() -> Tuple[str, Dict[str, Any]]:
     if os.path.exists(CREDENTIALS_PATH):
         with open(CREDENTIALS_PATH, "r", encoding="utf-8") as credentials_file:
@@ -230,6 +263,10 @@ def _load_oauth_client_config() -> Tuple[str, Dict[str, Any]]:
     env_config = _oauth_client_config_from_env()
     if env_config:
         return env_config
+
+    token_config = _oauth_client_config_from_token()
+    if token_config:
+        return token_config
 
     raise FileNotFoundError(
         "Google OAuth credentials not configured. Save the Google OAuth client JSON at "
@@ -246,6 +283,11 @@ def _default_redirect_uri() -> str:
 def _oauth_flow(redirect_uri: Optional[str] = None) -> Flow:
     redirect = redirect_uri or _default_redirect_uri()
     client_type, client = _load_oauth_client_config()
+    redirects = [str(uri).strip() for uri in (client.get("redirect_uris") or []) if uri]
+    if redirect and redirect not in redirects:
+        redirects.append(redirect)
+        client["redirect_uris"] = redirects
+
     if redirect.startswith("http://localhost") or redirect.startswith("http://127.0.0.1"):
         os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")  # NOSONAR: local OAuth callback only
     return Flow.from_client_config(
@@ -267,8 +309,20 @@ def get_gmail_oauth_url(redirect_uri: Optional[str] = None) -> Dict[str, Any]:
         "auth_url": auth_url,
         "state": state,
         "redirect_uri": redirect,
-        "required_scopes": GOOGLE_OAUTH_SCOPES,
+        "required_scopes": GMAIL_SCOPES,
+        "optional_scopes": CALENDAR_SCOPES + DRIVE_SCOPES,
+        "requested_scopes": GOOGLE_OAUTH_SCOPES,
     }
+
+
+def _missing_scopes(creds, scopes: List[str]) -> List[str]:
+    granted_scope_values = getattr(creds, "granted_scopes", None) or getattr(creds, "scopes", None)
+    if granted_scope_values:
+        granted_scopes = set(granted_scope_values)
+        return [scope for scope in scopes if scope not in granted_scopes]
+    if hasattr(creds, "has_scopes"):
+        return [scope for scope in scopes if not creds.has_scopes([scope])]
+    return []
 
 
 def save_gmail_oauth_token(code: str, redirect_uri: Optional[str] = None) -> Dict[str, Any]:
@@ -278,29 +332,54 @@ def save_gmail_oauth_token(code: str, redirect_uri: Optional[str] = None) -> Dic
     flow = _oauth_flow(redirect)
     flow.fetch_token(code=code)
     creds = flow.credentials
-    if hasattr(creds, "has_scopes") and not creds.has_scopes(GOOGLE_OAUTH_SCOPES):
-        granted_scopes = sorted(getattr(creds, "scopes", None) or [])
-        missing_scopes = [scope for scope in GOOGLE_OAUTH_SCOPES if scope not in granted_scopes]
+    missing_required_scopes = _missing_scopes(creds, GMAIL_SCOPES)
+    if missing_required_scopes:
         raise RuntimeError(
-            "Google did not grant all required permissions. "
-            f"Missing scopes: {', '.join(missing_scopes)}. "
-            "Reconnect and approve Gmail, Calendar, and Drive permissions."
+            "Google did not grant the required Gmail permissions. "
+            f"Missing scopes: {', '.join(missing_required_scopes)}. "
+            "Reconnect and approve Gmail permissions."
         )
+    missing_optional_scopes = _missing_scopes(creds, CALENDAR_SCOPES + DRIVE_SCOPES)
     os.makedirs(os.path.dirname(TOKEN_PATH) or CONFIG_DIR, exist_ok=True)
     with open(TOKEN_PATH, "w", encoding="utf-8") as token_file:
         token_file.write(creds.to_json())
 
     service = build("gmail", "v1", credentials=creds, cache_discovery=False)
     profile = service.users().getProfile(userId="me").execute()
-    calendar_service = build("calendar", "v3", credentials=creds, cache_discovery=False)
-    calendar_service.calendarList().get(calendarId="primary").execute()
-    drive_service = build("drive", "v3", credentials=creds, cache_discovery=False)
-    drive_service.files().list(pageSize=1, fields="files(id,name)").execute()
+
+    calendar_connected = False
+    calendar_error = ""
+    if not _missing_scopes(creds, CALENDAR_SCOPES):
+        try:
+            calendar_service = build("calendar", "v3", credentials=creds, cache_discovery=False)
+            calendar_service.calendarList().get(calendarId="primary").execute()
+            calendar_connected = True
+        except Exception as exc:
+            calendar_error = str(exc)
+    else:
+        calendar_error = "Google Calendar permission was not granted."
+
+    drive_connected = False
+    drive_error = ""
+    if not _missing_scopes(creds, DRIVE_SCOPES):
+        try:
+            drive_service = build("drive", "v3", credentials=creds, cache_discovery=False)
+            drive_service.files().list(pageSize=1, fields="files(id,name)").execute()
+            drive_connected = True
+        except Exception as exc:
+            drive_error = str(exc)
+    else:
+        drive_error = "Google Drive permission was not granted."
+
     return {
         "success": True,
         "connected": True,
-        "calendar_connected": True,
-        "drive_connected": True,
+        "calendar_connected": calendar_connected,
+        "drive_connected": drive_connected,
+        "calendar_error": calendar_error,
+        "drive_error": drive_error,
+        "google_reconnect_required": bool(missing_optional_scopes),
+        "missing_optional_scopes": missing_optional_scopes,
         "gmail_user": profile.get("emailAddress") or _settings_value("gmail_user"),
         "redirect_uri": redirect,
         "scopes": sorted(getattr(creds, "scopes", None) or []),
@@ -727,12 +806,12 @@ def get_gmail_service():
 
 
 def get_calendar_service():
-    creds = _google_credentials(GOOGLE_OAUTH_SCOPES)
+    creds = _google_credentials(CALENDAR_SCOPES)
     return build("calendar", "v3", credentials=creds, cache_discovery=False)
 
 
 def get_drive_service():
-    creds = _google_credentials(GOOGLE_OAUTH_SCOPES)
+    creds = _google_credentials(DRIVE_SCOPES)
     return build("drive", "v3", credentials=creds, cache_discovery=False)
 
 
@@ -787,6 +866,9 @@ async def get_gmail_auth_status(db=None) -> Dict[str, Any]:
         "credentials_present": os.path.exists(CREDENTIALS_PATH),
         "token_present": os.path.exists(TOKEN_PATH),
         "gmail_user": _settings_value("gmail_user"),
+        "calendar_connected": False,
+        "drive_connected": False,
+        "google_reconnect_required": False,
         "last_history_id": None,
         "last_webhook_received_at": None,
         "watch_expiration": None,
@@ -812,7 +894,9 @@ async def get_gmail_auth_status(db=None) -> Dict[str, Any]:
             ("insufficient" in lowered_error and "scope" in lowered_error)
             or "missing calendar permission" in lowered_error
             or "missing scopes" in lowered_error
+            or "missing required permission" in lowered_error
         )
+        status["google_reconnect_required"] = status["google_reconnect_required"] or status["calendar_reconnect_required"]
         if status.get("connected"):
             status["calendar_optional"] = True
             status["calendar_error"] = (
@@ -824,6 +908,35 @@ async def get_gmail_auth_status(db=None) -> Dict[str, Any]:
             status["calendar_error"] = (
                 "Google Calendar permission is missing. Reconnect Google from Settings so Calendar/Meet access is granted."
                 if status["calendar_reconnect_required"]
+                else error
+            )
+
+    try:
+        drive_service = get_drive_service()
+        drive_service.files().list(pageSize=1, fields="files(id,name)").execute()
+        status["drive_connected"] = True
+    except Exception as exc:
+        error = str(exc)
+        status["drive_connected"] = False
+        lowered_error = error.lower()
+        status["drive_reconnect_required"] = (
+            ("insufficient" in lowered_error and "scope" in lowered_error)
+            or "missing drive permission" in lowered_error
+            or "missing scopes" in lowered_error
+            or "missing required permission" in lowered_error
+        )
+        status["google_reconnect_required"] = status["google_reconnect_required"] or status["drive_reconnect_required"]
+        if status.get("connected"):
+            status["drive_optional"] = True
+            status["drive_error"] = (
+                "Gmail is connected. Google Drive permission is missing; click Renew Access before Drive uploads or business-register sync."
+                if status["drive_reconnect_required"]
+                else error
+            )
+        else:
+            status["drive_error"] = (
+                "Google Drive permission is missing. Reconnect Google from Settings so Drive access is granted."
+                if status["drive_reconnect_required"]
                 else error
             )
 

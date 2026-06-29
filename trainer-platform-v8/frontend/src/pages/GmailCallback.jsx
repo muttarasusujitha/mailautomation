@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Loader2, Mail, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import api from '../utils/api'
 
-export default function GmailCallback() {
+export default function GmailCallback({ onLogin }) {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const [status, setStatus] = useState({ type: 'loading', message: 'Connecting Gmail...' })
@@ -27,14 +27,21 @@ export default function GmailCallback() {
       }
 
       try {
-        await api.post('/gmail/oauth-callback', {
+        const redirectUri = params.get('oauth_redirect_uri') || `${window.location.origin}/auth/callback`
+        const oauthResult = await api.post('/gmail/oauth-callback', {
           code,
-          redirect_uri: `${window.location.origin}/auth/callback`,
+          redirect_uri: redirectUri,
         })
 
+        const googleReconnectRequired = !!oauthResult.data?.google_reconnect_required
         try {
           await api.post('/gmail/renew-watch')
-          setStatus({ type: 'success', message: 'Gmail and Google Calendar connected. Inbox watch renewed.' })
+          setStatus({
+            type: googleReconnectRequired ? 'warning' : 'success',
+            message: googleReconnectRequired
+              ? 'Gmail connected and inbox watch renewed. Calendar or Drive permission still needs Renew Access.'
+              : 'Gmail, Calendar, and Drive connected. Inbox watch renewed.',
+          })
         } catch (watchError) {
           setStatus({
             type: 'warning',
@@ -42,7 +49,8 @@ export default function GmailCallback() {
           })
         }
 
-        localStorage.setItem('ts_auth', JSON.stringify({ loggedIn: true }))
+        sessionStorage.setItem('ts_auth', JSON.stringify({ loggedIn: true }))
+        onLogin?.()
         setTimeout(() => navigate('/admin', { replace: true }), 2200)
       } catch (e) {
         setStatus({ type: 'error', message: e.message })
@@ -50,7 +58,7 @@ export default function GmailCallback() {
     }
 
     finishAuth()
-  }, [navigate, params])
+  }, [navigate, onLogin, params])
 
   const Icon =
     status.type === 'success' ? CheckCircle2 :
