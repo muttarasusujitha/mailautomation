@@ -13,10 +13,21 @@ from agents.whatsapp_agent import send_whatsapp_message
 
 
 CLAHAN_CLIENT_COMMERCIAL_MARKUP_INR = 5000
+TRAINER_COMMERCIAL_REPLY_MAIL_TYPES = frozenset({
+    "mail1",
+    "mail1_reminder",
+    "trainer_interest_check",
+    "mail2",
+    "mail2_followup",
+})
 
 
 class ClientSlotError(Exception):
     pass
+
+
+def is_trainer_commercial_reply_mail_type(mail_type: str = "") -> bool:
+    return str(mail_type or "").strip().lower() in TRAINER_COMMERCIAL_REPLY_MAIL_TYPES
 
 
 def strip_quoted_reply_text(text: str) -> str:
@@ -824,6 +835,194 @@ async def send_client_slot_options_email(
     }
 
 
+async def send_trainer_commercials_to_client(
+    db,
+    payload: dict,
+    *,
+    tracking_url_builder: Optional[Callable[[str], str]] = None,
+    source: str = "trainer_details_reply",
+    request_base_url: str = "",
+) -> dict:
+    trainer_id = str(payload.get("trainer_id") or "").strip()
+    trainer_name = payload.get("trainer_name") or "the trainer"
+    requirement_id = str(payload.get("requirement_id") or "").strip()
+    force = bool(payload.get("force", False))
+    reply_text = strip_quoted_reply_text(
+        payload.get("trainer_reply")
+        or payload.get("reply_text")
+        or payload.get("body")
+        or ""
+    )
+
+    commercial_details = extract_trainer_commercial_details(reply_text, payload)
+    if not commercial_details:
+        return {
+            "success": False,
+            "skipped": True,
+            "reason": "Trainer commercial not found in reply",
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+        }
+
+    requirement, client_email, client_name = await client_contact_for_requirement(db, requirement_id, payload)
+    if not client_email:
+        return {
+            "success": False,
+            "error": "Client email not found for this requirement",
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+        }
+
+    if not force and requirement_id and trainer_id:
+        existing = await db["email_logs"].find_one(
+            {
+                "requirement_id": requirement_id,
+                "trainer_id": trainer_id,
+                "mail_type": "trainer_commercials_to_client",
+                "status": "sent",
+            },
+            {"_id": 0},
+            sort=[("sent_at", -1), ("created_at", -1)],
+        )
+        if existing:
+            return {
+                "success": True,
+                "already_sent": True,
+                "email_id": existing.get("email_id"),
+                "to_email": existing.get("to_email"),
+                "trainer_commercial": existing.get("trainer_commercial") or "",
+                "client_commercial": existing.get("client_commercial") or "",
+                "mail_type": "trainer_commercials_to_client",
+            }
+
+    technology = (
+        requirement.get("technology_needed")
+        or requirement.get("job_title")
+        or payload.get("technology")
+        or "training"
+    )
+    trainer_commercial = _commercial_text(commercial_details)
+    client_commercial = client_commercial_from_trainer_details(commercial_details)
+    if not client_commercial:
+        return {
+            "success": False,
+            "error": "Could not calculate client commercial from trainer reply",
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+        }
+
+    subject = payload.get("subject") or f"Trainer Commercials for Approval - {technology} | {trainer_name}"
+    body = payload.get("body") or (
+        f"Hi {client_name or 'Team'},\n\n"
+        f"Trainer {trainer_name} has shared the required details and availability for the {technology} requirement.\n\n"
+        f"Commercial Rates for {technology}:\n\n"
+        f"* {client_commercial}\n\n"
+        "Please review and confirm if these rates are acceptable. Once approved, we will proceed with interview scheduling.\n\n"
+        "Regards,\n"
+        "Recruitment Team,\n"
+        "Clahan Technologies"
+    )
+    if payload.get("body") and client_commercial and "commercial" not in body.lower():
+        body = f"{body.rstrip()}\n\nCommercial: {client_commercial}"
+
+    email_id = payload.get("email_id") or f"CLIENT-COMM-{uuid.uuid4().hex[:8].upper()}"
+    tracking_url = tracking_url_builder(email_id) if tracking_url_builder else ""
+    smtp_config = await get_admin_email_config(db)
+    success, error = await send_email_async(client_email, subject, body, smtp_config, tracking_url)
+
+    now = utc_now()
+    log_doc = {
+        "email_id": email_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_name,
+        "requirement_id": requirement_id,
+        "to_email": client_email,
+        "client_name": client_name,
+        "client_email": client_email,
+        "subject": subject,
+        "body": body,
+        "trainer_commercial": trainer_commercial,
+        "client_commercial": client_commercial,
+        "clahan_commercial_markup": CLAHAN_CLIENT_COMMERCIAL_MARKUP_INR,
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "sent_at": now if success else None,
+        "reply_received": False,
+        "opened": False,
+        "open_count": 0,
+        "tracking_url": tracking_url,
+        "retry_count": 0,
+        "mail_type": "trainer_commercials_to_client",
+        "recipient_type": "client",
+        "source": source,
+        "source_email_id": payload.get("source_email_id") or "",
+        "source_message_id": payload.get("source_message_id") or "",
+        "created_at": now,
+    }
+    await db["email_logs"].insert_one(log_doc)
+    await db["conversations"].insert_one({
+        **log_doc,
+        "direction": "sent",
+        "channel": "client",
+        "error": error if not success else "",
+    })
+
+    await db["requirements"].update_one(
+        {"requirement_id": requirement_id},
+        {"$set": {
+            "trainer_commercials_to_client_status": "sent" if success else "failed",
+            "trainer_commercials_to_client_email_id": email_id,
+            "trainer_commercials_to_client_at": now,
+            "latest_trainer_commercial": trainer_commercial,
+            "latest_client_commercial": client_commercial,
+            "latest_commercial_trainer_id": trainer_id,
+            "latest_commercial_trainer_name": trainer_name,
+        }},
+    )
+
+    teams_result = {"status": "not_sent", "error": "email_failed"}
+    if success:
+        teams_result = await send_teams_stage_notification(
+            db,
+            stage="client_message_sent",
+            trainer_name=client_name,
+            requirement=requirement or {"requirement_id": requirement_id, "technology_needed": technology},
+            request_base_url=request_base_url,
+            context={
+                "source": source,
+                "email_id": email_id,
+                "mail_type": "trainer_commercials_to_client",
+                "trainer_id": trainer_id,
+                "trainer_name": trainer_name,
+                "recipient_type": "client",
+                "client_email": client_email,
+                "subject": subject,
+                "body": body,
+                "email_status": "sent",
+            },
+        )
+        await db["email_logs"].update_one(
+            {"email_id": email_id},
+            {"$set": {"teams_summary": teams_result}},
+        )
+        await db["conversations"].update_one(
+            {"email_id": email_id, "mail_type": "trainer_commercials_to_client"},
+            {"$set": {"teams_summary": teams_result}},
+        )
+
+    return {
+        "success": success,
+        "error": error,
+        "email_id": email_id,
+        "to_email": client_email,
+        "already_sent": False,
+        "trainer_commercial": trainer_commercial,
+        "client_commercial": client_commercial,
+        "mail_type": "trainer_commercials_to_client",
+        "teams": teams_result,
+    }
+
+
 async def send_client_slots_for_email_log(
     db,
     email_id: str,
@@ -903,15 +1102,6 @@ async def send_pending_client_slot_replies(
     source: str = "pending_reply_scan",
     request_base_url: str = "",
 ) -> dict:
-    return {
-        "checked": 0,
-        "sent": 0,
-        "failed": 0,
-        "skipped": 0,
-        "results": [],
-        "manual_only": True,
-        "reason": "Client slot mails are manual only",
-    }
     query = {
         "mail_type": {"$in": ["mail3", "mail3_slot_followup"]},
         "status": "sent",

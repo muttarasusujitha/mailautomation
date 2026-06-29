@@ -11,11 +11,13 @@ import api from '../utils/api'
 
 const FILTERS = [
   { key: 'all', label: 'All' },
+  { key: 'today', label: 'Today' },
   { key: 'pending_approval', label: 'Pending' },
   { key: 'auto_sent', label: 'Auto Sent' },
   { key: 'approved', label: 'Approved' },
   { key: 'rejected', label: 'Rejected' },
   { key: 'spam', label: 'Spam' },
+  { key: 'requirements_created', label: 'Created' },
 ]
 
 const STATUS_META = {
@@ -63,15 +65,26 @@ function valueOrDash(value) {
   return value === undefined || value === null || value === '' ? '-' : value
 }
 
-function Stat({ icon: Icon, label, value, tone = 'blue' }) {
+function Stat({ icon: Icon, label, value, tone = 'blue', active = false, onClick }) {
   const tones = {
     blue: 'text-blue-600 bg-blue-50',
     amber: 'text-amber-600 bg-amber-50',
     emerald: 'text-emerald-600 bg-emerald-50',
     slate: 'text-slate-600 bg-slate-100',
   }
+  const Component = onClick ? 'button' : 'div'
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <Component
+      type={onClick ? 'button' : undefined}
+      onClick={onClick}
+      className={clsx(
+        'w-full rounded-lg border bg-white p-4 text-left shadow-sm transition',
+        active
+          ? 'border-blue-500 ring-2 ring-blue-100'
+          : 'border-slate-200',
+        onClick && 'hover:border-blue-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-200'
+      )}
+    >
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-slate-500">{label}</span>
         <span className={clsx('flex h-9 w-9 items-center justify-center rounded-lg', tones[tone])}>
@@ -79,7 +92,7 @@ function Stat({ icon: Icon, label, value, tone = 'blue' }) {
         </span>
       </div>
       <p className="mt-2 text-2xl font-bold text-slate-900">{value}</p>
-    </div>
+    </Component>
   )
 }
 
@@ -395,19 +408,33 @@ export default function ClientRequests() {
   const [filter, setFilter] = useState('all')
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
+  const [clientInboxCfg, setClientInboxCfg] = useState({ autoSendEnabled: false, autoSendThreshold: 70 })
+  const [savingAutoSend, setSavingAutoSend] = useState(false)
+
+  const requestParams = useMemo(() => {
+    const params = { limit: 200, timezone_offset: new Date().getTimezoneOffset() }
+    if (filter === 'today') {
+      params.date_filter = 'today'
+    } else if (filter === 'requirements_created') {
+      params.has_requirement = true
+    } else if (filter !== 'all') {
+      params.status = filter
+    }
+    return params
+  }, [filter])
 
   const loadRequests = async () => {
     setLoading(true)
     try {
-      const [requestsRes, updatesRes] = await Promise.all([
-        api.get('/inbox', {
-          params: { status: filter === 'all' ? '' : filter, limit: 200 },
-        }),
+      const [requestsRes, updatesRes, settingsRes] = await Promise.all([
+        api.get('/inbox', { params: requestParams }),
         api.get('/client-updates', { params: { limit: 25 } }),
+        api.get('/admin/settings'),
       ])
       setRequests(requestsRes.data.emails || [])
       setStats(requestsRes.data.stats || {})
       setClientUpdates(updatesRes.data.updates || [])
+      setClientInboxCfg(prev => ({ ...prev, ...(settingsRes.data.clientInboxCfg || {}) }))
     } catch (e) {
       toast.error(e.message || 'Could not load client requests')
     } finally {
@@ -417,18 +444,34 @@ export default function ClientRequests() {
 
   useEffect(() => {
     loadRequests()
-  }, [filter])
+  }, [requestParams])
 
   const syncNow = async () => {
     setSyncing(true)
     try {
       const res = await api.post('/gmail/sync-now?limit=50')
-      toast.success(`Inbox checked: ${res.data?.processed_count || 0} new request(s) processed`)
+      const processed = res.data?.processed_count || 0
+      const autoSent = res.data?.auto_sent_existing_count || 0
+      toast.success(`Inbox checked: ${processed} new request(s), ${autoSent} auto-repl${autoSent === 1 ? 'y' : 'ies'} sent`)
       await loadRequests()
     } catch (e) {
       toast.error(e.response?.data?.detail || e.message || 'Inbox sync failed')
     } finally {
       setSyncing(false)
+    }
+  }
+
+  const enableAutoSend = async () => {
+    setSavingAutoSend(true)
+    try {
+      const nextCfg = { ...clientInboxCfg, autoSendEnabled: true }
+      await api.post('/admin/settings', { clientInboxCfg: nextCfg })
+      setClientInboxCfg(nextCfg)
+      toast.success('Client auto-send enabled')
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Could not enable auto-send')
+    } finally {
+      setSavingAutoSend(false)
     }
   }
 
@@ -472,12 +515,14 @@ export default function ClientRequests() {
     const pending = Number(stats.pending_approval || 0)
     const created = Number(stats.requirements_created || 0)
     return [
-      { icon: Mail, label: 'Today', value: stats.today || 0, tone: 'blue' },
-      { icon: AlertTriangle, label: 'Pending', value: pending, tone: 'amber' },
-      { icon: Send, label: 'Auto Sent', value: autoSent, tone: 'emerald' },
-      { icon: CheckCircle2, label: 'Requirements Created', value: created, tone: 'slate' },
+      { icon: Mail, label: 'Today', value: stats.today || 0, tone: 'blue', filterKey: 'today' },
+      { icon: AlertTriangle, label: 'Pending', value: pending, tone: 'amber', filterKey: 'pending_approval' },
+      { icon: Send, label: 'Auto Sent', value: autoSent, tone: 'emerald', filterKey: 'auto_sent' },
+      { icon: CheckCircle2, label: 'Requirements Created', value: created, tone: 'slate', filterKey: 'requirements_created' },
     ]
   }, [stats])
+
+  const autoSendEnabled = clientInboxCfg.autoSendEnabled !== false
 
   return (
     <div className="space-y-5">
@@ -506,8 +551,45 @@ export default function ClientRequests() {
         </div>
       </div>
 
+      <div className={clsx(
+        'flex flex-col gap-3 rounded-lg border p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between',
+        autoSendEnabled ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50'
+      )}>
+        <div className="flex items-start gap-3">
+          <span className={clsx(
+            'mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg',
+            autoSendEnabled ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+          )}>
+            {autoSendEnabled ? <Send className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+          </span>
+          <div>
+            <p className={clsx('text-sm font-bold', autoSendEnabled ? 'text-emerald-900' : 'text-amber-900')}>
+              Client auto-send is {autoSendEnabled ? 'on' : 'off'}
+            </p>
+            <p className={clsx('mt-1 text-sm', autoSendEnabled ? 'text-emerald-700' : 'text-amber-700')}>
+              {autoSendEnabled
+                ? `Eligible replies send automatically at ${clientInboxCfg.autoSendThreshold || 70}% confidence or higher.`
+                : 'Eligible replies are being drafted and held in Pending until auto-send is enabled.'}
+            </p>
+          </div>
+        </div>
+        {!autoSendEnabled && (
+          <button onClick={enableAutoSend} disabled={savingAutoSend} className="btn-primary text-sm disabled:opacity-60">
+            {savingAutoSend ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            Enable Auto-send
+          </button>
+        )}
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {statValues.map(item => <Stat key={item.label} {...item} />)}
+        {statValues.map(item => (
+          <Stat
+            key={item.label}
+            {...item}
+            active={filter === item.filterKey}
+            onClick={() => setFilter(item.filterKey)}
+          />
+        ))}
       </div>
 
       <ClientUpdatePanel

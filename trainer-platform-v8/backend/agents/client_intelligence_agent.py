@@ -25,7 +25,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
 from config import get_settings
-from agents.email_agent import compose_shortlist_first_email, send_email_async
+from agents.email_agent import clean_mail_secret, compose_shortlist_first_email, send_email_async
 from agents.pipeline import run_pipeline
 
 
@@ -155,6 +155,8 @@ AUTO_REPLY_MARKERS = [
 
 TRAINER_THREAD_MAIL_TYPES = {
     "mail1",
+    "mail1_reminder",
+    "trainer_interest_check",
     "mail2",
     "mail2_followup",
     "mail3",
@@ -548,6 +550,37 @@ def is_auto_reply(headers: Dict[str, str], subject: str, body: str) -> bool:
     return any(marker in subject_body for marker in AUTO_REPLY_MARKERS)
 
 
+def looks_like_explicit_trainer_requirement(subject: str = "", body: str = "") -> bool:
+    text = re.sub(r"\s+", " ", clean_email_body(f"{subject or ''}\n{body or ''}").lower()).strip()
+    if not text:
+        return False
+    has_requirement_for_trainer = bool(re.search(
+        r"\b(?:immediate\s+)?requirement\s+for\s+(?:a\s+|an\s+)?[a-z0-9 .+#/&-]{2,80}\s+trainer\b",
+        text,
+    ))
+    has_domain_label = bool(re.search(r"\b[*_`~]*domain[*_`~]*\s*:\s*\S+", text))
+    has_trainer_requirement = bool(re.search(r"\btrainer\s+requirement\b|\btraining\s+requirement\b", text))
+    return has_requirement_for_trainer or (has_domain_label and has_trainer_requirement)
+
+
+def looks_like_trainer_opportunity_or_promotion(subject: str = "", body: str = "") -> bool:
+    text = re.sub(r"\s+", " ", clean_email_body(f"{subject or ''}\n{body or ''}").lower()).strip()
+    if not text:
+        return False
+    if looks_like_explicit_trainer_requirement(subject, body):
+        return False
+    trainer_addressed = bool(re.search(r"\bdear\s+(?:trainer|trainers|candidate|consultant)\b", text))
+    asks_trainer_for_profile = bool(re.search(
+        r"\b(?:share|send|provide|forward)\s+(?:your\s+)?(?:updated\s+)?(?:profile|resume|cv|availability)\b",
+        text,
+    ))
+    availability_request = bool(re.search(
+        r"\b(?:if\s+you\s+are\s+interested\s+and\s+available|available\s+training\s+days|your\s+availability)\b",
+        text,
+    ))
+    return trainer_addressed and (asks_trainer_for_profile or availability_request)
+
+
 def is_likely_training_email(
     subject: str,
     from_email: str = "",
@@ -565,6 +598,9 @@ def is_likely_training_email(
 
     subject_haystack = (subject or "").lower()
     haystack = f"{subject or ''}\n{body_preview or ''}".lower()
+    if looks_like_trainer_opportunity_or_promotion(subject, body_preview):
+        return False
+
     reject_markers = (
         "hotlist", "bench sales", "available consultant", "available candidates",
         "my resume", "attached resume", "application for", "job application",
@@ -613,6 +649,9 @@ def looks_like_marketing_or_bulk_email(
     sender = str(from_email or "").lower()
     haystack = f"{subject or ''}\n{body or ''}".lower()
     sender_markers = ("no-reply", "noreply", "newsletter@", "marketing@", "notification@")
+    if looks_like_trainer_opportunity_or_promotion(subject, body):
+        return True
+
     marketing_markers = (
         "unsubscribe", "view in browser", "email preferences", "register now",
         "free live workshop", "free workshop", "webinar", "newsletter",
@@ -1191,6 +1230,39 @@ def _clean_ai_text(value: Any) -> str:
     return str(value).strip()
 
 
+def _technology_key(value: Any) -> str:
+    clean = re.sub(r"\s+", " ", _clean_ai_text(value)).strip().lower()
+    if not clean:
+        return ""
+    clean = clean.replace("&", " and ")
+    clean = re.sub(r"\b(full\s*stack|fullstack|mern|mean|mevn)\b", " full stack ", clean)
+    if re.search(r"\bfull\s+stack\b", clean):
+        return "full_stack_development"
+    clean = re.sub(
+        r"\b(trainer|training|requirement|requirements|course|workshop|program|programme)\b",
+        " ",
+        clean,
+    )
+    clean = re.sub(r"[^a-z0-9+#.]+", " ", clean)
+    return re.sub(r"\s+", " ", clean).strip()
+
+
+def _canonical_training_domain(value: Any) -> str:
+    raw = re.sub(r"\s+", " ", _clean_ai_text(value)).strip()
+    if not raw:
+        return ""
+    lowered = raw.lower()
+    if re.search(r"\b(full\s*stack|fullstack|mern|mean|mevn)\b", lowered):
+        return "Full Stack Development"
+    cleaned = re.sub(
+        r"\b(trainer\s+requirement|training\s+requirement|trainer|requirement|requirements)\b",
+        " ",
+        raw,
+        flags=re.IGNORECASE,
+    )
+    return re.sub(r"\s+", " ", cleaned).strip(" -:|") or raw
+
+
 def _is_thread_reply_subject(subject: Any) -> bool:
     return bool(re.match(r"^\s*(re|fw|fwd)\s*:", str(subject or ""), flags=re.I))
 
@@ -1249,6 +1321,7 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
         "client_email": meta.get("from_email"),
         "client_phone": None,
         "technology_needed": None,
+        "technology_key": "",
         "secondary_technologies": [],
         "duration_days": None,
         "duration_hours": None,
@@ -1272,15 +1345,20 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
         "is_training_request": False,
         "sender_is_known_client": False,
         "marketing_or_bulk_email": False,
+        "trainer_opportunity_or_promotion": False,
     }
     merged = {**defaults, **(extracted or {})}
+    merged["trainer_opportunity_or_promotion"] = looks_like_trainer_opportunity_or_promotion(
+        meta.get("subject") or merged.get("email_subject") or "",
+        meta.get("clean_body") or meta.get("raw_body") or meta.get("snippet") or "",
+    )
     merged["marketing_or_bulk_email"] = looks_like_marketing_or_bulk_email(
         meta.get("subject") or merged.get("email_subject") or "",
         meta.get("from_email") or merged.get("client_email") or "",
         meta.get("clean_body") or meta.get("raw_body") or meta.get("snippet") or "",
         meta.get("headers") or {},
     )
-    if merged["marketing_or_bulk_email"]:
+    if merged["marketing_or_bulk_email"] or merged["trainer_opportunity_or_promotion"]:
         merged["is_training_request"] = False
         merged["needs_clarification"] = []
         try:
@@ -1298,8 +1376,12 @@ def _normalise_extraction(extracted: Dict[str, Any], meta: Dict[str, Any]) -> Di
     merged["email_subject"] = merged.get("email_subject") or meta.get("subject")
     merged["secondary_technologies"] = merged.get("secondary_technologies") or []
     merged["needs_clarification"] = merged.get("needs_clarification") or []
-    if not has_actionable_training_domain(merged.get("technology_needed")):
+    if has_actionable_training_domain(merged.get("technology_needed")):
+        merged["technology_needed"] = _canonical_training_domain(merged.get("technology_needed"))
+        merged["technology_key"] = _technology_key(merged.get("technology_needed"))
+    else:
         merged["technology_needed"] = None
+        merged["technology_key"] = ""
         existing_needs = {str(item).strip().lower() for item in merged["needs_clarification"]}
         if "training domain/technology" not in existing_needs:
             merged["needs_clarification"].insert(0, TRAINING_DOMAIN_TECHNOLOGY)
@@ -1391,8 +1473,13 @@ def generate_client_requirement_closed_reply(
 
 
 def _field_from_text(text: str, label: str) -> Optional[str]:
-    match = re.search(rf"(?im)^\s*{re.escape(label)}\s*:\s*(.+?)\s*$", text or "")
-    return match.group(1).strip() if match else None
+    match = re.search(
+        rf"(?im)^\s*[*_`~]*\s*{re.escape(label)}\s*[*_`~]*\s*:\s*(.+?)\s*$",
+        text or "",
+    )
+    if not match:
+        return None
+    return re.sub(r"^[\s*_`~]+|[\s*_`~]+$", "", match.group(1)).strip()
 
 
 def _heuristic_training_extraction(meta: Dict[str, Any]) -> Dict[str, Any]:
@@ -1954,6 +2041,8 @@ CRITICAL BUSINESS RULES:
 7. is_training_request = true ONLY if the email is genuinely asking for a trainer or training service. NOT for:
    - Job applications, vendor pitches, newsletters, invoices, general follow-ups
    - "Expression of interest" from trainers wanting to join Clahan's panel
+   - Vague trainer opportunity/promotion mails addressed to "Dear Trainer" that only ask the recipient to share profile/resume/availability
+   - If the same email contains a concrete "requirement for [domain] Trainer" or a Domain field, classify it as a training request
 
 EXTRACTION OUTPUT (return ONLY valid JSON, no markdown, no explanation):
 {{
@@ -2242,14 +2331,14 @@ async def check_if_duplicate(extracted: dict, db) -> bool:
 
 
 async def find_duplicate_requirement(extracted: dict, db) -> Optional[dict]:
-    technology = _clean_ai_text(extracted.get("technology_needed"))
+    technology = _canonical_training_domain(extracted.get("technology_needed"))
     if not technology:
         return None
+    technology_key = _technology_key(technology)
 
     client_email = _clean_ai_text(extracted.get("client_email")).lower()
     query: Dict[str, Any] = {
         "created_at": {"$gte": utc_now() - timedelta(days=7)},
-        "technology_needed": {MONGO_REGEX: f"^{re.escape(technology)}$", MONGO_OPTIONS: "i"},
         "status": {"$nin": ["closed", "completed", "fulfilled", "inactive", "cancelled", "archived"]},
     }
     if not client_email:
@@ -2272,7 +2361,15 @@ async def find_duplicate_requirement(extracted: dict, db) -> Optional[dict]:
     if participant_count not in (None, ""):
         query["participant_count"] = participant_count
 
-    return await db["requirements"].find_one(query, {"_id": 0}, sort=[("created_at", -1)])
+    candidates = await db["requirements"].find(query, {"_id": 0}).sort("created_at", -1).limit(50).to_list(50)
+    for candidate in candidates:
+        candidate_key = candidate.get("technology_key") or _technology_key(candidate.get("technology_needed"))
+        if technology_key and candidate_key == technology_key:
+            return candidate
+        candidate_technology = _canonical_training_domain(candidate.get("technology_needed")).lower()
+        if candidate_technology and candidate_technology == technology.lower():
+            return candidate
+    return None
 
 
 async def ensure_requirement_from_email(extracted: dict, email_id: str, db) -> str:
@@ -2431,7 +2528,7 @@ async def find_matching_trainer_outbound_thread(
             score += 160
         if "additional details required" in reply_subject and mail_type in {"mail2", "mail2_followup"}:
             score += 120
-        if TRAINING_REQUIREMENT in reply_subject and mail_type in {"mail1", "mail2", "mail2_followup"}:
+        if TRAINING_REQUIREMENT in reply_subject and mail_type in {"mail1", "mail1_reminder", "trainer_interest_check", "mail2", "mail2_followup"}:
             score += 70
         if trainer_name and trainer_name in body_lower:
             score += 100
@@ -2598,9 +2695,6 @@ def client_reply_auto_send_eligible(
     if extracted.get("marketing_or_bulk_email"):
         return False
     if not domain_is_allowed:
-        return False
-    whitelist = parse_client_domain_csv(settings.get("clientDomainsWhitelist", ""))
-    if not whitelist and not extracted.get("sender_is_known_client"):
         return False
     threshold = float(settings.get("autoSendThreshold") or 70) / 100
     if confidence >= threshold:
@@ -2903,7 +2997,8 @@ async def create_requirement_from_email(extracted: dict, email_id: str, db) -> s
     if not has_actionable_training_domain(extracted.get("technology_needed")):
         return ""
     req_id = f"REQ-{uuid.uuid4().hex[:8].upper()}"
-    technology = extracted.get("technology_needed") or REQUIREMENT_LABEL
+    technology = _canonical_training_domain(extracted.get("technology_needed")) or REQUIREMENT_LABEL
+    technology_key = _technology_key(technology)
     secondary = extracted.get("secondary_technologies") or []
     required_skills = [technology, *secondary]
     required_skills = [skill for skill in required_skills if skill]
@@ -2911,6 +3006,7 @@ async def create_requirement_from_email(extracted: dict, email_id: str, db) -> s
     doc = {
         "requirement_id": req_id,
         "technology_needed": technology,
+        "technology_key": technology_key,
         "min_experience_years": 2,
         "required_skills": required_skills,
         "preferred_skills": secondary,
@@ -3129,7 +3225,7 @@ async def poll_gmail_api_client_inbox(db) -> Dict[str, Any]:
         return {"processed": 0, "skipped": f"Gmail OAuth not configured: {str(exc)}"}
 
     processed = 0
-    auto_sent_existing = []
+    auto_sent_existing = await auto_send_pending_client_replies_smtp(db)
     
     try:
         # Fetch last 20 unread messages from inbox
@@ -3193,7 +3289,8 @@ async def poll_gmail_api_client_inbox(db) -> Dict[str, Any]:
         
         return {
             "processed": processed,
-            "auto_sent_existing": len(auto_sent_existing),
+            "auto_sent_existing": auto_sent_existing,
+            "auto_sent_existing_count": len(auto_sent_existing),
             "message": f"Fetched {processed} new emails from Gmail inbox"
         }
     except Exception as exc:
@@ -3207,7 +3304,7 @@ async def poll_gmail_api_client_inbox(db) -> Dict[str, Any]:
 async def poll_imap_client_inbox(db) -> Dict[str, Any]:
     imap_cfg = await get_email_auto_imap_config(db)
     imap_user = str(imap_cfg.get("imapUser") or "").strip()
-    imap_pass = str(imap_cfg.get("imapPass") or "").replace(" ", "")
+    imap_pass = clean_mail_secret(imap_cfg.get("imapPass") or "")
     imap_host = str(imap_cfg.get("imapHost") or "imap.gmail.com").strip()
     imap_port = int(imap_cfg.get("imapPort") or 993)
     if not imap_user or not imap_pass:
@@ -3466,15 +3563,10 @@ async def poll_imap_client_inbox(db) -> Dict[str, Any]:
                 extracted = await _extract_from_text(extraction_prompt_context)
             except Exception as exc:
                 extraction_error = str(exc)
-                extracted = {
-                    "client_name": from_name or None,
-                    "client_email": from_email,
-                    "technology_needed": None,
-                    "is_training_request": True,
-                    "confidence": 0.3,
-                    "needs_review": True,
-                    "missing_fields": ["AI extraction unavailable; review manually"],
-                }
+                extracted = _normalise_extraction(
+                    _heuristic_training_extraction(extraction_prompt_context),
+                    extraction_prompt_context,
+                )
             try:
                 reply = await generate_calhan_reply(extracted, {
                     "subject": subject,
@@ -3579,6 +3671,7 @@ The client may write in formal English, casual English, Hinglish,
 Hindi, Tamil, Telugu, or any Indian regional language mixed with
 English. Understand the intent regardless of language or writing
 style.
+If the message has a concrete "requirement for [domain] Trainer" or a Domain field, classify it as a training request even when addressed to "Dear Trainer". Only vague profile/resume/availability collection mails should be treated as trainer opportunity/promotion.
 
 Extract and return ONLY valid JSON with no extra text:
 {{

@@ -45,6 +45,7 @@ import {
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import { TrainerCardTrustPill } from '../components/VerificationBadge'
+import { TrainerDetailModal } from '../components/TrainerDetailModal'
 
 const STATUS_COLORS = {
   new: 'badge-slate',
@@ -1685,14 +1686,9 @@ export default function Trainers() {
   return (
     <>
       {selectedTrainer && (
-        <TrainerDetail
-          t={selectedTrainer}
+        <TrainerDetailModal
+          trainer={selectedTrainer}
           onClose={() => setSelectedTrainer(null)}
-          onUpdate={handleUpdateTrainer}
-          onRequestResume={openResumeRequest}
-          onStartAutomation={startAutomationPipeline}
-          requestingResume={requestingResumeId === selectedTrainer.trainer_id}
-          sendingAutomation={sendingAutomationId === selectedTrainer.trainer_id}
         />
       )}
 

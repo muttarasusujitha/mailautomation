@@ -493,7 +493,7 @@ function mail5RejectedTemplate(trainer, req) {
 function mailTocAutoTemplate(trainer, req) {
   return {
     subject: `Action Required: ToC / Course Agenda – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nCongratulations again on being selected for the ${req.technology_needed} training!\n\nTo initiate the onboarding process, kindly share the following at the earliest:\n\n* Detailed Table of Contents (ToC) / Course Agenda\n* Day-wise session breakdown\n* Tools, software, or prerequisites required by participants\n* Estimated preparation time needed\n\nPlease revert at the earliest so we can coordinate with the client on schedule.\n\nRegards,\nTrainerSync Team`
+    body: `${greeting(trainer)}\n\nPlease share the Training Table of Contents / Course Agenda, including the day-wise session breakdown, any tools or prerequisites required, and estimated preparation time.\n\nOnce we receive these details, we will coordinate with the client and trainer to finalize the agenda.\n\nRegards,\nTrainerSync Team`
   }
 }
 

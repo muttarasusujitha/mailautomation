@@ -12,7 +12,12 @@ import os
 import httpx
 from database import get_db
 from agents.email_agent import send_email_async, compose_retry_email
-from agents.client_slot_agent import send_pending_client_slot_replies
+from agents.client_slot_agent import (
+    TRAINER_COMMERCIAL_REPLY_MAIL_TYPES,
+    is_trainer_commercial_reply_mail_type,
+    send_pending_client_slot_replies,
+    send_trainer_commercials_to_client,
+)
 from agents.whatsapp_agent import (
     send_shortlist_whatsapp,
     send_vendor_reply_notification,
@@ -350,7 +355,73 @@ async def check_and_update_replies():
                         sentiment=reply.get("sentiment", ""),
                     )
                 if log.get("mail_type") == "client_slot_options":
+                    from routes.api import _handle_client_slot_confirmation_reply
+
+                    duplicate_query = {
+                        "to_email": from_email_clean,
+                        "requirement_id": req_id,
+                        "direction": "received",
+                        "$or": [
+                            {"message_id_header": reply.get("message_id_header")} if reply.get("message_id_header") else {"subject": reply["subject"], "body": reply["body"]},
+                            {"subject": reply["subject"], "body": reply["body"]},
+                        ],
+                    }
+                    already_stored = await db["conversations"].find_one(duplicate_query)
+                    if not already_stored:
+                        await db["conversations"].insert_one({
+                            "trainer_id": log.get("trainer_id"),
+                            "trainer_name": log.get("trainer_name"),
+                            "to_email": from_email_clean,
+                            "requirement_id": req_id,
+                            "subject": reply["subject"],
+                            "body": reply["body"],
+                            "direction": "received",
+                            "mail_type": "client_slot_confirmation",
+                            "status": "received",
+                            "sent_at": replied_at,
+                            "message_id_header": reply.get("message_id_header") or "",
+                            "in_reply_to": reply.get("in_reply_to") or "",
+                            "references": reply.get("references") or "",
+                        })
+                    confirmation_result = await _handle_client_slot_confirmation_reply(
+                        db,
+                        None,
+                        log=log,
+                        reply={
+                            "msg_id": reply.get("msg_id"),
+                            "message_id_header": reply.get("message_id_header") or "",
+                            "from_email": from_email_clean,
+                            "from_raw": from_email_clean,
+                            "subject": reply["subject"],
+                            "body": reply["body"],
+                        },
+                        from_email=from_email_clean,
+                        replied_at=replied_at,
+                    )
+                    if confirmation_result:
+                        logger.info("Client slot confirmation processed: %s", confirmation_result)
                     continue
+                if is_trainer_commercial_reply_mail_type(log.get("mail_type")):
+                    commercial_result = await send_trainer_commercials_to_client(
+                        db,
+                        {
+                            "trainer_id": log.get("trainer_id") or "",
+                            "trainer_name": log.get("trainer_name") or "the trainer",
+                            "trainer_email": log.get("to_email") or "",
+                            "requirement_id": req_id or "",
+                            "trainer_reply": reply.get("body") or "",
+                            "source_email_id": log.get("email_id") or "",
+                            "source_message_id": reply.get("message_id_header") or reply.get("msg_id") or "",
+                        },
+                        source="reply_scheduler",
+                    )
+                    await db["email_logs"].update_one(
+                        {"email_id": log.get("email_id")},
+                        {"$set": {
+                            "trainer_commercials_to_client_result": commercial_result,
+                            "trainer_commercials_to_client_checked_at": utc_now(),
+                        }},
+                    )
                 status_map = {"mark_interested": "interested", "mark_declined": "declined", "requires_review": "pending_review"}
                 await db["trainers"].update_one(
                     {"trainer_id": log.get("trainer_id")},
@@ -373,6 +444,13 @@ async def check_and_update_replies():
         msg_ids = [r.get("msg_id") for r in replies if r.get("msg_id")]
         if msg_ids:
             mark_emails_seen(msg_ids)
+        pending_commercials = await send_pending_trainer_commercial_replies(db)
+        if pending_commercials.get("sent") or pending_commercials.get("failed"):
+            logger.info(
+                "Trainer commercial auto-send: %s sent, %s failed",
+                pending_commercials.get("sent"),
+                pending_commercials.get("failed"),
+            )
         pending_slots = await send_pending_client_slot_replies(
             db,
             source="reply_scheduler_pending_scan",
@@ -385,6 +463,59 @@ async def check_and_update_replies():
             )
     except Exception:
         logger.exception("Reply check error")
+
+
+async def send_pending_trainer_commercial_replies(db, *, limit: int = 25) -> dict:
+    logs = await db["email_logs"].find(
+        {
+            "mail_type": {"$in": sorted(TRAINER_COMMERCIAL_REPLY_MAIL_TYPES)},
+            "status": "sent",
+            "reply_received": True,
+            "reply_text": {"$nin": [None, ""]},
+            "$or": [
+                {"trainer_commercials_to_client_result": {"$exists": False}},
+                {
+                    "trainer_commercials_to_client_result.success": {"$ne": True},
+                    "trainer_commercials_to_client_result.skipped": {"$ne": True},
+                },
+                {"trainer_commercials_to_client_result.reason": "Not a trainer details reply"},
+            ],
+        },
+        {"_id": 0},
+    ).sort("replied_at", -1).limit(limit).to_list(limit)
+
+    sent = 0
+    failed = 0
+    skipped = 0
+    for log in logs:
+        result = await send_trainer_commercials_to_client(
+            db,
+            {
+                "trainer_id": log.get("trainer_id") or "",
+                "trainer_name": log.get("trainer_name") or "the trainer",
+                "trainer_email": log.get("to_email") or "",
+                "requirement_id": log.get("requirement_id") or "",
+                "trainer_reply": log.get("reply_text") or "",
+                "source_email_id": log.get("email_id") or "",
+                "source_message_id": log.get("reply_message_id") or "",
+            },
+            source="reply_scheduler_pending_commercial_scan",
+        )
+        await db["email_logs"].update_one(
+            {"email_id": log.get("email_id")},
+            {"$set": {
+                "trainer_commercials_to_client_result": result,
+                "trainer_commercials_to_client_checked_at": utc_now(),
+            }},
+        )
+        if result.get("skipped") or result.get("already_sent"):
+            skipped += 1
+        elif result.get("success"):
+            sent += 1
+        else:
+            failed += 1
+
+    return {"checked": len(logs), "sent": sent, "failed": failed, "skipped": skipped}
 
 
 async def renew_gmail_watch_job():

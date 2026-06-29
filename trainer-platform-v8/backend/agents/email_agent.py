@@ -107,7 +107,17 @@ def get_gmail_password() -> str:
         os.environ.get('GMAIL_PASS', '') or
         os.environ.get('GMAIL_APP_PASSWORD', '')
     )
-    return pw.replace(' ', '')
+    return clean_mail_secret(pw)
+
+
+def clean_mail_secret(value: str) -> str:
+    text = str(value or "").strip().strip("\"'")
+    if "=" in text:
+        key, possible_secret = text.split("=", 1)
+        key = key.strip().upper()
+        if key.endswith("PASS") or key.endswith("PASSWORD") or key.endswith("APP_PASSWORD"):
+            text = possible_secret.strip().strip("\"'")
+    return text.replace(" ", "")
 
 def get_from_name() -> str:
     return getattr(settings, 'from_name', 'TrainerSync') or 'TrainerSync'
@@ -227,7 +237,7 @@ def _get_imap_config(smtp_config: Dict[str, Any]) -> Optional[tuple]:
     imap_host = smtp_config.get("imapHost") or ("imap.hostinger.com" if hostinger else "")
     imap_port = int(smtp_config.get("imapPort") or 993)
     imap_user = smtp_config.get("imapUser") or smtp_config.get("smtpUser") or ""
-    imap_pass = (smtp_config.get("imapPass") or smtp_config.get("smtpPass") or "").replace(" ", "")
+    imap_pass = clean_mail_secret(smtp_config.get("imapPass") or smtp_config.get("smtpPass") or "")
     
     if not imap_host or not imap_user or not imap_pass:
         return None
@@ -334,7 +344,7 @@ def _handle_smtp_auth_error(smtp_config: Dict[str, Any], to: str, subject: str, 
 def send_email(to: str, subject: str, body: str, smtp_config: Dict[str, Any] = None, tracking_url: str = "") -> tuple:
     smtp_config = smtp_config or {}
     gmail_user = smtp_config.get("smtpUser") or settings.gmail_user
-    gmail_pass = (smtp_config.get("smtpPass") or get_gmail_password()).replace(" ", "")
+    gmail_pass = clean_mail_secret(smtp_config.get("smtpPass") or get_gmail_password())
     from_name  = smtp_config.get("fromName") or get_from_name()
     from_email = smtp_config.get("fromEmail") or get_from_email()
     smtp_host  = smtp_config.get("smtpHost") or "smtp.gmail.com"
@@ -579,7 +589,7 @@ def check_email_replies(
     mail = None
     try:
         gmail_user = gmail_user or settings.gmail_user
-        gmail_pass = (gmail_pass or get_gmail_password()).replace(" ", "")
+        gmail_pass = clean_mail_secret(gmail_pass or get_gmail_password())
         
         if not _validate_email_check_config(gmail_user, gmail_pass):
             return []

@@ -82,11 +82,15 @@ from agents.email_agent import (
 from agents.client_slot_agent import (
     CLAHAN_CLIENT_COMMERCIAL_MARKUP_INR,
     ClientSlotError,
+    TRAINER_COMMERCIAL_REPLY_MAIL_TYPES,
     client_budget_for_trainer_commercial,
     extract_trainer_commercial_details,
+    is_trainer_commercial_reply_mail_type,
     send_client_slot_options_email,
     send_client_slots_for_email_log,
     send_pending_client_slot_replies,
+    send_trainer_commercial_negotiation_email,
+    send_trainer_commercials_to_client,
 )
 from agents.teams_agent import send_teams_stage_notification
 from agents.excel_store_agent import sync_business_excel, workbook_path
@@ -106,6 +110,7 @@ from agents.client_intelligence_agent import (
     get_gmail_auth_status,
     get_gmail_oauth_url,
     get_gmail_service,
+    get_client_inbox_auto_settings,
     get_history_message_ids,
     auto_send_pending_client_replies_smtp,
     client_reply_auto_send_eligible,
@@ -608,6 +613,16 @@ def _detect_client_interview_decision(subject: str = "", body: str = "") -> dict
     if not text:
         return {"decision": "", "confidence": 0, "reason": "empty"}
     subject_text = str(subject or "").lower().strip()
+    commercial_context = bool(_re.search(r"\b(?:commercial|commercials|budget|rate|rates|pricing|price)\b", text))
+    negotiation_context = bool(_re.search(
+        r"\b(?:not\s+(?:able|comfortable)\s+to\s+proceed|cannot\s+proceed|can't\s+proceed|"
+        r"will\s+not\s+be\s+able\s+to\s+proceed|please\s+check\s+with\s+(?:the\s+)?trainer|"
+        r"check\s+with\s+(?:the\s+)?trainer|if\s+(?:the\s+)?trainer\s+(?:is\s+)?comfortable|"
+        r"if\s+they\s+are\s+comfortable|within\s+(?:our\s+)?budget|budget\s+constraint)\b",
+        text,
+    ))
+    if commercial_context and negotiation_context:
+        return {"decision": "", "confidence": 0, "reason": "commercial budget negotiation context"}
     if (
         _re.match(r"^(accepted|declined|tentatively accepted|updated invitation|canceled|cancelled):", subject_text)
         or "has accepted this invitation" in text
@@ -660,6 +675,301 @@ def _detect_client_interview_decision(subject: str = "", body: str = "") -> dict
         if _re.search(pattern, text):
             return {"decision": "selected", "confidence": 0.86, "reason": pattern}
     return {"decision": "", "confidence": 0, "reason": "no decision phrase"}
+
+
+def _amount_from_money_match(match) -> float:
+    if not match:
+        return 0.0
+    raw = str(match.group(1) or "").replace(",", "")
+    multiplier = 1000 if str(match.group(2) or "").strip().lower() == "k" else 1
+    try:
+        return float(raw) * multiplier
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _money_unit_from_text(text: str = "") -> str:
+    value = str(text or "").lower()
+    if _re.search(r"\b(?:per\s+hour|/hour|hourly|hr)\b", value):
+        return "hour"
+    if _re.search(r"\b(?:per\s+session|/session|session)\b", value):
+        return "session"
+    return "day"
+
+
+def _client_commercial_budget_reply(text: str = "") -> dict:
+    clean = _strip_quoted_reply_text(text or "")
+    lower = _re.sub(r"\s+", " ", clean.lower()).strip()
+    if not lower:
+        return {}
+    has_commercial_context = bool(_re.search(r"\b(?:commercial|commercials|budget|rate|rates|pricing|price)\b", lower))
+    has_negotiation_context = bool(_re.search(
+        r"\b(?:not\s+(?:able|comfortable)\s+to\s+proceed|cannot\s+proceed|can't\s+proceed|"
+        r"will\s+not\s+be\s+able\s+to\s+proceed|please\s+check\s+with\s+(?:the\s+)?trainer|"
+        r"check\s+with\s+(?:the\s+)?trainer|if\s+(?:the\s+)?trainer\s+(?:is\s+)?comfortable|"
+        r"if\s+they\s+are\s+comfortable|within\s+(?:our\s+)?budget|budget\s+constraint)\b",
+        lower,
+    ))
+    if not (has_commercial_context and has_negotiation_context):
+        return {}
+
+    amount = 0.0
+    for pattern in [
+        r"\b(?:our\s+)?budget\D{0,80}(?:inr|rs\.?|rupees?|₹|â‚¹)?\s*([0-9][0-9,]*(?:\.\d{1,2})?)(\s*k)?\b",
+        r"\b(?:consider|workable|comfortable)\D{0,80}(?:inr|rs\.?|rupees?|₹|â‚¹)?\s*([0-9][0-9,]*(?:\.\d{1,2})?)(\s*k)?\b",
+        r"(?:inr|rs\.?|rupees?|₹|â‚¹)\s*([0-9][0-9,]*(?:\.\d{1,2})?)(\s*k)?\b",
+    ]:
+        amount = _amount_from_money_match(_re.search(pattern, lower, flags=_re.IGNORECASE))
+        if amount > 0:
+            break
+    if amount <= 0:
+        return {}
+    return {
+        "amount": amount,
+        "unit": _money_unit_from_text(lower),
+        "text": _commercial_amount_label(amount, _money_unit_from_text(lower)),
+    }
+
+
+def _looks_like_client_commercial_budget_reply(subject: str = "", body: str = "") -> bool:
+    return bool(_client_commercial_budget_reply(f"{subject or ''}\n{body or ''}"))
+
+
+async def _match_trainer_commercial_client_log(db, meta: dict, clean_body: str = "") -> Optional[dict]:
+    from_email = str(meta.get("from_email") or "").strip()
+    if not from_email:
+        return None
+    reply_subject = _norm_subject(meta.get("subject") or "")
+    text = _re.sub(r"\s+", " ", f"{meta.get('subject') or ''} {clean_body or meta.get('snippet') or ''}".lower())
+    logs = await db["email_logs"].find(
+        {
+            "mail_type": "trainer_commercials_to_client",
+            "status": "sent",
+            "to_email": {MONGO_REGEX: f"^{_re.escape(from_email)}$", MONGO_OPTIONS: "i"},
+        },
+        {"_id": 0},
+    ).sort("sent_at", -1).limit(25).to_list(25)
+    if not logs:
+        return None
+
+    scored = []
+    for log in logs:
+        sent_subject = _norm_subject(log.get("subject") or "")
+        trainer_name = str(log.get("trainer_name") or "").strip().lower()
+        requirement_id = str(log.get("requirement_id") or "").strip().lower()
+        score = 0
+        if sent_subject and reply_subject and (sent_subject in reply_subject or reply_subject in sent_subject):
+            score += 260
+        if trainer_name and trainer_name in text:
+            score += 140
+        if requirement_id and requirement_id in text:
+            score += 80
+        if log.get("trainer_commercial") or log.get("client_commercial"):
+            score += 30
+        if _recent_enough(log.get("sent_at") or log.get("created_at"), meta.get("received_at") or utc_now(), days=14):
+            score += 30
+        scored.append((score, log))
+    scored.sort(key=lambda item: item[0], reverse=True)
+    best_score, best_log = scored[0]
+    if best_score >= 120 or (len(scored) == 1 and best_score >= 60):
+        return best_log
+    return None
+
+
+async def _send_client_budget_acknowledgment_email(
+    db,
+    request: Optional[Request],
+    *,
+    source_log: dict,
+    requirement: dict,
+    client_budget: dict,
+    source_message_id: str = "",
+) -> dict:
+    requirement_id = source_log.get("requirement_id") or requirement.get("requirement_id") or ""
+    trainer_id = source_log.get("trainer_id") or ""
+    existing = await db["email_logs"].find_one(
+        {
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "mail_type": "client_budget_acknowledgment",
+            "source_email_id": source_log.get("email_id") or "",
+            "status": "sent",
+        },
+        {"_id": 0, "email_id": 1, "to_email": 1},
+        sort=[("sent_at", -1), ("created_at", -1)],
+    )
+    if existing:
+        return {"success": True, "already_sent": True, "email_id": existing.get("email_id"), "to_email": existing.get("to_email")}
+
+    client_email = source_log.get("to_email") or requirement.get("client_email") or ""
+    client_name = requirement.get("client_name") or requirement.get("client_company") or "Client"
+    trainer_name = source_log.get("trainer_name") or "the trainer"
+    technology = requirement.get("technology_needed") or "training"
+    budget_text = client_budget.get("text") or _commercial_amount_label(client_budget.get("amount"), client_budget.get("unit") or "day")
+    subject = f"RE: Budget Confirmation - {technology} | Negotiation in Progress"
+    body = (
+        f"Dear {client_name},\n\n"
+        f"Thank you for confirming your workable budget of {budget_text} for the {technology} requirement.\n\n"
+        f"We have noted your budget constraint and are checking with Trainer {trainer_name} to see if the commercials can be aligned accordingly. "
+        "If the trainer confirms, we will proceed with the next scheduling step. If not, we will continue identifying an alternate trainer within your budget.\n\n"
+        "We will update you shortly with the outcome.\n\n"
+        "Regards,\n"
+        "Recruitment Team\n"
+        f"{CLAHAN_TECHNOLOGIES}"
+    )
+    email_id = f"CLIENT-BUDGET-ACK-{uuid.uuid4().hex[:8].upper()}"
+    tracking_url = build_tracking_url(request, email_id) if request else ""
+    smtp_config = await get_admin_email_config(db)
+    success, error = await send_email_async(client_email, subject, body, smtp_config, tracking_url)
+    now = utc_now()
+    log_doc = {
+        "email_id": email_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_name,
+        "requirement_id": requirement_id,
+        "to_email": client_email,
+        "client_name": client_name,
+        "client_email": client_email,
+        "subject": subject,
+        "body": body,
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "sent_at": now if success else None,
+        "reply_received": False,
+        "opened": False,
+        "open_count": 0,
+        "tracking_url": tracking_url,
+        "retry_count": 0,
+        "mail_type": "client_budget_acknowledgment",
+        "source": "client_commercial_budget_reply",
+        "source_email_id": source_log.get("email_id") or "",
+        "source_message_id": source_message_id,
+        "commercials": {
+            "client_budget": client_budget.get("amount"),
+            "client_budget_text": budget_text,
+            "unit": client_budget.get("unit") or "day",
+        },
+        "created_at": now,
+    }
+    await db["email_logs"].insert_one(log_doc)
+    await db["client_messages"].insert_one({**log_doc, "direction": "sent"})
+    return {"success": success, "error": error, "email_id": email_id, "to_email": client_email}
+
+
+def _commercial_number_from_text(text: str = "") -> float:
+    return _float_or_zero(text)
+
+
+async def _process_client_commercial_budget_reply(
+    db,
+    meta: dict,
+    request: Optional[Request] = None,
+) -> Optional[dict]:
+    clean_body = _strip_quoted_reply_text(meta.get("clean_body") or meta.get("raw_body") or meta.get("snippet") or "")
+    budget = _client_commercial_budget_reply(f"{meta.get('subject') or ''}\n{clean_body}")
+    if not budget:
+        return None
+    source_log = await _match_trainer_commercial_client_log(db, meta, clean_body)
+    if not source_log:
+        return {
+            "status": "client_commercial_budget_needs_review",
+            "reason": "Could not match the client budget reply to a trainer commercial email",
+            "client_budget": budget,
+        }
+
+    requirement_id = source_log.get("requirement_id") or ""
+    trainer_id = source_log.get("trainer_id") or ""
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    trainer_amount = _commercial_number_from_text(source_log.get("trainer_commercial") or "")
+    previous_client_amount = _commercial_number_from_text(source_log.get("client_commercial") or "")
+    client_budget_amount = _float_or_zero(budget.get("amount"))
+    unit = budget.get("unit") or "day"
+    trainer_target = max(0, client_budget_amount - CLAHAN_CLIENT_COMMERCIAL_MARKUP_INR)
+    issue = {
+        "message": "Client requested commercial alignment before proceeding.",
+        "trainer_amount": trainer_amount,
+        "trainer_text": source_log.get("trainer_commercial") or _commercial_amount_label(trainer_amount, unit),
+        "client_amount": previous_client_amount,
+        "client_text": source_log.get("client_commercial") or _commercial_amount_label(previous_client_amount, unit),
+        "budget_amount": client_budget_amount,
+        "budget_text": budget.get("text") or _commercial_amount_label(client_budget_amount, unit),
+        "trainer_target": trainer_target,
+        "target_text": _commercial_amount_label(trainer_target, unit),
+        "unit": unit,
+        "fixed": True,
+    }
+    ack_result = await _send_client_budget_acknowledgment_email(
+        db,
+        request,
+        source_log=source_log,
+        requirement=requirement,
+        client_budget=budget,
+        source_message_id=meta.get("message_id_header") or meta.get("email_id") or "",
+    )
+    negotiation_result = await send_trainer_commercial_negotiation_email(
+        db,
+        {
+            "trainer_id": trainer_id,
+            "trainer_name": source_log.get("trainer_name") or "",
+            "trainer_email": source_log.get("trainer_email") or source_log.get("trainer_to_email") or "",
+            "to_email": "",
+            "requirement_id": requirement_id,
+        },
+        requirement,
+        issue,
+        tracking_url_builder=(lambda email_id: build_tracking_url(request, email_id)) if request else None,
+        source="client_commercial_budget_reply",
+    )
+    now = utc_now()
+    status = "trainer_commercial_negotiation_requested" if negotiation_result.get("success") else "trainer_commercial_negotiation_failed"
+    await db["requirements"].update_one(
+        {"requirement_id": requirement_id},
+        {"$set": {
+            "client_budget_per_day" if unit != "hour" else "client_budget_per_hour": client_budget_amount,
+            "budget_per_day" if unit != "hour" else "budget_per_hour": client_budget_amount,
+            "client_budget_fixed": True,
+            "client_budget_confirmed_at": now,
+            "client_budget_source_email_id": meta.get("email_id") or "",
+            "latest_trainer_target_commercial": issue.get("target_text"),
+        }},
+    )
+    meta_update = {key: value for key, value in meta.items() if key != "created_at"}
+    await db["client_emails"].update_one(
+        {"email_id": meta.get("email_id") or meta.get("gmail_message_id") or ""},
+        {"$set": {
+            **meta_update,
+            "clean_body": clean_body,
+            "generated_reply": {},
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "trainer_name": source_log.get("trainer_name") or "",
+            "status": status,
+            "confidence": 0.96,
+            "auto_send_eligible": False,
+            "sent_at": None,
+            "client_budget_reply": {
+                "client_budget": client_budget_amount,
+                "client_budget_text": issue.get("budget_text"),
+                "previous_client_commercial": issue.get("client_text"),
+                "trainer_target": trainer_target,
+                "trainer_target_text": issue.get("target_text"),
+            },
+            "client_budget_acknowledgment_result": ack_result,
+            "trainer_commercial_negotiation_result": negotiation_result,
+            "updated_at": now,
+        }, MONGO_SET_ON_INSERT: {"created_at": now}},
+        upsert=True,
+    )
+    return {
+        "status": status,
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_name": source_log.get("trainer_name") or "",
+        "client_budget": issue.get("budget_text"),
+        "trainer_target": issue.get("target_text"),
+        "client_acknowledgment": ack_result,
+        "trainer_negotiation": negotiation_result,
+    }
 
 
 def _decision_mail_templates(trainer: dict, requirement: dict, decision: str, client_note: str = "") -> list:
@@ -1017,6 +1327,25 @@ def _toc_missing_client_inputs(requirement: dict, payload: Optional[dict] = None
     return missing
 
 
+async def _current_toc_input_request_count(db, requirement: dict) -> int:
+    request_count = requirement.get("toc_input_request_count") or 0
+    try:
+        request_count = int(request_count)
+    except (TypeError, ValueError):
+        request_count = 0
+    requirement_id = requirement.get("requirement_id") or ""
+    if requirement_id:
+        sent_count = await db["email_logs"].count_documents(
+            {
+                "requirement_id": requirement_id,
+                "mail_type": "client_toc_details_request",
+                "status": "sent",
+            }
+        )
+        request_count = max(request_count, sent_count)
+    return request_count
+
+
 async def _send_toc_details_request_to_client(  # nosonar
     db,
     request: Optional[Request],
@@ -1029,6 +1358,15 @@ async def _send_toc_details_request_to_client(  # nosonar
     client_email = str(requirement.get("client_email") or "").strip()
     if not client_email:
         return {"success": False, "error": "Client email is required to request TOC inputs"}
+    current_count = await _current_toc_input_request_count(db, requirement)
+    if current_count >= 2:
+        return {
+            "success": False,
+            "status": "toc_input_request_limit_reached",
+            "error": "TOC details request already sent twice. No further client prompts will be sent.",
+            "request_count": current_count,
+            "mail_type": "client_toc_details_request",
+        }
     client_name = requirement.get("client_name") or requirement.get("client_company") or "Client"
     technology = requirement.get("technology_needed") or requirement.get("job_title") or "Training"
     trainer_name = (trainer or {}).get("name") or (trainer or {}).get("trainer_name") or requirement.get("selected_trainer_name") or "selected trainer"
@@ -1084,14 +1422,17 @@ async def _send_toc_details_request_to_client(  # nosonar
     }
     await db["email_logs"].insert_one(log_doc)
     await db["conversations"].insert_one({**log_doc, "direction": "client_sent", "error": error if not success else ""})
+    update_fields = {
+        "toc_input_status": "requested" if success else "request_failed",
+        "toc_input_requested_at": now,
+        "toc_input_request_email_id": email_id,
+        "toc_missing_inputs": missing,
+    }
+    if success:
+        update_fields["toc_input_request_count"] = (requirement.get("toc_input_request_count") or 0) + 1
     await db["requirements"].update_one(
         {"requirement_id": requirement.get("requirement_id")},
-        {"$set": {
-            "toc_input_status": "requested" if success else "request_failed",
-            "toc_input_requested_at": now,
-            "toc_input_request_email_id": email_id,
-            "toc_missing_inputs": missing,
-        }},
+        {"$set": update_fields},
     )
     return {"success": success, "error": error, "email_id": email_id, "to_email": client_email, "missing": missing}
 
@@ -1103,6 +1444,7 @@ async def _auto_generate_and_send_toc(  # nosonar
     trainer: dict,
     requirement: dict,
     source: str = "automation",
+    send_email: bool = True,
 ) -> dict:
     trainer_id = trainer.get("trainer_id") or ""
     requirement_id = requirement.get("requirement_id") or ""
@@ -1115,6 +1457,16 @@ async def _auto_generate_and_send_toc(  # nosonar
 
     missing_inputs = _toc_missing_client_inputs(requirement)
     if missing_inputs:
+        request_count = await _current_toc_input_request_count(db, requirement)
+        if request_count >= 2:
+            return {
+                "success": False,
+                "status": "toc_input_request_limit_reached",
+                "error": "TOC details request already sent twice. No further client prompts will be sent.",
+                "mail_type": "client_toc_details_request",
+                "missing_inputs": missing_inputs,
+                "request_count": request_count,
+            }
         request_result = await _send_toc_details_request_to_client(
             db,
             request,
@@ -1130,6 +1482,7 @@ async def _auto_generate_and_send_toc(  # nosonar
             "mail_type": "client_toc_details_request",
             "details_request": request_result,
             "missing_inputs": missing_inputs,
+            "request_count": request_count + (1 if request_result.get("success") else 0),
         }
 
     existing = await db["toc_documents"].find_one(
@@ -1233,6 +1586,15 @@ async def _auto_generate_and_send_toc(  # nosonar
             {"$set": doc},
             upsert=True,
         )
+
+        if not send_email:
+            return {
+                "success": True,
+                "status": "draft_created",
+                "mail_type": "mail6_toc",
+                "toc_id": toc_id,
+                "draft": True,
+            }
 
         subject = f"AI Generated ToC / Course Agenda - {technology}"
         body = (
@@ -2616,6 +2978,9 @@ async def _process_and_store_client_decision_message(
     full_meta = fetch_gmail_email(message_id, gmail_service)
     if meta_hint:
         full_meta = {**meta_hint, **full_meta}
+    commercial_budget_result = await _process_client_commercial_budget_reply(db, full_meta, request)
+    if commercial_budget_result:
+        return commercial_budget_result
     decision_result = await _process_client_interview_decision(db, full_meta, request)
     if not decision_result:
         return None
@@ -2972,8 +3337,16 @@ async def _process_client_purchase_order_email(db, processed: dict, request: Opt
 async def _process_and_store_client_message(db, message_id: str, gmail_service, request: Optional[Request] = None) -> dict:  # nosonar
     settings = await _client_inbox_settings(db)
     processed = await process_client_email(message_id, gmail_service)
-    existing = await db["client_emails"].find_one({"email_id": processed.get("email_id")}, {"_id": 1, "status": 1})
-    if existing:
+    existing = await db["client_emails"].find_one(
+        {"email_id": processed.get("email_id")},
+        {"_id": 1, "status": 1, "extracted": 1, "created_at": 1},
+    )
+    reprocess_pending_review = bool(
+        existing
+        and existing.get("status") == "pending_review"
+        and not existing.get("extracted")
+    )
+    if existing and not reprocess_pending_review:
         return {"status": "already_processed", "email_id": processed.get("email_id")}
 
     trainer_thread = await find_matching_trainer_outbound_thread(
@@ -2984,17 +3357,33 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
     )
     if trainer_thread:
         inbox_doc = await record_trainer_reply_from_client_inbox(db, processed, trainer_thread)
+        commercial_result = await _auto_send_trainer_commercials_to_client(
+            db,
+            request,
+            log=trainer_thread,
+            reply={
+                "body": processed.get("clean_body") or processed.get("raw_body") or "",
+                "message_id_header": processed.get("message_id_header") or "",
+                "msg_id": processed.get("email_id") or message_id,
+            },
+            source="client_inbox_trainer_thread",
+        )
         return {
             "status": "routed_to_trainer_reply",
             "email_id": inbox_doc.get("email_id"),
             "requirement_id": inbox_doc.get("requirement_id"),
             "trainer_id": inbox_doc.get("trainer_id"),
             "source_email_id": inbox_doc.get("trainer_reply_source_email_id"),
+            "trainer_commercials_to_client_result": commercial_result,
         }
 
     po_result = await _process_client_purchase_order_email(db, processed, request)
     if po_result:
         return po_result
+
+    commercial_budget_result = await _process_client_commercial_budget_reply(db, processed, request)
+    if commercial_budget_result:
+        return commercial_budget_result
 
     slot_doc = await _matching_client_slot_email(db, processed, processed.get("clean_body") or "")
     if slot_doc:
@@ -3181,7 +3570,13 @@ async def _process_and_store_client_message(db, message_id: str, gmail_service, 
             inbox_doc["client_closure_ack_sent"] = False
             inbox_doc["client_closure_ack_error"] = str(exc)
 
-    await db["client_emails"].insert_one(inbox_doc)
+    if existing and existing.get("created_at"):
+        inbox_doc["created_at"] = existing["created_at"]
+    await db["client_emails"].update_one(
+        {"email_id": inbox_doc["email_id"]},
+        {"$set": inbox_doc},
+        upsert=True,
+    )
     if requirement_id and inbox_doc.get("status") != "client_closed_requirement":
         requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
         await send_teams_stage_notification(
@@ -4106,36 +4501,15 @@ async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_r
             "message": "SMTP-only mode can send eligible pending replies, but it cannot read new inbox mail.",
         }
 
-    # Use Gmail API if IMAP not configured
-    result = await poll_gmail_api_client_inbox(db)
-    if not result.get("skipped"):
-        await db["gmail_sync"].update_one(
-            {"sync_id": "default"},
-            {"$set": {
-                "last_manual_sync_at": utc_now(),
-                "last_manual_sync_provider": "gmail_api",
-                "last_manual_sync_processed": int(result.get("processed") or 0),
-                "last_manual_sync_auto_sent_existing": int(result.get("auto_sent_existing") or 0),
-                "last_manual_sync_skipped": 0,
-                "last_manual_sync_errors": [],
-            }},
-            upsert=True,
-        )
-        return {
-            "success": True,
-            "provider": "gmail_api",
-            "processed": [],
-            "processed_count": int(result.get("processed") or 0),
-            "skipped": 0,
-            "already_processed": 0,
-            "auto_sent_existing": [],
-            "auto_sent_existing_count": int(result.get("auto_sent_existing") or 0),
-            "errors": [],
-            "message": result.get("message"),
-        }
-    
+    gmail_error = ""
+    try:
+        service = get_gmail_service()
+    except Exception as exc:
+        service = None
+        gmail_error = str(exc)
+
     # Fallback to IMAP if Gmail API is unavailable and IMAP is configured.
-    if settings.get("inboxProvider") in {"imap", "imap_poll", "imap_polling"}:
+    if service is None and settings.get("inboxProvider") in {"imap", "imap_poll", "imap_polling"}:
         result = await poll_imap_client_inbox(db)
         await db["gmail_sync"].update_one(
             {"sync_id": "default"},
@@ -4162,7 +4536,31 @@ async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_r
             "imap": result,
         }
 
-    service = get_gmail_service()
+    if service is None:
+        await db["gmail_sync"].update_one(
+            {"sync_id": "default"},
+            {"$set": {
+                "last_manual_sync_at": utc_now(),
+                "last_manual_sync_provider": "gmail_api",
+                "last_manual_sync_processed": 0,
+                "last_manual_sync_auto_sent_existing": 0,
+                "last_manual_sync_skipped": 1,
+                "last_manual_sync_errors": [gmail_error],
+            }},
+            upsert=True,
+        )
+        return {
+            "success": False,
+            "provider": "gmail_api",
+            "processed": [],
+            "processed_count": 0,
+            "skipped": 1,
+            "already_processed": 0,
+            "auto_sent_existing": [],
+            "auto_sent_existing_count": 0,
+            "errors": [{"provider": "gmail_api", "error": gmail_error}],
+        }
+
     whitelist = _parse_domain_csv(settings.get("clientDomainsWhitelist", ""))
     processed = []
     skipped = 0
@@ -4207,7 +4605,12 @@ async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_r
         if not message_id:
             continue
         existing = await db["client_emails"].find_one({"email_id": message_id}, {"_id": 0})
-        if existing:
+        reprocess_pending_review = bool(
+            existing
+            and existing.get("status") == "pending_review"
+            and not existing.get("extracted")
+        )
+        if existing and not reprocess_pending_review:
             has_decision = bool(
                 existing.get("post_interview_decision")
                 or (existing.get("extracted") or {}).get("post_interview_decision")
@@ -4263,6 +4666,25 @@ async def _sync_recent_client_inbox(db, request: Optional[Request] = None, max_r
                 meta.get("snippet", ""),
             )
             if not likely_training:
+                if reprocess_pending_review:
+                    await db["client_emails"].update_one(
+                        {"email_id": message_id},
+                        {"$set": {
+                            **meta,
+                            "extracted": {"is_training_request": False, "confidence": 0},
+                            "generated_reply": {},
+                            "requirement_id": None,
+                            "status": "spam",
+                            "confidence": 0,
+                            "auto_send_eligible": False,
+                            "sent_at": None,
+                            "sent_by": None,
+                            "whatsapp_notified": False,
+                            "updated_at": utc_now(),
+                        }},
+                    )
+                    processed.append({"status": "spam", "email_id": message_id})
+                    continue
                 skipped += 1
                 continue
             processed.append(await _process_and_store_client_message(db, message_id, service, request))
@@ -5332,22 +5754,69 @@ async def test_email_settings(payload: dict = {}):
 async def diagnose_auto_send():
     """Diagnose why client emails are not being auto-sent"""
     db = get_db()
-    settings = await get_admin_email_config(db)
+    settings = await get_client_inbox_auto_settings(db)
+    email_cfg = await get_admin_email_config(db)
+    whitelist = set(_parse_domain_csv(settings.get("clientDomainsWhitelist", "")))
+    threshold = float(settings.get("autoSendThreshold", 70)) / 100
     
     diagnostics = {
         "auto_send_enabled": settings.get("autoSendEnabled", False),
-        "auto_send_threshold": float(settings.get("autoSendThreshold", 70)) / 100,
-        "client_domains_whitelist": settings.get("clientDomainsWhitelist", "").split(",") if settings.get("clientDomainsWhitelist") else [],
-        "gmail_configured": bool(settings.get("gmailUser") or settings.get("clientId")),
-        "smtp_configured": bool(settings.get("smtpUser") and settings.get("smtpPass")),
-        "reply_signature": "✓" if settings.get("replySignature") else "✗ Missing",
+        "auto_send_threshold": threshold,
+        "client_domains_whitelist": sorted(whitelist),
+        "inbox_provider": settings.get("inboxProvider"),
+        "smtp_configured": bool(email_cfg.get("smtpUser") and email_cfg.get("smtpPass")),
+        "reply_signature": "configured" if settings.get("replySignature") else "missing",
     }
     
     # Check for pending emails
     pending_emails = await db["client_emails"].find(
         {"status": "pending_approval", "sent_at": None},
-        {"_id": 0, "email_id": 1, "from_email": 1, "subject": 1, "confidence": 1, "auto_send_eligible": 1}
+        {
+            "_id": 0,
+            "email_id": 1,
+            "from_email": 1,
+            "subject": 1,
+            "confidence": 1,
+            "auto_send_eligible": 1,
+            "generated_reply.body": 1,
+            "generated_reply.asks_for_clarification": 1,
+            "extracted": 1,
+            "extraction_error": 1,
+        }
     ).limit(10).to_list(10)
+
+    pending_with_reasons = []
+    eligible_pending_count = 0
+    for item in pending_emails:
+        extracted = item.get("extracted") or {}
+        generated_reply = item.get("generated_reply") or {}
+        confidence = float(item.get("confidence") or extracted.get("confidence") or 0)
+        domain = sender_domain(item.get("from_email", ""))
+        domain_is_allowed = not whitelist or domain in whitelist
+        eligible = client_reply_auto_send_eligible(extracted, generated_reply, confidence, settings, domain_is_allowed)
+        if eligible:
+            eligible_pending_count += 1
+        reasons = []
+        if not settings.get("autoSendEnabled"):
+            reasons.append("auto_send_disabled")
+        if not item.get("from_email"):
+            reasons.append("missing_from_email")
+        if not generated_reply.get("body"):
+            reasons.append("missing_generated_reply")
+        if whitelist and not domain_is_allowed:
+            reasons.append("domain_not_whitelisted")
+        if confidence < threshold and not generated_reply.get("asks_for_clarification"):
+            reasons.append("confidence_below_threshold")
+        if item.get("extraction_error"):
+            reasons.append("last_error_present")
+        pending_with_reasons.append({
+            **{k: v for k, v in item.items() if k not in {"generated_reply", "extracted"}},
+            "confidence": confidence,
+            "domain": domain,
+            "eligible_if_enabled": eligible,
+            "has_generated_reply": bool(generated_reply.get("body")),
+            "reasons": reasons,
+        })
     
     # Check for failed auto-sends
     failed_sends = await db["client_emails"].find(
@@ -5357,13 +5826,14 @@ async def diagnose_auto_send():
     
     return {
         "settings": diagnostics,
-        "pending_count": len(pending_emails),
-        "pending_emails": pending_emails,
+        "pending_count": await db["client_emails"].count_documents({"status": "pending_approval", "sent_at": None}),
+        "eligible_pending_sample_count": eligible_pending_count,
+        "pending_emails": pending_with_reasons,
         "failed_sends_count": len(failed_sends),
         "failed_sends": failed_sends,
         "requirements": {
             "auto_send_enabled_required": "Must be TRUE for auto-send",
-            "whitelist_or_known_client_required": "Whitelist domains OR email must be from known client",
+            "domain_rule": "If whitelist is configured, sender domain must be listed. Empty whitelist allows any domain.",
             "confidence_threshold_required": f"Email confidence must be >= {diagnostics['auto_send_threshold']*100}%",
         }
     }
@@ -7206,6 +7676,13 @@ async def request_client_budget_increase(requirement_id: str, payload: dict, req
         or "Client"
     )
     technology = requirement.get("technology_needed") or payload.get("technology") or "training"
+    trainer_name = str(
+        payload.get("trainer_name")
+        or requirement.get("latest_commercial_trainer_name")
+        or requirement.get("selected_trainer_name")
+        or ""
+    ).strip()
+    trainer_reference = f"Trainer {trainer_name}" if trainer_name else "this trainer"
     current_budget = _float_or_zero(payload.get("current_budget") or requirement.get("budget_per_day") or requirement.get("budget_total"))
     requested_budget = _float_or_zero(payload.get("requested_budget"))
     increment = _float_or_zero(payload.get("increment") or 5000)
@@ -7237,14 +7714,16 @@ async def request_client_budget_increase(requirement_id: str, payload: dict, req
             "unit": (existing_request.get("commercials") or {}).get("unit") or unit_label,
         }
 
-    subject = payload.get("subject") or f"Commercial Revision Request - {technology} Training"
+    subject = payload.get("subject") or f"Final Commercial Confirmation Required - {technology} Training"
     body = payload.get("body") or (
         f"Dear {client_name},\n\n"
         f"Thank you for the update regarding the {technology} training requirement.\n\n"
-        "Based on current trainer availability, required experience level, and the quality expectations for this engagement, "
+        f"This is our final commercial check for {trainer_reference}. Based on the trainer's profile, relevant experience, "
+        "availability, and expected ability to deliver the required content effectively, "
         f"we request you to kindly consider revising the commercial budget to INR {requested_budget:,.0f} per {unit_label}.\n\n"
-        "This revision will help us align with a suitable trainer profile and proceed without delays.\n\n"
-        "Please confirm if this revised commercial is workable from your side, so we can move ahead with the next steps.\n\n"
+        "If this revised commercial is workable, we can continue with this trainer and move to the next scheduling step. "
+        "If not, we will continue searching for another suitable trainer within your confirmed budget.\n\n"
+        "Please confirm how you would like us to proceed.\n\n"
         "Regards,\n"
         "Recruitment Team\n"
         f"{CLAHAN_TECHNOLOGIES}"
@@ -7258,7 +7737,7 @@ async def request_client_budget_increase(requirement_id: str, payload: dict, req
     log_doc = {
         "email_id": email_id,
         "trainer_id": trainer_id,
-        "trainer_name": str(payload.get("trainer_name") or ""),
+        "trainer_name": trainer_name,
         "requirement_id": requirement_id,
         "to_email": client_email,
         "client_name": client_name,
@@ -7496,12 +7975,17 @@ async def _handle_trainer_commercial_negotiation_reply(
         technology = requirement.get("technology_needed") or "training"
         current_budget = budget_amount or _float_or_zero(requirement.get("budget_per_day") or requirement.get("budget_total"))
         client_name = requirement.get("client_name") or requirement.get("client_company") or "Client"
+        trainer_name = log.get("trainer_name") or THE_TRAINER
         body = (
             f"Dear {client_name},\n\n"
-            f"The trainer shortlisted for the {technology} requirement has requested {trainer_text}.\n\n"
+            f"Trainer {trainer_name} has requested {trainer_text} for the {technology} requirement.\n\n"
             f"Including Clahan Technologies coordination, the revised commercial will be {client_text}.\n\n"
-            "Please confirm if this is acceptable to proceed with this trainer. "
-            "If this is not workable, we will continue searching and share another suitable trainer profile.\n\n"
+            "This is our final commercial check for this particular trainer. Considering the trainer's profile, relevant experience, "
+            "availability, and expected ability to deliver the required content effectively, we recommend considering this revised commercial "
+            "if you would like to proceed with this trainer.\n\n"
+            "If this revised commercial is workable, we will continue with this trainer and move to the next scheduling step. "
+            "If not, we will continue searching and share another suitable trainer profile within your confirmed budget.\n\n"
+            "Please confirm how you would like us to proceed.\n\n"
             "Regards,\n"
             "Recruitment Team\n"
             f"{CLAHAN_TECHNOLOGIES}"
@@ -7510,12 +7994,12 @@ async def _handle_trainer_commercial_negotiation_reply(
             requirement_id,
             {
                 "trainer_id": trainer_id,
-                "trainer_name": log.get("trainer_name") or "",
+                "trainer_name": trainer_name,
                 "current_budget": current_budget,
                 "requested_budget": requested_client_amount,
                 "increment": max(0, requested_client_amount - current_budget) if current_budget else CLAHAN_CLIENT_COMMERCIAL_MARKUP_INR,
                 "unit": counter.get("unit") or unit,
-                "subject": f"Commercial Confirmation Required - {technology} Training",
+                "subject": f"Final Commercial Confirmation Required - {technology} Training",
                 "body": body,
             },
             request,
@@ -9428,13 +9912,8 @@ def _single_trainer_pipeline_template(trainer_name: str, payload: dict, context:
             "subject": f"Action Required: ToC / Course Agenda - {domain}",
             "body": (
                 f"{greeting}\n\n"
-                f"Congratulations again on being selected for the {domain} training!\n\n"
-                "To initiate the onboarding process, kindly share the following at the earliest:\n\n"
-                "* Detailed Table of Contents (ToC) / Course Agenda\n"
-                "* Day-wise session breakdown\n"
-                "* Tools, software, or prerequisites required by participants\n"
-                "* Estimated preparation time needed\n\n"
-                "Please revert at the earliest so we can coordinate with the client on schedule.\n\n"
+                "Please share the Training Table of Contents / Course Agenda, including the day-wise session breakdown, tools or prerequisites required, and any preparation notes.\n\n"
+                "Once we receive these details, we will coordinate with the client and trainer to finalize the agenda.\n\n"
                 "Regards,\nTrainerSync Team"
             ),
         }
@@ -10595,7 +11074,8 @@ async def reschedule_interview_reminder_route(reminder_id: str, payload: dict, r
 @router.get("/requirements")
 async def get_requirements():
     db = get_db()
-    reqs = await db["requirements"].find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    query = {"status": {"$nin": ["archived", "misclassified_promotion"]}}
+    reqs = await db["requirements"].find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
     return {"requirements": reqs}
 
 
@@ -11497,6 +11977,118 @@ async def _process_pending_client_slot_confirmations_from_logs(
     return {"checked": len(logs), "processed": processed, "skipped": skipped, "failed": failed}
 
 
+async def _auto_send_trainer_commercials_to_client(
+    db,
+    request: Optional[Request],
+    *,
+    log: dict,
+    reply: dict,
+    source: str = "trainer_details_reply",
+) -> dict:
+    if not is_trainer_commercial_reply_mail_type((log or {}).get("mail_type")):
+        return {"skipped": True, "reason": "Not a trainer details reply"}
+
+    previous = (log or {}).get("trainer_commercials_to_client_result") or {}
+    if previous.get("success"):
+        return {
+            "skipped": True,
+            "already_sent": True,
+            "reason": "Trainer commercials already sent to client",
+            "email_id": previous.get("email_id"),
+        }
+
+    try:
+        result = await send_trainer_commercials_to_client(
+            db,
+            {
+                "trainer_id": log.get("trainer_id") or "",
+                "trainer_name": log.get("trainer_name") or THE_TRAINER,
+                "trainer_email": log.get("to_email") or "",
+                "requirement_id": log.get("requirement_id") or "",
+                "trainer_reply": reply.get("body") or log.get("reply_text") or "",
+                "source_email_id": log.get("email_id") or "",
+                "source_message_id": (
+                    reply.get("message_id_header")
+                    or reply.get("msg_id")
+                    or log.get("reply_message_id")
+                    or ""
+                ),
+            },
+            tracking_url_builder=(lambda email_id: build_tracking_url(request, email_id)) if request else None,
+            source=source,
+            request_base_url=_request_base_url(request) if request else "",
+        )
+    except Exception as exc:
+        logger.exception("Failed to send trainer commercials to client")
+        result = {
+            "success": False,
+            "error": str(exc),
+            "status": "trainer_commercials_to_client_failed",
+        }
+
+    if log.get("email_id"):
+        await db["email_logs"].update_one(
+            {"email_id": log.get("email_id")},
+            {"$set": {
+                "trainer_commercials_to_client_result": result,
+                "trainer_commercials_to_client_checked_at": utc_now(),
+            }},
+        )
+    return result
+
+
+async def _process_pending_trainer_commercials_to_client(
+    db,
+    request: Optional[Request],
+    *,
+    limit: int = 25,
+) -> dict:
+    logs = await db["email_logs"].find(
+        {
+            "mail_type": {MONGO_IN: sorted(TRAINER_COMMERCIAL_REPLY_MAIL_TYPES)},
+            "status": "sent",
+            "reply_received": True,
+            "reply_text": {"$nin": [None, ""]},
+            "$or": [
+                {"trainer_commercials_to_client_result": {MONGO_EXISTS: False}},
+                {
+                    "trainer_commercials_to_client_result.success": {"$ne": True},
+                    "trainer_commercials_to_client_result.skipped": {"$ne": True},
+                },
+                {"trainer_commercials_to_client_result.reason": "Not a trainer details reply"},
+            ],
+        },
+        {"_id": 0},
+    ).sort("replied_at", -1).limit(limit).to_list(limit)
+
+    results = []
+    sent = 0
+    failed = 0
+    skipped = 0
+    for log in logs:
+        reply = {
+            "body": log.get("reply_text") or "",
+            "message_id_header": log.get("reply_message_id") or "",
+            "subject": f"Re: {log.get('subject', '')}",
+        }
+        result = await _auto_send_trainer_commercials_to_client(
+            db,
+            request,
+            log=log,
+            reply=reply,
+            source="pending_trainer_details_reply",
+        )
+        results.append(result)
+        if result.get("skipped") or result.get("already_sent"):
+            skipped += 1
+        elif result.get("success"):
+            sent += 1
+        else:
+            failed += 1
+
+    return {"checked": len(logs), "sent": sent, "failed": failed, "skipped": skipped, "results": results}
+
+
 def _looks_like_extra_training_question(text: str = "") -> bool:
     body = str(text or "").strip().lower()
     if not body:
@@ -12133,12 +12725,31 @@ async def manual_reply_check(request: Request):
     extra_question_ai_replies_failed = 0
     extra_question_ai_reply_results = []
     commercial_negotiation_results = []
+    trainer_commercial_client_results = []
+    trainer_commercial_client_sent = 0
+    trainer_commercial_client_failed = 0
     client_toc_detail_results = []
     next_trainer_followups = []
 
     async def process_client_decision_reply(reply: dict, from_email: str, replied_at):
         body = reply.get("body") or ""
         subject = reply.get("subject") or ""
+        meta = {
+            "email_id": reply.get("msg_id") or reply.get("message_id_header") or f"reply-{hashlib.sha256((subject + body).encode('utf-8')).hexdigest()[:16]}",
+            "gmail_message_id": reply.get("msg_id") or reply.get("message_id_header") or "",
+            "thread_id": reply.get("thread_id") or "",
+            "from_email": from_email,
+            "from_name": reply.get("from_name") or "",
+            "subject": subject,
+            "clean_body": body,
+            "raw_body": body,
+            "snippet": body[:500],
+            "received_at": replied_at,
+            "message_id_header": reply.get("message_id_header", ""),
+        }
+        commercial_budget_result = await _process_client_commercial_budget_reply(db, meta, request)
+        if commercial_budget_result:
+            return commercial_budget_result
         if not _detect_client_interview_decision(subject, body).get("decision"):
             return None
         slot_meta = {
@@ -12164,18 +12775,6 @@ async def manual_reply_check(request: Request):
         )
         if not client_match and not slot_mail_match:
             return None
-        meta = {
-            "email_id": reply.get("msg_id") or reply.get("message_id_header") or f"reply-{hashlib.sha256((subject + body).encode('utf-8')).hexdigest()[:16]}",
-            "gmail_message_id": reply.get("msg_id") or reply.get("message_id_header") or "",
-            "thread_id": reply.get("thread_id") or "",
-            "from_email": from_email,
-            "from_name": reply.get("from_name") or "",
-            "subject": subject,
-            "clean_body": body,
-            "raw_body": body,
-            "snippet": body[:500],
-            "received_at": replied_at,
-        }
         result = await _process_client_interview_decision(db, meta, request)
         if result:
             await _save_post_interview_decision_email(db, meta, result)
@@ -12254,6 +12853,32 @@ async def manual_reply_check(request: Request):
                 skipped_duplicates += 1
                 continue
             if existing_reply.get("trainer_id") and existing_reply.get("requirement_id"):
+                commercial_log = await db["email_logs"].find_one(
+                    {
+                        "trainer_id": existing_reply.get("trainer_id"),
+                        "requirement_id": existing_reply.get("requirement_id"),
+                        "to_email": {MONGO_REGEX: f"^{_re.escape(from_email_clean)}$", MONGO_OPTIONS: "i"},
+                        "mail_type": {MONGO_IN: sorted(TRAINER_COMMERCIAL_REPLY_MAIL_TYPES)},
+                        "status": "sent",
+                    },
+                    {"_id": 0},
+                    sort=[("sent_at", -1), ("created_at", -1)],
+                )
+                if commercial_log:
+                    commercial_client_result = await _auto_send_trainer_commercials_to_client(
+                        db,
+                        request,
+                        log=commercial_log,
+                        reply=reply,
+                        source="duplicate_reply_recheck",
+                    )
+                    if commercial_client_result and not commercial_client_result.get("skipped"):
+                        trainer_commercial_client_results.append(commercial_client_result)
+                        if commercial_client_result.get("success"):
+                            trainer_commercial_client_sent += 1
+                        else:
+                            trainer_commercial_client_failed += 1
+
                 slot_log = await db["email_logs"].find_one(
                     {
                         "trainer_id": existing_reply.get("trainer_id"),
@@ -12469,6 +13094,20 @@ async def manual_reply_check(request: Request):
                 processed += 1
                 continue
 
+            commercial_client_result = await _auto_send_trainer_commercials_to_client(
+                db,
+                request,
+                log=log,
+                reply=reply,
+                source="manual_reply_check",
+            )
+            if commercial_client_result and not commercial_client_result.get("skipped"):
+                trainer_commercial_client_results.append(commercial_client_result)
+                if commercial_client_result.get("success"):
+                    trainer_commercial_client_sent += 1
+                else:
+                    trainer_commercial_client_failed += 1
+
             extra_reply_result = await _auto_reply_extra_training_question(
                 db,
                 request,
@@ -12508,6 +13147,15 @@ async def manual_reply_check(request: Request):
         else:
             skipped_unmatched += 1
 
+    commercial_client_pending_scan = await _process_pending_trainer_commercials_to_client(
+        db,
+        request,
+        limit=25,
+    )
+    trainer_commercial_client_sent += commercial_client_pending_scan.get("sent", 0)
+    trainer_commercial_client_failed += commercial_client_pending_scan.get("failed", 0)
+    trainer_commercial_client_results.extend(commercial_client_pending_scan.get("results") or [])
+
     pending_slot_scan = {"checked": 0, "sent": 0, "failed": 0, "results": [], "manual_only": True}
     client_slot_auto_sent += pending_slot_scan.get("sent", 0)
     client_slot_auto_failed += pending_slot_scan.get("failed", 0)
@@ -12543,6 +13191,10 @@ async def manual_reply_check(request: Request):
         "client_po_results": client_po_results,
         "client_toc_details_processed": len(client_toc_detail_results),
         "client_toc_detail_results": client_toc_detail_results,
+        "trainer_commercial_client_sent": trainer_commercial_client_sent,
+        "trainer_commercial_client_failed": trainer_commercial_client_failed,
+        "trainer_commercial_client_checked": commercial_client_pending_scan.get("checked", 0),
+        "trainer_commercial_client_results": trainer_commercial_client_results,
         "extra_question_ai_replies_sent": extra_question_ai_replies_sent,
         "extra_question_ai_replies_failed": extra_question_ai_replies_failed,
         "extra_question_ai_reply_results": extra_question_ai_reply_results,
@@ -14504,23 +15156,82 @@ async def gmail_sync_now(request: Request, limit: int = 25):
         raise HTTPException(500, f"Gmail sync failed: {exc}") from exc
 
 
+def _parse_inbox_date(value: Optional[str]) -> Optional[datetime]:
+    if not value:
+        return None
+    raw = str(value).strip()
+    if not raw:
+        return None
+    if raw.endswith("Z"):
+        raw = f"{raw[:-1]}+00:00"
+    try:
+        parsed = datetime.fromisoformat(raw)
+    except ValueError:
+        raise HTTPException(400, "Invalid inbox date filter")
+    if parsed.tzinfo:
+        return parsed.astimezone(timezone.utc).replace(tzinfo=None)
+    return parsed
+
+
+def _local_today_range(timezone_offset: Optional[int] = None) -> tuple[datetime, datetime]:
+    try:
+        offset_minutes = int(timezone_offset or 0)
+    except (TypeError, ValueError):
+        offset_minutes = 0
+    local_now = utc_now() - timedelta(minutes=offset_minutes)
+    local_start = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
+    start_utc = local_start + timedelta(minutes=offset_minutes)
+    return start_utc, start_utc + timedelta(days=1)
+
+
 @router.get("/inbox")
-async def get_client_inbox(status: Optional[str] = None, page: int = 1, limit: int = 20):
+async def get_client_inbox(
+    status: Optional[str] = None,
+    date_filter: Optional[str] = None,
+    since: Optional[str] = None,
+    until: Optional[str] = None,
+    has_requirement: Optional[bool] = None,
+    timezone_offset: Optional[int] = None,
+    page: int = 1,
+    limit: int = 20,
+):
     db = get_db()
     query = {}
     if status and status != "all":
         query["status"] = status
+    else:
+        query["status"] = {"$nin": ["spam", "pending_review"]}
+    if has_requirement:
+        query["requirement_id"] = {"$nin": [None, ""]}
+    range_start = _parse_inbox_date(since)
+    range_end = _parse_inbox_date(until)
+    if date_filter == "today" and not range_start and not range_end:
+        range_start, range_end = _local_today_range(timezone_offset)
+    if range_start or range_end:
+        date_query = {}
+        if range_start:
+            date_query["$gte"] = range_start
+        if range_end:
+            date_query["$lt"] = range_end
+        query["received_at"] = date_query
     total = await db["client_emails"].count_documents(query)
     skip = (max(page, 1) - 1) * limit
     docs = await db["client_emails"].find(query, {"_id": 0}).sort("received_at", -1).skip(skip).limit(limit).to_list(limit)
-    today = utc_now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start, today_end = _local_today_range(timezone_offset)
+    visible_status_query = {"status": {"$nin": ["spam", "pending_review"]}}
     stats = {
-        "today": await db["client_emails"].count_documents({"received_at": {"$gte": today}}),
+        "today": await db["client_emails"].count_documents({
+            **visible_status_query,
+            "received_at": {"$gte": today_start, "$lt": today_end},
+        }),
         "pending_approval": await db["client_emails"].count_documents({"status": "pending_approval"}),
         "auto_sent": await db["client_emails"].count_documents({"status": "auto_sent"}),
         "sent": await db["client_emails"].count_documents({"status": "sent"}),
         "office_replies": await db["client_emails"].count_documents({"office_mail_category": {"$nin": [None, ""]}}),
-        "requirements_created": await db["client_emails"].count_documents({"requirement_id": {"$nin": [None, ""]}}),
+        "requirements_created": await db["client_emails"].count_documents({
+            **visible_status_query,
+            "requirement_id": {"$nin": [None, ""]},
+        }),
     }
     whatsapp_logs = await db["whatsapp_logs"].find(
         {"event_type": "client_requirement_inbox"},
