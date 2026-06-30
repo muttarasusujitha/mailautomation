@@ -86,3 +86,157 @@ async def delete_requirement(
     result = await db.requirements.delete_one({"_id": ObjectId(req_id)})
     if result.deleted_count == 0:
         raise HTTPException(404, "Requirement not found")
+
+
+
+# ─── Client PO + budget routes ────────────────────────────────────────────────
+
+from pydantic import BaseModel as _BaseModel
+import httpx as _httpx
+
+
+class ClientPORequest(_BaseModel):
+    client_email: str = ""
+    subject: str = ""
+    notes: str = ""
+
+
+class BudgetIncreaseRequest(_BaseModel):
+    current_budget: float = 0.0
+    requested_budget: float = 0.0
+    reason: str = ""
+    client_email: str = ""
+
+
+class InvoiceFromPORequest(_BaseModel):
+    gst_number: str = ""
+    invoice_date: str = ""
+    additional_notes: str = ""
+
+
+@router.post("/{req_id}/request-client-po")
+async def request_client_po(
+    req_id: str,
+    payload: ClientPORequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Send a Purchase Order request email to the client for a requirement."""
+    doc = await db.requirements.find_one({"requirement_id": req_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Requirement not found")
+
+    client_email = payload.client_email or doc.get("client_email", "")
+    if not client_email:
+        raise HTTPException(400, "client_email is required")
+
+    subject = payload.subject or f"Purchase Order Request — {req_id}"
+    body = (
+        f"Dear {doc.get('client_name') or doc.get('client_company') or 'Client'},\n\n"
+        f"Please find attached the Purchase Order for training requirement {req_id}.\n"
+        f"{payload.notes or ''}\n\nKindly acknowledge at your earliest convenience.\n\n"
+        "Regards,\nTrainerSync Team"
+    )
+
+    try:
+        async with _httpx.AsyncClient(timeout=30) as client:
+            await client.post(
+                "http://email-service:8002/api/v1/email/send",
+                json={"to": client_email, "subject": subject, "body": body,
+                      "requirement_id": req_id, "mail_type": "client_po_request"},
+            )
+    except Exception as exc:
+        raise HTTPException(502, str(exc)) from exc
+
+    now = datetime.utcnow()
+    await db.requirements.update_one(
+        {"requirement_id": req_id},
+        {"$set": {"client_po_requested": True, "client_po_requested_at": now, "updated_at": now}},
+    )
+    return {"success": True, "requirement_id": req_id, "sent_to": client_email}
+
+
+@router.post("/{req_id}/request-client-budget-increase")
+async def request_client_budget_increase(
+    req_id: str,
+    payload: BudgetIncreaseRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Email the client requesting a budget increase for a requirement."""
+    doc = await db.requirements.find_one({"requirement_id": req_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Requirement not found")
+
+    client_email = payload.client_email or doc.get("client_email", "")
+    if not client_email:
+        raise HTTPException(400, "client_email is required")
+
+    subject = f"Budget Increase Request — {req_id}"
+    body = (
+        f"Dear {doc.get('client_name') or doc.get('client_company') or 'Client'},\n\n"
+        f"We are writing regarding training requirement {req_id}.\n\n"
+        f"The current approved budget is ₹{payload.current_budget:,.0f}. "
+        f"Based on trainer profiles and market rates, we would like to request an "
+        f"increase to ₹{payload.requested_budget:,.0f}.\n\n"
+        f"Reason: {payload.reason or 'Market rate adjustment required.'}\n\n"
+        "Please confirm your approval at your earliest convenience.\n\n"
+        "Regards,\nTrainerSync Team"
+    )
+
+    try:
+        async with _httpx.AsyncClient(timeout=30) as client:
+            await client.post(
+                "http://email-service:8002/api/v1/email/send",
+                json={"to": client_email, "subject": subject, "body": body,
+                      "requirement_id": req_id, "mail_type": "budget_increase_request"},
+            )
+    except Exception as exc:
+        raise HTTPException(502, str(exc)) from exc
+
+    now = datetime.utcnow()
+    await db.requirements.update_one(
+        {"requirement_id": req_id},
+        {"$set": {
+            "budget_increase_requested": True,
+            "budget_increase_amount": payload.requested_budget,
+            "budget_increase_requested_at": now,
+            "updated_at": now,
+        }},
+    )
+    return {"success": True, "requirement_id": req_id, "sent_to": client_email,
+            "requested_budget": payload.requested_budget}
+
+
+@router.post("/{req_id}/client-po/generate-invoice")
+async def generate_invoice_from_requirement_po(
+    req_id: str,
+    payload: InvoiceFromPORequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Generate an invoice from the PO linked to a requirement via trainer-service."""
+    doc = await db.requirements.find_one({"requirement_id": req_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Requirement not found")
+
+    # Find linked PO
+    po = await db["purchase_orders"].find_one({"requirement_id": req_id}, {"_id": 0})
+    if not po:
+        raise HTTPException(404, "No purchase order found for this requirement")
+
+    po_id = po.get("po_id", "")
+    try:
+        async with _httpx.AsyncClient(timeout=30) as client:
+            r = await client.post(
+                f"http://trainer-service:8004/api/v1/purchase-orders/{po_id}/generate-invoice",
+                json={
+                    "gst_number": payload.gst_number,
+                    "invoice_date": payload.invoice_date,
+                    "additional_notes": payload.additional_notes,
+                },
+            )
+        if r.status_code < 400:
+            return r.json()
+        raise HTTPException(502, f"Trainer service error: {r.text[:200]}")
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(502, str(exc)) from exc
