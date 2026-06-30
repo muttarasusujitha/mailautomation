@@ -90,7 +90,7 @@ This helps us process your availability automatically and move forward quickly.
 @router.post("/interview")
 async def compose_interview(payload: InterviewEmailRequest):
     link = payload.interview_link or f"https://calendly.com/trainersync/{payload.req_id}"
-    date_line = f"\n\u{1F4C5} Scheduled: {payload.interview_date}\n" if payload.interview_date else ""
+    date_line = f"\n\U0001F4C5 Scheduled: {payload.interview_date}\n" if payload.interview_date else ""
     body = (
         f"Dear {payload.trainer_name},\n\n"
         f"Thank you for your interest in the {payload.technology} training opportunity!\n\n"
