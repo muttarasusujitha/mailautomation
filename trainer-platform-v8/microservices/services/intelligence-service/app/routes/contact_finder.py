@@ -193,3 +193,48 @@ async def bulk_find_contacts(payload: BulkFindRequest):
 
     results = await asyncio.gather(*[_find(t) for t in payload.trainers])
     return {"results": list(results), "total": len(results)}
+
+
+
+class FindAndSendRequest(BaseModel):
+    name: str = ""
+    company: str = ""
+    domain: str = ""
+    linkedin_url: str = ""
+    profile_text: str = ""
+    subject: str = ""
+    body: str = ""
+    smtp_config: Optional[Dict[str, Any]] = None
+
+
+@router.post("/find-and-send-mail")
+async def find_and_send_mail(payload: FindAndSendRequest):
+    """Find contact details then immediately send an outreach email."""
+    import httpx as _httpx
+    find_req = FindContactRequest(
+        name=payload.name, company=payload.company, domain=payload.domain,
+        linkedin_url=payload.linkedin_url, profile_text=payload.profile_text,
+    )
+    contact = await find_contact(find_req)
+    to_email = contact.get("email", "")
+    if not to_email:
+        return {"success": False, "found": False, "reason": "No email found", "contact": contact}
+
+    subject = payload.subject or f"Training Opportunity — {payload.domain or 'Your Domain'}"
+    body = payload.body or (
+        f"Dear {payload.name or 'Trainer'},\n\nWe have a training requirement matching your profile.\n"
+        "Please revert if interested.\n\nRegards,\nTrainerSync Team"
+    )
+    try:
+        async with _httpx.AsyncClient(timeout=30) as client:
+            r = await client.post(
+                "http://email-service:8002/api/v1/email/send",
+                json={"to": to_email, "subject": subject, "body": body, "smtp_config": payload.smtp_config},
+            )
+        email_sent = r.status_code < 400
+    except Exception as exc:
+        email_sent = False
+        logger.warning("find-and-send-mail email failed: %s", exc)
+
+    return {"success": email_sent, "found": True, "email": to_email,
+            "contact": contact, "email_sent": email_sent}

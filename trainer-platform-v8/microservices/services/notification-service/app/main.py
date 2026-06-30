@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.database import init_db, shutdown_db
-from app.routes import whatsapp, teams
+from app.routes import whatsapp, teams, whatsapp_webhooks, teams_direct
 
 settings = get_settings()
 
@@ -18,7 +18,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Notification Service",
-    description="WhatsApp (Twilio / AiSensy / Meta) and Microsoft Teams notifications",
+    description="WhatsApp (Twilio/AiSensy/Meta), Teams webhooks, Teams Direct messaging",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -31,8 +31,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(whatsapp.router, prefix="/api/v1/notifications/whatsapp", tags=["whatsapp"])
-app.include_router(teams.router, prefix="/api/v1/notifications/teams", tags=["teams"])
+# Outbound notifications
+app.include_router(whatsapp.router,          prefix="/api/v1/notifications/whatsapp", tags=["whatsapp"])
+app.include_router(teams.router,             prefix="/api/v1/notifications/teams",    tags=["teams"])
+
+# Inbound webhooks
+app.include_router(whatsapp_webhooks.router, prefix="/api/v1/whatsapp",               tags=["whatsapp-webhooks"])
+
+# Teams Direct (Graph API)
+app.include_router(teams_direct.router,      prefix="/api/v1/teams-direct",           tags=["teams-direct"])
 
 
 @app.get("/health")
