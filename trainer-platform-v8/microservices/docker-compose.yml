@@ -1,0 +1,310 @@
+##############################################################################
+# TrainerSync – Full Microservices Stack
+# Usage:
+#   cp .env.example .env          # fill in secrets
+#   docker-compose up --build -d  # build + start everything
+#   docker-compose logs -f        # tail all logs
+##############################################################################
+
+version: "3.9"
+
+# ── Shared build context (all services need microservices/shared/) ─────────────
+x-build-context: &build-context
+  context: ..                  # repo root = trainer-platform-v8/
+  dockerfile: microservices/services/${SERVICE_NAME}/Dockerfile
+
+x-common-env: &common-env
+  MONGODB_URL: mongodb://mongo:27017
+  MONGODB_DB_NAME: trainer_platform
+  REDIS_URL: redis://redis:6379
+
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  networks:
+    - trainersync
+  depends_on:
+    mongo:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+##############################################################################
+# Infrastructure
+##############################################################################
+
+services:
+
+  mongo:
+    image: mongo:7.0
+    container_name: ts-mongo
+    restart: unless-stopped
+    networks:
+      - trainersync
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: trainer_platform
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: ts-redis
+    restart: unless-stopped
+    networks:
+      - trainersync
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+##############################################################################
+# Microservices
+##############################################################################
+
+  core-api:
+    container_name: ts-core-api
+    build:
+      context: ..
+      dockerfile: microservices/services/core-api/Dockerfile
+    <<: *service-defaults
+    environment:
+      <<: *common-env
+      SERVICE_NAME: core-api
+      PORT: "8001"
+    env_file: .env
+    expose:
+      - "8001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  email-service:
+    container_name: ts-email-service
+    build:
+      context: ..
+      dockerfile: microservices/services/email-service/Dockerfile
+    <<: *service-defaults
+    environment:
+      <<: *common-env
+      SERVICE_NAME: email-service
+      PORT: "8002"
+    env_file: .env
+    expose:
+      - "8002"
+    volumes:
+      - gmail_config:/app/config       # mounts token.json for OAuth
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  notification-service:
+    container_name: ts-notification-service
+    build:
+      context: ..
+      dockerfile: microservices/services/notification-service/Dockerfile
+    <<: *service-defaults
+    environment:
+      <<: *common-env
+      SERVICE_NAME: notification-service
+      PORT: "8003"
+    env_file: .env
+    expose:
+      - "8003"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  trainer-service:
+    container_name: ts-trainer-service
+    build:
+      context: ..
+      dockerfile: microservices/services/trainer-service/Dockerfile
+    <<: *service-defaults
+    environment:
+      <<: *common-env
+      SERVICE_NAME: trainer-service
+      PORT: "8004"
+    env_file: .env
+    expose:
+      - "8004"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  intelligence-service:
+    container_name: ts-intelligence-service
+    build:
+      context: ..
+      dockerfile: microservices/services/intelligence-service/Dockerfile
+    <<: *service-defaults
+    environment:
+      <<: *common-env
+      SERVICE_NAME: intelligence-service
+      PORT: "8005"
+    env_file: .env
+    expose:
+      - "8005"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  document-service:
+    container_name: ts-document-service
+    build:
+      context: ..
+      dockerfile: microservices/services/document-service/Dockerfile
+    <<: *service-defaults
+    environment:
+      <<: *common-env
+      SERVICE_NAME: document-service
+      PORT: "8006"
+    env_file: .env
+    expose:
+      - "8006"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ── Scheduler: FastAPI management API ────────────────────────────────────────
+  scheduler-service:
+    container_name: ts-scheduler-api
+    build:
+      context: ..
+      dockerfile: microservices/services/scheduler-service/Dockerfile
+    <<: *service-defaults
+    environment:
+      <<: *common-env
+      SERVICE_NAME: scheduler-service
+      PORT: "8007"
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      EMAIL_SERVICE_URL: http://email-service:8002
+      NOTIFICATION_SERVICE_URL: http://notification-service:8003
+    env_file: .env
+    expose:
+      - "8007"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ── Celery worker ─────────────────────────────────────────────────────────────
+  celery-worker:
+    container_name: ts-celery-worker
+    build:
+      context: ..
+      dockerfile: microservices/services/scheduler-service/Dockerfile
+    command: celery -A app.celery_app worker --loglevel=info --concurrency=4
+    <<: *service-defaults
+    environment:
+      <<: *common-env
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+      EMAIL_SERVICE_URL: http://email-service:8002
+      NOTIFICATION_SERVICE_URL: http://notification-service:8003
+    env_file: .env
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+      email-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+
+  # ── Celery beat (periodic task scheduler) ─────────────────────────────────────
+  celery-beat:
+    container_name: ts-celery-beat
+    build:
+      context: ..
+      dockerfile: microservices/services/scheduler-service/Dockerfile
+    command: celery -A app.celery_app beat --loglevel=info --scheduler celery.beat.PersistentScheduler
+    <<: *service-defaults
+    environment:
+      <<: *common-env
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    env_file: .env
+    volumes:
+      - celery_beat_data:/app/celerybeat-schedule
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ── API Gateway (nginx) ───────────────────────────────────────────────────────
+  gateway:
+    container_name: ts-gateway
+    build:
+      context: ..
+      dockerfile: microservices/gateway/Dockerfile
+    restart: unless-stopped
+    networks:
+      - trainersync
+    ports:
+      - "80:80"
+    depends_on:
+      core-api:
+        condition: service_healthy
+      email-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      trainer-service:
+        condition: service_healthy
+      intelligence-service:
+        condition: service_healthy
+      document-service:
+        condition: service_healthy
+      scheduler-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+##############################################################################
+# Volumes & Networks
+##############################################################################
+
+volumes:
+  mongo_data:
+  redis_data:
+  gmail_config:
+  celery_beat_data:
+
+networks:
+  trainersync:
+    driver: bridge
