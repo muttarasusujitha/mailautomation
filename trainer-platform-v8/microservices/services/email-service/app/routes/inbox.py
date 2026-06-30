@@ -52,6 +52,21 @@ async def _process_and_store_replies(db, replies: list) -> int:
     return stored
 
 
+async def _poll_and_store(db, since_days: int = 7, max_messages: int = 50, from_emails: Optional[list] = None) -> int:
+    """Helper used by gmail routes to poll IMAP and persist replies.
+
+    This function is imported and scheduled by `gmail.py` (background task)
+    so it must be available at module import time.
+    """
+    loop = asyncio.get_event_loop()
+    replies = await loop.run_in_executor(
+        None,
+        lambda: check_imap_replies(since_days=since_days, max_messages=max_messages, from_emails=from_emails),
+    )
+    stored = await _process_and_store_replies(db, replies)
+    return stored
+
+
 @router.post("/poll")
 async def poll_inbox(
     payload: PollRequest,

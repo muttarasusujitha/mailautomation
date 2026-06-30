@@ -221,14 +221,14 @@ export default function Dashboard() {
   }
 
   // ── Derived values ──────────────────────────────────────────
-  const totalEmails    = Number(stats?.total_emails_sent || 0)
-  const failedEmails   = Number(stats?.total_emails_failed || 0)
-  const totalReplies   = Number(stats?.total_replies || 0)
-  const totalTrainers  = Number(stats?.total_trainers || 0)
-  const pendingReview  = Number(stats?.pending_review || 0)
-  const interested     = Number(stats?.interested_count || 0)
+  const totalEmails    = Number(stats?.total_emails_sent ?? stats?.emails?.total_sent ?? 0)
+  const failedEmails   = Number(stats?.total_emails_failed ?? stats?.emails?.failed ?? 0)
+  const totalReplies   = Number(stats?.total_replies ?? stats?.emails?.total_replies ?? 0)
+  const totalTrainers  = Number(stats?.total_trainers ?? stats?.trainers?.total ?? 0)
+  const pendingReview  = Number(stats?.pending_review ?? stats?.trainers?.pending_review ?? 0)
+  const interested     = Number(stats?.interested_count ?? stats?.interested ?? 0)
   const whatsapp       = stats?.whatsapp || {}
-  const whatsappSent   = Number(whatsapp.sent || 0)
+  const whatsappSent   = Number(whatsapp.total_sent ?? whatsapp.sent ?? 0)
   const whatsappFailed = Number(whatsapp.failed || 0)
   const whatsappReplies = Number(whatsapp.replies || 0)
   const clientStats    = clientInbox?.stats || {}
@@ -271,11 +271,11 @@ export default function Dashboard() {
   const statCards = [
     { icon: BriefcaseBusiness, label: 'Client Requests', value: clientToday, sub: 'Received today',   tone: 'blue',   linkTo: '/client-requests' },
     { icon: Inbox,             label: 'Client Pending',  value: clientPending, sub: 'Needs approval', tone: 'amber',  linkTo: '/client-requests' },
-    { icon: Users,             label: 'Total Trainers',  value: stats?.total_trainers ?? 0, sub: 'In database', tone: 'blue', linkTo: '/trainers' },
-    { icon: Mail,              label: 'Emails Sent',     value: stats?.total_emails_sent ?? 0, sub: 'Outreach emails', tone: 'purple', linkTo: '/emails' },
-    { icon: TrendingUp,        label: 'Replies',         value: stats?.total_replies ?? 0, sub: 'Trainer replies', tone: 'emerald', linkTo: '/emails' },
-    { icon: BarChart2,         label: 'Requirements',    value: stats?.total_requirements ?? 0, sub: 'Active searches', tone: 'orange', linkTo: '/requirements' },
-    { icon: Activity,          label: 'Confirmed',       value: stats?.confirmed_count ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist1' },
+    { icon: Users,             label: 'Total Trainers',  value: totalTrainers, sub: 'In database', tone: 'blue', linkTo: '/trainers' },
+    { icon: Mail,              label: 'Emails Sent',     value: totalEmails, sub: 'Outreach emails', tone: 'purple', linkTo: '/emails' },
+    { icon: TrendingUp,        label: 'Replies',         value: totalReplies, sub: 'Trainer replies', tone: 'emerald', linkTo: '/emails' },
+    { icon: BarChart2,         label: 'Requirements',    value: stats?.total_requirements ?? stats?.requirements?.total ?? 0, sub: 'Active searches', tone: 'orange', linkTo: '/requirements' },
+    { icon: Activity,          label: 'Confirmed',       value: stats?.confirmed_count ?? stats?.shortlists?.trainers_selected ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist1' },
     { icon: Send,              label: 'WhatsApp Sent',   value: whatsappSent, sub: 'Queued/sent/delivered', tone: 'green' },
   ]
 

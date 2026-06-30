@@ -1,7 +1,7 @@
 """Gmail OAuth2, sync, push-notification webhook routes."""
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
 import httpx
@@ -15,6 +15,35 @@ from app.config import get_settings
 router = APIRouter()
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+GMAIL_SCOPES = [
+    "https://www.googleapis.com/auth/gmail.modify",
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/calendar",
+]
+OAUTH_STATE_TTL_MINUTES = 20
+
+
+def _default_oauth_redirect(request: Request) -> str:
+    configured_redirect = os.getenv("GOOGLE_REDIRECT_URI", "").strip()
+    if configured_redirect:
+        return configured_redirect
+
+    frontend_url = os.getenv("FRONTEND_URL", "").strip().rstrip("/")
+    if frontend_url:
+        return f"{frontend_url}/auth/callback"
+
+    return str(request.base_url).rstrip("/") + "/api/v1/gmail/oauth-callback"
+
+
+def _oauth_client_config(redirect_uri: str) -> Dict[str, Any]:
+    return {"web": {
+        "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
+        "client_secret": os.getenv("GOOGLE_CLIENT_SECRET", ""),
+        "redirect_uris": [redirect_uri],
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+    }}
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -32,10 +61,7 @@ def _load_creds():
     try:
         from google.auth.transport.requests import Request as GReq
         from google.oauth2.credentials import Credentials
-        scopes = ["https://www.googleapis.com/auth/gmail.modify",
-                  "https://www.googleapis.com/auth/gmail.send",
-                  "https://www.googleapis.com/auth/calendar"]
-        creds = Credentials.from_authorized_user_file(tp, scopes)
+        creds = Credentials.from_authorized_user_file(tp, GMAIL_SCOPES)
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(GReq())
             with open(tp, "w") as fh:
@@ -72,28 +98,48 @@ async def gmail_auth_status(db: AsyncIOMotorDatabase = Depends(get_db)):
 
 
 @router.get("/oauth-url")
-async def get_gmail_oauth_url(request: Request, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def get_gmail_oauth_url(
+    request: Request,
+    redirect_uri: Optional[str] = Query(None),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
     """Generate Gmail OAuth2 consent URL."""
     try:
         from google_auth_oauthlib.flow import Flow
-        scopes = ["https://www.googleapis.com/auth/gmail.modify",
-                  "https://www.googleapis.com/auth/gmail.send",
-                  "https://www.googleapis.com/auth/calendar"]
-        redirect_uri = str(request.base_url).rstrip("/") + "/api/v1/gmail/oauth-callback"
+        redirect_uri = redirect_uri or request.query_params.get("redirect_uri") or _default_oauth_redirect(request)
         flow = Flow.from_client_config(
-            {"web": {
-                "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
-                "client_secret": os.getenv("GOOGLE_CLIENT_SECRET", ""),
-                "redirect_uris": [redirect_uri],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-            }},
-            scopes=scopes,
+            _oauth_client_config(redirect_uri),
+            scopes=GMAIL_SCOPES,
+            autogenerate_code_verifier=True,
         )
         flow.redirect_uri = redirect_uri
-        auth_url, _ = flow.authorization_url(prompt="consent", access_type="offline")
-        return {"url": auth_url}
+        auth_url, state = flow.authorization_url(prompt="consent", access_type="offline")
+        code_verifier = getattr(flow, "code_verifier", None)
+        if not code_verifier:
+            raise HTTPException(500, "Google OAuth PKCE verifier could not be generated")
+
+        now = datetime.utcnow()
+        await db["gmail_oauth_states"].update_one(
+            {"state": state},
+            {"$set": {
+                "state": state,
+                "code_verifier": code_verifier,
+                "redirect_uri": redirect_uri,
+                "created_at": now,
+                "expires_at": now + timedelta(minutes=OAUTH_STATE_TTL_MINUTES),
+            }},
+            upsert=True,
+        )
+        return {
+            "url": auth_url,
+            "auth_url": auth_url,
+            "state": state,
+            "code_verifier": code_verifier,
+            "expires_in": OAUTH_STATE_TTL_MINUTES * 60,
+        }
     except Exception as exc:
+        if isinstance(exc, HTTPException):
+            raise
         raise HTTPException(500, str(exc)) from exc
 
 
@@ -102,32 +148,43 @@ async def gmail_oauth_callback(request: Request, db: AsyncIOMotorDatabase = Depe
     """Exchange OAuth code for tokens and persist token.json."""
     body = await request.json()
     code = body.get("code") or request.query_params.get("code") or ""
+    state = body.get("state") or request.query_params.get("state") or ""
+    fallback_code_verifier = body.get("code_verifier") or body.get("codeVerifier") or ""
     if not code:
         raise HTTPException(400, "code is required")
     try:
         from google_auth_oauthlib.flow import Flow
-        scopes = ["https://www.googleapis.com/auth/gmail.modify",
-                  "https://www.googleapis.com/auth/gmail.send",
-                  "https://www.googleapis.com/auth/calendar"]
-        redirect_uri = body.get("redirect_uri") or str(request.base_url).rstrip("/") + "/api/v1/gmail/oauth-callback"
+        redirect_uri = body.get("redirect_uri") or _default_oauth_redirect(request)
+        oauth_state = None
+        if state:
+            oauth_state = await db["gmail_oauth_states"].find_one({"state": state}, {"_id": 0})
+            if oauth_state and oauth_state.get("redirect_uri"):
+                redirect_uri = oauth_state["redirect_uri"]
+        code_verifier = (oauth_state or {}).get("code_verifier") or fallback_code_verifier
+        if not code_verifier:
+            raise HTTPException(
+                400,
+                "Google OAuth session expired or is missing its code verifier. Start Gmail connection again.",
+            )
         flow = Flow.from_client_config(
-            {"web": {
-                "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
-                "client_secret": os.getenv("GOOGLE_CLIENT_SECRET", ""),
-                "redirect_uris": [redirect_uri],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-            }},
-            scopes=scopes,
+            _oauth_client_config(redirect_uri),
+            scopes=GMAIL_SCOPES,
+            state=state or None,
+            code_verifier=code_verifier,
+            autogenerate_code_verifier=False,
         )
         flow.redirect_uri = redirect_uri
         flow.fetch_token(code=code)
+        if state:
+            await db["gmail_oauth_states"].delete_one({"state": state})
         tp = _token_path()
         os.makedirs(os.path.dirname(tp), exist_ok=True)
         with open(tp, "w") as fh:
             fh.write(flow.credentials.to_json())
         return {"success": True, "message": "Gmail connected successfully."}
     except Exception as exc:
+        if isinstance(exc, HTTPException):
+            raise
         raise HTTPException(500, str(exc)) from exc
 
 

@@ -17,6 +17,20 @@ def _safe_pct(a: int, b: int) -> float:
     return round(a * 100 / b, 1) if b else 0.0
 
 
+def _outbound_email_query(extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    return {"direction": {"$ne": "inbound"}, **(extra or {})}
+
+
+def _date_recent_query(field: str, since: datetime) -> Dict[str, Any]:
+    return {
+        "$or": [
+            {field: {"$gte": since}},
+            {field: {"$exists": False}, "created_at": {"$gte": since}},
+            {field: None, "created_at": {"$gte": since}},
+        ],
+    }
+
+
 # ─── /dashboard/stats ─────────────────────────────────────────────────────────
 
 @router.get("/stats")

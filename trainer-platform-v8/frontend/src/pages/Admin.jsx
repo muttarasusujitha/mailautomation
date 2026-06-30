@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
+import { saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 const SETTINGS_STORAGE_KEY = 'admin_settings'
 
@@ -248,7 +249,8 @@ export default function Admin() {
       try {
         const res = await fetch('/api/admin/settings')
         if (!res.ok) return
-        const settings = await res.json()
+        const data = await res.json()
+        const settings = data.settings || data
         if (Object.keys(settings).length) {
           applySettings(settings)
           localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
@@ -422,7 +424,8 @@ export default function Admin() {
         const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
         const oauthData = await oauthRes.json().catch(() => ({}))
         if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')
-        globalThis.location.href = oauthData.auth_url
+        saveGmailOAuthPkce(oauthData)
+        globalThis.location.href = oauthData.auth_url || oauthData.url
         return
       }
 
@@ -449,7 +452,8 @@ export default function Admin() {
       const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
       const oauthData = await oauthRes.json().catch(() => ({}))
       if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')
-      globalThis.location.href = oauthData.auth_url
+      saveGmailOAuthPkce(oauthData)
+      globalThis.location.href = oauthData.auth_url || oauthData.url
     } catch (e) {
       toast.error(e.message || 'Google OAuth URL failed')
     } finally {
