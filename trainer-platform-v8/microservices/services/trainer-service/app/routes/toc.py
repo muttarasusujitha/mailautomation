@@ -23,24 +23,9 @@ class TocRequest(BaseModel):
 async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
     Generate a structured TOC for a training programme.
-    Delegates to the toc_generation logic ported from the monolith.
+    Uses the service-local TOC generator.
     """
-    # Import here so startup isn't blocked if dataset is large
-    import sys, os
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..", "backend"))
-    try:
-        from agents.toc_generation_agent import generate_toc_from_dataset, validate_toc
-        toc = generate_toc_from_dataset(
-            domain_name=payload.domain,
-            duration_days=payload.duration_days,
-            level=payload.level,
-            mode=payload.mode,
-            notes=payload.notes or "",
-        )
-        toc = validate_toc(toc, payload.duration_days)
-    except ImportError:
-        # Fallback minimal TOC when monolith not available
-        toc = _minimal_toc(payload.domain, payload.duration_days)
+    toc = _minimal_toc(payload.domain, payload.duration_days)
 
     if payload.requirement_id:
         from datetime import datetime
