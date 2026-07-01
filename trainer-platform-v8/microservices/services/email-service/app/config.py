@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     MONGODB_URL: str = "mongodb://localhost:27017"
-    MONGODB_DB_NAME: str = "trainer_platform"
+    MONGODB_DB_NAME: str = "trainersync"
     REDIS_URL: str = "redis://localhost:6379"
 
     # Gmail / SMTP
@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     FROM_NAME: str = "TrainerSync"
     FROM_EMAIL: str = ""
     GOOGLE_TOKEN_FILE: str = "config/token.json"
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = ""
+    GMAIL_PUBSUB_TOPIC: str = ""
+    FRONTEND_URL: str = "http://localhost:5173"
 
     # SMTP overrides
     SMTP_HOST: str = "smtp.gmail.com"

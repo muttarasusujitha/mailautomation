@@ -25,11 +25,11 @@ OAUTH_STATE_TTL_MINUTES = 20
 
 
 def _default_oauth_redirect(request: Request) -> str:
-    configured_redirect = os.getenv("GOOGLE_REDIRECT_URI", "").strip()
+    configured_redirect = settings.GOOGLE_REDIRECT_URI.strip()
     if configured_redirect:
         return configured_redirect
 
-    frontend_url = os.getenv("FRONTEND_URL", "").strip().rstrip("/")
+    frontend_url = settings.FRONTEND_URL.strip().rstrip("/")
     if frontend_url:
         return f"{frontend_url}/auth/callback"
 
@@ -38,12 +38,25 @@ def _default_oauth_redirect(request: Request) -> str:
 
 def _oauth_client_config(redirect_uri: str) -> Dict[str, Any]:
     return {"web": {
-        "client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
-        "client_secret": os.getenv("GOOGLE_CLIENT_SECRET", ""),
+        "client_id": settings.GOOGLE_CLIENT_ID.strip(),
+        "client_secret": settings.GOOGLE_CLIENT_SECRET.strip(),
         "redirect_uris": [redirect_uri],
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
     }}
+
+
+def _ensure_oauth_configured() -> None:
+    missing = []
+    if not settings.GOOGLE_CLIENT_ID.strip():
+        missing.append("GOOGLE_CLIENT_ID")
+    if not settings.GOOGLE_CLIENT_SECRET.strip():
+        missing.append("GOOGLE_CLIENT_SECRET")
+    if missing:
+        raise HTTPException(
+            400,
+            f"Google OAuth is missing {', '.join(missing)} in microservices/.env",
+        )
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -106,6 +119,7 @@ async def get_gmail_oauth_url(
     """Generate Gmail OAuth2 consent URL."""
     try:
         from google_auth_oauthlib.flow import Flow
+        _ensure_oauth_configured()
         redirect_uri = redirect_uri or request.query_params.get("redirect_uri") or _default_oauth_redirect(request)
         flow = Flow.from_client_config(
             _oauth_client_config(redirect_uri),
@@ -154,6 +168,7 @@ async def gmail_oauth_callback(request: Request, db: AsyncIOMotorDatabase = Depe
         raise HTTPException(400, "code is required")
     try:
         from google_auth_oauthlib.flow import Flow
+        _ensure_oauth_configured()
         redirect_uri = body.get("redirect_uri") or _default_oauth_redirect(request)
         oauth_state = None
         if state:
@@ -212,7 +227,7 @@ async def renew_gmail_watch(db: AsyncIOMotorDatabase = Depends(get_db)):
     if not svc:
         raise HTTPException(503, f"Gmail not connected: {err}")
     try:
-        topic = os.getenv("GMAIL_PUBSUB_TOPIC", "")
+        topic = settings.GMAIL_PUBSUB_TOPIC.strip()
         if not topic:
             return {"success": False, "message": "GMAIL_PUBSUB_TOPIC not configured"}
         resp = svc.users().watch(

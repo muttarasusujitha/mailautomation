@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     MONGODB_URL: str = "mongodb://localhost:27017"
-    MONGODB_DB_NAME: str = "trainer_platform"
+    MONGODB_DB_NAME: str = "trainersync"
 
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"

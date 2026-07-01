@@ -1,10 +1,10 @@
 """Client inbox management — approve, reject, regenerate-reply."""
 import logging
 import uuid
-from datetime import datetime
-from typing import Any, Dict, Optional
+from datetime import datetime, time
+from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
@@ -14,6 +14,40 @@ from app.gmail_client import send_email_async
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+PENDING_STATUSES = ["pending_approval", "pending_review", "needs_manual_review"]
+
+
+def _status_filter(status: Optional[str]) -> Dict[str, Any]:
+    if not status:
+        return {}
+    statuses = PENDING_STATUSES if status == "pending_approval" else [status]
+    return {
+        "$or": [
+            {"status": {"$in": statuses}},
+            {"reply_status": {"$in": statuses}},
+        ],
+    }
+
+
+def _count_status_query(statuses: List[str]) -> Dict[str, Any]:
+    return {
+        "$or": [
+            {"status": {"$in": statuses}},
+            {"reply_status": {"$in": statuses}},
+        ],
+    }
+
+
+def _normalise_item_status(doc: Dict[str, Any]) -> Dict[str, Any]:
+    raw_status = doc.get("status") or ""
+    effective = doc.get("reply_status") or raw_status or "pending_approval"
+    if effective in ("pending_review", "needs_manual_review"):
+        effective = "pending_approval"
+    if raw_status and raw_status != effective:
+        doc["raw_status"] = raw_status
+    doc["status"] = effective
+    return doc
+
 
 class ApproveRequest(BaseModel):
     send_now: bool = True
@@ -22,6 +56,49 @@ class ApproveRequest(BaseModel):
 
 class RegenerateRequest(BaseModel):
     hint: Optional[str] = ""
+
+
+@router.get("")
+async def list_inbox_emails(
+    status: Optional[str] = Query(None),
+    limit: int = Query(50, ge=1, le=200),
+    page: int = Query(1, ge=1),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    query = _status_filter(status)
+
+    total = await db["client_emails"].count_documents(query)
+    skip = (page - 1) * limit
+    cursor = (
+        db["client_emails"]
+        .find(query, {"_id": 0, "raw_body": 0})
+        .sort("created_at", -1)
+        .skip(skip)
+        .limit(limit)
+    )
+    items = [_normalise_item_status(d) async for d in cursor]
+    today_start = datetime.combine(datetime.utcnow().date(), time.min)
+    status_count = db["client_emails"].count_documents
+    return {
+        "success": True,
+        "total": total,
+        "page": page,
+        "page_size": limit,
+        "pages": max(1, (total + limit - 1) // limit),
+        "emails": items,
+        "stats": {
+            "today": await status_count({"created_at": {"$gte": today_start}}),
+            "pending_approval": await status_count(_count_status_query(PENDING_STATUSES)),
+            "auto_sent": await status_count(_count_status_query(["auto_sent"])),
+            "sent": await status_count(_count_status_query(["sent"])),
+            "approved": await status_count(_count_status_query(["approved"])),
+            "rejected": await status_count(_count_status_query(["rejected"])),
+            "spam": await status_count(_count_status_query(["spam"])),
+            "office_replies": await status_count(_count_status_query(["office_reply", "routed_to_trainer_reply"])),
+            "requirements_created": await status_count({"requirement_id": {"$exists": True, "$nin": ["", None]}}),
+            "total": await status_count({}),
+        },
+    }
 
 
 @router.post("/{email_id}/approve")
@@ -44,6 +121,7 @@ async def approve_inbox_reply(
         "approved": True,
         "approved_at": now,
         "reply_status": "approved",
+        "status": "approved",
         "updated_at": now,
     }
 
@@ -57,6 +135,7 @@ async def approve_inbox_reply(
             update["reply_sent"] = True
             update["reply_sent_at"] = now
             update["reply_status"] = "sent"
+            update["status"] = "sent"
             # Log outbound reply
             await db["email_logs"].insert_one({
                 "email_id": f"RPL-{uuid.uuid4().hex[:10].upper()}",
@@ -72,10 +151,11 @@ async def approve_inbox_reply(
             })
         else:
             update["reply_status"] = "send_failed"
+            update["status"] = "send_failed"
             update["reply_error"] = error
 
     await db["client_emails"].update_one({"email_id": email_id}, {"$set": update})
-    return {"success": True, "email_id": email_id, "reply_status": update["reply_status"]}
+    return {"success": True, "email_id": email_id, "status": update["status"], "reply_status": update["reply_status"]}
 
 
 @router.post("/{email_id}/reject")
@@ -86,7 +166,7 @@ async def reject_inbox_reply(
     """Reject a pending auto-generated reply (marks it as discarded)."""
     result = await db["client_emails"].update_one(
         {"email_id": email_id},
-        {"$set": {"reply_status": "rejected", "approved": False, "updated_at": datetime.utcnow()}},
+        {"$set": {"status": "rejected", "reply_status": "rejected", "approved": False, "updated_at": datetime.utcnow()}},
     )
     if result.matched_count == 0:
         raise HTTPException(404, "Inbox email not found")
@@ -116,6 +196,7 @@ async def regenerate_reply(
         {"$set": {
             "ai_reply": new_reply,
             "draft_reply": new_reply,
+            "status": "pending_approval",
             "reply_status": "pending_review",
             "regenerated_at": now,
             "updated_at": now,

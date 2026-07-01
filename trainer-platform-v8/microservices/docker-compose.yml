@@ -6,17 +6,7 @@
 #   docker-compose logs -f        # tail all logs
 ##############################################################################
 
-version: "3.9"
-
-# ── Shared build context (all services need microservices/shared/) ─────────────
-x-build-context: &build-context
-  context: ..                  # repo root = trainer-platform-v8/
-  dockerfile: microservices/services/${SERVICE_NAME}/Dockerfile
-
-x-common-env: &common-env
-  MONGODB_URL: mongodb://mongo:27017
-  MONGODB_DB_NAME: trainer_platform
-  REDIS_URL: redis://redis:6379
+x-common-env: &common-env {}
 
 x-service-defaults: &service-defaults
   restart: unless-stopped
@@ -43,7 +33,7 @@ services:
     volumes:
       - mongo_data:/data/db
     environment:
-      MONGO_INITDB_DATABASE: trainer_platform
+      MONGO_INITDB_DATABASE: trainersync
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 15s
@@ -253,6 +243,8 @@ services:
       EMAIL_SERVICE_URL: http://email-service:8002
       NOTIFICATION_SERVICE_URL: http://notification-service:8003
     env_file: .env
+    healthcheck:
+      disable: true
     depends_on:
       redis:
         condition: service_healthy
@@ -269,7 +261,7 @@ services:
     build:
       context: ..
       dockerfile: microservices/services/scheduler-service/Dockerfile
-    command: celery -A app.celery_app beat --loglevel=info --scheduler celery.beat.PersistentScheduler
+    command: celery -A app.celery_app beat --loglevel=info --scheduler celery.beat.PersistentScheduler --schedule=/app/celerybeat-schedule/celerybeat-schedule
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -278,6 +270,8 @@ services:
     env_file: .env
     volumes:
       - celery_beat_data:/app/celerybeat-schedule
+    healthcheck:
+      disable: true
     depends_on:
       redis:
         condition: service_healthy
@@ -293,6 +287,7 @@ services:
       - trainersync
     ports:
       - "80:80"
+      - "8000:80"
     depends_on:
       auth-service:
         condition: service_healthy
@@ -311,7 +306,7 @@ services:
       scheduler-service:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
       interval: 30s
       timeout: 5s
       retries: 3

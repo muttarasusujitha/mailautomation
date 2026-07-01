@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     MONGODB_URL: str = "mongodb://localhost:27017"
-    MONGODB_DB_NAME: str = "trainer_platform"
+    MONGODB_DB_NAME: str = "trainersync"
     REDIS_URL: str = "redis://localhost:6379"
 
     ANTHROPIC_API_KEY: str = ""

@@ -14,10 +14,15 @@ logger = logging.getLogger(__name__)
 
 
 class AdminSettingsUpdate(BaseModel):
+    profile: Optional[Dict[str, Any]] = None
     emailCfg: Optional[Dict[str, Any]] = None
     twilioCfg: Optional[Dict[str, Any]] = None
+    clientInboxCfg: Optional[Dict[str, Any]] = None
     teamsCfg: Optional[Dict[str, Any]] = None
     teamsDirectCfg: Optional[Dict[str, Any]] = None
+    notif: Optional[Dict[str, Any]] = None
+    pipeline: Optional[Dict[str, Any]] = None
+    keys: Optional[Dict[str, Any]] = None
     schedulerCfg: Optional[Dict[str, Any]] = None
     autoSendCfg: Optional[Dict[str, Any]] = None
     geminiApiKey: Optional[str] = None
@@ -34,7 +39,7 @@ async def get_admin_settings(db: AsyncIOMotorDatabase = Depends(get_db)):
         for secret_key in ("smtpPass", "authToken", "appPassword", "clientSecret", "geminiApiKey", "anthropicApiKey"):
             if cfg.get(secret_key):
                 cfg[secret_key] = "***"
-    return {"success": True, "settings": doc}
+    return {"success": True, "settings": doc, **doc}
 
 
 @router.post("/settings")

@@ -10,6 +10,7 @@ from app.database import get_db
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+PENDING_CLIENT_STATUSES = ["pending_approval", "pending_review", "needs_manual_review"]
 
 # ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -31,12 +32,22 @@ def _date_recent_query(field: str, since: datetime) -> Dict[str, Any]:
     }
 
 
+def _client_status_query(statuses: List[str]) -> Dict[str, Any]:
+    return {
+        "$or": [
+            {"status": {"$in": statuses}},
+            {"reply_status": {"$in": statuses}},
+        ],
+    }
+
+
 # ─── /dashboard/stats ─────────────────────────────────────────────────────────
 
 @router.get("/stats")
 async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     """Quick KPI numbers for the top-of-page dashboard cards."""
     now = datetime.utcnow()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_ago = now - timedelta(days=7)
     month_ago = now - timedelta(days=30)
 
@@ -51,11 +62,29 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     new_trainers_week = await db["trainers"].count_documents({"created_at": {"$gte": week_ago}})
 
     # Emails
-    total_emails_sent = await db["email_logs"].count_documents({"direction": "outbound", "status": "sent"})
-    emails_this_week = await db["email_logs"].count_documents({
-        "direction": "outbound",
-        "status": "sent",
-        "sent_at": {"$gte": week_ago},
+    # Some legacy send logs have no direction field, while inbound logs are
+    # explicitly marked as inbound. Count all non-inbound sent rows.
+    sent_email_query = _outbound_email_query({"status": "sent"})
+    total_emails_sent = await db["email_logs"].count_documents(sent_email_query)
+    emails_this_week = await db["email_logs"].count_documents(
+        _outbound_email_query({"status": "sent", **_date_recent_query("sent_at", week_ago)})
+    )
+    failed_emails = await db["email_logs"].count_documents(
+        _outbound_email_query({"status": "failed"})
+    )
+    total_replies = await db["email_logs"].count_documents(
+        _outbound_email_query({"reply_received": True})
+    )
+    replies_this_week = await db["email_logs"].count_documents(
+        _outbound_email_query({"reply_received": True, **_date_recent_query("reply_received_at", week_ago)})
+    )
+
+    # Client inbox
+    total_client_requests = await db["client_emails"].count_documents({})
+    client_requests_today = await db["client_emails"].count_documents({"created_at": {"$gte": today_start}})
+    client_pending = await db["client_emails"].count_documents(_client_status_query(PENDING_CLIENT_STATUSES))
+    client_requirements_created = await db["client_emails"].count_documents({
+        "requirement_id": {"$exists": True, "$nin": ["", None]},
     })
     inbox_pending = await db["client_emails"].count_documents({"processed": {"$ne": True}})
 
@@ -66,7 +95,17 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     })
 
     # WhatsApp
-    wa_sent = await db["whatsapp_logs"].count_documents({"status": "sent"})
+    wa_success_statuses = ["queued", "sent", "delivered", "read"]
+    wa_sent = await db["whatsapp_logs"].count_documents({"status": {"$in": wa_success_statuses}})
+    wa_failed = await db["whatsapp_logs"].count_documents({"status": {"$in": ["failed", "undelivered"]}})
+    wa_skipped = await db["whatsapp_logs"].count_documents({"status": "skipped"})
+    wa_total = await db["whatsapp_logs"].count_documents({})
+    wa_replies = await db["whatsapp_logs"].count_documents({
+        "$or": [
+            {"direction": "inbound"},
+            {"status": "received"},
+        ],
+    })
 
     return {
         "success": True,
@@ -85,7 +124,17 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
         "emails": {
             "total_sent": total_emails_sent,
             "sent_this_week": emails_this_week,
+            "failed": failed_emails,
+            "total_replies": total_replies,
+            "replies_this_week": replies_this_week,
             "inbox_pending": inbox_pending,
+        },
+        "total_replies": total_replies,
+        "client_requests": {
+            "total": total_client_requests,
+            "today": client_requests_today,
+            "pending_approval": client_pending,
+            "requirements_created": client_requirements_created,
         },
         "shortlists": {
             "total": total_shortlists,
@@ -93,6 +142,12 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
         },
         "whatsapp": {
             "total_sent": wa_sent,
+            "sent": wa_sent,
+            "failed": wa_failed,
+            "skipped": wa_skipped,
+            "replies": wa_replies,
+            "total_attempted": wa_total,
+            "total": wa_total,
         },
     }
 
@@ -129,12 +184,13 @@ async def dashboard_analytics(
 
     # Emails sent over time
     pipeline_email: List[Dict[str, Any]] = [
-        {"$match": {"direction": "outbound", "status": "sent", "sent_at": {"$gte": since}}},
+        {"$match": _outbound_email_query({"status": "sent", **_date_recent_query("sent_at", since)})},
+        {"$addFields": {"bucket_date": {"$ifNull": ["$sent_at", "$created_at"]}}},
         {"$group": {
             "_id": {
-                "year": {"$year": "$sent_at"},
-                "month": {"$month": "$sent_at"},
-                "day": {"$dayOfMonth": "$sent_at"},
+                "year": {"$year": "$bucket_date"},
+                "month": {"$month": "$bucket_date"},
+                "day": {"$dayOfMonth": "$bucket_date"},
             },
             "count": {"$sum": 1},
         }},

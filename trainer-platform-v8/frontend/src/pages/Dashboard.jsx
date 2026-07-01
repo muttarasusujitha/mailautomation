@@ -230,14 +230,18 @@ export default function Dashboard() {
   const whatsapp       = stats?.whatsapp || {}
   const whatsappSent   = Number(whatsapp.total_sent ?? whatsapp.sent ?? 0)
   const whatsappFailed = Number(whatsapp.failed || 0)
+  const whatsappSkipped = Number(whatsapp.skipped || 0)
+  const whatsappAttempted = Number(whatsapp.total_attempted ?? whatsapp.total ?? whatsappSent + whatsappFailed + whatsappSkipped)
   const whatsappReplies = Number(whatsapp.replies || 0)
   const clientStats    = clientInbox?.stats || {}
   const recentClientEmails    = clientInbox?.emails || []
   const latestClientTrainerRequest = recentClientEmails.find(item =>
     item?.status !== 'spam' && (item?.extracted?.is_training_request || item?.requirement_id)
   )
-  const clientToday    = Number(clientStats.today || 0)
-  const clientPending  = Number(clientStats.pending_approval || 0)
+  const clientRequests = stats?.client_requests || {}
+  const clientTotal    = Number(clientRequests.total ?? clientStats.total ?? 0)
+  const clientToday    = Number(clientRequests.today ?? clientStats.today ?? 0)
+  const clientPending  = Number(clientRequests.pending_approval ?? clientStats.pending_approval ?? 0)
   const gmailConnected = !!gmailStatus?.connected
   const gmailUser      = gmailStatus?.gmail_user || gmailStatus?.configured_user || ''
   const replyRate      = normaliseRate(stats?.reply_rate || (totalEmails ? (totalReplies / totalEmails) * 100 : 0))
@@ -269,14 +273,14 @@ export default function Dashboard() {
   ]
 
   const statCards = [
-    { icon: BriefcaseBusiness, label: 'Client Requests', value: clientToday, sub: 'Received today',   tone: 'blue',   linkTo: '/client-requests' },
+    { icon: BriefcaseBusiness, label: 'Client Requests', value: clientTotal, sub: `${clientToday} received today`, tone: 'blue', linkTo: '/client-requests' },
     { icon: Inbox,             label: 'Client Pending',  value: clientPending, sub: 'Needs approval', tone: 'amber',  linkTo: '/client-requests' },
     { icon: Users,             label: 'Total Trainers',  value: totalTrainers, sub: 'In database', tone: 'blue', linkTo: '/trainers' },
     { icon: Mail,              label: 'Emails Sent',     value: totalEmails, sub: 'Outreach emails', tone: 'purple', linkTo: '/emails' },
     { icon: TrendingUp,        label: 'Replies',         value: totalReplies, sub: 'Trainer replies', tone: 'emerald', linkTo: '/emails' },
     { icon: BarChart2,         label: 'Requirements',    value: stats?.total_requirements ?? stats?.requirements?.total ?? 0, sub: 'Active searches', tone: 'orange', linkTo: '/requirements' },
     { icon: Activity,          label: 'Confirmed',       value: stats?.confirmed_count ?? stats?.shortlists?.trainers_selected ?? 0, sub: 'Ready to close', tone: 'sky', linkTo: '/shortlist1' },
-    { icon: Send,              label: 'WhatsApp Sent',   value: whatsappSent, sub: 'Queued/sent/delivered', tone: 'green' },
+    { icon: Send,              label: 'WhatsApp Activity', value: whatsappAttempted, sub: `${whatsappSent} sent, ${whatsappFailed} failed, ${whatsappSkipped} skipped`, tone: whatsappFailed ? 'red' : 'green' },
   ]
 
 
@@ -492,7 +496,7 @@ export default function Dashboard() {
             <PulseMetric label="Email delivery" value={deliveryRate} sub={`${failedEmails.toLocaleString('en-IN')} failed emails`} />
             <PulseMetric label="WhatsApp health"
               value={whatsappSent + whatsappFailed ? (whatsappSent / (whatsappSent + whatsappFailed)) * 100 : 100}
-              sub={`${whatsappReplies} WhatsApp replies`} color="bg-emerald-500" />
+              sub={`${whatsappFailed} failed, ${whatsappSkipped} skipped, ${whatsappReplies} replies`} color="bg-emerald-500" />
           </div>
         </Panel>
       </div>

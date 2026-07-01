@@ -1,5 +1,6 @@
 """Shortlist management — send mail, send interview link, send client slots."""
 import logging
+import re
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -18,6 +19,23 @@ settings = get_settings()
 
 EMAIL_SVC = "http://email-service:8002"
 NOTIF_SVC = "http://notification-service:8003"
+EXCLUDED_TRAINER_STATUSES = {"interested", "confirmed", "declined"}
+PIPELINE_VERSION = "trainer-match-microservice-v1"
+ACTIVE_PIPELINE_STAGES = {
+    "mail1",
+    "waiting_reply1",
+    "mail1_replied",
+    "mail2",
+    "waiting_reply2",
+    "details_received",
+    "mail3",
+    "slot_booked",
+    "interview_scheduled",
+    "selected",
+    "toc_requested",
+    "toc_received_pending",
+    "training_confirmed",
+}
 
 
 class SendMailRequest(BaseModel):
@@ -47,12 +65,381 @@ class SendClientSlotsRequest(BaseModel):
     smtp_config: Optional[Dict[str, Any]] = None
 
 
-@router.get("/{requirement_id}")
-async def get_shortlist(requirement_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
-    doc = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0})
-    if not doc:
-        raise HTTPException(404, "Shortlist not found")
-    return {"success": True, "shortlist": doc}
+def _clean(value: Any) -> str:
+    return str(value or "").strip()
+
+
+def _as_list(value: Any) -> List[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        raw = value
+    elif isinstance(value, (tuple, set)):
+        raw = list(value)
+    elif isinstance(value, str):
+        raw = re.split(r",|;|\n|\|", value)
+    else:
+        raw = [value]
+    cleaned: List[str] = []
+    seen = set()
+    for item in raw:
+        text = _clean(item)
+        key = text.lower()
+        if text and key not in seen:
+            seen.add(key)
+            cleaned.append(text)
+    return cleaned
+
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    if value in (None, ""):
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return default
+
+
+def _norm(value: Any) -> str:
+    if isinstance(value, list):
+        value = " ".join(_clean(item) for item in value)
+    elif isinstance(value, dict):
+        value = " ".join(f"{key} {val}" for key, val in value.items())
+    return re.sub(r"[^a-z0-9+#.]+", " ", _clean(value).lower()).strip()
+
+
+def _tokens(value: Any) -> set[str]:
+    return {token for token in _norm(value).split() if len(token) > 1}
+
+
+def _profile_text(trainer: Dict[str, Any]) -> str:
+    parts = [
+        trainer.get("name"),
+        trainer.get("trainer_name"),
+        trainer.get("title"),
+        trainer.get("role_designation"),
+        trainer.get("technologies"),
+        trainer.get("skills"),
+        trainer.get("certifications"),
+        trainer.get("primary_category"),
+        trainer.get("technology_category"),
+        trainer.get("category"),
+        trainer.get("domain"),
+        trainer.get("secondary_categories"),
+        trainer.get("specialisation_tags"),
+        trainer.get("specialty_tags"),
+        trainer.get("industry_focus"),
+        trainer.get("summary"),
+        trainer.get("past_clients"),
+        trainer.get("combined_text", "")[:8000] if isinstance(trainer.get("combined_text"), str) else "",
+        trainer.get("resume", "")[:5000] if isinstance(trainer.get("resume"), str) else "",
+    ]
+    return _norm(parts)
+
+
+def _category_text(trainer: Dict[str, Any]) -> str:
+    return _norm([
+        trainer.get("primary_category"),
+        trainer.get("technology_category"),
+        trainer.get("category"),
+        trainer.get("domain"),
+        trainer.get("secondary_categories"),
+        trainer.get("specialisation_tags"),
+        trainer.get("specialty_tags"),
+        trainer.get("technologies"),
+        trainer.get("skills"),
+    ])
+
+
+def _trainer_experience(trainer: Dict[str, Any]) -> float:
+    direct = _safe_float(trainer.get("experience_years"), -1)
+    if direct >= 0:
+        return direct
+    raw = " ".join([
+        _clean(trainer.get("experience_raw")),
+        _clean(trainer.get("summary")),
+        _clean(trainer.get("resume")),
+    ])
+    match = re.search(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)", raw, flags=re.IGNORECASE)
+    return _safe_float(match.group(1), 0.0) if match else 0.0
+
+
+def _has_resume(trainer: Dict[str, Any]) -> bool:
+    return bool(
+        trainer.get("resume")
+        or trainer.get("resume_url")
+        or trainer.get("upload_id")
+        or trainer.get("source_sheet") == "resume_upload"
+    )
+
+
+def _term_matches(terms: List[str], text: str) -> List[str]:
+    matches: List[str] = []
+    for term in terms:
+        norm = _norm(term)
+        if norm and f" {norm} " in f" {text} ":
+            matches.append(term)
+    return matches
+
+
+def _quality(score: float) -> str:
+    if score >= 80:
+        return "excellent"
+    if score >= 60:
+        return "strong"
+    if score >= 40:
+        return "good"
+    return "exploratory"
+
+
+def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    if requirement.get("must_have_linkedin") and not trainer.get("linkedin"):
+        return None
+    if requirement.get("must_have_resume") and not _has_resume(trainer):
+        return None
+
+    technology = _clean(
+        requirement.get("technology_needed")
+        or requirement.get("domain")
+        or requirement.get("title")
+        or requirement.get("job_title")
+    )
+    required_skills = _as_list(requirement.get("required_skills") or requirement.get("skills"))
+    preferred_skills = _as_list(requirement.get("preferred_skills"))
+    required_terms = [term for term in [technology, *required_skills] if term]
+
+    profile = _profile_text(trainer)
+    category = _category_text(trainer)
+    score = 0.0
+    breakdown: Dict[str, Any] = {}
+
+    technology_tokens = _tokens(technology)
+    all_tokens = set(category.split()) | set(profile.split())
+    if technology:
+        norm_technology = _norm(technology)
+        if f" {norm_technology} " in f" {category} ":
+            tech_score = 35.0
+        elif f" {norm_technology} " in f" {profile} ":
+            tech_score = 28.0
+        else:
+            tech_score = 18.0 * (len(technology_tokens & all_tokens) / max(len(technology_tokens), 1))
+        score += tech_score
+        breakdown["technology"] = round(tech_score, 2)
+
+    required_matches = _term_matches(required_skills, profile)
+    preferred_matches = _term_matches(preferred_skills, profile)
+    skill_score = 25.0 * (len(required_matches) / max(len(required_skills), 1)) if required_skills else 0.0
+    skill_score += min(8.0, 2.0 * len(preferred_matches))
+    score += skill_score
+    breakdown["skills"] = round(skill_score, 2)
+    breakdown["matched_required_skills"] = required_matches
+    breakdown["matched_preferred_skills"] = preferred_matches
+
+    min_exp = _safe_float(requirement.get("min_experience_years"), 0.0)
+    exp = _trainer_experience(trainer)
+    exp_score = 15.0 if min_exp and exp >= min_exp else min(exp * 1.5, 15.0)
+    score += exp_score
+    breakdown["experience"] = round(exp_score, 2)
+
+    preferred_location = _clean(requirement.get("preferred_location") or requirement.get("location"))
+    trainer_location = _clean(trainer.get("location"))
+    location_score = 10.0 if preferred_location and _norm(preferred_location) in _norm(trainer_location) else 0.0
+    score += location_score
+    breakdown["location"] = round(location_score, 2)
+
+    credibility_score = 0.0
+    if trainer.get("linkedin"):
+        credibility_score += 2.0
+    if _has_resume(trainer):
+        credibility_score += 3.0
+    if _as_list(trainer.get("certifications")):
+        credibility_score += 2.0
+    if trainer.get("training_count") or trainer.get("past_clients"):
+        credibility_score += 2.0
+    credibility_score += min(_safe_float(trainer.get("resume_rank_score"), 0.0) * 0.1, 3.0)
+    score += credibility_score
+    breakdown["credibility"] = round(credibility_score, 2)
+
+    if required_terms and not _term_matches(required_terms, profile) and score < 20:
+        return None
+
+    public = {k: v for k, v in trainer.items() if k not in {"_id", "combined_text"}}
+    public["trainer_id"] = _clean(public.get("trainer_id")) or f"TR-{uuid.uuid4().hex[:8].upper()}"
+    public["name"] = _clean(public.get("name") or public.get("trainer_name") or "Trainer")
+    public["email"] = _clean(public.get("email") or public.get("trainer_email"))
+    public["title"] = _clean(public.get("role_designation") or public.get("title"))
+    public["technologies"] = _clean(public.get("technologies") or public.get("technology_category") or public.get("domain"))
+    public["experience_years"] = exp
+    public["match_score"] = round(min(score, 100.0), 2)
+    public["score_breakdown"] = breakdown
+    public["match_quality"] = _quality(public["match_score"])
+    public["recommended_next_action"] = "Contact trainer and confirm availability"
+    return public
+
+
+def _merge_pipeline_state(new_trainer: Dict[str, Any], old_trainer: Dict[str, Any]) -> Dict[str, Any]:
+    preserve_keys = {
+        "pipeline_status",
+        "status",
+        "last_mail_type",
+        "last_mailed_at",
+        "email_stage",
+        "reply_received",
+        "reply_text",
+        "reply_sentiment",
+        "slots",
+        "selected",
+        "client_slot_sent",
+        "client_slot_sent_at",
+        "commercial_status",
+        "toc_status",
+        "interview_date",
+        "interview_link",
+    }
+    merged = dict(new_trainer)
+    for key, value in old_trainer.items():
+        if key in preserve_keys or key.startswith("last_") or key.endswith("_at"):
+            merged[key] = value
+    return merged
+
+
+def _is_active_pipeline_trainer(trainer: Dict[str, Any]) -> bool:
+    stage = _clean(trainer.get("pipeline_status") or trainer.get("status")).lower()
+    return stage in ACTIVE_PIPELINE_STAGES
+
+
+async def _sync_shortlist_with_trainers(
+    db: AsyncIOMotorDatabase,
+    requirement: Dict[str, Any],
+    existing: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    req_id = requirement.get("requirement_id")
+    if not req_id:
+        raise HTTPException(400, "Requirement id missing")
+
+    all_trainers = await db["trainers"].find({}, {"_id": 0}).to_list(10000)
+    available_trainers = [
+        trainer for trainer in all_trainers
+        if _clean(trainer.get("status")).lower() not in EXCLUDED_TRAINER_STATUSES
+    ]
+    scored = [
+        scored_trainer
+        for trainer in available_trainers
+        if (scored_trainer := _score_trainer(trainer, requirement)) is not None
+    ]
+    scored.sort(
+        key=lambda trainer: (
+            _safe_float(trainer.get("match_score"), 0),
+            _safe_float(trainer.get("experience_years"), 0),
+            1 if trainer.get("email") else 0,
+        ),
+        reverse=True,
+    )
+
+    top_n = max(1, min(_safe_int(requirement.get("top_n"), 5), 20))
+    existing = existing or {}
+    old_trainers = existing.get("top_trainers", []) or []
+    old_by_id = {
+        _clean(trainer.get("trainer_id")): trainer
+        for trainer in old_trainers
+        if trainer.get("trainer_id")
+    }
+    top_trainers = scored[:top_n]
+    new_ids = {_clean(trainer.get("trainer_id")) for trainer in top_trainers}
+    for index, trainer in enumerate(top_trainers, start=1):
+        trainer["rank"] = index
+        trainer["pipeline_status"] = trainer.get("pipeline_status") or "shortlisted"
+        old = old_by_id.get(_clean(trainer.get("trainer_id")))
+        if old:
+            trainer.update(_merge_pipeline_state(trainer, old))
+
+    active_old_trainers = [
+        trainer for trainer in old_trainers
+        if _clean(trainer.get("trainer_id")) not in new_ids and _is_active_pipeline_trainer(trainer)
+    ]
+    top_trainers.extend(active_old_trainers)
+
+    now = datetime.utcnow()
+    warnings = [] if all_trainers else ["No trainers available in database."]
+    doc = {
+        "shortlist_id": existing.get("shortlist_id") or f"SL-{uuid.uuid4().hex[:8].upper()}",
+        "requirement_id": req_id,
+        "technology_needed": requirement.get("technology_needed", ""),
+        "top_trainers": top_trainers,
+        "total_matched": len(scored),
+        "total_trainers_scanned": len(all_trainers),
+        "total_available": len(available_trainers),
+        "category_filter_applied": False,
+        "no_category_match": bool(requirement.get("technology_needed")) and len(scored) == 0,
+        "category_match_count": len(scored),
+        "pipeline_summary": {
+            "pipeline_version": PIPELINE_VERSION,
+            "status": "completed",
+            "total_candidates": len(available_trainers),
+            "ranked_count": len(scored),
+            "top_count": len(top_trainers),
+            "warnings": warnings,
+            "errors": [],
+        },
+        "pipeline_stage_log": [
+            {
+                "stage": "trainer_db_sync",
+                "status": "completed",
+                "detail": {
+                    "total_trainers_scanned": len(all_trainers),
+                    "available_trainers": len(available_trainers),
+                    "ranked_count": len(scored),
+                    "top_count": len(top_trainers),
+                },
+                "at": now.isoformat(),
+            }
+        ],
+        "matching_pipeline_version": PIPELINE_VERSION,
+        "pipeline_warnings": warnings,
+        "pipeline_errors": [],
+        "auto_created": True,
+        "updated_at": now,
+        "created_at": existing.get("created_at") or now,
+    }
+    set_doc = {k: v for k, v in doc.items() if k not in {"shortlist_id", "created_at"}}
+    await db["shortlists"].update_one(
+        {"requirement_id": req_id},
+        {
+            "$set": set_doc,
+            "$setOnInsert": {
+                "shortlist_id": doc["shortlist_id"],
+                "created_at": doc["created_at"],
+            },
+        },
+        upsert=True,
+    )
+    await db["requirements"].update_one(
+        {"requirement_id": req_id},
+        {"$set": {
+            "total_matched": len(scored),
+            "top_count": len(top_trainers),
+            "updated_at": now,
+        }},
+    )
+    return doc
+
+
+def _shortlist_response(doc: Dict[str, Any]) -> Dict[str, Any]:
+    trainers = doc.get("top_trainers", []) or []
+    return {
+        "success": True,
+        **doc,
+        "shortlist": doc,
+        "top_trainers": trainers,
+        "trainers": trainers,
+    }
 
 
 @router.get("/thread")
@@ -79,6 +466,17 @@ async def get_thread_states(db: AsyncIOMotorDatabase = Depends(get_db)):
     ]
     stages = {r["_id"]: r["count"] async for r in db["shortlists"].aggregate(pipeline) if r["_id"]}
     return {"success": True, "stage_counts": stages}
+
+
+@router.get("/{requirement_id}")
+async def get_shortlist(requirement_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    doc = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    if requirement:
+        doc = await _sync_shortlist_with_trainers(db, requirement, doc)
+    elif not doc:
+        raise HTTPException(404, "Shortlist not found")
+    return _shortlist_response(doc)
 
 
 @router.post("/send-mail")

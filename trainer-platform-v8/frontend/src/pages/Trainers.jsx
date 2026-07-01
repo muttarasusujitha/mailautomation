@@ -1015,7 +1015,7 @@ export default function Trainers() {
         industry: industry || undefined,
         experience: experience || undefined,
       })
-      setTrainers(res.data.trainers || [])
+      setTrainers(res.data.items || [])
       setTotal(res.data.total || 0)
       setPages(res.data.pages || 1)
       if (res.data.categories) setCategories(res.data.categories)
