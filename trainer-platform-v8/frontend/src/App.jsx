@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { Suspense, lazy, useState } from 'react'
+import { Suspense, lazy, useState, useEffect } from 'react'
 import Layout from './components/Layout'
 import ChatAssistant from './components/ChatAssistant'
 import FloatingIntegrations from './components/FloatingIntegrations'
@@ -52,6 +52,19 @@ export default function App() {
       return !!auth.loggedIn
     } catch { return false }
   })
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return
+    try {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('dev') === 'true' || params.get('dev_login') === 'true') {
+        sessionStorage.setItem('ts_auth', JSON.stringify({ loggedIn: true }))
+        setIsLoggedIn(true)
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [])
 
   const handleLogin = () => setIsLoggedIn(true)
   const handleLogout = () => {

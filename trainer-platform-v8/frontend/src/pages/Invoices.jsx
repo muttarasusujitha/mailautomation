@@ -127,7 +127,15 @@ export default function Invoices() {
     if (!silent) setLoading(true)
     try {
       const res = await api.get('/client-pipeline', { params: { q: q || undefined, limit: 150 } })
-      const next = res.data.items || []
+      const next = (res.data.pipeline || []).map(item => ({
+        ...item,
+        domain: item.domain || item.technology_needed || item.technology_key || 'Training',
+        client: item.client || {
+          name: item.client_name || item.client_company || '',
+          company: item.client_company || item.client_name || '',
+          email: item.client_email || item.client_email || '',
+        },
+      }))
       setItems(next)
       if (!next.some(item => item.requirement_id === selectedId)) setSelectedId(next[0]?.requirement_id || '')
     } catch (e) {

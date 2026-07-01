@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
@@ -21,6 +22,18 @@ class ConfirmResumeRequest(BaseModel):
 class BulkConfirmRequest(BaseModel):
     upload_ids: List[str] = []
     corrections: Optional[Dict[str, Dict[str, Any]]] = None
+
+
+def _json_safe(value: Any) -> Any:
+    if isinstance(value, ObjectId):
+        return str(value)
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, list):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _json_safe(item) for key, item in value.items()}
+    return value
 
 
 @router.get("")
@@ -42,7 +55,7 @@ async def list_resume_uploads(
         .skip(skip)
         .limit(page_size)
     )
-    items = [d async for d in cursor]
+    items = [_json_safe(d) async for d in cursor]
     return {
         "success": True,
         "total": total,
@@ -62,7 +75,7 @@ async def get_trainer_by_upload(upload_id: str, db: AsyncIOMotorDatabase = Depen
     trainer = {}
     if trainer_id:
         trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0, "resume": 0}) or {}
-    return {"success": True, "upload": upload, "trainer": trainer}
+    return {"success": True, "upload": _json_safe(upload), "trainer": _json_safe(trainer)}
 
 
 @router.get("/{upload_id}")
@@ -70,7 +83,7 @@ async def get_resume_upload(upload_id: str, db: AsyncIOMotorDatabase = Depends(g
     doc = await db["resume_uploads"].find_one({"upload_id": upload_id}, {"_id": 0, "extracted_text": 0})
     if not doc:
         raise HTTPException(404, "Upload not found")
-    return {"success": True, "upload": doc}
+    return {"success": True, "upload": _json_safe(doc)}
 
 
 @router.get("/resume-status/{upload_id}")
@@ -81,7 +94,7 @@ async def get_resume_status(upload_id: str, db: AsyncIOMotorDatabase = Depends(g
     )
     if not doc:
         raise HTTPException(404, "Upload not found")
-    return {"success": True, **doc}
+    return {"success": True, **_json_safe(doc)}
 
 
 @router.post("/confirm-resume/{upload_id}")

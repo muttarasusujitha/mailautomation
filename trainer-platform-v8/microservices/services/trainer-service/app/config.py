@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     MONGODB_URL: str = "mongodb://localhost:27017"
     MONGODB_DB_NAME: str = "trainersync"
     REDIS_URL: str = "redis://localhost:6379"
+    DOCUMENT_SERVICE_URL: str = "http://document-service:8006"
 
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"

@@ -1,6 +1,8 @@
 # Environment and local secrets
 .env
 *.env
+.env.*
+*.env.*
 !.env.example
 config/credentials.json
 config/token.json
@@ -27,6 +29,7 @@ build/
 # Local/editor files
 .DS_Store
 Thumbs.db
+.runlogs/
 *.log
 *.tmp
 

@@ -438,7 +438,7 @@ export default function ClientConversations() {
           limit: 100,
         },
       })
-      const nextThreads = res.data.threads || []
+      const nextThreads = res.data.conversations || []
       setThreads(nextThreads)
       setClients(res.data.clients || [])
       setDomains(res.data.domains || [])
