@@ -7,6 +7,7 @@ import {
   RefreshCw, Send, ShieldCheck, SlidersHorizontal, Trash2, Zap
 } from 'lucide-react'
 import api from '../utils/api'
+import { saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 const FILTERS = [
   { key: 'all', label: 'All' },
@@ -282,7 +283,8 @@ export default function Inbox() {
   const fetchSettings = async () => {
     try {
       const res = await api.get('/admin/settings')
-      const cfg = res.data.clientInboxCfg || {}
+      const settings = res.data.settings || res.data
+      const cfg = settings.clientInboxCfg || {}
       setClientInboxCfg(normalizeClientInboxCfg(cfg))
       setAutoSendEnabled(cfg.autoSendEnabled !== false)
       setAutoSendThreshold(Number(cfg.autoSendThreshold || 70))
@@ -343,8 +345,10 @@ export default function Inbox() {
         return
       }
       if (!connected) {
-        const res = await api.get('/gmail/oauth-url')
-        window.location.href = res.data.auth_url
+        const redirectUri = `${window.location.origin}/auth/callback`
+        const res = await api.get('/gmail/oauth-url', { params: { redirect_uri: redirectUri } })
+        saveGmailOAuthPkce(res.data)
+        window.location.href = res.data.auth_url || res.data.url
         return
       }
 

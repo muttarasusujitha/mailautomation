@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Loader2, Mail, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import api from '../utils/api'
+import { clearGmailOAuthPkce, consumeGmailOAuthPkce } from '../utils/gmailOAuth'
 
 export default function GmailCallback() {
   const [params] = useSearchParams()
@@ -16,19 +17,25 @@ export default function GmailCallback() {
     const finishAuth = async () => {
       const error = params.get('error')
       const code = params.get('code')
+      const state = params.get('state')
 
       if (error) {
+        clearGmailOAuthPkce()
         setStatus({ type: 'error', message: `Google rejected the connection: ${error}` })
         return
       }
       if (!code) {
+        clearGmailOAuthPkce()
         setStatus({ type: 'error', message: 'Missing Google authorization code.' })
         return
       }
 
       try {
+        const codeVerifier = consumeGmailOAuthPkce(state || '')
         await api.post('/gmail/oauth-callback', {
           code,
+          state,
+          code_verifier: codeVerifier,
           redirect_uri: `${window.location.origin}/auth/callback`,
         })
 

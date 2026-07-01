@@ -138,22 +138,40 @@ const DOMAIN_BADGES = {
   'enterprise software': 'bg-orange-50 text-orange-700 border-orange-200',
 }
 
+function displayText(value, preferredKeys = []) {
+  if (value == null) return ''
+  if (typeof value === 'string') return value.trim()
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  if (Array.isArray(value)) return value.map(item => displayText(item, preferredKeys)).filter(Boolean).join(', ')
+  if (typeof value === 'object') {
+    const keys = [...preferredKeys, 'label', 'value', 'name', 'domain', 'category', 'industry', 'technology_category']
+    for (const key of keys) {
+      const text = displayText(value[key], preferredKeys)
+      if (text) return text
+    }
+    return ''
+  }
+  return String(value).trim()
+}
+
 function asArray(value) {
-  if (Array.isArray(value)) return value.filter(Boolean)
+  if (Array.isArray(value)) return value.map(item => displayText(item)).filter(Boolean)
   if (!value) return []
-  return String(value).split(/[,;\n]/).map(item => item.trim()).filter(Boolean)
+  return displayText(value).split(/[,;\n]/).map(item => item.trim()).filter(Boolean)
 }
 
 function uniqueSorted(values) {
-  return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b))
+  return [...new Set(values.map(item => displayText(item)).filter(Boolean))].sort((a, b) => a.localeCompare(b))
 }
 
 function softwareDomainsOnly(values) {
-  return values.filter(domain => domain && !NON_SOFTWARE_DOMAINS.has(String(domain).toLowerCase()))
+  return values
+    .map(domain => displayText(domain))
+    .filter(domain => domain && !NON_SOFTWARE_DOMAINS.has(domain.toLowerCase()))
 }
 
 function primaryCategory(t) {
-  return t.primary_category || t.technology_category || t.category || 'Uncategorised'
+  return displayText(t.primary_category) || displayText(t.technology_category) || displayText(t.category) || 'Uncategorised'
 }
 
 function specialisationTags(t) {
@@ -161,7 +179,7 @@ function specialisationTags(t) {
 }
 
 function domainBadge(domain) {
-  return DOMAIN_BADGES[String(domain || '').toLowerCase()] || 'bg-slate-100 text-slate-600 border-slate-200'
+  return DOMAIN_BADGES[displayText(domain).toLowerCase()] || 'bg-slate-100 text-slate-600 border-slate-200'
 }
 
 function levelBadge(level) {
@@ -173,7 +191,11 @@ function levelBadge(level) {
 
 function skillLevels(t) {
   const map = t.skill_level_map || {}
-  return Object.entries(map).filter(([skill]) => skill).slice(0, 3)
+  if (!map || typeof map !== 'object' || Array.isArray(map)) return []
+  return Object.entries(map)
+    .map(([skill, level]) => [displayText(skill), displayText(level)])
+    .filter(([skill]) => skill)
+    .slice(0, 3)
 }
 
 function trainerRating(t) {
@@ -1015,7 +1037,7 @@ export default function Trainers() {
         industry: industry || undefined,
         experience: experience || undefined,
       })
-      setTrainers(res.data.trainers || [])
+      setTrainers(res.data.items || [])
       setTotal(res.data.total || 0)
       setPages(res.data.pages || 1)
       if (res.data.categories) setCategories(res.data.categories)
