@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
-import { saveGmailOAuthPkce } from '../utils/gmailOAuth'
+import { normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 const SETTINGS_STORAGE_KEY = 'admin_settings'
 
@@ -261,7 +261,7 @@ export default function Admin() {
 
       try {
         const statusRes = await fetch('/api/gmail/auth-status')
-        if (statusRes.ok) setGmailStatus(await statusRes.json())
+        if (statusRes.ok) setGmailStatus(normalizeGmailStatus(await statusRes.json()))
       } catch {}
       loadTeamsDirectStatus()
       loadReminders()
@@ -432,7 +432,7 @@ export default function Admin() {
       const res = await fetch('/api/gmail/renew-watch', { method: 'POST' })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.detail || data.error || 'Gmail watch renewal failed')
-      setGmailStatus(prev => ({ ...prev, connected: true, valid: true, ...data }))
+      setGmailStatus(prev => normalizeGmailStatus({ ...prev, connected: true, valid: true, ...data }))
       toast.success('Gmail connected and watch renewed!')
     } catch (e) {
       toast.error(e.message || 'Run backend/scripts/gmail_auth.py first')

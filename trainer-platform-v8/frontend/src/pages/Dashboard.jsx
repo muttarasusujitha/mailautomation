@@ -12,6 +12,7 @@ import {
 } from 'recharts'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
+import { normalizeGmailStatus } from '../utils/gmailOAuth'
 
 /* ─── Helpers ──────────────────────────────────────────────── */
 function AnimatedNumber({ value, duration = 1100 }) {
@@ -186,7 +187,7 @@ export default function Dashboard() {
         toast.error(inboxRes.reason?.message || 'Could not load inbox')
       }
       setGmailStatus(
-        gmailRes.status === 'fulfilled' ? gmailRes.value.data : { connected: false }
+        gmailRes.status === 'fulfilled' ? normalizeGmailStatus(gmailRes.value.data) : normalizeGmailStatus({ connected: false })
       )
     } catch (err) {
       toast.error(err?.message || 'Failed to load dashboard data')
@@ -243,7 +244,7 @@ export default function Dashboard() {
   const clientToday    = Number(clientRequests.today ?? clientStats.today ?? 0)
   const clientPending  = Number(clientRequests.pending_approval ?? clientStats.pending_approval ?? 0)
   const gmailConnected = !!gmailStatus?.connected
-  const gmailUser      = gmailStatus?.gmail_user || gmailStatus?.configured_user || ''
+  const gmailUser      = gmailStatus?.gmail_user || gmailStatus?.configured_user || gmailStatus?.email || ''
   const replyRate      = normaliseRate(stats?.reply_rate || (totalEmails ? (totalReplies / totalEmails) * 100 : 0))
   const interestRate   = normaliseRate(stats?.interest_rate || (totalTrainers ? (interested / totalTrainers) * 100 : 0))
   const deliveryRate   = totalEmails + failedEmails ? (totalEmails / (totalEmails + failedEmails)) * 100 : 100

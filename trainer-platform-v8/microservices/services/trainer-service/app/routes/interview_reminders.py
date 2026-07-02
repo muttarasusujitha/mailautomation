@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from app.database import get_db
 
+schedules_router = APIRouter()
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
@@ -57,6 +58,12 @@ async def list_interview_schedules(db: AsyncIOMotorDatabase = Depends(get_db)):
     )
     items = [d async for d in cursor]
     return {"success": True, "count": len(items), "schedules": items}
+
+
+@schedules_router.get("")
+async def list_interview_schedules_alias(db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Frontend-compatible alias for /api/v1/interview-schedules."""
+    return await list_interview_schedules(db)
 
 
 @router.post("")

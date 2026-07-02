@@ -102,11 +102,26 @@ async def gmail_auth_status(db: AsyncIOMotorDatabase = Depends(get_db)):
     """Check whether Gmail OAuth token is present and valid."""
     creds, err = _load_creds()
     if not creds or not creds.valid:
-        return {"connected": False, "error": err or "Token invalid or expired"}
+        return {
+            "connected": False,
+            "valid": False,
+            "token_valid": False,
+            "calendar_connected": False,
+            "error": err or "Token invalid or expired",
+        }
+    scopes = list(getattr(creds, "scopes", []) or [])
+    email = getattr(creds, "_service_account_email", None) or settings.GMAIL_USER
+    calendar_connected = any("/auth/calendar" in str(scope) for scope in scopes)
     return {
         "connected": True,
-        "email": getattr(creds, "_service_account_email", None) or settings.GMAIL_USER,
-        "scopes": list(getattr(creds, "scopes", []) or []),
+        "valid": True,
+        "token_valid": True,
+        "email": email,
+        "gmail_user": email,
+        "configured_user": email,
+        "calendar_connected": calendar_connected,
+        "calendar_ready": calendar_connected,
+        "scopes": scopes,
     }
 
 

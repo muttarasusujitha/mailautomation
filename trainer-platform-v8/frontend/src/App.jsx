@@ -111,6 +111,9 @@ export default function App() {
             <Route path="client-mail-pipeline" element={<ClientPipeline />} />
             <Route path="client-conversations" element={<ClientConversations />} />
             <Route path="interview-scheduled" element={<InterviewSchedules />} />
+            <Route path="interview" element={<Navigate to="/interview-scheduled" replace />} />
+            <Route path="interview-schedule" element={<Navigate to="/interview-scheduled" replace />} />
+            <Route path="interview-schedules" element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
             <Route path="resume-upload" element={<ResumeUpload />} />

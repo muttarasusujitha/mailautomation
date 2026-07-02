@@ -50,6 +50,20 @@ const STATUS_COLORS = {
   declined: 'badge-red',
   confirmed: 'badge-green',
   pending_review: 'badge-yellow',
+  interview_scheduled: 'badge-purple',
+  selected: 'badge-green',
+  rejected: 'badge-red',
+  toc_requested: 'badge-blue',
+  toc_received_pending: 'badge-blue',
+  training_confirmed: 'badge-green',
+}
+
+function trainerStatusLabel(value = '') {
+  return String(value || 'new').replaceAll('_', ' ')
+}
+
+function trainerStatusClass(value = '') {
+  return STATUS_COLORS[value] || 'badge-slate'
 }
 
 const STATUSES = ['', 'new', 'contacted', 'interested', 'declined', 'pending_review']
@@ -345,7 +359,7 @@ function TrainerPipelinePanel({ trainer, onStartAutomation, sendingAutomation })
             currentStage ? 'border-blue-200 bg-blue-50 text-blue-700' :
                            'border-slate-200 bg-slate-50 text-slate-600'
           )}>
-            Status: <span className="font-bold capitalize">{statusText}</span>
+            Trainer Status: <span className="font-bold capitalize">{statusText}</span>
           </div>
           <button
             type="button"
@@ -549,7 +563,9 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
             <div className="min-w-0">
               <h2 className="font-jakarta font-bold text-slate-900 text-lg truncate">{t.name}</h2>
               <div className="flex flex-wrap gap-1 mt-1">
-                <span className={clsx('text-xs', STATUS_COLORS[t.status] || 'badge-slate')}>{t.status || 'new'}</span>
+                <span className={clsx('text-xs', trainerStatusClass(t.status))}>
+                  Trainer Status: {trainerStatusLabel(t.status)}
+                </span>
                 <span className={clsx('px-2 py-0.5 rounded-full border text-xs font-semibold', domainBadge(t.domain))}>
                   {category}
                 </span>
@@ -853,7 +869,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
                 {Math.round(t.match_score)}
               </div>
             )}
-            <span className={STATUS_COLORS[t.status] || 'badge-slate'}>{t.status || 'new'}</span>
+            <span className={trainerStatusClass(t.status)}>Trainer Status: {trainerStatusLabel(t.status)}</span>
             <TrainerCardTrustPill trainer={t} />
           </div>
         </div>

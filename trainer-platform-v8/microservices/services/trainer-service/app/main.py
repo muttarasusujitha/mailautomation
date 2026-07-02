@@ -51,6 +51,7 @@ app.include_router(shortlists.router,         prefix="/api/v1/shortlists",      
 
 # Interview reminders
 app.include_router(interview_reminders.router, prefix="/api/v1/interview-reminders", tags=["interview-reminders"])
+app.include_router(interview_reminders.schedules_router, prefix="/api/v1/interview-schedules", tags=["interview-schedules"])
 
 # TOC
 app.include_router(toc.router,                prefix="/api/v1/toc",                  tags=["toc"])

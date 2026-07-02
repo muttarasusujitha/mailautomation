@@ -50,3 +50,24 @@ export function consumeGmailOAuthPkce(state = '') {
 export function clearGmailOAuthPkce() {
   getSessionStorage()?.removeItem(GMAIL_OAUTH_PKCE_KEY)
 }
+
+export function normalizeGmailStatus(status = {}) {
+  const scopes = Array.isArray(status.scopes) ? status.scopes : []
+  const email = status.email || status.gmail_user || status.configured_user || status.user_email || ''
+  const calendarConnected = Boolean(
+    status.calendar_connected ||
+    status.calendar_ready ||
+    scopes.some(scope => String(scope).includes('/auth/calendar'))
+  )
+
+  return {
+    ...status,
+    connected: Boolean(status.connected || status.valid || status.token_valid),
+    valid: Boolean(status.valid ?? status.connected ?? status.token_valid),
+    token_valid: Boolean(status.token_valid ?? status.valid ?? status.connected),
+    email,
+    gmail_user: email,
+    configured_user: email,
+    calendar_connected: calendarConnected,
+  }
+}

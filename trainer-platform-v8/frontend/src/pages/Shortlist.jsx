@@ -228,6 +228,43 @@ function normalizeBackendStage(value = '') {
   return BACKEND_AUTHORITATIVE_STAGES.has(stage) ? stage : ''
 }
 
+const BACKEND_PIPELINE_STAGE_ALIASES = {
+  shortlisted: 'pending',
+  new: 'pending',
+  mail1: 'waiting_reply1',
+  mail1_sent: 'waiting_reply1',
+  mail1_reminder: 'waiting_reply1',
+  mail1_question_redirect: 'waiting_reply1',
+  mail2: 'waiting_reply2',
+  mail2_followup: 'waiting_reply2',
+  mail3: 'slot_booked',
+  mail3_slot_followup: 'slot_booked',
+  mail4: 'interview_scheduled',
+  mail5_ok: 'selected',
+  mail5_no: 'rejected',
+  mail6_toc: 'toc_requested',
+  mail7_confirm: 'training_confirmed',
+}
+
+function normalizePipelineStage(value = '') {
+  const stage = String(value || '').trim().toLowerCase()
+  if (!stage) return ''
+  return BACKEND_PIPELINE_STAGE_ALIASES[stage] || (STAGES[stage] ? stage : normalizeBackendStage(stage))
+}
+
+function resolveTrainerStage(trainer, req, state) {
+  const authoritative = backendAuthoritativeStage(trainer, req)
+  if (authoritative) return authoritative
+
+  const stateStage = normalizePipelineStage(state?.status)
+  if (stateStage && stateStage !== 'pending') return stateStage
+
+  const backendStage = normalizePipelineStage(
+    trainer?.pipeline_status || trainer?.status || trainer?.last_mail_type || trainer?.last_automation_mail_type
+  )
+  return backendStage || stateStage || 'pending'
+}
+
 function requirementCommercialStage(req) {
   const invoiceStatus = String(req?.invoice_status || '').toLowerCase()
   const clientPoStatus = String(req?.client_po_status || '').toLowerCase()
@@ -1889,7 +1926,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
       try {
         const currentStates = statesRef.current
         const nextStates = { ...currentStates }
-        const getStage = trainer => backendAuthoritativeStage(trainer, req) || nextStates[trainer.trainer_id]?.status || 'pending'
+        const getStage = trainer => resolveTrainerStage(trainer, req, nextStates[trainer.trainer_id])
         const setStage = (trainer, status, extra = {}) => {
           nextStates[trainer.trainer_id] = { ...(nextStates[trainer.trainer_id] || {}), status, ...extra }
           onStatusUpdate(trainer.trainer_id, status, extra)
@@ -2322,7 +2359,7 @@ function ModeToggle({ autoMode, onChange }) {
 
 // ─── Trainer Card ─────────────────────────────────────────────────────────────
 function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementPatch, autoMode, isActive }) {
-  const stage     = backendAuthoritativeStage(trainer, req) || state?.status || 'pending'
+  const stage     = resolveTrainerStage(trainer, req, state)
   const stageInfo = STAGES[stage] || STAGES.pending
   const [mailModal, setMailModal] = useState(null)
   const [manualMailType, setManualMailType] = useState('mail1')
@@ -2856,12 +2893,20 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
                   trainer.match_score >= 60 ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
                 )}>{trainer.match_score} pts</span>
               )}
-              <span className={clsx('px-2 py-0.5 rounded-full text-xs font-semibold', stageInfo.color)}>{stageInfo.label}</span>
+              <span className={clsx('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold', stageInfo.color)}>
+                <span className="font-bold uppercase opacity-70">Trainer Status:</span>
+                {stageInfo.label}
+              </span>
               {autoMode && isActive && !['selected','rejected','toc_requested','toc_received_pending','training_confirmed','slot_booked','interview_scheduled','po_requested','client_po_received','invoice_generated','invoice_sent'].includes(stage) && (
                 <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700 animate-pulse">
                   🤖 Auto Active
                 </span>
               )}
+            </div>
+
+            <div className={clsx('mt-2 flex w-fit items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-semibold', stageInfo.color)}>
+              <span className="font-bold uppercase opacity-70">Trainer Status</span>
+              <span>{stageInfo.label}</span>
             </div>
 
             <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-slate-500">
@@ -3123,12 +3168,12 @@ export default function Shortlist() {
 
   const activeTrainerId = (() => {
     const active = trainers.find(t =>
-      ['waiting_reply2','slot_booked','interview_scheduled','selected','toc_requested','toc_received_pending'].includes(backendAuthoritativeStage(t, selectedReq) || states[t.trainer_id]?.status)
+      ['waiting_reply2','slot_booked','interview_scheduled','selected','toc_requested','toc_received_pending'].includes(resolveTrainerStage(t, selectedReq, states[t.trainer_id]))
     )
     if (active) return active.trainer_id
 
     const queued = trainers
-      .filter(t => (backendAuthoritativeStage(t, selectedReq) || states[t.trainer_id]?.status) === 'mail1_replied')
+      .filter(t => resolveTrainerStage(t, selectedReq, states[t.trainer_id]) === 'mail1_replied')
       .sort((a, b) => {
         const aTime = states[a.trainer_id]?.mail1ReplyAt || Number.MAX_SAFE_INTEGER
         const bTime = states[b.trainer_id]?.mail1ReplyAt || Number.MAX_SAFE_INTEGER
@@ -3148,7 +3193,7 @@ export default function Shortlist() {
   const selectedTrainerForDomain = selectedReq
     ? trainers.find(t => String(t.trainer_id) === String(selectedReq.selected_trainer_id || '')) ||
       trainers.find(t => ['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed'].includes(
-        backendAuthoritativeStage(t, selectedReq) || states[t.trainer_id]?.status || t.pipeline_status || t.status
+        resolveTrainerStage(t, selectedReq, states[t.trainer_id])
       ))
     : null
   const hiringDoneForDomain = Boolean(

@@ -7,7 +7,7 @@ import {
   RefreshCw, Send, ShieldCheck, SlidersHorizontal, Trash2, Zap
 } from 'lucide-react'
 import api from '../utils/api'
-import { saveGmailOAuthPkce } from '../utils/gmailOAuth'
+import { normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 const FILTERS = [
   { key: 'all', label: 'All' },
@@ -274,9 +274,9 @@ export default function Inbox() {
   const fetchStatus = async () => {
     try {
       const res = await api.get('/gmail/auth-status')
-      setGmailStatus(res.data)
+      setGmailStatus(normalizeGmailStatus(res.data))
     } catch {
-      setGmailStatus({ connected: false })
+      setGmailStatus(normalizeGmailStatus({ connected: false }))
     }
   }
 
