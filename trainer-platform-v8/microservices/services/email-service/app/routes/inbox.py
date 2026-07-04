@@ -284,6 +284,42 @@ def _client_company_from_email(email: str, fallback: str = "") -> str:
     return _clean(domain.split(".")[0]).title()
 
 
+def _looks_like_company_name(name: str) -> bool:
+    if not name:
+        return False
+    cleaned = _clean(name).lower()
+    company_keywords = [
+        "inc", "ltd", "llp", "corp", "company", "solutions", "services", "technologies",
+        "group", "net", "org", "com", "co", "tech",
+    ]
+    known_brand_names = {"spotify", "google", "microsoft", "amazon", "facebook", "meta", "apple", "ibm", "oracle", "accenture"}
+    if cleaned in known_brand_names:
+        return True
+    if any(keyword in cleaned for keyword in company_keywords):
+        return True
+    if re.match(r"^[a-z0-9_.+-]+$", cleaned) and cleaned.endswith(("inc", "ltd", "llp", "corp", "co", "tech")):
+        return True
+    if cleaned in {"info", "contact", "support", "sales", "admin", "hello", "team", "recruiter"}:
+        return True
+    return False
+
+
+def _extract_person_name_from_local_part(local_part: str) -> str:
+    cleaned = _clean(local_part)
+    if not cleaned or _looks_like_company_name(cleaned):
+        return ""
+    tokens = [token for token in re.split(r"[._+-]", cleaned) if token]
+    if not tokens:
+        return ""
+    if any(not token.isalpha() for token in tokens):
+        return ""
+    if len(tokens) == 1:
+        return tokens[0].title() if len(tokens[0]) > 1 else ""
+    if 1 < len(tokens) <= 3:
+        return " ".join(token.title() for token in tokens)
+    return ""
+
+
 def _infer_technology(subject: str, body: str) -> str:
     text = f"{subject}\n{body}"
     explicit = _field_value(text, ["Technology", "Tech", "Domain", "Course", "Topic"])
@@ -436,6 +472,11 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         needs_clarification.append("Participant count not provided")
 
     is_training_request = bool(technology) and direct_request and not non_client_email and confidence >= 0.55
+    inferred_client_name = _clean(sender_name)
+    if not inferred_client_name:
+        local_part = _clean((sender_email or "").split("@")[0])
+        inferred_client_name = _extract_person_name_from_local_part(local_part)
+
     return {
         "technology_needed": technology,
         "technology": technology,
@@ -447,7 +488,7 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         "timing": timing,
         "participant_count": participants,
         "client_company": _client_company_from_email(sender_email, sender_name),
-        "client_name": _clean(sender_name) or _clean((sender_email or "").split("@")[0]) or "Client",
+        "client_name": inferred_client_name or "Client",
         "client_email": _clean(sender_email),
         "email_summary": _build_summary(technology, mode, duration.get("duration_text"), timing),
         "requested_details": requested_details,
@@ -470,7 +511,7 @@ def _build_summary(technology: str, mode: str, duration: Any, timing: str) -> st
 
 def _client_salutation(extracted: Dict[str, Any]) -> str:
     name = _clean(extracted.get("client_name"))
-    if not name or name.lower() in {"client", "team"} or "@" in name:
+    if not name or name.lower() in {"client", "team"} or "@" in name or _looks_like_company_name(name):
         return "Client"
     return name[:1].upper() + name[1:]
 
