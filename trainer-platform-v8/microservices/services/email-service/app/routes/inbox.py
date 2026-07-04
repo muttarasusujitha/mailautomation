@@ -483,30 +483,37 @@ def _client_clarification_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
 
 
 def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str) -> Dict[str, str]:
-    technology = extracted.get("technology_needed") or "Training"
+    # sanitize extracted technology to avoid accidental verb phrases like "conducting a corporate"
+    raw_tech = _clean(extracted.get("technology_needed") or extracted.get("technology") or "").strip()
+    tech = raw_tech
+    if not tech or re.search(r"\bconduct(?:ing|ed)?\b|\blooking for\b|\brequirement for\b", tech, flags=re.IGNORECASE) or len(tech) > 60:
+        tech = "Training"
+
     lines = [
-        f"Technology: {technology}",
+        f"Technology: {tech}",
         f"Mode: {extracted.get('mode') or 'To be confirmed'}",
         f"Audience Level: {extracted.get('audience_level') or 'To be confirmed'}",
         f"Duration: {extracted.get('duration_text') or (str(extracted.get('duration_days')) + ' days' if extracted.get('duration_days') else 'To be confirmed')}",
         f"Timings: {extracted.get('timing') or 'To be confirmed'}",
     ]
+
+    # Use a concise, single-render template matching the requested clean version.
     body = (
-        "Dear Trainer,\n\n"
-        f"We have an immediate requirement for a {technology} Trainer.\n\n"
-        "Requirement Details:\n"
+        f"Dear Trainer,\n\n"
+        f"We have an immediate corporate training requirement and would like to check your interest and availability.\n\n"
+        f"Requirement Details:\n"
         + "\n".join(f"- {line}" for line in lines)
         + "\n\nPlease share the following details if you are interested and available:\n"
-        "- Updated Resume\n"
-        "- Total Experience\n"
-        "- Relevant Training Experience\n"
+        "- Updated resume/profile\n"
+        "- Total experience\n"
+        "- Relevant training experience\n"
         "- Availability\n"
-        "- Commercials Per Day\n"
-        "- LinkedIn Profile, if available\n\n"
+        "- Commercials per day\n"
+        "- LinkedIn profile, if available\n\n"
         f"Reference: {requirement_id}\n\n"
         "Regards,\nRecruitment Team\nClahan Technologies"
     )
-    return {"subject": f"Immediate {technology} Trainer Requirement", "body": body}
+    return {"subject": f"Corporate Training Requirement - {tech}", "body": body}
 
 
 def _client_email_status_for_reply(reply: dict) -> dict:
