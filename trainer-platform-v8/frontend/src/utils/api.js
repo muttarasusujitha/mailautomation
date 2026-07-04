@@ -61,6 +61,7 @@ export const deleteResumeDataByDomain = (domain, includeLogs = false) =>
 export const getResumeDomainSummary = () =>
   api.get('/resume-data/domain-summary')
 export const getTrainers       = (params) => api.get('/trainers', { params })
+export const getTrainer        = (id)     => api.get(`/trainers/${id}`)
 export const getTrainerCategories = ()    => api.get('/trainers/categories')
 export const getTrainerDomains    = ()    => api.get('/trainers/domains')
 export const getTrainerIndustries = ()    => api.get('/trainers/industries')

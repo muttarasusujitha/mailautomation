@@ -15,6 +15,49 @@ from app.database import get_db
 
 router = APIRouter()
 
+CATEGORY_RULES = [
+    ("DevOps", ["devops", "docker", "kubernetes", "jenkins", "terraform", "ansible", "ci/cd", "prometheus", "grafana", "helm"]),
+    ("Cloud", ["aws", "azure", "gcp", "cloud", "ec2", "s3", "lambda"]),
+    ("Data Science", ["data science", "machine learning", "deep learning", "pandas", "numpy", "statistics", "tensorflow", "pytorch"]),
+    ("Data Engineering", ["data engineering", "spark", "databricks", "kafka", "airflow", "etl", "bigquery"]),
+    ("Cybersecurity", ["cybersecurity", "security", "soc", "siem", "ethical hacking", "vapt"]),
+    ("Database", ["sql", "postgresql", "mysql", "mongodb", "oracle", "database"]),
+    ("Frontend Development", ["react", "angular", "vue", "html", "css", "redux", "frontend"]),
+    ("Backend Development", ["node.js", "node", "express", "django", "flask", "fastapi", "spring boot", "backend", "api"]),
+    ("Programming Languages", ["python", "java", "javascript", "typescript", "c++", "c#", "go", "rust"]),
+]
+EMPTY_CATEGORIES = {"", "-", "unknown", "uncategorised", "uncategorized", "general", "multi-skillset", "not available"}
+SKILL_PATTERNS = [
+    ("Python", ["python", "python trainer"]),
+    ("Java", ["java", "java trainer"]),
+    ("JavaScript", ["javascript", "js"]),
+    ("TypeScript", ["typescript", "ts"]),
+    ("React", ["react", "react.js", "reactjs", "react trainer"]),
+    ("Angular", ["angular"]),
+    ("Vue.js", ["vue", "vue.js"]),
+    ("Node.js", ["node", "node.js", "nodejs"]),
+    ("Express.js", ["express", "express.js"]),
+    ("MERN Stack", ["mern", "mern stack"]),
+    ("MongoDB", ["mongodb", "mongo db"]),
+    ("Django", ["django"]),
+    ("Flask", ["flask"]),
+    ("FastAPI", ["fastapi", "fast api"]),
+    ("Spring Boot", ["spring boot"]),
+    ("HTML", ["html"]),
+    ("CSS", ["css"]),
+    ("Redux", ["redux"]),
+    ("Next.js", ["next.js", "nextjs"]),
+    ("AWS", ["aws", "amazon web services"]),
+    ("Azure", ["azure"]),
+    ("GCP", ["gcp", "google cloud"]),
+    ("Docker", ["docker"]),
+    ("Kubernetes", ["kubernetes", "k8s"]),
+    ("Jenkins", ["jenkins"]),
+    ("Terraform", ["terraform"]),
+    ("SQL", ["sql"]),
+    ("PostgreSQL", ["postgresql", "postgres"]),
+]
+
 
 class TrainerCreate(BaseModel):
     name: str
@@ -104,6 +147,206 @@ def _experience_range(value: str) -> Optional[Dict[str, Any]]:
         except ValueError:
             return None
     return None
+
+
+def _clean_text(value: Any) -> str:
+    if value is None:
+        return ""
+    text = str(value).strip()
+    if text.lower() in {"", "-", "--", "unknown", "n/a", "na", "none", "null", "not available", "not specified"}:
+        return ""
+    return text
+
+
+def _clean_list(value: Any) -> List[str]:
+    if isinstance(value, list):
+        raw_items = value
+    elif value:
+        raw_items = re.split(r"[,;\n]", str(value))
+    else:
+        raw_items = []
+    seen = set()
+    items = []
+    for item in raw_items:
+        text = _clean_text(item)
+        key = text.lower()
+        if text and key not in seen:
+            seen.add(key)
+            items.append(text)
+    return items
+
+
+def _unique_list(values: List[str]) -> List[str]:
+    seen = set()
+    items = []
+    for value in values:
+        text = _clean_text(value)
+        key = text.lower()
+        if text and key not in seen:
+            seen.add(key)
+            items.append(text)
+    return items
+
+
+def _has_skill_alias(text: str, alias: str) -> bool:
+    pattern = rf"(^|[^a-z0-9+#.]){re.escape(alias)}($|[^a-z0-9+#.])"
+    return re.search(pattern, text, re.IGNORECASE) is not None
+
+
+def _searchable_text(trainer: Dict[str, Any]) -> str:
+    return " ".join([
+        _clean_text(trainer.get("name")),
+        _clean_text(trainer.get("primary_category")),
+        _clean_text(trainer.get("technology_category")),
+        _clean_text(trainer.get("category")),
+        _clean_text(trainer.get("domain")),
+        _clean_text(trainer.get("role_designation")),
+        _clean_text(trainer.get("technologies")),
+        _clean_text(trainer.get("summary")),
+        _clean_text(trainer.get("bio")),
+        _clean_text(trainer.get("resume")),
+        " ".join(_clean_list(trainer.get("skills"))),
+        " ".join(_clean_list(trainer.get("secondary_categories"))),
+        " ".join(_clean_list(trainer.get("specialisation_tags") or trainer.get("specialty_tags"))),
+    ]).lower()
+
+
+def _detected_skills_from_text(text: str) -> List[str]:
+    matches = [
+        skill
+        for skill, aliases in SKILL_PATTERNS
+        if any(_has_skill_alias(text, alias) for alias in aliases)
+    ]
+    if "MERN Stack" in matches:
+        matches.extend(["MongoDB", "Express.js", "React", "Node.js", "JavaScript"])
+    return _unique_list(matches)
+
+
+def _all_skills(trainer: Dict[str, Any]) -> List[str]:
+    return _unique_list(_clean_list(trainer.get("skills")) + _detected_skills_from_text(_searchable_text(trainer)))
+
+
+def _safe_float(value: Any) -> float:
+    try:
+        return float(value or 0)
+    except (TypeError, ValueError):
+        match = re.search(r"(\d+(?:\.\d+)?)", str(value or ""))
+        return float(match.group(1)) if match else 0.0
+
+
+def _infer_category(trainer: Dict[str, Any]) -> str:
+    for key in ("primary_category", "technology_category", "category", "domain"):
+        text = _clean_text(trainer.get(key))
+        if text and text.lower() not in EMPTY_CATEGORIES:
+            return text
+
+    skills = _all_skills(trainer)
+    haystack = _searchable_text(trainer)
+    has_frontend = any(keyword in haystack for keyword in ["react", "angular", "vue", "javascript", "typescript", "html", "css"])
+    has_backend = any(keyword in haystack for keyword in ["python", "java", "node", "django", "flask", "fastapi", "spring boot", "api"])
+    if has_frontend and has_backend:
+        return "Full Stack"
+
+    matches = []
+    for category, keywords in CATEGORY_RULES:
+        count = sum(1 for keyword in keywords if keyword in haystack)
+        if count:
+            matches.append((count, category))
+    if matches:
+        matches.sort(reverse=True)
+        return matches[0][1]
+    return "Software Development" if skills else ""
+
+
+def _normalise_score(value: Any) -> float:
+    number = _safe_float(value)
+    if number <= 0:
+        return 0
+    if number <= 1:
+        return number * 100
+    if number <= 5:
+        return number * 20
+    return min(100, number)
+
+
+def _experience_years(trainer: Dict[str, Any]) -> float:
+    years = _safe_float(trainer.get("experience_years"))
+    if years:
+        return years
+    raw = _clean_text(trainer.get("experience_raw") or trainer.get("experience") or trainer.get("total_experience"))
+    match = re.search(r"(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)", raw, re.IGNORECASE)
+    return float(match.group(1)) if match else 0.0
+
+
+def _profile_score(trainer: Dict[str, Any], category: str) -> int:
+    skills = _all_skills(trainer)
+    certs = _clean_list(trainer.get("certifications"))
+    clients = _clean_list(trainer.get("past_clients"))
+    years = _experience_years(trainer)
+    inferred = 30 if skills else 0
+    inferred += min(25, len(skills) * 4)
+    inferred += 12 if category else 0
+    inferred += 6 if _clean_text(trainer.get("name")) else 0
+    inferred += min(12, sum(1 for key in ("email", "phone", "linkedin") if _clean_text(trainer.get(key))) * 4)
+    inferred += min(15, round(years * 2.5))
+    inferred += 4 if _clean_text(trainer.get("location")) else 0
+    inferred += 7 if _clean_text(trainer.get("summary") or trainer.get("bio") or trainer.get("resume")) else 0
+    inferred += min(7, len(certs) * 3)
+    inferred += min(4, len(clients) * 2)
+    inferred += 3 if _safe_float(trainer.get("training_count")) else 0
+    explicit = max(_normalise_score(trainer.get(key)) for key in (
+        "profile_score", "resume_rank_score", "overall_score", "match_score", "fit_score", "confidence_score", "confidence"
+    ))
+    return max(0, min(100, round(max(inferred, explicit))))
+
+
+def _profile_breakdown(trainer: Dict[str, Any], category: str) -> Dict[str, Dict[str, int]]:
+    existing = trainer.get("score_breakdown")
+    existing = existing if isinstance(existing, dict) else {}
+    skills = _all_skills(trainer)
+    certs = _clean_list(trainer.get("certifications"))
+    years = _experience_years(trainer)
+    fallback = {
+        "technology": {"score": 35 if category else 0, "max": 35},
+        "skills": {"score": min(25, len(skills) * 4 + (1 if _clean_text(trainer.get("technologies")) else 0)), "max": 25},
+        "experience": {"score": min(15, round(years * 2.5)), "max": 15},
+        "certifications": {"score": min(10, len(certs) * 5), "max": 10},
+        "location": {"score": 10 if _clean_text(trainer.get("location")) else 0, "max": 10},
+    }
+    merged: Dict[str, Dict[str, int]] = {}
+    for key, fallback_item in fallback.items():
+        current = existing.get(key) if isinstance(existing.get(key), dict) else {}
+        current_score = _safe_float(current.get("score"))
+        fallback_score = _safe_float(fallback_item.get("score"))
+        current_max = _safe_float(current.get("max"))
+        if not current_max or fallback_score > current_score:
+            merged[key] = fallback_item
+        else:
+            merged[key] = {"score": round(current_score), "max": round(current_max)}
+    return merged
+
+
+def _enrich_trainer_profile(doc: Dict[str, Any]) -> Dict[str, Any]:
+    trainer = dict(doc)
+    skills = _all_skills(trainer)
+    if skills:
+        trainer["skills"] = skills
+    category = _infer_category(trainer)
+    if category:
+        for key in ("primary_category", "technology_category", "domain"):
+            if not _clean_text(trainer.get(key)):
+                trainer[key] = category
+    score = _profile_score(trainer, category)
+    if not _normalise_score(trainer.get("profile_score")):
+        trainer["profile_score"] = score
+    if not _normalise_score(trainer.get("resume_rank_score")):
+        trainer["resume_rank_score"] = score
+    if not _normalise_score(trainer.get("trainer_rating")):
+        trainer["trainer_rating"] = round(score / 20, 1) if score else 0
+    trainer["score_breakdown"] = _profile_breakdown(trainer, category)
+    if not _clean_text(trainer.get("technologies")) and skills:
+        trainer["technologies"] = ", ".join(skills)
+    return trainer
 
 
 async def _domain_rows(db: AsyncIOMotorDatabase) -> List[Dict[str, Any]]:
@@ -254,7 +497,7 @@ async def list_trainers(
     total = await db.trainers.count_documents(query)
     skip = (page - 1) * page_size
     cursor = db.trainers.find(query, {"resume": 0, "combined_text": 0}).skip(skip).limit(page_size).sort("created_at", -1)
-    items = [_oid(d) async for d in cursor]
+    items = [_enrich_trainer_profile(_oid(d)) async for d in cursor]
     return {"items": items, "total": total, "page": page, "page_size": page_size, "pages": max(1, (total + page_size - 1) // page_size)}
 
 
@@ -275,7 +518,7 @@ async def create_trainer(
     })
     result = await db.trainers.insert_one(doc)
     created = await db.trainers.find_one({"_id": result.inserted_id}, {"resume": 0, "combined_text": 0})
-    return _oid(created)
+    return _enrich_trainer_profile(_oid(created))
 
 
 @router.get("/categories")
@@ -312,11 +555,11 @@ async def list_trainer_industries(db: AsyncIOMotorDatabase = Depends(get_db)):
 async def get_trainer(trainer_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     doc = await db.trainers.find_one(
         {"$or": [{"trainer_id": trainer_id}, {"_id": ObjectId(trainer_id)} if len(trainer_id) == 24 else {"trainer_id": trainer_id}]},
-        {"resume": 0, "combined_text": 0},
+        {"combined_text": 0},
     )
     if not doc:
         raise HTTPException(404, "Trainer not found")
-    return _oid(doc)
+    return _enrich_trainer_profile(_oid(doc))
 
 
 @router.patch("/{trainer_id}")
@@ -333,7 +576,7 @@ async def update_trainer(
     if result.matched_count == 0:
         raise HTTPException(404, "Trainer not found")
     doc = await db.trainers.find_one({"trainer_id": trainer_id}, {"resume": 0, "combined_text": 0})
-    return _oid(doc)
+    return _enrich_trainer_profile(_oid(doc))
 
 
 @router.delete("/{trainer_id}", status_code=204)

@@ -4,7 +4,7 @@ import html
 import logging
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Annotated, Any, Dict, List, Optional
 
 import httpx
@@ -13,7 +13,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 from app.database import get_db
-from app.gmail_client import check_imap_replies
+from app.gmail_client import check_imap_replies, send_email_async
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -96,6 +96,7 @@ AUTOMATED_SENDER_LOCALS = {
 }
 BULK_SENDER_DOMAINS = {
     "alison.com",
+    "github.com",
     "linkedin.com",
     "naukri.com",
     "nptel.iitm.ac.in",
@@ -181,6 +182,49 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
         return float(str(value).replace(",", ""))
     except (TypeError, ValueError):
         return default
+
+
+def _parse_retry_after(value: Any) -> Optional[datetime]:
+    match = re.search(r"Retry after\s+([0-9T:.\-+Z]+)", str(value or ""), flags=re.IGNORECASE)
+    if not match:
+        return None
+    try:
+        parsed = datetime.fromisoformat(match.group(1).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo:
+        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+    return parsed
+
+
+def _auto_send_retry_due(email_doc: Dict[str, Any]) -> bool:
+    retry_after = email_doc.get("auto_send_retry_after")
+    if isinstance(retry_after, str):
+        retry_after = _parse_retry_after(f"Retry after {retry_after}")
+    return not retry_after or retry_after <= _now()
+
+
+def _is_reply_thread(subject: str, email_doc: Dict[str, Any]) -> bool:
+    if email_doc.get("in_reply_to"):
+        return True
+    return bool(re.match(r"^\s*(?:re|fw|fwd)\s*:", subject or "", flags=re.IGNORECASE))
+
+
+def _should_attempt_auto_reply(
+    email_doc: Dict[str, Any],
+    settings: Dict[str, Any],
+    auto_send_eligible: bool,
+    reply: Dict[str, str],
+) -> bool:
+    return (
+        bool(reply)
+        and settings["enabled"]
+        and auto_send_eligible
+        and not email_doc.get("reply_sent")
+        and email_doc.get("status") not in FINAL_CLIENT_STATUSES
+        and email_doc.get("reply_status") not in FINAL_CLIENT_STATUSES
+        and _auto_send_retry_due(email_doc)
+    )
 
 
 def _field_value(text: str, labels: List[str]) -> str:
@@ -535,6 +579,52 @@ async def _auto_send_settings(db: AsyncIOMotorDatabase) -> Dict[str, Any]:
     }
 
 
+async def _send_client_auto_reply(
+    db: AsyncIOMotorDatabase,
+    email_doc: Dict[str, Any],
+    reply: Dict[str, str],
+    requirement_id: str = "",
+) -> Dict[str, Any]:
+    to = _clean(email_doc.get("from_email"))
+    body = reply.get("body") or ""
+    subject = reply.get("subject") or email_doc.get("subject") or "Training Requirement"
+    if subject and not subject.lower().startswith("re:"):
+        subject = f"Re: {subject}"
+
+    if not to:
+        return {"success": False, "error": "No recipient address available"}
+    if not body:
+        return {"success": False, "error": "No reply body available"}
+
+    success, error = await send_email_async(to=to, subject=subject, body=body)
+    now = _now()
+    if success:
+        await db["email_logs"].insert_one({
+            "email_id": f"RPL-{uuid.uuid4().hex[:10].upper()}",
+            "direction": "outbound",
+            "recipient": to,
+            "to_email": to,
+            "subject": subject,
+            "body": body,
+            "body_snippet": body[:300],
+            "status": "sent",
+            "mail_type": "client_auto_reply",
+            "source_email_id": email_doc.get("email_id"),
+            "requirement_id": requirement_id,
+            "sent_at": now,
+            "created_at": now,
+            "updated_at": now,
+        })
+
+    return {
+        "success": success,
+        "error": error or "",
+        "to": to,
+        "subject": subject,
+        "sent_at": now,
+    }
+
+
 def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[str, Any]) -> Dict[str, Any]:
     technology = extracted.get("technology_needed") or extracted.get("technology")
     return {
@@ -707,11 +797,21 @@ async def _process_client_requirement_email(
         reply = _client_clarification_reply(extracted)
 
     now = _now()
+    settings = await _auto_send_settings(db)
+    is_initial_requirement_request = (
+        extracted.get("direct_request_language")
+        and not extracted.get("is_non_client_email")
+        and not _is_reply_thread(subject, email_doc)
+    )
+    auto_send_eligible = bool(reply) and (
+        extracted.get("is_training_request")
+        or is_initial_requirement_request
+    )
     base_update = {
         "extracted": extracted,
         "confidence": extracted.get("confidence", 0),
         "auto_send_confidence": extracted.get("confidence", 0),
-        "auto_send_eligible": False,
+        "auto_send_eligible": auto_send_eligible,
         "updated_at": now,
     }
     if reply:
@@ -728,20 +828,66 @@ async def _process_client_requirement_email(
             **base_update,
             "status": status,
             "reply_status": "pending_review" if reply else "spam",
-            "processed": not bool(reply),
+            "processed": True,
+            "processed_at": now,
             "classification_reason": reason,
         }
-        if not reply:
-            set_update["processed_at"] = now
+        if reply:
+            send_result: Dict[str, Any] = {
+                "auto_send_enabled": settings["enabled"],
+                "auto_send_eligible": auto_send_eligible,
+                "client_authorized_search": False,
+                "pending_client_reply": False,
+                "sent": 0,
+                "total": 0,
+            }
+            set_update["mail_automation"] = send_result
+            if _should_attempt_auto_reply(email_doc, settings, auto_send_eligible, reply):
+                auto_reply_result = await _send_client_auto_reply(db, email_doc, reply)
+                send_result["client_reply"] = {
+                    "sent": bool(auto_reply_result.get("success")),
+                    "to": auto_reply_result.get("to"),
+                    "subject": auto_reply_result.get("subject"),
+                    "error": auto_reply_result.get("error", ""),
+                }
+                if auto_reply_result.get("success"):
+                    set_update.update({
+                        "status": "auto_sent",
+                        "reply_status": "auto_sent",
+                        "reply_sent": True,
+                        "reply_sent_at": auto_reply_result.get("sent_at"),
+                        "auto_sent_at": auto_reply_result.get("sent_at"),
+                        "auto_send_error": "",
+                        "auto_send_retry_after": None,
+                        "processed": True,
+                        "processed_at": auto_reply_result.get("sent_at"),
+                    })
+                else:
+                    error = auto_reply_result.get("error", "Send failed")
+                    retry_after = _parse_retry_after(error)
+                    set_update.update({
+                        "status": "pending_approval" if retry_after else "needs_manual_review",
+                        "reply_status": "pending_review" if retry_after else "needs_manual_review",
+                        "reply_sent": False,
+                        "auto_send_error": error,
+                        "reply_error": error,
+                        "auto_send_retry_after": retry_after,
+                        "processed": True,
+                        "processed_at": now,
+                    })
         unset_update = {} if reply else {"generated_reply": "", "ai_reply": "", "draft_reply": ""}
         await db["client_emails"].update_one(
             {"email_id": email_doc.get("email_id")},
             {"$set": set_update, **({"$unset": unset_update} if unset_update else {})},
         )
-        return {"processed": not bool(reply), "reason": reason, "extracted": extracted}
+        return {
+            "processed": True,
+            "reason": reason,
+            "status": set_update.get("status"),
+            "mail_automation": set_update.get("mail_automation"),
+            "extracted": extracted,
+        }
 
-    settings = await _auto_send_settings(db)
-    auto_send_eligible = extracted.get("confidence", 0) >= settings["threshold"]
     status_update: Dict[str, Any] = {
         **base_update,
         "auto_send_eligible": auto_send_eligible,
@@ -770,6 +916,60 @@ async def _process_client_requirement_email(
             "total": 0,
         }
         final_status = "pending_approval"
+        reply_status = "pending_approval"
+        reply_sent_update: Dict[str, Any] = {}
+
+        should_auto_send_reply = _should_attempt_auto_reply(email_doc, settings, auto_send_eligible, reply)
+        if should_auto_send_reply:
+            auto_reply_result = await _send_client_auto_reply(db, email_doc, reply, requirement_id)
+            send_result["client_reply"] = {
+                "sent": bool(auto_reply_result.get("success")),
+                "to": auto_reply_result.get("to"),
+                "subject": auto_reply_result.get("subject"),
+                "error": auto_reply_result.get("error", ""),
+            }
+            if auto_reply_result.get("success"):
+                final_status = "auto_sent"
+                reply_status = "auto_sent"
+                reply_sent_update.update({
+                    "reply_sent": True,
+                    "reply_sent_at": auto_reply_result.get("sent_at"),
+                    "auto_sent_at": auto_reply_result.get("sent_at"),
+                    "auto_send_error": "",
+                    "auto_send_retry_after": None,
+                })
+                if client_authorized_search:
+                    try:
+                        trainer_send_result = await _send_initial_trainer_mail(requirement_id, extracted)
+                        trainer_sent_count = _safe_int(trainer_send_result.get("sent"), 0)
+                        send_result["trainer_mail"] = trainer_send_result
+                        send_result["sent"] = trainer_sent_count
+                        send_result["total"] = _safe_int(trainer_send_result.get("total"), trainer_sent_count)
+                        reply_sent_update.update({
+                            "trainer_automation_status": "started" if trainer_sent_count > 0 else "no_trainers_emailed",
+                            "trainer_automation_started_at": _now(),
+                            "pending_trainer_automation": False,
+                        })
+                    except Exception as exc:
+                        logger.exception("Trainer automation failed after auto client reply for %s", email_doc.get("email_id"))
+                        send_result["trainer_mail"] = {"sent": 0, "error": str(exc)}
+                        final_status = "trainer_email_failed"
+                        reply_sent_update.update({
+                            "trainer_automation_status": "failed",
+                            "trainer_automation_error": str(exc),
+                            "trainer_automation_failed_at": _now(),
+                        })
+            else:
+                error = auto_reply_result.get("error", "Send failed")
+                retry_after = _parse_retry_after(error)
+                final_status = "pending_approval" if retry_after else "needs_manual_review"
+                reply_status = "pending_review" if retry_after else "needs_manual_review"
+                reply_sent_update.update({
+                    "reply_sent": False,
+                    "auto_send_error": error,
+                    "reply_error": error,
+                    "auto_send_retry_after": retry_after,
+                })
 
         update = {
             "requirement_id": requirement_id,
@@ -781,8 +981,9 @@ async def _process_client_requirement_email(
             "processed": True,
             "processed_at": now,
             "status": final_status,
-            "reply_status": final_status,
+            "reply_status": reply_status,
             "updated_at": now,
+            **reply_sent_update,
         }
         await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": update})
         return {
@@ -896,10 +1097,30 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
 
 
 async def _process_pending_client_emails(db: AsyncIOMotorDatabase, limit: int = 100) -> Dict[str, Any]:
+    now = _now()
     query = {
         "$or": [
             {"processed": {"$ne": True}},
             {"extracted": {"$exists": False}},
+            {
+                "reply_sent": {"$ne": True},
+                "auto_send_eligible": True,
+                "$and": [
+                    {
+                        "$or": [
+                            {"status": {"$in": ["pending_approval", "pending_review"]}},
+                            {"reply_status": {"$in": ["pending_approval", "pending_review"]}},
+                        ],
+                    },
+                    {
+                        "$or": [
+                            {"auto_send_retry_after": {"$exists": False}},
+                            {"auto_send_retry_after": None},
+                            {"auto_send_retry_after": {"$lte": now}},
+                        ],
+                    },
+                ],
+            },
         ]
     }
     cursor = (
