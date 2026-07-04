@@ -366,8 +366,10 @@ export default function Inbox() {
       const res = await api.post('/gmail/sync-now?limit=50')
       const count = res.data?.processed_count || 0
       const autoSentExisting = res.data?.auto_sent_existing_count || 0
+      const requirementsCreated = res.data?.requirements_created || 0
+      const autoSent = res.data?.auto_sent || 0
       const skipped = res.data?.skipped || 0
-      toast.success(`Inbox checked: ${count} processed, ${autoSentExisting} auto-sent, ${skipped} skipped`)
+      toast.success(`Inbox checked: ${requirementsCreated || count} requirement(s), ${autoSent || autoSentExisting} auto-mail batch(es), ${skipped} skipped`)
       await fetchStatus()
       await fetchInbox()
     } catch (e) {

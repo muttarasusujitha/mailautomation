@@ -2,6 +2,24 @@ import axios from 'axios'
 
 const api = axios.create({ baseURL: '/api', timeout: 300000 })
 
+function stringifyApiError(value) {
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
+}
+
+function formatApiObjectError(value) {
+  if (value.msg) {
+    const location = Array.isArray(value.loc) ? value.loc.join(' > ') : value.loc
+    return [location, value.msg].filter(Boolean).join(': ')
+  }
+
+  const nested = value.message ?? value.error ?? value.detail
+  return nested ? formatApiError(nested) : stringifyApiError(value)
+}
+
 function formatApiError(value) {
   if (!value) return ''
   if (typeof value === 'string') return value
@@ -9,18 +27,7 @@ function formatApiError(value) {
     return value.map(formatApiError).filter(Boolean).join('\n')
   }
   if (typeof value === 'object') {
-    if (value.msg) {
-      const location = Array.isArray(value.loc) ? value.loc.join(' > ') : value.loc
-      return [location, value.msg].filter(Boolean).join(': ')
-    }
-    if (value.message) return formatApiError(value.message)
-    if (value.error) return formatApiError(value.error)
-    if (value.detail) return formatApiError(value.detail)
-    try {
-      return JSON.stringify(value)
-    } catch {
-      return String(value)
-    }
+    return formatApiObjectError(value)
   }
   return String(value)
 }
@@ -34,7 +41,7 @@ api.interceptors.response.use(
   }
 )
 
-export const uploadResumes     = (files, confirm = false, onUploadProgress) => {
+export const uploadResumes     = (files, confirm, onUploadProgress) => {
   const form = new FormData()
   const fileList = Array.isArray(files) ? files : [files]
   const fieldName = fileList.length === 1 ? 'file' : 'files'

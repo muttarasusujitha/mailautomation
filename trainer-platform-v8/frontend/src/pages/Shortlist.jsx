@@ -19,66 +19,6 @@ function money(v) {
   return `INR ${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
-// ─── Date Parser ──────────────────────────────────────────────────────────────
-function parseTrainingDate(dateStr) {
-  if (!dateStr) return null
-  const str = String(dateStr).trim()
-  if (!str || str === 'null' || str === '') return null
-  try {
-    const d = new Date(str)
-    if (!isNaN(d) && d.getFullYear() > 2000 && d.getFullYear() < 2100) {
-      return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-    }
-  } catch (e) {}
-  const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-  for (let i = 0; i < dayNames.length; i++) {
-    if (str.toLowerCase().includes(`next ${dayNames[i]}`) || str.toLowerCase().includes(`this ${dayNames[i]}`)) {
-      const today = new Date()
-      const currentDay = today.getDay()
-      let daysAhead = i - currentDay
-      if (daysAhead <= 0) daysAhead += 7
-      const result = new Date(today)
-      result.setDate(result.getDate() + daysAhead)
-      return result.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-    }
-  }
-  const dateMatch = str.match(/(\d{1,2})(st|nd|rd|th)?\s+([a-zA-Z]+)\s*(\d{4})?/)
-  if (dateMatch) {
-    const day = dateMatch[1]
-    const month = dateMatch[3]
-    const year = dateMatch[4] || new Date().getFullYear()
-    try {
-      const d = new Date(`${month} ${day}, ${year}`)
-      if (!isNaN(d)) return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-    } catch (e) {}
-  }
-  const slashMatch = str.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/)
-  if (slashMatch) {
-    try {
-      const d = new Date(slashMatch[3], slashMatch[2] - 1, slashMatch[1])
-      if (!isNaN(d)) return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-    } catch (e) {}
-  }
-  const weekMatch = str.match(/(\d+)(?:st|nd|rd|th)?\s+(?:week|Week)\s+(?:of\s+)?([a-zA-Z]+)\s*(\d{4})?/i)
-  if (weekMatch) {
-    const weekNum = parseInt(weekMatch[1])
-    const month = weekMatch[2]
-    const year = weekMatch[3] || new Date().getFullYear()
-    try {
-      const d = new Date(`${month} 1, ${year}`)
-      d.setDate(d.getDate() + (weekNum - 1) * 7)
-      if (!isNaN(d)) return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-    } catch (e) {}
-  }
-  if (str.toLowerCase() === 'today') return new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-  if (str.toLowerCase() === 'tomorrow') {
-    const d = new Date()
-    d.setDate(d.getDate() + 1)
-    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-  }
-  if (str.length > 20) return str.substring(0, 17) + '...'
-  return str.length > 0 ? str : null
-}
 
 // ─── Pipeline stages ──────────────────────────────────────────────────────────
 function channelStatus(label, result, successLabel = 'sent') {
@@ -3313,7 +3253,7 @@ export default function Shortlist() {
                         trainingDateDisplay = hiringStartDate.substring(0, 12)
                       }
                     }
-                  } catch (e) {
+                  } catch {
                     trainingDateDisplay = hiringStartDate.substring(0, 12)
                   }
                 }
@@ -3387,7 +3327,7 @@ export default function Shortlist() {
                           dateDisplay = hiringStart.substring(0, 12)
                         }
                       }
-                    } catch (e) {
+                    } catch {
                       dateDisplay = hiringStart.substring(0, 12)
                     }
                   }
@@ -3482,3 +3422,4 @@ export default function Shortlist() {
     </div>
   )
 }
+

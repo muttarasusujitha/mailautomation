@@ -228,11 +228,23 @@ async def gmail_disconnect(db: AsyncIOMotorDatabase = Depends(get_db)):
 
 
 @router.post("/sync-now")
-async def gmail_sync_now(background_tasks: BackgroundTasks, db: AsyncIOMotorDatabase = Depends(get_db)):
-    """Trigger an immediate inbox sync (delegates to inbox poll)."""
-    from app.routes.inbox import _poll_and_store
-    background_tasks.add_task(_poll_and_store, db, since_days=3, max_messages=100)
-    return {"success": True, "message": "Gmail sync triggered in background."}
+async def gmail_sync_now(
+    limit: int = Query(100, ge=1, le=500),
+    since_days: int = Query(3, ge=1, le=30),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Run an immediate inbox sync and return real processing counts."""
+    from app.routes.inbox import _poll_and_store, _process_pending_client_emails
+
+    stored = await _poll_and_store(db, since_days=since_days, max_messages=limit)
+    pending = await _process_pending_client_emails(db, limit=limit)
+    return {
+        "success": True,
+        "message": "Gmail sync completed.",
+        "processed_count": stored,
+        "stored": stored,
+        **pending,
+    }
 
 
 @router.post("/renew-watch")

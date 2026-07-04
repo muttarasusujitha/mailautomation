@@ -23,6 +23,7 @@ class SendEmailRequest(BaseModel):
     requirement_id: Optional[str] = None
     mail_type: Optional[str] = None
     trainer_id: Optional[str] = None
+    trainer_name: Optional[str] = None
 
 
 class BulkEmailRequest(BaseModel):
@@ -55,6 +56,7 @@ async def send_single_email(
         "requirement_id": payload.requirement_id,
         "mail_type": payload.mail_type,
         "trainer_id": payload.trainer_id,
+        "trainer_name": payload.trainer_name,
         "sent_at": now if success else None,
         "created_at": now,
         "updated_at": now,
@@ -96,6 +98,7 @@ async def send_bulk_emails(
             "requirement_id": item.requirement_id,
             "mail_type": item.mail_type,
             "trainer_id": item.trainer_id,
+            "trainer_name": item.trainer_name,
             "sent_at": now if success else None,
             "created_at": now,
             "updated_at": now,

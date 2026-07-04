@@ -3092,7 +3092,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             setShowNegotiationModal(false)
             setClientBudget('')
           }
-        } catch (e) {
+        } catch {
           toast.success(`📧 Trainer negotiation sent ✅\n⚠️ Could not send client update`)
           setShowNegotiationModal(false)
           setClientBudget('')
@@ -3558,7 +3558,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         
         // First, send a notification to the client that commercials are ready
         try {
-          const notificationRes = await api.post('/shortlists/send-mail', {
+          await api.post('/shortlists/send-mail', {
             trainer_id: trainer.trainer_id,
             trainer_name: trainer.name,
             to_email: req.client_email,
@@ -3568,7 +3568,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             mail_type: 'commercial_details_notification',
           })
         } catch (e) {
-          console.log('Notification email error (non-critical):', e)
+          console.warn('Notification email error (non-critical):', e)
           // Continue with commercial email even if notification fails
         }
         
@@ -4652,7 +4652,7 @@ export default function Shortlist1() {
                         }
                         // Fallback: show first 12 chars of the date string
                         return <p className="text-xs text-amber-600">📅 {hiringStartDate.substring(0, 12)}</p>
-                      } catch (e) {
+                      } catch {
                         return <p className="text-xs text-slate-400">📅 {hiringStartDate.substring(0, 12)}</p>
                       }
                     })()}

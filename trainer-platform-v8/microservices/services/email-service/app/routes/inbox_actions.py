@@ -15,11 +15,23 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 PENDING_STATUSES = ["pending_approval", "pending_review", "needs_manual_review"]
+HIDDEN_DEFAULT_STATUSES = ["spam", "ignored"]
+HIDDEN_DEFAULT_SENDER_REGEX = (
+    r"noreply|no-reply|donotreply|postmaster|newsletter|updates-noreply|"
+    r"recommendationnc|onlinecourses|@linkedin\.com$|@naukri\.com$|"
+    r"@alison\.com$|@reliancedigital\.in$|@nptel\.iitm\.ac\.in$"
+)
 
 
 def _status_filter(status: Optional[str]) -> Dict[str, Any]:
-    if not status:
-        return {}
+    if not status or status == "all":
+        return {
+            "$and": [
+                {"status": {"$nin": HIDDEN_DEFAULT_STATUSES}},
+                {"reply_status": {"$nin": HIDDEN_DEFAULT_STATUSES}},
+                {"$nor": [{"from_email": {"$regex": HIDDEN_DEFAULT_SENDER_REGEX, "$options": "i"}}]},
+            ],
+        }
     statuses = PENDING_STATUSES if status == "pending_approval" else [status]
     return {
         "$or": [
@@ -52,10 +64,17 @@ def _normalise_item_status(doc: Dict[str, Any]) -> Dict[str, Any]:
 class ApproveRequest(BaseModel):
     send_now: bool = True
     override_body: Optional[str] = None
+    body: Optional[str] = None
+    subject: Optional[str] = None
 
 
 class RegenerateRequest(BaseModel):
     hint: Optional[str] = ""
+    instruction: Optional[str] = ""
+
+
+class ProcessPendingRequest(BaseModel):
+    limit: int = 100
 
 
 @router.get("")
@@ -101,6 +120,31 @@ async def list_inbox_emails(
     }
 
 
+@router.post("/process-pending")
+async def process_pending_inbox_emails(
+    payload: ProcessPendingRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Re-run requirement extraction and trainer automation for stored client emails."""
+    from app.routes.inbox import _process_pending_client_emails
+
+    return {"success": True, **await _process_pending_client_emails(db, payload.limit)}
+
+
+@router.post("/{email_id}/create-requirement")
+async def create_requirement_from_inbox_email(
+    email_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Create a requirement and shortlist from a single inbox email."""
+    from app.routes.inbox import _process_client_requirement_email
+
+    doc = await db["client_emails"].find_one({"email_id": email_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Inbox email not found")
+    return {"success": True, **await _process_client_requirement_email(db, doc)}
+
+
 @router.post("/{email_id}/approve")
 async def approve_inbox_reply(
     email_id: str,
@@ -112,7 +156,7 @@ async def approve_inbox_reply(
     if not doc:
         raise HTTPException(404, "Inbox email not found")
 
-    reply_body = payload.override_body or doc.get("ai_reply") or doc.get("draft_reply") or ""
+    reply_body = payload.override_body or payload.body or doc.get("ai_reply") or doc.get("draft_reply") or ""
     if not reply_body:
         raise HTTPException(400, "No reply body available to approve")
 
@@ -127,7 +171,7 @@ async def approve_inbox_reply(
 
     if payload.send_now:
         to = doc.get("from_email", "")
-        subject = doc.get("subject", "Re: Training Requirement")
+        subject = payload.subject or doc.get("subject", "Re: Training Requirement")
         if not subject.lower().startswith("re:"):
             subject = f"Re: {subject}"
         success, error = await send_email_async(to=to, subject=subject, body=reply_body)
@@ -149,13 +193,34 @@ async def approve_inbox_reply(
                 "created_at": now,
                 "updated_at": now,
             })
+            if doc.get("pending_trainer_automation") or doc.get("client_authorized_trainer_search"):
+                try:
+                    from app.routes.inbox import _start_trainer_search_after_client_reply
+
+                    automation_update = await _start_trainer_search_after_client_reply(db, doc)
+                    update.update(automation_update)
+                except Exception as exc:
+                    logger.exception("Trainer automation failed after client reply for %s", email_id)
+                    update.update({
+                        "status": "trainer_email_failed",
+                        "trainer_automation_status": "failed",
+                        "trainer_automation_error": str(exc),
+                        "trainer_automation_failed_at": now,
+                    })
         else:
             update["reply_status"] = "send_failed"
             update["status"] = "send_failed"
             update["reply_error"] = error
 
     await db["client_emails"].update_one({"email_id": email_id}, {"$set": update})
-    return {"success": True, "email_id": email_id, "status": update["status"], "reply_status": update["reply_status"]}
+    return {
+        "success": True,
+        "email_id": email_id,
+        "status": update["status"],
+        "reply_status": update["reply_status"],
+        "trainer_automation_status": update.get("trainer_automation_status"),
+        "mail_automation": update.get("mail_automation"),
+    }
 
 
 @router.post("/{email_id}/reject")
@@ -186,23 +251,28 @@ async def regenerate_reply(
 
     body = doc.get("body") or doc.get("raw_body") or ""
     subject = doc.get("subject", "")
-    hint = payload.hint or ""
+    hint = payload.hint or payload.instruction or ""
 
     new_reply = await _ai_draft_reply(subject=subject, body=body, hint=hint)
 
     now = datetime.utcnow()
+    generated_reply = {
+        "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
+        "body": new_reply,
+    }
     await db["client_emails"].update_one(
         {"email_id": email_id},
         {"$set": {
             "ai_reply": new_reply,
             "draft_reply": new_reply,
+            "generated_reply": generated_reply,
             "status": "pending_approval",
             "reply_status": "pending_review",
             "regenerated_at": now,
             "updated_at": now,
         }},
     )
-    return {"success": True, "email_id": email_id, "reply": new_reply}
+    return {"success": True, "email_id": email_id, "reply": new_reply, "generated_reply": generated_reply}
 
 
 async def _ai_draft_reply(subject: str, body: str, hint: str = "") -> str:

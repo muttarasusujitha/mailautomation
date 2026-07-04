@@ -308,11 +308,19 @@ export default function Login({ onLogin }) {
                     } />
                   <div className="flex items-center justify-between">
                     <label className="flex items-center gap-2 cursor-pointer">
-                      <div onClick={() => setRemember(!remember)}
+                      <input
+                        type="checkbox"
+                        checked={remember}
+                        onChange={event => setRemember(event.target.checked)}
+                        className="sr-only"
+                      />
+                      <span
                         className={clsx('h-4 w-4 rounded border flex items-center justify-center cursor-pointer transition-all',
-                          remember ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white')}>
+                          remember ? 'bg-blue-600 border-blue-600' : 'border-slate-300 bg-white')}
+                        aria-hidden="true"
+                      >
                         {remember && <CheckCircle className="h-3 w-3 text-white" />}
-                      </div>
+                      </span>
                       <span className="text-xs text-slate-500">Remember me</span>
                     </label>
                     <button type="button" onClick={handleForgotPassword} disabled={resetting}

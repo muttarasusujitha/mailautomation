@@ -27,6 +27,7 @@ GMAIL_SCOPES = [
 POSITIVE_SIGNALS = [
     "yes", "available", "interested", "confirm", "accept",
     "happy to", "sure", "okay", "ok", "look forward", "schedule", "agree",
+    "send it",
 ]
 NEGATIVE_SIGNALS = [
     "no", "not available", "not interested", "decline",
@@ -187,6 +188,11 @@ def send_smtp(
         return False, "SMTP authentication failed"
     except Exception as exc:
         logger.exception("SMTP send failed to %s", to)
+        if "gmail" in host.lower():
+            oauth_success, oauth_error = send_gmail_oauth(to, subject, body, from_name, tracking_url)
+            if oauth_success:
+                return True, ""
+            return False, oauth_error or str(exc)
         return False, str(exc)
 
 

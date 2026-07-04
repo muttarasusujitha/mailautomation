@@ -198,7 +198,6 @@ export default function Dashboard() {
   }
 
   // BUG-008: empty dependency array [] is intentional — load once on mount only
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load() }, [])
 
   const handleClear = async () => {

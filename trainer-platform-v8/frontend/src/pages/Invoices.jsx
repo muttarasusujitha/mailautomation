@@ -133,7 +133,7 @@ export default function Invoices() {
         client: item.client || {
           name: item.client_name || item.client_company || '',
           company: item.client_company || item.client_name || '',
-          email: item.client_email || item.client_email || '',
+          email: item.client_email || item.email || '',
         },
       }))
       setItems(next)

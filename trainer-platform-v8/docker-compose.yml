@@ -72,10 +72,8 @@ services:
     volumes:
       - ./:/usr/src
     environment:
-      SONAR_HOST_URL: http://sonarqube:9000
-    command: >
-      sonar-scanner
-      -Dsonar.host.url=http://sonarqube:9000
+      SONAR_TOKEN: ${SONAR_TOKEN:-}
+    command: sonar-scanner -Dsonar.host.url=http://sonarqube:9000
 
 volumes:
   mongo_data:

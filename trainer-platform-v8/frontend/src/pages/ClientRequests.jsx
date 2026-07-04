@@ -391,6 +391,7 @@ export default function ClientRequests() {
   const [stats, setStats] = useState({})
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
+  const [processingId, setProcessingId] = useState('')
   const [retryingUpdateId, setRetryingUpdateId] = useState('')
   const [filter, setFilter] = useState('all')
   const [query, setQuery] = useState('')
@@ -423,7 +424,9 @@ export default function ClientRequests() {
     setSyncing(true)
     try {
       const res = await api.post('/gmail/sync-now?limit=50')
-      toast.success(`Inbox checked: ${res.data?.processed_count || 0} new request(s) processed`)
+      const created = res.data?.requirements_created || 0
+      const autoSent = res.data?.auto_sent || 0
+      toast.success(`Inbox checked: ${created} requirement(s), ${autoSent} auto-mail batch(es)`)
       await loadRequests()
     } catch (e) {
       toast.error(e.response?.data?.detail || e.message || 'Inbox sync failed')
@@ -447,6 +450,22 @@ export default function ClientRequests() {
       toast.error(e.response?.data?.detail || e.message || 'Calendar retry failed')
     } finally {
       setRetryingUpdateId('')
+    }
+  }
+
+  const createRequirementFromEmail = async item => {
+    if (!item?.email_id || processingId) return
+    setProcessingId(item.email_id)
+    try {
+      const res = await api.post(`/inbox/${item.email_id}/create-requirement`)
+      const reqId = res.data?.requirement_id
+      const sent = res.data?.mail_automation?.sent || 0
+      toast.success(reqId ? `Requirement ${reqId} created, ${sent} trainer mail(s) sent` : 'Requirement processing completed')
+      await loadRequests()
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Could not create requirement')
+    } finally {
+      setProcessingId('')
     }
   }
 
@@ -620,6 +639,16 @@ export default function ClientRequests() {
                       </td>
                       <td className="px-4 py-4 text-right align-top">
                         <div className="flex justify-end gap-2">
+                          {!item.requirement_id && (
+                            <button
+                              onClick={() => createRequirementFromEmail(item)}
+                              disabled={processingId === item.email_id}
+                              className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-60"
+                            >
+                              {processingId === item.email_id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+                              Create Req
+                            </button>
+                          )}
                           <button onClick={() => setSelected(item)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
                             View
                           </button>
