@@ -118,7 +118,18 @@ const PIPELINE_MAIL_OPTIONS = [
   { value: 'mail1', label: 'Mail 1 - First Contact' },
   { value: 'mail2', label: 'Mail 2 - Details Request' },
   { value: 'mail2_followup', label: 'Mail 2 Follow-up' },
+  { value: 'trainer_acknowledgment', label: '\u2705 Trainer Acknowledgment' },
+  { value: 'trainer_commercials_to_client', label: '\ud83d\udcbc Send Commercials to Client' },
+  { value: 'client_budget_reply', label: '\ud83d\udce7 Client Budget Reply' },
+  { value: 'client_budget_acknowledgment', label: '\ud83e\udd1d Client Budget Acknowledgment' },
+  { value: 'rate_gap_resolution', label: '\u2696\ufe0f Rate Gap Resolution' },
+  { value: 'client_rate_gap_option1', label: '\u2705 Client Chose Option 1 (Proceed)' },
+  { value: 'client_rate_gap_option2', label: '\u274c Client Chose Option 2 (Alternative)' },
+  { value: 'client_toc_details_request', label: '\ud83d\udccb Client TOC Details Request' },
+  { value: 'trainer_rate_discussion', label: '\ud83d\udcac Trainer Rate Discussion' },
   { value: 'mail3', label: 'Mail 3 - Slot Booking' },
+  { value: 'mail3_too_many_slots', label: 'Mail 3 - Too Many Slots (Ask for 3)' },
+  { value: 'mail3_too_few_slots', label: 'Mail 3 - Too Few Slots (Ask for 3)' },
   { value: 'mail4', label: 'Mail 4 - Interview Schedule' },
   { value: 'mail5_ok', label: 'Mail 5 - Selection' },
   { value: 'mail5_no', label: 'Mail 5 - Rejection' },
@@ -178,6 +189,8 @@ const BACKEND_PIPELINE_STAGE_ALIASES = {
   mail2: 'waiting_reply2',
   mail2_followup: 'waiting_reply2',
   mail3: 'slot_booked',
+  mail3_too_many_slots: 'slot_booked',
+  mail3_too_few_slots: 'slot_booked',
   mail3_slot_followup: 'slot_booked',
   mail4: 'interview_scheduled',
   mail5_ok: 'selected',
@@ -344,6 +357,13 @@ function mail3SlotClarificationTemplate(trainer) {
   return {
     subject: 'Interview Slot Details Required',
     body: `Hi ${trainer?.name || 'Trainer'},\n\nThank you for sharing the slot. Could you please provide the exact interview date and time, including whether it is AM or PM?\n\nAlso, please share 3 available slots with the corresponding dates so that we can schedule the interview accordingly.\n\nThanks.`
+  }
+}
+
+function mail3TooManySlotsTemplate(trainer) {
+  return {
+    subject: 'Re: Interview Slot Booking',
+    body: `Hi ${trainer?.name || 'Trainer'},\n\nThank you for sharing your availability. For our scheduling process, we typically work with 3 slots as it helps us coordinate efficiently.\n\nCould you please share your top 3 preferred slots with dates and times?\n\nThank you.`
   }
 }
 
@@ -636,6 +656,8 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
       case 'mail2':          return mail2Template(trainer, req)
       case 'mail2_followup': return mail2FollowupTemplate(trainer, req)
       case 'mail3':          return mail3Template(trainer, req, trainerDates)
+      case 'mail3_too_many_slots': return mail3TooManySlotsTemplate(trainer)
+      case 'mail3_too_few_slots':  return mail3SlotClarificationTemplate(trainer)
       case 'mail4':          return mail4Template(trainer, req, interviewLink, platform, dateTime)
       case 'mail5_ok':       return mail5SelectedTemplate(trainer, req)
       case 'mail5_no':       return mail5RejectedTemplate(trainer, req)
@@ -651,6 +673,8 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
     mail2:         '📋 Request Trainer Details',
     mail2_followup:'📋 Ask Details Again',
     mail3:         '📅 Book Interview Slot',
+    mail3_too_many_slots: 'Ask for 3 Slots',
+    mail3_too_few_slots:  'Ask for 3 Complete Slots',
     mail4:         '🗓️ Send Interview Schedule',
     mail5_ok:      '🎉 Send Selection Mail',
     mail5_no:      '❌ Send Rejection Mail',
@@ -662,6 +686,8 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
     mail2:         'waiting_reply2',
     mail2_followup:'waiting_reply2',
     mail3:         'slot_booked',
+    mail3_too_many_slots: 'slot_booked',
+    mail3_too_few_slots:  'slot_booked',
     mail4:         'interview_scheduled',
     mail5_ok:      'selected',
     mail5_no:      'rejected',
@@ -2309,16 +2335,336 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   const [sendingToc, setSendingToc] = useState(false)
   const [sendingClientPo, setSendingClientPo] = useState(false)
   const [sendingClientSlots, setSendingClientSlots] = useState(false)
+  const [sendingCommercials, setSendingCommercials] = useState(false)
   const [clientEmailRequest, setClientEmailRequest] = useState(null)
   const [showTemplates, setShowTemplates] = useState(false)
 
   const BTN = 'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white transition-all active:scale-95 shadow-sm'
 
-  const sendManualPipelineTemplate = () => {
+  const getThread = async trainerItem => {
+    const res = await api.get(
+      `/shortlists/thread?trainer_id=${trainerItem.trainer_id}&requirement_id=${req.requirement_id}`
+    )
+    return (res.data.messages || []).filter(m =>
+      (!m.trainer_id     || String(m.trainer_id)     === String(trainerItem.trainer_id)) &&
+      (!m.requirement_id || String(m.requirement_id) === String(req.requirement_id))
+    )
+  }
+
+  const parseAmount = value => {
+    const amount = Number(String(value || '').replace(/[^\d.]/g, ''))
+    return Number.isFinite(amount) ? Math.round(amount) : 0
+  }
+
+  const promptAmount = label => {
+    const value = globalThis.prompt(label)
+    if (!value) return 0
+    const amount = parseAmount(value)
+    if (amount <= 0) toast.error('Invalid amount')
+    return amount
+  }
+
+  const formatInr = amount => `INR ${Number(amount || 0).toLocaleString('en-IN')}`
+
+  const requireClientEmail = () => {
+    if (req?.client_email) return true
+    toast.error('Client email is required for this template')
+    return false
+  }
+
+  const sendPipelineEmail = async ({ toEmail = trainer.email, subject, body, mailType, direction, extra = {} }) => {
+    const res = await api.post('/shortlists/send-mail', {
+      trainer_id: trainer.trainer_id,
+      trainer_name: trainer.name,
+      to_email: toEmail,
+      requirement_id: req.requirement_id,
+      subject,
+      body,
+      mail_type: mailType,
+      ...(direction ? { direction } : {}),
+      ...extra,
+    })
+    if (res?.data?.success === false) throw new Error(res.data?.error || 'Send failed')
+    return res.data
+  }
+
+  const sendManualPipelineTemplate = async () => {
     if (manualMailType === 'mail6_toc') {
       handleTocRequest()
       return
     }
+
+    if (manualMailType === 'trainer_acknowledgment') {
+      try {
+        await sendPipelineEmail({
+          subject: `RE: Commercial Details Confirmation - ${req.technology_needed}`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for sharing your commercial details and availability for the ${req.technology_needed} requirement.\n\nWe have received your information and are now sharing it with our client for review and approval.\n\nOnce the client approves, we will proceed with scheduling the interview.\n\nWe will keep you updated on the next steps.\n\nBest Regards,\nRecruitment Team\nClahan Technologies`,
+          mailType: 'trainer_acknowledgment',
+        })
+        toast.success(`Trainer acknowledgment sent to ${trainer.name}`)
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending trainer acknowledgment')
+      }
+      return
+    }
+
+    if (manualMailType === 'client_budget_reply') {
+      if (!requireClientEmail()) return
+      const budgetAmount = promptAmount('Enter client budget per day (e.g., 40000)')
+      if (!budgetAmount) return
+
+      try {
+        let trainerRate = parseAmount(trainer.rate || trainer.amount || trainer.commercial || trainer.charges)
+        if (!trainerRate) trainerRate = promptAmount('Enter trainer rate per day (e.g., 45000)')
+        if (!trainerRate) return
+
+        const budgetGap = trainerRate - budgetAmount
+        await sendPipelineEmail({
+          toEmail: req.client_email,
+          subject: `RE: Trainer Commercials for Approval - ${req.technology_needed} | ${trainer.name}`,
+          body: `Hi Team,\n\nThank you for sharing the commercial rates. Our budget for this ${req.technology_needed} requirement is ${formatInr(budgetAmount)} per day.\n\nPlease confirm if the trainer can work within this budget.\n\nRegards,\n${req.client_name || 'Client Team'}`,
+          mailType: 'client_budget_reply',
+          direction: 'received',
+        })
+
+        if (budgetGap <= 0) {
+          toast.success(`Client budget reply sent (${formatInr(budgetAmount)}/day) - no gap detected`)
+          const { subject, body } = mail3Template(trainer, req, '')
+          await sendPipelineEmail({
+            subject,
+            body,
+            mailType: 'mail3',
+            extra: {
+              client_email: req.client_email,
+              client_name: req.client_name || req.client_company,
+            },
+          })
+          toast.success(`Slot booking mail sent to ${trainer.name}`)
+          onStatusUpdate(trainer.trainer_id, 'slot_booked')
+        } else {
+          toast.success(`Client budget reply sent (${formatInr(budgetAmount)}/day)`)
+          toast(`Rate gap detected: ${formatInr(budgetGap)}. Continue to negotiation.`, { duration: 5000 })
+        }
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending client budget reply')
+      }
+      return
+    }
+
+    if (manualMailType === 'client_budget_acknowledgment') {
+      if (!requireClientEmail()) return
+      const budgetAmount = promptAmount('Enter the client budget they mentioned (e.g., 40000)')
+      if (!budgetAmount) return
+
+      try {
+        await sendPipelineEmail({
+          toEmail: req.client_email,
+          subject: `RE: Budget Confirmation - ${req.technology_needed} | Negotiation in Progress`,
+          body: `Hi ${req.client_name || 'Team'},\n\nThank you for confirming your budget of ${formatInr(budgetAmount)} per day for the ${req.technology_needed} requirement.\n\nWe have received your budget constraint and are now negotiating with Trainer ${trainer.name} to see if they can align with your budget. If the trainer agrees to work within your budget, we will proceed immediately.\n\nIf the trainer's rates cannot be adjusted to your budget, we will identify an alternative trainer according to your requirements and share their details with you shortly.\n\nWe will update you within 24 hours with the outcome.\n\nThank you for your patience!\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+          mailType: 'client_budget_acknowledgment',
+        })
+        toast.success(`Budget acknowledgment sent to ${req.client_name || 'client'}`)
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending budget acknowledgment')
+      }
+      return
+    }
+
+    if (manualMailType === 'rate_gap_resolution') {
+      if (!requireClientEmail()) return
+      const trainerAmount = promptAmount('Enter trainer rate (e.g., 50000)')
+      if (!trainerAmount) return
+      const clientAmount = promptAmount('Enter client budget (e.g., 45000)')
+      if (!clientAmount) return
+      const gap = trainerAmount - clientAmount
+      if (gap <= 0) {
+        toast.error('Trainer rate should be higher than client budget for this email')
+        return
+      }
+
+      try {
+        await sendPipelineEmail({
+          toEmail: req.client_email,
+          subject: `Training Rate Discussion - ${req.technology_needed} | Trainer ${trainer.name}`,
+          body: `Dear ${req.client_name || 'Team'},\n\nThank you for confirming your budget for the ${req.technology_needed} requirement. We truly appreciate your quick response.\n\nWe have thoroughly reviewed Trainer ${trainer.name}'s profile, experience, and qualifications. We believe they are an excellent fit for your training needs.\n\nCommercial Details:\nTrainer's Rate: ${formatInr(trainerAmount)} per day\nYour Budgeted Amount: ${formatInr(clientAmount)} per day\nRate Difference: ${formatInr(gap)} per day\n\nWe would like to present two options for your consideration:\n\nOption 1: Proceed with Trainer ${trainer.name}\nTrainer ${trainer.name} brings extensive experience and a proven track record in ${req.technology_needed}. The additional investment of ${formatInr(gap)} per day would ensure you receive high-quality training with excellent delivery and personalized attention.\n\nOption 2: Identify an Alternative Trainer\nWe can search for another qualified trainer who aligns with your budget of ${formatInr(clientAmount)} per day while meeting your specific requirements.\n\nKindly let us know your preference at your earliest convenience. We are committed to finding the best solution that works for your organization.\n\nWarm Regards,\nRecruitment Team\nClahan Technologies`,
+          mailType: 'rate_gap_resolution',
+        })
+        toast.success(`Rate gap email sent (Gap: ${formatInr(gap)}/day)`)
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending rate gap resolution email')
+      }
+      return
+    }
+
+    if (manualMailType === 'client_rate_gap_option1') {
+      if (!requireClientEmail()) return
+      try {
+        await sendPipelineEmail({
+          toEmail: req.client_email,
+          subject: `Training Preparation - ${req.technology_needed} | Please Confirm Session Details`,
+          body: `Dear ${req.client_name || 'Team'},\n\nThank you for confirming your preference to proceed with Trainer ${trainer.name} for your ${req.technology_needed} training requirement.\n\nTo accelerate the scheduling and prepare the Terms of Collaboration (ToC) document, please provide the following details:\n\n1. Preferred Training Days & Time\n* Days: (e.g., Monday to Friday, or specific days)\n* Time: (e.g., 10:00 AM - 12:00 PM IST)\n* Total Duration: (Number of days/weeks for the training)\n\n2. Session Format\n* Online (Virtual via Zoom/Teams/Google Meet)\n* Offline (In-person at your location)\n* Hybrid (Mix of online and offline sessions)\n\n3. Participant Details\n* Total number of participants attending\n* Technical requirements or setup required for the training\n* Any specific learning objectives or focus areas\n\nOnce we receive these details, we will coordinate with Trainer ${trainer.name} to finalize the schedule and prepare the complete ToC document for your review and approval.\n\nWarm Regards,\nRecruitment Team,\nClahan Technologies`,
+          mailType: 'client_toc_details_request',
+        })
+        toast.success(`TOC details request sent to ${req.client_name || 'client'}`)
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending TOC details request')
+      }
+      return
+    }
+
+    if (manualMailType === 'client_rate_gap_option2') {
+      if (!requireClientEmail()) return
+      const clientAmount = promptAmount('Enter client budget (e.g., 40000)')
+      if (!clientAmount) return
+
+      try {
+        await sendPipelineEmail({
+          toEmail: req.client_email,
+          subject: `Training Engagement - Exploring Alternative Options | ${req.technology_needed}`,
+          body: `Dear ${req.client_name || 'Team'},\n\nThank you for your prompt response regarding Trainer ${trainer.name}'s proposal for your ${req.technology_needed} training requirement.\n\nWe respect your decision to explore alternative trainers within your budget of ${formatInr(clientAmount)} per day.\n\nWe will now initiate our search for other qualified trainers who can deliver excellent training in ${req.technology_needed} within your specified budget and requirements.\n\nNext Steps:\n1. We will identify potential trainers matching your criteria\n2. We will conduct initial screening to ensure quality and experience\n3. We will present shortlisted options with their profiles and availability\n\nWe typically complete this process within 3-5 business days and will keep you updated on our progress.\n\nBest Regards,\nRecruitment Team,\nClahan Technologies`,
+          mailType: 'client_rate_gap_option2',
+        })
+        toast.success('Client Option 2 acknowledgment sent')
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending option 2 email')
+      }
+      return
+    }
+
+    if (manualMailType === 'trainer_rate_discussion') {
+      const trainerAmount = promptAmount('Enter trainer rate (e.g., 50000)')
+      if (!trainerAmount) return
+      const clientAmount = promptAmount('Enter client budget (e.g., 45000)')
+      if (!clientAmount) return
+      const gap = trainerAmount - clientAmount
+      if (gap <= 0) {
+        toast.error('Trainer rate should be higher than client budget for this email')
+        return
+      }
+
+      try {
+        await sendPipelineEmail({
+          subject: `Training Engagement Update - ${req.technology_needed} | Rate Discussion`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nWe hope you are doing well. We are writing to update you on the progress of the ${req.technology_needed} requirement with our client.\n\nRequirement Summary:\nTechnology: ${req.technology_needed}\nClient: ${req.client_name || 'Pending confirmation'}\n\nRate Discussion:\nYour Proposed Rate: ${formatInr(trainerAmount)} per day\nClient's Budget: ${formatInr(clientAmount)} per day\nRate Gap: ${formatInr(gap)} per day\n\nThe client has confirmed their budget for this training engagement. While there is a gap between your quoted rate and their budget, we believe your expertise makes this engagement valuable for them.\n\nWe are currently presenting this opportunity to the client with two options:\n1. Proceeding with your training at the quoted rate\n2. Identifying an alternative trainer within their budget\n\nWe will keep you updated on the client's decision within the next 24 hours.\n\nBest Regards,\nRecruitment Team\nClahan Technologies`,
+          mailType: 'trainer_rate_discussion',
+        })
+        toast.success(`Rate discussion email sent to ${trainer.name}`)
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending trainer rate discussion email')
+      }
+      return
+    }
+
+    if (manualMailType === 'client_toc_details_request') {
+      const clientSentDetails = globalThis.confirm('Did client send TOC details?\n\nOK = Yes, details received - send TOC to trainer\nCancel = No, not received - send reminder to client')
+
+      if (clientSentDetails) {
+        const trainerAmount = promptAmount('Enter trainer rate (e.g., 45000)')
+        if (!trainerAmount) return
+        const sessionDetails = globalThis.prompt('Paste client-provided session details (days, time, format, participants):') || 'Details to be confirmed'
+
+        try {
+          await sendPipelineEmail({
+            subject: `Terms of Collaboration (ToC) - ${req.technology_needed} Training | ${req.client_name || 'Client'}`,
+            body: `Dear ${trainer.name},\n\nWe are pleased to share the Terms of Collaboration (ToC) document for your upcoming training engagement.\n\nTraining Engagement Details:\nClient: ${req.client_name || 'TBD'}\nTechnology: ${req.technology_needed}\nTraining Rate: ${formatInr(trainerAmount)} per day\n\nClient's Preferred Session Details:\n${sessionDetails}\n\nNext Steps:\n1. Please review and confirm your availability for the proposed schedule\n2. Provide any special requirements or prerequisites for the training setup\n3. Confirm the training delivery approach\n\nPlease respond with your confirmation and any clarifications needed at your earliest convenience.\n\nBest Regards,\nRecruitment Team,\nClahan Technologies`,
+            mailType: 'mail6_toc',
+          })
+          toast.success(`TOC details sent to ${trainer.name}`)
+          onStatusUpdate(trainer.trainer_id, 'toc_requested')
+        } catch (e) {
+          toast.error(e.response?.data?.detail || e.message || 'Error sending TOC to trainer')
+        }
+      } else {
+        if (!requireClientEmail()) return
+        try {
+          await sendPipelineEmail({
+            toEmail: req.client_email,
+            subject: `Follow-up: Training Session Details Required - ${req.technology_needed}`,
+            body: `Dear ${req.client_name || 'Team'},\n\nWe hope you are doing well.\n\nWe recently shared a request for training session details for your ${req.technology_needed} training engagement with Trainer ${trainer.name}.\n\nTo proceed with finalizing the training schedule and preparing the Terms of Collaboration (ToC) document, we need the following information:\n\n1. Preferred Training Days & Time\n* Days\n* Time\n* Total Duration\n\n2. Session Format\n* Online / Offline / Hybrid\n\n3. Participant Details\n* Total number of participants\n* Technical requirements and setup needed\n* Specific learning objectives or focus areas\n\nKindly provide this information at your earliest convenience so we can proceed without delay.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+            mailType: 'client_toc_details_followup',
+          })
+          toast.success(`Reminder sent to ${req.client_name || 'client'}`)
+        } catch (e) {
+          toast.error(e.response?.data?.detail || e.message || 'Error sending reminder')
+        }
+      }
+      return
+    }
+
+    if (manualMailType === 'trainer_commercials_to_client') {
+      if (!requireClientEmail()) return
+      setSendingCommercials(true)
+      try {
+        const messages = await getThread(trainer)
+        let mail2Reply = messages.find(m => m.direction === 'received' && (m.mail_type === 'mail2' || m.mail_type === 'mail2_followup'))
+
+        if (!mail2Reply) {
+          mail2Reply = messages
+            .filter(m => m.direction === 'received' && m.mail_type !== 'mail1' && m.mail_type !== 'mail3')
+            .sort((a, b) => new Date(b.sent_at || 0) - new Date(a.sent_at || 0))[0]
+        }
+
+        if (!mail2Reply) {
+          toast.error('No trainer reply found. Trainer must respond to the details request first.')
+          return
+        }
+
+        const replyContent = mail2Reply.body || mail2Reply.reply_text || mail2Reply.content || ''
+        const commercialMatches = replyContent.match(/\u20b9\s*[\d,]+|inr\s*[\d,]+|rs\.?\s*[\d,]+/gi) || []
+        if (!commercialMatches.length) {
+          toast.error('No charges/commercials found in trainer reply. Ask trainer to mention their rates.')
+          return
+        }
+
+        const clientRates = commercialMatches
+          .map(item => parseAmount(item))
+          .filter(amount => amount > 0)
+          .map(amount => formatInr(amount + 5000))
+        if (!clientRates.length) {
+          toast.error('Could not read a valid commercial amount from the trainer reply.')
+          return
+        }
+        const commercialDetails = `Commercial Rates for ${req.technology_needed}:\n\n${clientRates.map(rate => `* ${rate}`).join('\n')}`
+
+        try {
+          await sendPipelineEmail({
+            toEmail: req.client_email,
+            subject: `Trainer Details Received - ${req.technology_needed} | ${trainer.name}`,
+            body: `Hi ${req.client_name || 'Team'},\n\nGood news! Trainer ${trainer.name} has confirmed their availability and shared the required details for the ${req.technology_needed} requirement.\n\nWe are now preparing the final commercials for your review. Please expect another email with the commercial rates shortly.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+            mailType: 'commercial_details_notification',
+          })
+        } catch {
+          // Continue with the actual commercial email even if the heads-up email fails.
+        }
+
+        await sendPipelineEmail({
+          toEmail: req.client_email,
+          subject: `Trainer Commercials for Approval - ${req.technology_needed} | ${trainer.name}`,
+          body: `Hi ${req.client_name || 'Team'},\n\nTrainer ${trainer.name} has shared their commercial rates for the ${req.technology_needed} requirement.\n\n${commercialDetails}\n\nPlease review and confirm if these rates are acceptable. Once you approve, we will proceed with interview scheduling.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+          mailType: 'trainer_commercials_to_client',
+        })
+        toast.success(`Commercials sent to ${req.client_name || 'client'}`)
+
+        const { subject, body } = mail3Template(trainer, req, '')
+        await sendPipelineEmail({
+          subject,
+          body,
+          mailType: 'mail3',
+          extra: {
+            client_email: req.client_email,
+            client_name: req.client_name || req.client_company,
+          },
+        })
+        toast.success(`Slot booking mail sent to ${trainer.name}`)
+        onStatusUpdate(trainer.trainer_id, 'slot_booked')
+      } catch (e) {
+        toast.error(e.response?.data?.detail || e.message || 'Error sending commercials')
+      } finally {
+        setSendingCommercials(false)
+      }
+      return
+    }
+
     setMailModal(manualMailType)
   }
 
@@ -2350,10 +2696,12 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           <button
             type="button"
             onClick={sendManualPipelineTemplate}
-            disabled={manualMailType === 'mail6_toc' && sendingToc}
+            disabled={(manualMailType === 'mail6_toc' && sendingToc) || (manualMailType === 'trainer_commercials_to_client' && sendingCommercials)}
             className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-60"
           >
-            {manualMailType === 'mail6_toc' && sendingToc ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+            {(manualMailType === 'mail6_toc' && sendingToc) || (manualMailType === 'trainer_commercials_to_client' && sendingCommercials)
+              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              : <Send className="h-3.5 w-3.5" />}
             Send
           </button>
         </div>
