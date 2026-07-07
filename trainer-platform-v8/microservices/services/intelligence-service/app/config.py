@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"
 
+    # Local Ollama Sonnet model settings
+    OLLAMA_BINARY: str = "ollama"
+    OLLAMA_SONNET_MODEL: str = "claude-sonnet-4-20250514"
+
     # LinkedIn / search
     PROXYCURL_API_KEY: str = ""
     SERPER_API_KEY: str = ""

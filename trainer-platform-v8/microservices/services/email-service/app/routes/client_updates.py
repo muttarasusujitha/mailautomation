@@ -1,6 +1,7 @@
 """Client update scheduling — retry sending deferred client update emails."""
 import logging
 from datetime import datetime
+from email.utils import parseaddr
 from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -11,6 +12,17 @@ from app.gmail_client import send_email_async
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def _email_address(value: Any) -> str:
+    return (parseaddr(str(value or ""))[1] or str(value or "")).strip().lower()
+
+
+async def _smtp_config(db: AsyncIOMotorDatabase) -> Dict[str, Any] | None:
+    from app.routes.inbox import _load_admin_settings
+
+    settings_doc = await _load_admin_settings(db)
+    return settings_doc.get("emailCfg") or None
 
 
 @router.get("")
@@ -35,12 +47,21 @@ async def retry_schedule_client_update(
         raise HTTPException(404, "Client email not found")
 
     reply_body = doc.get("ai_reply") or doc.get("draft_reply") or ""
-    to = doc.get("from_email", "")
+    to = _email_address(doc.get("from_email", ""))
     subject = doc.get("subject", "Re: Training Update")
+    if subject and not subject.lower().startswith("re:"):
+        subject = f"Re: {subject}"
     if not to:
         raise HTTPException(400, "No recipient address available")
+    if not reply_body:
+        raise HTTPException(400, "No reply body available")
 
-    success, error = await send_email_async(to=to, subject=subject, body=reply_body)
+    success, error = await send_email_async(
+        to=to,
+        subject=subject,
+        body=reply_body,
+        smtp_config=await _smtp_config(db),
+    )
     now = datetime.utcnow()
     await db["client_emails"].update_one(
         {"email_id": email_id},

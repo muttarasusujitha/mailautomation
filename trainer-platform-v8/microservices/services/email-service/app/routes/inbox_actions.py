@@ -2,6 +2,7 @@
 import logging
 import uuid
 from datetime import datetime, time
+from email.utils import parseaddr
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -59,6 +60,17 @@ def _normalise_item_status(doc: Dict[str, Any]) -> Dict[str, Any]:
         doc["raw_status"] = raw_status
     doc["status"] = effective
     return doc
+
+
+def _email_address(value: Any) -> str:
+    return (parseaddr(str(value or ""))[1] or str(value or "")).strip().lower()
+
+
+async def _smtp_config(db: AsyncIOMotorDatabase) -> Optional[Dict[str, Any]]:
+    from app.routes.inbox import _load_admin_settings
+
+    settings_doc = await _load_admin_settings(db)
+    return settings_doc.get("emailCfg") or None
 
 
 class ApproveRequest(BaseModel):
@@ -170,11 +182,18 @@ async def approve_inbox_reply(
     }
 
     if payload.send_now:
-        to = doc.get("from_email", "")
+        to = _email_address(doc.get("from_email", ""))
+        if not to:
+            raise HTTPException(400, "No recipient address available")
         subject = payload.subject or doc.get("subject", "Re: Training Requirement")
         if not subject.lower().startswith("re:"):
             subject = f"Re: {subject}"
-        success, error = await send_email_async(to=to, subject=subject, body=reply_body)
+        success, error = await send_email_async(
+            to=to,
+            subject=subject,
+            body=reply_body,
+            smtp_config=await _smtp_config(db),
+        )
         if success:
             update["reply_sent"] = True
             update["reply_sent_at"] = now
@@ -185,7 +204,9 @@ async def approve_inbox_reply(
                 "email_id": f"RPL-{uuid.uuid4().hex[:10].upper()}",
                 "direction": "outbound",
                 "recipient": to,
+                "to_email": to,
                 "subject": subject,
+                "body": reply_body,
                 "body_snippet": reply_body[:300],
                 "status": "sent",
                 "mail_type": "client_reply",
@@ -210,6 +231,7 @@ async def approve_inbox_reply(
         else:
             update["reply_status"] = "send_failed"
             update["status"] = "send_failed"
+            update["reply_sent"] = False
             update["reply_error"] = error
 
     await db["client_emails"].update_one({"email_id": email_id}, {"$set": update})

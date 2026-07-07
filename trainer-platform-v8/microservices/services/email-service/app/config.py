@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     GOOGLE_REDIRECT_URI: str = ""
     GMAIL_PUBSUB_TOPIC: str = ""
     FRONTEND_URL: str = "http://localhost:5173"
+    CORE_API_URL: str = "http://core-api:8001"
+    TRAINER_SERVICE_URL: str = "http://trainer-service:8004"
 
     # SMTP overrides
     SMTP_HOST: str = "smtp.gmail.com"

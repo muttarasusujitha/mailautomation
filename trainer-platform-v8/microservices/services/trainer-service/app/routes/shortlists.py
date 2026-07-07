@@ -18,8 +18,8 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-EMAIL_SVC = "http://email-service:8002"
-NOTIF_SVC = "http://notification-service:8003"
+EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
+NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
 EXCLUDED_TRAINER_STATUSES = {"interested", "confirmed", "declined"}
 PIPELINE_VERSION = "trainer-match-microservice-v1"
 ACTIVE_PIPELINE_STAGES = {
@@ -520,7 +520,7 @@ async def send_shortlist_mail(
                 "requirement_id": payload.requirement_id,
                 "mail_type": payload.mail_type,
                 "recipient": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"},
-                "status": {"$in": ["sent", "failed"]},
+                "status": "sent",
             },
             {"_id": 0, "status": 1, "email_id": 1},
             sort=[("created_at", -1)],

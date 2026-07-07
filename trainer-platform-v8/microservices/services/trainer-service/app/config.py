@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     MONGODB_DB_NAME: str = "trainersync"
     REDIS_URL: str = "redis://localhost:6379"
     DOCUMENT_SERVICE_URL: str = "http://document-service:8006"
+    EMAIL_SERVICE_URL: str = "http://email-service:8002"
+    NOTIFICATION_SERVICE_URL: str = "http://notification-service:8003"
 
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"

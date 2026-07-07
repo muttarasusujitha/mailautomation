@@ -4,7 +4,7 @@ import { Loader2, Mail, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import api from '../utils/api'
 import { clearGmailOAuthPkce, consumeGmailOAuthPkce } from '../utils/gmailOAuth'
 
-export default function GmailCallback() {
+export default function GmailCallback({ onLogin }) {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const [status, setStatus] = useState({ type: 'loading', message: 'Connecting Gmail...' })
@@ -49,8 +49,13 @@ export default function GmailCallback() {
           })
         }
 
-        localStorage.setItem('ts_auth', JSON.stringify({ loggedIn: true }))
-        setTimeout(() => navigate('/admin', { replace: true }), 2200)
+        sessionStorage.setItem('ts_auth', JSON.stringify({ loggedIn: true }))
+        if (typeof onLogin === 'function') {
+          onLogin()
+          navigate('/admin', { replace: true })
+        } else {
+          setTimeout(() => window.location.assign('/admin'), 2200)
+        }
       } catch (e) {
         setStatus({ type: 'error', message: e.message })
       }
@@ -59,17 +64,19 @@ export default function GmailCallback() {
     finishAuth()
   }, [navigate, params])
 
-  const Icon =
-    status.type === 'success' ? CheckCircle2 :
-    status.type === 'warning' ? AlertTriangle :
-    status.type === 'error' ? AlertTriangle :
-    Loader2
+  let Icon = Loader2
+  let tone = 'text-blue-700 bg-blue-50 border-blue-200'
 
-  const tone =
-    status.type === 'success' ? 'text-emerald-600 bg-emerald-50 border-emerald-200' :
-    status.type === 'warning' ? 'text-amber-700 bg-amber-50 border-amber-200' :
-    status.type === 'error' ? 'text-red-700 bg-red-50 border-red-200' :
-    'text-blue-700 bg-blue-50 border-blue-200'
+  if (status.type === 'success') {
+    Icon = CheckCircle2
+    tone = 'text-emerald-600 bg-emerald-50 border-emerald-200'
+  } else if (status.type === 'warning') {
+    Icon = AlertTriangle
+    tone = 'text-amber-700 bg-amber-50 border-amber-200'
+  } else if (status.type === 'error') {
+    Icon = AlertTriangle
+    tone = 'text-red-700 bg-red-50 border-red-200'
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">

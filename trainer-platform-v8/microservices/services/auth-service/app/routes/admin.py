@@ -13,6 +13,24 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
+def _coerce_bool(value: Any, default: bool = False) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() not in {"0", "false", "no", "off", "disabled"}
+
+
+def _normalise_threshold(value: Any, default: float = 0.7) -> float:
+    try:
+        threshold = float(str(value).replace(",", ""))
+    except (TypeError, ValueError):
+        threshold = default
+    if threshold > 1:
+        threshold /= 100
+    return max(0.0, min(threshold, 1.0))
+
+
 class AdminSettingsUpdate(BaseModel):
     profile: Optional[Dict[str, Any]] = None
     emailCfg: Optional[Dict[str, Any]] = None
@@ -66,10 +84,25 @@ async def diagnose_auto_send(db: AsyncIOMotorDatabase = Depends(get_db)):
     """Check auto-send configuration and report readiness."""
     doc = await db["admin_settings"].find_one({"settings_id": "default"}, {"_id": 0}) or {}
     email_cfg = doc.get("emailCfg") or {}
+    client_inbox_cfg = doc.get("clientInboxCfg") or {}
+    scheduler_cfg = doc.get("schedulerCfg") or {}
     auto_send_cfg = doc.get("autoSendCfg") or {}
 
     smtp_ok = bool(email_cfg.get("smtpUser") and email_cfg.get("smtpPass"))
-    auto_send_enabled = bool(auto_send_cfg.get("enabled"))
+    enabled_value = client_inbox_cfg.get("autoSendEnabled")
+    if enabled_value is None:
+        enabled_value = auto_send_cfg.get("enabled")
+    if enabled_value is None:
+        enabled_value = scheduler_cfg.get("autoSendEnabled")
+    auto_send_enabled = _coerce_bool(enabled_value, True)
+
+    threshold_value = client_inbox_cfg.get("autoSendThreshold")
+    if threshold_value is None:
+        threshold_value = auto_send_cfg.get("threshold")
+    if threshold_value is None:
+        threshold_value = scheduler_cfg.get("autoSendConfidenceThreshold")
+    threshold = _normalise_threshold(threshold_value, 0.7)
+
     issues = []
     if not smtp_ok:
         issues.append("SMTP credentials not configured")
@@ -77,12 +110,21 @@ async def diagnose_auto_send(db: AsyncIOMotorDatabase = Depends(get_db)):
         issues.append("Auto-send is disabled in settings")
 
     pending_count = await db["client_emails"].count_documents(
-        {"reply_status": "pending_auto_send", "auto_send_eligible": True}
+        {
+            "reply_sent": {"$ne": True},
+            "auto_send_eligible": True,
+            "$expr": {"$gte": [{"$ifNull": ["$auto_send_confidence", "$confidence"]}, threshold]},
+            "$or": [
+                {"status": {"$in": ["pending_approval", "pending_review"]}},
+                {"reply_status": {"$in": ["pending_approval", "pending_review"]}},
+            ],
+        }
     )
     return {
         "success": True,
         "smtp_configured": smtp_ok,
         "auto_send_enabled": auto_send_enabled,
+        "auto_send_threshold": threshold,
         "pending_auto_send_count": pending_count,
         "issues": issues,
         "ready": smtp_ok and auto_send_enabled,

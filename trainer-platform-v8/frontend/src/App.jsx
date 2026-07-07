@@ -89,7 +89,7 @@ export default function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/feedback" element={<Feedback />} />
-          <Route path="/auth/callback" element={<GmailCallback />} />
+          <Route path="/auth/callback" element={<GmailCallback onLogin={handleLogin} />} />
           <Route path="/" element={
             <PrivateRoute isLoggedIn={isLoggedIn}>
               <Layout onLogout={handleLogout} />

@@ -1,9 +1,10 @@
-"""Trainer AI categorisation endpoint — wraps the Anthropic Claude call."""
+"""Trainer AI categorisation endpoint — wraps a local Ollama Sonnet call."""
+import asyncio
 import json
 import logging
 import os
 import re
-import asyncio
+import shutil
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -17,8 +18,6 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-CATEGORISATION_MODEL = "claude-sonnet-4-20250514"
-
 SOFTWARE_TECH_DOMAINS = [
     "Software Development", "Frontend Development", "Backend Development",
     "Full Stack", "Cloud", "DevOps", "SRE", "Data Engineering", "Data Analytics",
@@ -31,13 +30,31 @@ SOFTWARE_TECH_DOMAINS = [
 ]
 
 
-def _anthropic_client():
-    try:
-        import anthropic
-        key = settings.ANTHROPIC_API_KEY.strip()
-        return anthropic.AsyncAnthropic(api_key=key) if key else anthropic.AsyncAnthropic()
-    except ImportError:
-        return None
+def _ollama_available() -> bool:
+    binary = shutil.which(settings.OLLAMA_BINARY)
+    return bool(binary)
+
+
+async def _run_local_ollama(prompt: str) -> str:
+    if not _ollama_available():
+        raise HTTPException(503, "Local Ollama CLI not found. Install Ollama or set OLLAMA_BINARY correctly.")
+
+    env = {**os.environ, "TERM": "dumb"}
+    process = await asyncio.create_subprocess_exec(
+        settings.OLLAMA_BINARY,
+        "run",
+        settings.OLLAMA_SONNET_MODEL,
+        prompt,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+        env=env,
+        text=True,
+    )
+    stdout, stderr = await process.communicate()
+    if process.returncode != 0:
+        message = stderr.strip() or stdout.strip() or f"Ollama exited with code {process.returncode}"
+        raise HTTPException(503, f"Ollama Sonnet execution failed: {message}")
+    return stdout
 
 
 def _extract_json(text: str) -> Dict[str, Any]:
@@ -71,9 +88,8 @@ async def categorise_trainer(payload: CategoriseRequest, db: AsyncIOMotorDatabas
     if not trainer:
         raise HTTPException(400, "Provide trainer data or a valid trainer_id")
 
-    client = _anthropic_client()
-    if not client:
-        raise HTTPException(503, "Anthropic client unavailable — check ANTHROPIC_API_KEY")
+    if not _ollama_available():
+        raise HTTPException(503, "Ollama CLI unavailable — install Ollama or configure OLLAMA_BINARY.")
 
     profile = {k: trainer.get(k) for k in [
         "trainer_id", "name", "technologies", "skills", "certifications",
@@ -89,13 +105,9 @@ async def categorise_trainer(payload: CategoriseRequest, db: AsyncIOMotorDatabas
         f"Trainer:\n{json.dumps(profile, default=str)}"
     )
 
-    msg = await client.messages.create(
-        model=CATEGORISATION_MODEL, max_tokens=1800, temperature=0,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    raw = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
+    raw = await _run_local_ollama(prompt)
     result = _extract_json(raw)
-    result["categorisation_model"] = CATEGORISATION_MODEL
+    result["categorisation_model"] = settings.OLLAMA_SONNET_MODEL
 
     if payload.save and payload.trainer_id:
         from datetime import datetime

@@ -116,6 +116,9 @@ export default function Login({ onLogin }) {
   const [mounted, setMounted]     = useState(false)
   const [remember, setRemember]   = useState(false)
   const [step, setStep]           = useState(1)
+  const googleButtonRef = useRef(null)
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
+  const googleEnabled = Boolean(googleClientId)
   const navigate = useNavigate()
 
   const [form, setForm] = useState({
@@ -124,7 +127,83 @@ export default function Login({ onLogin }) {
   })
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }))
 
+  const decodeJwt = token => {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`
+      ).join(''))
+      return JSON.parse(jsonPayload)
+    } catch {
+      return null
+    }
+  }
+
+  const handleGoogleCredentialResponse = response => {
+    if (!response?.credential) {
+      toast.error('Google login failed.')
+      return
+    }
+    const payload = decodeJwt(response.credential)
+    if (!payload?.email) {
+      toast.error('Google login failed.')
+      return
+    }
+
+    const authData = {
+      name: payload.name || payload.email.split('@')[0],
+      email: payload.email,
+      picture: payload.picture || '',
+      provider: 'google',
+      loggedIn: true,
+    }
+
+    sessionStorage.setItem('ts_auth', JSON.stringify(authData))
+    toast.success(`Signed in as ${authData.email}`)
+    if (onLogin) onLogin()
+    navigate('/dashboard')
+  }
+
   useEffect(() => { setTimeout(() => setMounted(true), 60) }, [])
+
+  useEffect(() => {
+    if (!googleClientId) return
+
+    const initGoogle = () => {
+      if (!window.google?.accounts?.id) return
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleCredentialResponse,
+        cancel_on_tap_outside: true,
+      })
+      if (googleButtonRef.current) {
+        window.google.accounts.id.renderButton(googleButtonRef.current, {
+          type: 'standard',
+          theme: 'outline',
+          size: 'large',
+          text: 'signin_with',
+          shape: 'pill',
+          width: '100%',
+        })
+      }
+    }
+
+    if (window.google?.accounts?.id) {
+      initGoogle()
+      return
+    }
+
+    const script = document.createElement('script')
+    script.src = 'https://accounts.google.com/gsi/client'
+    script.async = true
+    script.defer = true
+    script.onload = initGoogle
+    document.head.appendChild(script)
+
+    return () => {
+      document.head.removeChild(script)
+    }
+  }, [googleClientId])
 
   const selectedRole = ROLES.find(r => r.id === role)
 
@@ -281,15 +360,21 @@ export default function Login({ onLogin }) {
             </div>
 
             {/* Social login */}
-            <div className="grid grid-cols-2 gap-2">
-              {[{ icon: Chrome, label: 'Google' }, { icon: Github, label: 'GitHub' }].map(s => (
-                <button key={s.label} type="button" onClick={() => toast('Social login coming soon!')}
-                  className="flex items-center justify-center gap-2 py-2 bg-white hover:bg-slate-50
-                             border border-slate-200 rounded-lg text-slate-600 text-xs font-semibold
-                             transition-all hover:shadow-sm">
-                  <s.icon className="h-4 w-4" />{s.label}
+            <div className="grid grid-cols-1 gap-2">
+              {googleEnabled ? (
+                <div ref={googleButtonRef} className="w-full" />
+              ) : (
+                <button type="button" disabled
+                  className="w-full flex items-center justify-center gap-2 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-400 text-xs font-semibold cursor-not-allowed">
+                  <Chrome className="h-4 w-4" />Google login unavailable
                 </button>
-              ))}
+              )}
+              <button type="button" onClick={() => toast('GitHub login coming soon!')}
+                className="flex items-center justify-center gap-2 py-2 bg-white hover:bg-slate-50
+                           border border-slate-200 rounded-lg text-slate-600 text-xs font-semibold
+                           transition-all hover:shadow-sm">
+                <Github className="h-4 w-4" />GitHub
+              </button>
             </div>
 
             <div className="divider-label">or email</div>

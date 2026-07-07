@@ -8,13 +8,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
+from app.config import get_settings
 from app.database import get_db
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+settings = get_settings()
 
-EMAIL_SVC = "http://email-service:8002"
-NOTIF_SVC = "http://notification-service:8003"
+EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
+NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
 
 PIPELINE_STAGES = ["mail1", "mail1_reminder", "mail2", "mail3", "mail4", "mail5_ok", "mail5_no", "mail6_toc", "mail7_confirm"]
 

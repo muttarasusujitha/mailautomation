@@ -211,17 +211,22 @@ def check_imap_replies(
     since_days: int = 7,
     max_messages: int = 50,
     from_emails: Optional[List[str]] = None,
+    imap_config: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, Any]]:
     """Poll Gmail IMAP inbox for replies."""
-    user = settings.GMAIL_USER
-    pwd = settings.effective_gmail_pass
+    cfg = imap_config or {}
+    user = cfg.get("imapUser") or cfg.get("smtpUser") or settings.GMAIL_USER
+    pwd = (cfg.get("imapPass") or cfg.get("smtpPass") or settings.effective_gmail_pass).replace(" ", "")
+    host = cfg.get("imapHost") or settings.IMAP_HOST
+    port = int(cfg.get("imapPort") or settings.IMAP_PORT)
     if not user or not pwd:
+        logger.warning("IMAP check skipped: Gmail user/password not configured")
         return []
 
     replies = []
     mail = None
     try:
-        mail = imaplib.IMAP4_SSL(settings.IMAP_HOST, settings.IMAP_PORT, timeout=20)
+        mail = imaplib.IMAP4_SSL(host, port, timeout=20)
         mail.login(user, pwd)
         mail.select("inbox")
         since = (datetime.now() - timedelta(days=since_days)).strftime("%d-%b-%Y")
