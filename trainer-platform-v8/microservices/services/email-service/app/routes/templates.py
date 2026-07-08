@@ -13,11 +13,33 @@ def _from_name() -> str:
     return settings.FROM_NAME or "TrainerSync"
 
 
+PLACEHOLDER_EMAILS = {
+    "your-gmail-address@gmail.com",
+    "your-email@gmail.com",
+    "yourname@example.com",
+    "your-email@example.com",
+    "email@example.com",
+    "test@example.com",
+    "your@email.com",
+}
+
+
+def _normalize_email_address(email: str) -> str:
+    raw = str(email or "").strip()
+    if raw.lower().startswith("mailto:"):
+        raw = raw[7:]
+    raw = raw.split("?", 1)[0].strip()
+    if raw.lower() in PLACEHOLDER_EMAILS:
+        return ""
+    return raw
+
+
 def _from_email() -> str:
-    email = settings.FROM_EMAIL or settings.GMAIL_USER or ""
-    if email.lower().startswith("mailto:"):
-        email = email[7:]
-    return email.strip()
+    # Prefer explicit FROM_EMAIL, then GMAIL_USER; if that is a placeholder or blank,
+    # fall back to the requested persistent sender address so templates never show
+    # the placeholder email in outgoing messages.
+    email = _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "")
+    return email or "sujithaofficial585@gmail.com"
 
 
 class ShortlistEmailRequest(BaseModel):

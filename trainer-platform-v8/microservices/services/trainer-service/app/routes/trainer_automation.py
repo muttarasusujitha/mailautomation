@@ -181,7 +181,13 @@ async def send_automation_mail(
             logger.warning("Template fetch failed, using fallback: %s", exc)
 
     if not body:
-        body = f"Dear {name},\n\nWe have a training requirement matching your profile. Please revert if interested.\n\nRegards,\nTrainerSync Team"
+        from_name = getattr(settings, "FROM_NAME", None) or "TrainerSync Team"
+        from_email = getattr(settings, "FROM_EMAIL", None) or "sujithaofficial585@gmail.com"
+        body = (
+            f"Dear {name},\n\n"
+            "We have a training requirement matching your profile. Please revert if interested.\n\n"
+            f"Regards,\n{from_name}\n{from_email}"
+        )
     if payload.message and payload.message.strip():
         body = f"{payload.message.strip()}\n\n{body}"
     if not subject:
