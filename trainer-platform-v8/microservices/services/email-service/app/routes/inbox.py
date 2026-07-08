@@ -26,6 +26,7 @@ TRAINER_SERVICE_URL = settings.TRAINER_SERVICE_URL.rstrip("/")
 LOCAL_TZ = timezone(timedelta(hours=5, minutes=30))
 
 FINAL_CLIENT_STATUSES = {"auto_sent", "sent", "approved", "rejected", "spam", "ignored"}
+BLOCKED_CLIENT_STATUSES = {"rejected", "spam", "ignored"}
 TRAINING_SIGNALS = (
     "trainer",
     "training",
@@ -407,6 +408,32 @@ def _auto_send_retry_due(email_doc: Dict[str, Any]) -> bool:
     return not retry_after or retry_after <= _now()
 
 
+def _current_inbound_message_id(email_doc: Dict[str, Any]) -> str:
+    return _clean(email_doc.get("latest_gmail_message_id") or email_doc.get("gmail_message_id") or "")
+
+
+def _has_replied_to_latest_message(email_doc: Dict[str, Any]) -> bool:
+    if not email_doc.get("reply_sent"):
+        return False
+
+    current_message_id = _current_inbound_message_id(email_doc)
+    if not current_message_id:
+        return True
+
+    replied_message_id = _clean(
+        email_doc.get("reply_sent_for_message_id")
+        or email_doc.get("replied_to_gmail_message_id")
+        or ""
+    )
+    if replied_message_id:
+        return replied_message_id == current_message_id
+
+    original_message_id = _clean(email_doc.get("gmail_message_id") or "")
+    if original_message_id and original_message_id != current_message_id:
+        return False
+    return True
+
+
 def _is_reply_thread(subject: str, email_doc: Dict[str, Any]) -> bool:
     if email_doc.get("in_reply_to"):
         return True
@@ -434,21 +461,22 @@ def _should_attempt_auto_reply(
     if not auto_send_eligible:
         logger.debug("Auto-reply blocked: not eligible for auto-send. email_id=%s", email_doc.get("email_id"))
         return False
-    if confidence_score < settings["threshold"]:
-        logger.debug(
-            "Auto-reply blocked: confidence below threshold. email_id=%s confidence=%s threshold=%s",
-            email_doc.get("email_id"),
-            confidence_score,
-            settings["threshold"],
-        )
-        return False
-    if email_doc.get("reply_sent"):
+    if _has_replied_to_latest_message(email_doc):
         logger.debug("Auto-reply blocked: already replied. email_id=%s", email_doc.get("email_id"))
         return False
-    if email_doc.get("status") in FINAL_CLIENT_STATUSES:
+    status = email_doc.get("status")
+    reply_status = email_doc.get("reply_status")
+    already_replied_to_latest = _has_replied_to_latest_message(email_doc)
+    if status in BLOCKED_CLIENT_STATUSES:
+        logger.debug("Auto-reply blocked: blocked status %s. email_id=%s", status, email_doc.get("email_id"))
+        return False
+    if reply_status in BLOCKED_CLIENT_STATUSES:
+        logger.debug("Auto-reply blocked: blocked reply_status %s. email_id=%s", reply_status, email_doc.get("email_id"))
+        return False
+    if status in FINAL_CLIENT_STATUSES and already_replied_to_latest:
         logger.debug("Auto-reply blocked: final status %s. email_id=%s", email_doc.get("status"), email_doc.get("email_id"))
         return False
-    if email_doc.get("reply_status") in FINAL_CLIENT_STATUSES:
+    if reply_status in FINAL_CLIENT_STATUSES and already_replied_to_latest:
         logger.debug("Auto-reply blocked: final reply_status %s. email_id=%s", email_doc.get("reply_status"), email_doc.get("email_id"))
         return False
     if not _auto_send_retry_due(email_doc):
@@ -866,26 +894,55 @@ def _client_salutation(extracted: Dict[str, Any]) -> str:
     return name[:1].upper() + name[1:]
 
 
+def _reply_signature() -> str:
+    return f"Regards,\n{settings.FROM_NAME or 'TrainerSync'}"
+
+
+def _format_missing_details(extracted: Dict[str, Any]) -> str:
+    missing = extracted.get("requested_details") or []
+    if not missing:
+        missing = extracted.get("needs_clarification") or []
+    if not missing:
+        return ""
+
+    lines = [f"* {item}" for item in missing]
+    return "\n" + "\n".join(lines) + "\n\n"
+
+
 def _client_reply_for_requirement(extracted: Dict[str, Any]) -> Dict[str, str]:
-    technology = extracted.get("technology_needed") or "training"
-    client_name = _client_salutation(extracted)
-    body = (
-        f"Dear {client_name},\n\n"
-        f"Thank you for sharing your {technology} training requirement.\n\n"
-        "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
-        "* Training duration\n"
-        "* Preferred training dates\n"
-        "* Daily training timings\n"
-        "* Participant count\n"
-        "* Location / Mode\n"
-        "* Audience level (Beginner / Intermediate / Advanced)\n"
-        f"* Any specific {technology} tools or topics to be covered\n\n"
-        f"Meanwhile, we will keep the {technology} requirement ready for the initial trainer search. "
-        "Once we receive the above details, we will refine the shortlist and share suitable trainer profiles "
-        "with experience, certifications, availability, and commercials for your review.\n\n"
-        "We look forward to your response.\n\n"
-        "Regards,\nRecruitment Team\nClahan Technologies"
-    )
+    technology = extracted.get("technology_needed") or "Devops"
+    missing_details = _format_missing_details(extracted)
+    if missing_details:
+        body = (
+            "Dear Client,\n\n"
+            "Thank you for sharing your Devops training requirement.\n\n"
+            "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
+            f"{missing_details}"
+            "Meanwhile, we will begin an initial trainer search based on the Devops domain and the information currently available. "
+            "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
+            "We look forward to your response.\n\n"
+            "Regards,\n"
+            "Recruitment Team,\n"
+            "Calhan Technologies"
+        )
+    else:
+        body = (
+            "Dear Client,\n\n"
+            "Thank you for sharing your Devops training requirement.\n\n"
+            "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
+            "* Training duration\n"
+            "* Preferred training dates\n"
+            "* Daily training timings\n"
+            "* Audience level (Beginner / Intermediate / Advanced)\n"
+            "* Training mode (Online / Offline / Hybrid)\n"
+            "* Budget or expected commercial charges per day/session\n\n"
+            "Meanwhile, we will begin an initial trainer search based on the Devops domain and the information currently available. "
+            "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
+            "We look forward to your response.\n\n"
+            "Regards,\n"
+            "Recruitment Team,\n"
+            "Calhan Technologies"
+        )
     return {"subject": f"Re: {technology} Trainer Requirement", "body": body}
 
 
@@ -899,7 +956,7 @@ def _client_proceed_ack_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
         "based on the information currently available.\n\n"
         "Once you share the remaining details, we will refine the shortlist further and share the most suitable "
         "trainer profiles with experience, certifications, availability, and commercials for your review.\n\n"
-        "Regards,\nRecruitment Team\nClahan Technologies"
+        + _reply_signature()
     )
     return {"subject": f"Re: {technology} Trainer Requirement", "body": body}
 
@@ -912,7 +969,7 @@ def _client_clarification_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
         "please confirm the technology/topic, delivery mode, expected dates or duration, participant count, "
         "and commercials or budget range.\n\n"
         "Once we have these details, we will share suitable profiles for your review.\n\n"
-        "Regards,\nRecruitment Team\nClahan Technologies"
+        + _reply_signature()
     )
     return {"subject": "Re: Training Requirement Details", "body": body}
 
@@ -946,7 +1003,7 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         "- Commercials per day\n"
         "- LinkedIn profile, if available\n\n"
         f"Reference: {requirement_id}\n\n"
-        "Regards,\nRecruitment Team\nClahan Technologies"
+        + _reply_signature()
     )
     return {"subject": f"Corporate Training Requirement - {tech}", "body": body}
 
@@ -1009,6 +1066,7 @@ async def _send_client_auto_reply(
     smtp_config = settings_doc.get("emailCfg") or None
     success, error = await send_email_async(to=to, subject=subject, body=body, smtp_config=smtp_config)
     now = _now()
+    source_gmail_message_id = _current_inbound_message_id(email_doc)
     if success:
         await db["email_logs"].insert_one({
             "email_id": f"RPL-{uuid.uuid4().hex[:10].upper()}",
@@ -1021,6 +1079,7 @@ async def _send_client_auto_reply(
             "status": "sent",
             "mail_type": "client_auto_reply",
             "source_email_id": email_doc.get("email_id"),
+            "source_gmail_message_id": source_gmail_message_id,
             "requirement_id": requirement_id,
             "sent_at": now,
             "created_at": now,
@@ -1033,6 +1092,7 @@ async def _send_client_auto_reply(
         "to": to,
         "subject": subject,
         "sent_at": now,
+        "source_gmail_message_id": source_gmail_message_id,
     }
 
 
@@ -1277,16 +1337,13 @@ async def _process_client_requirement_email(
         or is_initial_requirement_request
     )
     confidence = _safe_float(extracted.get("confidence"), 0)
-    meets_threshold = confidence >= settings["threshold"]
     auto_send_eligible = auto_send_candidate
-    auto_send_ready = settings["enabled"] and auto_send_candidate and meets_threshold
+    auto_send_ready = settings["enabled"] and auto_send_candidate
     auto_send_block_reason = ""
     if reply and not settings["enabled"]:
         auto_send_block_reason = "auto_send_disabled"
     elif reply and not auto_send_candidate:
         auto_send_block_reason = "not_auto_send_candidate"
-    elif reply and not meets_threshold:
-        auto_send_block_reason = "confidence_below_threshold"
 
     base_update = {
         "extracted": extracted,
@@ -1345,6 +1402,7 @@ async def _process_client_requirement_email(
                         "reply_status": "auto_sent",
                         "reply_sent": True,
                         "reply_sent_at": auto_reply_result.get("sent_at"),
+                        "reply_sent_for_message_id": auto_reply_result.get("source_gmail_message_id"),
                         "auto_sent_at": auto_reply_result.get("sent_at"),
                         "auto_send_error": "",
                         "auto_send_retry_after": None,
@@ -1408,8 +1466,9 @@ async def _process_client_requirement_email(
             "sent": 0,
             "total": 0,
         }
-        final_status = "auto_sent" if email_doc.get("reply_sent") else "pending_approval"
-        reply_status = "auto_sent" if email_doc.get("reply_sent") else "pending_approval"
+        already_replied_to_latest = _has_replied_to_latest_message(email_doc)
+        final_status = "auto_sent" if already_replied_to_latest else "pending_approval"
+        reply_status = "auto_sent" if already_replied_to_latest else "pending_approval"
         reply_sent_update: Dict[str, Any] = {}
 
         should_auto_send_reply = _should_attempt_auto_reply(email_doc, settings, auto_send_eligible, reply, confidence=confidence)
@@ -1427,6 +1486,7 @@ async def _process_client_requirement_email(
                 reply_sent_update.update({
                     "reply_sent": True,
                     "reply_sent_at": auto_reply_result.get("sent_at"),
+                    "reply_sent_for_message_id": auto_reply_result.get("source_gmail_message_id"),
                     "auto_sent_at": auto_reply_result.get("sent_at"),
                     "auto_send_error": "",
                     "auto_send_retry_after": None,
@@ -1465,7 +1525,7 @@ async def _process_client_requirement_email(
                 })
 
         trainer_already_handled = "trainer_automation_status" in reply_sent_update
-        if should_start_trainer_search and not trainer_already_handled and (email_doc.get("reply_sent") or final_status == "auto_sent"):
+        if should_start_trainer_search and not trainer_already_handled and (already_replied_to_latest or final_status == "auto_sent"):
             try:
                 trainer_send_result = await _send_initial_trainer_mail(requirement_id, extracted)
                 trainer_sent_count = _safe_int(trainer_send_result.get("sent"), 0)
@@ -1526,16 +1586,27 @@ async def _find_existing_client_email_for_reply(
     db: AsyncIOMotorDatabase,
     from_email: str,
     subject: Any,
-    message_ids: List[str],
+    message_id: str,
+    thread_message_ids: List[str],
+    is_thread_reply: bool,
 ) -> Optional[Dict[str, Any]]:
-    if message_ids:
+    message_id_candidates = _message_id_candidates(message_id)
+    if message_id_candidates:
+        exact_match = await db["client_emails"].find_one(
+            {"gmail_message_id": {"$in": message_id_candidates}},
+            {"_id": 0},
+            sort=[("updated_at", -1), ("created_at", -1)],
+        )
+        if exact_match:
+            return exact_match
+
+    if is_thread_reply and thread_message_ids:
         message_match = await db["client_emails"].find_one(
             {
                 "$or": [
-                    {"gmail_message_id": {"$in": message_ids}},
-                    {"latest_gmail_message_id": {"$in": message_ids}},
-                    {"thread_message_ids": {"$in": message_ids}},
-                    {"in_reply_to": {"$in": message_ids}},
+                    {"latest_gmail_message_id": {"$in": thread_message_ids}},
+                    {"thread_message_ids": {"$in": thread_message_ids}},
+                    {"in_reply_to": {"$in": thread_message_ids}},
                 ],
             },
             {"_id": 0},
@@ -1544,7 +1615,7 @@ async def _find_existing_client_email_for_reply(
         if message_match:
             return message_match
 
-    if not from_email:
+    if not from_email or not is_thread_reply:
         return None
 
     cursor = (
@@ -1566,7 +1637,7 @@ async def _find_existing_client_email_for_reply(
     return None
 
 
-async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict) -> None:
+async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict) -> str:
     raw_from = reply.get("from_raw") or reply.get("from_email") or ""
     parsed_name, parsed_email = parseaddr(raw_from)
     from_email = _email_address(reply.get("from_email") or parsed_email or raw_from)
@@ -1575,13 +1646,26 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
     in_reply_to = reply.get("in_reply_to")
     references = reply.get("references")
     message_ids = _message_id_candidates(msg_id_hdr, in_reply_to, references)
+    is_thread_reply = bool(
+        in_reply_to
+        or references
+        or re.match(r"^\s*(?:re|fw|fwd)\s*:", str(reply.get("subject") or ""), flags=re.IGNORECASE)
+    )
     existing = await _find_existing_client_email_for_reply(
         db,
         from_email=from_email,
         subject=reply.get("subject"),
-        message_ids=message_ids,
+        message_id=msg_id_hdr,
+        thread_message_ids=message_ids,
+        is_thread_reply=is_thread_reply,
     )
     now = _now()
+    previous_message_id = _clean(
+        (existing or {}).get("latest_gmail_message_id")
+        or (existing or {}).get("gmail_message_id")
+        or ""
+    )
+    is_new_inbound_message = bool(msg_id_hdr and msg_id_hdr != previous_message_id)
     update_fields = {
         "from_email": from_email,
         "from_name": from_name,
@@ -1607,6 +1691,18 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
             update_fields["status"] = "received"
         if not existing.get("reply_status"):
             update_fields["reply_status"] = "received"
+        if is_new_inbound_message:
+            update_fields.update({
+                "processed": False,
+                "status": "received",
+                "reply_status": "received",
+                "reply_sent": False,
+                "reply_sent_at": None,
+                "reply_sent_for_message_id": "",
+                "auto_sent_at": None,
+                "auto_send_error": "",
+                "reply_error": "",
+            })
         if "auto_send_eligible" not in existing:
             update_fields["auto_send_eligible"] = False
         if "confidence" not in existing:
@@ -1643,12 +1739,11 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
         )
         should_process_details_reply = (
             bool(merged.get("requirement_id"))
-            and merged.get("trainer_automation_status") != "started"
             and _has_details_for_trainer_search(candidate_extracted)
         )
         if not merged.get("requirement_id") or should_process_proceed_reply or should_process_details_reply:
             await _process_client_requirement_email(db, merged)
-        return
+        return existing["email_id"]
 
     doc = {
         "email_id": f"CLH-{uuid.uuid4().hex[:10].upper()}",
@@ -1660,6 +1755,7 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
         doc["thread_message_ids"] = message_ids
     await db["client_emails"].insert_one(doc)
     await _process_client_requirement_email(db, doc)
+    return doc["email_id"]
 
 
 async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) -> int:
@@ -1713,6 +1809,21 @@ async def _process_pending_client_emails(db: AsyncIOMotorDatabase, limit: int = 
             {"auto_send_retry_after": {"$lte": now}},
         ],
     }
+    latest_message_needs_reply_query = {
+        "$and": [
+            {"latest_gmail_message_id": {"$exists": True, "$nin": ["", None]}},
+            {"reply_sent": True},
+            {
+                "$expr": {
+                    "$ne": [
+                        {"$ifNull": ["$reply_sent_for_message_id", "$gmail_message_id"]},
+                        "$latest_gmail_message_id",
+                    ]
+                }
+            },
+            retry_due_query,
+        ],
+    }
     pending_work_query = {
         "$and": [
             today_query,
@@ -1760,6 +1871,7 @@ async def _process_pending_client_emails(db: AsyncIOMotorDatabase, limit: int = 
     query = {
         "$or": [
             {"$and": [today_query, {"pending_trainer_automation": True}, retry_due_query]},
+            {"$and": [today_query, latest_message_needs_reply_query]},
             pending_work_query,
         ]
     }

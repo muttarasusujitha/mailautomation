@@ -443,6 +443,17 @@ def _shortlist_response(doc: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _thread_log_response(log: Dict[str, Any]) -> Dict[str, Any]:
+    item = dict(log)
+    if item.get("direction") == "outbound":
+        item["direction"] = "sent"
+    elif item.get("direction") == "inbound":
+        item["direction"] = "received"
+    if not item.get("body") and item.get("body_snippet"):
+        item["body"] = item.get("body_snippet")
+    return item
+
+
 @router.get("/thread")
 async def get_shortlist_thread(
     requirement_id: str = Query(...),
@@ -454,7 +465,8 @@ async def get_shortlist_thread(
         .sort("created_at", -1)
         .to_list(200)
     )
-    return {"success": True, "requirement_id": requirement_id, "thread": logs}
+    messages = [_thread_log_response(log) for log in logs]
+    return {"success": True, "requirement_id": requirement_id, "thread": messages, "messages": messages}
 
 
 @router.get("/thread-states")
@@ -538,88 +550,93 @@ async def send_shortlist_mail(
         error_message = ""
         try:
             async with httpx.AsyncClient(timeout=30) as client:
+                domain = _clean(
+                    requirement.get("technology_needed")
+                    or requirement.get("domain")
+                    or shortlist.get("technology_needed")
+                    or "Training"
+                )
+                duration = _clean(
+                    requirement.get("duration_text")
+                    or (f"{requirement.get('duration_days')} day(s)" if requirement.get("duration_days") else "")
+                    or (f"{requirement.get('duration_hours')} hour(s)" if requirement.get("duration_hours") else "")
+                )
                 subject = payload.subject or f"Training Opportunity - {payload.requirement_id}"
                 body = payload.body or (
                     f"Dear {trainer_name},\n\n"
                     "We have a training requirement matching your profile. Please revert if interested.\n\n"
                     "Regards,\nTrainerSync Team"
                 )
-                if payload.mail_type in ("mail1", "first") and not payload.body:
-                    domain = _clean(
-                        requirement.get("technology_needed")
-                        or requirement.get("domain")
-                        or shortlist.get("technology_needed")
-                        or "Training"
-                    )
-                    duration = _clean(
-                        requirement.get("duration_text")
-                        or (f"{requirement.get('duration_days')} day(s)" if requirement.get("duration_days") else "")
-                        or (f"{requirement.get('duration_hours')} hour(s)" if requirement.get("duration_hours") else "")
-                    )
-                    tmpl_response = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/shortlist-first",
-                        json={
-                            "trainer_name": trainer_name,
-                            "domain": domain,
-                            "duration": duration,
-                            "mode": _clean(requirement.get("mode")),
-                            "participants": _clean(requirement.get("participant_count")),
-                        },
-                    )
-                    if tmpl_response.status_code < 400:
-                        tmpl = tmpl_response.json()
-                        subject = payload.subject or tmpl.get("subject") or subject
-                        body = tmpl.get("body") or body
-                    # other mail types: map to server templates when no explicit body provided
-                    if payload.mail_type in ("mail2", "mail2_followup") and not payload.body:
+                if not payload.body:
+                    tmpl_response = None
+                    base_template_payload = {
+                        "name": trainer_name,
+                        "technology": domain,
+                        "requirement_id": payload.requirement_id,
+                        "client_name": _clean(requirement.get("client_name") or requirement.get("client_company")),
+                    }
+                    if payload.mail_type in ("mail1", "first"):
+                        tmpl_response = await client.post(
+                            f"{EMAIL_SVC}/api/v1/email/templates/shortlist-first",
+                            json={
+                                "trainer_name": trainer_name,
+                                "domain": domain,
+                                "duration": duration,
+                                "mode": _clean(requirement.get("mode")),
+                                "participants": _clean(requirement.get("participant_count")),
+                            },
+                        )
+                    elif payload.mail_type in ("mail2", "mail2_followup"):
                         tmpl_name = "mail2" if payload.mail_type == "mail2" else "mail2-followup"
                         tmpl_response = await client.post(
                             f"{EMAIL_SVC}/api/v1/email/templates/{tmpl_name}",
-                            json={
-                                "name": trainer_name,
-                                "technology": domain,
-                                "requirement_id": payload.requirement_id,
-                            },
+                            json=base_template_payload,
                         )
-                        if tmpl_response.status_code < 400:
-                            tmpl = tmpl_response.json()
-                            subject = payload.subject or tmpl.get("subject") or subject
-                            body = tmpl.get("body") or body
-                    if payload.mail_type in ("mail3", "mail3_slot_booking", "mail3_too_many", "mail3_too_few") and not payload.body:
+                    elif payload.mail_type in (
+                        "mail3",
+                        "mail3_slot_booking",
+                        "mail3_slot_followup",
+                        "mail3_too_many",
+                        "mail3_too_many_slots",
+                        "mail3_too_few",
+                        "mail3_too_few_slots",
+                    ):
                         map_name = {
                             "mail3": "mail3-slot-booking",
                             "mail3_slot_booking": "mail3-slot-booking",
+                            "mail3_slot_followup": "mail3-too-few",
                             "mail3_too_many": "mail3-too-many",
+                            "mail3_too_many_slots": "mail3-too-many",
                             "mail3_too_few": "mail3-too-few",
+                            "mail3_too_few_slots": "mail3-too-few",
                         }[payload.mail_type]
-                        tmpl_response = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/{map_name}", json={"name": trainer_name, "technology": domain, "requirement_id": payload.requirement_id})
-                        if tmpl_response.status_code < 400:
-                            tmpl = tmpl_response.json()
-                            subject = payload.subject or tmpl.get("subject") or subject
-                            body = tmpl.get("body") or body
-                    if payload.mail_type in ("mail5", "mail5_selection", "mail5_rejection") and not payload.body:
-                        map_name = "mail5-selection" if payload.mail_type in ("mail5", "mail5_selection") else "mail5-rejection"
-                        tmpl_response = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/{map_name}", json={"name": trainer_name, "technology": domain, "requirement_id": payload.requirement_id})
-                        if tmpl_response.status_code < 400:
-                            tmpl = tmpl_response.json()
-                            subject = payload.subject or tmpl.get("subject") or subject
-                            body = tmpl.get("body") or body
-                    if payload.mail_type in ("mail6", "toc-request") and not payload.body:
-                        tmpl_response = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/toc-request", json={"name": trainer_name})
-                        if tmpl_response.status_code < 400:
-                            tmpl = tmpl_response.json()
-                            subject = payload.subject or tmpl.get("subject") or subject
-                            body = tmpl.get("body") or body
-                    if payload.mail_type in ("mail7", "training_confirmation") and not payload.body:
-                        tmpl_response = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/mail7-training-confirmation", json={"name": trainer_name, "client_name": requirement.get('client_name', '')})
-                        if tmpl_response.status_code < 400:
-                            tmpl = tmpl_response.json()
-                            subject = payload.subject or tmpl.get("subject") or subject
-                            body = tmpl.get("body") or body
+                        tmpl_response = await client.post(
+                            f"{EMAIL_SVC}/api/v1/email/templates/{map_name}",
+                            json=base_template_payload,
+                        )
+                    elif payload.mail_type in ("mail5", "mail5_ok", "mail5_selection", "mail5_no", "mail5_rejection"):
+                        map_name = "mail5-selection" if payload.mail_type in ("mail5", "mail5_ok", "mail5_selection") else "mail5-rejection"
+                        tmpl_response = await client.post(
+                            f"{EMAIL_SVC}/api/v1/email/templates/{map_name}",
+                            json=base_template_payload,
+                        )
+                    elif payload.mail_type in ("mail6", "mail6_toc", "toc-request"):
+                        map_name = "mail6-toc-request" if payload.mail_type in ("mail6", "mail6_toc") else "toc-request"
+                        tmpl_response = await client.post(
+                            f"{EMAIL_SVC}/api/v1/email/templates/{map_name}",
+                            json={**base_template_payload, "trainer_name": trainer_name},
+                        )
+                    elif payload.mail_type in ("mail7", "mail7_confirm", "training_confirmation"):
+                        tmpl_response = await client.post(
+                            f"{EMAIL_SVC}/api/v1/email/templates/mail7-training-confirmation",
+                            json=base_template_payload,
+                        )
+                    if tmpl_response is not None and tmpl_response.status_code < 400:
+                        tmpl = tmpl_response.json()
+                        subject = payload.subject or tmpl.get("subject") or subject
+                        body = tmpl.get("body") or body
                 r = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
                     "to": trainer_email,
-                    "subject": payload.subject or f"Training Opportunity — {payload.requirement_id}",
-                    "body": payload.body or f"Dear {trainer_name},\n\nWe have a training requirement matching your profile. Please revert if interested.\n\nRegards,\nTrainerSync Team",
                     "subject": subject,
                     "body": body,
                     "mail_type": payload.mail_type,

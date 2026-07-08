@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379"
 
     ANTHROPIC_API_KEY: str = ""
+    ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"
 

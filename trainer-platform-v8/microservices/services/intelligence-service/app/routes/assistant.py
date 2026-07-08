@@ -47,7 +47,7 @@ async def _call_anthropic(messages: List[Dict], system: str, settings, max_token
     import anthropic
     client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY.strip())
     resp = await client.messages.create(
-        model="claude-haiku-4-20250514",
+        model=settings.ANTHROPIC_MODEL,
         max_tokens=max_tokens,
         temperature=temperature,
         system=system or "You are TrainerSync AI — a helpful training coordination assistant.",

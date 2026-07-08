@@ -105,7 +105,7 @@ async def analyse_email(payload: AnalyseEmailRequest, db: AsyncIOMotorDatabase =
                     f"Email:\n{text[:4000]}"
                 )
                 msg = await client.messages.create(
-                    model="claude-haiku-4-20250514", max_tokens=800, temperature=0,
+                    model=settings.ANTHROPIC_MODEL, max_tokens=800, temperature=0,
                     messages=[{"role": "user", "content": prompt}],
                 )
                 raw = "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")

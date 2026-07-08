@@ -18,6 +18,10 @@ def _email_address(value: Any) -> str:
     return (parseaddr(str(value or ""))[1] or str(value or "")).strip().lower()
 
 
+def _current_inbound_message_id(doc: Dict[str, Any]) -> str:
+    return str(doc.get("latest_gmail_message_id") or doc.get("gmail_message_id") or "").strip()
+
+
 async def _smtp_config(db: AsyncIOMotorDatabase) -> Dict[str, Any] | None:
     from app.routes.inbox import _load_admin_settings
 
@@ -69,6 +73,7 @@ async def retry_schedule_client_update(
             "reply_status": "sent" if success else "failed",
             "reply_sent": success,
             "reply_sent_at": now if success else None,
+            "reply_sent_for_message_id": _current_inbound_message_id(doc) if success else doc.get("reply_sent_for_message_id"),
             "reply_error": error or "",
             "updated_at": now,
         }},

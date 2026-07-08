@@ -73,7 +73,17 @@ def _load_oauth_service():
         return None, str(exc)
 
 
+def _normalize_email_address(email: str) -> str:
+    if not email:
+        return ""
+    email = str(email).strip()
+    if email.lower().startswith("mailto:"):
+        email = email[7:]
+    return email
+
+
 def _html_template(body: str, from_name: str, from_email: str, tracking_url: str = "") -> str:
+    from_email = _normalize_email_address(from_email)
     html_body = body.replace("\n", "<br>")
     pixel = (
         f'<img src="{tracking_url}" width="1" height="1" alt="" style="display:none;" />'
@@ -87,12 +97,12 @@ def _html_template(body: str, from_name: str, from_email: str, tracking_url: str
 <table width="600" cellpadding="0" cellspacing="0"
   style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
 <tr><td style="background:linear-gradient(135deg,#2563eb,#1d4ed8);padding:28px 36px;">
-<h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;">TrainerSync</h1>
+<h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;">{from_name or 'TrainerSync'}</h1>
 <p style="margin:4px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">AI-Powered Trainer Matching Platform</p>
 </td></tr>
 <tr><td style="padding:32px 36px;color:#1e293b;font-size:15px;line-height:1.8;">{html_body}</td></tr>
 <tr><td style="background:#f1f5f9;padding:20px 36px;border-top:1px solid #e2e8f0;">
-<p style="margin:0;color:#94a3b8;font-size:12px;">{from_name} &bull; {from_email}</p>
+<p style="margin:0;color:#94a3b8;font-size:12px;">{from_name or 'TrainerSync'} &bull; {from_email}</p>
 </td></tr>
 </table></td></tr></table>
 {pixel}
@@ -104,6 +114,7 @@ def send_gmail_oauth(
     subject: str,
     body: str,
     from_name: str = "",
+    from_email: str = "",
     tracking_url: str = "",
     attachments: Optional[List[Dict[str, Any]]] = None,
 ) -> Tuple[bool, str]:
@@ -114,18 +125,19 @@ def send_gmail_oauth(
         profile = service.users().getProfile(userId="me").execute()
         gmail_user = profile.get("emailAddress") or settings.GMAIL_USER
         sender_name = from_name or settings.FROM_NAME
+        sender_email = _normalize_email_address(from_email or gmail_user)
 
         msg = MIMEMultipart("mixed") if attachments else MIMEMultipart("alternative")
         msg["Subject"] = subject
-        msg["From"] = f"{sender_name} <{gmail_user}>"
+        msg["From"] = f"{sender_name} <{sender_email}>"
         msg["To"] = to
-        msg["Reply-To"] = gmail_user
+        msg["Reply-To"] = sender_email
 
         alt = MIMEMultipart("alternative") if attachments else msg
         if attachments:
             msg.attach(alt)
         alt.attach(MIMEText(body, "plain", "utf-8"))
-        alt.attach(MIMEText(_html_template(body, sender_name, gmail_user, tracking_url), "html", "utf-8"))
+        alt.attach(MIMEText(_html_template(body, sender_name, sender_email, tracking_url), "html", "utf-8"))
 
         for att in attachments or []:
             part = MIMEApplication(att.get("content") or b"", _subtype=att.get("subtype") or "octet-stream")
@@ -155,9 +167,11 @@ def send_smtp(
     host = cfg.get("smtpHost") or settings.SMTP_HOST
     port = int(cfg.get("smtpPort") or settings.SMTP_PORT)
 
+    from_email = _normalize_email_address(from_email)
+
     if not user or not pwd:
         # fall back to OAuth
-        return send_gmail_oauth(to, subject, body, from_name, tracking_url)
+        return send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
 
     try:
         msg = MIMEMultipart("alternative")
@@ -184,12 +198,12 @@ def send_smtp(
     except smtplib.SMTPAuthenticationError:
         # try OAuth fallback for Gmail
         if "gmail" in host.lower():
-            return send_gmail_oauth(to, subject, body, from_name, tracking_url)
+            return send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
         return False, "SMTP authentication failed"
     except Exception as exc:
         logger.exception("SMTP send failed to %s", to)
         if "gmail" in host.lower():
-            oauth_success, oauth_error = send_gmail_oauth(to, subject, body, from_name, tracking_url)
+            oauth_success, oauth_error = send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
             if oauth_success:
                 return True, ""
             return False, oauth_error or str(exc)

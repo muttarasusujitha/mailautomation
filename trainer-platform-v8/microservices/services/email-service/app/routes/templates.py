@@ -14,7 +14,10 @@ def _from_name() -> str:
 
 
 def _from_email() -> str:
-    return settings.FROM_EMAIL or settings.GMAIL_USER or ""
+    email = settings.FROM_EMAIL or settings.GMAIL_USER or ""
+    if email.lower().startswith("mailto:"):
+        email = email[7:]
+    return email.strip()
 
 
 class ShortlistEmailRequest(BaseModel):
@@ -34,7 +37,8 @@ class InterviewEmailRequest(BaseModel):
 
 
 class TocRequestEmailRequest(BaseModel):
-    trainer_name: str
+    trainer_name: Optional[str] = ""
+    name: Optional[str] = ""
 
 
 class RetryEmailRequest(BaseModel):
@@ -113,8 +117,9 @@ async def compose_interview(payload: InterviewEmailRequest):
 
 @router.post("/toc-request")
 async def compose_toc_request(payload: TocRequestEmailRequest):
+    trainer_name = payload.trainer_name or payload.name or "Trainer"
     body = (
-        f"Dear {payload.trainer_name or 'Trainer'},\n\n"
+        f"Dear {trainer_name},\n\n"
         "Congratulations on clearing the discussion round.\n\n"
         "Kindly share the Table of Contents (ToC) / Course Agenda for the training "
         "so we can proceed further with the client.\n\n"
@@ -155,7 +160,7 @@ class ClientProceedRequest(BaseModel):
 @router.post("/client/mail2")
 async def compose_client_mail2(payload: ClientMail2Request):
     name = payload.client_name or "Client"
-    tech = payload.technology or "training"
+    tech = payload.technology or "Devops"
     subject = payload.subject or f"Re: {tech} Trainer Requirement"
     body = (
         f"Dear {name},\n\n"
@@ -164,13 +169,13 @@ async def compose_client_mail2(payload: ClientMail2Request):
         "* Training duration\n"
         "* Preferred training dates\n"
         "* Daily training timings\n"
-        "* Participant count\n"
-        "* Location / Mode\n"
         "* Audience level (Beginner / Intermediate / Advanced)\n"
-        "* Any specific tools or topics to be covered\n\n"
-        "Meanwhile, we will keep the requirement ready for the initial trainer search. Once we receive the above details, we will refine the shortlist and share suitable trainer profiles with experience, certifications, availability, and commercials for your review.\n\n"
+        "* Training mode (Online / Offline / Hybrid)\n"
+        "* Budget or expected commercial charges per day/session\n\n"
+        "Meanwhile, we will begin an initial trainer search based on the Devops domain and the information currently available. "
+        "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
         "We look forward to your response.\n\n"
-        "Regards,\nRecruitment Team\nClahan Technologies"
+        f"Regards,\n{_from_name()}\n{_from_email()}"
     )
     return {"subject": subject, "body": body}
 
@@ -185,7 +190,7 @@ async def compose_client_proceed_ack(payload: ClientProceedRequest):
         "Thank you for your confirmation.\n\n"
         "Sure, we will proceed with the initial trainer search for your requirement based on the information currently available.\n\n"
         "Once you share the remaining details, we will refine the shortlist further and share the most suitable trainer profiles with experience, certifications, availability, and commercials for your review.\n\n"
-        "Regards,\nRecruitment Team\nClahan Technologies"
+        f"Regards,\n{_from_name()}\n{_from_email()}"
     )
     return {"subject": subject, "body": body}
 

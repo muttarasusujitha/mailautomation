@@ -22,13 +22,28 @@ PIPELINE_STAGES = ["mail1", "mail1_reminder", "mail2", "mail3", "mail4", "mail5_
 
 
 class SendAutomationMailRequest(BaseModel):
-    trainer_email: str
+    trainer_email: Optional[str] = ""
     trainer_name: Optional[str] = ""
     mail_type: str
     subject: Optional[str] = ""
     body: Optional[str] = ""
     requirement_id: Optional[str] = ""
     technology: Optional[str] = ""
+    domain: Optional[str] = ""
+    duration: Optional[str] = ""
+    mode: Optional[str] = ""
+    participants: Optional[str] = ""
+    client_name: Optional[str] = ""
+    slots: Optional[str] = ""
+    date_time: Optional[str] = ""
+    platform: Optional[str] = ""
+    interview_link: Optional[str] = ""
+    training_date: Optional[str] = ""
+    venue: Optional[str] = ""
+    contact_name: Optional[str] = ""
+    contact_phone: Optional[str] = ""
+    contact_email: Optional[str] = ""
+    message: Optional[str] = ""
     smtp_config: Optional[Dict[str, Any]] = None
 
 
@@ -86,25 +101,78 @@ async def send_automation_mail(
     # Compose body via email-service templates if no explicit body
     body = payload.body
     subject = payload.subject
+    technology = payload.technology or payload.domain or "Training"
     if not body:
         try:
             async with httpx.AsyncClient(timeout=15) as client:
+                r = None
+                base_template_payload = {
+                    "name": name,
+                    "technology": technology,
+                    "requirement_id": payload.requirement_id or "",
+                    "client_name": payload.client_name or "",
+                }
                 if payload.mail_type in ("mail1", "first"):
                     r = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/shortlist-first", json={
-                        "trainer_name": name, "domain": payload.technology or ""})
+                        "trainer_name": name,
+                        "domain": technology,
+                        "duration": payload.duration or "",
+                        "mode": payload.mode or "",
+                        "participants": payload.participants or "",
+                    })
+                elif payload.mail_type in ("mail2", "mail2_followup"):
+                    tmpl_name = "mail2" if payload.mail_type == "mail2" else "mail2-followup"
+                    r = await client.post(
+                        f"{EMAIL_SVC}/api/v1/email/templates/{tmpl_name}",
+                        json=base_template_payload,
+                    )
+                elif payload.mail_type in ("mail3", "mail3_slot_booking"):
+                    r = await client.post(
+                        f"{EMAIL_SVC}/api/v1/email/templates/mail3-slot-booking",
+                        json=base_template_payload,
+                    )
+                elif payload.mail_type in ("mail3_slot_followup", "mail3_too_few", "mail3_too_few_slots"):
+                    r = await client.post(
+                        f"{EMAIL_SVC}/api/v1/email/templates/mail3-too-few",
+                        json=base_template_payload,
+                    )
+                elif payload.mail_type in ("mail3_too_many", "mail3_too_many_slots"):
+                    r = await client.post(
+                        f"{EMAIL_SVC}/api/v1/email/templates/mail3-too-many",
+                        json=base_template_payload,
+                    )
                 elif payload.mail_type == "mail4":
                     r = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/interview", json={
-                        "trainer_name": name, "technology": payload.technology or "",
-                        "req_id": payload.requirement_id or ""})
-                elif payload.mail_type == "mail6_toc":
-                    r = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/toc-request", json={
-                        "trainer_name": name})
+                        "trainer_name": name,
+                        "technology": technology,
+                        "req_id": payload.requirement_id or "",
+                        "interview_date": payload.date_time or "",
+                        "interview_link": payload.interview_link or "",
+                    })
+                elif payload.mail_type in ("mail5", "mail5_ok", "mail5_selection"):
+                    r = await client.post(
+                        f"{EMAIL_SVC}/api/v1/email/templates/mail5-selection",
+                        json=base_template_payload,
+                    )
+                elif payload.mail_type in ("mail5_no", "mail5_rejection"):
+                    r = await client.post(
+                        f"{EMAIL_SVC}/api/v1/email/templates/mail5-rejection",
+                        json=base_template_payload,
+                    )
+                elif payload.mail_type in ("mail6", "mail6_toc", "toc-request"):
+                    r = await client.post(
+                        f"{EMAIL_SVC}/api/v1/email/templates/mail6-toc-request",
+                        json=base_template_payload,
+                    )
+                elif payload.mail_type in ("mail7", "mail7_confirm", "training_confirmation"):
+                    r = await client.post(
+                        f"{EMAIL_SVC}/api/v1/email/templates/mail7-training-confirmation",
+                        json=base_template_payload,
+                    )
                 elif payload.mail_type in ("mail1_reminder",):
                     r = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/retry", json={
-                        "trainer_name": name, "technology": payload.technology or "",
+                        "trainer_name": name, "technology": technology,
                         "req_id": payload.requirement_id or ""})
-                else:
-                    r = None
             if r and r.status_code < 400:
                 tmpl = r.json()
                 body = tmpl.get("body", "")
@@ -114,14 +182,17 @@ async def send_automation_mail(
 
     if not body:
         body = f"Dear {name},\n\nWe have a training requirement matching your profile. Please revert if interested.\n\nRegards,\nTrainerSync Team"
+    if payload.message and payload.message.strip():
+        body = f"{payload.message.strip()}\n\n{body}"
     if not subject:
-        subject = f"Training Requirement — {payload.technology or payload.requirement_id or 'Opportunity'}"
+        subject = f"Training Requirement - {technology or payload.requirement_id or 'Opportunity'}"
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             r = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
                 "to": email, "subject": subject, "body": body,
                 "mail_type": payload.mail_type, "trainer_id": trainer_id,
+                "trainer_name": name,
                 "requirement_id": payload.requirement_id,
                 "smtp_config": payload.smtp_config,
             })

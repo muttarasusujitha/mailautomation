@@ -66,6 +66,10 @@ def _email_address(value: Any) -> str:
     return (parseaddr(str(value or ""))[1] or str(value or "")).strip().lower()
 
 
+def _current_inbound_message_id(doc: Dict[str, Any]) -> str:
+    return str(doc.get("latest_gmail_message_id") or doc.get("gmail_message_id") or "").strip()
+
+
 async def _smtp_config(db: AsyncIOMotorDatabase) -> Optional[Dict[str, Any]]:
     from app.routes.inbox import _load_admin_settings
 
@@ -197,6 +201,7 @@ async def approve_inbox_reply(
         if success:
             update["reply_sent"] = True
             update["reply_sent_at"] = now
+            update["reply_sent_for_message_id"] = _current_inbound_message_id(doc)
             update["reply_status"] = "sent"
             update["status"] = "sent"
             # Log outbound reply
@@ -297,6 +302,26 @@ async def regenerate_reply(
     return {"success": True, "email_id": email_id, "reply": new_reply, "generated_reply": generated_reply}
 
 
+def _client_auto_reply_template() -> str:
+    return (
+        "Dear Client,\n\n"
+        "Thank you for sharing your Devops training requirement.\n\n"
+        "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
+        "* Training duration\n"
+        "* Preferred training dates\n"
+        "* Daily training timings\n"
+        "* Audience level (Beginner / Intermediate / Advanced)\n"
+        "* Training mode (Online / Offline / Hybrid)\n"
+        "* Budget or expected commercial charges per day/session\n\n"
+        "Meanwhile, we will begin an initial trainer search based on the Devops domain and the information currently available. "
+        "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
+        "We look forward to your response.\n\n"
+        "Regards,\n"
+        "Recruitment Team,\n"
+        "Calhan Technologies"
+    )
+
+
 async def _ai_draft_reply(subject: str, body: str, hint: str = "") -> str:
     """Generate a client reply using Anthropic Claude (fallback: template)."""
     from app.config import get_settings
@@ -306,15 +331,19 @@ async def _ai_draft_reply(subject: str, body: str, hint: str = "") -> str:
         try:
             import anthropic
             client = anthropic.AsyncAnthropic(api_key=key)
+            template = _client_auto_reply_template()
             prompt = (
-                f"You are a professional training coordinator at TrainerSync. "
-                f"Draft a helpful, concise reply to this client email.\n\n"
+                f"You are a professional training coordinator at {settings.FROM_NAME or 'TrainerSync'}. "
+                f"Draft a helpful, concise reply to this client email using the exact template below whenever the client request is for training or a trainer requirement. "
+                f"Preserve the wording exactly, except you may personalize the greeting if the client name is available.\n\n"
+                f"Template:\n{template}\n\n"
                 f"Subject: {subject}\nBody: {body[:2000]}"
                 + (f"\n\nHint: {hint}" if hint else "")
                 + "\n\nReturn only the reply body, no subject line."
             )
+            model_name = getattr(cfg, "ANTHROPIC_MODEL", "claude-haiku-4-20250514") or "claude-haiku-4-20250514"
             msg = await client.messages.create(
-                model="claude-haiku-4-20250514",
+                model=model_name,
                 max_tokens=600,
                 temperature=0.4,
                 messages=[{"role": "user", "content": prompt}],
@@ -324,9 +353,4 @@ async def _ai_draft_reply(subject: str, body: str, hint: str = "") -> str:
             logger.warning("AI reply generation failed: %s", exc)
 
     # Fallback template
-    return (
-        "Dear Client,\n\n"
-        "Thank you for your email. We have noted your requirement and will revert shortly "
-        "with suitable trainer profiles and next steps.\n\n"
-        "Regards,\nTrainerSync Team"
-    )
+    return _client_auto_reply_template()

@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     IMAP_HOST: str = "imap.gmail.com"
     IMAP_PORT: int = 993
 
+    ANTHROPIC_API_KEY: str = ""
+    ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
     ALLOWED_ORIGINS: str = "http://localhost:3000"
 
     @property

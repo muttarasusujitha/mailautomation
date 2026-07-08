@@ -14,7 +14,7 @@ def poll_inbox(self):
     """Call email-service /inbox/poll/sync to fetch new inbound emails."""
     url = f"{settings.EMAIL_SERVICE_URL}/api/v1/email/inbox/poll/sync"
     try:
-        resp = httpx.post(url, json={"since_days": 1, "max_messages": 100}, timeout=60)
+        resp = httpx.post(url, json={"since_days": 3, "max_messages": 100}, timeout=60)
         resp.raise_for_status()
         data = resp.json()
         logger.info("Inbox poll: fetched=%s stored=%s", data.get("fetched"), data.get("stored"))
