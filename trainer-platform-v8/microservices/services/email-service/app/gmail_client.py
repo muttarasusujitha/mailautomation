@@ -73,13 +73,36 @@ def _load_oauth_service():
         return None, str(exc)
 
 
+PLACEHOLDER_SENDERS = {
+    "your-gmail-address@gmail.com",
+    "your-email@gmail.com",
+    "yourname@example.com",
+    "your-email@example.com",
+    "email@example.com",
+    "test@example.com",
+    "your@email.com",
+}
+
+
 def _normalize_email_address(email: str) -> str:
     if not email:
         return ""
-    email = str(email).strip()
-    if email.lower().startswith("mailto:"):
-        email = email[7:]
-    return email
+    normalized = str(email or "").strip()
+    if normalized.lower().startswith("mailto:"):
+        normalized = normalized[7:]
+    normalized = normalized.split("?", 1)[0].strip()
+    normalized = parseaddr(normalized)[1] or normalized
+    normalized = normalized.strip()
+    if normalized.lower() in PLACEHOLDER_SENDERS:
+        return ""
+    return normalized
+
+
+def _resolve_sender_email(from_email: str = "") -> str:
+    normalized = _normalize_email_address(from_email or "")
+    if normalized:
+        return normalized
+    return _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "")
 
 
 def _html_template(body: str, from_name: str, from_email: str, tracking_url: str = "") -> str:
@@ -125,7 +148,7 @@ def send_gmail_oauth(
         profile = service.users().getProfile(userId="me").execute()
         gmail_user = profile.get("emailAddress") or settings.GMAIL_USER
         sender_name = from_name or settings.FROM_NAME
-        sender_email = _normalize_email_address(from_email or settings.FROM_EMAIL or gmail_user)
+        sender_email = _resolve_sender_email(from_email or settings.FROM_EMAIL or gmail_user)
 
         msg = MIMEMultipart("mixed") if attachments else MIMEMultipart("alternative")
         msg["Subject"] = subject
@@ -163,11 +186,9 @@ def send_smtp(
     user = cfg.get("smtpUser") or settings.GMAIL_USER
     pwd = (cfg.get("smtpPass") or settings.effective_gmail_pass).replace(" ", "")
     from_name = cfg.get("fromName") or settings.FROM_NAME
-    from_email = cfg.get("fromEmail") or settings.FROM_EMAIL or user
+    from_email = _resolve_sender_email(cfg.get("fromEmail") or settings.FROM_EMAIL or user)
     host = cfg.get("smtpHost") or settings.SMTP_HOST
     port = int(cfg.get("smtpPort") or settings.SMTP_PORT)
-
-    from_email = _normalize_email_address(from_email)
 
     if not user or not pwd:
         # fall back to OAuth

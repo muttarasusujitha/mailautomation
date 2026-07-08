@@ -1212,6 +1212,30 @@ async def _send_initial_trainer_mail(
         return response.json()
 
 
+async def _call_intelligence_search(
+    extracted: Dict[str, Any],
+    max_results: int = 20,
+) -> Dict[str, Any]:
+    """Call the intelligence service free-search and return results.
+
+    This is a best-effort enrichment step that runs before trainer emails are sent.
+    """
+    domain = (extracted.get("technology_needed") or extracted.get("technology") or extracted.get("domain") or "")
+    location = extracted.get("client_company") or ""
+    payload = {"domain": domain, "location": location or "", "max_results": max_results, "save_leads": True}
+    try:
+        async with httpx.AsyncClient(timeout=90) as client:
+            r = await client.post(
+                "http://intelligence-service:8005/api/v1/intelligence/trainers/search",
+                json=payload,
+            )
+            if r.status_code < 400:
+                return r.json()
+    except Exception:
+        logger.exception("Intelligence free-search call failed for domain=%s", domain)
+    return {"domain": domain, "location": location, "found": 0, "profiles": []}
+
+
 async def _start_trainer_search_after_client_reply(
     db: AsyncIOMotorDatabase,
     email_doc: Dict[str, Any],
@@ -1491,8 +1515,12 @@ async def _process_client_requirement_email(
                     "auto_send_error": "",
                     "auto_send_retry_after": None,
                 })
-                if should_start_trainer_search:
-                    try:
+                # Run intelligence search to enrich candidates before emailing trainers
+                try:
+                    intel_result = await _call_intelligence_search(extracted, max_results=20)
+                    send_result["intel_search"] = intel_result
+                    # If intelligence found profiles, prefer sending to trainers via trainer service
+                    if _safe_int(intel_result.get("found"), 0) > 0:
                         trainer_send_result = await _send_initial_trainer_mail(requirement_id, extracted)
                         trainer_sent_count = _safe_int(trainer_send_result.get("sent"), 0)
                         send_result["trainer_mail"] = trainer_send_result
@@ -1501,17 +1529,23 @@ async def _process_client_requirement_email(
                         reply_sent_update.update(_trainer_automation_update(trainer_send_result))
                         if trainer_sent_count == 0 and _safe_int(trainer_send_result.get("total"), 0) > 0:
                             final_status = "trainer_email_failed"
-                    except Exception as exc:
-                        logger.exception("Trainer automation failed after auto client reply for %s", email_doc.get("email_id"))
-                        send_result["trainer_mail"] = {"sent": 0, "error": str(exc)}
-                        final_status = "trainer_email_failed"
+                    else:
+                        # No profiles found; mark pending automation so background processes can retry
                         reply_sent_update.update({
-                            "trainer_automation_status": "failed",
-                            "trainer_automation_error": str(exc),
-                            "trainer_automation_failed_at": _now(),
+                            "trainer_automation_status": "no_profiles_found",
                             "pending_trainer_automation": True,
-                            "auto_send_retry_after": _parse_retry_after(str(exc)),
                         })
+                except Exception as exc:
+                    logger.exception("Trainer automation failed after auto client reply for %s", email_doc.get("email_id"))
+                    send_result["trainer_mail"] = {"sent": 0, "error": str(exc)}
+                    final_status = "trainer_email_failed"
+                    reply_sent_update.update({
+                        "trainer_automation_status": "failed",
+                        "trainer_automation_error": str(exc),
+                        "trainer_automation_failed_at": _now(),
+                        "pending_trainer_automation": True,
+                        "auto_send_retry_after": _parse_retry_after(str(exc)),
+                    })
             else:
                 error = auto_reply_result.get("error", "Send failed")
                 retry_after = _parse_retry_after(error)
