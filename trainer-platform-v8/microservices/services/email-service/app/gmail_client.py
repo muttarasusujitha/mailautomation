@@ -125,7 +125,7 @@ def send_gmail_oauth(
         profile = service.users().getProfile(userId="me").execute()
         gmail_user = profile.get("emailAddress") or settings.GMAIL_USER
         sender_name = from_name or settings.FROM_NAME
-        sender_email = _normalize_email_address(from_email or gmail_user)
+        sender_email = _normalize_email_address(from_email or settings.FROM_EMAIL or gmail_user)
 
         msg = MIMEMultipart("mixed") if attachments else MIMEMultipart("alternative")
         msg["Subject"] = subject
