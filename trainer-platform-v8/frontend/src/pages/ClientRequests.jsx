@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
@@ -397,8 +397,8 @@ export default function ClientRequests() {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
 
-  const loadRequests = async () => {
-    setLoading(true)
+  const loadRequests = async (silent = false) => {
+    if (!silent) setLoading(true)
     try {
       const [requestsRes, updatesRes] = await Promise.all([
         api.get('/inbox', {
@@ -410,14 +410,25 @@ export default function ClientRequests() {
       setStats(requestsRes.data.stats || {})
       setClientUpdates(updatesRes.data.updates || [])
     } catch (e) {
-      toast.error(e.message || 'Could not load client requests')
+      if (!silent) {
+        toast.error(e.message || 'Could not load client requests')
+      }
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
+  const refreshInterval = useRef(null)
+
   useEffect(() => {
     loadRequests()
+    refreshInterval.current = window.setInterval(() => loadRequests(true), 1000)
+    return () => {
+      if (refreshInterval.current) {
+        window.clearInterval(refreshInterval.current)
+        refreshInterval.current = null
+      }
+    }
   }, [filter])
 
   const syncNow = async () => {
