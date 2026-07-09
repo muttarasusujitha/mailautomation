@@ -141,7 +141,8 @@ PROCEED_NOW_PATTERNS = (
 DETAILS_LATER_PATTERNS = (
     r"\b(?:send|sent|share|provide)\b.{0,50}\blater\b",
     r"\blater\b.{0,50}\b(?:send|share|provide|details?)\b",
-    r"\bdetails?\s+(?:later|will\s+follow|to\s+follow)\b",
+    r"\bdetails?\s+(?:later|will\s+follow|to\s+follow|will\s+be\s+provided\s+later)\b",
+    r"\bwill\s+share\s+details?\s+later\b",
     r"\bremaining\s+details?\b",
     r"\bonce\s+.*\b(?:available|finali[sz]ed)\b",
 )
@@ -486,7 +487,17 @@ def _should_attempt_auto_reply(
 
 
 def _has_details_for_trainer_search(extracted: Dict[str, Any]) -> bool:
-    return bool(extracted.get("is_training_request")) and not extracted.get("needs_clarification")
+    if not extracted.get("is_training_request"):
+        return False
+    if not extracted.get("needs_clarification"):
+        return True
+    has_duration = bool(
+        extracted.get("duration_days")
+        or extracted.get("duration_hours")
+        or extracted.get("duration_text")
+    )
+    has_timing = bool(extracted.get("timing"))
+    return bool(extracted.get("technology_needed") and (has_duration or has_timing))
 
 
 def _should_start_trainer_automation(subject: str, email_doc: Dict[str, Any], extracted: Dict[str, Any]) -> bool:
@@ -557,13 +568,11 @@ def _client_wants_to_proceed_now(subject: str, body: str) -> bool:
         re.search(pattern, text, flags=re.IGNORECASE | re.DOTALL)
         for pattern in PROCEED_NOW_PATTERNS
     )
-    if not has_proceed_signal:
-        return False
     has_details_later_signal = any(
         re.search(pattern, text, flags=re.IGNORECASE | re.DOTALL)
         for pattern in DETAILS_LATER_PATTERNS
     )
-    return has_details_later_signal or "proceed now" in text or "go ahead" in text
+    return bool(has_proceed_signal or has_details_later_signal)
 
 
 def _is_obvious_non_client_email(sender_email: str, subject: str, body: str) -> bool:
@@ -951,11 +960,11 @@ def _client_proceed_ack_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
     client_name = _client_salutation(extracted)
     body = (
         f"Dear {client_name},\n\n"
-        "Thank you for your confirmation.\n\n"
-        f"Sure, we will proceed with the initial trainer search for your {technology} training requirement "
-        "based on the information currently available.\n\n"
-        "Once you share the remaining details, we will refine the shortlist further and share the most suitable "
-        "trainer profiles with experience, certifications, availability, and commercials for your review.\n\n"
+        "Thank you for sharing your training requirement.\n\n"
+        f"We have noted your requirement and will proceed with the initial trainer search for your {technology} requirement based on the information currently available.\n\n"
+        "Our team will start identifying suitable trainers with relevant domain expertise, availability, and experience. "
+        "Once you share any remaining details, we will refine the shortlist further and share the most suitable profiles "
+        "with commercials and availability for your review.\n\n"
         + _reply_signature()
     )
     return {"subject": f"Re: {technology} Trainer Requirement", "body": body}

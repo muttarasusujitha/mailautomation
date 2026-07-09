@@ -1,10 +1,12 @@
-"""Invoice routes — download PDF and send by email."""
+"""Invoice routes - download PDF and send by email."""
 import logging
+from datetime import datetime
+from typing import Optional
+
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
-from typing import Optional
 
 from app.database import get_db
 
@@ -16,7 +18,7 @@ EMAIL_SVC = "http://email-service:8002"
 
 
 class InvoiceSendRequest(BaseModel):
-    to_email: str
+    to_email: Optional[str] = ""
     subject: Optional[str] = ""
     body: Optional[str] = ""
 
@@ -29,38 +31,100 @@ async def download_invoice(invoice_id: str, db: AsyncIOMotorDatabase = Depends(g
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            r = await client.post(f"{DOC_SVC}/api/v1/documents/pdf/purchase-order", json={
-                "po_number": invoice_id,
-                "date": doc.get("invoice_date", ""),
-                "vendor_name": doc.get("vendor_name", ""),
-                "client_name": doc.get("client_name", ""),
-                "training_domain": doc.get("training_domain", ""),
-                "items": doc.get("items", []),
-                "notes": doc.get("notes", ""),
-            })
-        return Response(content=r.content, media_type="application/pdf",
-                        headers={"Content-Disposition": f"attachment; filename={invoice_id}.pdf"})
+            response = await client.post(
+                f"{DOC_SVC}/api/v1/documents/pdf/invoice",
+                json={
+                    "invoice_number": doc.get("invoice_number", invoice_id),
+                    "invoice_date": doc.get("invoice_date", ""),
+                    "gst_number": doc.get("gst_number", ""),
+                    "vendor_name": doc.get("vendor_name", ""),
+                    "client_name": doc.get("client_name", ""),
+                    "client_billing_address": doc.get("client_billing_address", ""),
+                    "client_po_number": doc.get("client_po_number", ""),
+                    "client_po_date": doc.get("client_po_date", ""),
+                    "client_gstin": doc.get("client_gstin", ""),
+                    "training_domain": doc.get("training_domain", ""),
+                    "training_dates": doc.get("training_dates", ""),
+                    "duration": doc.get("duration", ""),
+                    "mode": doc.get("mode", ""),
+                    "day_rate": doc.get("day_rate", 0.0),
+                    "total_amount": doc.get("total_amount", 0.0),
+                    "gst_rate": doc.get("gst_rate", 18.0),
+                    "payment_terms": doc.get("payment_terms", ""),
+                    "notes": doc.get("notes", ""),
+                    "items": doc.get("items", []),
+                },
+            )
+        if response.status_code >= 400:
+            raise HTTPException(502, f"Document service error: {response.text[:200]}")
+        return Response(
+            content=response.content,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename={invoice_id}.pdf"},
+        )
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
 
 
 @router.post("/{invoice_id}/send")
-async def send_invoice(invoice_id: str, payload: InvoiceSendRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def send_invoice(
+    invoice_id: str,
+    payload: InvoiceSendRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
     doc = await db["invoices"].find_one({"invoice_id": invoice_id}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Invoice not found")
 
-    subject = payload.subject or f"Invoice {invoice_id} — TrainerSync"
-    body = payload.body or f"Dear Client,\n\nPlease find your invoice {invoice_id} attached.\n\nRegards,\nTrainerSync Team"
+    req = await db["requirements"].find_one(
+        {"requirement_id": doc.get("requirement_id")}, {"_id": 0}
+    ) or {}
+    to_email = payload.to_email or doc.get("client_email") or req.get("client_email") or ""
+    if not to_email:
+        raise HTTPException(400, "to_email is required")
+
+    invoice_number = doc.get("invoice_number") or invoice_id
+    subject = payload.subject or f"Invoice {invoice_number} - TrainerSync"
+    body = payload.body or (
+        f"Dear Client,\n\n"
+        f"Please find your invoice {invoice_number} attached.\n\n"
+        "Regards,\nTrainerSync Team"
+    )
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
-                "to": payload.to_email, "subject": subject, "body": body})
+            response = await client.post(
+                f"{EMAIL_SVC}/api/v1/email/send",
+                json={
+                    "to": to_email,
+                    "subject": subject,
+                    "body": body,
+                    "mail_type": "invoice",
+                    "requirement_id": doc.get("requirement_id"),
+                },
+            )
+        if response.status_code >= 400:
+            raise HTTPException(502, f"Email service error: {response.text[:200]}")
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
 
-    from datetime import datetime
-    await db["invoices"].update_one({"invoice_id": invoice_id},
-        {"$set": {"status": "sent", "sent_to": payload.to_email, "sent_at": datetime.utcnow(), "updated_at": datetime.utcnow()}})
-    return {"success": True, "invoice_id": invoice_id, "sent_to": payload.to_email}
+    now = datetime.utcnow()
+    await db["invoices"].update_one(
+        {"invoice_id": invoice_id},
+        {"$set": {"status": "sent", "sent_to": to_email, "sent_at": now, "updated_at": now}},
+    )
+    if doc.get("requirement_id"):
+        await db["requirements"].update_one(
+            {"requirement_id": doc.get("requirement_id")},
+            {"$set": {
+                "invoice_status": "sent",
+                "client_po_status": "invoice_sent",
+                "updated_at": now,
+            }},
+        )
+    invoice = await db["invoices"].find_one({"invoice_id": invoice_id}, {"_id": 0})
+    return {"success": True, "invoice_id": invoice_id, "sent_to": to_email, "invoice": invoice}

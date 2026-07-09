@@ -54,4 +54,16 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(hour=9, minute=0),
         "args": [],
     },
+    # Send followup2 for mail1_reminder logs that have been sent at least 3 hours ago.
+    "followup2-reminders-every-15-min": {
+        "task": "app.tasks.reminders.send_followup2_reminders",
+        "schedule": crontab(minute="*/15"),
+        "args": [],
+    },
+    # Send followup3 for mail1_reminder logs that have been sent at least 6 hours ago.
+    "followup3-reminders-every-15-min": {
+        "task": "app.tasks.reminders.send_followup3_reminders",
+        "schedule": crontab(minute="*/15"),
+        "args": [],
+    },
 }

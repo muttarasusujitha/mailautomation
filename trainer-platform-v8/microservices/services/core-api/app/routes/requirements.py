@@ -583,8 +583,33 @@ class BudgetIncreaseRequest(_BaseModel):
 
 
 class InvoiceFromPORequest(_BaseModel):
+    invoice_number: str = ""
+    trainer_id: str = ""
+    client_email: str = ""
+    client_name: str = ""
+    client_po_number: str = ""
+    client_po_date: str = ""
+    client_billing_address: str = ""
+    client_gstin: str = ""
+    client_pan: str = ""
+    training_dates: str = ""
+    duration_days: int = 0
+    mode: str = ""
+    day_rate: float = 0.0
+    total_amount: float = 0.0
+    gst_rate: float = 18.0
+    payment_terms: str = ""
+    client_po_notes: str = ""
+    technology: str = ""
+    course_name: str = ""
+    items: List[Dict[str, Any]] = []
     gst_number: str = ""
     invoice_date: str = ""
+    due_date: str = ""
+    invoice_type: str = ""
+    tax_type: str = ""
+    hsn_sac: str = ""
+    quantity: float = 0.0
     additional_notes: str = ""
 
 
@@ -694,16 +719,97 @@ async def generate_invoice_from_requirement_po(
     # Find linked PO
     po = await db["purchase_orders"].find_one({"requirement_id": req_id}, {"_id": 0})
     if not po:
-        raise HTTPException(404, "No purchase order found for this requirement")
+        trainer_id = payload.trainer_id or doc.get("selected_trainer_id") or f"MANUAL-{req_id}"
+
+        items = payload.items or []
+        if not items:
+            amount = float(payload.total_amount or 0.0)
+            duration = payload.duration_days or doc.get("duration_days") or 1
+            if amount <= 0:
+                raise HTTPException(400, "Invoice items or total_amount are required when no linked purchase order exists")
+
+            items = [{
+                "description": f"{payload.course_name or payload.technology or doc.get('technology_needed') or 'Training'} Training",
+                "hsn_sac": "999293",
+                "quantity": int(duration) if duration else 1,
+                "rate": round(amount / (int(duration) if duration else 1)) if duration else amount,
+                "amount": amount,
+            }]
+
+        po_payload = {
+            "requirement_id": req_id,
+            "trainer_id": trainer_id,
+            "vendor_name": doc.get("selected_trainer_name", "") or "Manual Invoice",
+            "client_name": payload.client_name or doc.get("client_name") or doc.get("client_company", ""),
+            "client_email": payload.client_email or doc.get("client_email", ""),
+            "client_po_number": payload.client_po_number or doc.get("client_po_number", ""),
+            "client_po_date": payload.client_po_date or doc.get("client_po_date", ""),
+            "client_billing_address": payload.client_billing_address or doc.get("client_billing_address", ""),
+            "client_gstin": payload.client_gstin or doc.get("client_gstin", ""),
+            "client_pan": payload.client_pan or doc.get("client_pan", ""),
+            "training_domain": payload.technology or payload.course_name or doc.get("technology_needed", ""),
+            "training_dates": payload.training_dates or doc.get("training_dates", ""),
+            "mode": payload.mode or doc.get("mode", ""),
+            "duration": str(payload.duration_days or doc.get("duration_days", "")),
+            "day_rate": payload.day_rate,
+            "total_amount": payload.total_amount,
+            "gst_rate": payload.gst_rate,
+            "payment_terms": payload.payment_terms,
+            "items": items,
+            "notes": payload.client_po_notes or payload.additional_notes or "",
+        }
+
+        try:
+            async with _httpx.AsyncClient(timeout=30) as client:
+                po_resp = await client.post(
+                    "http://trainer-service:8004/api/v1/purchase-orders/generate",
+                    json=po_payload,
+                )
+            if po_resp.status_code >= 400:
+                raise HTTPException(502, f"Trainer service PO creation error: {po_resp.text[:200]}")
+            po = po_resp.json().get("purchase_order") or {}
+        except HTTPException:
+            raise
+        except Exception as exc:
+            raise HTTPException(502, str(exc)) from exc
 
     po_id = po.get("po_id", "")
+    if not po_id:
+        raise HTTPException(502, "Unable to determine purchase order id")
+    po_update = {
+        "client_name": payload.client_name or po.get("client_name") or doc.get("client_name") or doc.get("client_company", ""),
+        "client_email": payload.client_email or po.get("client_email") or doc.get("client_email", ""),
+        "client_po_number": payload.client_po_number or po.get("client_po_number") or po.get("po_number", ""),
+        "po_number": payload.client_po_number or po.get("po_number") or po_id,
+        "client_po_date": payload.client_po_date or po.get("client_po_date", ""),
+        "client_billing_address": payload.client_billing_address or po.get("client_billing_address", ""),
+        "client_gstin": payload.client_gstin or po.get("client_gstin", ""),
+        "client_pan": payload.client_pan or po.get("client_pan", ""),
+        "training_domain": payload.technology or payload.course_name or po.get("training_domain") or doc.get("technology_needed", ""),
+        "training_dates": payload.training_dates or po.get("training_dates", ""),
+        "duration": str(payload.duration_days or po.get("duration") or doc.get("duration_days", "")),
+        "mode": payload.mode or po.get("mode", ""),
+        "day_rate": payload.day_rate or po.get("day_rate", 0.0),
+        "total_amount": payload.total_amount or po.get("total_amount", 0.0),
+        "gst_rate": payload.gst_rate,
+        "payment_terms": payload.payment_terms or po.get("payment_terms", ""),
+        "items": payload.items or po.get("items", []),
+        "notes": payload.client_po_notes or payload.additional_notes or po.get("notes", ""),
+        "updated_at": datetime.utcnow(),
+    }
+    await db["purchase_orders"].update_one({"po_id": po_id}, {"$set": po_update})
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             r = await client.post(
                 f"http://trainer-service:8004/api/v1/purchase-orders/{po_id}/generate-invoice",
                 json={
+                    "invoice_number": payload.invoice_number,
                     "gst_number": payload.gst_number,
                     "invoice_date": payload.invoice_date,
+                    "due_date": payload.due_date,
+                    "invoice_type": payload.invoice_type,
+                    "tax_type": payload.tax_type,
+                    "gst_rate": payload.gst_rate,
                     "additional_notes": payload.additional_notes,
                 },
             )

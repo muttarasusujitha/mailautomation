@@ -197,26 +197,36 @@ function PoInvoiceModal({ item, onClose, onDone }) {
   const clientEmailValue = clientEmail(item)
   const clientNameValue = clientName(item)
   const generate = async () => {
-    if (!trainer.trainer_id) return toast.error('Selected trainer is required before invoice generation')
     if (!clientEmailValue) return toast.error('Client email is missing')
     if (!form.client_po_number.trim()) return toast.error('Client PO number is required')
     if (!Number(form.total_amount || 0)) return toast.error('Client PO amount is required')
     setBusy('generate')
     try {
+      const amount = Number(form.total_amount || 0)
+      const items = [{
+        description: item.domain || 'Training',
+        hsn_sac: '999293',
+        quantity: Number(req.duration_days || 1) || 1,
+        rate: amount && Number(req.duration_days || 1) ? Math.round(amount / Number(req.duration_days || 1)) : amount,
+        amount,
+      }]
+
       const res = await api.post(`/requirements/${item.requirement_id}/client-po/generate-invoice`, {
         trainer_id: trainer.trainer_id,
         client_email: clientEmailValue,
         client_name: clientNameValue,
         client_po_number: form.client_po_number,
         client_po_date: form.client_po_date,
-        total_amount: Number(form.total_amount || 0),
+        total_amount: amount,
         gst_rate: Number(form.gst_rate || 18),
         client_gstin: form.client_gstin,
         client_billing_address: form.client_billing_address,
         client_po_notes: form.client_po_notes,
         technology: item.domain,
+        course_name: item.domain,
         duration_days: req.duration_days,
         mode: req.mode,
+        items,
       })
       toast.success(`Invoice ${res.data.invoice?.invoice_number} generated from client PO`)
       onDone?.()

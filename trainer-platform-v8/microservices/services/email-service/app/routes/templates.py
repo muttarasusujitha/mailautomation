@@ -209,9 +209,10 @@ async def compose_client_proceed_ack(payload: ClientProceedRequest):
     subject = f"Re: {tech} Trainer Requirement"
     body = (
         f"Dear {name},\n\n"
-        "Thank you for your confirmation.\n\n"
-        "Sure, we will proceed with the initial trainer search for your requirement based on the information currently available.\n\n"
-        "Once you share the remaining details, we will refine the shortlist further and share the most suitable trainer profiles with experience, certifications, availability, and commercials for your review.\n\n"
+        "Thank you for sharing your training requirement.\n\n"
+        f"We have noted your requirement and will proceed with the initial trainer search for your {tech} requirement based on the information currently available.\n\n"
+        "Our team will start identifying suitable trainers with relevant domain expertise, availability, and experience. "
+        "Once you share any remaining details, we will refine the shortlist further and share the most suitable profiles with commercials and availability for your review.\n\n"
         f"Regards,\n{_from_name()}\n{_from_email()}"
     )
     return {"subject": subject, "body": body}

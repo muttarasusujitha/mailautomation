@@ -170,11 +170,10 @@ export default function Invoices() {
 
   const generateInvoice = async () => {
     if (!selected) return
-    const trainer = selected.selected_trainer || {}
-    if (!trainer.trainer_id) return toast.error('Selected trainer is required')
     if (!form.client_email) return toast.error('Client email is missing')
     if (!form.client_po_number.trim()) return toast.error('PO Number is required')
     if (!subtotal) return toast.error('Add item quantity and rate before generating invoice')
+    const trainer = selected.selected_trainer || {}
     setBusy('generate')
     try {
       const first = form.items[0] || {}
@@ -239,8 +238,9 @@ export default function Invoices() {
     if (!selected?.invoice?.invoice_id) return toast.error('Generate invoice first')
     setBusy('send')
     try {
-      await api.post(`/invoices/${selected.invoice.invoice_id}/send`, {})
-      toast.success(`Invoice sent to ${selected.client?.email}`)
+      const toEmail = form.client_email || selected.client?.email || selected.invoice?.client_email || ''
+      await api.post(`/invoices/${selected.invoice.invoice_id}/send`, { to_email: toEmail })
+      toast.success(`Invoice sent to ${toEmail}`)
       await load(true)
     } catch (e) {
       toast.error(e.message || 'Invoice send failed')
@@ -279,13 +279,13 @@ export default function Invoices() {
                 className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-blue-400"
               />
             </div>
-            <p className="mt-3 text-sm font-bold text-slate-950">{Math.min(items.length, 2)} shown</p>
+            <p className="mt-3 text-sm font-bold text-slate-950">{items.length} shown</p>
           </div>
           <div className="max-h-[72vh] overflow-y-auto [scrollbar-gutter:stable]">
             {loading ? (
               Array.from({ length: 6 }).map((_, index) => <div key={index} className="mx-4 my-3 h-16 animate-pulse rounded-lg bg-slate-100" />)
             ) : items.length ? (
-              items.slice(0, 2).map(item => (
+              items.map(item => (
                 <InvoiceRow
                   key={item.requirement_id}
                   item={item}

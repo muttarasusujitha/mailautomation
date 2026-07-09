@@ -41,7 +41,10 @@ ACTIVE_PIPELINE_STAGES = {
 
 class SendMailRequest(BaseModel):
     requirement_id: str
+    trainer_id: Optional[str] = ""
     trainer_ids: Optional[List[str]] = None
+    to_email: Optional[str] = ""
+    to_name: Optional[str] = ""
     mail_type: str = "mail1"
     subject: Optional[str] = ""
     body: Optional[str] = ""
@@ -502,7 +505,13 @@ async def send_shortlist_mail(
     requirement = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
     top_trainers: List[Dict[str, Any]] = shortlist.get("top_trainers") or []
 
-    if payload.trainer_ids:
+    if payload.to_email:
+        targets = [{
+            "trainer_id": payload.trainer_id or "",
+            "email": payload.to_email,
+            "name": payload.to_name or payload.trainer_name or "Recipient",
+        }]
+    elif payload.trainer_ids:
         targets = [t for t in top_trainers if t.get("trainer_id") in payload.trainer_ids]
     else:
         targets = [t for t in top_trainers if t.get("pipeline_status") not in ("stopped_selected", "declined")]
@@ -514,7 +523,10 @@ async def send_shortlist_mail(
     attempted_recipients = set()
     for t in targets:
         trainer_email = t.get("email") or t.get("trainer_email") or ""
-        trainer_name = t.get("name") or t.get("trainer_name") or "Trainer"
+        trainer_name = payload.trainer_name or t.get("name") or t.get("trainer_name") or "Trainer"
+        if payload.to_email:
+            trainer_email = payload.to_email
+            trainer_name = payload.to_name or payload.trainer_name or trainer_name
         if not trainer_email:
             results.append({"trainer_id": t.get("trainer_id"), "status": "skipped_no_email"})
             continue
@@ -586,22 +598,28 @@ async def send_shortlist_mail(
                                 "participants": _clean(requirement.get("participant_count")),
                             },
                         )
-                    elif payload.mail_type in ("mail2", "mail2_followup"):
-                        tmpl_name = "mail2" if payload.mail_type == "mail2" else "mail2-followup"
-                        tmpl_response = await client.post(
-                            f"{EMAIL_SVC}/api/v1/email/templates/{tmpl_name}",
-                            json=base_template_payload,
-                        )
-                    elif payload.mail_type in (
-                        "mail3",
-                        "mail3_slot_booking",
-                        "mail3_slot_followup",
-                        "mail3_too_many",
-                        "mail3_too_many_slots",
-                        "mail3_too_few",
-                        "mail3_too_few_slots",
-                    ):
-                        map_name = {
+                    else:
+                        template_map = {
+                            "mail2": "mail2",
+                            "mail2_followup": "mail2-followup",
+                            "trainer_acknowledgment": "trainer-ack",
+                            "trainer_commercials_to_client": "send-commercials",
+                            "client_budget_reply": "client-budget-reply",
+                            "client_budget_acknowledgment": "client-budget-ack",
+                            "rate_gap_resolution": "rate-gap-resolution",
+                            "trainer_rate_discussion": "trainer-rate-discussion",
+                            "client_toc_details_request": "client-toc-request",
+                            "client_proceed": "client-proceed",
+                            "client_rate_gap_option2": "client-alternative",
+                            # Additional mappings used by Shortlist1 frontend
+                            "client_rate_gap_option1": "client-proceed",
+                            "client_rate_gap_option2": "client-alternative",
+                            "client_toc_details_followup": "client-toc-request",
+                            "commercial_negotiation": "send-commercials",
+                            "trainer_negotiation_client_update": "client/proceed-ack",
+                            "commercial_details_notification": "send-commercials",
+                            "trainer_rate_accepted": "trainer-ack",
+                            "trainer_rate_rejected": "mail5-rejection",
                             "mail3": "mail3-slot-booking",
                             "mail3_slot_booking": "mail3-slot-booking",
                             "mail3_slot_followup": "mail3-too-few",
@@ -609,28 +627,24 @@ async def send_shortlist_mail(
                             "mail3_too_many_slots": "mail3-too-many",
                             "mail3_too_few": "mail3-too-few",
                             "mail3_too_few_slots": "mail3-too-few",
-                        }[payload.mail_type]
-                        tmpl_response = await client.post(
-                            f"{EMAIL_SVC}/api/v1/email/templates/{map_name}",
-                            json=base_template_payload,
-                        )
-                    elif payload.mail_type in ("mail5", "mail5_ok", "mail5_selection", "mail5_no", "mail5_rejection"):
-                        map_name = "mail5-selection" if payload.mail_type in ("mail5", "mail5_ok", "mail5_selection") else "mail5-rejection"
-                        tmpl_response = await client.post(
-                            f"{EMAIL_SVC}/api/v1/email/templates/{map_name}",
-                            json=base_template_payload,
-                        )
-                    elif payload.mail_type in ("mail6", "mail6_toc", "toc-request"):
-                        map_name = "mail6-toc-request" if payload.mail_type in ("mail6", "mail6_toc") else "toc-request"
-                        tmpl_response = await client.post(
-                            f"{EMAIL_SVC}/api/v1/email/templates/{map_name}",
-                            json={**base_template_payload, "trainer_name": trainer_name},
-                        )
-                    elif payload.mail_type in ("mail7", "mail7_confirm", "training_confirmation"):
-                        tmpl_response = await client.post(
-                            f"{EMAIL_SVC}/api/v1/email/templates/mail7-training-confirmation",
-                            json=base_template_payload,
-                        )
+                            "mail5": "mail5-selection",
+                            "mail5_ok": "mail5-selection",
+                            "mail5_selection": "mail5-selection",
+                            "mail5_no": "mail5-rejection",
+                            "mail5_rejection": "mail5-rejection",
+                            "mail6": "mail6-toc-request",
+                            "mail6_toc": "mail6-toc-request",
+                            "toc-request": "toc-request",
+                            "mail7": "mail7-training-confirmation",
+                            "mail7_confirm": "mail7-training-confirmation",
+                            "training_confirmation": "mail7-training-confirmation",
+                        }
+                        template_name = template_map.get(payload.mail_type)
+                        if template_name:
+                            tmpl_response = await client.post(
+                                f"{EMAIL_SVC}/api/v1/email/templates/{template_name}",
+                                json={**base_template_payload, "trainer_name": trainer_name},
+                            )
                     if tmpl_response is not None and tmpl_response.status_code < 400:
                         tmpl = tmpl_response.json()
                         subject = payload.subject or tmpl.get("subject") or subject
