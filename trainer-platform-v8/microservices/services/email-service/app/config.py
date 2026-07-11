@@ -40,6 +40,11 @@ class Settings(BaseSettings):
     GMAIL_USER: str = ""
     GMAIL_APP_PASSWORD: str = ""
     GMAIL_PASS: str = ""          # alias
+    GMAIL_FALLBACK_USER: str = ""
+    GMAIL_FALLBACK_APP_PASSWORD: str = ""
+    GMAIL_FALLBACK_PASS: str = ""
+    GMAIL_FALLBACK_FROM_NAME: str = ""
+    GMAIL_FALLBACK_FROM_EMAIL: str = ""
     FROM_NAME: str = "TrainerSync"
     FROM_EMAIL: str = ""
     GOOGLE_TOKEN_FILE: str = "config/token.json"
@@ -89,6 +94,10 @@ class Settings(BaseSettings):
     @property
     def effective_gmail_pass(self) -> str:
         return (self.GMAIL_APP_PASSWORD or self.GMAIL_PASS).replace(" ", "")
+
+    @property
+    def effective_gmail_fallback_pass(self) -> str:
+        return (self.GMAIL_FALLBACK_APP_PASSWORD or self.GMAIL_FALLBACK_PASS).replace(" ", "")
 
     class Config:
         env_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))

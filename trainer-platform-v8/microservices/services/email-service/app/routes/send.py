@@ -8,7 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, EmailStr
 
 from app.database import get_db
-from app.gmail_client import send_email_async
+from app.gmail_client import is_send_quota_error, send_email_async
 
 router = APIRouter()
 
@@ -105,7 +105,16 @@ async def send_bulk_emails(
         }
         await db.email_logs.insert_one(log)
         log.pop("_id", None)
-        results.append({"email_id": log["email_id"], "to": item.to, "success": success, "error": error})
+        quota_blocked = is_send_quota_error(error)
+        results.append({
+            "email_id": log["email_id"],
+            "to": item.to,
+            "success": success,
+            "error": error,
+            "quota_blocked": quota_blocked,
+        })
+        if quota_blocked:
+            break
         if success:
             await asyncio.sleep(1.5)
 

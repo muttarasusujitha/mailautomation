@@ -83,7 +83,7 @@ async def compose_shortlist_first(payload: ShortlistEmailRequest):
     missing_note = ""
     if not payload.duration or not payload.participants:
         missing_note = (
-            "\n\nAt this stage, we are checking your interest and availability first. "
+            "\n\nAt this stage, we are checking your interest, commercials, and availability first. "
             "Once you confirm, we will share the confirmed duration, schedule, participants, "
             "and other requirement details as they are finalised."
         )
@@ -102,8 +102,12 @@ This helps us process your availability automatically and move forward quickly.
         f"Dear {payload.trainer_name or 'Trainer'},\n\n"
         f"We have received a training requirement for {payload.domain} and are looking for a trainer with relevant experience.\n\n"
         f"Training Details:\n\n{detail_text}{missing_note}\n\n"
-        "Please let us know if you are interested and available for this requirement. "
-        "Kindly share your updated trainer profile along with relevant experience."
+        "Please share the following details if you are interested in this requirement:\n\n"
+        "* Commercials/rate per day or per session\n"
+        "* Current availability and preferred slots\n"
+        "* Updated trainer profile/credentials\n"
+        "* Relevant training experience\n"
+        "* LinkedIn profile, if available"
         f"{slot_guide}"
         f"Regards,\n{_from_name()}\n{_from_email()}"
     )
@@ -232,7 +236,7 @@ async def compose_mail2(payload: GenericSimpleRequest):
     body = (
         f"Dear {payload.name or 'Trainer'},\n\n"
         f"Following up on the {tech} requirement (Ref: {payload.requirement_id}). Could you please share the following details so we can shortlist appropriately:\n\n"
-        "- Current availability\n- Detailed experience/brief profile\n- Any sample course outlines or ToC\n\n"
+        "- Commercials/rate per day or per session\n- Current availability\n- Detailed experience/brief profile or credentials\n- Any sample course outlines or ToC\n\n"
         "Thanks and regards,\n" + _from_name()
     )
     return {"subject": subject, "body": body}
@@ -244,7 +248,7 @@ async def compose_mail2_followup(payload: GenericSimpleRequest):
     subject = f"Reminder: Details Request — {tech} Requirement"
     body = (
         f"Dear {payload.name or 'Trainer'},\n\n"
-        "Just following up on my earlier request for details. Kindly share availability and a brief profile if you are interested.\n\n"
+        "Just following up on my earlier request for details. Kindly share your commercials/rate, availability, and brief profile or credentials if you are interested.\n\n"
         "Regards,\n" + _from_name()
     )
     return {"subject": subject, "body": body}
@@ -255,7 +259,7 @@ async def compose_trainer_ack(payload: GenericSimpleRequest):
     subject = "Trainer Acknowledgement"
     body = (
         f"Dear {payload.name or 'Trainer'},\n\n"
-        "Thank you for acknowledging the requirement. We will include you in the shortlist and update with next steps.\n\n"
+        "Thank you for sharing your credentials, availability, and commercial details. We will review them for the requirement and update you with the next steps.\n\n"
         "Regards,\n" + _from_name()
     )
     return {"subject": subject, "body": body}

@@ -12,6 +12,15 @@ from app.database import get_db
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+REDACTED_SECRET = "***"
+SECRET_FIELDS_BY_CFG = {
+    "emailCfg": {"smtpPass", "imapPass", "fallbackSmtpPass"},
+    "twilioCfg": {"authToken", "aisensyApiKey", "metaAccessToken"},
+    "teamsCfg": {"webhookUrl"},
+    "teamsDirectCfg": {"appPassword", "clientSecret"},
+    "keys": {"mongoUri", "openaiKey"},
+}
+
 
 def _coerce_bool(value: Any, default: bool = False) -> bool:
     if value is None:
@@ -29,6 +38,33 @@ def _normalise_threshold(value: Any, default: float = 0.7) -> float:
     if threshold > 1:
         threshold /= 100
     return max(0.0, min(threshold, 1.0))
+
+
+def _redact_settings(doc: Dict[str, Any]) -> Dict[str, Any]:
+    redacted = dict(doc or {})
+    for cfg_key, secret_keys in SECRET_FIELDS_BY_CFG.items():
+        cfg = redacted.get(cfg_key)
+        if not isinstance(cfg, dict):
+            continue
+        safe_cfg = dict(cfg)
+        for secret_key in secret_keys:
+            if safe_cfg.get(secret_key):
+                safe_cfg[secret_key] = REDACTED_SECRET
+        redacted[cfg_key] = safe_cfg
+    return redacted
+
+
+def _preserve_redacted_secrets(update_fields: Dict[str, Any], existing_doc: Dict[str, Any]) -> None:
+    for cfg_key, secret_keys in SECRET_FIELDS_BY_CFG.items():
+        cfg = update_fields.get(cfg_key)
+        existing_cfg = existing_doc.get(cfg_key) or {}
+        if not isinstance(cfg, dict) or not isinstance(existing_cfg, dict):
+            continue
+        safe_cfg = dict(cfg)
+        for secret_key in secret_keys:
+            if safe_cfg.get(secret_key) == REDACTED_SECRET and existing_cfg.get(secret_key):
+                safe_cfg[secret_key] = existing_cfg[secret_key]
+        update_fields[cfg_key] = safe_cfg
 
 
 class AdminSettingsUpdate(BaseModel):
@@ -51,12 +87,7 @@ class AdminSettingsUpdate(BaseModel):
 async def get_admin_settings(db: AsyncIOMotorDatabase = Depends(get_db)):
     """Return global admin configuration (redacts secrets)."""
     doc = await db["admin_settings"].find_one({"settings_id": "default"}, {"_id": 0}) or {}
-    # Redact sensitive fields
-    for cfg_key in ("emailCfg", "twilioCfg", "teamsCfg", "teamsDirectCfg"):
-        cfg = doc.get(cfg_key) or {}
-        for secret_key in ("smtpPass", "authToken", "appPassword", "clientSecret", "geminiApiKey", "anthropicApiKey"):
-            if cfg.get(secret_key):
-                cfg[secret_key] = "***"
+    doc = _redact_settings(doc)
     return {"success": True, "settings": doc, **doc}
 
 
@@ -70,6 +101,8 @@ async def save_admin_settings(
     update_fields: Dict[str, Any] = {"updated_at": now}
     for field, value in payload.model_dump(exclude_none=True).items():
         update_fields[field] = value
+    existing_doc = await db["admin_settings"].find_one({"settings_id": "default"}, {"_id": 0}) or {}
+    _preserve_redacted_secrets(update_fields, existing_doc)
 
     await db["admin_settings"].update_one(
         {"settings_id": "default"},

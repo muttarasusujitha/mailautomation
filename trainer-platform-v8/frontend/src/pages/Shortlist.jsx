@@ -114,6 +114,17 @@ const SHORTLIST_REFRESH_INTERVAL_MS = 10000
 const AUTO_SEND_CLIENT_SLOTS = true
 const THREAD_REFRESH_INTERVAL_MS = 5000
 const REPLY_SYNC_THROTTLE_MS = 15000
+const truthySetting = value => value === true || ['1', 'true', 'yes', 'on', 'enabled'].includes(String(value ?? '').trim().toLowerCase())
+const falseSetting = value => ['0', 'false', 'no', 'off', 'disabled'].includes(String(value ?? '').trim().toLowerCase())
+const remindersAllowedFromSettings = (settings = {}) => {
+  const pipeline = settings.pipeline || {}
+  const schedulerCfg = settings.schedulerCfg || {}
+  if (!truthySetting(pipeline.autoRetry)) return false
+  if (falseSetting(schedulerCfg.followupEnabled)) return false
+  if (falseSetting(schedulerCfg.auto_retry_enabled)) return false
+  if (falseSetting(schedulerCfg.autoRetryEnabled)) return false
+  return true
+}
 const PIPELINE_MAIL_OPTIONS = [
   { value: 'mail1', label: 'Mail 1 - First Contact' },
   { value: 'mail2', label: 'Mail 2 - Details Request' },
@@ -1877,7 +1888,7 @@ function PipelineProgressSummary({ stage, state, req }) {
   )
 }
 
-function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
+function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowReminders = false }) {
   const runningRef = useRef(false)
   const statesRef  = useRef(states)
   useEffect(() => { statesRef.current = states }, [states])
@@ -2031,6 +2042,8 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
             }
             continue
           }
+
+          if (!allowReminders) continue
 
           const remindersSent = mail1Messages.filter(m => m.mail_type === 'mail1_reminder').length
           const hoursSinceLastSent = (Date.now() - lastSentTime) / (1000 * 60 * 60)
@@ -2294,7 +2307,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled }) {
     poll()
     const interval = setInterval(poll, SHORTLIST_REFRESH_INTERVAL_MS)
     return () => clearInterval(interval)
-  }, [enabled, trainers, req])
+  }, [enabled, trainers, req, allowReminders])
 }
 
 // ─── Mode Toggle ──────────────────────────────────────────────────────────────
@@ -3248,6 +3261,7 @@ export default function Shortlist() {
   const [clientContactOpen, setClientContactOpen] = useState(false)
   const [savingClientContact, setSavingClientContact] = useState(false)
   const [deletingReqId, setDeletingReqId] = useState('')
+  const [allowAutoReminders, setAllowAutoReminders] = useState(false)
 
   useEffect(() => {
     setLoadingReqs(true)
@@ -3262,6 +3276,20 @@ export default function Shortlist() {
       })
       .catch(() => {})
       .finally(() => setLoadingReqs(false))
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    api.get('/admin/settings')
+      .then(res => {
+        if (cancelled) return
+        const settings = res.data?.settings || res.data || {}
+        setAllowAutoReminders(remindersAllowedFromSettings(settings))
+      })
+      .catch(() => {
+        if (!cancelled) setAllowAutoReminders(false)
+      })
+    return () => { cancelled = true }
   }, [])
 
   useEffect(() => {
@@ -3476,6 +3504,7 @@ export default function Shortlist() {
     states,
     onStatusUpdate: handleStatusUpdate,
     enabled: autoMode && !!selectedReq,
+    allowReminders: allowAutoReminders,
   })
 
   const selectedTrainerForDomain = selectedReq

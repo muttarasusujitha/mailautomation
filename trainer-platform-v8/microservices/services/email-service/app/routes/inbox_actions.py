@@ -192,33 +192,58 @@ async def approve_inbox_reply(
         subject = payload.subject or doc.get("subject", "Re: Training Requirement")
         if not subject.lower().startswith("re:"):
             subject = f"Re: {subject}"
-        success, error = await send_email_async(
-            to=to,
-            subject=subject,
-            body=reply_body,
-            smtp_config=await _smtp_config(db),
+        source_gmail_message_id = _current_inbound_message_id(doc)
+        duplicate_markers = [{"source_email_id": email_id}]
+        if source_gmail_message_id:
+            duplicate_markers.append({"source_gmail_message_id": source_gmail_message_id})
+        existing_sent_log = await db["email_logs"].find_one(
+            {
+                "mail_type": "client_reply",
+                "status": "sent",
+                "$and": [
+                    {"$or": [{"recipient": to}, {"to_email": to}]},
+                    {"$or": [*duplicate_markers, {"subject": subject}]},
+                ],
+            },
+            {"_id": 0, "sent_at": 1, "created_at": 1},
+            sort=[("created_at", -1)],
         )
+        if existing_sent_log:
+            success, error = True, ""
+            sent_at = existing_sent_log.get("sent_at") or existing_sent_log.get("created_at") or now
+        else:
+            success, error = await send_email_async(
+                to=to,
+                subject=subject,
+                body=reply_body,
+                smtp_config=await _smtp_config(db),
+            )
+            sent_at = now
         if success:
             update["reply_sent"] = True
-            update["reply_sent_at"] = now
-            update["reply_sent_for_message_id"] = _current_inbound_message_id(doc)
+            update["reply_sent_at"] = sent_at
+            update["reply_sent_for_message_id"] = source_gmail_message_id
             update["reply_status"] = "sent"
             update["status"] = "sent"
             # Log outbound reply
-            await db["email_logs"].insert_one({
-                "email_id": f"RPL-{uuid.uuid4().hex[:10].upper()}",
-                "direction": "outbound",
-                "recipient": to,
-                "to_email": to,
-                "subject": subject,
-                "body": reply_body,
-                "body_snippet": reply_body[:300],
-                "status": "sent",
-                "mail_type": "client_reply",
-                "sent_at": now,
-                "created_at": now,
-                "updated_at": now,
-            })
+            if not existing_sent_log:
+                await db["email_logs"].insert_one({
+                    "email_id": f"RPL-{uuid.uuid4().hex[:10].upper()}",
+                    "direction": "outbound",
+                    "recipient": to,
+                    "to_email": to,
+                    "subject": subject,
+                    "body": reply_body,
+                    "body_snippet": reply_body[:300],
+                    "status": "sent",
+                    "mail_type": "client_reply",
+                    "requirement_id": doc.get("requirement_id"),
+                    "source_email_id": email_id,
+                    "source_gmail_message_id": source_gmail_message_id,
+                    "sent_at": now,
+                    "created_at": now,
+                    "updated_at": now,
+                })
             if doc.get("pending_trainer_automation") or doc.get("client_authorized_trainer_search"):
                 try:
                     from app.routes.inbox import _start_trainer_search_after_client_reply

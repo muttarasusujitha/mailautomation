@@ -73,6 +73,17 @@ def _clean(value: Any) -> str:
     return str(value or "").strip()
 
 
+def _is_mail_quota_error(value: Any) -> bool:
+    text = str(value or "").lower()
+    return any(marker in text for marker in (
+        "daily user sending limit exceeded",
+        "user-rate limit exceeded",
+        "ratelimitexceeded",
+        "mail sending",
+        "gmail sending quota exceeded",
+    ))
+
+
 def _as_list(value: Any) -> List[str]:
     if value is None:
         return []
@@ -509,7 +520,7 @@ async def send_shortlist_mail(
         targets = [{
             "trainer_id": payload.trainer_id or "",
             "email": payload.to_email,
-            "name": payload.to_name or payload.trainer_name or "Recipient",
+            "name": payload.to_name or "Recipient",
         }]
     elif payload.trainer_ids:
         targets = [t for t in top_trainers if t.get("trainer_id") in payload.trainer_ids]
@@ -521,14 +532,23 @@ async def send_shortlist_mail(
 
     results = []
     attempted_recipients = set()
+    quota_blocked = False
     for t in targets:
         trainer_email = t.get("email") or t.get("trainer_email") or ""
-        trainer_name = payload.trainer_name or t.get("name") or t.get("trainer_name") or "Trainer"
+        trainer_name = payload.to_name or t.get("name") or t.get("trainer_name") or "Trainer"
         if payload.to_email:
             trainer_email = payload.to_email
-            trainer_name = payload.to_name or payload.trainer_name or trainer_name
+            trainer_name = payload.to_name or trainer_name
         if not trainer_email:
             results.append({"trainer_id": t.get("trainer_id"), "status": "skipped_no_email"})
+            continue
+        if quota_blocked:
+            results.append({
+                "trainer_id": t.get("trainer_id"),
+                "email": trainer_email,
+                "status": "skipped_quota_blocked",
+                "error_message": "Gmail sending quota exceeded; remaining sends were not attempted.",
+            })
             continue
         recipient_key = trainer_email.strip().lower()
         if recipient_key in attempted_recipients:
@@ -675,6 +695,8 @@ async def send_shortlist_mail(
             "status": "sent" if ok else "failed",
             "error_message": error_message,
         })
+        if not ok and _is_mail_quota_error(error_message):
+            quota_blocked = True
 
         now = datetime.utcnow()
         set_fields = {

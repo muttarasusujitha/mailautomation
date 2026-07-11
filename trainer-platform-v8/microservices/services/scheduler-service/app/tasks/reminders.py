@@ -12,12 +12,39 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
+def _coerce_bool(value, default=True):
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() not in {"0", "false", "no", "off", "disabled"}
+
+
+async def _followup_automation_enabled(db) -> bool:
+    doc = await db["admin_settings"].find_one(
+        {"settings_id": "default"},
+        {"_id": 0, "pipeline": 1, "schedulerCfg": 1},
+    ) or {}
+    pipeline = doc.get("pipeline") or {}
+    scheduler_cfg = doc.get("schedulerCfg") or {}
+    switches = (
+        pipeline.get("autoRetry"),
+        scheduler_cfg.get("auto_retry_enabled"),
+        scheduler_cfg.get("autoRetryEnabled"),
+        scheduler_cfg.get("followupEnabled"),
+    )
+    return all(_coerce_bool(value, True) for value in switches)
+
+
 async def _do_followup_reminders():
     """
     Find trainers who received mail1 but haven't replied in 3 days.
     Send them a reminder via email-service.
     """
     db = get_db()
+    if not await _followup_automation_enabled(db):
+        return {"sent": 0, "failed": 0, "skipped": True, "reason": "followup_automation_disabled"}
+
     cutoff = datetime.utcnow() - timedelta(days=3)
     query = {
         "mail_type": "mail1",
@@ -95,6 +122,9 @@ async def _do_followup2_reminders():
     and haven't yet received followup2. Uses atomic claim fields to avoid duplicate sends.
     """
     db = get_db()
+    if not await _followup_automation_enabled(db):
+        return {"sent": 0, "failed": 0, "skipped": True, "reason": "followup_automation_disabled"}
+
     cutoff = datetime.utcnow() - timedelta(hours=3)
     query = {
         "mail_type": "mail1_reminder",
@@ -168,6 +198,9 @@ async def _do_followup3_reminders():
     and haven't yet received followup3. Uses atomic claim fields to avoid duplicate sends.
     """
     db = get_db()
+    if not await _followup_automation_enabled(db):
+        return {"sent": 0, "failed": 0, "skipped": True, "reason": "followup_automation_disabled"}
+
     cutoff = datetime.utcnow() - timedelta(hours=6)
     query = {
         "mail_type": "mail1_reminder",

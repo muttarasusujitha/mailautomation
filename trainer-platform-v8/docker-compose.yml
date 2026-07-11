@@ -11,7 +11,7 @@ services:
     image: redis:7-alpine
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
 
@@ -29,7 +29,7 @@ services:
       CELERY_RESULT_BACKEND: redis://redis:6379/0
       FRONTEND_URL: http://localhost:5173
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - ./backend/config:/app/config
       - ./backend/uploads:/app/uploads
@@ -43,6 +43,8 @@ services:
     restart: unless-stopped
     environment:
       VITE_API_BASE_URL: http://localhost:8000/api
+      VITE_API_PROXY_TARGET: http://host.docker.internal:8000
+      VITE_API_PROXY_REWRITE_TO_V1: "true"
     ports:
       - "5173:5173"
     depends_on:

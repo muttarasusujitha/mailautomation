@@ -4,6 +4,7 @@ import base64
 import imaplib
 import logging
 import os
+import re
 import smtplib
 from email import message_from_bytes
 from email.header import decode_header, make_header
@@ -24,6 +25,13 @@ GMAIL_SCOPES = [
     "https://www.googleapis.com/auth/gmail.send",
 ]
 
+GMAIL_QUOTA_MARKERS = (
+    "daily user sending limit exceeded",
+    "user-rate limit exceeded",
+    "ratelimitexceeded",
+    "mail sending",
+)
+
 POSITIVE_SIGNALS = [
     "yes", "available", "interested", "confirm", "accept",
     "happy to", "sure", "okay", "ok", "look forward", "schedule", "agree",
@@ -40,6 +48,23 @@ def _decode_header(value: str) -> str:
         return str(make_header(decode_header(value or "")))
     except Exception:
         return str(value or "")
+
+
+def is_send_quota_error(value: Any) -> bool:
+    text = str(value or "").lower()
+    return any(marker in text for marker in GMAIL_QUOTA_MARKERS)
+
+
+def _friendly_send_error(exc: Exception) -> str:
+    text = str(exc)
+    if not is_send_quota_error(text):
+        return text
+    retry_match = re.search(r"Retry after ([^\".]+(?:\.\d+)?Z)", text)
+    retry = f" Retry after {retry_match.group(1)}." if retry_match else ""
+    return (
+        "Gmail sending quota exceeded for this sender account."
+        f"{retry} Wait for Google to reset the limit or use a different sender/provider."
+    )
 
 
 def _token_path() -> str:
@@ -103,6 +128,46 @@ def _resolve_sender_email(from_email: str = "") -> str:
     if normalized:
         return normalized
     return _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "")
+
+
+def _build_sender_candidates(
+    smtp_config: Optional[Dict[str, Any]] = None,
+    from_name: str = "",
+    from_email: str = "",
+) -> List[Dict[str, Any]]:
+    cfg = smtp_config or {}
+    primary_user = (cfg.get("smtpUser") or settings.GMAIL_USER or "").strip()
+    primary_pass = (cfg.get("smtpPass") or settings.effective_gmail_pass or "").strip()
+    primary_name = (cfg.get("fromName") or from_name or settings.FROM_NAME or "TrainerSync").strip()
+    primary_email = _normalize_email_address(
+        cfg.get("fromEmail") or from_email or settings.FROM_EMAIL or primary_user or ""
+    )
+
+    candidates: List[Dict[str, Any]] = [{
+        "smtpUser": primary_user,
+        "smtpPass": primary_pass,
+        "fromName": primary_name,
+        "fromEmail": primary_email,
+        "smtpHost": (cfg.get("smtpHost") or settings.SMTP_HOST).strip(),
+        "smtpPort": int(cfg.get("smtpPort") or settings.SMTP_PORT),
+    }]
+
+    fallback_user = (cfg.get("fallbackSmtpUser") or settings.GMAIL_FALLBACK_USER or "").strip()
+    fallback_pass = (cfg.get("fallbackSmtpPass") or settings.effective_gmail_fallback_pass or "").strip()
+    if fallback_user and fallback_pass and fallback_user.lower() != primary_user.lower():
+        fallback_name = (cfg.get("fallbackFromName") or settings.GMAIL_FALLBACK_FROM_NAME or primary_name).strip()
+        fallback_email = _normalize_email_address(
+            cfg.get("fallbackFromEmail") or settings.GMAIL_FALLBACK_FROM_EMAIL or fallback_user or ""
+        )
+        candidates.append({
+            "smtpUser": fallback_user,
+            "smtpPass": fallback_pass,
+            "fromName": fallback_name,
+            "fromEmail": fallback_email,
+            "smtpHost": (cfg.get("smtpHost") or settings.SMTP_HOST).strip(),
+            "smtpPort": int(cfg.get("smtpPort") or settings.SMTP_PORT),
+        })
+    return candidates
 
 
 def _html_template(body: str, from_name: str, from_email: str, tracking_url: str = "") -> str:
@@ -172,7 +237,23 @@ def send_gmail_oauth(
         return True, ""
     except Exception as exc:
         logger.exception("Gmail OAuth send failed to %s", to)
-        return False, str(exc)
+        if is_send_quota_error(exc) and settings.effective_gmail_fallback_pass:
+            logger.warning("Primary Gmail OAuth sender hit quota; retrying with fallback SMTP sender")
+            return send_smtp(
+                to,
+                subject,
+                body,
+                smtp_config={
+                    "smtpUser": settings.GMAIL_FALLBACK_USER,
+                    "smtpPass": settings.effective_gmail_fallback_pass,
+                    "fromName": settings.GMAIL_FALLBACK_FROM_NAME or sender_name or settings.FROM_NAME,
+                    "fromEmail": settings.GMAIL_FALLBACK_FROM_EMAIL or settings.GMAIL_FALLBACK_USER or sender_email,
+                    "smtpHost": settings.SMTP_HOST,
+                    "smtpPort": settings.SMTP_PORT,
+                },
+                tracking_url=tracking_url,
+            )
+        return False, _friendly_send_error(exc)
 
 
 def send_smtp(
@@ -182,53 +263,68 @@ def send_smtp(
     smtp_config: Optional[Dict[str, Any]] = None,
     tracking_url: str = "",
 ) -> Tuple[bool, str]:
-    cfg = smtp_config or {}
-    user = cfg.get("smtpUser") or settings.GMAIL_USER
-    pwd = (cfg.get("smtpPass") or settings.effective_gmail_pass).replace(" ", "")
-    from_name = cfg.get("fromName") or settings.FROM_NAME
-    from_email = _resolve_sender_email(cfg.get("fromEmail") or settings.FROM_EMAIL or user)
-    host = cfg.get("smtpHost") or settings.SMTP_HOST
-    port = int(cfg.get("smtpPort") or settings.SMTP_PORT)
+    candidates = _build_sender_candidates(smtp_config)
+    last_error: Optional[Exception] = None
 
-    if not user or not pwd:
-        # fall back to OAuth
-        return send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
+    for idx, candidate in enumerate(candidates):
+        user = candidate.get("smtpUser") or settings.GMAIL_USER
+        pwd = str(candidate.get("smtpPass") or settings.effective_gmail_pass or "").replace(" ", "")
+        from_name = candidate.get("fromName") or settings.FROM_NAME
+        from_email = _resolve_sender_email(candidate.get("fromEmail") or settings.FROM_EMAIL or user)
+        host = candidate.get("smtpHost") or settings.SMTP_HOST
+        port = int(candidate.get("smtpPort") or settings.SMTP_PORT)
 
-    try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = f"{from_name} <{from_email}>"
-        msg["To"] = to
-        msg["Reply-To"] = from_email
-        msg.attach(MIMEText(body, "plain"))
-        msg.attach(MIMEText(_html_template(body, from_name, from_email, tracking_url), "html"))
+        if not user or not pwd:
+            continue
 
         try:
-            with smtplib.SMTP_SSL(host, 465 if port == 587 else port, timeout=15) as s:
-                s.login(user, pwd)
-                s.sendmail(from_email, to, msg.as_string())
-        except Exception:
-            with smtplib.SMTP(host, 587 if port == 465 else port, timeout=15) as s:
-                s.ehlo()
-                s.starttls()
-                s.login(user, pwd)
-                s.sendmail(from_email, to, msg.as_string())
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = subject
+            msg["From"] = f"{from_name} <{from_email}>"
+            msg["To"] = to
+            msg["Reply-To"] = from_email
+            msg.attach(MIMEText(body, "plain"))
+            msg.attach(MIMEText(_html_template(body, from_name, from_email, tracking_url), "html"))
 
-        logger.info("Email sent to %s", to)
-        return True, ""
-    except smtplib.SMTPAuthenticationError:
-        # try OAuth fallback for Gmail
-        if "gmail" in host.lower():
-            return send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
-        return False, "SMTP authentication failed"
-    except Exception as exc:
-        logger.exception("SMTP send failed to %s", to)
-        if "gmail" in host.lower():
-            oauth_success, oauth_error = send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
-            if oauth_success:
-                return True, ""
-            return False, oauth_error or str(exc)
-        return False, str(exc)
+            try:
+                with smtplib.SMTP_SSL(host, 465 if port == 587 else port, timeout=15) as s:
+                    s.login(user, pwd)
+                    s.sendmail(from_email, to, msg.as_string())
+            except Exception as exc:
+                if is_send_quota_error(exc):
+                    raise
+                with smtplib.SMTP(host, 587 if port == 465 else port, timeout=15) as s:
+                    s.ehlo()
+                    s.starttls()
+                    s.login(user, pwd)
+                    s.sendmail(from_email, to, msg.as_string())
+
+            logger.info("Email sent to %s via %s", to, from_email)
+            return True, ""
+        except smtplib.SMTPAuthenticationError:
+            if "gmail" in host.lower() and idx < len(candidates) - 1:
+                continue
+            if "gmail" in host.lower():
+                return send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
+            return False, "SMTP authentication failed"
+        except Exception as exc:
+            last_error = exc
+            logger.exception("SMTP send failed to %s via %s", to, from_email)
+            if is_send_quota_error(exc) and idx < len(candidates) - 1:
+                logger.warning("Primary sender %s hit Gmail quota; trying fallback sender", from_email)
+                continue
+            if is_send_quota_error(exc):
+                return False, _friendly_send_error(exc)
+            if "gmail" in host.lower():
+                oauth_success, oauth_error = send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
+                if oauth_success:
+                    return True, ""
+                return False, oauth_error or str(exc)
+            return False, str(exc)
+
+    if last_error is not None and is_send_quota_error(last_error):
+        return False, _friendly_send_error(last_error)
+    return False, str(last_error or "SMTP send failed")
 
 
 async def send_email_async(

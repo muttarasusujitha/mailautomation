@@ -177,7 +177,7 @@ export default function Admin() {
     maxRetries:   '2',
     minScore:     '40',
     autoSend:     false,
-    autoRetry:    true,
+    autoRetry:    false,
   })
 
   // API Keys

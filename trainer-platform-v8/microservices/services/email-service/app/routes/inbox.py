@@ -137,6 +137,9 @@ PROCEED_NOW_PATTERNS = (
     r"\bmove\s+ahead\b",
     r"\bstart\b.{0,40}\b(?:search|shortlist|process|trainer)\b",
     r"\bbegin\b.{0,40}\b(?:search|shortlist|process|trainer)\b",
+    r"\b(?:please\s+)?share\b.{0,50}\b(?:profile|profiles|trainer profiles)\b",
+    r"\b(?:send|provide)\b.{0,50}\b(?:profile|profiles|trainer profiles)\b",
+    r"\b(?:suitable|relevant|available)\s+(?:trainer|trainer profile|trainer profiles|profiles)\b",
 )
 DETAILS_LATER_PATTERNS = (
     r"\b(?:send|sent|share|provide)\b.{0,50}\blater\b",
@@ -480,6 +483,9 @@ def _should_attempt_auto_reply(
     if reply_status in FINAL_CLIENT_STATUSES and already_replied_to_latest:
         logger.debug("Auto-reply blocked: final reply_status %s. email_id=%s", email_doc.get("reply_status"), email_doc.get("email_id"))
         return False
+    if confidence_score < settings.get("threshold", 0):
+        logger.debug("Auto-reply blocked: confidence below threshold %s. email_id=%s", confidence_score, email_doc.get("email_id"))
+        return False
     if not _auto_send_retry_due(email_doc):
         logger.debug("Auto-reply blocked: retry not due. email_id=%s retry_after=%s", email_doc.get("email_id"), email_doc.get("auto_send_retry_after"))
         return False
@@ -489,6 +495,13 @@ def _should_attempt_auto_reply(
 def _has_details_for_trainer_search(extracted: Dict[str, Any]) -> bool:
     if not extracted.get("is_training_request"):
         return False
+    has_technology = bool(
+        extracted.get("technology_needed")
+        or extracted.get("technology")
+        or extracted.get("domain")
+    )
+    if has_technology and extracted.get("direct_request_language") and not extracted.get("is_non_client_email"):
+        return True
     if not extracted.get("needs_clarification"):
         return True
     has_duration = bool(
@@ -497,7 +510,7 @@ def _has_details_for_trainer_search(extracted: Dict[str, Any]) -> bool:
         or extracted.get("duration_text")
     )
     has_timing = bool(extracted.get("timing"))
-    return bool(extracted.get("technology_needed") and (has_duration or has_timing))
+    return bool(has_technology and (has_duration or has_timing))
 
 
 def _should_start_trainer_automation(subject: str, email_doc: Dict[str, Any], extracted: Dict[str, Any]) -> bool:
@@ -1058,6 +1071,10 @@ async def _send_client_auto_reply(
     reply: Dict[str, str],
     requirement_id: str = "",
 ) -> Dict[str, Any]:
+    send_settings = await _auto_send_settings(db)
+    if not send_settings["enabled"]:
+        return {"success": False, "error": "Auto-send is disabled"}
+
     to = _email_address(email_doc.get("from_email"))
     body = reply.get("body") or ""
     subject = reply.get("subject") or email_doc.get("subject") or "Training Requirement"
@@ -1071,11 +1088,39 @@ async def _send_client_auto_reply(
     if not body:
         return {"success": False, "error": "No reply body available"}
 
+    source_gmail_message_id = _current_inbound_message_id(email_doc)
+    duplicate_terms = []
+    if email_doc.get("email_id"):
+        duplicate_terms.append({"source_email_id": email_doc.get("email_id")})
+    if source_gmail_message_id:
+        duplicate_terms.append({"source_gmail_message_id": source_gmail_message_id})
+    existing_sent_log = None
+    if duplicate_terms:
+        existing_sent_log = await db["email_logs"].find_one(
+            {
+                "mail_type": "client_auto_reply",
+                "status": "sent",
+                "to_email": to,
+                "$or": duplicate_terms,
+            },
+            {"_id": 0, "sent_at": 1, "created_at": 1},
+        )
+    if existing_sent_log:
+        sent_at = existing_sent_log.get("sent_at") or existing_sent_log.get("created_at") or _now()
+        return {
+            "success": True,
+            "error": "",
+            "already_sent": True,
+            "to": to,
+            "subject": subject,
+            "sent_at": sent_at,
+            "source_gmail_message_id": source_gmail_message_id,
+        }
+
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
     success, error = await send_email_async(to=to, subject=subject, body=body, smtp_config=smtp_config)
     now = _now()
-    source_gmail_message_id = _current_inbound_message_id(email_doc)
     if success:
         await db["email_logs"].insert_one({
             "email_id": f"RPL-{uuid.uuid4().hex[:10].upper()}",
@@ -1271,12 +1316,13 @@ async def _start_trainer_search_after_client_reply(
     send_result = await _send_initial_trainer_mail(requirement_id, extracted)
     sent_count = _safe_int(send_result.get("sent"), 0)
     automation_update = _trainer_automation_update(send_result)
+    trainer_automation_started = automation_update.get("trainer_automation_status") == "started"
     return {
         "requirement_id": requirement_id,
         "requirement_created": True,
         **automation_update,
         "mail_automation": send_result,
-        "status": "auto_sent" if sent_count > 0 else "trainer_email_failed",
+        "status": "auto_sent" if sent_count > 0 or trainer_automation_started else "trainer_email_failed",
     }
 
 
@@ -1370,13 +1416,15 @@ async def _process_client_requirement_email(
         or is_initial_requirement_request
     )
     confidence = _safe_float(extracted.get("confidence"), 0)
-    auto_send_eligible = auto_send_candidate
-    auto_send_ready = settings["enabled"] and auto_send_candidate
+    auto_send_eligible = auto_send_candidate and settings["enabled"] and confidence >= settings["threshold"]
+    auto_send_ready = settings["enabled"] and auto_send_candidate and confidence >= settings["threshold"]
     auto_send_block_reason = ""
     if reply and not settings["enabled"]:
         auto_send_block_reason = "auto_send_disabled"
     elif reply and not auto_send_candidate:
         auto_send_block_reason = "not_auto_send_candidate"
+    elif reply and confidence < settings["threshold"]:
+        auto_send_block_reason = "confidence_below_threshold"
 
     base_update = {
         "extracted": extracted,
@@ -1487,6 +1535,7 @@ async def _process_client_requirement_email(
         if not requirement_id:
             raise RuntimeError("Core API did not return a requirement_id")
 
+        existing_mail_automation = email_doc.get("mail_automation") or {}
         send_result: Dict[str, Any] = {
             "auto_send_enabled": settings["enabled"],
             "auto_send_threshold": settings["threshold"],
@@ -1499,6 +1548,13 @@ async def _process_client_requirement_email(
             "sent": 0,
             "total": 0,
         }
+        if not should_start_trainer_search:
+            for key in ("client_reply", "intel_search", "trainer_mail"):
+                if key in existing_mail_automation:
+                    send_result[key] = existing_mail_automation[key]
+            if _safe_int(existing_mail_automation.get("sent"), 0) > 0:
+                send_result["sent"] = _safe_int(existing_mail_automation.get("sent"), 0)
+                send_result["total"] = _safe_int(existing_mail_automation.get("total"), send_result["sent"])
         already_replied_to_latest = _has_replied_to_latest_message(email_doc)
         final_status = "auto_sent" if already_replied_to_latest else "pending_approval"
         reply_status = "auto_sent" if already_replied_to_latest else "pending_approval"
@@ -1536,7 +1592,11 @@ async def _process_client_requirement_email(
                         send_result["sent"] = trainer_sent_count
                         send_result["total"] = _safe_int(trainer_send_result.get("total"), trainer_sent_count)
                         reply_sent_update.update(_trainer_automation_update(trainer_send_result))
-                        if trainer_sent_count == 0 and _safe_int(trainer_send_result.get("total"), 0) > 0:
+                        if (
+                            trainer_sent_count == 0
+                            and _safe_int(trainer_send_result.get("total"), 0) > 0
+                            and reply_sent_update.get("trainer_automation_status") == "failed"
+                        ):
                             final_status = "trainer_email_failed"
                     else:
                         # No profiles found; mark pending automation so background processes can retry
@@ -1568,7 +1628,7 @@ async def _process_client_requirement_email(
                 })
 
         trainer_already_handled = "trainer_automation_status" in reply_sent_update
-        if should_start_trainer_search and not trainer_already_handled and (already_replied_to_latest or final_status == "auto_sent"):
+        if should_start_trainer_search and not trainer_already_handled:
             try:
                 trainer_send_result = await _send_initial_trainer_mail(requirement_id, extracted)
                 trainer_sent_count = _safe_int(trainer_send_result.get("sent"), 0)

@@ -110,6 +110,20 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     return {
         "success": True,
         "generated_at": now.isoformat(),
+        # Compatibility fields for older dashboard bundles that predate the
+        # nested KPI response shape below.
+        "total_trainers": total_trainers,
+        "total_requirements": total_req,
+        "active_requirements": active_req,
+        "closed_requirements": closed_req,
+        "total_emails_sent": total_emails_sent,
+        "total_emails_failed": failed_emails,
+        "emails_sent_this_week": emails_this_week,
+        "pending_review": 0,
+        "interested_count": 0,
+        "contacted_count": total_emails_sent,
+        "confirmed_count": selected_count,
+        "declined_count": 0,
         "requirements": {
             "total": total_req,
             "active": active_req,
