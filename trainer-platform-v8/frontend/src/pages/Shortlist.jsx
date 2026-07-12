@@ -10,6 +10,7 @@ import {
   FileText, CheckCircle2, Bell, PhoneCall, Download, Wand2, Trash2
 } from 'lucide-react'
 import clsx from 'clsx'
+import { formatRequirementSchedule } from '../utils/requirementDates'
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 function getLS(k) { try { return JSON.parse(localStorage.getItem(k) || 'null') } catch { return null } }
@@ -3610,30 +3611,7 @@ export default function Shortlist() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {reqs.map(r => {
-                const hiringStartDate = r.timeline_start || r.training_dates
-                let trainingDateDisplay = 'TBD'
-                if (hiringStartDate) {
-                  try {
-                    // Try ISO date first
-                    let d = new Date(hiringStartDate)
-                    if (!isNaN(d) && d.getFullYear() > 2000) {
-                      trainingDateDisplay = d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
-                    } else {
-                      // Try parsing text like "21 June 2026"
-                      const textMatch = hiringStartDate.match(/(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*(\d{4})?/i)
-                      if (textMatch) {
-                        const [_, day, month, year] = textMatch
-                        const yr = year || new Date().getFullYear()
-                        const dateObj = new Date(`${month} ${day}, ${yr}`)
-                        trainingDateDisplay = dateObj.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
-                      } else {
-                        trainingDateDisplay = hiringStartDate.substring(0, 12)
-                      }
-                    }
-                  } catch {
-                    trainingDateDisplay = hiringStartDate.substring(0, 12)
-                  }
-                }
+                const trainingDateDisplay = formatRequirementSchedule(r)
                 return (
                 <div key={r.requirement_id}
                   className="flex items-center gap-2 rounded-xl border bg-white border-slate-200 p-2 transition-all hover:border-blue-300 hover:bg-blue-50 group">
@@ -3686,28 +3664,7 @@ export default function Shortlist() {
               <div className="flex flex-wrap gap-3 mt-2">
                 <p className="text-xs text-slate-400">{selectedReq.requirement_id} · Top {selectedReq.top_n}</p>
                 {(() => {
-                  const hiringStart = selectedReq.timeline_start || selectedReq.training_dates
-                  let dateDisplay = 'TBD'
-                  if (hiringStart) {
-                    try {
-                      let d = new Date(hiringStart)
-                      if (!isNaN(d) && d.getFullYear() > 2000) {
-                        dateDisplay = d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
-                      } else {
-                        const textMatch = hiringStart.match(/(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*(\d{4})?/i)
-                        if (textMatch) {
-                          const [_, day, month, year] = textMatch
-                          const yr = year || new Date().getFullYear()
-                          const dateObj = new Date(`${month} ${day}, ${yr}`)
-                          dateDisplay = dateObj.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
-                        } else {
-                          dateDisplay = hiringStart.substring(0, 12)
-                        }
-                      }
-                    } catch {
-                      dateDisplay = hiringStart.substring(0, 12)
-                    }
-                  }
+                  const dateDisplay = formatRequirementSchedule(selectedReq)
                   return (
                     <div className="flex items-center gap-1.5 text-xs" style={{ color: dateDisplay !== 'TBD' ? '#b45309' : '#a78bfa' }}>
                       <Calendar className="w-3.5 h-3.5" />

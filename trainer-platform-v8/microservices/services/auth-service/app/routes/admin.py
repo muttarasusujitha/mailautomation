@@ -67,6 +67,29 @@ def _preserve_redacted_secrets(update_fields: Dict[str, Any], existing_doc: Dict
         update_fields[cfg_key] = safe_cfg
 
 
+def _force_auto_send_enabled(update_fields: Dict[str, Any], existing_doc: Dict[str, Any]) -> None:
+    client_inbox_cfg = dict(existing_doc.get("clientInboxCfg") or {})
+    client_inbox_cfg.update(update_fields.get("clientInboxCfg") or {})
+    client_inbox_cfg["autoSendEnabled"] = True
+    update_fields["clientInboxCfg"] = client_inbox_cfg
+
+    scheduler_cfg = dict(existing_doc.get("schedulerCfg") or {})
+    scheduler_cfg.update(update_fields.get("schedulerCfg") or {})
+    scheduler_cfg["autoSendEnabled"] = True
+    scheduler_cfg.setdefault("autoSendConfidenceThreshold", 0.7)
+    update_fields["schedulerCfg"] = scheduler_cfg
+
+    auto_send_cfg = dict(existing_doc.get("autoSendCfg") or {})
+    auto_send_cfg.update(update_fields.get("autoSendCfg") or {})
+    auto_send_cfg["enabled"] = True
+    update_fields["autoSendCfg"] = auto_send_cfg
+
+    pipeline = dict(existing_doc.get("pipeline") or {})
+    pipeline.update(update_fields.get("pipeline") or {})
+    pipeline["autoSend"] = True
+    update_fields["pipeline"] = pipeline
+
+
 class AdminSettingsUpdate(BaseModel):
     profile: Optional[Dict[str, Any]] = None
     emailCfg: Optional[Dict[str, Any]] = None
@@ -103,6 +126,7 @@ async def save_admin_settings(
         update_fields[field] = value
     existing_doc = await db["admin_settings"].find_one({"settings_id": "default"}, {"_id": 0}) or {}
     _preserve_redacted_secrets(update_fields, existing_doc)
+    _force_auto_send_enabled(update_fields, existing_doc)
 
     await db["admin_settings"].update_one(
         {"settings_id": "default"},
@@ -122,12 +146,7 @@ async def diagnose_auto_send(db: AsyncIOMotorDatabase = Depends(get_db)):
     auto_send_cfg = doc.get("autoSendCfg") or {}
 
     smtp_ok = bool(email_cfg.get("smtpUser") and email_cfg.get("smtpPass"))
-    enabled_value = client_inbox_cfg.get("autoSendEnabled")
-    if enabled_value is None:
-        enabled_value = auto_send_cfg.get("enabled")
-    if enabled_value is None:
-        enabled_value = scheduler_cfg.get("autoSendEnabled")
-    auto_send_enabled = _coerce_bool(enabled_value, True)
+    auto_send_enabled = True
 
     threshold_value = client_inbox_cfg.get("autoSendThreshold")
     if threshold_value is None:
@@ -139,9 +158,6 @@ async def diagnose_auto_send(db: AsyncIOMotorDatabase = Depends(get_db)):
     issues = []
     if not smtp_ok:
         issues.append("SMTP credentials not configured")
-    if not auto_send_enabled:
-        issues.append("Auto-send is disabled in settings")
-
     pending_count = await db["client_emails"].count_documents(
         {
             "reply_sent": {"$ne": True},

@@ -273,6 +273,11 @@ def _message_id_candidates(*values: Any) -> List[str]:
     return candidates
 
 
+def _clean_message_id(value: Any) -> str:
+    candidates = _message_id_candidates(value)
+    return candidates[0] if candidates else str(value or "").strip()
+
+
 def _safe_int(value: Any, default: int = 0) -> int:
     try:
         return int(float(str(value).replace(",", "")))
@@ -413,7 +418,7 @@ def _auto_send_retry_due(email_doc: Dict[str, Any]) -> bool:
 
 
 def _current_inbound_message_id(email_doc: Dict[str, Any]) -> str:
-    return _clean(email_doc.get("latest_gmail_message_id") or email_doc.get("gmail_message_id") or "")
+    return _clean_message_id(email_doc.get("latest_gmail_message_id") or email_doc.get("gmail_message_id") or "")
 
 
 def _has_replied_to_latest_message(email_doc: Dict[str, Any]) -> bool:
@@ -424,7 +429,7 @@ def _has_replied_to_latest_message(email_doc: Dict[str, Any]) -> bool:
     if not current_message_id:
         return True
 
-    replied_message_id = _clean(
+    replied_message_id = _clean_message_id(
         email_doc.get("reply_sent_for_message_id")
         or email_doc.get("replied_to_gmail_message_id")
         or ""
@@ -432,7 +437,7 @@ def _has_replied_to_latest_message(email_doc: Dict[str, Any]) -> bool:
     if replied_message_id:
         return replied_message_id == current_message_id
 
-    original_message_id = _clean(email_doc.get("gmail_message_id") or "")
+    original_message_id = _clean_message_id(email_doc.get("gmail_message_id") or "")
     if original_message_id and original_message_id != current_message_id:
         return False
     return True
@@ -492,25 +497,42 @@ def _should_attempt_auto_reply(
     return True
 
 
-def _has_details_for_trainer_search(extracted: Dict[str, Any]) -> bool:
-    if not extracted.get("is_training_request"):
-        return False
-    has_technology = bool(
+def _has_training_domain(extracted: Dict[str, Any]) -> bool:
+    return bool(
         extracted.get("technology_needed")
         or extracted.get("technology")
         or extracted.get("domain")
     )
-    if has_technology and extracted.get("direct_request_language") and not extracted.get("is_non_client_email"):
-        return True
-    if not extracted.get("needs_clarification"):
-        return True
-    has_duration = bool(
+
+
+def _has_training_duration(extracted: Dict[str, Any]) -> bool:
+    return bool(
         extracted.get("duration_days")
         or extracted.get("duration_hours")
         or extracted.get("duration_text")
     )
+
+
+def _has_minimum_details_for_trainer_search(extracted: Dict[str, Any]) -> bool:
+    return bool(
+        not extracted.get("is_non_client_email")
+        and _has_training_domain(extracted)
+        and _has_training_duration(extracted)
+    )
+
+
+def _has_details_for_trainer_search(extracted: Dict[str, Any]) -> bool:
+    if _has_minimum_details_for_trainer_search(extracted):
+        return True
+    if not extracted.get("is_training_request"):
+        return False
+    has_technology = _has_training_domain(extracted)
+    if has_technology and extracted.get("direct_request_language") and not extracted.get("is_non_client_email"):
+        return True
+    if not extracted.get("needs_clarification"):
+        return True
     has_timing = bool(extracted.get("timing"))
-    return bool(has_technology and (has_duration or has_timing))
+    return bool(has_technology and has_timing)
 
 
 def _should_start_trainer_automation(subject: str, email_doc: Dict[str, Any], extracted: Dict[str, Any]) -> bool:
@@ -733,16 +755,16 @@ def _extract_budget(text: str) -> Dict[str, Any]:
 
 def _missing_training_details(details: Dict[str, Any]) -> List[str]:
     missing = []
-    if not (details.get("budget_total") or details.get("budget_per_day")):
-        missing.append("Commercials not provided by client")
     if not (details.get("duration_days") or details.get("duration_hours") or details.get("duration_text")):
-        missing.append("Training duration not provided")
+        missing.append("Training duration")
     if not details.get("timing"):
-        missing.append("Exact dates not provided")
+        missing.append("Preferred dates or timings")
     if not details.get("mode"):
-        missing.append("Location / mode not provided")
+        missing.append("Training mode/location")
     if details.get("participant_count") is None:
-        missing.append("Participant count not provided")
+        missing.append("Participant count")
+    if not (details.get("budget_total") or details.get("budget_per_day")):
+        missing.append("Budget or expected commercial range, if available")
     return missing
 
 
@@ -898,7 +920,11 @@ def _merge_existing_requirement_context(
             merged["required_skills"] = [technology]
 
     merged["needs_clarification"] = _missing_training_details(merged)
-    if email_doc.get("requirement_id") and technology and not merged.get("is_non_client_email"):
+    if (
+        technology
+        and not merged.get("is_non_client_email")
+        and (email_doc.get("requirement_id") or _has_training_duration(merged))
+    ):
         merged["direct_request_language"] = True
         merged["is_training_request"] = True
     return merged
@@ -921,27 +947,25 @@ def _reply_signature() -> str:
 
 
 def _format_missing_details(extracted: Dict[str, Any]) -> str:
-    missing = extracted.get("requested_details") or []
-    if not missing:
-        missing = extracted.get("needs_clarification") or []
+    missing = extracted.get("needs_clarification") or []
     if not missing:
         return ""
 
     lines = [f"* {item}" for item in missing]
-    return "\n" + "\n".join(lines) + "\n\n"
+    return "\n".join(lines) + "\n\n"
 
 
 def _client_reply_for_requirement(extracted: Dict[str, Any]) -> Dict[str, str]:
-    technology = extracted.get("technology_needed") or "Devops"
+    technology = extracted.get("technology_needed") or "training"
     missing_details = _format_missing_details(extracted)
     if missing_details:
         body = (
             "Dear Client,\n\n"
-            "Thank you for sharing your Devops training requirement.\n\n"
-            "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
+            f"Thank you for sharing your {technology} training requirement.\n\n"
+            "We will begin the initial trainer search based on the information currently available.\n\n"
+            "To help us refine the shortlist, kindly share only the following missing details:\n\n"
             f"{missing_details}"
-            "Meanwhile, we will begin an initial trainer search based on the Devops domain and the information currently available. "
-            "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
+            "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles with experience, skill set, availability, and commercials for your review.\n\n"
             "We look forward to your response.\n\n"
             "Regards,\n"
             "Recruitment Team,\n"
@@ -950,20 +974,9 @@ def _client_reply_for_requirement(extracted: Dict[str, Any]) -> Dict[str, str]:
     else:
         body = (
             "Dear Client,\n\n"
-            "Thank you for sharing your Devops training requirement.\n\n"
-            "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
-            "* Training duration\n"
-            "* Preferred training dates\n"
-            "* Daily training timings\n"
-            "* Audience level (Beginner / Intermediate / Advanced)\n"
-            "* Training mode (Online / Offline / Hybrid)\n"
-            "* Budget or expected commercial charges per day/session\n\n"
-            "Meanwhile, we will begin an initial trainer search based on the Devops domain and the information currently available. "
-            "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
-            "We look forward to your response.\n\n"
-            "Regards,\n"
-            "Recruitment Team,\n"
-            "Calhan Technologies"
+            f"Thank you for sharing the required details for your {technology} training requirement.\n\n"
+            "We will proceed with the trainer search and share suitable profiles with experience, skill set, availability, and commercials for your review shortly.\n\n"
+            + _reply_signature()
         )
     return {"subject": f"Re: {technology} Trainer Requirement", "body": body}
 
@@ -971,13 +984,20 @@ def _client_reply_for_requirement(extracted: Dict[str, Any]) -> Dict[str, str]:
 def _client_proceed_ack_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
     technology = extracted.get("technology_needed") or "training"
     client_name = _client_salutation(extracted)
+    missing_details = _format_missing_details(extracted)
+    missing_block = ""
+    if missing_details:
+        missing_block = (
+            "To help us refine the shortlist, kindly share only the following missing details:\n\n"
+            f"{missing_details}"
+        )
     body = (
         f"Dear {client_name},\n\n"
         "Thank you for sharing your training requirement.\n\n"
         f"We have noted your requirement and will proceed with the initial trainer search for your {technology} requirement based on the information currently available.\n\n"
-        "Our team will start identifying suitable trainers with relevant domain expertise, availability, and experience. "
-        "Once you share any remaining details, we will refine the shortlist further and share the most suitable profiles "
-        "with commercials and availability for your review.\n\n"
+        "Our team will start identifying suitable trainers with relevant domain expertise, availability, and experience.\n\n"
+        f"{missing_block}"
+        "We will share the most suitable profiles with commercials and availability for your review.\n\n"
         + _reply_signature()
     )
     return {"subject": f"Re: {technology} Trainer Requirement", "body": body}
@@ -1046,12 +1066,6 @@ async def _auto_send_settings(db: AsyncIOMotorDatabase) -> Dict[str, Any]:
     scheduler_cfg = settings_doc.get("schedulerCfg") or {}
     legacy_auto_send_cfg = settings_doc.get("autoSendCfg") or {}
 
-    enabled_value = inbox_cfg.get("autoSendEnabled")
-    if enabled_value is None:
-        enabled_value = legacy_auto_send_cfg.get("enabled")
-    if enabled_value is None:
-        enabled_value = scheduler_cfg.get("autoSendEnabled")
-
     threshold_value = inbox_cfg.get("autoSendThreshold")
     if threshold_value is None:
         threshold_value = legacy_auto_send_cfg.get("threshold")
@@ -1059,7 +1073,7 @@ async def _auto_send_settings(db: AsyncIOMotorDatabase) -> Dict[str, Any]:
         threshold_value = scheduler_cfg.get("autoSendConfidenceThreshold")
 
     return {
-        "enabled": _coerce_bool(enabled_value, True),
+        "enabled": True,
         "threshold": _normalise_threshold(threshold_value, 0.7),
         "mailbox_addresses": _configured_mailbox_addresses(settings_doc),
     }
@@ -1098,10 +1112,12 @@ async def _send_client_auto_reply(
     if duplicate_terms:
         existing_sent_log = await db["email_logs"].find_one(
             {
-                "mail_type": "client_auto_reply",
+                "mail_type": {"$in": ["client_auto_reply", "client_reply"]},
                 "status": "sent",
-                "to_email": to,
-                "$or": duplicate_terms,
+                "$and": [
+                    {"$or": [{"to_email": to}, {"recipient": to}]},
+                    {"$or": duplicate_terms},
+                ],
             },
             {"_id": 0, "sent_at": 1, "created_at": 1},
         )
@@ -1185,11 +1201,68 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
     }
 
 
+async def _update_existing_requirement_from_extracted(
+    db: AsyncIOMotorDatabase,
+    requirement_id: str,
+    extracted: Dict[str, Any],
+) -> None:
+    if not requirement_id:
+        return
+
+    update: Dict[str, Any] = {"updated_at": _now()}
+    technology = _clean(
+        extracted.get("technology_needed")
+        or extracted.get("technology")
+        or extracted.get("domain")
+    )
+    if technology:
+        update.update({
+            "title": f"{technology} Trainer",
+            "technology_needed": technology,
+            "domain": technology,
+        })
+        skills = extracted.get("required_skills") or [technology]
+        if skills:
+            update["required_skills"] = skills
+
+    optional_fields = (
+        "mode",
+        "audience_level",
+        "duration_days",
+        "duration_hours",
+        "duration_text",
+        "timing",
+        "budget_per_day",
+        "budget_currency",
+        "participant_count",
+        "client_name",
+        "client_company",
+        "client_email",
+    )
+    for field in optional_fields:
+        value = extracted.get(field)
+        if value not in (None, "", []):
+            update[field] = value
+
+    budget = extracted.get("budget_total") or extracted.get("budget_per_day")
+    if budget not in (None, "", []):
+        update["budget"] = budget
+
+    if len(update) > 1:
+        await db["requirements"].update_one(
+            {"requirement_id": requirement_id},
+            {"$set": update},
+        )
+
+
 async def _find_existing_client_requirement(
     db: AsyncIOMotorDatabase,
     email_doc: Dict[str, Any],
     extracted: Dict[str, Any],
 ) -> Optional[Dict[str, Any]]:
+    if not _is_reply_thread(email_doc.get("subject") or "", email_doc):
+        return None
+
     technology = _clean(extracted.get("technology_needed") or extracted.get("technology"))
     client_email = _clean(extracted.get("client_email") or email_doc.get("from_email"))
     if not technology or not client_email:
@@ -1232,15 +1305,18 @@ async def _create_requirement(
 ) -> Dict[str, Any]:
     email_id = email_doc.get("email_id")
     if email_doc.get("requirement_id"):
+        await _update_existing_requirement_from_extracted(db, email_doc["requirement_id"], extracted)
         return {"requirement_id": email_doc["requirement_id"], "existing": True}
 
     existing = await db["requirements"].find_one({"metadata.source_email_id": email_id}, {"_id": 0})
     if existing:
+        await _update_existing_requirement_from_extracted(db, existing.get("requirement_id"), extracted)
         return {"requirement_id": existing.get("requirement_id"), "existing": True, "requirement": existing}
 
     if reuse_existing_client_requirement:
         existing = await _find_existing_client_requirement(db, email_doc, extracted)
         if existing:
+            await _update_existing_requirement_from_extracted(db, existing.get("requirement_id"), extracted)
             return {"requirement_id": existing.get("requirement_id"), "existing": True, "requirement": existing}
 
     payload = _requirement_payload_from_email(email_doc, extracted)
@@ -1307,7 +1383,7 @@ async def _start_trainer_search_after_client_reply(
         email_doc,
         extracted,
         db,
-        reuse_existing_client_requirement=True,
+        reuse_existing_client_requirement=_is_reply_thread(email_doc.get("subject") or "", email_doc),
     )
     requirement_id = requirement_result.get("requirement_id")
     if not requirement_id:
@@ -1529,7 +1605,7 @@ async def _process_client_requirement_email(
             email_doc,
             extracted,
             db,
-            reuse_existing_client_requirement=client_authorized_search or _is_reply_thread(subject, email_doc),
+            reuse_existing_client_requirement=_is_reply_thread(subject, email_doc),
         )
         requirement_id = requirement_result.get("requirement_id")
         if not requirement_id:

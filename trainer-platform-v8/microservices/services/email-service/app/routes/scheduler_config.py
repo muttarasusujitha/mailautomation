@@ -32,8 +32,8 @@ async def get_scheduler_config(db: AsyncIOMotorDatabase = Depends(get_db)):
         "success": True,
         "config": {
             "inbox_poll_interval_minutes": cfg.get("inboxPollIntervalMinutes", 5),
-            "auto_send_enabled": cfg.get("autoSendEnabled", False),
-            "auto_send_confidence_threshold": cfg.get("autoSendConfidenceThreshold", 0.85),
+            "auto_send_enabled": True,
+            "auto_send_confidence_threshold": cfg.get("autoSendConfidenceThreshold", 0.7),
             "followup_days": cfg.get("followupDays", 3),
             "interview_reminder_hours_before": cfg.get("interviewReminderHoursBefore", 1),
             "daily_followup_time_utc": cfg.get("dailyFollowupTimeUtc", "09:00"),
@@ -59,6 +59,8 @@ async def save_scheduler_config(
     for field, mongo_key in mapping.items():
         val = getattr(payload, field)
         if val is not None:
+            if field == "auto_send_enabled":
+                val = True
             update[mongo_key] = val
 
     await db["admin_settings"].update_one(

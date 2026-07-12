@@ -10,6 +10,7 @@ import {
   Sparkles, Bot, Trash2
 } from 'lucide-react'
 import clsx from 'clsx'
+import { formatRequirementSchedule } from '../utils/requirementDates'
 
 // ─── Gemini AI Helper ─────────────────────────────────────────────────────────
 async function generateAIReply({ trainerName, domain, stage, trainerReply, previousMails, fallback }) {
@@ -4665,29 +4666,9 @@ export default function Shortlist1() {
                     </p>
                     {r.client_name && <p className="text-xs text-slate-600">👤 {r.client_name}</p>}
                     {(() => {
-                      const hiringStartDate = r.timeline_start || r.training_dates
-                      if (!hiringStartDate) return <p className="text-xs text-slate-400">📅 TBD</p>
-                      try {
-                        // Try parsing as ISO date first
-                        let d = new Date(hiringStartDate)
-                        if (!isNaN(d) && d.getFullYear() > 2000) {
-                          const monthYear = d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
-                          return <p className="text-xs text-amber-600">📅 {monthYear}</p>
-                        }
-                        // If ISO didn't work, try extracting dates from text like "21 June 2026"
-                        const textMatch = hiringStartDate.match(/(\d{1,2})\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s*(\d{4})?/i)
-                        if (textMatch) {
-                          const [_, day, month, year] = textMatch
-                          const yr = year || new Date().getFullYear()
-                          const dateObj = new Date(`${month} ${day}, ${yr}`)
-                          const monthYear = dateObj.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
-                          return <p className="text-xs text-amber-600">📅 {monthYear}</p>
-                        }
-                        // Fallback: show first 12 chars of the date string
-                        return <p className="text-xs text-amber-600">📅 {hiringStartDate.substring(0, 12)}</p>
-                      } catch {
-                        return <p className="text-xs text-slate-400">📅 {hiringStartDate.substring(0, 12)}</p>
-                      }
+                      const schedule = formatRequirementSchedule(r)
+                      const tone = schedule === 'TBD' ? 'text-slate-400' : 'text-amber-600'
+                      return <p className={clsx('text-xs', tone)}>📅 {schedule}</p>
                     })()}
                     <p className="text-xs text-slate-400">{r.requirement_id} · Top {r.top_n}</p>
                   </div>

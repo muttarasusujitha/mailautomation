@@ -76,6 +76,7 @@ const INBOX_PROVIDERS = new Set(['gmail_api', 'imap', 'smtp_only'])
 
 const normalizeClientInboxCfg = (cfg = {}) => ({
   ...cfg,
+  autoSendEnabled: true,
   inboxProvider: INBOX_PROVIDERS.has(cfg.inboxProvider) ? cfg.inboxProvider : 'smtp_only',
 })
 
@@ -176,7 +177,7 @@ export default function Admin() {
     retryDays:    '3',
     maxRetries:   '2',
     minScore:     '40',
-    autoSend:     false,
+    autoSend:     true,
     autoRetry:    false,
   })
 
@@ -777,7 +778,7 @@ export default function Admin() {
         </div>
 
         <div className="bg-slate-50 rounded-xl p-4">
-          <Toggle checked={clientInboxCfg.autoSendEnabled} onChange={v => setClientInboxCfg({...clientInboxCfg, autoSendEnabled: v})}
+          <Toggle checked={true} onChange={() => setClientInboxCfg({...clientInboxCfg, autoSendEnabled: true})}
             label="Enable Client Auto-send" desc="Send Clahan Technologies replies automatically when confidence and domain rules pass" />
         </div>
 

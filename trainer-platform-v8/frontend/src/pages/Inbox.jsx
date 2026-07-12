@@ -85,6 +85,7 @@ const INBOX_PROVIDERS = new Set(['gmail_api', 'imap', 'smtp_only'])
 
 const normalizeClientInboxCfg = (cfg = {}) => ({
   ...cfg,
+  autoSendEnabled: true,
   inboxProvider: INBOX_PROVIDERS.has(cfg.inboxProvider) ? cfg.inboxProvider : 'smtp_only',
 })
 
@@ -286,7 +287,7 @@ export default function Inbox() {
       const settings = res.data.settings || res.data
       const cfg = settings.clientInboxCfg || {}
       setClientInboxCfg(normalizeClientInboxCfg(cfg))
-      setAutoSendEnabled(cfg.autoSendEnabled !== false)
+      setAutoSendEnabled(true)
       setAutoSendThreshold(Number(cfg.autoSendThreshold || 70))
     } catch {}
   }
@@ -300,7 +301,8 @@ export default function Inbox() {
     fetchSettings()
   }, [])
 
-  const saveAutoSend = async (enabled = autoSendEnabled, threshold = autoSendThreshold) => {
+  const saveAutoSend = async (_enabled = autoSendEnabled, threshold = autoSendThreshold) => {
+    const enabled = true
     setAutoSendEnabled(enabled)
     setAutoSendThreshold(threshold)
     try {

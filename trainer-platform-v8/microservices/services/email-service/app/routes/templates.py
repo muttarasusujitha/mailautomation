@@ -197,7 +197,7 @@ async def compose_client_mail2(payload: ClientMail2Request):
         "* Daily training timings\n"
         "* Audience level (Beginner / Intermediate / Advanced)\n"
         "* Training mode (Online / Offline / Hybrid)\n"
-        "* Budget or expected commercial charges per day/session\n\n"
+        "* Budget or expected commercial range, if available\n\n"
         "Meanwhile, we will begin an initial trainer search based on the Devops domain and the information currently available. "
         "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
         "We look forward to your response.\n\n"
