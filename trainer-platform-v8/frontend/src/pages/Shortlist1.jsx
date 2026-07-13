@@ -483,9 +483,13 @@ function mail2FollowupTemplate(trainer, req) {
 function trainerCommercialNegotiationTemplate(trainer, req, quote, target) {
   const domain = req?.technology_needed || 'the training requirement'
   const unitText = target.unit === 'hour' ? 'per hour' : 'per day'
+  const clientBudget = target.clientBudget || clientBudgetInfo(req)
+  const clientBudgetLine = clientBudget?.amount
+    ? `The client has confirmed a budget of INR ${clientBudget.amount.toLocaleString('en-IN')} ${unitText}. `
+    : ''
   return {
     subject: `Re: Training Requirement - ${domain} | Commercial Discussion`,
-    body: `${greeting(trainer)}\n\nThank you for sharing your details and commercials for the ${domain} requirement.\n\nWe have reviewed the overall scope, expected engagement, and internal commercial feasibility for this requirement. To move ahead smoothly, we request you to kindly consider revising your commercials to around INR ${target.amount.toLocaleString('en-IN')} ${unitText}.\n\nThis will help us align the engagement commercially and proceed with the next discussion steps. Please confirm if this revised commercial is workable from your side.\n\nRegards,\nTrainerSync Team`
+    body: `${greeting(trainer)}\n\nThank you for sharing your details and commercials for the ${domain} requirement.\n\n${clientBudgetLine}To align with this budget, kindly confirm if you can proceed at INR ${target.amount.toLocaleString('en-IN')} ${unitText}.\n\nPlease let us know if this revised commercial is workable.\n\nRegards,\nTrainerSync Team`
   }
 }
 
@@ -520,7 +524,7 @@ function mail3TooManySlotsTemplate(trainer) {
 function mail4Template(trainer, req, interviewLink, platform, dateTime) {
   return {
     subject: `Interview Schedule Confirmation – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nYour interview has been scheduled. Please find the details below:\n\nDate & Time: ${dateTime || '[Date & Time]'}\nPlatform: ${platform || 'Zoom'}\nMeeting Link: ${interviewLink || '[Meeting Link]'}\n\nPlease join on time. Let us know if you need any assistance.\n\nRegards,\nTrainerSync Team`
+    body: `${greeting(trainer)}\n\nYour interview has been scheduled. Please find the details below:\n\nDate & Time: ${dateTime || '[Date & Time]'}\nPlatform: ${platform || 'Google Meet'}\nMeeting Link: ${interviewLink || '[Google Meet Link]'}\n\nPlease join on time. Let us know if you need any assistance.\n\nRegards,\nTrainerSync Team`
   }
 }
 
@@ -796,6 +800,7 @@ function extractCommercialCounterOffer(replyText = '', clientBudget = null) {
 function isCommercialAcceptedAfterNegotiation(replyText, req) {
   const clientBudget = clientBudgetInfo(req)
   const quote = extractCommercialCounterOffer(replyText, clientBudget)
+  if (!quote && detectIntent(replyText) === 'positive') return true
   if (!quote || !clientBudget || quote.unit !== clientBudget.unit) return false
   const increment = clientBudget.unit === 'hour' ? 500 : 5000
   return quote.amount + increment <= clientBudget.amount
@@ -1046,7 +1051,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages }) 
   const [loading, setLoading]           = useState(false)
   const [trainerDates, setTrainerDates] = useState('')
   const [interviewLink, setInterviewLink] = useState('')
-  const [platform, setPlatform]         = useState('Zoom')
+  const [platform, setPlatform]         = useState('Google Meet')
   const [dateTime, setDateTime]         = useState('')
   const [trainingDate, setTrainingDate] = useState('')
   const [venue, setVenue]               = useState('')
@@ -1315,7 +1320,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages }) 
             <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-200">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Interview details for AI mail</p>
               <div className="grid grid-cols-3 gap-2">
-                {['Zoom', 'MS Teams', 'Google Meet'].map(p => (
+                {['Google Meet', 'MS Teams', 'Zoom'].map(p => (
                   <button key={p} type="button" onClick={() => setPlatform(p)}
                     className={clsx('p-2 rounded-xl border-2 text-xs font-semibold transition-all',
                       platform === p ? 'bg-blue-500 text-white border-blue-500' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300')}>
@@ -1324,7 +1329,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages }) 
                 ))}
               </div>
               <div><label className="label">Date & Time</label><input type="datetime-local" className="input" value={dateTime} onChange={e => setDateTime(e.target.value)} /></div>
-              <div><label className="label">Meeting Link</label><input className="input" placeholder="https://zoom.us/j/..." value={interviewLink} onChange={e => setInterviewLink(e.target.value)} /></div>
+              <div><label className="label">Meeting Link</label><input className="input" placeholder="https://meet.google.com/..." value={interviewLink} onChange={e => setInterviewLink(e.target.value)} /></div>
             </div>
           )}
 
@@ -2444,10 +2449,15 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           const res = await api.get(
             `/shortlists/thread?trainer_id=${trainer.trainer_id}&requirement_id=${req.requirement_id}`
           )
-          return (res.data.messages || []).filter(m =>
-            (!m.trainer_id     || String(m.trainer_id)     === String(trainer.trainer_id)) &&
-            (!m.requirement_id || String(m.requirement_id) === String(req.requirement_id))
-          )
+          return (res.data.messages || [])
+            .map(m => ({
+              ...m,
+              direction: m.direction === 'outbound' ? 'sent' : m.direction === 'inbound' ? 'received' : m.direction,
+            }))
+            .filter(m =>
+              (!m.trainer_id     || String(m.trainer_id)     === String(trainer.trainer_id)) &&
+              (!m.requirement_id || String(m.requirement_id) === String(req.requirement_id))
+            )
         }
 
         // Selected means the requirement is fulfilled. Keep only the selected
@@ -3046,10 +3056,15 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     const res = await api.get(
       `/shortlists/thread?trainer_id=${trainer.trainer_id}&requirement_id=${req.requirement_id}`
     )
-    return (res.data.messages || []).filter(m =>
-      (!m.trainer_id     || String(m.trainer_id)     === String(trainer.trainer_id)) &&
-      (!m.requirement_id || String(m.requirement_id) === String(req.requirement_id))
-    )
+    return (res.data.messages || [])
+      .map(m => ({
+        ...m,
+        direction: m.direction === 'outbound' ? 'sent' : m.direction === 'inbound' ? 'received' : m.direction,
+      }))
+      .filter(m =>
+        (!m.trainer_id     || String(m.trainer_id)     === String(trainer.trainer_id)) &&
+        (!m.requirement_id || String(m.requirement_id) === String(req.requirement_id))
+      )
   }
 
   const sendNegotiationEmail = async () => {
@@ -3071,7 +3086,8 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 
       const { subject, body } = trainerCommercialNegotiationTemplate(trainer, req, 0, {
         amount: trainerOffer,
-        unit: 'day'
+        unit: 'day',
+        clientBudget: { amount: budgetAmount, unit: 'day' },
       })
 
       const negotiationRes = await api.post('/shortlists/send-mail', {
@@ -3187,15 +3203,15 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             toast.success(`✅ Client budget reply sent (₹${budgetAmount.toLocaleString('en-IN')}/day) - No gap detected`)
             toast.success(`🎯 Client budget matches trainer rate! Sending slot booking directly...`)
             
-            // Auto-send Mail 3 (trainer_rate_accepted scenario - slot booking)
+            const { subject, body } = mail3Template(trainer, req, '')
             const mail3Res = await api.post('/shortlists/send-mail', {
               trainer_id: trainer.trainer_id,
               trainer_name: trainer.name,
               to_email: trainer.email,
               requirement_id: req.requirement_id,
-              subject: `Training Engagement Confirmed – ${req.technology_needed} | Slot Booking Details`,
-              body: `Dear ${trainer.name},\n\nGreat news! The client has approved your training proposal without any modification.\n\n**Training Details:**\nClient: ${req.client_name || req.client_company}\nTechnology: ${req.technology_needed}\nRate: ₹${budgetAmount.toLocaleString('en-IN')}/day\n\nPlease confirm your availability and provide preferred training dates and session format.\n\nWe will prepare the Terms of Collaboration (ToC) document and share it with the client for final approval.\n\nPlease confirm receipt of this email.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
-              mail_type: 'trainer_rate_accepted', // Mail 3 - slot booking
+              subject,
+              body,
+              mail_type: 'mail3',
             })
             
             if (mail3Res?.data?.success) {
@@ -3363,10 +3379,16 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           return
         }
         
-        const gap = trainerAmount - clientAmount
+        const targetAmount = clientAmount - 5000
+        const gap = trainerAmount - targetAmount
         
+        if (targetAmount <= 0) {
+          toast.error('❌ Client budget must be more than ₹5,000 for trainer offer')
+          return
+        }
+
         if (gap <= 0) {
-          toast.error('❌ Trainer rate should be higher than client budget for this email')
+          toast.error('❌ Trainer rate is already within the revised trainer offer')
           return
         }
         
@@ -3376,7 +3398,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           to_email: trainer.email,
           requirement_id: req.requirement_id,
           subject: `Training Engagement Update – ${req.technology_needed} | Rate Discussion`,
-          body: `Dear ${trainer.name || 'Trainer'},\n\nWe hope you are doing well. We are writing to update you on the progress of the ${req.technology_needed} requirement with our client.\n\n**Requirement Summary:**\nTechnology: ${req.technology_needed}\nClient: ${req.client_name || 'Pending confirmation'}\n\n**Rate Discussion:**\nYour Proposed Rate: ₹${trainerAmount.toLocaleString('en-IN')} per day\nClient's Budget: ₹${clientAmount.toLocaleString('en-IN')} per day\nRate Gap: ₹${gap.toLocaleString('en-IN')} per day\n\nThe client has confirmed their budget for this training engagement. While there is a small gap of ₹${gap.toLocaleString('en-IN')} per day between your quoted rate and their budget, we believe your expertise makes this engagement valuable for them.\n\nWe are currently presenting this opportunity to the client with two options:\n1. Proceeding with your training at the quoted rate of ₹${trainerAmount.toLocaleString('en-IN')} per day\n2. Identifying an alternative trainer within their budget\n\nWe will keep you updated on the client's decision. Your profile and experience stand out, and we hope they will choose to proceed with you.\n\nWe appreciate your patience and will update you within the next 24 hours with their decision.\n\nBest Regards,\nRecruitment Team\nClahan Technologies`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for sharing your details and commercials for the ${req.technology_needed} requirement.\n\nThe client has confirmed a budget of INR ${clientAmount.toLocaleString('en-IN')} per day. To align with this budget, kindly confirm if you can proceed at INR ${targetAmount.toLocaleString('en-IN')} per day.\n\nPlease let us know if this revised commercial is workable.\n\nRegards,\nTrainerSync Team`,
           mail_type: 'trainer_rate_discussion',
         })
         

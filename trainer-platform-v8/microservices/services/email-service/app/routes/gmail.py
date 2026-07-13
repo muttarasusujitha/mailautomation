@@ -1,6 +1,7 @@
 """Gmail OAuth2, sync, push-notification webhook routes."""
 import logging
 import os
+import uuid
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
@@ -22,6 +23,8 @@ GMAIL_SCOPES = [
     "https://www.googleapis.com/auth/calendar",
 ]
 OAUTH_STATE_TTL_MINUTES = 20
+GMAIL_SYNC_IN_PROGRESS = False
+GMAIL_SYNC_LAST_RESULT: Dict[str, Any] = {}
 
 
 def _default_oauth_redirect(request: Request) -> str:
@@ -229,21 +232,81 @@ async def gmail_disconnect(db: AsyncIOMotorDatabase = Depends(get_db)):
 
 @router.post("/sync-now")
 async def gmail_sync_now(
+    background_tasks: BackgroundTasks,
     limit: int = Query(100, ge=1, le=500),
     since_days: int = Query(3, ge=1, le=30),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    """Run an immediate inbox sync and return real processing counts."""
+    """Queue an immediate inbox sync without making the UI wait for Gmail/automation."""
     from app.routes.inbox import _poll_and_store, _process_pending_client_emails
 
-    stored = await _poll_and_store(db, since_days=since_days, max_messages=limit)
-    pending = await _process_pending_client_emails(db, limit=limit)
+    global GMAIL_SYNC_IN_PROGRESS, GMAIL_SYNC_LAST_RESULT
+
+    if GMAIL_SYNC_IN_PROGRESS:
+        return {
+            "success": True,
+            "queued": True,
+            "running": True,
+            "message": "Gmail sync is already running. The inbox will update shortly.",
+            **GMAIL_SYNC_LAST_RESULT,
+        }
+
+    sync_id = f"GS-{uuid.uuid4().hex[:10].upper()}"
+    GMAIL_SYNC_IN_PROGRESS = True
+    GMAIL_SYNC_LAST_RESULT = {
+        "sync_id": sync_id,
+        "processed_count": 0,
+        "stored": 0,
+        "checked": 0,
+        "requirements_created": 0,
+        "auto_sent": 0,
+        "failed": 0,
+        "skipped": 0,
+    }
+
+    async def _run_sync() -> None:
+        global GMAIL_SYNC_IN_PROGRESS, GMAIL_SYNC_LAST_RESULT
+        try:
+            stored = await _poll_and_store(db, since_days=since_days, max_messages=limit)
+            pending = await _process_pending_client_emails(db, limit=limit)
+            GMAIL_SYNC_LAST_RESULT = {
+                "sync_id": sync_id,
+                "processed_count": stored,
+                "stored": stored,
+                **pending,
+                "completed_at": datetime.utcnow().isoformat(),
+            }
+        except Exception as exc:
+            logger.exception("Gmail background sync failed")
+            GMAIL_SYNC_LAST_RESULT = {
+                "sync_id": sync_id,
+                "processed_count": 0,
+                "stored": 0,
+                "checked": 0,
+                "requirements_created": 0,
+                "auto_sent": 0,
+                "failed": 1,
+                "skipped": 0,
+                "error": str(exc),
+                "completed_at": datetime.utcnow().isoformat(),
+            }
+        finally:
+            GMAIL_SYNC_IN_PROGRESS = False
+
+    background_tasks.add_task(_run_sync)
     return {
         "success": True,
-        "message": "Gmail sync completed.",
-        "processed_count": stored,
-        "stored": stored,
-        **pending,
+        "queued": True,
+        "running": True,
+        "sync_id": sync_id,
+        "message": "Gmail sync started. The inbox will update shortly.",
+        "processed_count": 0,
+        "stored": 0,
+        "checked": 0,
+        "requirements_created": 0,
+        "auto_sent": 0,
+        "failed": 0,
+        "skipped": 0,
     }
 
 

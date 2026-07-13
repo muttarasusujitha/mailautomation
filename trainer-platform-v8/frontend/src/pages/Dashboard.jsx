@@ -212,6 +212,11 @@ export default function Dashboard() {
     setSyncingInbox(true)
     try {
       const res = await api.post('/gmail/sync-now?limit=50')
+      if (res.data?.queued) {
+        toast.success(res.data?.message || 'Inbox sync started. Refreshing shortly.')
+        window.setTimeout(() => load(true), 6000)
+        return
+      }
       const processed = Number(res.data?.processed_count || 0)
       const skipped   = Number(res.data?.skipped || 0)
       toast.success(`Inbox checked: ${processed} processed, ${skipped} skipped`)

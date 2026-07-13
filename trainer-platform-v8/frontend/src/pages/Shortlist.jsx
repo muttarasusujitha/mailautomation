@@ -382,7 +382,7 @@ function mail3TooManySlotsTemplate(trainer) {
 function mail4Template(trainer, req, interviewLink, platform, dateTime) {
   return {
     subject: `Interview Schedule Confirmation – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nYour interview has been scheduled. Please find the details below:\n\nDate & Time: ${dateTime || '[Date & Time]'}\nPlatform: ${platform || 'Zoom'}\nMeeting Link: ${interviewLink || '[Meeting Link]'}\n\nPlease join on time. Let us know if you need any assistance.\n\nRegards,\nTrainerSync Team`
+    body: `${greeting(trainer)}\n\nYour interview has been scheduled. Please find the details below:\n\nDate & Time: ${dateTime || '[Date & Time]'}\nPlatform: ${platform || 'Google Meet'}\nMeeting Link: ${interviewLink || '[Google Meet Link]'}\n\nPlease join on time. Let us know if you need any assistance.\n\nRegards,\nTrainerSync Team`
   }
 }
 
@@ -652,7 +652,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
   const [details, setDetails]           = useState({ domain: req?.technology_needed || '', duration: '', mode: 'Online', participants: '' })
   const [trainerDates, setTrainerDates] = useState('')
   const [interviewLink, setInterviewLink] = useState('')
-  const [platform, setPlatform]         = useState('Zoom')
+  const [platform, setPlatform]         = useState('Google Meet')
   const [dateTime, setDateTime]         = useState('')
   const [trainingDate, setTrainingDate] = useState('')
   const [venue, setVenue]               = useState('')
@@ -843,7 +843,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
           {mailType === 'mail4' && (
             <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-200">
               <div className="grid grid-cols-3 gap-2">
-                {['Zoom', 'MS Teams', 'Google Meet'].map(p => (
+                {['Google Meet', 'MS Teams', 'Zoom'].map(p => (
                   <button key={p} type="button" onClick={() => setPlatform(p)}
                     className={clsx('p-2 rounded-xl border-2 text-xs font-semibold transition-all',
                       platform === p ? 'bg-blue-500 text-white border-blue-500' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300')}>
@@ -852,7 +852,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
                 ))}
               </div>
               <div><label className="label">Date & Time</label><input type="datetime-local" className="input" value={dateTime} onChange={e => setDateTime(e.target.value)} /></div>
-              <div><label className="label">Meeting Link</label><input className="input" placeholder="https://zoom.us/j/..." value={interviewLink} onChange={e => setInterviewLink(e.target.value)} /></div>
+              <div><label className="label">Meeting Link</label><input className="input" placeholder="https://meet.google.com/..." value={interviewLink} onChange={e => setInterviewLink(e.target.value)} /></div>
             </div>
           )}
 
@@ -1913,10 +1913,15 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           const res = await api.get(
             `/shortlists/thread?trainer_id=${trainer.trainer_id}&requirement_id=${req.requirement_id}`
           )
-          return (res.data.messages || []).filter(m =>
-            (!m.trainer_id     || String(m.trainer_id)     === String(trainer.trainer_id)) &&
-            (!m.requirement_id || String(m.requirement_id) === String(req.requirement_id))
-          )
+          return (res.data.messages || [])
+            .map(m => ({
+              ...m,
+              direction: m.direction === 'outbound' ? 'sent' : m.direction === 'inbound' ? 'received' : m.direction,
+            }))
+            .filter(m =>
+              (!m.trainer_id     || String(m.trainer_id)     === String(trainer.trainer_id)) &&
+              (!m.requirement_id || String(m.requirement_id) === String(req.requirement_id))
+            )
         }
 
         // Selected means the requirement is fulfilled. Keep only the selected
@@ -2359,10 +2364,15 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     const res = await api.get(
       `/shortlists/thread?trainer_id=${trainerItem.trainer_id}&requirement_id=${req.requirement_id}`
     )
-    return (res.data.messages || []).filter(m =>
-      (!m.trainer_id     || String(m.trainer_id)     === String(trainerItem.trainer_id)) &&
-      (!m.requirement_id || String(m.requirement_id) === String(req.requirement_id))
-    )
+    return (res.data.messages || [])
+      .map(m => ({
+        ...m,
+        direction: m.direction === 'outbound' ? 'sent' : m.direction === 'inbound' ? 'received' : m.direction,
+      }))
+      .filter(m =>
+        (!m.trainer_id     || String(m.trainer_id)     === String(trainerItem.trainer_id)) &&
+        (!m.requirement_id || String(m.requirement_id) === String(req.requirement_id))
+      )
   }
 
   const parseAmount = value => {

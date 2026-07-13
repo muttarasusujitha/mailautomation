@@ -402,6 +402,11 @@ export default function ClientPipeline() {
     setSyncing(true)
     try {
       const res = await api.post('/gmail/sync-now?limit=100')
+      if (res.data?.queued) {
+        toast.success(res.data?.message || 'Gmail sync started. Refreshing shortly.')
+        window.setTimeout(() => load(true), 6000)
+        return
+      }
       toast.success(`Gmail checked: ${res.data?.processed_count || 0} new mail(s) processed`)
       await load(true)
     } catch (e) {

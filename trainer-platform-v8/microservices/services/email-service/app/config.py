@@ -51,6 +51,8 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI: str = ""
+    GOOGLE_CALENDAR_ID: str = "primary"
+    GOOGLE_CALENDAR_TIMEZONE: str = "Asia/Kolkata"
     GMAIL_PUBSUB_TOPIC: str = ""
     FRONTEND_URL: str = "http://localhost:5173"
     CORE_API_URL: str = "http://core-api:8001"

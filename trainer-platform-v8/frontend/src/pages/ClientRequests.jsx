@@ -435,6 +435,11 @@ export default function ClientRequests() {
     setSyncing(true)
     try {
       const res = await api.post('/gmail/sync-now?limit=50')
+      if (res.data?.queued) {
+        toast.success(res.data?.message || 'Inbox sync started. Refreshing shortly.')
+        window.setTimeout(() => loadRequests(), 6000)
+        return
+      }
       const created = res.data?.requirements_created || 0
       const autoSent = res.data?.auto_sent || 0
       toast.success(`Inbox checked: ${created} requirement(s), ${autoSent} auto-mail batch(es)`)

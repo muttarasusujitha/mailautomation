@@ -119,8 +119,9 @@ This helps us process your availability automatically and move forward quickly.
 
 @router.post("/interview")
 async def compose_interview(payload: InterviewEmailRequest):
-    link = payload.interview_link or f"https://calendly.com/trainersync/{payload.req_id}"
+    link = (payload.interview_link or "").strip()
     date_line = f"\n\U0001F4C5 Scheduled: {payload.interview_date}\n" if payload.interview_date else ""
+    link_line = f"- Google Meet: {link}\n" if link else "- Google Meet: To be shared shortly\n"
     body = (
         f"Dear {payload.trainer_name},\n\n"
         f"Thank you for your interest in the {payload.technology} training opportunity!\n\n"
@@ -129,8 +130,8 @@ async def compose_interview(payload: InterviewEmailRequest):
         f"- Technology: {payload.technology}\n"
         f"- Reference ID: {payload.req_id}\n"
         "- Duration: 30 minutes\n"
-        "- Mode: Video Call (Google Meet / Zoom)\n"
-        f"- Book/Join: {link}\n\n"
+        "- Mode: Google Meet\n"
+        f"{link_line}\n"
         "Please confirm your availability by replying to this email.\n\n"
         "We look forward to speaking with you!\n\n"
         f"Warm regards,\n{_from_name()}\n{_from_email()}"
@@ -163,7 +164,7 @@ async def compose_retry(payload: RetryEmailRequest):
         "We remain very interested in your profile. Could you please let us know:\n"
         "\u2705 Are you available for a quick call this week?\n"
         "\u2705 What is your availability for training engagements?\n\n"
-        f"Book a slot: https://calendly.com/trainersync/{payload.req_id}\n\n"
+        "Please reply with your available slots, and we will share a Google Meet link once the discussion slot is confirmed.\n\n"
         f"Warm regards,\n{_from_name()}\n{_from_email()}"
     )
     return {
@@ -355,33 +356,46 @@ async def compose_trainer_rate_discussion(payload: GenericSimpleRequest):
 
 @router.post("/mail3-slot-booking")
 async def compose_mail3_slot_booking(payload: GenericSimpleRequest):
-    subject = "Slot Booking — Interview Availability"
+    technology = payload.technology or "Training"
+    subject = f"Interview Slot Booking - {technology}"
     body = (
         f"Dear {payload.name or 'Trainer'},\n\n"
-        "Please share 3 convenient slots for the interview/short discussion. Use the format: Slot 1: Date, Time.\n\n"
-        "Regards,\n" + _from_name()
+        "Thank you for sharing your details.\n\n"
+        "We would like to book an interview slot with you. Based on your availability, please confirm one of the following slots:\n\n"
+        "example\n"
+        "• Monday, Jan 15, 2024 - 10:00 AM IST\n"
+        "• Tuesday, Jan 16, 2024 - 2:00 PM IST\n"
+        "• Wednesday, Jan 17, 2024 - 4:00 PM IST\n"
+        "• [Slot 1]\n"
+        "• [Slot 2]\n"
+        "• [Slot 3]\n\n"
+        "Kindly confirm your preferred slot at the earliest.\n\n"
+        "Regards,\n"
+        "TrainerSync Team"
     )
     return {"subject": subject, "body": body}
 
 
 @router.post("/mail3-too-many")
 async def compose_mail3_too_many(payload: GenericSimpleRequest):
-    subject = "Please Narrow Down to 3 Slots"
+    subject = "Re: Interview Slot Booking"
     body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Thanks — please provide 3 preferred slots (instead of multiple options) so we can finalise scheduling.\n\n"
-        "Regards,\n" + _from_name()
+        f"Hi {payload.name or 'Trainer'},\n\n"
+        "Thank you for your availability. For our scheduling process, we typically work with 3 slots as it helps us coordinate efficiently.\n\n"
+        "Could you please share your top 3 preferred slots with dates and times?\n\n"
+        "Thank you."
     )
     return {"subject": subject, "body": body}
 
 
 @router.post("/mail3-too-few")
 async def compose_mail3_too_few(payload: GenericSimpleRequest):
-    subject = "Need 3 Slots — Please Share 3 Options"
+    subject = "Interview Slot Details Required"
     body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Kindly share 3 suitable slots so scheduling can proceed.\n\n"
-        "Regards,\n" + _from_name()
+        f"Hi {payload.name or 'Trainer'},\n\n"
+        "Thank you for sharing the slot. Could you please provide the exact interview date and time, including whether it is AM or PM?\n\n"
+        "Also, please share 3 available slots with the corresponding dates so that we can schedule the interview accordingly.\n\n"
+        "Thanks."
     )
     return {"subject": subject, "body": body}
 

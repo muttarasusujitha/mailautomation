@@ -366,6 +366,14 @@ export default function Inbox() {
     setSyncingNow(true)
     try {
       const res = await api.post('/gmail/sync-now?limit=50')
+      if (res.data?.queued) {
+        toast.success(res.data?.message || 'Inbox sync started. Refreshing shortly.')
+        window.setTimeout(() => {
+          fetchStatus()
+          fetchInbox()
+        }, 6000)
+        return
+      }
       const count = res.data?.processed_count || 0
       const autoSentExisting = res.data?.auto_sent_existing_count || 0
       const requirementsCreated = res.data?.requirements_created || 0

@@ -64,8 +64,11 @@ class SendClientSlotsRequest(BaseModel):
     requirement_id: str
     trainer_id: str
     slots: List[Dict[str, Any]] = []
+    slot_text: Optional[str] = ""
+    trainer_name: Optional[str] = ""
     client_email: Optional[str] = ""
     client_name: Optional[str] = ""
+    force: bool = False
     smtp_config: Optional[Dict[str, Any]] = None
 
 
@@ -647,6 +650,7 @@ async def send_shortlist_mail(
                             "mail3_too_many_slots": "mail3-too-many",
                             "mail3_too_few": "mail3-too-few",
                             "mail3_too_few_slots": "mail3-too-few",
+                            "mail4": "interview",
                             "mail5": "mail5-selection",
                             "mail5_ok": "mail5-selection",
                             "mail5_selection": "mail5-selection",
@@ -767,22 +771,57 @@ async def send_client_slots(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Forward trainer availability slots to the client via email."""
+    req = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
+    shortlist = await db["shortlists"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
+    trainer = next(
+        (t for t in shortlist.get("top_trainers") or [] if str(t.get("trainer_id") or "") == str(payload.trainer_id or "")),
+        {},
+    )
+    trainer_name = _clean(payload.trainer_name or trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
     client_email = payload.client_email
     if not client_email:
-        req = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
         client_email = req.get("client_email", "")
 
     if not client_email:
         raise HTTPException(400, "client_email is required")
 
-    slots_text = "\n".join(
-        f"Slot {i+1}: {s.get('date_display', '')} {s.get('time_display', '')}".strip()
-        for i, s in enumerate(payload.slots)
-    ) or "The trainer's availability slots will be shared shortly."
+    if not payload.force:
+        existing = await db["email_logs"].find_one(
+            {
+                "direction": "outbound",
+                "status": "sent",
+                "mail_type": "client_slots",
+                "requirement_id": payload.requirement_id,
+                "trainer_id": payload.trainer_id,
+            },
+            {"_id": 0, "email_id": 1, "recipient": 1, "to_email": 1, "sent_at": 1},
+            sort=[("created_at", -1)],
+        )
+        if existing:
+            return {
+                "success": True,
+                "already_sent": True,
+                "email_id": existing.get("email_id"),
+                "sent_to": existing.get("to_email") or existing.get("recipient"),
+                "slots_count": len(payload.slots),
+            }
+
+    slots_text = _clean(payload.slot_text)
+    if not slots_text:
+        slots_text = "\n".join(
+            f"Slot {i+1}: {s.get('date_display', '')} {s.get('time_display', '')}".strip()
+            for i, s in enumerate(payload.slots)
+        )
+    if not slots_text:
+        slots_text = "The trainer's availability slots will be shared shortly."
+
+    technology = _clean(req.get("technology_needed") or req.get("technology") or req.get("domain")) or "training"
+    client_name = _clean(payload.client_name or req.get("client_name") or req.get("client_company")) or "Client"
 
     body = (
-        f"Dear {payload.client_name or 'Client'},\n\n"
-        "Please find below the trainer's available interview slots:\n\n"
+        f"Dear {client_name},\n\n"
+        f"Trainer {trainer_name} has shared the available interview slots for the {technology} requirement.\n\n"
+        "Available slots:\n"
         f"{slots_text}\n\n"
         "Kindly confirm your preferred slot at the earliest.\n\n"
         "Regards,\nTrainerSync Team"
@@ -790,14 +829,40 @@ async def send_client_slots(
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
+            response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
                 "to": client_email,
-                "subject": f"Trainer Slots — {payload.requirement_id}",
+                "subject": f"Trainer Interview Slots - {technology} | {trainer_name}",
                 "body": body,
                 "mail_type": "client_slots",
                 "requirement_id": payload.requirement_id,
+                "trainer_id": payload.trainer_id,
+                "trainer_name": trainer_name,
+                "smtp_config": payload.smtp_config,
             })
+            response.raise_for_status()
+            sent_payload = response.json()
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
 
-    return {"success": True, "sent_to": client_email, "slots_count": len(payload.slots)}
+    now = datetime.utcnow()
+    await db["shortlists"].update_one(
+        {"requirement_id": payload.requirement_id, "top_trainers.trainer_id": payload.trainer_id},
+        {"$set": {
+            "top_trainers.$.client_slots_sent": True,
+            "top_trainers.$.client_slots_sent_at": now,
+            "top_trainers.$.client_slots_email_id": sent_payload.get("email_id", ""),
+            "top_trainers.$.slot_status": "sent_to_client",
+            "top_trainers.$.slot_reply_text": slots_text,
+            "top_trainers.$.client_slot_error": "",
+            "top_trainers.$.updated_at": now,
+            "updated_at": now,
+        }},
+    )
+
+    return {
+        "success": True,
+        "email_id": sent_payload.get("email_id"),
+        "sent_to": client_email,
+        "slots_count": len(payload.slots),
+        "slot_text": slots_text,
+    }
