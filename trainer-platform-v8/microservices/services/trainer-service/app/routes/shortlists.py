@@ -54,9 +54,15 @@ class SendMailRequest(BaseModel):
 class SendInterviewLinkRequest(BaseModel):
     requirement_id: str
     trainer_id: str
+    to_email: Optional[str] = ""
+    trainer_name: Optional[str] = ""
     interview_link: str
     interview_date: Optional[str] = ""
+    date_time: Optional[str] = ""
+    platform: Optional[str] = "Google Meet"
     technology: Optional[str] = ""
+    client_email: Optional[str] = ""
+    client_name: Optional[str] = ""
     smtp_config: Optional[Dict[str, Any]] = None
 
 
@@ -74,6 +80,32 @@ class SendClientSlotsRequest(BaseModel):
 
 def _clean(value: Any) -> str:
     return str(value or "").strip()
+
+
+def _client_interview_message(
+    *,
+    client_name: str,
+    trainer_name: str,
+    technology: str,
+    requirement_id: str,
+    interview_date: str,
+    platform: str,
+    interview_link: str,
+) -> Dict[str, str]:
+    subject = f"Interview Schedule Confirmation - {technology} | Ref: {requirement_id}"
+    date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
+    body = (
+        f"Dear {client_name or 'Team'},\n\n"
+        f"The interview/discussion with Trainer {trainer_name or 'the trainer'} for the {technology} requirement is confirmed.\n\n"
+        "Interview Details:\n"
+        f"{date_line}"
+        f"Platform: {platform or 'Google Meet'}\n"
+        f"Meeting Link: {interview_link}\n\n"
+        "Kindly join on time and let us know if any change is required.\n\n"
+        "Regards,\n"
+        "TrainerSync Team"
+    )
+    return {"subject": subject, "body": body}
 
 
 def _is_mail_quota_error(value: Any) -> bool:
@@ -731,14 +763,42 @@ async def send_interview_link(
     payload: SendInterviewLinkRequest,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    """Email an interview link to a specific trainer."""
+    """Email an interview link to the trainer and the client."""
+    req = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
+    shortlist = await db["shortlists"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
     trainer = await db["trainers"].find_one({"trainer_id": payload.trainer_id}, {"_id": 0}) or {}
-    email = trainer.get("email", "")
-    name = trainer.get("name", "Trainer")
-    technology = payload.technology or ""
+    shortlist_trainer = next(
+        (t for t in shortlist.get("top_trainers") or [] if str(t.get("trainer_id") or "") == str(payload.trainer_id or "")),
+        {},
+    )
+    email = _clean(payload.to_email or trainer.get("email") or shortlist_trainer.get("email") or shortlist_trainer.get("trainer_email"))
+    name = _clean(payload.trainer_name or trainer.get("name") or shortlist_trainer.get("name") or shortlist_trainer.get("trainer_name")) or "Trainer"
+    technology = _clean(
+        payload.technology
+        or req.get("technology_needed")
+        or req.get("technology")
+        or req.get("domain")
+        or shortlist.get("technology_needed")
+    ) or "training"
+    interview_date = _clean(payload.interview_date or payload.date_time)
+    platform = _clean(payload.platform) or "Google Meet"
+    client_email = _clean(
+        payload.client_email
+        or req.get("client_email")
+        or req.get("contact_email")
+        or shortlist.get("client_email")
+    )
+    client_name = _clean(
+        payload.client_name
+        or req.get("client_name")
+        or req.get("client_company")
+        or shortlist.get("client_name")
+    ) or "Client"
 
     if not email:
         raise HTTPException(400, "Trainer email not found")
+    if not client_email:
+        raise HTTPException(400, "Client email not found; cannot send the meeting link to the client")
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
@@ -746,23 +806,125 @@ async def send_interview_link(
                 "trainer_name": name,
                 "technology": technology,
                 "req_id": payload.requirement_id,
-                "interview_date": payload.interview_date,
+                "interview_date": interview_date,
                 "interview_link": payload.interview_link,
             })
+            r.raise_for_status()
             tmpl = r.json()
-            await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
+            trainer_response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
                 "to": email,
                 "subject": tmpl.get("subject", f"Interview – {technology}"),
                 "body": tmpl.get("body", ""),
                 "mail_type": "mail4",
                 "trainer_id": payload.trainer_id,
+                "trainer_name": name,
                 "requirement_id": payload.requirement_id,
                 "smtp_config": payload.smtp_config,
             })
+            trainer_response.raise_for_status()
+            trainer_sent = trainer_response.json()
+
+            client_message = _client_interview_message(
+                client_name=client_name,
+                trainer_name=name,
+                technology=technology,
+                requirement_id=payload.requirement_id,
+                interview_date=interview_date,
+                platform=platform,
+                interview_link=payload.interview_link,
+            )
+            client_response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
+                "to": client_email,
+                "subject": client_message["subject"],
+                "body": client_message["body"],
+                "mail_type": "client_interview_schedule",
+                "trainer_id": payload.trainer_id,
+                "trainer_name": name,
+                "requirement_id": payload.requirement_id,
+                "smtp_config": payload.smtp_config,
+            })
+            client_response.raise_for_status()
+            client_sent = client_response.json()
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
 
-    return {"success": True, "sent_to": email, "interview_link": payload.interview_link}
+    now = datetime.utcnow()
+    trainer_email_id = trainer_sent.get("email_id", "")
+    client_email_id = client_sent.get("email_id", "")
+    common_fields = {
+        "requirement_id": payload.requirement_id,
+        "trainer_id": payload.trainer_id,
+        "trainer_name": name,
+        "trainer_email": email,
+        "client_email": client_email,
+        "client_name": client_name,
+        "technology": technology,
+        "domain": technology,
+        "interview_scheduled": True,
+        "interview_date": interview_date,
+        "date_time_text": interview_date,
+        "interview_link": payload.interview_link,
+        "meet_link": payload.interview_link,
+        "platform": platform,
+        "updated_at": now,
+    }
+    if trainer_email_id:
+        await db["email_logs"].update_one(
+            {"email_id": trainer_email_id},
+            {"$set": {
+                **common_fields,
+                "to_email": email,
+                "trainer_email_sent": True,
+                "client_email_sent": True,
+                "client_interview_email_id": client_email_id,
+            }},
+        )
+    if client_email_id:
+        await db["email_logs"].update_one(
+            {"email_id": client_email_id},
+            {"$set": {
+                **common_fields,
+                "to_email": client_email,
+                "trainer_email_sent": True,
+                "client_email_sent": True,
+                "trainer_interview_email_id": trainer_email_id,
+                "source_trainer_email_id": trainer_email_id,
+            }},
+        )
+
+    await db["shortlists"].update_one(
+        {"requirement_id": payload.requirement_id, "top_trainers.trainer_id": payload.trainer_id},
+        {"$set": {
+            "top_trainers.$.pipeline_status": "interview_scheduled",
+            "top_trainers.$.slot_status": "interview_link_sent",
+            "top_trainers.$.mail4_email_id": trainer_email_id,
+            "top_trainers.$.client_mail4_email_id": client_email_id,
+            "top_trainers.$.mail4_sent_at": now,
+            "top_trainers.$.client_mail4_sent_at": now,
+            "top_trainers.$.interview_scheduled_at": now,
+            "top_trainers.$.interview_date": interview_date,
+            "top_trainers.$.interview_link": payload.interview_link,
+            "top_trainers.$.meet_link": payload.interview_link,
+            "top_trainers.$.client_email_sent": True,
+            "top_trainers.$.trainer_email_sent": True,
+            "top_trainers.$.last_mail_type": "mail4",
+            "top_trainers.$.last_mail_type_attempted": "mail4",
+            "top_trainers.$.last_mail_attempted_at": now,
+            "top_trainers.$.last_mailed_at": now,
+            "top_trainers.$.last_mail_error": "",
+            "top_trainers.$.updated_at": now,
+            "updated_at": now,
+        }},
+    )
+
+    return {
+        "success": True,
+        "trainer_sent_to": email,
+        "client_sent_to": client_email,
+        "trainer_email_id": trainer_email_id,
+        "client_email_id": client_email_id,
+        "interview_link": payload.interview_link,
+    }
 
 
 @router.post("/send-client-slots")

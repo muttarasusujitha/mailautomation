@@ -1643,6 +1643,117 @@ def _client_slots_message(
     return {"subject": subject, "body": body}
 
 
+def _client_interview_schedule_message(
+    *,
+    client_name: str,
+    trainer_name: str,
+    technology: str,
+    requirement_id: str,
+    interview_date: str,
+    meeting_link: str,
+) -> Dict[str, str]:
+    subject = f"Interview Schedule Confirmation - {technology} | Ref: {requirement_id}"
+    date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
+    body = (
+        f"Dear {client_name or 'Team'},\n\n"
+        f"The interview/discussion with Trainer {trainer_name or 'the trainer'} for the {technology} requirement is confirmed.\n\n"
+        "Interview Details:\n"
+        f"{date_line}"
+        "Platform: Google Meet\n"
+        f"Meeting Link: {meeting_link}\n\n"
+        "Kindly join on time and let us know if any change is required.\n\n"
+        "Regards,\n"
+        "TrainerSync Team"
+    )
+    return {"subject": subject, "body": body}
+
+
+async def _send_client_interview_schedule_email(
+    db: AsyncIOMotorDatabase,
+    *,
+    client_email: str,
+    client_name: str,
+    trainer_name: str,
+    technology: str,
+    requirement_id: str,
+    trainer_id: str,
+    meeting_link: str,
+    interview_date: str,
+    smtp_config: Optional[Dict[str, Any]] = None,
+    interview_start: Optional[datetime] = None,
+    interview_end: Optional[datetime] = None,
+    calendar_event: Optional[Dict[str, Any]] = None,
+    source_email_id: str = "",
+    source_gmail_message_id: str = "",
+    source_trainer_email_id: str = "",
+    slot_text: str = "",
+    timezone_name: str = "",
+    now: Optional[datetime] = None,
+) -> Dict[str, Any]:
+    sent_at = now or _now()
+    message = _client_interview_schedule_message(
+        client_name=client_name,
+        trainer_name=trainer_name,
+        technology=technology,
+        requirement_id=requirement_id,
+        interview_date=interview_date,
+        meeting_link=meeting_link,
+    )
+    success, error = await send_email_async(
+        to=client_email,
+        subject=message["subject"],
+        body=message["body"],
+        smtp_config=smtp_config,
+    )
+    email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
+    event = calendar_event or {}
+    await db["email_logs"].insert_one({
+        "email_id": email_id,
+        "direction": "outbound",
+        "recipient": client_email,
+        "to_email": client_email,
+        "subject": message["subject"],
+        "body": message["body"],
+        "body_snippet": message["body"][:300],
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "mail_type": "client_interview_schedule",
+        "source_email_id": source_email_id,
+        "source_gmail_message_id": source_gmail_message_id,
+        "source_trainer_email_id": source_trainer_email_id,
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_name,
+        "client_email": client_email,
+        "client_name": client_name,
+        "slot_text": slot_text,
+        "interview_date": interview_date,
+        "date_time_text": interview_date,
+        "interview_at": interview_start,
+        "interview_end_at": interview_end,
+        "interview_link": meeting_link,
+        "meet_link": meeting_link,
+        "calendar_event": event,
+        "calendar_event_id": event.get("event_id") or "",
+        "calendar_html_link": event.get("html_link") or "",
+        "timezone": timezone_name,
+        "interview_scheduled": bool(success),
+        "client_email_sent": bool(success),
+        "trainer_email_sent": False,
+        "sent_at": sent_at if success else None,
+        "created_at": sent_at,
+        "updated_at": sent_at,
+    })
+    return {
+        "success": success,
+        "error": error or "",
+        "email_id": email_id,
+        "to": client_email,
+        "subject": message["subject"],
+        "sent_at": sent_at if success else None,
+    }
+
+
 async def _latest_mail3_log(
     db: AsyncIOMotorDatabase,
     email_doc: Dict[str, Any],
@@ -2397,6 +2508,30 @@ async def _handle_client_slot_confirmation_reply(
     if not trainer_email:
         return {"attempted": True, "success": False, "reason": "missing_trainer_email", "error": "Trainer email missing", "intent": intent}
 
+    client_email = await _client_email_from_context(db, requirement_id, trainer_email, requirement, shortlist)
+    if not client_email:
+        inbound_sender = _email_address(email_doc.get("from_email") or email_doc.get("sender_email") or email_doc.get("from"))
+        if inbound_sender and inbound_sender != trainer_email:
+            client_email = inbound_sender
+    client_name = _client_name_from_context(requirement, shortlist)
+    if not client_email:
+        error = "Client email missing; Google Meet link was not sent to client."
+        await db["shortlists"].update_one(
+            {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+            {"$set": {
+                "top_trainers.$.pipeline_status": "slot_booked",
+                "top_trainers.$.slot_status": "missing_client_email",
+                "top_trainers.$.slot_reply_at": now,
+                "top_trainers.$.slot_reply_text": reply_text,
+                "top_trainers.$.last_mail_type_attempted": "mail4",
+                "top_trainers.$.last_mail_attempted_at": now,
+                "top_trainers.$.last_mail_error": error,
+                "top_trainers.$.updated_at": now,
+                "updated_at": now,
+            }},
+        )
+        return {"attempted": True, "success": False, "reason": "missing_client_email", "error": error, "intent": intent}
+
     selected_slot_text = _extract_slot_selection_text(reply_text)
     interview_date = selected_slot_text or _strip_quoted_email_history(reply_text)
     source_gmail_message_id = _current_inbound_message_id(email_doc)
@@ -2466,25 +2601,91 @@ async def _handle_client_slot_confirmation_reply(
         sent_at = existing.get("sent_at") or now
         existing_link = existing.get("meet_link") or existing.get("interview_link") or ""
     if existing and _is_google_meet_link(existing_link):
+        client_schedule_result: Dict[str, Any] = {"success": True, "already_sent": True}
+        existing_client_schedule = await db["email_logs"].find_one(
+            {
+                "direction": "outbound",
+                "status": "sent",
+                "mail_type": "client_interview_schedule",
+                "requirement_id": requirement_id,
+                "trainer_id": trainer_id,
+                "$or": [
+                    {"source_trainer_email_id": existing.get("email_id") or ""},
+                    {"interview_link": existing_link},
+                    {"meet_link": existing_link},
+                ],
+            },
+            {"_id": 0, "email_id": 1, "sent_at": 1, "to_email": 1, "recipient": 1, "subject": 1},
+            sort=[("created_at", -1)],
+        )
+        if existing_client_schedule:
+            client_schedule_result = {
+                "success": True,
+                "already_sent": True,
+                "email_id": existing_client_schedule.get("email_id"),
+                "to": existing_client_schedule.get("to_email") or existing_client_schedule.get("recipient"),
+                "subject": existing_client_schedule.get("subject"),
+                "sent_at": existing_client_schedule.get("sent_at") or sent_at,
+            }
+        else:
+            settings_doc = await _load_admin_settings(db)
+            smtp_config = settings_doc.get("emailCfg") or None
+            client_schedule_result = await _send_client_interview_schedule_email(
+                db,
+                client_email=client_email,
+                client_name=client_name,
+                trainer_name=trainer_name,
+                technology=technology,
+                requirement_id=requirement_id,
+                trainer_id=trainer_id,
+                meeting_link=existing_link,
+                interview_date=interview_date,
+                smtp_config=smtp_config,
+                calendar_event={"event_id": existing.get("calendar_event_id") or "", "meet_link": existing_link},
+                source_email_id=email_doc.get("email_id") or "",
+                source_gmail_message_id=source_gmail_message_id,
+                source_trainer_email_id=existing.get("email_id") or "",
+                slot_text=reply_text,
+                now=now,
+            )
+        client_schedule_success = bool(client_schedule_result.get("success"))
+        client_schedule_sent_at = client_schedule_result.get("sent_at") or sent_at
+        if existing.get("email_id"):
+            await db["email_logs"].update_one(
+                {"email_id": existing.get("email_id")},
+                {"$set": {
+                    "client_email": client_email,
+                    "client_name": client_name,
+                    "client_email_sent": client_schedule_success,
+                    "trainer_email_sent": True,
+                    "client_interview_email_id": client_schedule_result.get("email_id") or "",
+                    "interview_scheduled": client_schedule_success,
+                    "updated_at": now,
+                }},
+            )
         duplicate_update_fields = {
-            "top_trainers.$.pipeline_status": "interview_scheduled",
-            "top_trainers.$.slot_status": "confirmed_by_client",
+            "top_trainers.$.pipeline_status": "interview_scheduled" if client_schedule_success else "slot_booked",
+            "top_trainers.$.slot_status": "confirmed_by_client" if client_schedule_success else "client_interview_send_failed",
             "top_trainers.$.slot_reply_at": now,
             "top_trainers.$.slot_confirmed_at": sent_at,
             "top_trainers.$.slot_reply_text": reply_text,
             "top_trainers.$.client_slots_sent": True,
             "top_trainers.$.mail4_email_id": existing.get("email_id") or "",
+            "top_trainers.$.client_mail4_email_id": client_schedule_result.get("email_id") or "",
             "top_trainers.$.mail4_sent_at": sent_at,
-            "top_trainers.$.interview_scheduled_at": sent_at,
+            "top_trainers.$.client_mail4_sent_at": client_schedule_sent_at if client_schedule_success else None,
+            "top_trainers.$.interview_scheduled_at": sent_at if client_schedule_success else None,
             "top_trainers.$.interview_date": interview_date,
             "top_trainers.$.interview_link": existing_link,
             "top_trainers.$.meet_link": existing_link,
             "top_trainers.$.calendar_event_id": existing.get("calendar_event_id") or "",
+            "top_trainers.$.client_email_sent": client_schedule_success,
+            "top_trainers.$.trainer_email_sent": True,
             "top_trainers.$.last_mail_type": "mail4",
             "top_trainers.$.last_mail_type_attempted": "mail4",
             "top_trainers.$.last_mail_attempted_at": now,
             "top_trainers.$.last_mailed_at": sent_at,
-            "top_trainers.$.last_mail_error": "",
+            "top_trainers.$.last_mail_error": "" if client_schedule_success else (client_schedule_result.get("error") or "Client interview schedule email failed"),
             "top_trainers.$.updated_at": now,
             "updated_at": now,
         }
@@ -2498,13 +2699,17 @@ async def _handle_client_slot_confirmation_reply(
         )
         return {
             "attempted": True,
-            "success": True,
-            "already_sent": True,
+            "success": client_schedule_success,
+            "already_sent": bool(client_schedule_result.get("already_sent")),
             "email_id": existing.get("email_id"),
+            "client_email_id": client_schedule_result.get("email_id") or "",
             "to": existing.get("to_email") or existing.get("recipient"),
+            "client_to": client_schedule_result.get("to") or client_email,
             "subject": existing.get("subject"),
             "intent": intent,
             "slot_text": reply_text,
+            "interview_link": existing_link if client_schedule_success else "",
+            "error": "" if client_schedule_success else (client_schedule_result.get("error") or "Client interview schedule email failed"),
             "sent_at": sent_at,
         }
 
@@ -2545,7 +2750,7 @@ async def _handle_client_slot_confirmation_reply(
         end=resolved_slot["end"],
         attendees=[
             trainer_email,
-            requirement.get("client_email") or "",
+            client_email,
         ],
         timezone=calendar_timezone,
     )
@@ -2610,10 +2815,11 @@ async def _handle_client_slot_confirmation_reply(
         "requirement_id": requirement_id,
         "trainer_id": trainer_id,
         "trainer_name": trainer_name,
-        "client_email": requirement.get("client_email") or "",
-        "client_name": requirement.get("client_name") or requirement.get("client_company") or "",
+        "client_email": client_email,
+        "client_name": client_name,
         "slot_text": reply_text,
         "interview_date": interview_date,
+        "date_time_text": interview_date,
         "interview_at": resolved_slot["start"],
         "interview_end_at": resolved_slot["end"],
         "interview_link": meeting_link,
@@ -2623,32 +2829,79 @@ async def _handle_client_slot_confirmation_reply(
         "calendar_html_link": calendar_event.get("html_link") or "",
         "timezone": calendar_timezone,
         "interview_scheduled": bool(success),
+        "trainer_email_sent": bool(success),
+        "client_email_sent": False,
         "sent_at": now if success else None,
         "created_at": now,
         "updated_at": now,
     })
 
+    client_schedule_result = await _send_client_interview_schedule_email(
+        db,
+        client_email=client_email,
+        client_name=client_name,
+        trainer_name=trainer_name,
+        technology=technology,
+        requirement_id=requirement_id,
+        trainer_id=trainer_id,
+        meeting_link=meeting_link,
+        interview_date=interview_date,
+        smtp_config=smtp_config,
+        interview_start=resolved_slot["start"],
+        interview_end=resolved_slot["end"],
+        calendar_event=calendar_event,
+        source_email_id=email_doc.get("email_id") or "",
+        source_gmail_message_id=source_gmail_message_id,
+        source_trainer_email_id=email_id,
+        slot_text=reply_text,
+        timezone_name=calendar_timezone,
+        now=now,
+    )
+    client_schedule_success = bool(client_schedule_result.get("success"))
+    overall_success = bool(success and client_schedule_success)
+    await db["email_logs"].update_one(
+        {"email_id": email_id},
+        {"$set": {
+            "client_email_sent": client_schedule_success,
+            "client_interview_email_id": client_schedule_result.get("email_id") or "",
+            "interview_scheduled": overall_success,
+            "updated_at": now,
+        }},
+    )
+
     update_fields = {
-        "top_trainers.$.pipeline_status": "interview_scheduled" if success else "slot_booked",
-        "top_trainers.$.slot_status": "confirmed_by_client" if success else "sent_to_client",
+        "top_trainers.$.pipeline_status": "interview_scheduled" if overall_success else "slot_booked",
+        "top_trainers.$.slot_status": (
+            "confirmed_by_client"
+            if overall_success
+            else ("client_interview_send_failed" if success else "trainer_interview_send_failed")
+        ),
         "top_trainers.$.slot_reply_at": now,
-        "top_trainers.$.slot_confirmed_at": now if success else None,
+        "top_trainers.$.slot_confirmed_at": now if overall_success else None,
         "top_trainers.$.slot_reply_text": reply_text,
         "top_trainers.$.client_slots_sent": True,
         "top_trainers.$.mail4_email_id": email_id if success else "",
+        "top_trainers.$.client_mail4_email_id": client_schedule_result.get("email_id") if client_schedule_success else "",
         "top_trainers.$.mail4_sent_at": now if success else None,
-        "top_trainers.$.interview_scheduled_at": now if success else None,
+        "top_trainers.$.client_mail4_sent_at": now if client_schedule_success else None,
+        "top_trainers.$.interview_scheduled_at": now if overall_success else None,
         "top_trainers.$.interview_date": interview_date,
-        "top_trainers.$.interview_link": meeting_link if success else "",
-        "top_trainers.$.meet_link": meeting_link if success else "",
-        "top_trainers.$.calendar_event": calendar_event if success else {},
-        "top_trainers.$.calendar_event_id": calendar_event.get("event_id") if success else "",
-        "top_trainers.$.google_meet_error": "" if success else (calendar_event.get("error") or ""),
-        "top_trainers.$.last_mail_type": "mail4" if success else "mail3",
+        "top_trainers.$.interview_link": meeting_link if (success or client_schedule_success) else "",
+        "top_trainers.$.meet_link": meeting_link if (success or client_schedule_success) else "",
+        "top_trainers.$.calendar_event": calendar_event if (success or client_schedule_success) else {},
+        "top_trainers.$.calendar_event_id": calendar_event.get("event_id") if (success or client_schedule_success) else "",
+        "top_trainers.$.google_meet_error": "" if (success or client_schedule_success) else (calendar_event.get("error") or ""),
+        "top_trainers.$.client_email_sent": client_schedule_success,
+        "top_trainers.$.trainer_email_sent": bool(success),
+        "top_trainers.$.last_mail_type": "mail4" if overall_success else "mail3",
         "top_trainers.$.last_mail_type_attempted": "mail4",
         "top_trainers.$.last_mail_attempted_at": now,
-        "top_trainers.$.last_mailed_at": now if success else None,
-        "top_trainers.$.last_mail_error": "" if success else (error or "Mail4 send failed"),
+        "top_trainers.$.last_mailed_at": now if overall_success else None,
+        "top_trainers.$.last_mail_error": (
+            ""
+            if overall_success
+            else (client_schedule_result.get("error") or error or "Interview schedule email failed")
+        ),
         "top_trainers.$.updated_at": now,
         "updated_at": now,
     }
@@ -2656,8 +2909,8 @@ async def _handle_client_slot_confirmation_reply(
         update_fields["top_trainers.$.client_slots_email_id"] = client_slots_email_id
     if client_slots_sent_at:
         update_fields["top_trainers.$.client_slots_sent_at"] = client_slots_sent_at
-    if not success:
-        update_fields["top_trainers.$.last_mail_error"] = error or "Interview schedule email failed"
+    if not overall_success:
+        update_fields["top_trainers.$.last_mail_error"] = client_schedule_result.get("error") or error or "Interview schedule email failed"
 
     await db["shortlists"].update_one(
         {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
@@ -2666,16 +2919,18 @@ async def _handle_client_slot_confirmation_reply(
 
     return {
         "attempted": True,
-        "success": success,
-        "error": error or "",
+        "success": overall_success,
+        "error": "" if overall_success else (client_schedule_result.get("error") or error or "Interview schedule email failed"),
         "email_id": email_id,
+        "client_email_id": client_schedule_result.get("email_id") or "",
         "to": trainer_email,
+        "client_to": client_email,
         "subject": message["subject"],
         "intent": intent,
         "slot_text": reply_text,
-        "interview_link": meeting_link if success else "",
+        "interview_link": meeting_link if overall_success else "",
         "calendar_event": calendar_event,
-        "sent_at": now if success else None,
+        "sent_at": now if overall_success else None,
     }
 
 

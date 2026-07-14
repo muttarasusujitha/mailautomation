@@ -722,6 +722,8 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
           platform,
           date_time:      dateTime,
           interview_link: interviewLink,
+          client_email:   req.client_email,
+          client_name:    req.client_name || req.client_company || '',
         })
       } else {
         await api.post('/shortlists/send-mail', {
@@ -736,7 +738,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
           client_name:    mailType === 'mail3' ? clientName.trim() : undefined,
         })
       }
-      toast.success(`✅ Email sent to ${trainer.name}!`)
+      toast.success(mailType === 'mail4' ? 'Interview link sent to trainer and client' : `✅ Email sent to ${trainer.name}!`)
       let nextStage = NEXT_STAGES[mailType]
       let poExtra = {}
       if (mailType === 'mail7_confirm') {

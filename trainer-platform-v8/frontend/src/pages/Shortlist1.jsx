@@ -1203,6 +1203,8 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages }) 
           platform,
           date_time:      dateTime,
           interview_link: interviewLink,
+          client_email:   req.client_email,
+          client_name:    req.client_name || req.client_company || '',
         })
       } else {
         res = await api.post('/shortlists/send-mail', {
