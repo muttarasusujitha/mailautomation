@@ -1,4 +1,6 @@
 """Send email endpoints."""
+import base64
+import logging
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -11,6 +13,13 @@ from app.database import get_db
 from app.gmail_client import is_send_quota_error, send_email_async
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+
+class EmailAttachment(BaseModel):
+    filename: str
+    content_base64: str
+    subtype: Optional[str] = "pdf"
 
 
 class SendEmailRequest(BaseModel):
@@ -24,6 +33,7 @@ class SendEmailRequest(BaseModel):
     mail_type: Optional[str] = None
     trainer_id: Optional[str] = None
     trainer_name: Optional[str] = None
+    attachments: Optional[List[EmailAttachment]] = None
 
 
 class BulkEmailRequest(BaseModel):
@@ -36,12 +46,34 @@ async def send_single_email(
     payload: SendEmailRequest,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
+    attachments = []
+    if payload.attachments:
+        for att in payload.attachments:
+            try:
+                attachments.append({
+                    "filename": att.filename,
+                    "content": base64.b64decode(att.content_base64),
+                    "subtype": att.subtype or "pdf",
+                })
+            except Exception as exc:
+                raise HTTPException(400, detail={"message": "Invalid attachment encoding", "error": str(exc)})
+    # Log attachment filenames for debugging
+    if attachments:
+        try:
+            # also print to stdout to ensure container logs capture this
+            print(f"Received {len(attachments)} attachment(s) for {payload.to}: " + ", ".join(a.get('filename','<unknown>') for a in attachments))
+            logger.info("Received %d attachment(s) for %s: %s", len(attachments), payload.to, 
+                        ", ".join(a.get('filename','<unknown>') for a in attachments))
+        except Exception:
+            logger.exception("Failed to log attachment filenames")
+
     success, error = await send_email_async(
         to=payload.to,
         subject=payload.subject,
         body=payload.body,
         smtp_config=payload.smtp_config,
         tracking_url=payload.tracking_url or "",
+        attachments=attachments,
     )
     now = datetime.utcnow()
     log = {
@@ -78,12 +110,24 @@ async def send_bulk_emails(
     results = []
     for item in payload.payloads:
         cfg = item.smtp_config or payload.smtp_config
+        attachments = []
+        if item.attachments:
+            for att in item.attachments:
+                try:
+                    attachments.append({
+                        "filename": att.filename,
+                        "content": base64.b64decode(att.content_base64),
+                        "subtype": att.subtype or "pdf",
+                    })
+                except Exception as exc:
+                    return HTTPException(400, detail={"message": "Invalid attachment encoding", "error": str(exc)})
         success, error = await send_email_async(
             to=item.to,
             subject=item.subject,
             body=item.body,
             smtp_config=cfg,
             tracking_url=item.tracking_url or "",
+            attachments=attachments,
         )
         now = datetime.utcnow()
         log = {

@@ -4,17 +4,20 @@ from datetime import datetime
 from typing import Optional
 
 import httpx
+import base64
 from fastapi import APIRouter, Depends, HTTPException, Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
+from app.config import get_settings
 from app.database import get_db
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+settings = get_settings()
 
-DOC_SVC = "http://document-service:8006"
-EMAIL_SVC = "http://email-service:8002"
+DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
+EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 
 
 class InvoiceSendRequest(BaseModel):
@@ -94,17 +97,54 @@ async def send_invoice(
     )
 
     try:
+        # generate invoice PDF and attach to email
+        attachment_payload = None
+        try:
+            async with httpx.AsyncClient(timeout=60) as client:
+                response = await client.post(
+                    f"{DOC_SVC}/api/v1/documents/pdf/invoice",
+                    json={
+                        "invoice_number": doc.get("invoice_number", invoice_id),
+                        "invoice_date": doc.get("invoice_date", ""),
+                        "gst_number": doc.get("gst_number", ""),
+                        "vendor_name": doc.get("vendor_name", ""),
+                        "client_name": doc.get("client_name", ""),
+                        "client_billing_address": doc.get("client_billing_address", ""),
+                        "client_po_number": doc.get("client_po_number", ""),
+                        "client_po_date": doc.get("client_po_date", ""),
+                        "client_gstin": doc.get("client_gstin", ""),
+                        "training_domain": doc.get("training_domain", ""),
+                        "training_dates": doc.get("training_dates", ""),
+                        "duration": doc.get("duration", ""),
+                        "mode": doc.get("mode", ""),
+                        "day_rate": doc.get("day_rate", 0.0),
+                        "total_amount": doc.get("total_amount", 0.0),
+                        "gst_rate": doc.get("gst_rate", 18.0),
+                        "payment_terms": doc.get("payment_terms", ""),
+                        "notes": doc.get("notes", ""),
+                        "items": doc.get("items", []),
+                    },
+                )
+            if response.status_code == 200 and response.content:
+                attachment_payload = [{
+                    "filename": f"{invoice_id}.pdf",
+                    "content_base64": base64.b64encode(response.content).decode(),
+                    "subtype": "pdf",
+                }]
+        except Exception:
+            logger.exception("Failed to generate invoice PDF for attachment")
+
         async with httpx.AsyncClient(timeout=30) as client:
-            response = await client.post(
-                f"{EMAIL_SVC}/api/v1/email/send",
-                json={
-                    "to": to_email,
-                    "subject": subject,
-                    "body": body,
-                    "mail_type": "invoice",
-                    "requirement_id": doc.get("requirement_id"),
-                },
-            )
+            email_json = {
+                "to": to_email,
+                "subject": subject,
+                "body": body,
+                "mail_type": "invoice",
+                "requirement_id": doc.get("requirement_id"),
+            }
+            if attachment_payload:
+                email_json["attachments"] = attachment_payload
+            response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=email_json)
         if response.status_code >= 400:
             raise HTTPException(502, f"Email service error: {response.text[:200]}")
     except HTTPException:

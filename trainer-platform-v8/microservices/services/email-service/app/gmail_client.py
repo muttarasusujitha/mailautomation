@@ -262,6 +262,7 @@ def send_smtp(
     body: str,
     smtp_config: Optional[Dict[str, Any]] = None,
     tracking_url: str = "",
+    attachments: Optional[List[Dict[str, Any]]] = None,
 ) -> Tuple[bool, str]:
     candidates = _build_sender_candidates(smtp_config)
     last_error: Optional[Exception] = None
@@ -278,18 +279,37 @@ def send_smtp(
             continue
 
         try:
-            msg = MIMEMultipart("alternative")
+            # debug prints to verify attachments and SMTP flow in container logs
+            if attachments:
+                try:
+                    print(f"SMTP: Attempting to send {len(attachments)} attachment(s) to {to}: " + ", ".join(a.get('filename','<unknown>') for a in attachments))
+                except Exception:
+                    print(f"SMTP: Attempting to send {len(attachments)} attachment(s) to {to}")
+            if attachments:
+                msg = MIMEMultipart("mixed")
+                alternative = MIMEMultipart("alternative")
+                msg.attach(alternative)
+            else:
+                msg = MIMEMultipart("alternative")
+                alternative = msg
+
             msg["Subject"] = subject
             msg["From"] = f"{from_name} <{from_email}>"
             msg["To"] = to
             msg["Reply-To"] = from_email
-            msg.attach(MIMEText(body, "plain"))
-            msg.attach(MIMEText(_html_template(body, from_name, from_email, tracking_url), "html"))
+            alternative.attach(MIMEText(body, "plain"))
+            alternative.attach(MIMEText(_html_template(body, from_name, from_email, tracking_url), "html"))
+
+            for att in attachments or []:
+                part = MIMEApplication(att.get("content") or b"", _subtype=att.get("subtype") or "octet-stream")
+                part.add_header("Content-Disposition", "attachment", filename=att.get("filename") or "attachment")
+                msg.attach(part)
 
             try:
                 with smtplib.SMTP_SSL(host, 465 if port == 587 else port, timeout=15) as s:
                     s.login(user, pwd)
                     s.sendmail(from_email, to, msg.as_string())
+                print(f"SMTP: sendmail via SSL to {to} completed")
             except Exception as exc:
                 if is_send_quota_error(exc):
                     raise
@@ -298,6 +318,7 @@ def send_smtp(
                     s.starttls()
                     s.login(user, pwd)
                     s.sendmail(from_email, to, msg.as_string())
+                print(f"SMTP: sendmail via STARTTLS to {to} completed")
 
             logger.info("Email sent to %s via %s", to, from_email)
             return True, ""
@@ -333,9 +354,10 @@ async def send_email_async(
     body: str,
     smtp_config: Optional[Dict[str, Any]] = None,
     tracking_url: str = "",
+    attachments: Optional[List[Dict[str, Any]]] = None,
 ) -> Tuple[bool, str]:
     loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, send_smtp, to, subject, body, smtp_config, tracking_url)
+    return await loop.run_in_executor(None, send_smtp, to, subject, body, smtp_config, tracking_url, attachments)
 
 
 def check_imap_replies(

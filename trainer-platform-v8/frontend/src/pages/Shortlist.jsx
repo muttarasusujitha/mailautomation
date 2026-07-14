@@ -1277,11 +1277,6 @@ function TocModal({ trainer, req, onClose }) {
             {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             Download PDF
           </button>
-          <button onClick={handleSend} disabled={!tocId || sending}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all disabled:opacity-50">
-            {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            Send to Trainer
-          </button>
           <button onClick={onClose} className="ml-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition-all">
             Close
           </button>
@@ -1424,21 +1419,6 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
       toast.error(e.response?.data?.detail || e.message || 'PO download failed')
     } finally {
       setDownloading(false)
-    }
-  }
-
-  const handleSend = async () => {
-    setSending(true)
-    try {
-      const current = await ensurePo()
-      if (!current?.po_id) return
-      const res = await api.post(`/purchase-orders/${current.po_id}/send`, {})
-      setPo(res.data.purchase_order)
-      toast.success(`PO sent to ${trainer.name}`)
-    } catch (e) {
-      toast.error(e.response?.data?.detail || e.message || 'PO send failed')
-    } finally {
-      setSending(false)
     }
   }
 
@@ -1607,11 +1587,6 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm disabled:opacity-50">
             {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             Download
-          </button>
-          <button onClick={handleSend} disabled={generating || downloading || sending}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm disabled:opacity-50">
-            {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            Send Email + WhatsApp
           </button>
           <button onClick={handleGenerateInvoice} disabled={!!invoiceBusy || generating || sending}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-cyan-700 text-white font-semibold text-sm disabled:opacity-50">
@@ -1948,27 +1923,48 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           }
 
           if (st === 'toc_requested') {
-            await syncShortlistRepliesIfDue()
-            const messages = await getThread(trainer)
-            const sentMails = messages.filter(m => m.direction === 'sent')
-            if (!sentMails.length) continue
-            const lastSentTime = Math.max(...sentMails.map(m => new Date(m.sent_at || 0).getTime()))
-            const newReplies = messages.filter(m =>
-              m.direction === 'received' &&
-              new Date(m.sent_at || 0).getTime() > lastSentTime
+            const { subject, body } = mailTrainingConfirmedTemplate(
+              trainer,
+              req,
+              req.client_name || req.client_company || '',
+              req.client_phone || '',
+              req.client_email || '',
+              req.training_dates || req.timeline_start || '',
+              req.mode || ''
             )
-            if (!newReplies.length) continue
-            const latest = newReplies[newReplies.length - 1]
-            const intent = detectIntent(latest.body)
-            if (intent === 'toc_received' || intent === 'positive') {
-              toast(
-                `🤖 Auto: ${trainer.name} sent the ToC/Agenda ✅ — now send Training Confirmation manually`,
-                { icon: '📄', duration: 6000 }
-              )
-              onStatusUpdate(trainer.trainer_id, 'toc_received_pending')
-              runningRef.current = false
-              return
+            const confirmRes = await api.post('/shortlists/send-mail', {
+              trainer_id: trainer.trainer_id,
+              trainer_name: trainer.name,
+              to_email: trainer.email,
+              requirement_id: req.requirement_id,
+              subject,
+              body,
+              mail_type: 'mail7_confirm',
+            })
+            showSendStatusToast({ trainerName: trainer.name, result: confirmRes.data, title: 'Training confirmation sent' })
+            let poExtra = {}
+            if (req.client_email) {
+              try {
+                const poRes = await api.post(`/requirements/${req.requirement_id}/request-client-po`, {
+                  trainer_id: trainer.trainer_id,
+                  trainer_name: trainer.name,
+                  client_email: req.client_email,
+                  client_name: req.client_name || req.client_company || '',
+                  training_dates: req.training_dates || req.timeline_start || '',
+                })
+                poExtra = {
+                  clientPoRequestedAt: Date.now(),
+                  clientPoRequestEmailId: poRes.data?.email_id,
+                }
+                toast.success(`PO request sent to ${poRes.data?.to_email || req.client_email}`)
+              } catch (e) {
+                toast.error(e.response?.data?.detail || e.message || 'PO request failed')
+              }
             }
+            onStatusUpdate(trainer.trainer_id, 'training_confirmed', poExtra)
+            toast(`🤖 Auto: Training confirmed for ${trainer.name} ✅`, { icon: '✅', duration: 5000 })
+            runningRef.current = false
+            return
           }
         }
 

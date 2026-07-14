@@ -571,8 +571,13 @@ import httpx as _httpx
 
 class ClientPORequest(_BaseModel):
     client_email: str = ""
+    client_name: str = ""
+    trainer_id: str = ""
+    trainer_name: str = ""
     subject: str = ""
+    body: str = ""
     notes: str = ""
+    training_dates: str = ""
 
 
 class BudgetIncreaseRequest(_BaseModel):
@@ -628,20 +633,44 @@ async def request_client_po(
     if not client_email:
         raise HTTPException(400, "client_email is required")
 
-    subject = payload.subject or f"Purchase Order Request — {req_id}"
-    body = (
-        f"Dear {doc.get('client_name') or doc.get('client_company') or 'Client'},\n\n"
-        f"Please find attached the Purchase Order for training requirement {req_id}.\n"
-        f"{payload.notes or ''}\n\nKindly acknowledge at your earliest convenience.\n\n"
-        "Regards,\nTrainerSync Team"
-    )
+    subject = payload.subject or f"Request for Purchase Order"
+
+    if payload.body:
+        body = payload.body
+    else:
+        tech = doc.get('technology_needed') or doc.get('technology') or 'DevOps'
+        duration = str(doc.get('duration_days') or doc.get('training_duration') or '10 Days')
+        training_dates = payload.training_dates or doc.get('training_dates') or doc.get('timeline_start') or ''
+        duration_line = f"- **Duration:** {duration}\n" if duration else ''
+        dates_line = f"- **Training Dates:** {training_dates}\n" if training_dates else ''
+        day_rate = (str(doc.get('day_rate')) + ' per day') if doc.get('day_rate') else '₹18,000 per day'
+        body = (
+            f"Dear {payload.client_name or doc.get('client_name') or doc.get('client_company') or 'Client'},\n\n"
+            f"Thank you for confirming the **{tech}** training requirement.\n\n"
+            f"We have identified a suitable trainer for this engagement.\n\n"
+            f"**Training Details:**\n\n"
+            f"- **Domain:** {tech}\n"
+            f"{duration_line}"
+            f"{dates_line}"
+            f"- **Commercials:** {day_rate}\n\n"
+            f"Kindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements.\n\n"
+            f"Please let us know if you require any additional information.\n\n"
+            f"Regards,\nRecruitment Team\nClahan Technologies"
+        )
 
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             await client.post(
                 "http://email-service:8002/api/v1/email/send",
-                json={"to": client_email, "subject": subject, "body": body,
-                      "requirement_id": req_id, "mail_type": "client_po_request"},
+                json={
+                    "to": client_email,
+                    "subject": subject,
+                    "body": body,
+                    "requirement_id": req_id,
+                    "mail_type": "client_po_request",
+                    "trainer_id": payload.trainer_id,
+                    "trainer_name": payload.trainer_name,
+                },
             )
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc

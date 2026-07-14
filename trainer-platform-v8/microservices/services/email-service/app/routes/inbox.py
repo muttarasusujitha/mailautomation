@@ -9,7 +9,7 @@ from email.utils import parseaddr
 from typing import Annotated, Any, Dict, List, Optional
 
 import httpx
-from fastapi import APIRouter, BackgroundTasks, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
@@ -1182,9 +1182,9 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
 
     # Use a concise, single-render template matching the requested clean version.
     body = (
-        f"Dear Trainer,\n\n"
-        f"We have an immediate corporate training requirement and would like to check your interest and availability.\n\n"
-        f"Requirement Details:\n"
+        "Dear Trainer,\n\n"
+        "We have an immediate corporate training requirement and would like to check your interest and availability.\n\n"
+        "Requirement Details:\n"
         + "\n".join(f"- {line}" for line in lines)
         + "\n\nPlease share the following details if you are interested and available:\n"
         "- Updated resume/profile\n"
@@ -2934,6 +2934,77 @@ async def _handle_client_slot_confirmation_reply(
     }
 
 
+async def _handle_client_selection_reply(
+    db: AsyncIOMotorDatabase,
+    email_doc: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Detect explicit client 'selection' replies and mark the shortlist entry selected.
+
+    Looks for phrases like 'we have selected', 'we selected', 'you have been selected',
+    and updates the matching `top_trainers` element to `selected: True` and `pipeline_status: selected`.
+    """
+    subject = str(email_doc.get("subject") or "")
+    body = _strip_quoted_email_history(
+        email_doc.get("classification_body")
+        or email_doc.get("clean_body")
+        or email_doc.get("raw_body")
+        or email_doc.get("body")
+        or ""
+    )
+    text = (subject + "\n" + body).lower()
+    patterns = [
+        r"\bwe have selected\b",
+        r"\bwe selected\b",
+        r"\bselected the trainer\b",
+        r"\byou have been selected\b",
+        r"\btrainer selected\b",
+        r"\bcongratulations\b",
+    ]
+    if not any(re.search(p, text, flags=re.IGNORECASE) for p in patterns):
+        return {"attempted": False}
+
+    requirement_id = email_doc.get("requirement_id") or ""
+    trainer_id = email_doc.get("trainer_id") or ""
+    if not requirement_id or not trainer_id:
+        return {"attempted": True, "success": False, "reason": "missing_requirement_or_trainer_link"}
+
+    now = _now()
+    update = {
+        "top_trainers.$.pipeline_status": "selected",
+        "top_trainers.$.selected": True,
+        "top_trainers.$.selected_at": now,
+        "top_trainers.$.slot_status": "selected_by_client",
+        "top_trainers.$.last_mail_type": "mail5_ok",
+        "top_trainers.$.last_mail_type_attempted": "mail5_ok",
+        "top_trainers.$.last_mail_attempted_at": now,
+        "top_trainers.$.updated_at": now,
+        "updated_at": now,
+    }
+    await db["shortlists"].update_one({"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id}, {"$set": update})
+
+    try:
+        email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
+        await db["email_logs"].insert_one({
+            "email_id": email_id,
+            "direction": "inbound",
+            "from": email_doc.get("from") or email_doc.get("from_email") or "",
+            "from_email": email_doc.get("from_email") or "",
+            "to_email": email_doc.get("to_email") or "",
+            "subject": subject,
+            "body_snippet": body[:300],
+            "status": "received",
+            "mail_type": "client_selection",
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "created_at": now,
+            "updated_at": now,
+        })
+    except Exception:
+        pass
+
+    return {"attempted": True, "success": True, "reason": "client_selected", "selected_at": now}
+
+
 async def _handle_client_budget_reply(
     db: AsyncIOMotorDatabase,
     email_doc: Dict[str, Any],
@@ -3828,7 +3899,15 @@ async def _process_client_requirement_email(
     }
 
     try:
-        client_slot_confirmation_result = await _handle_client_slot_confirmation_reply(db, send_email_doc)
+        # First check if the client reply indicates the trainer was selected
+        try:
+            client_selection_result = await _handle_client_selection_reply(db, send_email_doc)
+        except NameError:
+            client_selection_result = {"attempted": False}
+        if client_selection_result.get("attempted"):
+            client_slot_confirmation_result = client_selection_result
+        else:
+            client_slot_confirmation_result = await _handle_client_slot_confirmation_reply(db, send_email_doc)
     except Exception as exc:
         logger.exception("Client slot confirmation automation failed for %s", email_doc.get("email_id"))
         client_slot_confirmation_result = {"attempted": True, "success": False, "error": str(exc)}

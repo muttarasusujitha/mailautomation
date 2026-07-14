@@ -2,7 +2,7 @@
 import logging
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Body, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
@@ -264,11 +264,15 @@ async def generate_invoice(
 
 @router.post("/html-to-pdf")
 async def html_to_pdf_endpoint(
-    html_content: str,
-    filename: Optional[str] = "document.pdf",
+    html_content: Optional[str] = Body(None, media_type="text/plain"),
+    html_content_query: Optional[str] = Query(None, alias="html_content"),
+    filename: Optional[str] = Query("document.pdf"),
 ):
     """Convert raw HTML to PDF."""
-    pdf_bytes = await _html_to_pdf(html_content)
+    html_input = html_content or html_content_query
+    if not html_input:
+        raise HTTPException(422, "Field required: html_content")
+    pdf_bytes = await _html_to_pdf(html_input)
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

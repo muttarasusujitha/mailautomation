@@ -82,25 +82,34 @@ function lineTotal(row) {
   return Number(row.quantity || 0) * Number(row.rate || 0)
 }
 
-function InvoiceRow({ item, active, onClick }) {
+function InvoiceRow({ item, active, onClick, onAutoGenerate, busy }) {
   const status = invoiceStatus(item)
+  const isPending = status === 'Pending'
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={clsx('w-full border-b border-slate-100 px-4 py-3 text-left transition hover:bg-slate-50', active && 'bg-blue-50')}
-    >
+    <div className={clsx('w-full border-b border-slate-100 px-4 py-3 text-left transition hover:bg-slate-50', active && 'bg-blue-50')}>
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+        <div className="min-w-0" onClick={onClick} role="button">
           <p className="truncate text-sm font-semibold text-slate-950">{item.client?.company || item.client?.name || item.client?.email || 'Client'}</p>
           <p className="mt-1 truncate text-xs text-slate-500">{item.domain || 'Training'} - {item.requirement_id}</p>
         </div>
-        <span className={clsx('shrink-0 rounded-full px-2 py-1 text-[11px] font-bold ring-1', statusClass(status))}>{status}</span>
+        <div className="flex items-center gap-2">
+          <span className={clsx('shrink-0 rounded-full px-2 py-1 text-[11px] font-bold ring-1', statusClass(status))}>{status}</span>
+          {isPending && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onAutoGenerate?.(item) }}
+              disabled={!!busy}
+              title="Auto-generate PO & Invoice"
+              className="ml-2 inline-flex items-center gap-2 px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs text-slate-700"
+            >
+              {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />} Auto
+            </button>
+          )}
+        </div>
       </div>
       <p className="mt-2 truncate text-xs text-slate-500">
         {item.invoice?.invoice_number || item.client_po?.client_po_number || item.requirement?.client_po_number || 'No PO'} - {money(item.invoice?.commercials?.grand_total || item.client_po?.grand_total || item.client_po?.total_amount)}
       </p>
-    </button>
+    </div>
   )
 }
 
@@ -110,6 +119,7 @@ export default function Invoices() {
   const [q, setQ] = useState('')
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState('')
+  const [autogenBusy, setAutogenBusy] = useState('')
   const [form, setForm] = useState(initialForm())
   const [invoiceType, setInvoiceType] = useState('beulix')
 
@@ -142,6 +152,40 @@ export default function Invoices() {
       toast.error(e.message || 'Could not load invoices')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const autoGenerateInvoice = async (item) => {
+    if (!item) return
+    const reqId = item.requirement_id
+    setAutogenBusy(reqId)
+    try {
+      const trainer = item.selected_trainer || {}
+      const payload = {
+        trainer_id: trainer.trainer_id || null,
+        requirement_id: reqId,
+        client_name: item.client?.company || item.client?.name || item.requirement?.client_company || '',
+        client_email: item.client?.email || item.requirement?.client_email || '',
+        training_dates: item.requirement?.training_dates || '',
+        duration_days: item.client_po?.quantity || item.requirement?.duration_days || 1,
+        total_amount: item.client_po?.total_amount || item.requirement?.budget_total || 0,
+      }
+      // Create a purchase order
+      const res = await api.post('/purchase-orders/generate', payload)
+      const po = res.data.purchase_order
+      if (!po?.po_id) throw new Error('PO generation failed')
+      // Generate invoice from PO
+      await api.post(`/purchase-orders/${po.po_id}/generate-invoice`, {
+        client_email: payload.client_email,
+        client_name: payload.client_name,
+        trainer_id: trainer.trainer_id || null,
+      })
+      toast.success('PO and invoice generated')
+      await load(true)
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Auto-generation failed')
+    } finally {
+      setAutogenBusy('')
     }
   }
 
@@ -291,6 +335,8 @@ export default function Invoices() {
                   item={item}
                   active={selected?.requirement_id === item.requirement_id}
                   onClick={() => setSelectedId(item.requirement_id)}
+                  onAutoGenerate={(it) => autoGenerateInvoice(it)}
+                  busy={autogenBusy === item.requirement_id}
                 />
               ))
             ) : (

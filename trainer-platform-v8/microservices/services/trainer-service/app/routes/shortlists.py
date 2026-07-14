@@ -1,5 +1,6 @@
 """Shortlist management — send mail, send interview link, send client slots."""
 import asyncio
+import base64
 import logging
 import re
 import uuid
@@ -19,6 +20,7 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
+DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
 NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
 EXCLUDED_TRAINER_STATUSES = {"interested", "confirmed", "declined"}
 PIPELINE_VERSION = "trainer-match-microservice-v1"
@@ -363,6 +365,56 @@ def _merge_pipeline_state(new_trainer: Dict[str, Any], old_trainer: Dict[str, An
 def _is_active_pipeline_trainer(trainer: Dict[str, Any]) -> bool:
     stage = _clean(trainer.get("pipeline_status") or trainer.get("status")).lower()
     return stage in ACTIVE_PIPELINE_STAGES
+
+
+async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: AsyncIOMotorDatabase) -> Optional[Dict[str, Any]]:
+    try:
+        from app.routes.toc import TocRequest, generate_toc
+        domain = _clean(requirement.get("technology_needed") or requirement.get("domain") or requirement.get("title") or requirement.get("job_title") or "Training")
+        duration = _safe_int(requirement.get("duration_days"), 3) or 3
+        toc_req = TocRequest(
+            domain=domain,
+            duration_days=duration,
+            level=_clean(requirement.get("level") or "intermediate") or "intermediate",
+            requirement_id=_clean(requirement.get("requirement_id")),
+            trainer_id=_clean(trainer.get("trainer_id")),
+        )
+        response = await generate_toc(toc_req, db)
+        return response.get("toc")
+    except Exception:
+        logger.exception("Failed to build TOC")
+        return None
+
+
+async def _generate_toc_pdf(toc: Dict[str, Any]) -> Optional[bytes]:
+    title = toc.get("title", "Training Programme")
+    rows = ""
+    for day in toc.get("days", []):
+        rows += (
+            f"<tr><td style='vertical-align:top;padding:8px;border:1px solid #ddd;'>{day.get('day')}</td>"
+            f"<td style='vertical-align:top;padding:8px;border:1px solid #ddd;'><b>{day.get('title','')}</b><br>{day.get('focus_area','')}</td></tr>"
+        )
+
+    html = f"""<html><body style='font-family:Arial,Helvetica,sans-serif;padding:30px'>"""
+    html += f"<h1>{title}</h1>"
+    html += f"<p>{toc.get('overview','')}</p>"
+    html += "<table style='border-collapse:collapse;width:100%;'>"
+    html += "<tr><th style='text-align:left;padding:8px;border:1px solid #ddd;'>Day</th>"
+    html += "<th style='text-align:left;padding:8px;border:1px solid #ddd;'>Topic</th></tr>"
+    html += rows
+    html += "</table></body></html>"
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        r = await client.post(
+            f"{DOC_SVC}/api/v1/documents/pdf/html-to-pdf",
+            params={"filename": f"{title}.pdf"},
+            content=html,
+            headers={"Content-Type": "text/plain"},
+        )
+    if r.status_code >= 400:
+        logger.error("TOC PDF generation failed: %s", r.text[:300])
+        return None
+    return r.content
 
 
 async def _sync_shortlist_with_trainers(
@@ -715,11 +767,87 @@ async def send_shortlist_mail(
                     "requirement_id": payload.requirement_id,
                     "smtp_config": payload.smtp_config,
                 })
-            ok = r.status_code < 400
-            if not ok:
-                error_message = f"{r.status_code}: {r.text[:300]}"
-            else:
-                await asyncio.sleep(1.5)
+                ok = r.status_code < 400
+                if not ok:
+                    error_message = f"{r.status_code}: {r.text[:300]}"
+                else:
+                    await asyncio.sleep(1.5)
+                    # If this was a trainer selection (mail5 family), automatically request/send TOC
+                    try:
+                        if payload.mail_type in ("mail5", "mail5_ok", "mail5_selection"):
+                            # Only send TOC when requirement has a domain/technology configured
+                            domain_field = _clean(
+                                requirement.get("technology_needed")
+                                or requirement.get("domain")
+                                or shortlist.get("technology_needed")
+                            )
+                            if domain_field:
+                                # avoid duplicate TOC sends
+                                prior_toc = await db["email_logs"].find_one(
+                                    {
+                                        "requirement_id": payload.requirement_id,
+                                        "mail_type": "mail6_toc",
+                                        "recipient": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"},
+                                        "status": "sent",
+                                    },
+                                    {"_id": 0, "email_id": 1},
+                                )
+                                if not prior_toc:
+                                    logger.info("Auto-TOC: preparing template for %s %s", payload.requirement_id, trainer_email)
+                                    tmpl_resp = await client.post(
+                                        f"{EMAIL_SVC}/api/v1/email/templates/mail6-toc-request",
+                                        json={
+                                            "trainer_name": trainer_name,
+                                            "technology": domain_field,
+                                            "requirement_id": payload.requirement_id,
+                                            "client_name": _clean(requirement.get("client_name") or requirement.get("client_company")),
+                                        },
+                                    )
+                                    logger.info("Auto-TOC: template response %s for %s", getattr(tmpl_resp, "status_code", None), trainer_email)
+                                    if tmpl_resp.status_code < 400:
+                                        tmpl = tmpl_resp.json()
+                                        toc_subject = tmpl.get("subject") or f"ToC / Agenda - {payload.requirement_id}"
+                                        toc_body = tmpl.get("body") or "Please find the proposed ToC / agenda."
+                                    else:
+                                        toc_subject = f"ToC / Agenda - {payload.requirement_id}"
+                                        toc_body = "Please find the proposed ToC / agenda."
+                                    logger.info("Auto-TOC: sending TOC to %s for %s", trainer_email, payload.requirement_id)
+                                    pdf_bytes = None
+                                    toc_data = await _build_toc(requirement, t, db)
+                                    if toc_data:
+                                        pdf_bytes = await _generate_toc_pdf(toc_data)
+                                    attachments = []
+                                    if pdf_bytes:
+                                        attachments = [{
+                                            "filename": f"TOC-{payload.requirement_id}.pdf",
+                                            "content_base64": base64.b64encode(pdf_bytes).decode("utf-8"),
+                                            "subtype": "pdf",
+                                        }]
+                                    send_toc = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
+                                        "to": trainer_email,
+                                        "subject": toc_subject,
+                                        "body": toc_body,
+                                        "mail_type": "mail6_toc",
+                                        "trainer_id": t.get("trainer_id"),
+                                        "trainer_name": trainer_name,
+                                        "requirement_id": payload.requirement_id,
+                                        "smtp_config": payload.smtp_config,
+                                        "attachments": attachments,
+                                    })
+                                    logger.info("Auto-TOC: send response %s for %s", getattr(send_toc, "status_code", None), trainer_email)
+                                    if send_toc.status_code < 400:
+                                        # update pipeline stage to reflect TOC requested
+                                        await db["shortlists"].update_one(
+                                            {"requirement_id": payload.requirement_id, "top_trainers.trainer_id": t.get("trainer_id")},
+                                            {"$set": {
+                                                "top_trainers.$.pipeline_status": "toc_requested",
+                                                "top_trainers.$.toc_status": "requested",
+                                                "top_trainers.$.last_mail_type": "mail6_toc",
+                                                "top_trainers.$.last_mailed_at": datetime.utcnow(),
+                                            }},
+                                        )
+                    except Exception:
+                        logger.exception("Failed to auto-send TOC for %s", trainer_email)
         except Exception as exc:
             logger.error("Email send failed for %s: %s", trainer_email, exc)
             ok = False

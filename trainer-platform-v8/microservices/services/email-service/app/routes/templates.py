@@ -44,7 +44,7 @@ def _from_email() -> str:
 
 class ShortlistEmailRequest(BaseModel):
     trainer_name: str
-    domain: str
+    domain: Optional[str] = None
     duration: Optional[str] = ""
     mode: Optional[str] = ""
     participants: Optional[str] = ""
@@ -71,7 +71,8 @@ class RetryEmailRequest(BaseModel):
 
 @router.post("/shortlist-first")
 async def compose_shortlist_first(payload: ShortlistEmailRequest):
-    detail_lines = [f"* Domain/Technology: {payload.domain}"]
+    domain = payload.domain or "Training"
+    detail_lines = [f"* Domain/Technology: {domain}"]
     if payload.duration:
         detail_lines.append(f"* Duration: {payload.duration}")
     if payload.mode:
@@ -100,7 +101,7 @@ This helps us process your availability automatically and move forward quickly.
 """
     body = (
         f"Dear {payload.trainer_name or 'Trainer'},\n\n"
-        f"We have received a training requirement for {payload.domain} and are looking for a trainer with relevant experience.\n\n"
+        f"We have received a training requirement for {domain} and are looking for a trainer with relevant experience.\n\n"
         f"Training Details:\n\n{detail_text}{missing_note}\n\n"
         "Please share the following details if you are interested in this requirement:\n\n"
         "* Commercials/rate per day or per session\n"
@@ -112,7 +113,7 @@ This helps us process your availability automatically and move forward quickly.
         f"Regards,\n{_from_name()}\n{_from_email()}"
     )
     return {
-        "subject": f"Training Requirement - {payload.domain}",
+        "subject": f"Training Requirement - {domain}",
         "body": body,
     }
 

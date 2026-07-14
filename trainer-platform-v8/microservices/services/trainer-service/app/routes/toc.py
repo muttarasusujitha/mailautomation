@@ -1,8 +1,11 @@
 """Training Table of Contents (TOC) generation endpoint."""
+import uuid
+from datetime import datetime
+from math import ceil
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from pydantic import BaseModel
+from pydantic import BaseModel, root_validator
 
 from app.database import get_db
 
@@ -10,13 +13,38 @@ router = APIRouter()
 
 
 class TocRequest(BaseModel):
-    domain: str
-    duration_days: int = 5
+    domain: Optional[str] = None
+    technology: Optional[str] = None
+    duration_days: float = 5.0
     level: str = "intermediate"
     mode: str = "Online"
     notes: Optional[str] = ""
     requirement_id: Optional[str] = None
     trainer_id: Optional[str] = None
+    trainer_name: Optional[str] = None
+    trainer_email: Optional[str] = None
+    audience_level: Optional[str] = None
+    training_dates: Optional[str] = None
+    timing: Optional[str] = None
+    toc_type: Optional[str] = "standard"
+    custom_topics: Optional[str] = ""
+    client_notes: Optional[str] = ""
+    toc_id: Optional[str] = None
+
+    @root_validator(skip_on_failure=True)
+    def require_domain_or_technology(cls, values):
+        domain = values.get("domain") or values.get("technology")
+        if not domain:
+            raise ValueError("domain or technology is required")
+        values["domain"] = domain
+        return values
+
+    @root_validator(skip_on_failure=True)
+    def validate_duration_days(cls, values):
+        duration_days = values.get("duration_days")
+        if duration_days is None or duration_days <= 0:
+            raise ValueError("duration_days must be a positive number")
+        return values
 
 
 @router.post("/generate")
@@ -26,25 +54,34 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     Uses the service-local TOC generator.
     """
     toc = _minimal_toc(payload.domain, payload.duration_days)
+    toc_id = payload.toc_id or f"TOC-{uuid.uuid4().hex[:10].upper()}"
 
-    if payload.requirement_id:
-        from datetime import datetime
-        await db.toc_generations.insert_one({
-            "requirement_id": payload.requirement_id,
-            "trainer_id": payload.trainer_id,
-            "domain": payload.domain,
-            "duration_days": payload.duration_days,
-            "toc": toc,
-            "created_at": datetime.utcnow(),
-        })
+    await db.toc_generations.insert_one({
+        "toc_id": toc_id,
+        "requirement_id": payload.requirement_id,
+        "trainer_id": payload.trainer_id,
+        "trainer_name": payload.trainer_name,
+        "trainer_email": payload.trainer_email,
+        "domain": payload.domain,
+        "duration_days": payload.duration_days,
+        "audience_level": payload.audience_level,
+        "training_dates": payload.training_dates,
+        "timing": payload.timing,
+        "toc_type": payload.toc_type,
+        "custom_topics": payload.custom_topics,
+        "client_notes": payload.client_notes,
+        "toc": toc,
+        "created_at": datetime.utcnow(),
+    })
 
-    return {"success": True, "toc": toc}
+    return {"success": True, "toc_id": toc_id, "toc_data": toc}
 
 
-def _minimal_toc(domain: str, days: int) -> dict:
+def _minimal_toc(domain: str, days: float) -> dict:
+    rounded_days = max(1, ceil(days))
     return {
         "title": f"{domain} Training",
-        "subtitle": f"{days}-Day Programme",
+        "subtitle": f"{rounded_days}-Day Programme",
         "overview": f"A {days}-day {domain} training programme.",
         "days": [
             {
@@ -57,7 +94,7 @@ def _minimal_toc(domain: str, days: int) -> dict:
                 "learning_objectives": [f"Understand {domain} Day {i + 1} topics"],
                 "jira_practice": ["Update sprint board"],
             }
-            for i in range(days)
+            for i in range(rounded_days)
         ],
         "tools_software": [domain],
         "certification_roadmap": [f"{domain} certification roadmap"],

@@ -2,25 +2,24 @@
 // Professional SaaS Operations Home Page
 // Uses: lucide-react, react-router-dom, inline styles only (Tailwind-free for portability)
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import PropTypes from 'prop-types'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import BrandMark from '../components/BrandMark'
 import {
   ArrowRight, CheckCircle, Play,
-  Brain, Mail, MessageSquare,
-  Shield, ChevronRight,
+  Brain, Mail, MessageSquare, Users,
+  TrendingUp, Shield, ChevronRight, BarChart2,
   Filter, Send, Calendar, Sparkles,
   Inbox, FileText, UserCheck, PhoneCall,
   Bell, Search,
-  RefreshCw, Layers,
+  RefreshCw, Layers, Database,
   AlertCircle,
   Cpu,
   MailCheck, MailOpen, Reply,
-  Award, Repeat2,
+  Award, Target, Repeat2,
   BotMessageSquare,
   SquareKanban, Webhook, CloudCog,
-  LayoutDashboard, Linkedin, Video
+  LayoutDashboard
 } from 'lucide-react'
 
 // ─── Design Tokens ───────────────────────────────────────────
@@ -74,11 +73,9 @@ const CSS = `
   ::selection { background: ${T.brandLight}; color: ${T.brand}; }
 
   /* scrollbar */
-  html { scrollbar-width: thin; scrollbar-color: #94A3B8 #EDF2F7; }
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: #EDF2F7; }
-  ::-webkit-scrollbar-thumb { background: #94A3B8; border: 2px solid #EDF2F7; border-radius: 999px; }
-  ::-webkit-scrollbar-thumb:hover { background: #64748B; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
 
   /* animations */
   @keyframes fadeUp   { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
@@ -87,11 +84,8 @@ const CSS = `
   @keyframes slideRight{from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
   @keyframes scaleIn  { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
   @keyframes ping     { 0%{transform:scale(1);opacity:0.7} 100%{transform:scale(2);opacity:0} }
-  /* Ticker animation removed */
-  @keyframes workflowAccent {
-    0%, 12% { transform: scaleX(1); opacity: 1; }
-    18%, 100% { transform: scaleX(0.16); opacity: 0.28; }
-  }
+  @keyframes ticker   { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  @keyframes featureScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
   @keyframes pulse2   { 0%,100%{opacity:1} 50%{opacity:0.5} }
   @keyframes shimmer  { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
   @keyframes floatUp  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
@@ -100,42 +94,38 @@ const CSS = `
   @keyframes borderAnim { 0%{border-color:${T.brand}40} 50%{border-color:${T.brand}} 100%{border-color:${T.brand}40} }
   @keyframes dotBlink { 0%,100%{opacity:1} 50%{opacity:0.2} }
   @keyframes workflowCardRun {
-    0%, 12% {
+    0%, 11% {
       border-color: var(--workflow-color);
-      background-color: rgba(255,255,255,0.98);
-      box-shadow: 0 0 0 4px var(--workflow-glow), 0 0 0 7px var(--workflow-color);
-      transform: scale(1.015);
+      box-shadow: 0 14px 34px rgba(15,23,42,0.10), 0 0 0 4px var(--workflow-soft);
+      transform: translateY(-6px);
     }
     18%, 100% {
-      border-color: var(--workflow-ring);
-      background-color: rgba(255,255,255,0.94);
-      box-shadow: 0 0 0 4px var(--workflow-soft), 0 0 0 7px var(--workflow-ring);
-      transform: scale(1);
+      border-color: ${T.border};
+      box-shadow: ${T.shadow};
+      transform: translateY(0);
     }
   }
   @keyframes workflowIconRun {
-    0%, 12% { background: var(--workflow-soft); box-shadow: 0 8px 20px var(--workflow-soft); transform: scale(1.06); }
-    18%, 100% { background: ${T.surface}; box-shadow: none; transform: scale(1); }
+    0%, 11% { background: var(--workflow-soft); transform: scale(1.08); }
+    18%, 100% { background: ${T.surface}; transform: scale(1); }
   }
   @keyframes workflowNumberRun {
-    0%, 12% { box-shadow: 0 0 0 6px var(--workflow-soft), 0 8px 18px var(--workflow-soft); transform: scale(1.1); }
-    18%, 100% { box-shadow: 0 8px 18px var(--workflow-soft); transform: scale(1); }
+    0%, 11% { transform: translateX(-50%) scale(1.1); }
+    18%, 100% { transform: translateX(-50%) scale(1); }
   }
-  @keyframes workflowConnectorRun {
-    0%, 12% { opacity: 1; transform: translateY(-50%) scaleX(1); }
-    18%, 100% { opacity: 0.25; transform: translateY(-50%) scaleX(0.35); }
+  @keyframes workflowLineRun {
+    0% { transform: scaleX(0); opacity: 0; }
+    8%, 14% { transform: scaleX(1); opacity: 1; }
+    22%, 100% { transform: scaleX(1); opacity: 0.18; }
   }
-  @keyframes workflowStateRun {
-    0%, 12% { box-shadow: 0 6px 16px var(--workflow-soft); transform: translateY(-1px); }
-    18%, 100% { box-shadow: none; transform: translateY(0); }
-  }
-  @keyframes workflowStatusDot {
-    0%, 12% { box-shadow: 0 0 0 6px var(--workflow-soft); transform: scale(1.28); }
-    18%, 100% { box-shadow: 0 0 0 4px var(--workflow-soft); transform: scale(1); }
+  @keyframes workflowArrowRun {
+    0%, 11% { color: var(--workflow-color); border-color: var(--workflow-color); transform: translateY(-50%) scale(1.08); }
+    18%, 100% { color: ${T.textMuted}; border-color: ${T.border}; transform: translateY(-50%) scale(1); }
   }
   @keyframes workflowMessageIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    0% { opacity: 0; transform: translateY(12px); }
+    12%, 72% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0.64; transform: translateY(0); }
   }
   @keyframes aiScanLine {
     0% { transform: translateX(-22%); opacity: 0; }
@@ -168,7 +158,7 @@ const CSS = `
   .btn-primary {
     display: inline-flex; align-items: center; gap: 7px;
     background: ${T.brand}; color: #fff; border: none; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
     padding: 10px 20px; border-radius: 8px;
     box-shadow: 0 1px 2px rgba(26,86,219,0.18), inset 0 1px 0 rgba(255,255,255,0.12);
     transition: all 0.18s;
@@ -179,14 +169,14 @@ const CSS = `
   .btn-secondary {
     display: inline-flex; align-items: center; gap: 7px;
     background: ${T.surface}; color: ${T.textPrimary}; border: 1.5px solid ${T.border};
-    cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
     padding: 10px 20px; border-radius: 8px;
     transition: all 0.18s;
   }
   .btn-secondary:hover { border-color: ${T.brand}; color: ${T.brand}; background: ${T.brandLight}; transform: translateY(-1px); }
 
   .nav-link {
-    font-size: 14.5px; font-weight: 500; color: ${T.textSecondary};
+    font-size: 13.5px; font-weight: 500; color: ${T.textSecondary};
     text-decoration: none; padding: 5px 10px; border-radius: 6px;
     transition: all 0.15s;
   }
@@ -194,7 +184,7 @@ const CSS = `
 
   .badge {
     display: inline-flex; align-items: center; gap: 4px;
-    font-size: 12.5px; font-weight: 600; padding: 2px 8px;
+    font-size: 11px; font-weight: 600; padding: 2px 8px;
     border-radius: 100px; letter-spacing: 0.01em;
   }
 
@@ -212,325 +202,189 @@ const CSS = `
     background:#22C55E; animation: ping 1.5s ease-out infinite; opacity:0.4;
   }
 
-  /* Ticker CSS removed for reduced bundle size */
-
-  /* First screen: navigation + hero */
-  .hero-stage {
-    height: 100svh;
-    min-height: 640px;
-    padding-top: 56px;
-    display: grid;
-    grid-template-rows: minmax(0, 1fr) auto;
-    overflow: hidden;
-    background:
-      radial-gradient(circle at 76% 32%, rgba(26,86,219,0.10), transparent 32%),
-      ${T.bg};
-  }
-  .hero-main {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 24px 28px 18px;
-    display: flex;
-    align-items: center;
-    min-height: 0;
-  }
-  .hero-grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: minmax(0, 0.95fr) minmax(420px, 1.05fr);
-    gap: clamp(28px, 4vw, 56px);
-    align-items: center;
-  }
-  .hero-image-panel { min-height: clamp(480px, 70vh, 600px); }
+  /* Ticker */
+  .ticker-wrap { overflow: hidden; }
+  .ticker-track { display:flex; width:max-content; animation: ticker 30s linear infinite; }
+  .ticker-track:hover { animation-play-state:paused; }
 
   /* Feature scroller */
   .feature-scroll-shell {
     position: relative;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    scrollbar-color: ${T.brand}35 ${T.borderLight};
-    overscroll-behavior-inline: contain;
-    touch-action: pan-x;
-    cursor: grab;
-    padding: 6px 2px 18px;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+    overflow: hidden;
+    padding: 4px 0 14px;
   }
-  .feature-scroll-shell::-webkit-scrollbar { display: none; }
-  .feature-scroll-shell:active { cursor: grabbing; }
-  .feature-scroll-shell:focus-visible { outline: 2px solid ${T.brand}55; outline-offset: 4px; border-radius: 8px; }
+  .feature-scroll-shell::before,
+  .feature-scroll-shell::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 82px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .feature-scroll-shell::before {
+    left: 0;
+    background: linear-gradient(90deg, ${T.surface} 0%, rgba(255,255,255,0) 100%);
+  }
+  .feature-scroll-shell::after {
+    right: 0;
+    background: linear-gradient(270deg, ${T.surface} 0%, rgba(255,255,255,0) 100%);
+  }
   .feature-scroll-track {
     display: flex;
     align-items: stretch;
-    gap: 14px;
+    gap: 16px;
     width: max-content;
-    padding: 0 22px;
+    animation: featureScroll 38s linear infinite;
+    will-change: transform;
   }
+  .feature-scroll-shell:hover .feature-scroll-track { animation-play-state: paused; }
   .feature-scroll-card {
-    flex: 0 0 288px;
-    width: 288px;
-    max-width: 78vw;
-    height: 375px;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-  .feature-card-inner {
-    height: 100%;
-    overflow: hidden;
+    flex: 0 0 360px;
+    width: 360px;
+    max-width: 82vw;
   }
 
-  /* Workflow command center */
-  .workflow-shell {
-    position: relative;
-    display: grid;
-    gap: 10px;
-    margin-top: 8px;
+  /* Workflow step connector */
+  .workflow-connector {
+    position:absolute; right:-24px; top:50%; transform:translateY(-50%);
+    width:24px; height:2px; background: linear-gradient(90deg, ${T.border}, ${T.brand}30);
+    z-index:1;
   }
-  .workflow-heading > div { margin-bottom: 22px !important; }
-  .workflow-heading h2 { font-size: clamp(1.65rem, 3.2vw, 2.3rem) !important; margin-bottom: 7px !important; }
-  .workflow-heading p { font-size: 15px !important; line-height: 1.45 !important; }
-  .workflow-panel {
-    position: relative;
-    min-width: 0;
-    border: 0;
-    background: transparent;
-    box-shadow: none;
-    overflow: visible;
-  }
-  .workflow-panel::before {
-    display: none;
-  }
-  .workflow-panel-head {
-    position: relative;
-    z-index: 1;
-    padding: 8px 18px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .workflow-panel-kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: ${T.textSecondary};
-    font-size: 12px;
-    font-weight: 800;
-  }
-  .workflow-live {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    min-height: 24px;
-    padding: 3px 9px;
-    border-radius: 999px;
-    border: 1px solid rgba(5,150,105,0.18);
-    background: ${T.greenLight};
-    color: ${T.green};
-    font-size: 11px;
-    font-weight: 800;
-    white-space: nowrap;
-  }
-  .workflow-live span {
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
-    background: ${T.green};
-    box-shadow: 0 0 0 5px rgba(5,150,105,0.12);
-    animation: dotBlink 1.4s ease-in-out infinite;
-  }
-  .workflow-flow-scroll {
-    min-width: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-  }
-  .workflow-flow-scroll::-webkit-scrollbar { display: none; }
   .workflow-grid {
-    position: relative;
-    z-index: 1;
     display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 30px;
-    padding: 18px 24px 22px;
-    overflow: visible;
+    grid-template-columns: repeat(7, minmax(142px, 1fr));
+    gap: 14px;
+    overflow-x: auto;
+    padding: 20px 4px 18px;
+    scrollbar-gutter: stable;
   }
   .workflow-step {
     position: relative;
-    min-width: 0;
+    min-width: 142px;
     display: flex;
     --workflow-soft: rgba(26,86,219,0.10);
-    --workflow-duration: 11.9s;
   }
   .workflow-step::after {
     content: '';
     position: absolute;
-    left: 100%;
+    left: calc(100% - 2px);
     top: 50%;
-    width: 30px;
+    width: 18px;
     height: 2px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, var(--workflow-color), ${T.brand}55);
-    transform: translateY(-50%) scaleX(0.35);
+    background: linear-gradient(90deg, var(--workflow-color), rgba(26,86,219,0.08));
+    transform: scaleX(0);
     transform-origin: left center;
-    animation: workflowConnectorRun var(--workflow-duration) ease-in-out infinite;
+    animation: workflowLineRun 8.4s ease-in-out infinite;
     animation-delay: var(--workflow-delay);
+    z-index: 1;
   }
   .workflow-step:last-child::after { display: none; }
   .workflow-card {
     width: 100%;
-    height: 166px;
-    background: rgba(255,255,255,0.92);
-    border: 3px solid var(--workflow-ring);
-    border-radius: 8px;
-    padding: 17px 8px 10px;
+    min-height: 172px;
+    background: linear-gradient(180deg, ${T.surface} 0%, ${T.bg} 100%);
+    border: 1.5px solid ${T.border};
+    border-radius: 12px;
+    padding: 20px 12px 16px;
+    text-align: center;
     position: relative;
     cursor: default;
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
-    overflow: visible;
-    box-shadow: 0 0 0 4px var(--workflow-soft), 0 0 0 7px var(--workflow-ring);
-    animation: workflowCardRun var(--workflow-duration) cubic-bezier(0.22,1,0.36,1) infinite;
+    box-shadow: ${T.shadow};
+    animation: workflowCardRun 8.4s ease-in-out infinite;
     animation-delay: var(--workflow-delay);
-    will-change: background-color, border-color, box-shadow, transform;
-  }
-  .workflow-card::before {
-    content: '';
-    position: absolute;
-    left: 12px;
-    right: 12px;
-    top: 0;
-    height: 3px;
-    border-radius: 0 0 999px 999px;
-    background: var(--workflow-color);
-    transform-origin: center;
-    animation: workflowAccent var(--workflow-duration) ease-in-out infinite;
-    animation-delay: var(--workflow-delay);
-    z-index: 2;
+    will-change: transform, box-shadow;
   }
   .workflow-number {
     position: absolute;
-    left: 9px;
-    top: 9px;
-    transform: scale(1);
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
     background: var(--workflow-color);
     color: #fff;
-    font-size: 11px;
-    font-weight: 800;
+    font-size: 10px;
+    font-weight: 700;
     width: 22px;
     height: 22px;
-    border-radius: 999px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 8px 18px var(--workflow-soft);
-    animation: workflowNumberRun var(--workflow-duration) ease-in-out infinite;
+    animation: workflowNumberRun 8.4s ease-in-out infinite;
     animation-delay: var(--workflow-delay);
-    z-index: 2;
   }
   .workflow-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     background: ${T.surface};
     border: 1px solid var(--workflow-soft);
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 4px auto 12px;
     flex-shrink: 0;
-    animation: workflowIconRun var(--workflow-duration) ease-in-out infinite;
+    animation: workflowIconRun 8.4s ease-in-out infinite;
     animation-delay: var(--workflow-delay);
-  }
-  .workflow-copy {
-    min-width: 0;
-    width: 100%;
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    z-index: 1;
   }
   .workflow-title {
-    min-height: 27px;
-    margin-top: 6px;
+    min-height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13.5px;
-    font-weight: 800;
-    color: ${T.textPrimary};
-    line-height: 1.22;
   }
   .workflow-desc {
-    min-height: 36px;
-    font-size: 11px;
-    color: ${T.textMuted};
-    line-height: 1.3;
-    overflow-wrap: anywhere;
+    min-height: 48px;
+    display: flex;
+    align-items: flex-start;
   }
-  .workflow-step-state {
-    margin-top: auto;
-    min-height: 22px;
-    padding: 4px 6px;
+  .workflow-arrow {
+    position: absolute;
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
     border-radius: 999px;
-    background: var(--workflow-soft);
-    display: inline-flex;
+    background: ${T.surface};
+    border: 1px solid ${T.border};
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    color: var(--workflow-color);
-    font-size: 8px;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    position: relative;
-    z-index: 1;
-    animation: workflowStateRun var(--workflow-duration) ease-in-out infinite;
-    animation-delay: var(--workflow-delay);
-  }
-  .workflow-step-state span {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--workflow-color);
-    box-shadow: 0 0 0 4px var(--workflow-soft);
-    animation: workflowStatusDot var(--workflow-duration) ease-in-out infinite;
+    z-index: 2;
+    box-shadow: ${T.shadow};
+    pointer-events: none;
+    color: ${T.textMuted};
+    animation: workflowArrowRun 8.4s ease-in-out infinite;
     animation-delay: var(--workflow-delay);
   }
   .workflow-conversation {
-    position: relative;
-    z-index: 1;
+    margin-top: 20px;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    padding: 10px 18px 4px;
+    gap: 12px;
   }
   .workflow-message-card {
-    background: rgba(255,255,255,0.94);
+    background: ${T.surface};
     border: 1px solid ${T.border};
-    border-left: 4px solid var(--message-color);
-    border-radius: 8px;
-    padding: 10px;
-    min-height: 122px;
+    border-radius: 12px;
+    padding: 14px;
+    min-height: 150px;
     box-shadow: ${T.shadow};
-    animation: workflowMessageIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+    animation: workflowMessageIn 7.2s ease-in-out infinite;
     animation-delay: var(--message-delay);
-    display: flex;
-    flex-direction: column;
   }
   .workflow-message-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
   }
   .workflow-message-person {
     display: flex;
@@ -539,9 +393,9 @@ const CSS = `
     min-width: 0;
   }
   .workflow-message-avatar {
-    width: 26px;
-    height: 26px;
-    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -552,19 +406,18 @@ const CSS = `
     background: var(--message-color);
   }
   .workflow-message-text {
-    font-size: 11px;
-    line-height: 1.4;
+    font-size: 12.5px;
+    line-height: 1.55;
     color: ${T.textSecondary};
     margin: 0;
   }
   .workflow-message-action {
-    margin-top: auto;
-    padding-top: 7px;
+    margin-top: 11px;
     display: flex;
     align-items: center;
     gap: 7px;
     color: var(--message-color);
-    font-size: 10px;
+    font-size: 11.5px;
     font-weight: 700;
   }
   .ai-mini-panel {
@@ -756,141 +609,171 @@ const CSS = `
     to { stroke-dashoffset: -220; }
   }
 
-  .tools-zigzag-scroll {
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
+  @keyframes integrationMarquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+  .integration-showcase {
+    border: 1px solid ${T.border};
+    border-radius: 18px;
+    background: ${T.surface};
+    box-shadow: ${T.shadowLg};
+    overflow: hidden;
   }
-  .tools-zigzag-scroll::-webkit-scrollbar { display: none; }
-  .tools-zigzag {
+  .integration-marquee-shell {
     position: relative;
-    min-width: 1200px;
-    height: 270px;
-    display: grid;
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-    gap: 20px;
-    padding: 0 34px;
+    overflow: hidden;
+    padding: 18px 0;
+    border-bottom: 1px solid ${T.borderLight};
+    background: linear-gradient(180deg, #fff, ${T.bg});
   }
-  .tools-zigzag-lines {
+  .integration-marquee-shell::before,
+  .integration-marquee-shell::after {
+    content: '';
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    top: 0;
+    bottom: 0;
+    width: 90px;
+    z-index: 2;
     pointer-events: none;
-    z-index: 0;
   }
-  .tools-zigzag-path-base {
-    fill: none;
-    stroke: ${T.border};
-    stroke-width: 4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    vector-effect: non-scaling-stroke;
+  .integration-marquee-shell::before { left: 0; background: linear-gradient(90deg, #fff, rgba(255,255,255,0)); }
+  .integration-marquee-shell::after { right: 0; background: linear-gradient(270deg, #fff, rgba(255,255,255,0)); }
+  .integration-marquee-track {
+    display: flex;
+    gap: 14px;
+    width: max-content;
+    padding-inline: 18px;
+    animation: integrationMarquee 28s linear infinite;
   }
-  .tools-zigzag-path-active {
-    fill: none;
-    stroke: url(#tools-zigzag-gradient);
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: 10 11;
-    vector-effect: non-scaling-stroke;
-    filter: drop-shadow(0 0 5px rgba(26,86,219,0.26));
-    animation: chainDash 5s linear infinite;
+  .integration-marquee-shell:hover .integration-marquee-track { animation-play-state: paused; }
+  .integration-logo-pill {
+    width: 188px;
+    min-height: 72px;
+    border-radius: 14px;
+    border: 1px solid ${T.border};
+    background: #fff;
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    align-items: center;
+    gap: 11px;
+    padding: 12px;
+    box-shadow: ${T.shadow};
   }
-  .tools-zigzag-node {
+  .integration-logo-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .integration-pipeline-panel {
+    padding: 24px;
+    display: grid;
+    gap: 18px;
+  }
+  .integration-pipeline-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(120px, 1fr));
+    gap: 12px;
+    align-items: stretch;
+  }
+  .integration-pipeline-row::before {
+    content: '';
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    top: 27px;
+    height: 2px;
+    background: linear-gradient(90deg, ${T.orange}, ${T.amber}, ${T.teal}, ${T.brand}, ${T.green}, ${T.sky});
+    opacity: 0.28;
+  }
+  .integration-pipeline-step {
     position: relative;
     z-index: 1;
-    height: 112px;
-    transform: translateY(var(--zig-y));
-    border: 1.5px solid var(--tool-color);
-    border-radius: 18px;
-    background: rgba(255,255,255,0.97);
-    box-shadow: 0 0 0 5px #fff, 0 10px 28px rgba(15,23,42,0.08), 0 0 22px var(--tool-soft);
+    min-height: 132px;
+    border-radius: 14px;
+    border: 1px solid ${T.border};
+    background: #fff;
+    padding: 13px;
     display: flex;
     flex-direction: column;
+    gap: 12px;
+    box-shadow: ${T.shadow};
+  }
+  .integration-pipeline-head {
+    display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 14px;
-    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    justify-content: space-between;
+    gap: 8px;
   }
-  .tools-zigzag-node:hover {
-    transform: translateY(calc(var(--zig-y) - 5px));
-    box-shadow: 0 0 0 5px #fff, 0 16px 34px rgba(15,23,42,0.12), 0 0 30px var(--tool-soft);
-  }
-  .tools-zigzag-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 15px;
+  .integration-pipeline-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  .tools-zigzag-name {
-    color: ${T.textPrimary};
-    font-size: 13px;
-    font-weight: 800;
-    line-height: 1.15;
-    text-align: center;
+  .integration-event-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .integration-event-card {
+    border: 1px solid ${T.border};
+    border-radius: 14px;
+    background: ${T.bg};
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    gap: 11px;
+    align-items: start;
   }
 
   /* Pipeline step */
   .pipe-step-active { animation: borderAnim 2s ease-in-out infinite; }
 
   /* Responsive */
-  @media(max-width:1100px){
-    .hero-grid { grid-template-columns: minmax(0, 0.95fr) minmax(380px, 1.05fr); gap: 30px; }
-    .workflow-grid { gap: 22px; padding-inline: 18px; }
-    .workflow-card { padding-inline: 8px; }
-    .workflow-step-state { padding-inline: 7px; font-size: 9px; }
-  }
-  @media(max-width:900px){
-    .hero-stage { height: auto; min-height: auto; overflow: visible; }
-    .hero-main { padding-top: 42px; padding-bottom: 42px; }
-    .hero-grid { grid-template-columns: 1fr; }
-    .hero-image-panel { min-height: 480px; }
-    .workflow-grid { min-width: 1120px; gap: 30px; padding-inline: 24px; }
-    .workflow-card { padding-inline: 11px; }
-    .workflow-step-state { padding-inline: 9px; font-size: 10px; }
-  }
   @media(max-width:768px){
     .hide-mobile { display:none !important; }
     .cols-mobile-1 { grid-template-columns: 1fr !important; }
     .cols-mobile-2 { grid-template-columns: repeat(2,1fr) !important; }
-    .hero-main { padding: 34px 20px; }
-    .hero-image-panel { min-height: 430px; border-radius: 22px !important; }
-    .feature-scroll-card { flex-basis: min(270px, 80vw); width: min(270px, 80vw); height: 385px; }
-    .workflow-shell { gap: 16px; }
-    .workflow-panel-head { padding: 15px 15px 0; }
-    .workflow-conversation { padding: 10px; }
+    .feature-scroll-card { flex-basis: 300px; width: 300px; }
+    .feature-scroll-track { animation-duration: 44s; }
+    .feature-scroll-shell::before,
+    .feature-scroll-shell::after { width: 34px; }
+    .workflow-grid { grid-template-columns: repeat(7, 170px); gap: 12px; padding-inline: 2px; }
+    .workflow-step { min-width: 170px; }
+    .workflow-card { min-height: 168px; }
+    .workflow-arrow { right: -14px; }
+    .workflow-step::after { width: 14px; }
+    .workflow-conversation { grid-template-columns: 1fr; }
+    .ai-signal-row { grid-template-columns: 1fr; }
     .integration-layout { min-height: 420px; }
     .integration-cycle { height: 420px; }
     .integration-logo-node { width: 104px; height: 76px; border-radius: 20px; }
     .integration-logo-label { font-size: 11.5px; }
     .integration-core-node { width: 86px; height: 86px; border-radius: 26px; }
+    .integration-pipeline-panel { padding: 18px; }
+    .integration-pipeline-row { grid-template-columns: repeat(6, 168px); overflow-x: auto; padding-bottom: 4px; }
+    .integration-pipeline-row::before { left: 36px; right: auto; width: 920px; }
+    .integration-event-grid { grid-template-columns: 1fr; }
+    .integration-marquee-shell::before,
+    .integration-marquee-shell::after { width: 34px; }
   }
   @media(max-width:480px){
     .cols-mobile-2 { grid-template-columns: 1fr !important; }
-    .hero-main { padding-inline: 16px; }
-    .hero-image-panel { min-height: 390px; }
-    .workflow-panel-head { align-items: flex-start; flex-direction: column; }
-    .feature-scroll-card { height: 395px; }
-  }
-  @media(max-width:600px){
-    .workflow-conversation { grid-template-columns: 1fr; }
-    .workflow-message-card { min-height: 0; }
   }
   @media(prefers-reduced-motion: reduce){
-    .tools-zigzag-path-active { animation: none; }
+    .feature-scroll-track { animation: none; overflow-x: auto; }
+    .integration-marquee-track { animation: none; overflow-x: auto; }
     .workflow-card,
     .workflow-icon,
     .workflow-number,
+    .workflow-arrow,
     .workflow-step::after,
     .workflow-message-card,
-    .workflow-card::before,
-    .workflow-step-state,
-    .workflow-step-state span,
     .ai-mini-panel::before,
     .ai-signal,
     .ai-match-bar span { animation: none; }
@@ -900,25 +783,18 @@ const CSS = `
 // ─── Utility Components ───────────────────────────────────────
 function Card({ children, style, className = '', onClick }) {
   return (
-    <button
+    <div
       onClick={onClick}
       className={`card-hover ${className}`}
       style={{
         background: T.surface, border: `1px solid ${T.border}`,
         borderRadius: 12, overflow: 'hidden',
-        boxShadow: T.shadow, ...style, cursor: 'pointer'
+        boxShadow: T.shadow, ...style
       }}
     >
       {children}
-    </button>
+    </div>
   )
-}
-
-Card.propTypes = {
-  children: PropTypes.node.isRequired,
-  style: PropTypes.object,
-  className: PropTypes.string,
-  onClick: PropTypes.func,
 }
 
 function Badge({ children, color = T.brand, bg, style }) {
@@ -927,13 +803,6 @@ function Badge({ children, color = T.brand, bg, style }) {
       {children}
     </span>
   )
-}
-
-Badge.propTypes = {
-  children: PropTypes.node.isRequired,
-  color: PropTypes.string,
-  bg: PropTypes.string,
-  style: PropTypes.object,
 }
 
 function SectionLabel({ icon: Icon, children }) {
@@ -945,38 +814,20 @@ function SectionLabel({ icon: Icon, children }) {
   )
 }
 
-SectionLabel.propTypes = {
-  icon: PropTypes.elementType,
-  children: PropTypes.node.isRequired,
-}
-
 function SectionHeader({ label, labelIcon, title, sub, center }) {
-  const textAlign = center ? 'center' : 'left'
-  const justify = center ? 'center' : 'flex-start'
-  const maxWidth = center ? 560 : '100%'
-  const margin = center ? '0 auto' : 0
-  
   return (
-    <div style={{ textAlign, marginBottom: 48 }}>
-      {label && <div style={{ marginBottom: 12, display: 'flex', justifyContent: justify }}>
+    <div style={{ textAlign: center ? 'center' : 'left', marginBottom: 48 }}>
+      {label && <div style={{ marginBottom: 12, display: 'flex', justifyContent: center ? 'center' : 'flex-start' }}>
         <SectionLabel icon={labelIcon}>{label}</SectionLabel>
       </div>}
-      <h2 style={{ fontSize: 'clamp(1.9rem,3.8vw,2.6rem)', fontWeight: 700, color: T.textPrimary, lineHeight: 1.2, marginBottom: 10 }}>
+      <h2 style={{ fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, color: T.textPrimary, lineHeight: 1.2, marginBottom: 10 }}>
         {title}
       </h2>
-      {sub && <p style={{ fontSize: 15.5, color: T.textSecondary, maxWidth, margin, lineHeight: 1.65 }}>
+      {sub && <p style={{ fontSize: 15.5, color: T.textSecondary, maxWidth: center ? 560 : '100%', margin: center ? '0 auto' : 0, lineHeight: 1.65 }}>
         {sub}
       </p>}
     </div>
   )
-}
-
-SectionHeader.propTypes = {
-  label: PropTypes.string,
-  labelIcon: PropTypes.elementType,
-  title: PropTypes.string.isRequired,
-  sub: PropTypes.string,
-  center: PropTypes.bool,
 }
 
 // ─── Animated Counter ─────────────────────────────────────────
@@ -988,12 +839,50 @@ function StatusBadge({ status }) {
   )
 }
 
-StatusBadge.propTypes = {
-  status: PropTypes.string.isRequired,
+function useCounter(target, duration = 1600) {
+  const [val, setVal] = useState(0)
+  const ref = useRef(null)
+  const started = useRef(false)
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !started.current) {
+        started.current = true
+        const t0 = performance.now()
+        const tick = now => {
+          const p = Math.min((now - t0) / duration, 1)
+          setVal(Math.floor((1 - Math.pow(1 - p, 3)) * target))
+          if (p < 1) requestAnimationFrame(tick)
+          else setVal(target)
+        }
+        requestAnimationFrame(tick)
+      }
+    }, { threshold: 0.3 })
+    if (ref.current) obs.observe(ref.current)
+    return () => obs.disconnect()
+  }, [target, duration])
+  return { val, ref }
 }
 
 // ─── Live Activity Feed ───────────────────────────────────────
 // ─── Stat Card ────────────────────────────────────────────────
+function StatCard({ icon: Icon, color, label, target, suffix = '', trend, delay = '0s' }) {
+  const { val, ref } = useCounter(target)
+  return (
+    <div ref={ref} className="card-hover fade-up" style={{ animationDelay: delay, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '20px', boxShadow: T.shadow }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div style={{ width: 38, height: 38, borderRadius: 10, background: `${color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon size={18} color={color} />
+        </div>
+        {trend && <Badge color={T.green} bg={T.greenLight}><TrendingUp size={9}/> {trend}</Badge>}
+      </div>
+      <div style={{ fontSize: 28, fontWeight: 700, color: T.textPrimary, lineHeight: 1, marginBottom: 4 }} className="mono">
+        {val}{suffix}
+      </div>
+      <div style={{ fontSize: 13, color: T.textSecondary, fontWeight: 500 }}>{label}</div>
+    </div>
+  )
+}
+
 // ─── Pipeline Stages ─────────────────────────────────────────
 const PIPELINE_STAGES = [
   { n: '01', label: 'First Contact',       icon: Send,        color: T.brand,  desc: 'Initial email + WhatsApp outreach to matched trainers' },
@@ -1025,36 +914,21 @@ function PipelineSection() {
 
         {PIPELINE_STAGES.map((st, i) => {
           const done = i < active, curr = i === active
-          let bgColor, iconColor, textColor
-          if (curr) {
-            bgColor = st.color
-            iconColor = '#fff'
-            textColor = st.color
-          } else if (done) {
-            bgColor = `${st.color}20`
-            iconColor = st.color
-            textColor = st.color
-          } else {
-            bgColor = T.surface
-            iconColor = T.textMuted
-            textColor = T.textMuted
-          }
-          const iconSize = curr || done ? 15 : 14
           return (
-            <button key={`stage-${i}-${st.label}`} onClick={() => { setActive(i); setRunning(false) }}
+            <button key={i} onClick={() => { setActive(i); setRunning(false) }}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', zIndex: 1 }}>
               <div style={{
                 width: 38, height: 38, borderRadius: '50%',
-                background: bgColor,
+                background: curr ? st.color : done ? `${st.color}20` : T.surface,
                 border: `2px solid ${curr || done ? st.color : T.border}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transform: curr ? 'scale(1.18)' : 'scale(1)',
                 boxShadow: curr ? `0 0 0 5px ${st.color}18, 0 4px 16px ${st.color}30` : 'none',
                 transition: 'all 0.35s cubic-bezier(0.34,1.56,0.64,1)'
               }}>
-                <st.icon size={iconSize} color={iconColor} />
+                <st.icon size={curr || done ? 15 : 14} color={curr ? '#fff' : done ? st.color : T.textMuted} />
               </div>
-              <span style={{ fontSize: 10, fontWeight: 600, color: textColor, textAlign: 'center', lineHeight: 1.2 }} className="hide-mobile">
+              <span style={{ fontSize: 10, fontWeight: 600, color: curr ? st.color : done ? st.color : T.textMuted, textAlign: 'center', lineHeight: 1.2 }} className="hide-mobile">
                 {st.label}
               </span>
             </button>
@@ -1132,33 +1006,27 @@ const FEATURES = [
   },
 ]
 
-const LOOPING_FEATURES = [...FEATURES, ...FEATURES]
+const SCROLLING_FEATURES = [...FEATURES, ...FEATURES]
 
-function FeatureCard({ feature, delay, tabIndex = 0 }) {
+function FeatureCard({ feature, delay }) {
   const [hov, setHov] = useState(false)
-  const borderColor = hov ? feature.color + '30' : T.border
-  const boxShadow = hov ? T.shadowMd : T.shadow
-  
   return (
-    <button
-      className="card-hover fade-up feature-card-inner"
-      tabIndex={tabIndex}
-      style={{ height: '100%', animationDelay: delay, background: T.surface, border: `1.5px solid ${borderColor}`, borderRadius: 12, padding: '17px', boxShadow, transition: 'all 0.2s', cursor: 'pointer', display: 'block', width: '100%', textAlign: 'left' }}
-      onMouseEnter={() => setHov(true)} 
-      onMouseLeave={() => setHov(false)}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setHov(!hov) }}
+    <div
+      className="card-hover fade-up"
+      style={{ height: '100%', animationDelay: delay, background: T.surface, border: `1.5px solid ${hov ? feature.color + '30' : T.border}`, borderRadius: 14, padding: '24px', boxShadow: hov ? T.shadowMd : T.shadow, transition: 'all 0.2s', cursor: 'default' }}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, background: feature.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s', transform: hov ? 'scale(1.06)' : 'scale(1)' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ width: 44, height: 44, borderRadius: 12, background: feature.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.2s', transform: hov ? 'scale(1.08)' : 'scale(1)' }}>
           <feature.icon size={20} color={feature.color} />
         </div>
         <Badge color={feature.color} bg={feature.bg}>{feature.tag}</Badge>
       </div>
-      <h3 style={{ fontSize: 16.5, fontWeight: 700, color: T.textPrimary, margin: '0 0 7px' }}>{feature.title}</h3>
-      <p style={{ fontSize: 12.5, color: T.textSecondary, lineHeight: 1.5, margin: '0 0 12px' }}>{feature.desc}</p>
+      <h3 style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary, margin: '0 0 8px' }}>{feature.title}</h3>
+      <p style={{ fontSize: 13.5, color: T.textSecondary, lineHeight: 1.6, margin: '0 0 14px' }}>{feature.desc}</p>
       <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 5 }}>
-        {feature.points.map((p) => (
-          <li key={p} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11.5, color: T.textSecondary }}>
+        {feature.points.map((p, i) => (
+          <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12.5, color: T.textSecondary }}>
             <CheckCircle size={12} color={feature.color} /> {p}
           </li>
         ))}
@@ -1170,8 +1038,8 @@ function FeatureCard({ feature, delay, tabIndex = 0 }) {
               ['Resume', 'Parsed', '0s'],
               ['Skills', '92%', '0.25s'],
               ['Match', 'Ranked', '0.5s'],
-            ].map(([label, value, itemDelay], idx) => (
-              <div key={`signal-${idx}-${label}`} className="ai-signal" style={{ '--ai-delay': itemDelay }}>
+            ].map(([label, value, itemDelay]) => (
+              <div key={label} className="ai-signal" style={{ '--ai-delay': itemDelay }}>
                 <span className="ai-signal-label">{label}</span>
                 <span className="ai-signal-value">{value}</span>
               </div>
@@ -1182,34 +1050,35 @@ function FeatureCard({ feature, delay, tabIndex = 0 }) {
           </div>
         </div>
       )}
-    </button>
+    </div>
   )
-}
-
-FeatureCard.propTypes = {
-  feature: PropTypes.shape({
-    icon: PropTypes.elementType.isRequired,
-    color: PropTypes.string.isRequired,
-    bg: PropTypes.string.isRequired,
-    tag: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    desc: PropTypes.string.isRequired,
-    points: PropTypes.arrayOf(PropTypes.string).isRequired,
-  }).isRequired,
-  delay: PropTypes.string,
-  tabIndex: PropTypes.number,
 }
 
 // ─── Integration logos ────────────────────────────────────────
 const INTEGRATIONS = [
-  { icon: Linkedin,      name: 'LinkedIn',          shortName: 'LinkedIn',    desc: 'Professional network search and trainer sourcing.',                                                  status: 'Connected', metric: 'Trainer sourcing', color: '#0A66C2', bg: '#E8F3FC' },
   { icon: Mail,          name: 'Gmail',             shortName: 'Gmail',       desc: 'Two inboxes for client requests and trainer outreach, with reply sync into threads.',             status: 'Connected', metric: 'SMTP + inbox watch', color: T.brand,  bg: T.brandLight },
   { icon: MessageSquare, name: 'Twilio WhatsApp',   shortName: 'WhatsApp',    desc: 'Parallel trainer messages, delivery tracking, sandbox testing, and reply capture.',               status: 'Live',      metric: 'Email + WhatsApp', color: T.green,  bg: T.greenLight },
   { icon: Bell,          name: 'Microsoft Teams',   shortName: 'Teams',       desc: 'Webhook alerts for trainer replies, failed sends, pipeline movement, and ops attention.',          status: 'Alerts',    metric: 'Channel alerts', color: T.violet, bg: T.violetLight },
   { icon: Brain,         name: 'Gemini AI',         shortName: 'Gemini AI',   desc: 'Resume parsing, smart email text, incomplete reply checks, and requirement extraction.',          status: 'AI Core',   metric: 'Text generation', color: T.amber,  bg: T.amberLight },
   { icon: Calendar,      name: 'Google Calendar',   shortName: 'Calendar',    desc: 'Interview slot booking, schedule confirmation, reminders, and meeting context.',                  status: 'Ready',     metric: 'Interview flow', color: T.sky,    bg: T.skyLight },
-  { icon: Video,         name: 'Google Meet',       shortName: 'Google Meet', desc: 'Automatic interview meeting links and trainer invitations.',                                          status: 'Ready',     metric: 'Video interviews', color: '#00897B', bg: '#E0F7F4' },
   { icon: CloudCog,      name: 'Google Cloud',      shortName: 'Cloud',       desc: 'Gmail Pub/Sub watch, storage, background services, and monthly cost visibility.',                  status: 'Synced',    metric: 'Pub/Sub + costs', color: T.teal,   bg: T.tealLight },
+]
+
+const SCROLLING_INTEGRATIONS = [...INTEGRATIONS, ...INTEGRATIONS]
+
+const INTEGRATION_PIPELINE = [
+  { icon: Inbox,         label: 'Client Mail',     meta: 'Gmail inbox',       color: T.orange, bg: T.orangeLight },
+  { icon: Brain,         label: 'AI Parse',        meta: 'Requirement card',  color: T.amber,  bg: T.amberLight },
+  { icon: Database,      label: 'Trainer Match',   meta: 'Profile database',  color: T.teal,   bg: T.tealLight },
+  { icon: Mail,          label: 'Email',           meta: 'Gmail SMTP',        color: T.brand,  bg: T.brandLight },
+  { icon: MessageSquare, label: 'WhatsApp',        meta: 'Delivery status',   color: T.green,  bg: T.greenLight },
+  { icon: Calendar,      label: 'Schedule',        meta: 'Calendar + Teams',  color: T.sky,    bg: T.skyLight },
+]
+
+const INTEGRATION_EVENTS = [
+  { icon: MailCheck, label: 'Inbox Sync', detail: 'Client request and trainer replies enter the right thread.', color: T.brand, bg: T.brandLight },
+  { icon: BotMessageSquare, label: 'AI Decision', detail: 'Incomplete replies trigger the next correct message.', color: T.amber, bg: T.amberLight },
+  { icon: Bell, label: 'Ops Alert', detail: 'WhatsApp, Teams, and dashboard status update together.', color: T.violet, bg: T.violetLight },
 ]
 
 const INTEGRATION_FLOW = []
@@ -1224,7 +1093,13 @@ const _INTEGRATION_NODE_POSITIONS = [
   { x: '17%', y: '28%', z: '58px', scale: '1', angle: '210deg', len: '255px' },
 ]
 
-// Live automation flow ticker removed for reduced UI
+// ─── Ticker items ─────────────────────────────────────────────
+const TICK = [
+  'Gmail Integration', 'WhatsApp Outreach', 'AI Matching', 'Teams Alerts',
+  'Resume Parsing', 'Reply Tracking', 'Client Inbox', 'Auto Follow-up',
+  'Interview Scheduling', 'Gemini AI', 'Cost Tracking', 'Smart Retry',
+  'Trainer Pipeline', 'Sentiment Analysis', 'Profile Sharing',
+]
 
 // ─── Workflow Flow ────────────────────────────────────────────
 const WORKFLOW = [
@@ -1273,13 +1148,13 @@ const TRAINER_ROWS = [
   { name: 'Vikram Nair',  skill: 'Java Spring Boot',  loc: 'Mumbai',    score: 82, status: 'No Reply',    email: false, wa: false },
 ]
 
-function DashboardPreview() {
+function _DashboardPreview() {
   return (
     <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16, overflow: 'hidden', boxShadow: T.shadowXl }}>
       {/* Title bar */}
       <div style={{ padding: '11px 16px', background: T.bg, borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', gap: 5 }}>
-          {['#FF5F57','#FFBD2E','#28C840'].map((c) => <div key={c} style={{ width:10,height:10,borderRadius:'50%',background:c }} />)}
+          {['#FF5F57','#FFBD2E','#28C840'].map((c,i) => <div key={i} style={{ width:10,height:10,borderRadius:'50%',background:c }} />)}
         </div>
         <span style={{ fontSize: 12, fontWeight: 600, color: T.textMuted }} className="mono">trainersync — shortlist view</span>
         <div style={{ width: 10 }} />
@@ -1311,7 +1186,7 @@ function DashboardPreview() {
 
       {/* Rows */}
       {TRAINER_ROWS.map(t => (
-        <button key={`trainer-${t.name}`} style={{ minWidth: 620, display: 'grid', gridTemplateColumns: '1fr 90px 70px 90px 60px 60px', gap: 0, padding: '9px 16px', borderBottom: `1px solid ${T.borderLight}`, transition: 'background 0.12s', cursor: 'pointer', alignItems: 'center', background: 'transparent', border: 'none', width: '100%', textAlign: 'left' }}
+        <div key={t.name} style={{ minWidth: 620, display: 'grid', gridTemplateColumns: '1fr 90px 70px 90px 60px 60px', gap: 0, padding: '9px 16px', borderBottom: `1px solid ${T.borderLight}`, transition: 'background 0.12s', cursor: 'default', alignItems: 'center' }}
           onMouseEnter={e => e.currentTarget.style.background = T.bg}
           onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
           <div>
@@ -1325,17 +1200,7 @@ function DashboardPreview() {
           </div>
           <div style={{ fontSize: 11.5, color: T.textSecondary, textAlign: 'center' }}>{t.loc}</div>
           <div style={{ textAlign: 'center' }}>
-            {(() => {
-              let scoreColor
-              if (t.score >= 90) {
-                scoreColor = T.green
-              } else if (t.score >= 80) {
-                scoreColor = T.brand
-              } else {
-                scoreColor = T.amber
-              }
-              return <span style={{ fontSize: 13, fontWeight: 700, color: scoreColor }} className="mono">{t.score}%</span>
-            })()}
+            <span style={{ fontSize: 13, fontWeight: 700, color: t.score >= 90 ? T.green : t.score >= 80 ? T.brand : T.amber }} className="mono">{t.score}%</span>
           </div>
           <div style={{ textAlign: 'center' }}><StatusBadge status={t.status} /></div>
           <div style={{ textAlign: 'center' }}>
@@ -1344,7 +1209,7 @@ function DashboardPreview() {
           <div style={{ textAlign: 'center' }}>
             <span style={{ fontSize: 13 }}>{t.wa ? '✅' : '—'}</span>
           </div>
-        </button>
+        </div>
       ))}
       </div>
 
@@ -1368,8 +1233,9 @@ function HeroImagePanel() {
   ]
 
   return (
-    <div className="hero-image-panel" style={{
+    <div style={{
       position: 'relative',
+      minHeight: 520,
       borderRadius: 28,
       overflow: 'hidden',
       border: `1px solid ${T.border}`,
@@ -1405,26 +1271,14 @@ function HeroImagePanel() {
         display: 'grid',
         gap: 10,
       }}>
-        {cards.map((card, i) => {
-          let widthPercent, marginLeftVal
-          if (i === 1) {
-            widthPercent = '88%'
-            marginLeftVal = 'auto'
-          } else if (i === 2) {
-            widthPercent = '76%'
-            marginLeftVal = 0
-          } else {
-            widthPercent = '82%'
-            marginLeftVal = 0
-          }
-          return (
+        {cards.map((card, i) => (
           <div
             key={card.label}
             className="fade-up"
             style={{
               animationDelay: `${0.14 + i * 0.06}s`,
-              width: widthPercent,
-              marginLeft: marginLeftVal,
+              width: i === 1 ? '88%' : i === 2 ? '76%' : '82%',
+              marginLeft: i === 1 ? 'auto' : 0,
               borderRadius: 16,
               border: '1px solid rgba(255,255,255,0.22)',
               background: 'rgba(255,255,255,0.9)',
@@ -1453,8 +1307,7 @@ function HeroImagePanel() {
               <span style={{ display: 'block', marginTop: 2, fontSize: 11.5, fontWeight: 600, color: T.textSecondary }}>{card.value}</span>
             </span>
           </div>
-        )
-        })}
+        ))}
       </div>
 
       <div style={{
@@ -1498,10 +1351,8 @@ function ClientInboxPreview() {
         </div>
         <button style={{ fontSize: 11, color: T.brand, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>View all →</button>
       </div>
-      {CLIENT_EMAILS.map((e, i) => {
-        const borderBottom = i < CLIENT_EMAILS.length - 1 ? `1px solid ${T.borderLight}` : 'none'
-        return (
-        <button key={`email-${e.from}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 16px', borderBottom, transition: 'background 0.12s', cursor: 'pointer', background: 'transparent', border: 'none', width: '100%', textAlign: 'left' }}
+      {CLIENT_EMAILS.map((e, i) => (
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 16px', borderBottom: i < CLIENT_EMAILS.length - 1 ? `1px solid ${T.borderLight}` : 'none', transition: 'background 0.12s', cursor: 'pointer' }}
           onMouseEnter={ev => ev.currentTarget.style.background = T.bg}
           onMouseLeave={ev => ev.currentTarget.style.background = 'transparent'}>
           {e.unread && <div className="dot-blue" />}
@@ -1513,27 +1364,12 @@ function ClientInboxPreview() {
             </div>
             <p style={{ fontSize: 12.5, fontWeight: e.unread ? 600 : 400, color: e.unread ? T.textPrimary : T.textSecondary, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.subject}</p>
           </div>
-          {(() => {
-            let badgeColor, badgeBg
-            if (e.badge === 'New') {
-              badgeColor = T.orange
-              badgeBg = T.orangeLight
-            } else if (e.badge === 'Parsed') {
-              badgeColor = T.brand
-              badgeBg = T.brandLight
-            } else {
-              badgeColor = T.green
-              badgeBg = T.greenLight
-            }
-            return (
-              <Badge color={badgeColor} bg={badgeBg}>
-                {e.badge}
-              </Badge>
-            )
-          })()}
-        </button>
-        )
-      })}
+          <Badge color={e.badge === 'New' ? T.orange : e.badge === 'Parsed' ? T.brand : T.green}
+                 bg={e.badge === 'New' ? T.orangeLight : e.badge === 'Parsed' ? T.brandLight : T.greenLight}>
+            {e.badge}
+          </Badge>
+        </div>
+      ))}
     </Card>
   )
 }
@@ -1571,24 +1407,12 @@ function ConversationThread() {
         </div>
       </div>
       <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8, height: 280, overflowY: 'auto', scrollbarGutter: 'stable' }}>
-        {msgs.map((m, i) => {
-          const flexDir = m.dir === 'out' ? 'row-reverse' : 'row'
-          const borderRadius = m.dir === 'out' ? '12px 12px 2px 12px' : '12px 12px 12px 2px'
-          let bgColor
-          if (m.dir === 'out') {
-            bgColor = T.brand
-          } else if (m.dir === 'client') {
-            bgColor = T.orangeLight
-          } else {
-            bgColor = T.bg
-          }
-          const border = m.dir === 'in' ? `1px solid ${T.border}` : 'none'
-          return (
-          <div key={`msg-${i}-${m.from}`} style={{ display: 'flex', flexDirection: flexDir, gap: 8, alignItems: 'flex-end' }}>
+        {msgs.map((m, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: m.dir === 'out' ? 'row-reverse' : 'row', gap: 8, alignItems: 'flex-end' }}>
             <div style={{
-              maxWidth: '72%', padding: '8px 12px', borderRadius,
-              background: bgColor,
-              border,
+              maxWidth: '72%', padding: '8px 12px', borderRadius: m.dir === 'out' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+              background: m.dir === 'out' ? T.brand : m.dir === 'client' ? T.orangeLight : T.bg,
+              border: m.dir === 'in' ? `1px solid ${T.border}` : 'none',
               boxShadow: T.shadow
             }}>
               {m.auto && <div style={{ fontSize: 10, color: m.dir === 'out' ? 'rgba(255,255,255,0.7)' : T.textMuted, marginBottom: 2, display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -1598,8 +1422,7 @@ function ConversationThread() {
               <div style={{ fontSize: 10, color: m.dir === 'out' ? 'rgba(255,255,255,0.6)' : T.textMuted, marginTop: 3, textAlign: 'right' }}>{m.time}</div>
             </div>
           </div>
-        )
-        })}
+        ))}
       </div>
       <div style={{ padding: '10px 14px', borderTop: `1px solid ${T.borderLight}`, display: 'flex', gap: 6 }}>
         <div style={{ flex: 1, background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: '7px 10px', fontSize: 12, color: T.textMuted }}>Reply to Arjun...</div>
@@ -1615,42 +1438,12 @@ function ConversationThread() {
 export default function Home() {
   const navigate = useNavigate()
   const [navScrolled, setNavScrolled] = useState(false)
-  const [featurePaused, setFeaturePaused] = useState(false)
-  const featureScrollRef = useRef(null)
 
   useEffect(() => {
     const fn = () => setNavScrolled(window.scrollY > 30)
     window.addEventListener('scroll', fn)
     return () => window.removeEventListener('scroll', fn)
   }, [])
-
-  const moveFeatureRail = useCallback((direction = 1) => {
-    const rail = featureScrollRef.current
-    const firstCard = rail?.querySelector('.feature-scroll-card')
-    if (!rail || !firstCard) return
-
-    const step = firstCard.getBoundingClientRect().width + 14
-    const loopWidth = step * FEATURES.length
-    let currentLeft = rail.scrollLeft
-
-    if (direction > 0 && currentLeft >= loopWidth - (step * 0.25)) {
-      currentLeft -= loopWidth
-      rail.scrollTo({ left: currentLeft, behavior: 'auto' })
-    } else if (direction < 0 && currentLeft <= step * 0.25) {
-      currentLeft += loopWidth
-      rail.scrollTo({ left: currentLeft, behavior: 'auto' })
-    }
-
-    const nextLeft = Math.max(0, currentLeft + (step * direction))
-
-    rail.scrollTo({ left: nextLeft, behavior: 'smooth' })
-  }, [])
-
-  useEffect(() => {
-    if (featurePaused) return undefined
-    const timer = globalThis.setInterval(() => moveFeatureRail(1), 2400)
-    return () => globalThis.clearInterval(timer)
-  }, [featurePaused, moveFeatureRail])
 
   const NAV_LINKS = [
     ['Workflow', '#workflow'],
@@ -1706,14 +1499,13 @@ export default function Home() {
       {/* ══════════════════════════════════════════════
           HERO
       ══════════════════════════════════════════════ */}
-      <div className="hero-stage">
-      <section className="hero-main">
-        <div className="hero-grid">
+      <section style={{ padding: '96px 28px 64px', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: 56, alignItems: 'center' }} className="cols-mobile-1">
 
           {/* Left copy */}
           <div>
             {/* Eyebrow */}
-            <div className="fade-up" style={{ animationDelay: '0s', marginBottom: 14 }}>
+            <div className="fade-up" style={{ animationDelay: '0s', marginBottom: 20 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 100, padding: '5px 14px', boxShadow: T.shadow }}>
                 <div className="live-ping">
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.green, position: 'relative', zIndex: 1, display: 'block' }} />
@@ -1725,49 +1517,49 @@ export default function Home() {
             </div>
 
             {/* Headline */}
-            <h1 className="fade-up" style={{ animationDelay: '0.07s', fontSize: 'clamp(2.2rem, 4.6vw, 3.5rem)', fontWeight: 800, lineHeight: 1.06, letterSpacing: '-0.04em', color: T.textPrimary, marginBottom: 14 }}>
+            <h1 className="fade-up" style={{ animationDelay: '0.07s', fontSize: 'clamp(2rem, 4.5vw, 3rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.04em', color: T.textPrimary, marginBottom: 18 }}>
               Trainer Matching &<br />
-              <span style={{ color: T.brand, fontSize: '0.88em' }}>Operations Platform</span><br />
+              <span style={{ color: T.brand }}>Operations Platform</span><br />
               <span style={{ color: T.textSecondary, fontSize: '0.82em', fontWeight: 600 }}>for Clahan Technologies</span>
             </h1>
 
-            <p className="fade-up" style={{ animationDelay: '0.14s', fontSize: 17, color: T.textSecondary, lineHeight: 1.55, marginBottom: 20, maxWidth: 500 }}>
+            <p className="fade-up" style={{ animationDelay: '0.14s', fontSize: 16, color: T.textSecondary, lineHeight: 1.7, marginBottom: 28, maxWidth: 480 }}>
               From client email to trainer confirmation — fully automated.
               AI matches trainers, sends outreach via email & WhatsApp, tracks replies, detects incomplete responses, and manages the full 7-stage pipeline.
             </p>
 
             {/* Checklist */}
-            <ul className="fade-up" style={{ animationDelay: '0.18s', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
+            <ul className="fade-up" style={{ animationDelay: '0.18s', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 28 }}>
               {[
                 { text: 'Resume upload → AI parsing → ranked matching', icon: Brain, color: T.brand },
                 { text: 'Email + WhatsApp outreach with auto follow-up', icon: Send, color: T.sky },
                 { text: 'Smart reply detection for missing trainer details', icon: Repeat2, color: T.violet },
                 { text: 'Client inbox + auto-generated requirement cards', icon: Inbox, color: T.orange },
-              ].map((item) => (
-                <li key={item.text} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 20, height: 20, borderRadius: 6, background: `${item.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <item.icon size={11} color={item.color} />
+              ].map((item, i) => (
+                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 22, height: 22, borderRadius: 6, background: `${item.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <item.icon size={12} color={item.color} />
                   </div>
-                  <span style={{ fontSize: 12.5, lineHeight: 1.35, color: T.textSecondary, fontWeight: 500 }}>{item.text}</span>
+                  <span style={{ fontSize: 13.5, color: T.textSecondary, fontWeight: 500 }}>{item.text}</span>
                 </li>
               ))}
             </ul>
 
             {/* CTAs */}
-            <div className="fade-up" style={{ animationDelay: '0.24s', display: 'flex', gap: 9, flexWrap: 'wrap', marginBottom: 20 }}>
-              <button onClick={() => navigate('/dashboard')} className="btn-primary" style={{ padding: '9px 18px', fontSize: 13.5 }}>
-                <LayoutDashboard size={14} /> Open Dashboard
+            <div className="fade-up" style={{ animationDelay: '0.24s', display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 28 }}>
+              <button onClick={() => navigate('/dashboard')} className="btn-primary" style={{ padding: '11px 22px', fontSize: 14.5 }}>
+                <LayoutDashboard size={15} /> Open Dashboard
               </button>
-              <a href="#workflow" className="btn-secondary" style={{ padding: '9px 17px', fontSize: 13.5, textDecoration: 'none' }}>
-                <Play size={13} /> See Workflow
+              <a href="#workflow" className="btn-secondary" style={{ padding: '11px 20px', fontSize: 14.5, textDecoration: 'none' }}>
+                <Play size={14} /> See Workflow
               </a>
             </div>
 
             {/* Social proof */}
             <div className="fade-up" style={{ animationDelay: '0.3s', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0 }} aria-label="Trainer community">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {[T.brand, T.green, T.violet, T.orange, T.teal].map((c, i) => (
-                  <div key={`trainer-avatar-${c}`} style={{ width: 28, height: 28, borderRadius: '50%', border: `1px solid ${c}35`, background: `${c}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 10, lineHeight: 1, fontWeight: 800, color: c, boxShadow: T.shadow }}>
+                  <div key={i} style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid white', background: `${c}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: c, marginLeft: i ? -6 : 0, boxShadow: T.shadow }}>
                     {['A','P','R','S','K'][i]}
                   </div>
                 ))}
@@ -1785,7 +1577,7 @@ export default function Home() {
 
           {/* Right — Dashboard preview */}
           <div className="slide-r" style={{ animationDelay: '0.1s' }}>
-            {import.meta.env.VITE_SHOW_LEGACY_DASHBOARD === 'true' ? <DashboardPreview /> : <HeroImagePanel />}
+            {import.meta.env.VITE_SHOW_LEGACY_DASHBOARD === 'true' ? <_DashboardPreview /> : <HeroImagePanel />}
 
             {/* Floating cards */}
             <div className="float-up" style={{ display: 'none' }}>
@@ -1814,105 +1606,103 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ══════════════════════════════════════════════
+          TRUST TICKER
+      ══════════════════════════════════════════════ */}
+      <div style={{ borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}`, background: T.surface, overflow: 'hidden', padding: '12px 0' }}>
+        <div className="ticker-wrap">
+          <div className="ticker-track">
+            {[...TICK, ...TICK].map((t, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 24px', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                <div style={{ width: 4, height: 4, borderRadius: '50%', background: T.brand, opacity: 0.5 }} />
+                <span style={{ fontSize: 12.5, fontWeight: 500, color: T.textSecondary }}>{t}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
+
+      {/* ══════════════════════════════════════════════
+          STATS ROW
+      ══════════════════════════════════════════════ */}
+      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '56px 28px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }} className="cols-mobile-2">
+          <StatCard icon={Users}       color={T.brand}  label="Trainer Profiles"   target={500}  suffix="+" trend="+12 this week" delay="0s" />
+          <StatCard icon={Target}      color={T.green}  label="Match Accuracy"     target={98}   suffix="%" trend="↑ 2% vs last month" delay="0.06s" />
+          <StatCard icon={TrendingUp}  color={T.violet} label="Faster Hiring"      target={3}    suffix="×" delay="0.12s" />
+          <StatCard icon={BarChart2}   color={T.amber}  label="Active Pipelines"   target={24}   suffix="" delay="0.18s" />
+        </div>
+      </section>
 
       {/* ══════════════════════════════════════════════
           WORKFLOW (end-to-end)
       ══════════════════════════════════════════════ */}
-      <section id="workflow" style={{ background: T.surface, borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}`, padding: '32px 24px' }}>
+      <section id="workflow" style={{ background: T.surface, borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}`, padding: '72px 28px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div className="workflow-heading">
-            <SectionHeader
-              label="End-to-End Workflow"
-              labelIcon={Layers}
-              title="From Client Email to Training Confirmation"
-              sub="Every step automated — AI handles matching, outreach, reply detection, interview scheduling, and final confirmation."
-              center
-            />
+          <SectionHeader
+            label="End-to-End Workflow"
+            labelIcon={Layers}
+            title="From Client Email to Training Confirmation"
+            sub="Every step automated — AI handles matching, outreach, reply detection, interview scheduling, and final confirmation."
+            center
+          />
+
+          {/* Workflow steps */}
+          <div className="workflow-grid">
+            {WORKFLOW.map((w, i) => (
+              <div
+                key={w.label}
+                className="workflow-step"
+                style={{
+                  '--workflow-color': w.color,
+                  '--workflow-soft': `${w.color}1A`,
+                  '--workflow-delay': `${i * 1.05}s`,
+                }}
+              >
+                <div className="card-hover workflow-card">
+                  <div className="workflow-number">{i + 1}</div>
+                  <div className="workflow-icon">
+                    <w.icon size={20} color={w.color} />
+                  </div>
+                  <div className="workflow-title" style={{ fontSize: 12.5, fontWeight: 700, color: T.textPrimary, marginBottom: 6, lineHeight: 1.25 }}>{w.label}</div>
+                  <div className="workflow-desc" style={{ fontSize: 11, color: T.textMuted, lineHeight: 1.45 }}>{w.desc}</div>
+                </div>
+                {i < WORKFLOW.length - 1 && (
+                  <div className="workflow-arrow">
+                    <ArrowRight size={14} />
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
-          <div className="workflow-shell">
-            <div className="workflow-panel">
-              <div className="workflow-panel-head">
-                <div className="workflow-panel-kicker">
-                  <SquareKanban size={16} color={T.brand} />
-                  Automated pipeline
-                </div>
-                <div className="workflow-live"><span /> 7 stages active</div>
-              </div>
-
-              <div className="workflow-flow-scroll">
-                {/* Horizontal workflow steps */}
-                <div className="workflow-grid">
-                  {WORKFLOW.map((w, i) => (
-                    <div
-                      key={w.label}
-                      className="workflow-step"
-                      style={{
-                        '--workflow-color': w.color,
-                        '--workflow-soft': `${w.color}1A`,
-                        '--workflow-glow': `${w.color}42`,
-                        '--workflow-ring': `${w.color}66`,
-                        '--workflow-delay': `${i * 1.7}s`,
-                      }}
-                    >
-                      <div className="card-hover workflow-card">
-                        <div className="workflow-number">{i + 1}</div>
-                        <div className="workflow-copy">
-                          <div className="workflow-icon">
-                            <w.icon size={20} color={w.color} />
-                          </div>
-                          <div>
-                            <div className="workflow-title">{w.label}</div>
-                            <div className="workflow-desc">{w.desc}</div>
-                          </div>
-                        </div>
-                        <div className="workflow-step-state"><span /> Automated</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="workflow-panel">
-              <div className="workflow-panel-head">
-                <div className="workflow-panel-kicker">
-                  <BotMessageSquare size={16} color={T.teal} />
-                  Live conversation activity
-                </div>
-                <div className="workflow-live"><span /> Synced</div>
-              </div>
-
-              <div className="workflow-conversation">
-                {WORKFLOW_CONVERSATIONS.map((item, i) => (
-                  <div
-                    key={item.from}
-                    className="workflow-message-card"
-                    style={{
-                      '--message-color': item.color,
-                      '--message-delay': `${i * 0.14}s`,
-                    }}
-                  >
-                    <div className="workflow-message-head">
-                      <div className="workflow-message-person">
-                        <div className="workflow-message-avatar">{item.avatar}</div>
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: T.textPrimary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.from}</div>
-                          <div style={{ fontSize: 11, color: T.textMuted }}>Conversation thread</div>
-                        </div>
-                      </div>
-                      <Badge color={item.color} bg={`${item.color}14`}>{item.badge}</Badge>
-                    </div>
-                    <p className="workflow-message-text">{item.text}</p>
-                    <div className="workflow-message-action">
-                      <CheckCircle size={13} />
-                      {item.action}
+          <div className="workflow-conversation">
+            {WORKFLOW_CONVERSATIONS.map((item, i) => (
+              <div
+                key={item.from}
+                className="workflow-message-card"
+                style={{
+                  '--message-color': item.color,
+                  '--message-delay': `${i * 0.55}s`,
+                }}
+              >
+                <div className="workflow-message-head">
+                  <div className="workflow-message-person">
+                    <div className="workflow-message-avatar">{item.avatar}</div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: T.textPrimary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.from}</div>
+                      <div style={{ fontSize: 11, color: T.textMuted }}>Conversation thread</div>
                     </div>
                   </div>
-                ))}
+                  <Badge color={item.color} bg={`${item.color}14`}>{item.badge}</Badge>
+                </div>
+                <p className="workflow-message-text">{item.text}</p>
+                <div className="workflow-message-action">
+                  <CheckCircle size={13} />
+                  {item.action}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -1947,41 +1737,19 @@ export default function Home() {
             label="Platform Features"
             labelIcon={Sparkles}
             title="Everything Ops Needs in One Platform"
-            sub="Five connected modules covering every step — from client requirement to trainer confirmation."
+            sub="Six core modules covering every step — from client requirement to trainer confirmation."
             center
           />
-          <div
-            ref={featureScrollRef}
-            className="feature-scroll-shell"
-            role="region"
-            tabIndex={0}
-            dir="ltr"
-            aria-label="TrainerSync platform features carousel - automatically scrolls from left to right"
-            onTouchStart={() => setFeaturePaused(true)}
-            onTouchEnd={() => setFeaturePaused(false)}
-            onTouchCancel={() => setFeaturePaused(false)}
-            onFocus={() => setFeaturePaused(true)}
-            onBlur={() => setFeaturePaused(false)}
-            onKeyDown={(e) => {
-              if (e.key === 'ArrowRight') { moveFeatureRail(1); e.preventDefault() }
-              if (e.key === 'ArrowLeft') { moveFeatureRail(-1); e.preventDefault() }
-            }}
-            style={{ display: 'block', width: '100%', border: 'none', background: 'transparent' }}
-          >
+          <div className="feature-scroll-shell" aria-label="TrainerSync platform features">
             <div className="feature-scroll-track">
-              {LOOPING_FEATURES.map((feature, i) => (
-                <div
-                  className="feature-scroll-card"
-                  key={`${i}-${feature.title}`}
-                  aria-hidden={i >= FEATURES.length ? true : undefined}
-                >
-                  <FeatureCard
-                    feature={feature}
-                    delay={`${(i % FEATURES.length) * 0.07}s`}
-                    tabIndex={i >= FEATURES.length ? -1 : 0}
-                  />
-                </div>
-              ))}
+              {SCROLLING_FEATURES.map((feature, i) => {
+                const cycle = i < FEATURES.length ? 'first' : 'second'
+                return (
+                  <div className="feature-scroll-card" key={`${feature.title}-${cycle}`}>
+                    <FeatureCard feature={feature} delay={`${(i % FEATURES.length) * 0.07}s`} />
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>
@@ -2008,8 +1776,8 @@ export default function Home() {
                   { field: 'Profile / CV',  status: 'missing',  color: T.red    },
                   { field: 'ToC Document',  status: 'missing',  color: T.red    },
                   { field: 'Domain Topics', status: 'received', color: T.green  },
-                ].map((r) => (
-                  <div key={`field-${r.field}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', borderRadius: 8, background: T.bg, border: `1px solid ${T.borderLight}` }}>
+                ].map((r, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', borderRadius: 8, background: T.bg, border: `1px solid ${T.borderLight}` }}>
                     <span style={{ fontSize: 13, fontWeight: 500, color: T.textPrimary }}>{r.field}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       {r.status === 'received'
@@ -2098,44 +1866,67 @@ export default function Home() {
         <SectionHeader
           label="Integrations"
           labelIcon={Webhook}
-          title="Connected Tools"
-          sub="Eight tools linked together in one automation network."
+          title="Connected Tool Pipeline"
+          sub="Every channel sits in the same operational flow: client mail, AI parsing, trainer outreach, WhatsApp delivery, Teams alerts, and calendar scheduling."
           center
         />
-        <div className="tools-zigzag-scroll fade-up">
-          <div className="tools-zigzag" role="list" aria-label="Connected TrainerSync tools">
-            <svg className="tools-zigzag-lines" viewBox="0 0 1000 270" preserveAspectRatio="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="tools-zigzag-gradient" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor={T.brand} />
-                  <stop offset="22%" stopColor={T.green} />
-                  <stop offset="44%" stopColor={T.violet} />
-                  <stop offset="66%" stopColor={T.amber} />
-                  <stop offset="84%" stopColor={T.sky} />
-                  <stop offset="100%" stopColor={T.teal} />
-                </linearGradient>
-              </defs>
-              <polyline className="tools-zigzag-path-base" points="80,78 200,186 320,78 440,186 560,78 680,186 800,78 920,186" />
-              <polyline className="tools-zigzag-path-active" points="80,78 200,186 320,78 440,186 560,78 680,186 800,78 920,186" />
-            </svg>
+        <div className="integration-showcase fade-up">
+          <div className="integration-marquee-shell" aria-label="Connected TrainerSync tools">
+            <div className="integration-marquee-track">
+              {SCROLLING_INTEGRATIONS.map((integration, i) => (
+                <div className="integration-logo-pill" key={`${integration.name}-${i}`}>
+                  <span className="integration-logo-icon" style={{ background: integration.bg }}>
+                    <integration.icon size={22} color={integration.color} strokeWidth={2.2} />
+                  </span>
+                  <span style={{ minWidth: 0 }}>
+                    <strong style={{ display: 'block', fontSize: 13, color: T.textPrimary, lineHeight: 1.2 }}>{integration.shortName}</strong>
+                    <small style={{ display: 'block', marginTop: 4, fontSize: 11.3, color: T.textMuted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{integration.metric}</small>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
 
-            {INTEGRATIONS.map((integration, i) => (
-              <div
-                className="tools-zigzag-node"
-                role="listitem"
-                key={integration.name}
-                style={{
-                  '--zig-y': i % 2 === 0 ? '22px' : '130px',
-                  '--tool-color': integration.color,
-                  '--tool-soft': `${integration.color}22`,
-                }}
-              >
-                <span className="tools-zigzag-icon" style={{ background: integration.bg }}>
-                  <integration.icon size={23} color={integration.color} strokeWidth={2.2} />
-                </span>
-                <span className="tools-zigzag-name">{integration.shortName}</span>
+          <div className="integration-pipeline-panel">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+              <div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: T.textPrimary }}>Live Signal Route</div>
+                <div style={{ fontSize: 12, color: T.textMuted, marginTop: 3 }}>One clean path from client request to confirmed trainer</div>
               </div>
-            ))}
+              <Badge color={T.green} bg={T.greenLight}>All systems connected</Badge>
+            </div>
+
+            <div className="integration-pipeline-row">
+              {INTEGRATION_PIPELINE.map((step, i) => (
+                <div className="integration-pipeline-step" key={step.label}>
+                  <div className="integration-pipeline-head">
+                    <span className="mono" style={{ fontSize: 10.5, color: T.textMuted, fontWeight: 800 }}>0{i + 1}</span>
+                    <CheckCircle size={14} color={T.green} />
+                  </div>
+                  <div className="integration-pipeline-icon" style={{ background: step.bg }}>
+                    <step.icon size={18} color={step.color} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 13, color: T.textPrimary, fontWeight: 800, marginBottom: 4 }}>{step.label}</div>
+                    <div style={{ fontSize: 11.5, color: T.textMuted, lineHeight: 1.4 }}>{step.meta}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="integration-event-grid">
+              {INTEGRATION_EVENTS.map(event => (
+                <div className="integration-event-card" key={event.label}>
+                  <span className="integration-pipeline-icon" style={{ background: event.bg }}>
+                    <event.icon size={17} color={event.color} />
+                  </span>
+                  <span>
+                    <strong style={{ display: 'block', fontSize: 12.8, color: T.textPrimary, marginBottom: 4 }}>{event.label}</strong>
+                    <small style={{ display: 'block', fontSize: 11.4, color: T.textSecondary, lineHeight: 1.55 }}>{event.detail}</small>
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -2195,19 +1986,15 @@ export default function Home() {
             </div>
 
             <div className="integration-route">
-              {INTEGRATION_FLOW && INTEGRATION_FLOW.length > 0 ? (
-                INTEGRATION_FLOW.map((item, i) => (
-                  <div className="integration-route-step" key={item.label}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
-                      <span className="mono" style={{ color: '#727A8A', fontSize: 10, fontWeight: 800 }}>0{i + 1}</span>
-                      <item.icon size={15} color="#EEF0F4" />
-                    </div>
-                    <div style={{ color: '#D8DBE2', fontSize: 12, fontWeight: 700, lineHeight: 1.35 }}>{item.label}</div>
+              {INTEGRATION_FLOW.map((item, i) => (
+                <div className="integration-route-step" key={item.label}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+                    <span className="mono" style={{ color: '#727A8A', fontSize: 10, fontWeight: 800 }}>0{i + 1}</span>
+                    <item.icon size={15} color="#EEF0F4" />
                   </div>
-                ))
-              ) : (
-                <div style={{ color: '#727A8A', fontSize: 12, padding: '12px 0' }}>No integration flow data</div>
-              )}
+                  <div style={{ color: '#D8DBE2', fontSize: 12, fontWeight: 700, lineHeight: 1.35 }}>{item.label}</div>
+                </div>
+              ))}
             </div>
 
             <div style={{ padding: '13px 16px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -2219,23 +2006,19 @@ export default function Home() {
             </div>
 
             <div className="integration-log-list">
-              {INTEGRATION_LOGS && INTEGRATION_LOGS.length > 0 ? (
-                INTEGRATION_LOGS.map(log => (
-                  <div className="integration-log-row" key={`${log.time}-${log.source}`}>
-                    <span className="mono" style={{ color: '#A6ADBB', fontSize: 11.5 }}>{log.time}</span>
-                    <div style={{ width: 34, height: 34, borderRadius: 10, background: `${log.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <log.icon size={15} color={log.color} />
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div className="integration-log-message">{log.source}: {log.message}</div>
-                      <div className="integration-log-meta">{log.meta}</div>
-                    </div>
-                    <span className="integration-log-status" style={{ justifySelf: 'end', color: log.color, background: `${log.color}18`, border: `1px solid ${log.color}33`, borderRadius: 999, padding: '4px 8px', fontSize: 10.5, fontWeight: 800 }}>{log.status}</span>
+              {INTEGRATION_LOGS.map(log => (
+                <div className="integration-log-row" key={`${log.time}-${log.source}`}>
+                  <span className="mono" style={{ color: '#A6ADBB', fontSize: 11.5 }}>{log.time}</span>
+                  <div style={{ width: 34, height: 34, borderRadius: 10, background: `${log.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <log.icon size={15} color={log.color} />
                   </div>
-                ))
-              ) : (
-                <div style={{ color: '#727A8A', fontSize: 12, padding: '12px 0' }}>No integration logs available</div>
-              )}
+                  <div style={{ minWidth: 0 }}>
+                    <div className="integration-log-message">{log.source}: {log.message}</div>
+                    <div className="integration-log-meta">{log.meta}</div>
+                  </div>
+                  <span className="integration-log-status" style={{ justifySelf: 'end', color: log.color, background: `${log.color}18`, border: `1px solid ${log.color}33`, borderRadius: 999, padding: '4px 8px', fontSize: 10.5, fontWeight: 800 }}>{log.status}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -2245,7 +2028,7 @@ export default function Home() {
           <div style={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255,255,255,0.06) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.04) 0%, transparent 50%)`, pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontSize: 'clamp(1.8rem,3.3vw,2.4rem)', fontWeight: 700, color: '#fff', margin: '0 0 10px', letterSpacing: '-0.03em' }}>
+            <h2 style={{ fontSize: 'clamp(1.4rem,2.5vw,1.9rem)', fontWeight: 700, color: '#fff', margin: '0 0 10px', letterSpacing: '-0.03em' }}>
               Ready to Automate Trainer Operations?
             </h2>
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.78)', margin: '0 auto 28px', maxWidth: 460, lineHeight: 1.65 }}>
@@ -2295,9 +2078,9 @@ export default function Home() {
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {links.map(l => (
                     <li key={l}>
-                      <button style={{ fontSize: 13, color: '#6B7280', cursor: 'pointer', transition: 'color 0.15s', background: 'none', border: 'none', padding: 0, font: 'inherit' }}
+                      <span style={{ fontSize: 13, color: '#6B7280', cursor: 'pointer', transition: 'color 0.15s' }}
                         onMouseEnter={e => e.target.style.color = '#fff'}
-                        onMouseLeave={e => e.target.style.color = '#6B7280'}>{l}</button>
+                        onMouseLeave={e => e.target.style.color = '#6B7280'}>{l}</span>
                     </li>
                   ))}
                 </ul>
@@ -2314,3 +2097,4 @@ export default function Home() {
     </div>
   )
 }
+

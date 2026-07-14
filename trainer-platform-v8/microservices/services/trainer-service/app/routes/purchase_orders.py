@@ -3,21 +3,22 @@ import logging
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+import base64
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
-from app.database import get_db
 from app.config import get_settings
+from app.database import get_db
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-DOC_SVC = "http://document-service:8006"
-EMAIL_SVC = "http://email-service:8002"
+DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
+EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 
 
 class POGenerateRequest(BaseModel):
@@ -41,8 +42,6 @@ class POGenerateRequest(BaseModel):
     payment_terms: Optional[str] = ""
     items: List[Dict[str, Any]] = []
     notes: Optional[str] = ""
-
-
 class POSendRequest(BaseModel):
     to_email: str
     subject: Optional[str] = ""
@@ -142,13 +141,43 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
     if not doc:
         raise HTTPException(404, "Purchase order not found")
 
-    subject = payload.subject or f"Purchase Order {po_id} — TrainerSync"
-    body = payload.body or f"Dear Trainer,\n\nPlease find attached Purchase Order {po_id}.\n\nRegards,\nTrainerSync Team"
+    subject = payload.subject or f"Purchase Order {doc.get('po_number', po_id)} — TrainerSync"
+    body = payload.body or (
+        f"Dear {doc.get('client_name', 'Client')},\n\n"
+        f"Please find attached Purchase Order {doc.get('po_number', po_id)} for your reference.\n\n"
+        f"Kindly acknowledge receipt and let us know if you need any clarifications.\n\n"
+        f"Regards,\nTrainerSync Team"
+    )
+
+    # generate purchase-order PDF and attach to email
+    attachment_payload = None
+    try:
+        async with httpx.AsyncClient(timeout=60) as client:
+            r = await client.post(f"{DOC_SVC}/api/v1/documents/pdf/purchase-order", json={
+                "po_number": doc.get("po_number", po_id),
+                "date": doc.get("date", ""),
+                "vendor_name": doc.get("vendor_name", ""),
+                "client_name": doc.get("client_name", ""),
+                "training_domain": doc.get("training_domain", ""),
+                "duration": doc.get("duration", ""),
+                "items": doc.get("items", []),
+                "notes": doc.get("notes", ""),
+            })
+        if r.status_code == 200 and r.content:
+            attachment_payload = [{
+                "filename": f"{po_id}.pdf",
+                "content_base64": base64.b64encode(r.content).decode(),
+                "subtype": "pdf",
+            }]
+    except Exception:
+        logger.exception("Failed to generate PO PDF for attachment")
 
     try:
+        email_json = {"to": payload.to_email, "subject": subject, "body": body}
+        if attachment_payload:
+            email_json["attachments"] = attachment_payload
         async with httpx.AsyncClient(timeout=30) as client:
-            await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
-                "to": payload.to_email, "subject": subject, "body": body})
+            await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=email_json)
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
 
