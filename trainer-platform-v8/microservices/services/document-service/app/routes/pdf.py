@@ -147,13 +147,23 @@ async def generate_purchase_order(
 class InvoiceRequest(BaseModel):
     invoice_number: str = "INV-0001"
     invoice_date: str = ""
+    due_date: str = ""
     gst_number: str = ""
     vendor_name: str = ""
+    company_name_short: str = ""
+    company_name_full: str = ""
+    company_address: str = ""
+    company_email: str = ""
+    company_contact: str = ""
+    company_pan: str = ""
+    company_gst: str = ""
     client_name: str = ""
     client_billing_address: str = ""
+    client_address: str = ""
     client_po_number: str = ""
     client_po_date: str = ""
     client_gstin: str = ""
+    client_pan: str = ""
     training_domain: str = ""
     training_dates: str = ""
     duration: str = ""
@@ -161,7 +171,13 @@ class InvoiceRequest(BaseModel):
     day_rate: float = 0.0
     total_amount: float = 0.0
     gst_rate: float = 18.0
+    place_of_supply: str = ""
+    bank_account_no: str = ""
+    bank_ifsc: str = ""
     payment_terms: Optional[str] = ""
+    terms_and_conditions: Optional[str] = ""
+    signatory_name: str = ""
+    balance_due: Optional[float] = None
     notes: Optional[str] = ""
     items: list = []
 
@@ -180,74 +196,213 @@ async def generate_invoice(
         amount = item.get("amount") if item.get("amount") is not None else qty * rate
         subtotal += amount
         items_rows += (
-            f"<tr><td>{i}</td><td>{item.get('description', '')}</td>"
-            f"<td>{item.get('hsn_sac', '')}</td><td>{qty}</td><td>{rate:,.2f}</td><td>{amount:,.2f}</td></tr>"
+            f"<tr>"
+            f"<td>{i}</td>"
+            f"<td>{item.get('description', '')}</td>"
+            f"<td>{item.get('hsn_sac', '')}</td>"
+            f"<td class='num'>{qty}</td>"
+            f"<td class='num'>{rate:,.2f}</td>"
+            f"<td class='num'>{amount:,.2f}</td>"
+            f"</tr>"
         )
 
-    total = subtotal
     gst_rate = context.get("gst_rate", 18.0) or 0.0
-    gst_amount = total * gst_rate / 100
-    grand_total = total + gst_amount
+    gst_amount = subtotal * gst_rate / 100
+    total_amount = subtotal + gst_amount
+    balance_due = context.get("balance_due")
+    if balance_due is None:
+        balance_due = total_amount
 
-    amount_words = _number_to_words(int(round(grand_total))) + " Rupees Only"
+    amount_words = _number_to_words(int(round(total_amount))) + " Rupees Only"
+    company_name_short = context.get("company_name_short") or context.get("vendor_name") or "Company"
+    company_name_full = context.get("company_name_full") or company_name_short
+    company_address = context.get("company_address") or ""
+    company_email = context.get("company_email") or ""
+    company_contact = context.get("company_contact") or ""
+    company_pan = context.get("company_pan") or ""
+    company_gst = context.get("company_gst") or context.get("gst_number") or ""
+    client_address = context.get("client_address") or context.get("client_billing_address") or ""
+    po_number = context.get("po_number") or context.get("client_po_number") or ""
+    place_of_supply = context.get("place_of_supply") or ""
+    bank_account_no = context.get("bank_account_no") or ""
+    bank_ifsc = context.get("bank_ifsc") or ""
+    terms_and_conditions = context.get("terms_and_conditions") or context.get("payment_terms") or ""
+    signatory_name = context.get("signatory_name") or "Authorized Signatory"
+
     html = f"""<!DOCTYPE html>
-<html>
-<head><meta charset=\"UTF-8\">\n<style>
-  body {{ font-family: Arial, sans-serif; margin: 40px; color: #1f2937; }}
-  .header {{ display: flex; justify-content: space-between; align-items: flex-start; }}
-  .brand {{ font-size: 18px; font-weight: bold; color: #0f172a; }}
-  .tagline {{ color: #2563eb; font-size: 12px; margin-top: 4px; }}
-  .invoice-title {{ font-size: 22px; font-weight: bold; color: #0f172a; }}
-  .meta {{ text-align: right; }}
-  .meta p {{ margin: 4px 0; }}
-  .section {{ margin-top: 24px; }}
-  .section h2 {{ font-size: 14px; letter-spacing: 0.08em; color: #475569; margin-bottom: 8px; }}
-  .box {{ border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; background: #f8fafc; }}
-  table {{ width: 100%; border-collapse: collapse; margin-top: 16px; }}
-  th, td {{ padding: 10px 12px; border: 1px solid #e2e8f0; }}
-  th {{ background: #2563eb; color: white; text-align: left; }}
-  .right {{ text-align: right; }}
-  .total-row td {{ font-weight: bold; }}
-  .notes {{ margin-top: 18px; font-size: 12px; color: #475569; }}
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Invoice {context.get('invoice_number')}</title>
+<style>
+  * {{ box-sizing: border-box; }}
+  body {{
+    font-family: Arial, Helvetica, sans-serif;
+    color: #0f172a;
+    margin: 0;
+    padding: 40px;
+    font-size: 13px;
+    background: #f8fafc;
+  }}
+  .invoice-box {{
+    max-width: 900px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+  }}
+  .header {{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+  }}
+  .company-logo {{
+    font-size: 20px;
+    font-weight: 800;
+    color: #172554;
+    letter-spacing: 0.4px;
+  }}
+  .company-logo .accent {{ color: #f59e0b; }}
+  .invoice-title {{ text-align: right; min-width: 220px; }}
+  .invoice-title .tax-label {{ color: #1e40af; font-size: 14px; font-weight: 700; letter-spacing: 1px; }}
+  .invoice-title .invoice-no {{ font-size: 18px; font-weight: 800; margin-top: 8px; color: #172554; }}
+  .invoice-title .invoice-meta {{ margin-top: 12px; color: #334155; font-size: 13px; line-height: 1.6; }}
+  .company-info {{ margin-top: 24px; }}
+  .company-info h2 {{ font-size: 16px; margin: 0 0 6px 0; color: #172554; }}
+  .company-info p {{ margin: 2px 0; color: #334155; font-size: 12.8px; }}
+  .bill-section {{ display: flex; justify-content: space-between; gap: 24px; margin-top: 32px; }}
+  .bill-to {{ width: 58%; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 12px; padding: 22px; }}
+  .bill-to .label {{ color: #0f172a; font-weight: 700; margin-bottom: 10px; display: block; }}
+  .bill-to p {{ margin: 6px 0; color: #334155; font-size: 13px; }}
+  .bill-to p span.label {{ display: inline-block; width: 80px; color: #64748b; }}
+  .dates {{ width: 38%; display: grid; gap: 10px; align-content: start; }}
+  .dates .row {{ background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; }}
+  .dates .row .label {{ display: block; color: #334155; font-weight: 700; margin-bottom: 6px; }}
+  .dates .row .value {{ color: #0f172a; }}
+  table.items {{ width: 100%; border-collapse: collapse; margin-top: 32px; }}
+  table.items thead th {{
+    background: #1e3a8a;
+    color: #fff;
+    padding: 14px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 13px;
+  }}
+  table.items tbody td {{ padding: 14px 12px; border-bottom: 1px solid #e2e8f0; color: #334155; font-size: 13px; }}
+  table.items tbody td.num {{ text-align: right; }}
+  table.items tbody tr:last-child td {{ border-bottom: none; }}
+  .totals {{ margin-top: 24px; }}
+  .totals table {{ width: 100%; border-collapse: collapse; }}
+  .totals td {{ padding: 10px 12px; text-align: right; font-size: 13px; color: #334155; }}
+  .totals tr.grand-total td {{
+    font-weight: 700;
+    color: #0f172a;
+    border-top: 2px solid #1e3a8a;
+    font-size: 15px;
+  }}
+  .totals tr.balance-due td {{ font-weight: 700; color: #0f172a; }}
+  .amount-words {{ margin-top: 20px; color: #1e3a8a; font-size: 12.5px; }}
+  .footer {{ display: flex; justify-content: space-between; gap: 18px; margin-top: 32px; padding-top: 24px; border-top: 1px solid #e2e8f0; }}
+  .footer .col {{ width: 32%; }}
+  .footer h4 {{ margin: 0 0 8px 0; color: #1e3a8a; font-size: 13px; }}
+  .footer p {{ margin: 4px 0; color: #334155; font-size: 12.8px; }}
+  .signature-block {{ text-align: right; width: 32%; }}
+  .signature-line {{ font-family: "Brush Script MT", cursive; font-size: 22px; color: #0f172a; margin-bottom: 4px; }}
+  .signature-rule {{ border-top: 1px solid #334155; margin-top: 4px; padding-top: 4px; font-size: 11px; color: #334155; text-align: center; }}
 </style>
 </head>
 <body>
-<div class=\"header\">
-  <div>
-    <div class=\"brand\">BEULIX SOLUTIONS PRIVATE LIMITED</div>
-    <div class=\"tagline\">TAX INVOICE</div>
+  <div class="invoice-box">
+    <div class="header">
+      <div class="company-logo">
+        {company_name_short} <span class="accent">SOLUTIONS</span>
+      </div>
+      <div class="invoice-title">
+        <div class="tax-label">TAX INVOICE</div>
+        <div class="invoice-no"># {context.get('invoice_number')}</div>
+        <div class="invoice-meta">
+          <div>Invoice Date: {context.get('invoice_date')}</div>
+          <div>Due Date: {context.get('due_date')}</div>
+          <div>GSTIN: {company_gst}</div>
+        </div>
+      </div>
+    </div>
+    <div class="company-info">
+      <h2>{company_name_full}</h2>
+      <p>{company_address}</p>
+      <p>Email: {company_email} | Contact: {company_contact}</p>
+      <p>PAN: {company_pan} | GST: {company_gst}</p>
+    </div>
+    <div class="bill-section">
+      <div class="bill-to">
+        <div class="label">Bill To</div>
+        <p><strong>{context.get('client_name')}</strong></p>
+        <p><span class="label">Full Address:</span> {client_address}</p>
+        <p><span class="label">PONO:</span> {po_number}</p>
+        <p><span class="label">PAN:</span> {context.get('client_pan')}</p>
+        <p><span class="label">GST:</span> {context.get('client_gst')}</p>
+        <p><span class="label">Place of Supply:</span> {place_of_supply}</p>
+      </div>
+      <div class="dates">
+        <div class="row"><span class="label">Invoice Date</span><span class="value">{context.get('invoice_date')}</span></div>
+        <div class="row"><span class="label">Due Date</span><span class="value">{context.get('due_date')}</span></div>
+      </div>
+    </div>
+    <table class="items">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Item &amp; Description</th>
+          <th>HSN/SAC</th>
+          <th class="num">Qty</th>
+          <th class="num">Rate</th>
+          <th class="num">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {items_rows}
+      </tbody>
+    </table>
+    <div class="totals">
+      <table>
+        <tr>
+          <td colspan="5">Sub Total</td>
+          <td>{subtotal:,.2f}</td>
+        </tr>
+        <tr>
+          <td colspan="5">CGST + SGST (Intra-State) ({gst_rate}%)</td>
+          <td>{gst_amount:,.2f}</td>
+        </tr>
+        <tr class="grand-total">
+          <td colspan="5">Total</td>
+          <td>Rs:{total_amount:,.2f}</td>
+        </tr>
+        <tr class="balance-due">
+          <td colspan="5">Balance Due</td>
+          <td>Rs:{balance_due:,.2f}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="amount-words">AMOUNT IN WORDS: {amount_words}</div>
+    <div class="footer">
+      <div class="col">
+        <h4>Bank Details:</h4>
+        <p>{company_name_full}</p>
+        <p>A/C No: {bank_account_no}</p>
+        <p>IFSC: {bank_ifsc}</p>
+      </div>
+      <div class="col">
+        <h4>Terms &amp; Conditions:</h4>
+        <p>{terms_and_conditions}</p>
+      </div>
+      <div class="signature-block">
+        <div class="signature-line">{signatory_name}</div>
+        <div class="signature-rule">Authorized Signature</div>
+      </div>
+    </div>
   </div>
-  <div class=\"meta\">
-    <p><strong># {context.get('invoice_number')}</strong></p>
-    <p>Invoice Date: {context.get('invoice_date')}</p>
-    <p>GSTIN: {context.get('gst_number')}</p>
-  </div>
-</div>
-<div class=\"section\">
-  <div class=\"box\">
-    <h2>Bill To</h2>
-    <p><strong>{context.get('client_name')}</strong></p>
-    <p>{context.get('client_billing_address')}</p>
-    <p>GSTIN: {context.get('client_gstin')}</p>
-    <p>PO No: {context.get('client_po_number')}</p>
-    <p>PO Date: {context.get('client_po_date')}</p>
-  </div>
-</div>
-<div class=\"section\">
-  <table>
-    <tr><th>S.No</th><th>Item & Description</th><th>HSN/SAC</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>
-    {items_rows}
-    <tr class=\"total-row\"><td colspan=\"5\" class=\"right\">Sub Total</td><td>{subtotal:,.2f}</td></tr>
-    <tr class=\"total-row\"><td colspan=\"5\" class=\"right\">CGST @ {gst_rate/2:.2f}%</td><td>{gst_amount/2:,.2f}</td></tr>
-    <tr class=\"total-row\"><td colspan=\"5\" class=\"right\">SGST @ {gst_rate/2:.2f}%</td><td>{gst_amount/2:,.2f}</td></tr>
-    <tr class=\"total-row\"><td colspan=\"5\" class=\"right\">Total</td><td>{grand_total:,.2f}</td></tr>
-  </table>
-</div>
-<div class=\"notes\">
-  <p><strong>Amount in words:</strong> {amount_words}</p>
-  <p>{context.get('payment_terms')}</p>
-  <p>{context.get('notes')}</p>
-</div>
 </body>
 </html>"""
 

@@ -14,6 +14,7 @@ from pydantic import BaseModel
 
 from app.database import get_db
 from app.config import get_settings
+from app.toc_pdf_template import build_toc_html
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -380,7 +381,16 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
             trainer_id=_clean(trainer.get("trainer_id")),
         )
         response = await generate_toc(toc_req, db)
-        return response.get("toc")
+        toc_data = response.get("toc_data") or response.get("toc")
+        if not toc_data:
+            return None
+        toc_data = dict(toc_data)
+        trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name"))
+        if trainer_name:
+            toc_data.setdefault("trainer_name", trainer_name)
+        toc_data.setdefault("domain", domain)
+        toc_data.setdefault("duration_days", duration)
+        return toc_data
     except Exception:
         logger.exception("Failed to build TOC")
         return None
@@ -388,28 +398,14 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
 
 async def _generate_toc_pdf(toc: Dict[str, Any]) -> Optional[bytes]:
     title = toc.get("title", "Training Programme")
-    rows = ""
-    for day in toc.get("days", []):
-        rows += (
-            f"<tr><td style='vertical-align:top;padding:8px;border:1px solid #ddd;'>{day.get('day')}</td>"
-            f"<td style='vertical-align:top;padding:8px;border:1px solid #ddd;'><b>{day.get('title','')}</b><br>{day.get('focus_area','')}</td></tr>"
-        )
+    html = build_toc_html(toc)
 
-    html = f"""<html><body style='font-family:Arial,Helvetica,sans-serif;padding:30px'>"""
-    html += f"<h1>{title}</h1>"
-    html += f"<p>{toc.get('overview','')}</p>"
-    html += "<table style='border-collapse:collapse;width:100%;'>"
-    html += "<tr><th style='text-align:left;padding:8px;border:1px solid #ddd;'>Day</th>"
-    html += "<th style='text-align:left;padding:8px;border:1px solid #ddd;'>Topic</th></tr>"
-    html += rows
-    html += "</table></body></html>"
-
-    async with httpx.AsyncClient(timeout=30) as client:
+    async with httpx.AsyncClient(timeout=60) as client:
         r = await client.post(
             f"{DOC_SVC}/api/v1/documents/pdf/html-to-pdf",
             params={"filename": f"{title}.pdf"},
             content=html,
-            headers={"Content-Type": "text/plain"},
+            headers={"Content-Type": "text/html"},
         )
     if r.status_code >= 400:
         logger.error("TOC PDF generation failed: %s", r.text[:300])

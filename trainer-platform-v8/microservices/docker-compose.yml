@@ -196,6 +196,8 @@ services:
       SERVICE_NAME: document-service
       PORT: "8006"
     env_file: .env
+    ports:
+      - "8006:8006"
     expose:
       - "8006"
     healthcheck:

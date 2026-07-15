@@ -8,6 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, root_validator
 
 from app.database import get_db
+from app.toc_generation_agent import generate_toc_from_dataset, validate_toc
 
 router = APIRouter()
 
@@ -51,9 +52,32 @@ class TocRequest(BaseModel):
 async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
     Generate a structured TOC for a training programme.
-    Uses the service-local TOC generator.
+    Uses the richer TOC generator with curriculum dataset support.
     """
-    toc = _minimal_toc(payload.domain, payload.duration_days)
+    try:
+        # Use the richer curriculum-aware TOC generator
+        toc = generate_toc_from_dataset(
+            domain_name=payload.domain,
+            duration_days=int(payload.duration_days),
+            level=payload.level,
+            mode=payload.mode,
+            notes=payload.notes or "",
+        )
+        # Validate and ensure all day entries are complete
+        toc = validate_toc(toc, int(payload.duration_days))
+    except Exception as e:
+        # Fallback to minimal if generator fails
+        toc = _minimal_toc(payload.domain, payload.duration_days)
+
+    toc.update({
+        "domain": payload.domain,
+        "duration_days": int(payload.duration_days),
+        "level": payload.level,
+        "mode": payload.mode,
+    })
+    if payload.trainer_name:
+        toc["trainer_name"] = payload.trainer_name
+
     toc_id = payload.toc_id or f"TOC-{uuid.uuid4().hex[:10].upper()}"
 
     await db.toc_generations.insert_one({
@@ -82,6 +106,8 @@ def _minimal_toc(domain: str, days: float) -> dict:
     return {
         "title": f"{domain} Training",
         "subtitle": f"{rounded_days}-Day Programme",
+        "domain": domain,
+        "duration_days": rounded_days,
         "overview": f"A {days}-day {domain} training programme.",
         "days": [
             {
