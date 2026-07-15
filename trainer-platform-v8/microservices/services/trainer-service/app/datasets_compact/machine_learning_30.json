@@ -1,0 +1,471 @@
+{
+  "domain": "Machine Learning",
+  "name": "Machine Learning",
+  "icon": "brain",
+  "program_title": "Machine Learning Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Machine Learning Expert",
+  "certifications": [
+    "AWS Certified Machine Learning - Specialty",
+    "Google Cloud Professional Machine Learning",
+    "TensorFlow Developer Certificate",
+    "Microsoft Certified: Azure Data Scientist Associate"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "ML Fundamentals",
+      "subtopics": [
+        "Supervised Learning",
+        "Unsupervised Learning",
+        "Reinforcement Learning",
+        "Model Types"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "ML basics"
+    },
+    {
+      "day": 2,
+      "topic": "ML Fundamentals",
+      "subtopics": [
+        "Supervised Learning",
+        "Unsupervised Learning",
+        "Reinforcement Learning",
+        "Model Types"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "ML basics"
+    },
+    {
+      "day": 3,
+      "topic": "Data Preprocessing",
+      "subtopics": [
+        "Cleaning",
+        "Normalization",
+        "Feature Scaling",
+        "Handling Missing Values"
+      ],
+      "tools": [
+        "Pandas",
+        "NumPy"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Data preparation"
+    },
+    {
+      "day": 4,
+      "topic": "Data Preprocessing",
+      "subtopics": [
+        "Cleaning",
+        "Normalization",
+        "Feature Scaling",
+        "Handling Missing Values"
+      ],
+      "tools": [
+        "Pandas",
+        "NumPy"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Data preparation"
+    },
+    {
+      "day": 5,
+      "topic": "Feature Engineering",
+      "subtopics": [
+        "Feature Selection",
+        "Feature Creation",
+        "Encoding",
+        "Scaling"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Sprint planning; review progress for Feature Engineering",
+      "lab_task": "Build features"
+    },
+    {
+      "day": 6,
+      "topic": "Feature Engineering",
+      "subtopics": [
+        "Feature Selection",
+        "Feature Creation",
+        "Encoding",
+        "Scaling"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build features"
+    },
+    {
+      "day": 7,
+      "topic": "Linear Regression",
+      "subtopics": [
+        "Simple/Multiple Regression",
+        "Regularization",
+        "Evaluation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Regression models"
+    },
+    {
+      "day": 8,
+      "topic": "Linear Regression",
+      "subtopics": [
+        "Simple/Multiple Regression",
+        "Regularization",
+        "Evaluation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Regression models"
+    },
+    {
+      "day": 9,
+      "topic": "Logistic Regression",
+      "subtopics": [
+        "Classification",
+        "Decision Boundary",
+        "Probability"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Binary classification"
+    },
+    {
+      "day": 10,
+      "topic": "Logistic Regression",
+      "subtopics": [
+        "Classification",
+        "Decision Boundary",
+        "Probability"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Sprint planning; review progress for Logistic Regression",
+      "lab_task": "Binary classification"
+    },
+    {
+      "day": 11,
+      "topic": "Decision Trees & Ensemble",
+      "subtopics": [
+        "Decision Trees",
+        "Random Forest",
+        "Gradient Boosting"
+      ],
+      "tools": [
+        "XGBoost",
+        "LightGBM"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Ensemble methods"
+    },
+    {
+      "day": 12,
+      "topic": "Decision Trees & Ensemble",
+      "subtopics": [
+        "Decision Trees",
+        "Random Forest",
+        "Gradient Boosting"
+      ],
+      "tools": [
+        "XGBoost",
+        "LightGBM"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Ensemble methods"
+    },
+    {
+      "day": 13,
+      "topic": "SVM & KNN",
+      "subtopics": [
+        "Support Vector Machines",
+        "K-Nearest Neighbors",
+        "Kernel Tricks"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "SVM and KNN"
+    },
+    {
+      "day": 14,
+      "topic": "SVM & KNN",
+      "subtopics": [
+        "Support Vector Machines",
+        "K-Nearest Neighbors",
+        "Kernel Tricks"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "SVM and KNN"
+    },
+    {
+      "day": 15,
+      "topic": "Clustering",
+      "subtopics": [
+        "K-Means",
+        "Hierarchical",
+        "DBSCAN",
+        "Evaluation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Sprint planning; review progress for Clustering",
+      "lab_task": "Unsupervised learning"
+    },
+    {
+      "day": 16,
+      "topic": "Clustering",
+      "subtopics": [
+        "K-Means",
+        "Hierarchical",
+        "DBSCAN",
+        "Evaluation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Unsupervised learning"
+    },
+    {
+      "day": 17,
+      "topic": "Dimensionality Reduction",
+      "subtopics": [
+        "PCA",
+        "t-SNE",
+        "UMAP",
+        "Feature Selection"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Dimensionality reduction"
+    },
+    {
+      "day": 18,
+      "topic": "Dimensionality Reduction",
+      "subtopics": [
+        "PCA",
+        "t-SNE",
+        "UMAP",
+        "Feature Selection"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Dimensionality reduction"
+    },
+    {
+      "day": 19,
+      "topic": "Neural Networks",
+      "subtopics": [
+        "Perceptrons",
+        "Backpropagation",
+        "Activation Functions",
+        "Layers"
+      ],
+      "tools": [
+        "TensorFlow",
+        "Keras"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build neural networks"
+    },
+    {
+      "day": 20,
+      "topic": "Neural Networks",
+      "subtopics": [
+        "Perceptrons",
+        "Backpropagation",
+        "Activation Functions",
+        "Layers"
+      ],
+      "tools": [
+        "TensorFlow",
+        "Keras"
+      ],
+      "jira_focus": "Sprint planning; review progress for Neural Networks",
+      "lab_task": "Build neural networks"
+    },
+    {
+      "day": 21,
+      "topic": "CNN for Images",
+      "subtopics": [
+        "Convolutional Layers",
+        "Pooling",
+        "Architecture"
+      ],
+      "tools": [
+        "TensorFlow",
+        "PyTorch"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Image classification"
+    },
+    {
+      "day": 22,
+      "topic": "CNN for Images",
+      "subtopics": [
+        "Convolutional Layers",
+        "Pooling",
+        "Architecture"
+      ],
+      "tools": [
+        "TensorFlow",
+        "PyTorch"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Image classification"
+    },
+    {
+      "day": 23,
+      "topic": "RNN & NLP",
+      "subtopics": [
+        "RNN",
+        "LSTM",
+        "Transformers",
+        "Text Processing"
+      ],
+      "tools": [
+        "TensorFlow",
+        "NLTK"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Natural language processing"
+    },
+    {
+      "day": 24,
+      "topic": "RNN & NLP",
+      "subtopics": [
+        "RNN",
+        "LSTM",
+        "Transformers",
+        "Text Processing"
+      ],
+      "tools": [
+        "TensorFlow",
+        "NLTK"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Natural language processing"
+    },
+    {
+      "day": 25,
+      "topic": "Hyperparameter Tuning",
+      "subtopics": [
+        "Grid Search",
+        "Random Search",
+        "Bayesian Optimization"
+      ],
+      "tools": [
+        "Optuna",
+        "Ray"
+      ],
+      "jira_focus": "Sprint planning; review progress for Hyperparameter Tuning",
+      "lab_task": "Model optimization"
+    },
+    {
+      "day": 26,
+      "topic": "Hyperparameter Tuning",
+      "subtopics": [
+        "Grid Search",
+        "Random Search",
+        "Bayesian Optimization"
+      ],
+      "tools": [
+        "Optuna",
+        "Ray"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Model optimization"
+    },
+    {
+      "day": 27,
+      "topic": "Model Evaluation & Metrics",
+      "subtopics": [
+        "Precision",
+        "Recall",
+        "F1",
+        "ROC-AUC",
+        "Cross-validation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Model evaluation"
+    },
+    {
+      "day": 28,
+      "topic": "Model Evaluation & Metrics",
+      "subtopics": [
+        "Precision",
+        "Recall",
+        "F1",
+        "ROC-AUC",
+        "Cross-validation"
+      ],
+      "tools": [
+        "Scikit-learn"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Model evaluation"
+    },
+    {
+      "day": 29,
+      "topic": "Deployment & MLOps",
+      "subtopics": [
+        "Model Serving",
+        "Containers",
+        "Monitoring",
+        "Retraining"
+      ],
+      "tools": [
+        "MLflow",
+        "Docker"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Production models"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Model Serving",
+        "Containers",
+        "Monitoring",
+        "Retraining"
+      ],
+      "tools": [
+        "MLflow",
+        "Docker"
+      ],
+      "jira_focus": "Sprint planning; review progress for Deployment & MLOps",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    }
+  ]
+}

@@ -1,0 +1,498 @@
+{
+  "domain": "Data Engineering",
+  "name": "Data Engineering",
+  "icon": "database",
+  "program_title": "Data Engineering Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Data Engineering Expert",
+  "certifications": [
+    "AWS Certified Data Analytics - Specialty",
+    "Google Cloud Professional Data Engineer",
+    "Databricks Certified Data Engineer",
+    "Kafka Developer Certification",
+    "Apache Spark Developer"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "SQL & Databases",
+      "subtopics": [
+        "Database Design",
+        "SQL Basics",
+        "Indexing",
+        "Query Optimization",
+        "Transactions"
+      ],
+      "tools": [
+        "PostgreSQL",
+        "MySQL"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build complex queries"
+    },
+    {
+      "day": 2,
+      "topic": "SQL & Databases",
+      "subtopics": [
+        "Database Design",
+        "SQL Basics",
+        "Indexing",
+        "Query Optimization",
+        "Transactions"
+      ],
+      "tools": [
+        "PostgreSQL",
+        "MySQL"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build complex queries"
+    },
+    {
+      "day": 3,
+      "topic": "Data Warehousing",
+      "subtopics": [
+        "Schema Design",
+        "ETL",
+        "Fact/Dimension Tables",
+        "Slowly Changing Dimensions"
+      ],
+      "tools": [
+        "Redshift",
+        "BigQuery"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Design data warehouse"
+    },
+    {
+      "day": 4,
+      "topic": "Data Warehousing",
+      "subtopics": [
+        "Schema Design",
+        "ETL",
+        "Fact/Dimension Tables",
+        "Slowly Changing Dimensions"
+      ],
+      "tools": [
+        "Redshift",
+        "BigQuery"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Design data warehouse"
+    },
+    {
+      "day": 5,
+      "topic": "ETL Fundamentals",
+      "subtopics": [
+        "Extract",
+        "Transform",
+        "Load",
+        "Validation",
+        "Error Handling"
+      ],
+      "tools": [
+        "Apache Airflow",
+        "Talend"
+      ],
+      "jira_focus": "Sprint planning; review progress for ETL Fundamentals",
+      "lab_task": "Build ETL pipeline"
+    },
+    {
+      "day": 6,
+      "topic": "ETL Fundamentals",
+      "subtopics": [
+        "Extract",
+        "Transform",
+        "Load",
+        "Validation",
+        "Error Handling"
+      ],
+      "tools": [
+        "Apache Airflow",
+        "Talend"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build ETL pipeline"
+    },
+    {
+      "day": 7,
+      "topic": "Python for Data",
+      "subtopics": [
+        "NumPy",
+        "Pandas",
+        "Polars",
+        "Data Cleaning",
+        "Processing"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Data processing with pandas"
+    },
+    {
+      "day": 8,
+      "topic": "Python for Data",
+      "subtopics": [
+        "NumPy",
+        "Pandas",
+        "Polars",
+        "Data Cleaning",
+        "Processing"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Data processing with pandas"
+    },
+    {
+      "day": 9,
+      "topic": "Apache Spark",
+      "subtopics": [
+        "RDD",
+        "DataFrames",
+        "SQL",
+        "Streaming",
+        "Optimization"
+      ],
+      "tools": [
+        "Apache Spark"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Distributed data processing"
+    },
+    {
+      "day": 10,
+      "topic": "Apache Spark",
+      "subtopics": [
+        "RDD",
+        "DataFrames",
+        "SQL",
+        "Streaming",
+        "Optimization"
+      ],
+      "tools": [
+        "Apache Spark"
+      ],
+      "jira_focus": "Sprint planning; review progress for Apache Spark",
+      "lab_task": "Distributed data processing"
+    },
+    {
+      "day": 11,
+      "topic": "Kafka & Streaming",
+      "subtopics": [
+        "Topics",
+        "Producers",
+        "Consumers",
+        "Streams",
+        "Real-time"
+      ],
+      "tools": [
+        "Kafka",
+        "Spark Streaming"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build streaming pipeline"
+    },
+    {
+      "day": 12,
+      "topic": "Kafka & Streaming",
+      "subtopics": [
+        "Topics",
+        "Producers",
+        "Consumers",
+        "Streams",
+        "Real-time"
+      ],
+      "tools": [
+        "Kafka",
+        "Spark Streaming"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Build streaming pipeline"
+    },
+    {
+      "day": 13,
+      "topic": "Data Lakes",
+      "subtopics": [
+        "Architecture",
+        "Delta Lake",
+        "Partition",
+        "Versioning",
+        "Optimization"
+      ],
+      "tools": [
+        "S3",
+        "Delta Lake"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Design data lake"
+    },
+    {
+      "day": 14,
+      "topic": "Data Lakes",
+      "subtopics": [
+        "Architecture",
+        "Delta Lake",
+        "Partition",
+        "Versioning",
+        "Optimization"
+      ],
+      "tools": [
+        "S3",
+        "Delta Lake"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Design data lake"
+    },
+    {
+      "day": 15,
+      "topic": "Cloud Platforms - AWS",
+      "subtopics": [
+        "S3",
+        "Glue",
+        "EMR",
+        "Lambda",
+        "Data Pipeline"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Sprint planning; review progress for Cloud Platforms - AWS",
+      "lab_task": "AWS data engineering"
+    },
+    {
+      "day": 16,
+      "topic": "Cloud Platforms - AWS",
+      "subtopics": [
+        "S3",
+        "Glue",
+        "EMR",
+        "Lambda",
+        "Data Pipeline"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "AWS data engineering"
+    },
+    {
+      "day": 17,
+      "topic": "Cloud Platforms - GCP",
+      "subtopics": [
+        "BigQuery",
+        "Dataflow",
+        "Pub/Sub",
+        "Cloud Storage"
+      ],
+      "tools": [
+        "GCP"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "GCP data engineering"
+    },
+    {
+      "day": 18,
+      "topic": "Cloud Platforms - GCP",
+      "subtopics": [
+        "BigQuery",
+        "Dataflow",
+        "Pub/Sub",
+        "Cloud Storage"
+      ],
+      "tools": [
+        "GCP"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "GCP data engineering"
+    },
+    {
+      "day": 19,
+      "topic": "Orchestration",
+      "subtopics": [
+        "Airflow DAGs",
+        "Scheduling",
+        "Monitoring",
+        "Error Recovery"
+      ],
+      "tools": [
+        "Apache Airflow"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Production orchestration"
+    },
+    {
+      "day": 20,
+      "topic": "Orchestration",
+      "subtopics": [
+        "Airflow DAGs",
+        "Scheduling",
+        "Monitoring",
+        "Error Recovery"
+      ],
+      "tools": [
+        "Apache Airflow"
+      ],
+      "jira_focus": "Sprint planning; review progress for Orchestration",
+      "lab_task": "Production orchestration"
+    },
+    {
+      "day": 21,
+      "topic": "Data Quality",
+      "subtopics": [
+        "Validation",
+        "Testing",
+        "Monitoring",
+        "Profiling",
+        "Alerting"
+      ],
+      "tools": [
+        "Great Expectations"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Implement data quality"
+    },
+    {
+      "day": 22,
+      "topic": "Data Quality",
+      "subtopics": [
+        "Validation",
+        "Testing",
+        "Monitoring",
+        "Profiling",
+        "Alerting"
+      ],
+      "tools": [
+        "Great Expectations"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Implement data quality"
+    },
+    {
+      "day": 23,
+      "topic": "Advanced Spark",
+      "subtopics": [
+        "Tuning",
+        "Partitioning",
+        "Caching",
+        "Optimization"
+      ],
+      "tools": [
+        "Spark"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Performance optimization"
+    },
+    {
+      "day": 24,
+      "topic": "Advanced Spark",
+      "subtopics": [
+        "Tuning",
+        "Partitioning",
+        "Caching",
+        "Optimization"
+      ],
+      "tools": [
+        "Spark"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Performance optimization"
+    },
+    {
+      "day": 25,
+      "topic": "Iceberg & Delta",
+      "subtopics": [
+        "Table Format",
+        "ACID Compliance",
+        "Time Travel",
+        "Schema Evolution"
+      ],
+      "tools": [
+        "Apache Iceberg"
+      ],
+      "jira_focus": "Sprint planning; review progress for Iceberg & Delta",
+      "lab_task": "Modern table formats"
+    },
+    {
+      "day": 26,
+      "topic": "Iceberg & Delta",
+      "subtopics": [
+        "Table Format",
+        "ACID Compliance",
+        "Time Travel",
+        "Schema Evolution"
+      ],
+      "tools": [
+        "Apache Iceberg"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Modern table formats"
+    },
+    {
+      "day": 27,
+      "topic": "dbt (Data Build Tool)",
+      "subtopics": [
+        "Models",
+        "Tests",
+        "Documentation",
+        "Deployment"
+      ],
+      "tools": [
+        "dbt"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "dbt workflow"
+    },
+    {
+      "day": 28,
+      "topic": "dbt (Data Build Tool)",
+      "subtopics": [
+        "Models",
+        "Tests",
+        "Documentation",
+        "Deployment"
+      ],
+      "tools": [
+        "dbt"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "dbt workflow"
+    },
+    {
+      "day": 29,
+      "topic": "Monitoring & Logging",
+      "subtopics": [
+        "Pipeline Monitoring",
+        "Error Tracking",
+        "Logging",
+        "Alerting"
+      ],
+      "tools": [
+        "ELK",
+        "Prometheus"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Production monitoring"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Pipeline Monitoring",
+        "Error Tracking",
+        "Logging",
+        "Alerting"
+      ],
+      "tools": [
+        "ELK",
+        "Prometheus"
+      ],
+      "jira_focus": "Sprint planning; review progress for Monitoring & Logging",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    }
+  ]
+}

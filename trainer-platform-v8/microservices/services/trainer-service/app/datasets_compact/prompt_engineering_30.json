@@ -1,0 +1,444 @@
+{
+  "domain": "Prompt Engineering",
+  "name": "Prompt Engineering",
+  "icon": "pencil",
+  "program_title": "Prompt Engineering Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Prompt Engineering Expert",
+  "certifications": [
+    "Prompt Engineering Fundamentals",
+    "DeepLearning.AI Prompt Engineering",
+    "Anthropic Prompt Engineer Certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Fundamentals of Prompting",
+      "subtopics": [
+        "Language Models",
+        "Tokens",
+        "Probability",
+        "Basic Prompts"
+      ],
+      "tools": [
+        "GPT-4"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Prompt basics"
+    },
+    {
+      "day": 2,
+      "topic": "Fundamentals of Prompting",
+      "subtopics": [
+        "Language Models",
+        "Tokens",
+        "Probability",
+        "Basic Prompts"
+      ],
+      "tools": [
+        "GPT-4"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Prompt basics"
+    },
+    {
+      "day": 3,
+      "topic": "Prompt Techniques",
+      "subtopics": [
+        "Zero-shot",
+        "Few-shot",
+        "Chain of Thought"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Prompting techniques"
+    },
+    {
+      "day": 4,
+      "topic": "Prompt Techniques",
+      "subtopics": [
+        "Zero-shot",
+        "Few-shot",
+        "Chain of Thought"
+      ],
+      "tools": [
+        "ChatGPT"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Prompting techniques"
+    },
+    {
+      "day": 5,
+      "topic": "Writing Effective Prompts",
+      "subtopics": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Instructions"
+      ],
+      "tools": [
+        "Claude"
+      ],
+      "jira_focus": "Sprint planning; review progress for Writing Effective Prompts",
+      "lab_task": "Effective prompts"
+    },
+    {
+      "day": 6,
+      "topic": "Writing Effective Prompts",
+      "subtopics": [
+        "Clarity",
+        "Specificity",
+        "Context",
+        "Instructions"
+      ],
+      "tools": [
+        "Claude"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Effective prompts"
+    },
+    {
+      "day": 7,
+      "topic": "Chain of Thought Prompting",
+      "subtopics": [
+        "Step-by-step",
+        "Reasoning",
+        "Complex Problems"
+      ],
+      "tools": [
+        "GPT-4"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "CoT reasoning"
+    },
+    {
+      "day": 8,
+      "topic": "Chain of Thought Prompting",
+      "subtopics": [
+        "Step-by-step",
+        "Reasoning",
+        "Complex Problems"
+      ],
+      "tools": [
+        "GPT-4"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "CoT reasoning"
+    },
+    {
+      "day": 9,
+      "topic": "Role-Based Prompting",
+      "subtopics": [
+        "Personas",
+        "Expert Roles",
+        "Character Consistency"
+      ],
+      "tools": [
+        "LLMs"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Persona prompting"
+    },
+    {
+      "day": 10,
+      "topic": "Role-Based Prompting",
+      "subtopics": [
+        "Personas",
+        "Expert Roles",
+        "Character Consistency"
+      ],
+      "tools": [
+        "LLMs"
+      ],
+      "jira_focus": "Sprint planning; review progress for Role-Based Prompting",
+      "lab_task": "Persona prompting"
+    },
+    {
+      "day": 11,
+      "topic": "Temperature & Parameters",
+      "subtopics": [
+        "Sampling",
+        "Top-k",
+        "Top-p",
+        "Frequency Penalty"
+      ],
+      "tools": [
+        "API Parameters"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Parameter tuning"
+    },
+    {
+      "day": 12,
+      "topic": "Temperature & Parameters",
+      "subtopics": [
+        "Sampling",
+        "Top-k",
+        "Top-p",
+        "Frequency Penalty"
+      ],
+      "tools": [
+        "API Parameters"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Parameter tuning"
+    },
+    {
+      "day": 13,
+      "topic": "Function Calling",
+      "subtopics": [
+        "Tool Use",
+        "Structured Output",
+        "API Integration"
+      ],
+      "tools": [
+        "Function Calling"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Tool integration"
+    },
+    {
+      "day": 14,
+      "topic": "Function Calling",
+      "subtopics": [
+        "Tool Use",
+        "Structured Output",
+        "API Integration"
+      ],
+      "tools": [
+        "Function Calling"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Tool integration"
+    },
+    {
+      "day": 15,
+      "topic": "Working with Structured Data",
+      "subtopics": [
+        "JSON",
+        "Parsing",
+        "Validation",
+        "Schema"
+      ],
+      "tools": [
+        "Structured Output"
+      ],
+      "jira_focus": "Sprint planning; review progress for Working with Structured Data",
+      "lab_task": "Structured prompts"
+    },
+    {
+      "day": 16,
+      "topic": "Working with Structured Data",
+      "subtopics": [
+        "JSON",
+        "Parsing",
+        "Validation",
+        "Schema"
+      ],
+      "tools": [
+        "Structured Output"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Structured prompts"
+    },
+    {
+      "day": 17,
+      "topic": "Retrieval-Augmented Generation",
+      "subtopics": [
+        "Context Injection",
+        "Document Retrieval",
+        "Dynamic Context"
+      ],
+      "tools": [
+        "RAG"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "RAG prompting"
+    },
+    {
+      "day": 18,
+      "topic": "Retrieval-Augmented Generation",
+      "subtopics": [
+        "Context Injection",
+        "Document Retrieval",
+        "Dynamic Context"
+      ],
+      "tools": [
+        "RAG"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "RAG prompting"
+    },
+    {
+      "day": 19,
+      "topic": "Multi-turn Conversations",
+      "subtopics": [
+        "Context Management",
+        "Memory",
+        "Continuity"
+      ],
+      "tools": [
+        "Conversation"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Conversation design"
+    },
+    {
+      "day": 20,
+      "topic": "Multi-turn Conversations",
+      "subtopics": [
+        "Context Management",
+        "Memory",
+        "Continuity"
+      ],
+      "tools": [
+        "Conversation"
+      ],
+      "jira_focus": "Sprint planning; review progress for Multi-turn Conversations",
+      "lab_task": "Conversation design"
+    },
+    {
+      "day": 21,
+      "topic": "Prompt Optimization",
+      "subtopics": [
+        "Iterative Refinement",
+        "Testing",
+        "Evaluation"
+      ],
+      "tools": [
+        "Prompt Testing"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Optimization techniques"
+    },
+    {
+      "day": 22,
+      "topic": "Prompt Optimization",
+      "subtopics": [
+        "Iterative Refinement",
+        "Testing",
+        "Evaluation"
+      ],
+      "tools": [
+        "Prompt Testing"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Optimization techniques"
+    },
+    {
+      "day": 23,
+      "topic": "Error Handling & Robustness",
+      "subtopics": [
+        "Fallbacks",
+        "Validation",
+        "Recovery"
+      ],
+      "tools": [
+        "Error Handling"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Robust prompts"
+    },
+    {
+      "day": 24,
+      "topic": "Error Handling & Robustness",
+      "subtopics": [
+        "Fallbacks",
+        "Validation",
+        "Recovery"
+      ],
+      "tools": [
+        "Error Handling"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Robust prompts"
+    },
+    {
+      "day": 25,
+      "topic": "Cost Optimization",
+      "subtopics": [
+        "Token Counting",
+        "Model Selection",
+        "Efficiency"
+      ],
+      "tools": [
+        "Cost Analysis"
+      ],
+      "jira_focus": "Sprint planning; review progress for Cost Optimization",
+      "lab_task": "Cost optimization"
+    },
+    {
+      "day": 26,
+      "topic": "Cost Optimization",
+      "subtopics": [
+        "Token Counting",
+        "Model Selection",
+        "Efficiency"
+      ],
+      "tools": [
+        "Cost Analysis"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Cost optimization"
+    },
+    {
+      "day": 27,
+      "topic": "Creative Prompting",
+      "subtopics": [
+        "Storytelling",
+        "Code Generation",
+        "Content Creation"
+      ],
+      "tools": [
+        "Creative Uses"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Creative applications"
+    },
+    {
+      "day": 28,
+      "topic": "Creative Prompting",
+      "subtopics": [
+        "Storytelling",
+        "Code Generation",
+        "Content Creation"
+      ],
+      "tools": [
+        "Creative Uses"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Creative applications"
+    },
+    {
+      "day": 29,
+      "topic": "Advanced Patterns",
+      "subtopics": [
+        "Agent Prompts",
+        "Self-improving Prompts",
+        "Meta-prompting"
+      ],
+      "tools": [
+        "Advanced"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Advanced prompting"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Agent Prompts",
+        "Self-improving Prompts",
+        "Meta-prompting"
+      ],
+      "tools": [
+        "Advanced"
+      ],
+      "jira_focus": "Sprint planning; review progress for Advanced Patterns",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    }
+  ]
+}
