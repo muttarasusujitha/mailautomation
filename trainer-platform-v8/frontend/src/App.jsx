@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { Suspense, lazy, useState } from 'react'
+import { Suspense, lazy, useState, useEffect } from 'react'
 import Layout from './components/Layout'
 import ChatAssistant from './components/ChatAssistant'
 import FloatingIntegrations from './components/FloatingIntegrations'
@@ -53,6 +53,19 @@ export default function App() {
     } catch { return false }
   })
 
+  useEffect(() => {
+    if (!import.meta.env.DEV) return
+    try {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('dev') === 'true' || params.get('dev_login') === 'true') {
+        sessionStorage.setItem('ts_auth', JSON.stringify({ loggedIn: true }))
+        setIsLoggedIn(true)
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [])
+
   const handleLogin = () => setIsLoggedIn(true)
   const handleLogout = () => {
     sessionStorage.removeItem('ts_auth')
@@ -74,10 +87,11 @@ export default function App() {
             isLoggedIn ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
           } />
           <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/feedback" element={<Feedback />} />
-          <Route path="/auth/callback" element={<GmailCallback />} />
-          <Route path="/" element={
+          <Route path="/auth/callback" element={<GmailCallback onLogin={handleLogin} />} />
+          <Route element={
             <PrivateRoute isLoggedIn={isLoggedIn}>
               <Layout onLogout={handleLogout} />
             </PrivateRoute>
@@ -98,6 +112,9 @@ export default function App() {
             <Route path="client-mail-pipeline" element={<ClientPipeline />} />
             <Route path="client-conversations" element={<ClientConversations />} />
             <Route path="interview-scheduled" element={<InterviewSchedules />} />
+            <Route path="interview" element={<Navigate to="/interview-scheduled" replace />} />
+            <Route path="interview-schedule" element={<Navigate to="/interview-scheduled" replace />} />
+            <Route path="interview-schedules" element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
             <Route path="resume-upload" element={<ResumeUpload />} />

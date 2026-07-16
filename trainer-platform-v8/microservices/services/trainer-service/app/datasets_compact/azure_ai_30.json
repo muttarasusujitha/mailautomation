@@ -1,0 +1,449 @@
+{
+  "domain": "Azure AI",
+  "name": "Azure AI Datasets",
+  "icon": "azure",
+  "program_title": "Azure AI Datasets Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Azure AI Datasets Expert",
+  "certifications": [
+    "Azure AI Engineer Associate",
+    "Azure Data Scientist Associate",
+    "Azure Solutions Architect Expert",
+    "Microsoft Certified: Azure AI Fundamentals"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Azure Fundamentals",
+      "subtopics": [
+        "Subscriptions",
+        "Resource Groups",
+        "Portal",
+        "CLI"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Azure basics"
+    },
+    {
+      "day": 2,
+      "topic": "Azure Fundamentals",
+      "subtopics": [
+        "Subscriptions",
+        "Resource Groups",
+        "Portal",
+        "CLI"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Azure basics"
+    },
+    {
+      "day": 3,
+      "topic": "Azure AI Services Overview",
+      "subtopics": [
+        "Cognitive Services",
+        "OpenAI Service",
+        "Bot Service"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Azure AI overview"
+    },
+    {
+      "day": 4,
+      "topic": "Azure AI Services Overview",
+      "subtopics": [
+        "Cognitive Services",
+        "OpenAI Service",
+        "Bot Service"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Azure AI overview"
+    },
+    {
+      "day": 5,
+      "topic": "Azure Cognitive Services",
+      "subtopics": [
+        "Vision",
+        "Speech",
+        "Language",
+        "Search"
+      ],
+      "tools": [
+        "Azure Cognitive Services"
+      ],
+      "jira_focus": "Sprint planning; review progress for Azure Cognitive Services",
+      "lab_task": "Cognitive services"
+    },
+    {
+      "day": 6,
+      "topic": "Azure Cognitive Services",
+      "subtopics": [
+        "Vision",
+        "Speech",
+        "Language",
+        "Search"
+      ],
+      "tools": [
+        "Azure Cognitive Services"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Cognitive services"
+    },
+    {
+      "day": 7,
+      "topic": "Azure OpenAI Service",
+      "subtopics": [
+        "Models",
+        "Deployments",
+        "API",
+        "Playground"
+      ],
+      "tools": [
+        "Azure OpenAI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Azure OpenAI setup"
+    },
+    {
+      "day": 8,
+      "topic": "Azure OpenAI Service",
+      "subtopics": [
+        "Models",
+        "Deployments",
+        "API",
+        "Playground"
+      ],
+      "tools": [
+        "Azure OpenAI"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Azure OpenAI setup"
+    },
+    {
+      "day": 9,
+      "topic": "Building Chat Applications",
+      "subtopics": [
+        "ChatGPT Integration",
+        "Prompt Engineering",
+        "Conversation Flow"
+      ],
+      "tools": [
+        "Azure OpenAI"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Chat applications"
+    },
+    {
+      "day": 10,
+      "topic": "Building Chat Applications",
+      "subtopics": [
+        "ChatGPT Integration",
+        "Prompt Engineering",
+        "Conversation Flow"
+      ],
+      "tools": [
+        "Azure OpenAI"
+      ],
+      "jira_focus": "Sprint planning; review progress for Building Chat Applications",
+      "lab_task": "Chat applications"
+    },
+    {
+      "day": 11,
+      "topic": "Azure Machine Learning",
+      "subtopics": [
+        "Workspace",
+        "Compute",
+        "Datasets",
+        "Experiments"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Azure ML workspace"
+    },
+    {
+      "day": 12,
+      "topic": "Azure Machine Learning",
+      "subtopics": [
+        "Workspace",
+        "Compute",
+        "Datasets",
+        "Experiments"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Azure ML workspace"
+    },
+    {
+      "day": 13,
+      "topic": "Azure ML - Model Training",
+      "subtopics": [
+        "AutoML",
+        "Designer",
+        "Pipelines",
+        "Training"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Model training"
+    },
+    {
+      "day": 14,
+      "topic": "Azure ML - Model Training",
+      "subtopics": [
+        "AutoML",
+        "Designer",
+        "Pipelines",
+        "Training"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Model training"
+    },
+    {
+      "day": 15,
+      "topic": "Azure ML - Deployment",
+      "subtopics": [
+        "Endpoints",
+        "Inference",
+        "Container",
+        "Batch"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Sprint planning; review progress for Azure ML - Deployment",
+      "lab_task": "Model deployment"
+    },
+    {
+      "day": 16,
+      "topic": "Azure ML - Deployment",
+      "subtopics": [
+        "Endpoints",
+        "Inference",
+        "Container",
+        "Batch"
+      ],
+      "tools": [
+        "Azure ML"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Model deployment"
+    },
+    {
+      "day": 17,
+      "topic": "Azure Databricks",
+      "subtopics": [
+        "Clusters",
+        "Notebooks",
+        "Spark Jobs"
+      ],
+      "tools": [
+        "Databricks"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Databricks on Azure"
+    },
+    {
+      "day": 18,
+      "topic": "Azure Databricks",
+      "subtopics": [
+        "Clusters",
+        "Notebooks",
+        "Spark Jobs"
+      ],
+      "tools": [
+        "Databricks"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Databricks on Azure"
+    },
+    {
+      "day": 19,
+      "topic": "Data Processing",
+      "subtopics": [
+        "Data Factory",
+        "Data Lake Storage",
+        "Synapse Analytics"
+      ],
+      "tools": [
+        "Azure Data Services"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Data processing"
+    },
+    {
+      "day": 20,
+      "topic": "Data Processing",
+      "subtopics": [
+        "Data Factory",
+        "Data Lake Storage",
+        "Synapse Analytics"
+      ],
+      "tools": [
+        "Azure Data Services"
+      ],
+      "jira_focus": "Sprint planning; review progress for Data Processing",
+      "lab_task": "Data processing"
+    },
+    {
+      "day": 21,
+      "topic": "Search & Retrieval",
+      "subtopics": [
+        "Azure Cognitive Search",
+        "Vector Search",
+        "Indexing"
+      ],
+      "tools": [
+        "Cognitive Search"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Azure search services"
+    },
+    {
+      "day": 22,
+      "topic": "Search & Retrieval",
+      "subtopics": [
+        "Azure Cognitive Search",
+        "Vector Search",
+        "Indexing"
+      ],
+      "tools": [
+        "Cognitive Search"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Azure search services"
+    },
+    {
+      "day": 23,
+      "topic": "Computer Vision",
+      "subtopics": [
+        "Image Analysis",
+        "OCR",
+        "Face Recognition"
+      ],
+      "tools": [
+        "Azure Vision"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Vision AI"
+    },
+    {
+      "day": 24,
+      "topic": "Computer Vision",
+      "subtopics": [
+        "Image Analysis",
+        "OCR",
+        "Face Recognition"
+      ],
+      "tools": [
+        "Azure Vision"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Vision AI"
+    },
+    {
+      "day": 25,
+      "topic": "Natural Language Processing",
+      "subtopics": [
+        "Text Analysis",
+        "Sentiment",
+        "Entity Recognition"
+      ],
+      "tools": [
+        "Azure Language"
+      ],
+      "jira_focus": "Sprint planning; review progress for Natural Language Processing",
+      "lab_task": "Language AI"
+    },
+    {
+      "day": 26,
+      "topic": "Natural Language Processing",
+      "subtopics": [
+        "Text Analysis",
+        "Sentiment",
+        "Entity Recognition"
+      ],
+      "tools": [
+        "Azure Language"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Language AI"
+    },
+    {
+      "day": 27,
+      "topic": "Responsible AI",
+      "subtopics": [
+        "Fairness",
+        "Transparency",
+        "Accountability"
+      ],
+      "tools": [
+        "Responsible AI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Responsible AI practices"
+    },
+    {
+      "day": 28,
+      "topic": "Responsible AI",
+      "subtopics": [
+        "Fairness",
+        "Transparency",
+        "Accountability"
+      ],
+      "tools": [
+        "Responsible AI"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Responsible AI practices"
+    },
+    {
+      "day": 29,
+      "topic": "Production & Governance",
+      "subtopics": [
+        "MLOps",
+        "Monitoring",
+        "Cost Management"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Production deployment"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "MLOps",
+        "Monitoring",
+        "Cost Management"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Sprint planning; review progress for Production & Governance",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    }
+  ]
+}

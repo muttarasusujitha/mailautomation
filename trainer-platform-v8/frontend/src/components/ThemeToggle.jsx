@@ -7,6 +7,22 @@ const STORAGE_PLATE = 'ts_theme_plate'
 const STORAGE_GLOW = 'ts_theme_glow'
 const STORAGE_GLOW_COLOR = 'ts_theme_glow_color'
 
+function plateSurface(id, index) {
+  if (id === 'plain-white') return '#ffffff'
+  if (index >= 22) return '#e4f2ff'
+  if (index >= 19) return '#edf7ff'
+  if (index >= 13) return '#eef6fb'
+  if (index >= 9) return '#eaf8fb'
+  return '#edf5ff'
+}
+
+function plateBorder(id, index) {
+  if (id === 'plain-white') return '#e2e8f0'
+  if (index >= 22) return '#c6ddf4'
+  if (index >= 13) return '#d5e6f2'
+  return '#d8e6f5'
+}
+
 const PLATES = [
   ['plain-white', 'Plain White', '#ffffff', '#ffffff', '#ffffff', '100,116,139', '148,163,184'],
   ['ice-blue', 'Ice Blue', '#f6fbff', '#eef8ff', '#e8f5ff', '14,165,233', '20,184,166'],
@@ -42,9 +58,9 @@ const PLATES = [
   end,
   accent,
   accent2,
-  surface: id === 'plain-white' ? '#ffffff' : index >= 22 ? '#e4f2ff' : index >= 19 ? '#edf7ff' : index >= 13 ? '#eef6fb' : index >= 9 ? '#eaf8fb' : '#edf5ff',
+  surface: plateSurface(id, index),
   soft: id === 'plain-white' ? '#f8fafc' : mid,
-  border: id === 'plain-white' ? '#e2e8f0' : index >= 22 ? '#c6ddf4' : index >= 13 ? '#d5e6f2' : '#d8e6f5',
+  border: plateBorder(id, index),
 }))
 
 const GLOWS = [
@@ -142,26 +158,26 @@ export default function ThemeToggle({ floating = false }) {
   useEffect(() => {
     document.documentElement.dataset.theme = theme
     localStorage.setItem(STORAGE_THEME, theme)
-    window.dispatchEvent(new CustomEvent('ts-theme-change', { detail: { theme } }))
+    globalThis.dispatchEvent(new CustomEvent('ts-theme-change', { detail: { theme } }))
   }, [theme])
 
   useEffect(() => {
     applyPlate(plate)
     applyGlowColor(glowColor, plate)
     localStorage.setItem(STORAGE_PLATE, plate)
-    window.dispatchEvent(new CustomEvent('ts-plate-change', { detail: { plate } }))
+    globalThis.dispatchEvent(new CustomEvent('ts-plate-change', { detail: { plate } }))
   }, [plate, glowColor])
 
   useEffect(() => {
     applyGlow(glow)
     localStorage.setItem(STORAGE_GLOW, glow)
-    window.dispatchEvent(new CustomEvent('ts-glow-change', { detail: { glow } }))
+    globalThis.dispatchEvent(new CustomEvent('ts-glow-change', { detail: { glow } }))
   }, [glow])
 
   useEffect(() => {
     applyGlowColor(glowColor, plate)
     localStorage.setItem(STORAGE_GLOW_COLOR, glowColor)
-    window.dispatchEvent(new CustomEvent('ts-glow-color-change', { detail: { glowColor } }))
+    globalThis.dispatchEvent(new CustomEvent('ts-glow-color-change', { detail: { glowColor } }))
   }, [glowColor, plate])
 
   useEffect(() => {
@@ -177,15 +193,15 @@ export default function ThemeToggle({ floating = false }) {
     const onGlowColorChange = event => {
       if (event.detail?.glowColor) setGlowColor(event.detail.glowColor)
     }
-    window.addEventListener('ts-theme-change', onThemeChange)
-    window.addEventListener('ts-plate-change', onPlateChange)
-    window.addEventListener('ts-glow-change', onGlowChange)
-    window.addEventListener('ts-glow-color-change', onGlowColorChange)
+    globalThis.addEventListener('ts-theme-change', onThemeChange)
+    globalThis.addEventListener('ts-plate-change', onPlateChange)
+    globalThis.addEventListener('ts-glow-change', onGlowChange)
+    globalThis.addEventListener('ts-glow-color-change', onGlowColorChange)
     return () => {
-      window.removeEventListener('ts-theme-change', onThemeChange)
-      window.removeEventListener('ts-plate-change', onPlateChange)
-      window.removeEventListener('ts-glow-change', onGlowChange)
-      window.removeEventListener('ts-glow-color-change', onGlowColorChange)
+      globalThis.removeEventListener('ts-theme-change', onThemeChange)
+      globalThis.removeEventListener('ts-plate-change', onPlateChange)
+      globalThis.removeEventListener('ts-glow-change', onGlowChange)
+      globalThis.removeEventListener('ts-glow-color-change', onGlowColorChange)
     }
   }, [])
 

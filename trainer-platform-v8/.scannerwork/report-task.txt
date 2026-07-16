@@ -1,0 +1,6 @@
+projectKey=trainersync
+serverUrl=http://sonarqube:9000
+serverVersion=26.5.0.122743
+dashboardUrl=http://sonarqube:9000/dashboard?id=trainersync
+ceTaskId=258d61ba-00ef-434a-a21e-ea6a88ad959f
+ceTaskUrl=http://sonarqube:9000/api/ce/task?id=258d61ba-00ef-434a-a21e-ea6a88ad959f

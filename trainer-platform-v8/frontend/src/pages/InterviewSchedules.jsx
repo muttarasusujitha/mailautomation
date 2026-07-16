@@ -15,6 +15,11 @@ import {
 } from 'lucide-react'
 import api from '../utils/api'
 
+const SCHEDULE_ENDPOINTS = [
+  '/interview-schedules',
+  '/interview-reminders/interview-schedules',
+]
+
 function formatDate(value) {
   if (!value) return '-'
   try {
@@ -29,6 +34,31 @@ function formatDate(value) {
 
 function statusLabel(value = '') {
   return String(value || 'scheduled').replaceAll('_', ' ')
+}
+
+function normalizeSchedule(item = {}) {
+  const calendar = item.calendar_event || {}
+  const isClientMail = String(item.mail_type || '').startsWith('client_')
+  const email = item.trainer_email || item.email || item.to_email || ''
+  const clientEmail = item.client_email || (isClientMail ? item.to_email : '')
+  const trainerEmail = item.trainer_email || (!isClientMail ? email : '')
+
+  return {
+    ...item,
+    domain: item.domain || item.technology || item.technology_needed || item.subject || 'Training',
+    client_name: item.client_name || item.client_company || (isClientMail ? 'Client' : ''),
+    client_email: clientEmail,
+    trainer_name: item.trainer_name || item.name || '',
+    trainer_email: trainerEmail,
+    date_time_text: item.date_time_text || item.interview_date || '',
+    meet_link: item.meet_link || item.interview_link || calendar.meet_link || calendar.html_link || '',
+    start_iso: item.start_iso || item.interview_at || calendar.start || item.sent_at || item.created_at,
+    timezone: item.timezone || calendar.timezone || '',
+    slot_ref: item.slot_ref || item.client_slot_email_id || item.email_id || '',
+    calendar_event_id: item.calendar_event_id || calendar.event_id || item.email_id || '',
+    client_email_sent: Boolean(item.client_email_sent || isClientMail),
+    trainer_email_sent: Boolean(item.trainer_email_sent || item.mail_type === 'mail4'),
+  }
 }
 
 function Stat({ icon: Icon, label, value }) {
@@ -65,8 +95,20 @@ export default function InterviewSchedules() {
   const load = async () => {
     setLoading(true)
     try {
-      const res = await api.get('/interview-schedules', { params: { limit: 200 } })
-      setItems(res.data.schedules || [])
+      let lastError
+      for (const [index, endpoint] of SCHEDULE_ENDPOINTS.entries()) {
+        try {
+          const res = await api.get(endpoint, { params: { limit: 200 } })
+          const schedules = res.data.schedules || []
+          if (schedules.length || index === SCHEDULE_ENDPOINTS.length - 1) {
+            setItems(schedules.map(normalizeSchedule))
+            return
+          }
+        } catch (err) {
+          lastError = err
+        }
+      }
+      throw lastError
     } catch (err) {
       toast.error(err.message || 'Could not load interview schedules')
     } finally {

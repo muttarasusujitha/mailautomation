@@ -2,6 +2,24 @@ import axios from 'axios'
 
 const api = axios.create({ baseURL: '/api', timeout: 300000 })
 
+function stringifyApiError(value) {
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
+}
+
+function formatApiObjectError(value) {
+  if (value.msg) {
+    const location = Array.isArray(value.loc) ? value.loc.join(' > ') : value.loc
+    return [location, value.msg].filter(Boolean).join(': ')
+  }
+
+  const nested = value.message ?? value.error ?? value.detail
+  return nested ? formatApiError(nested) : stringifyApiError(value)
+}
+
 function formatApiError(value) {
   if (!value) return ''
   if (typeof value === 'string') return value
@@ -9,18 +27,7 @@ function formatApiError(value) {
     return value.map(formatApiError).filter(Boolean).join('\n')
   }
   if (typeof value === 'object') {
-    if (value.msg) {
-      const location = Array.isArray(value.loc) ? value.loc.join(' > ') : value.loc
-      return [location, value.msg].filter(Boolean).join(': ')
-    }
-    if (value.message) return formatApiError(value.message)
-    if (value.error) return formatApiError(value.error)
-    if (value.detail) return formatApiError(value.detail)
-    try {
-      return JSON.stringify(value)
-    } catch {
-      return String(value)
-    }
+    return formatApiObjectError(value)
   }
   return String(value)
 }
@@ -34,7 +41,7 @@ api.interceptors.response.use(
   }
 )
 
-export const uploadResumes     = (files, confirm = false, onUploadProgress) => {
+export const uploadResumes     = (files, confirm, onUploadProgress) => {
   const form = new FormData()
   const fileList = Array.isArray(files) ? files : [files]
   const fieldName = fileList.length === 1 ? 'file' : 'files'
@@ -54,6 +61,7 @@ export const deleteResumeDataByDomain = (domain, includeLogs = false) =>
 export const getResumeDomainSummary = () =>
   api.get('/resume-data/domain-summary')
 export const getTrainers       = (params) => api.get('/trainers', { params })
+export const getTrainer        = (id)     => api.get(`/trainers/${id}`)
 export const getTrainerCategories = ()    => api.get('/trainers/categories')
 export const getTrainerDomains    = ()    => api.get('/trainers/domains')
 export const getTrainerIndustries = ()    => api.get('/trainers/industries')
@@ -88,7 +96,69 @@ export const forgotPassword    = (email)  => api.post('/auth/forgot-password', {
 export const getTocKnowledge   = ()       => api.get('/toc/knowledge')
 export const getTocKnowledgeDomain = (key) => api.get(`/toc/knowledge/${key}`)
 export const saveTocKnowledge  = (data)   => api.post('/toc/knowledge', data)
-export const importTocKnowledge = (text)   => api.post('/toc/knowledge/import', { text })
+function slugifyDomain(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
+function parseTocImportText(text) {
+  const blocks = []
+  let current = []
+  String(text || '').split(/\r?\n/).forEach(line => {
+    if (line.trim().toLowerCase().startsWith('technology name:') && current.length) {
+      blocks.push(current.join('\n'))
+      current = []
+    }
+    current.push(line)
+  })
+  if (current.length) blocks.push(current.join('\n'))
+
+  return blocks.map(block => {
+    const levelMap = {
+      foundation: [],
+      core: [],
+      advanced: [],
+      observability: [],
+      security: [],
+      projects: [],
+      revision: [],
+      capstone: [],
+    }
+    let domain = ''
+    let aliases = []
+    let currentLevel = 'foundation'
+    let tools = []
+
+    block.split(/\r?\n/).map(line => line.trim()).filter(Boolean).forEach(line => {
+      const lower = line.toLowerCase()
+      if (lower.startsWith('technology name:')) {
+        domain = line.split(':').slice(1).join(':').trim()
+      } else if (lower.startsWith('aliases:')) {
+        aliases = line.split(':').slice(1).join(':').split(',').map(item => item.trim()).filter(Boolean)
+      } else if (lower.startsWith('tools:')) {
+        tools = line.split(':').slice(1).join(':').split(',').map(item => item.trim()).filter(Boolean)
+      } else if (lower.includes('foundation') && lower.includes('topic')) {
+        currentLevel = 'foundation'
+      } else if (lower.includes('core') && lower.includes('topic')) {
+        currentLevel = 'core'
+      } else if (lower.includes('advanced') && lower.includes('topic')) {
+        currentLevel = 'advanced'
+      } else if (/^(\d+\.|-)/.test(line)) {
+        const topic = line.replace(/^[-\d.\s]+/, '').trim()
+        if (topic) levelMap[currentLevel].push({ topic, subtopics: [], tools, lab: '' })
+      }
+    })
+
+    const key = slugifyDomain(domain)
+    const toc = { key, name: domain, aliases, level_map: levelMap }
+    return domain ? { domain: key || domain, key, name: domain, aliases, level_map: levelMap, toc } : null
+  }).filter(Boolean)
+}
+
+export const importTocKnowledge = (text) => api.post('/toc/knowledge/import', { text, items: parseTocImportText(text) })
 export const deleteTocKnowledge = (key)    => api.delete(`/toc/knowledge/${key}`)
 
 export default api

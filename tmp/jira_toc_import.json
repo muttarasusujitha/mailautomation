@@ -1,0 +1,609 @@
+{
+  "items": [
+    {
+      "domain": "Introduction to Agile & Jira Fundamentals",
+      "toc": {
+        "title": "Introduction to Agile & Jira Fundamentals",
+        "category": "Foundation",
+        "tools": "Jira Cloud",
+        "lab": "Explore a sample project and identify Scrum vs Kanban elements",
+        "subtopics": ["Agile Manifesto and Principles","Scrum vs Kanban Overview","Jira's Role in Agile Teams"]
+      },
+      "notes": "JIRA - Foundation"
+    },
+    {
+      "domain": "Jira Navigation and Interface",
+      "toc": {
+        "title": "Jira Navigation and Interface",
+        "category": "Foundation",
+        "tools": "Jira Cloud",
+        "lab": "Navigate global nav, sidebar, and search to locate a specific issue",
+        "subtopics": ["Global Navigation Bar","Project Sidebar","Search and Quick Find"]
+      },
+      "notes": "JIRA - Foundation"
+    },
+    {
+      "domain": "Projects, Boards, and Issue Types",
+      "toc": {
+        "title": "Projects, Boards, and Issue Types",
+        "category": "Foundation",
+        "tools": "Jira Cloud",
+        "lab": "Create a team-managed project and configure a basic board",
+        "subtopics": ["Company-managed vs Team-managed Projects","Story/Task/Bug/Epic Types","Board Configuration Basics"]
+      },
+      "notes": "JIRA - Foundation"
+    },
+    {
+      "domain": "Creating and Managing Issues",
+      "toc": {
+        "title": "Creating and Managing Issues",
+        "category": "Foundation",
+        "tools": "Jira Cloud",
+        "lab": "Create 3 issues with different types and full field sets",
+        "subtopics": ["Issue Fields Overview","Priority and Labels","Assignee and Reporter Roles"]
+      },
+      "notes": "JIRA - Foundation"
+    },
+    {
+      "domain": "Scrum vs Kanban Boards",
+      "toc": {
+        "title": "Scrum vs Kanban Boards",
+        "category": "Core",
+        "tools": "Jira Cloud",
+        "lab": "Set up one Scrum board and one Kanban board for comparison",
+        "subtopics": ["Sprint-based Workflow","Continuous Flow Workflow","Swimlanes and Columns"]
+      },
+      "notes": "JIRA - Core"
+    },
+    {
+      "domain": "Sprint Planning and Backlog Management",
+      "toc": {
+        "title": "Sprint Planning and Backlog Management",
+        "category": "Core",
+        "tools": "Jira Cloud",
+        "lab": "Groom a backlog and plan a sprint with estimated stories",
+        "subtopics": ["Backlog Refinement","Story Point Estimation","Sprint Goal Setting"]
+      },
+      "notes": "JIRA - Core"
+    },
+    {
+      "domain": "Issue Linking and Sub-tasks",
+      "toc": {
+        "title": "Issue Linking and Sub-tasks",
+        "category": "Core",
+        "tools": "Jira Cloud",
+        "lab": "Link two issues and break one story into sub-tasks",
+        "subtopics": ["Link Types (Blocks, Relates To, Duplicates)","Creating Sub-tasks","Parent-Child Relationships"]
+      },
+      "notes": "JIRA - Core"
+    },
+    {
+      "domain": "JQL Basics",
+      "toc": {
+        "title": "JQL Basics",
+        "category": "Core",
+        "tools": "JQL",
+        "lab": "Write and save 3 basic JQL filters",
+        "subtopics": ["Basic Syntax and Operators","Filtering by Assignee/Status","Saving and Sharing Filters"]
+      },
+      "notes": "JIRA - Core"
+    },
+    {
+      "domain": "Jira Automation Rules",
+      "toc": {
+        "title": "Jira Automation Rules",
+        "category": "Advanced",
+        "tools": "Jira Automation",
+        "lab": "Build an automation rule that auto-assigns on status change",
+        "subtopics": ["Trigger-Condition-Action Model","Common Automation Templates","Testing and Debugging Rules"]
+      },
+      "notes": "JIRA - Advanced"
+    },
+    {
+      "domain": "Custom Workflows and Schemes",
+      "toc": {
+        "title": "Custom Workflows and Schemes",
+        "category": "Advanced",
+        "tools": "Jira Cloud",
+        "lab": "Design a custom workflow with 5+ states and transitions",
+        "subtopics": ["Workflow States and Transitions","Workflow Schemes","Screen Schemes"]
+      },
+      "notes": "JIRA - Advanced"
+    },
+    {
+      "domain": "Dashboards and Gadgets",
+      "toc": {
+        "title": "Dashboards and Gadgets",
+        "category": "Advanced",
+        "tools": "Jira Dashboards",
+        "lab": "Build a dashboard with 3 gadgets for team visibility",
+        "subtopics": ["Adding Gadgets","Filter-based Gadgets","Sharing Dashboards"]
+      },
+      "notes": "JIRA - Advanced"
+    },
+    {
+      "domain": "Integrations (Confluence, Bitbucket, Slack)",
+      "toc": {
+        "title": "Integrations (Confluence, Bitbucket, Slack)",
+        "category": "Advanced",
+        "tools": "Confluence, Bitbucket, Slack",
+        "lab": "Link a Confluence page and a Bitbucket commit to a Jira issue",
+        "subtopics": ["Linking Jira with Confluence Pages","Commit-to-Issue Linking","Slack Notifications Setup"]
+      },
+      "notes": "JIRA - Advanced"
+    },
+    {
+      "domain": "Sprint Reports (Burndown, Velocity, Cumulative Flow)",
+      "toc": {
+        "title": "Sprint Reports (Burndown, Velocity, Cumulative Flow)",
+        "category": "Observability",
+        "tools": "Jira Reports",
+        "lab": "Generate and interpret a burndown chart for an active sprint",
+        "subtopics": ["Reading Burndown Charts","Velocity Chart Interpretation","Cumulative Flow Diagram Basics"]
+      },
+      "notes": "JIRA - Observability"
+    },
+    {
+      "domain": "Issue Aging and SLA Tracking",
+      "toc": {
+        "title": "Issue Aging and SLA Tracking",
+        "category": "Observability",
+        "tools": "Jira Reports",
+        "lab": "Configure an aging report and flag stale tickets",
+        "subtopics": ["Aging Report Basics","SLA Configuration","Stale Ticket Identification"]
+      },
+      "notes": "JIRA - Observability"
+    },
+    {
+      "domain": "Dashboard-based Team Health Monitoring",
+      "toc": {
+        "title": "Dashboard-based Team Health Monitoring",
+        "category": "Observability",
+        "tools": "Jira Dashboards",
+        "lab": "Build a team health dashboard with workload and sprint indicators",
+        "subtopics": ["Team Workload Gadgets","Sprint Health Indicators","Custom Health Dashboards"]
+      },
+      "notes": "JIRA - Observability"
+    },
+    {
+      "domain": "Jira Permissions and Roles",
+      "toc": {
+        "title": "Jira Permissions and Roles",
+        "category": "Security",
+        "tools": "Permission Schemes",
+        "lab": "Audit a project's permission scheme and roles",
+        "subtopics": ["Permission Schemes","Project Roles","Global vs Project Permissions"]
+      },
+      "notes": "JIRA - Security"
+    },
+    {
+      "domain": "Project-level Access Control",
+      "toc": {
+        "title": "Project-level Access Control",
+        "category": "Security",
+        "tools": "Permission Schemes",
+        "lab": "Restrict visibility of an issue to a specific group",
+        "subtopics": ["Restricting Issue Visibility","Managing User Access","Group-based Permissions"]
+      },
+      "notes": "JIRA - Security"
+    },
+    {
+      "domain": "Audit Log Review",
+      "toc": {
+        "title": "Audit Log Review",
+        "category": "Security",
+        "tools": "Jira Admin",
+        "lab": "Review audit logs for recent configuration changes",
+        "subtopics": ["Accessing Audit Logs","Tracking Configuration Changes","Security Event Review"]
+      },
+      "notes": "JIRA - Security"
+    },
+    {
+      "domain": "End-to-End Scrum Project Setup",
+      "toc": {
+        "title": "End-to-End Scrum Project Setup",
+        "category": "Projects",
+        "tools": "Jira Cloud",
+        "lab": "Set up and run one full Scrum project end to end",
+        "subtopics": ["Project Creation","Board and Backlog Setup","Sprint Execution"]
+      },
+      "notes": "JIRA - Projects"
+    },
+    {
+      "domain": "Cross-functional Kanban Rollout",
+      "toc": {
+        "title": "Cross-functional Kanban Rollout",
+        "category": "Projects",
+        "tools": "Jira Cloud",
+        "lab": "Design a Kanban board for a multi-team workflow",
+        "subtopics": ["Multi-team Board Design","WIP Limits","Swimlane Strategy"]
+      },
+      "notes": "JIRA - Projects"
+    },
+    {
+      "domain": "JQL Cheat Sheet Review",
+      "toc": {
+        "title": "JQL Cheat Sheet Review",
+        "category": "Revision",
+        "tools": "JQL",
+        "lab": "Rewrite 5 common queries from memory",
+        "subtopics": ["Common Query Patterns","Function Reference","Troubleshooting Queries"]
+      },
+      "notes": "JIRA - Revision"
+    },
+    {
+      "domain": "Workflow States Recap",
+      "toc": {
+        "title": "Workflow States Recap",
+        "category": "Revision",
+        "tools": "Jira Cloud",
+        "lab": "Map out a workflow diagram from memory",
+        "subtopics": ["Standard vs Custom States","Transition Rules Recap","Status Category Mapping"]
+      },
+      "notes": "JIRA - Revision"
+    },
+    {
+      "domain": "Common Admin Scenarios",
+      "toc": {
+        "title": "Common Admin Scenarios",
+        "category": "Revision",
+        "tools": "Jira Admin",
+        "lab": "Troubleshoot a broken workflow scenario",
+        "subtopics": ["Resetting Permissions","Fixing Broken Workflows","Bulk Issue Edits"]
+      },
+      "notes": "JIRA - Revision"
+    },
+    {
+      "domain": "Full Agile Project Lifecycle Simulation",
+      "toc": {
+        "title": "Full Agile Project Lifecycle Simulation",
+        "category": "Capstone",
+        "tools": "Jira Cloud, JQL, Automation, Reports",
+        "lab": "Run a complete project: backlog → sprint → release → retro",
+        "subtopics": ["Backlog Creation to Sprint Planning","Sprint Execution and Tracking","Release and Retrospective"]
+      },
+      "notes": "JIRA - Capstone"
+    },
+    {
+      "domain": "Board Navigation Refresher",
+      "toc": {
+        "title": "Board Navigation Refresher",
+        "category": "Foundation",
+        "tools": "Board View",
+        "lab": "Switch between board views and open a card's detail panel",
+        "subtopics": ["Board View Switching","Column and Swimlane Recap","Card Details Quick View"]
+      },
+      "notes": "Daily Practice - Foundation"
+    },
+    {
+      "domain": "Ticket Creation & Field Basics",
+      "toc": {
+        "title": "Ticket Creation & Field Basics",
+        "category": "Foundation",
+        "tools": "Issue Create Screen",
+        "lab": "Create a ticket with all required and 2 optional fields filled",
+        "subtopics": ["Required vs Optional Fields","Setting Priority and Labels","Attaching Files"]
+      },
+      "notes": "Daily Practice - Foundation"
+    },
+    {
+      "domain": "Sub-task Breakdown",
+      "toc": {
+        "title": "Sub-task Breakdown",
+        "category": "Foundation",
+        "tools": "Issue Detail View",
+        "lab": "Break one story into 2–3 sub-tasks",
+        "subtopics": ["Identifying Breakdown Points","Creating Sub-tasks from a Story","Tracking Sub-task Progress"]
+      },
+      "notes": "Daily Practice - Foundation"
+    },
+    {
+      "domain": "Commenting & Progress Updates",
+      "toc": {
+        "title": "Commenting & Progress Updates",
+        "category": "Core",
+        "tools": "Comment Field",
+        "lab": "Add a status comment with a blocker and next step",
+        "subtopics": ["Writing Clear Status Comments","Mentioning Teammates","Formatting Comments"]
+      },
+      "notes": "Daily Practice - Core"
+    },
+    {
+      "domain": "Issue Linking (Daily)",
+      "toc": {
+        "title": "Issue Linking",
+        "category": "Core",
+        "tools": "Link Issue Feature",
+        "lab": "Link two related tickets with the correct link type",
+        "subtopics": ["Choosing the Right Link Type","Linking Across Projects","Reviewing Linked Issue Status"]
+      },
+      "notes": "Daily Practice - Core"
+    },
+    {
+      "domain": "Basic JQL Queries (Daily)",
+      "toc": {
+        "title": "Basic JQL Queries",
+        "category": "Core",
+        "tools": "JQL, Issue Navigator",
+        "lab": "Run `assignee = currentUser() AND status = 'In Progress'`",
+        "subtopics": ["Assignee-based Queries","Status-based Queries","Saving Personal Filters"]
+      },
+      "notes": "Daily Practice - Core"
+    },
+    {
+      "domain": "Personal Dashboard Customization",
+      "toc": {
+        "title": "Personal Dashboard Customization",
+        "category": "Advanced",
+        "tools": "Personal Dashboard",
+        "lab": "Add and rearrange 2 personal gadgets",
+        "subtopics": ["Adding Personal Gadgets","Layout Adjustment","Favoriting Filters"]
+      },
+      "notes": "Daily Practice - Advanced"
+    },
+    {
+      "domain": "Quick Filters Setup",
+      "toc": {
+        "title": "Quick Filters Setup",
+        "category": "Advanced",
+        "tools": "Quick Filters",
+        "lab": "Create a quick filter for your assigned tickets",
+        "subtopics": ["Creating Board Quick Filters","Applying Multiple Filters","Removing Unused Filters"]
+      },
+      "notes": "Daily Practice - Advanced"
+    },
+    {
+      "domain": "Daily Status Check via Board View",
+      "toc": {
+        "title": "Daily Status Check via Board View",
+        "category": "Observability",
+        "tools": "Board View",
+        "lab": "Review all cards on the board and note any blocked items",
+        "subtopics": ["Reviewing Card Movement","Spotting Blocked Items","End-of-day Board Review"]
+      },
+      "notes": "Daily Practice - Observability"
+    },
+    {
+      "domain": "Notification Triage",
+      "toc": {
+        "title": "Notification Triage",
+        "category": "Observability",
+        "tools": "Notifications Panel",
+        "lab": "Clear all pending notifications and mentions",
+        "subtopics": ["Reviewing Notification Settings","Clearing @mentions","Muting Non-critical Alerts"]
+      },
+      "notes": "Daily Practice - Observability"
+    },
+    {
+      "domain": "Personal Access & Watcher Settings Check",
+      "toc": {
+        "title": "Personal Access & Watcher Settings Check",
+        "category": "Security",
+        "tools": "Watcher Settings",
+        "lab": "Review and update your watched issues list",
+        "subtopics": ["Reviewing Watched Issues","Adjusting Watcher List","Access Confirmation"]
+      },
+      "notes": "Daily Practice - Security"
+    },
+    {
+      "domain": "Standup-Ready Ticket Prep",
+      "toc": {
+        "title": "Standup-Ready Ticket Prep",
+        "category": "Projects",
+        "tools": "Personal Dashboard",
+        "lab": "Prepare all active tickets with accurate status before standup",
+        "subtopics": ["Status Accuracy Check","Blocker Documentation","Next-step Notes"]
+      },
+      "notes": "Daily Practice - Projects"
+    },
+    {
+      "domain": "Micro Backlog Grooming",
+      "toc": {
+        "title": "Micro Backlog Grooming",
+        "category": "Revision",
+        "tools": "Backlog View",
+        "lab": "Reorder 2–3 backlog items by priority",
+        "subtopics": ["Reordering Priorities","Quick Estimation Adjustments","Flagging Stale Items"]
+      },
+      "notes": "Daily Practice - Revision"
+    },
+    {
+      "domain": "Time Tracking Recap",
+      "toc": {
+        "title": "Time Tracking Recap",
+        "category": "Revision",
+        "tools": "Time Tracking",
+        "lab": "Log time on a ticket and compare estimate vs actual",
+        "subtopics": ["Logging Work Time","Estimate vs Actual Comparison","Weekly Time Summary Check"]
+      },
+      "notes": "Daily Practice - Revision"
+    },
+    {
+      "domain": "One-Week Daily Practice Streak",
+      "toc": {
+        "title": "One-Week Daily Practice Streak",
+        "category": "Capstone",
+        "tools": "All above tools",
+        "lab": "Complete the full daily checklist 5 days in a row",
+        "subtopics": ["Daily Checklist Completion","Consistency Tracking","Self-review of Habits"]
+      },
+      "notes": "Daily Practice - Capstone"
+    },
+    {
+      "domain": "Weekly Planning Overview",
+      "toc": {
+        "title": "Weekly Planning Overview",
+        "category": "Foundation",
+        "tools": "Backlog View",
+        "lab": "Review last week's completed items and set this week's priorities",
+        "subtopics": ["Reviewing Prior Week's Progress","Setting Weekly Priorities","Aligning with Team Goals"]
+      },
+      "notes": "Weekly Practice - Foundation"
+    },
+    {
+      "domain": "Backlog Refinement Basics",
+      "toc": {
+        "title": "Backlog Refinement Basics",
+        "category": "Foundation",
+        "tools": "Backlog View",
+        "lab": "Split one large story into smaller items",
+        "subtopics": ["Grooming Session Structure","Splitting Large Stories","Removing Obsolete Items"]
+      },
+      "notes": "Weekly Practice - Foundation"
+    },
+    {
+      "domain": "Sprint Planning Simulation",
+      "toc": {
+        "title": "Sprint Planning Simulation",
+        "category": "Core",
+        "tools": "Backlog View, Sprint Planning View",
+        "lab": "Plan a mock sprint with capacity and story points",
+        "subtopics": ["Capacity Planning","Story Point Allocation","Sprint Goal Definition"]
+      },
+      "notes": "Weekly Practice - Core"
+    },
+    {
+      "domain": "Retro Board Creation",
+      "toc": {
+        "title": "Retro Board Creation",
+        "category": "Core",
+        "tools": "Retrospective Template",
+        "lab": "Build a retro board and populate all three columns",
+        "subtopics": ["Retro Template Selection","Populating Went Well/Didn't Go Well","Assigning Action Items"]
+      },
+      "notes": "Weekly Practice - Core"
+    },
+    {
+      "domain": "Advanced JQL",
+      "toc": {
+        "title": "Advanced JQL",
+        "category": "Core",
+        "tools": "JQL",
+        "lab": "Write a query combining sprint, fixVersion, and status",
+        "subtopics": ["Multi-condition Queries","Using Functions","Nested Query Logic"]
+      },
+      "notes": "Weekly Practice - Core"
+    },
+    {
+      "domain": "Workflow Tracing (Weekly)",
+      "toc": {
+        "title": "Workflow Tracing",
+        "category": "Core",
+        "tools": "Workflow Editor (view-only)",
+        "lab": "Trace one issue through its full workflow",
+        "subtopics": ["Following an Issue's Transitions","Identifying Bottlenecks","Workflow Gap Analysis"]
+      },
+      "notes": "Weekly Practice - Core"
+    },
+    {
+      "domain": "Epic Management",
+      "toc": {
+        "title": "Epic Management",
+        "category": "Core",
+        "tools": "Epic Panel",
+        "lab": "Create an Epic and link 3+ stories to it",
+        "subtopics": ["Epic Creation and Linking","Progress Rollup Review","Epic Prioritization"]
+      },
+      "notes": "Weekly Practice - Core"
+    },
+    {
+      "domain": "Basic Automation Rules (Weekly)",
+      "toc": {
+        "title": "Basic Automation Rules",
+        "category": "Advanced",
+        "tools": "Automation",
+        "lab": "Build a rule that auto-assigns on status change",
+        "subtopics": ["Simple Trigger Setup","Auto-assignment Rules","Rule Testing"]
+      },
+      "notes": "Weekly Practice - Advanced"
+    },
+    {
+      "domain": "Automation Rule Review",
+      "toc": {
+        "title": "Automation Rule Review",
+        "category": "Advanced",
+        "tools": "Automation",
+        "lab": "Audit existing rules for redundancy",
+        "subtopics": ["Auditing Existing Rules","Identifying Redundant Rules","Optimizing Rule Logic"]
+      },
+      "notes": "Weekly Practice - Advanced"
+    },
+    {
+      "domain": "Sprint & Velocity Reports",
+      "toc": {
+        "title": "Sprint & Velocity Reports",
+        "category": "Observability",
+        "tools": "Reports",
+        "lab": "Generate a sprint report and summarize completed vs carried-over work",
+        "subtopics": ["Generating Sprint Reports","Velocity Trend Analysis","Carry-over Item Review"]
+      },
+      "notes": "Weekly Practice - Observability"
+    },
+    {
+      "domain": "Dashboards & Gadgets (Weekly)",
+      "toc": {
+        "title": "Dashboards & Gadgets",
+        "category": "Observability",
+        "tools": "Dashboards",
+        "lab": "Build a weekly reporting dashboard for stakeholders",
+        "subtopics": ["Weekly Dashboard Setup","Gadget Selection for Reporting","Sharing with Stakeholders"]
+      },
+      "notes": "Weekly Practice - Observability"
+    },
+    {
+      "domain": "Permissions & Roles Review (admin track)",
+      "toc": {
+        "title": "Permissions & Roles Review (admin track)",
+        "category": "Security",
+        "tools": "Permission Schemes",
+        "lab": "Audit role assignments for one project",
+        "subtopics": ["Reviewing Role Assignments","Permission Scheme Audit","Access Anomaly Detection"]
+      },
+      "notes": "Weekly Practice - Security"
+    },
+    {
+      "domain": "Cross-team Ticket Audit",
+      "toc": {
+        "title": "Cross-team Ticket Audit",
+        "category": "Projects",
+        "tools": "Filters, Issue Navigator",
+        "lab": "Flag tickets untouched for 7+ days across a project",
+        "subtopics": ["Identifying Stale Tickets","Cross-project Filter Review","Flagging for Follow-up"]
+      },
+      "notes": "Weekly Practice - Projects"
+    },
+    {
+      "domain": "Mock Sprint Retrospective",
+      "toc": {
+        "title": "Mock Sprint Retrospective",
+        "category": "Projects",
+        "tools": "Retrospective Template",
+        "lab": "Facilitate a mock retro and assign action items",
+        "subtopics": ["Facilitating a Retro","Categorizing Feedback","Action Item Follow-through"]
+      },
+      "notes": "Weekly Practice - Projects"
+    },
+    {
+      "domain": "Sprint Metrics Recap",
+      "toc": {
+        "title": "Sprint Metrics Recap",
+        "category": "Revision",
+        "tools": "Reports",
+        "lab": "Summarize velocity and completion rate trends",
+        "subtopics": ["Velocity Recap","Completion Rate Review","Metric Trend Discussion"]
+      },
+      "notes": "Weekly Practice - Revision"
+    },
+    {
+      "domain": "Full Mock Sprint Cycle (Plan → Execute → Report → Retro)",
+      "toc": {
+        "title": "Full Mock Sprint Cycle (Plan → Execute → Report → Retro)",
+        "category": "Capstone",
+        "tools": "Backlog View, Reports, Automation, Retrospective Template",
+        "lab": "Run a complete mock sprint from planning through retro",
+        "subtopics": ["Planning Phase Walkthrough","Execution Tracking","Reporting and Retro Wrap-up"]
+      },
+      "notes": "Weekly Practice - Capstone"
+    }
+  ]
+}

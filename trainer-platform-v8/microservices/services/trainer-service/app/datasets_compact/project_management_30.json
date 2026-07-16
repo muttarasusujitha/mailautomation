@@ -1,0 +1,441 @@
+{
+  "domain": "Project Management",
+  "name": "Project Management",
+  "icon": "tasks",
+  "program_title": "Project Management Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Project Management Expert",
+  "certifications": [
+    "PMP - Project Management Professional",
+    "CAPM - Certified Associate in Project Management",
+    "Agile Certified Practitioner (ACP)",
+    "Scrum Master Certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Project Management Fundamentals",
+      "subtopics": [
+        "Project vs Operations",
+        "Triple Constraint",
+        "Project Lifecycle"
+      ],
+      "tools": [
+        "Fundamentals"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "PM basics"
+    },
+    {
+      "day": 2,
+      "topic": "Project Management Fundamentals",
+      "subtopics": [
+        "Project vs Operations",
+        "Triple Constraint",
+        "Project Lifecycle"
+      ],
+      "tools": [
+        "Fundamentals"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "PM basics"
+    },
+    {
+      "day": 3,
+      "topic": "Initiating Projects",
+      "subtopics": [
+        "Charter",
+        "Stakeholders",
+        "Scope",
+        "Objectives"
+      ],
+      "tools": [
+        "Project Charter"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Project initiation"
+    },
+    {
+      "day": 4,
+      "topic": "Initiating Projects",
+      "subtopics": [
+        "Charter",
+        "Stakeholders",
+        "Scope",
+        "Objectives"
+      ],
+      "tools": [
+        "Project Charter"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Project initiation"
+    },
+    {
+      "day": 5,
+      "topic": "Planning - Scope",
+      "subtopics": [
+        "Scope Statement",
+        "WBS",
+        "Scope Baseline"
+      ],
+      "tools": [
+        "WBS"
+      ],
+      "jira_focus": "Sprint planning; review progress for Planning - Scope",
+      "lab_task": "Scope planning"
+    },
+    {
+      "day": 6,
+      "topic": "Planning - Scope",
+      "subtopics": [
+        "Scope Statement",
+        "WBS",
+        "Scope Baseline"
+      ],
+      "tools": [
+        "WBS"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Scope planning"
+    },
+    {
+      "day": 7,
+      "topic": "Planning - Schedule",
+      "subtopics": [
+        "Activity Definition",
+        "Duration Estimation",
+        "Gantt Charts"
+      ],
+      "tools": [
+        "Gantt"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Schedule planning"
+    },
+    {
+      "day": 8,
+      "topic": "Planning - Schedule",
+      "subtopics": [
+        "Activity Definition",
+        "Duration Estimation",
+        "Gantt Charts"
+      ],
+      "tools": [
+        "Gantt"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Schedule planning"
+    },
+    {
+      "day": 9,
+      "topic": "Planning - Budget",
+      "subtopics": [
+        "Cost Estimation",
+        "Budget Development",
+        "Cost Baseline"
+      ],
+      "tools": [
+        "Budget Planning"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Budget planning"
+    },
+    {
+      "day": 10,
+      "topic": "Planning - Budget",
+      "subtopics": [
+        "Cost Estimation",
+        "Budget Development",
+        "Cost Baseline"
+      ],
+      "tools": [
+        "Budget Planning"
+      ],
+      "jira_focus": "Sprint planning; review progress for Planning - Budget",
+      "lab_task": "Budget planning"
+    },
+    {
+      "day": 11,
+      "topic": "Planning - Risk",
+      "subtopics": [
+        "Risk Identification",
+        "Analysis",
+        "Mitigation"
+      ],
+      "tools": [
+        "Risk Register"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Risk planning"
+    },
+    {
+      "day": 12,
+      "topic": "Planning - Risk",
+      "subtopics": [
+        "Risk Identification",
+        "Analysis",
+        "Mitigation"
+      ],
+      "tools": [
+        "Risk Register"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Risk planning"
+    },
+    {
+      "day": 13,
+      "topic": "Planning - Quality & Procurement",
+      "subtopics": [
+        "Quality Planning",
+        "Vendor Selection",
+        "Contracts"
+      ],
+      "tools": [
+        "Quality"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Quality & procurement"
+    },
+    {
+      "day": 14,
+      "topic": "Planning - Quality & Procurement",
+      "subtopics": [
+        "Quality Planning",
+        "Vendor Selection",
+        "Contracts"
+      ],
+      "tools": [
+        "Quality"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Quality & procurement"
+    },
+    {
+      "day": 15,
+      "topic": "Agile Project Management",
+      "subtopics": [
+        "Agile Principles",
+        "Scrum Framework",
+        "Sprints"
+      ],
+      "tools": [
+        "Agile"
+      ],
+      "jira_focus": "Sprint planning; review progress for Agile Project Management",
+      "lab_task": "Agile methodology"
+    },
+    {
+      "day": 16,
+      "topic": "Agile Project Management",
+      "subtopics": [
+        "Agile Principles",
+        "Scrum Framework",
+        "Sprints"
+      ],
+      "tools": [
+        "Agile"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Agile methodology"
+    },
+    {
+      "day": 17,
+      "topic": "Kanban & Lean",
+      "subtopics": [
+        "Kanban Board",
+        "Lean Principles",
+        "Continuous Flow"
+      ],
+      "tools": [
+        "Kanban"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Kanban approach"
+    },
+    {
+      "day": 18,
+      "topic": "Kanban & Lean",
+      "subtopics": [
+        "Kanban Board",
+        "Lean Principles",
+        "Continuous Flow"
+      ],
+      "tools": [
+        "Kanban"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Kanban approach"
+    },
+    {
+      "day": 19,
+      "topic": "Execution & Monitoring",
+      "subtopics": [
+        "Work Performance",
+        "Status Reporting",
+        "Change Control"
+      ],
+      "tools": [
+        "Execution"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Execution phase"
+    },
+    {
+      "day": 20,
+      "topic": "Execution & Monitoring",
+      "subtopics": [
+        "Work Performance",
+        "Status Reporting",
+        "Change Control"
+      ],
+      "tools": [
+        "Execution"
+      ],
+      "jira_focus": "Sprint planning; review progress for Execution & Monitoring",
+      "lab_task": "Execution phase"
+    },
+    {
+      "day": 21,
+      "topic": "Controlling Quality",
+      "subtopics": [
+        "Inspections",
+        "Process Analysis",
+        "Quality Assurance"
+      ],
+      "tools": [
+        "QA"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Quality control"
+    },
+    {
+      "day": 22,
+      "topic": "Controlling Quality",
+      "subtopics": [
+        "Inspections",
+        "Process Analysis",
+        "Quality Assurance"
+      ],
+      "tools": [
+        "QA"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Quality control"
+    },
+    {
+      "day": 23,
+      "topic": "Stakeholder Management",
+      "subtopics": [
+        "Communication Plans",
+        "Engagement",
+        "Conflict Resolution"
+      ],
+      "tools": [
+        "Stakeholder Management"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Stakeholder engagement"
+    },
+    {
+      "day": 24,
+      "topic": "Stakeholder Management",
+      "subtopics": [
+        "Communication Plans",
+        "Engagement",
+        "Conflict Resolution"
+      ],
+      "tools": [
+        "Stakeholder Management"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Stakeholder engagement"
+    },
+    {
+      "day": 25,
+      "topic": "Team Management",
+      "subtopics": [
+        "Team Building",
+        "Leadership",
+        "Motivation",
+        "Conflict"
+      ],
+      "tools": [
+        "Team Management"
+      ],
+      "jira_focus": "Sprint planning; review progress for Team Management",
+      "lab_task": "Team dynamics"
+    },
+    {
+      "day": 26,
+      "topic": "Team Management",
+      "subtopics": [
+        "Team Building",
+        "Leadership",
+        "Motivation",
+        "Conflict"
+      ],
+      "tools": [
+        "Team Management"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Team dynamics"
+    },
+    {
+      "day": 27,
+      "topic": "Closing Projects",
+      "subtopics": [
+        "Deliverables",
+        "Lessons Learned",
+        "Documentation"
+      ],
+      "tools": [
+        "Project Closure"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Project closure"
+    },
+    {
+      "day": 28,
+      "topic": "Closing Projects",
+      "subtopics": [
+        "Deliverables",
+        "Lessons Learned",
+        "Documentation"
+      ],
+      "tools": [
+        "Project Closure"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Project closure"
+    },
+    {
+      "day": 29,
+      "topic": "Real-World Project Scenarios",
+      "subtopics": [
+        "Case Studies",
+        "Complex Projects",
+        "Leadership Challenges"
+      ],
+      "tools": [
+        "Case Studies"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Advanced scenarios"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Case Studies",
+        "Complex Projects",
+        "Leadership Challenges"
+      ],
+      "tools": [
+        "Case Studies"
+      ],
+      "jira_focus": "Sprint planning; review progress for Real-World Project Scenarios",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    }
+  ]
+}

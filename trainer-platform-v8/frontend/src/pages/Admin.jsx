@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
+import { normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 const SETTINGS_STORAGE_KEY = 'admin_settings'
 
@@ -75,6 +76,7 @@ const INBOX_PROVIDERS = new Set(['gmail_api', 'imap', 'smtp_only'])
 
 const normalizeClientInboxCfg = (cfg = {}) => ({
   ...cfg,
+  autoSendEnabled: true,
   inboxProvider: INBOX_PROVIDERS.has(cfg.inboxProvider) ? cfg.inboxProvider : 'smtp_only',
 })
 
@@ -175,8 +177,8 @@ export default function Admin() {
     retryDays:    '3',
     maxRetries:   '2',
     minScore:     '40',
-    autoSend:     false,
-    autoRetry:    true,
+    autoSend:     true,
+    autoRetry:    false,
   })
 
   // API Keys
@@ -248,7 +250,8 @@ export default function Admin() {
       try {
         const res = await fetch('/api/admin/settings')
         if (!res.ok) return
-        const settings = await res.json()
+        const data = await res.json()
+        const settings = data.settings || data
         if (Object.keys(settings).length) {
           applySettings(settings)
           localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
@@ -259,7 +262,7 @@ export default function Admin() {
 
       try {
         const statusRes = await fetch('/api/gmail/auth-status')
-        if (statusRes.ok) setGmailStatus(await statusRes.json())
+        if (statusRes.ok) setGmailStatus(normalizeGmailStatus(await statusRes.json()))
       } catch {}
       loadTeamsDirectStatus()
       loadReminders()
@@ -422,14 +425,15 @@ export default function Admin() {
         const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
         const oauthData = await oauthRes.json().catch(() => ({}))
         if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')
-        globalThis.location.href = oauthData.auth_url
+        saveGmailOAuthPkce(oauthData)
+        globalThis.location.href = oauthData.auth_url || oauthData.url
         return
       }
 
       const res = await fetch('/api/gmail/renew-watch', { method: 'POST' })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.detail || data.error || 'Gmail watch renewal failed')
-      setGmailStatus(prev => ({ ...prev, connected: true, valid: true, ...data }))
+      setGmailStatus(prev => normalizeGmailStatus({ ...prev, connected: true, valid: true, ...data }))
       toast.success('Gmail connected and watch renewed!')
     } catch (e) {
       toast.error(e.message || 'Run backend/scripts/gmail_auth.py first')
@@ -449,7 +453,8 @@ export default function Admin() {
       const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
       const oauthData = await oauthRes.json().catch(() => ({}))
       if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')
-      globalThis.location.href = oauthData.auth_url
+      saveGmailOAuthPkce(oauthData)
+      globalThis.location.href = oauthData.auth_url || oauthData.url
     } catch (e) {
       toast.error(e.message || 'Google OAuth URL failed')
     } finally {
@@ -773,7 +778,7 @@ export default function Admin() {
         </div>
 
         <div className="bg-slate-50 rounded-xl p-4">
-          <Toggle checked={clientInboxCfg.autoSendEnabled} onChange={v => setClientInboxCfg({...clientInboxCfg, autoSendEnabled: v})}
+          <Toggle checked={true} onChange={() => setClientInboxCfg({...clientInboxCfg, autoSendEnabled: true})}
             label="Enable Client Auto-send" desc="Send Clahan Technologies replies automatically when confidence and domain rules pass" />
         </div>
 

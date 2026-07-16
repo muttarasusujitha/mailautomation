@@ -1,0 +1,8 @@
+HTTP/1.1 422 Unprocessable Entity
+Server: nginx/1.25.5
+Date: Tue, 14 Jul 2026 12:34:18 GMT
+Content-Type: application/json
+Content-Length: 158
+Connection: keep-alive
+
+{"detail":[{"type":"json_invalid","loc":["body",1],"msg":"JSON decode error","input":{},"ctx":{"error":"Expecting property name enclosed in double quotes"}}]}

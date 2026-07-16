@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
@@ -391,13 +391,14 @@ export default function ClientRequests() {
   const [stats, setStats] = useState({})
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
+  const [processingId, setProcessingId] = useState('')
   const [retryingUpdateId, setRetryingUpdateId] = useState('')
   const [filter, setFilter] = useState('all')
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
 
-  const loadRequests = async () => {
-    setLoading(true)
+  const loadRequests = async (silent = false) => {
+    if (!silent) setLoading(true)
     try {
       const [requestsRes, updatesRes] = await Promise.all([
         api.get('/inbox', {
@@ -409,21 +410,39 @@ export default function ClientRequests() {
       setStats(requestsRes.data.stats || {})
       setClientUpdates(updatesRes.data.updates || [])
     } catch (e) {
-      toast.error(e.message || 'Could not load client requests')
+      if (!silent) {
+        toast.error(e.message || 'Could not load client requests')
+      }
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
+  const refreshInterval = useRef(null)
+
   useEffect(() => {
     loadRequests()
+    refreshInterval.current = window.setInterval(() => loadRequests(true), 1000)
+    return () => {
+      if (refreshInterval.current) {
+        window.clearInterval(refreshInterval.current)
+        refreshInterval.current = null
+      }
+    }
   }, [filter])
 
   const syncNow = async () => {
     setSyncing(true)
     try {
       const res = await api.post('/gmail/sync-now?limit=50')
-      toast.success(`Inbox checked: ${res.data?.processed_count || 0} new request(s) processed`)
+      if (res.data?.queued) {
+        toast.success(res.data?.message || 'Inbox sync started. Refreshing shortly.')
+        window.setTimeout(() => loadRequests(), 6000)
+        return
+      }
+      const created = res.data?.requirements_created || 0
+      const autoSent = res.data?.auto_sent || 0
+      toast.success(`Inbox checked: ${created} requirement(s), ${autoSent} auto-mail batch(es)`)
       await loadRequests()
     } catch (e) {
       toast.error(e.response?.data?.detail || e.message || 'Inbox sync failed')
@@ -447,6 +466,22 @@ export default function ClientRequests() {
       toast.error(e.response?.data?.detail || e.message || 'Calendar retry failed')
     } finally {
       setRetryingUpdateId('')
+    }
+  }
+
+  const createRequirementFromEmail = async item => {
+    if (!item?.email_id || processingId) return
+    setProcessingId(item.email_id)
+    try {
+      const res = await api.post(`/inbox/${item.email_id}/create-requirement`)
+      const reqId = res.data?.requirement_id
+      const sent = res.data?.mail_automation?.sent || 0
+      toast.success(reqId ? `Requirement ${reqId} created, ${sent} trainer mail(s) sent` : 'Requirement processing completed')
+      await loadRequests()
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Could not create requirement')
+    } finally {
+      setProcessingId('')
     }
   }
 
@@ -620,6 +655,16 @@ export default function ClientRequests() {
                       </td>
                       <td className="px-4 py-4 text-right align-top">
                         <div className="flex justify-end gap-2">
+                          {!item.requirement_id && (
+                            <button
+                              onClick={() => createRequirementFromEmail(item)}
+                              disabled={processingId === item.email_id}
+                              className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-60"
+                            >
+                              {processingId === item.email_id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
+                              Create Req
+                            </button>
+                          )}
                           <button onClick={() => setSelected(item)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
                             View
                           </button>

@@ -7,7 +7,7 @@ const TIER_CONFIG = {
     icon: ShieldCheck,
     classes: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     dot: 'bg-emerald-500',
-    weight: 1.0,
+    weight: 1,
   },
   ai_extracted: {
     label: 'AI verified',
@@ -28,7 +28,7 @@ const TIER_CONFIG = {
     icon: ShieldAlert,
     classes: 'bg-amber-50 text-amber-700 border-amber-200',
     dot: 'bg-amber-400',
-    weight: 0.30,
+    weight: 0.3,
   },
   manual_entry: {
     label: 'Manual entry',
@@ -42,7 +42,7 @@ const TIER_CONFIG = {
     icon: Shield,
     classes: 'bg-slate-50 text-slate-500 border-slate-200',
     dot: 'bg-slate-300',
-    weight: 0.50,
+    weight: 0.5,
   },
 }
 
@@ -53,11 +53,12 @@ function getTierConfig(tier) {
 export function VerificationBadge({ tier, showLabel = true, size = 'sm' }) {
   const config = getTierConfig(tier)
   const Icon = config.icon
+  const textSize = size === 'xs' ? 'text-[11px]' : 'text-xs'
 
   return (
     <span className={clsx(
       'inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 font-semibold',
-      size === 'xs' ? 'text-xs' : 'text-xs',
+      textSize,
       config.classes,
     )}>
       <Icon className="h-3 w-3" aria-hidden="true" />
@@ -116,7 +117,7 @@ export function TrustSummaryCard({ trainer, onRequestResume }) {
             key={key}
             label={label}
             value={value}
-            tier={(trust[key] || {}).tier || 'unknown'}
+            tier={trust[key]?.tier || 'unknown'}
           />
         ))}
       </div>
@@ -168,7 +169,7 @@ export function LinkedInLeadVerifyButton({ lead, onVerify, loading }) {
   return (
     <button
       type="button"
-      onClick={() => onVerify && onVerify(lead)}
+      onClick={() => onVerify?.(lead)}
       disabled={loading}
       className="inline-flex items-center gap-1 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-700 transition hover:bg-amber-100 disabled:opacity-50"
     >

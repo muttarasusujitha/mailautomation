@@ -2,7 +2,7 @@ import pymongo
 import asyncio
 from datetime import datetime
 
-client = pymongo.MongoClient('mongodb://localhost:27017/')
+client = pymongo.MongoClient('mongodb://127.0.0.1:27017/')
 db = client['trainer_platform']
 
 # Check for received emails

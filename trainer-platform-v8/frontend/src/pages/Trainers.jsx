@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   getTrainers,
+  getTrainer,
   deleteTrainer,
   getTrainerCategories,
   getTrainerDomains,
@@ -38,6 +39,9 @@ import {
   Save,
   Send,
   Star,
+  TrendingUp,
+  BookOpenCheck,
+  BriefcaseBusiness,
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
@@ -50,6 +54,20 @@ const STATUS_COLORS = {
   declined: 'badge-red',
   confirmed: 'badge-green',
   pending_review: 'badge-yellow',
+  interview_scheduled: 'badge-purple',
+  selected: 'badge-green',
+  rejected: 'badge-red',
+  toc_requested: 'badge-blue',
+  toc_received_pending: 'badge-blue',
+  training_confirmed: 'badge-green',
+}
+
+function trainerStatusLabel(value = '') {
+  return String(value || 'new').replaceAll('_', ' ')
+}
+
+function trainerStatusClass(value = '') {
+  return STATUS_COLORS[value] || 'badge-slate'
 }
 
 const STATUSES = ['', 'new', 'contacted', 'interested', 'declined', 'pending_review']
@@ -138,22 +156,223 @@ const DOMAIN_BADGES = {
   'enterprise software': 'bg-orange-50 text-orange-700 border-orange-200',
 }
 
+const EMPTY_TEXT_VALUES = new Set(['', '-', '--', 'unknown', 'n/a', 'na', 'none', 'null', 'undefined', 'not available', 'not specified'])
+const EMPTY_CATEGORY_VALUES = new Set(['uncategorised', 'uncategorized', 'unknown', 'general', 'multi-skillset', 'not categorised', 'not categorized'])
+const CATEGORY_RULES = [
+  {
+    category: 'DevOps',
+    keywords: ['devops', 'docker', 'kubernetes', 'jenkins', 'terraform', 'ansible', 'ci/cd', 'prometheus', 'grafana', 'helm'],
+  },
+  {
+    category: 'Cloud',
+    keywords: ['aws', 'azure', 'gcp', 'cloud', 'ec2', 's3', 'lambda'],
+  },
+  {
+    category: 'Data Science',
+    keywords: ['data science', 'machine learning', 'deep learning', 'pandas', 'numpy', 'statistics', 'tensorflow', 'pytorch'],
+  },
+  {
+    category: 'Data Engineering',
+    keywords: ['data engineering', 'spark', 'databricks', 'kafka', 'airflow', 'etl', 'bigquery'],
+  },
+  {
+    category: 'Cybersecurity',
+    keywords: ['cybersecurity', 'security', 'soc', 'siem', 'ethical hacking', 'vapt'],
+  },
+  {
+    category: 'Database',
+    keywords: ['sql', 'postgresql', 'mysql', 'mongodb', 'oracle', 'database'],
+  },
+  {
+    category: 'Frontend Development',
+    keywords: ['react', 'angular', 'vue', 'html', 'css', 'redux', 'frontend'],
+  },
+  {
+    category: 'Backend Development',
+    keywords: ['node.js', 'node', 'express', 'django', 'flask', 'fastapi', 'spring boot', 'backend', 'api'],
+  },
+  {
+    category: 'Programming Languages',
+    keywords: ['python', 'java', 'javascript', 'typescript', 'c++', 'c#', 'go', 'rust'],
+  },
+]
+const SKILL_PATTERNS = [
+  ['Python', ['python', 'python trainer']],
+  ['Java', ['java', 'java trainer']],
+  ['JavaScript', ['javascript', 'js']],
+  ['TypeScript', ['typescript', 'ts']],
+  ['React', ['react', 'react.js', 'reactjs', 'react trainer']],
+  ['Angular', ['angular']],
+  ['Vue.js', ['vue', 'vue.js']],
+  ['Node.js', ['node', 'node.js', 'nodejs']],
+  ['Express.js', ['express', 'express.js']],
+  ['MERN Stack', ['mern', 'mern stack']],
+  ['MongoDB', ['mongodb', 'mongo db']],
+  ['Django', ['django']],
+  ['Flask', ['flask']],
+  ['FastAPI', ['fastapi', 'fast api']],
+  ['Spring Boot', ['spring boot']],
+  ['HTML', ['html']],
+  ['CSS', ['css']],
+  ['Redux', ['redux']],
+  ['Next.js', ['next.js', 'nextjs']],
+  ['AWS', ['aws', 'amazon web services']],
+  ['Azure', ['azure']],
+  ['GCP', ['gcp', 'google cloud']],
+  ['Docker', ['docker']],
+  ['Kubernetes', ['kubernetes', 'k8s']],
+  ['Jenkins', ['jenkins']],
+  ['Terraform', ['terraform']],
+  ['SQL', ['sql']],
+  ['PostgreSQL', ['postgresql', 'postgres']],
+]
+
+function displayText(value, preferredKeys = []) {
+  if (value == null) return ''
+  if (typeof value === 'string') {
+    const text = value.trim()
+    return EMPTY_TEXT_VALUES.has(text.toLowerCase()) ? '' : text
+  }
+  if (typeof value === 'number') return value === 0 ? '' : String(value)
+  if (typeof value === 'boolean') return value ? 'Yes' : ''
+  if (Array.isArray(value)) return value.map(item => displayText(item, preferredKeys)).filter(Boolean).join(', ')
+  if (typeof value === 'object') {
+    const keys = [...preferredKeys, 'label', 'value', 'name', 'domain', 'category', 'industry', 'technology_category']
+    for (const key of keys) {
+      const text = displayText(value[key], preferredKeys)
+      if (text) return text
+    }
+    return ''
+  }
+  return String(value).trim()
+}
+
 function asArray(value) {
-  if (Array.isArray(value)) return value.filter(Boolean)
+  if (Array.isArray(value)) return value.map(item => displayText(item)).filter(Boolean)
   if (!value) return []
-  return String(value).split(/[,;\n]/).map(item => item.trim()).filter(Boolean)
+  return displayText(value).split(/[,;\n]/).map(item => item.trim()).filter(Boolean)
+}
+
+function uniqueByLower(values) {
+  const seen = new Set()
+  const items = []
+  values.forEach(value => {
+    const text = displayText(value)
+    const key = text.toLowerCase()
+    if (text && !seen.has(key)) {
+      seen.add(key)
+      items.push(text)
+    }
+  })
+  return items
+}
+
+function hasSkillAlias(text, alias) {
+  const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`(^|[^a-z0-9+#.])${escaped}($|[^a-z0-9+#.])`, 'i').test(text)
+}
+
+function isUsefulCategory(value) {
+  const text = displayText(value)
+  return Boolean(text && !EMPTY_CATEGORY_VALUES.has(text.toLowerCase()))
 }
 
 function uniqueSorted(values) {
-  return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b))
+  return [...new Set(values.map(item => displayText(item)).filter(Boolean))].sort((a, b) => a.localeCompare(b))
 }
 
 function softwareDomainsOnly(values) {
-  return values.filter(domain => domain && !NON_SOFTWARE_DOMAINS.has(String(domain).toLowerCase()))
+  return values
+    .map(domain => displayText(domain))
+    .filter(domain => domain && !NON_SOFTWARE_DOMAINS.has(domain.toLowerCase()))
+}
+
+function searchableTrainerText(t) {
+  return [
+    t.name,
+    t.primary_category,
+    t.technology_category,
+    t.category,
+    t.domain,
+    t.role_designation,
+    t.technologies,
+    t.summary,
+    t.bio,
+    t.resume,
+    ...(asArray(t.skills)),
+    ...(asArray(t.secondary_categories)),
+    ...(specialisationTags(t)),
+  ].map(item => displayText(item)).filter(Boolean).join(' ').toLowerCase()
+}
+
+function detectedSkillsFromText(text) {
+  if (!text) return []
+  const matches = []
+  SKILL_PATTERNS.forEach(([skill, aliases]) => {
+    if (aliases.some(alias => hasSkillAlias(text, alias))) matches.push(skill)
+  })
+  if (matches.some(skill => skill === 'MERN Stack')) {
+    matches.push('MongoDB', 'Express.js', 'React', 'Node.js', 'JavaScript')
+  }
+  return uniqueByLower(matches)
+}
+
+function allTrainerSkills(t) {
+  return uniqueByLower([
+    ...asArray(t.skills),
+    ...detectedSkillsFromText(searchableTrainerText(t)),
+  ])
+}
+
+function trainerDisplayName(t) {
+  const raw = displayText(t.name)
+  if (!raw) return ''
+  const [namePart] = raw.split(/\s[-|]\s/)
+  return displayText(namePart) || raw
+}
+
+function trainerTitle(t) {
+  const role = displayText(t.role_designation)
+  if (role && role !== trainerDisplayName(t)) return role
+  const raw = displayText(t.name)
+  const titlePart = raw.split(/\s-\s/).slice(1).join(' - ')
+  return displayText(titlePart || t.technologies || t.primary_category || t.technology_category || t.category || t.domain)
+}
+
+function cleanSummary(t) {
+  const summary = displayText(t.summary || t.bio)
+  if (!summary) return ''
+  const name = trainerDisplayName(t).toLowerCase()
+  const title = trainerTitle(t).toLowerCase()
+  const lower = summary.toLowerCase()
+  if (lower === name || lower === title || lower === displayText(t.name).toLowerCase()) return ''
+  return summary
+}
+
+function inferredCategory(t) {
+  const explicit = [t.primary_category, t.technology_category, t.category, t.domain]
+    .map(item => displayText(item))
+    .find(isUsefulCategory)
+  if (explicit) return explicit
+
+  const text = searchableTrainerText(t)
+  const hasFrontend = ['react', 'angular', 'vue', 'javascript', 'typescript', 'html', 'css'].some(keyword => text.includes(keyword))
+  const hasBackend = ['python', 'java', 'node', 'django', 'flask', 'fastapi', 'spring boot', 'api'].some(keyword => text.includes(keyword))
+  if (hasFrontend && hasBackend) return 'Full Stack'
+
+  const matched = CATEGORY_RULES
+    .map(rule => ({
+      category: rule.category,
+      count: rule.keywords.filter(keyword => text.includes(keyword)).length,
+    }))
+    .filter(item => item.count > 0)
+    .sort((a, b) => b.count - a.count)
+  if (matched.length) return matched[0].category
+  return allTrainerSkills(t).length ? 'Software Development' : ''
 }
 
 function primaryCategory(t) {
-  return t.primary_category || t.technology_category || t.category || 'Uncategorised'
+  return inferredCategory(t) || 'Uncategorised'
 }
 
 function specialisationTags(t) {
@@ -161,7 +380,7 @@ function specialisationTags(t) {
 }
 
 function domainBadge(domain) {
-  return DOMAIN_BADGES[String(domain || '').toLowerCase()] || 'bg-slate-100 text-slate-600 border-slate-200'
+  return DOMAIN_BADGES[displayText(domain).toLowerCase()] || 'bg-slate-100 text-slate-600 border-slate-200'
 }
 
 function levelBadge(level) {
@@ -173,7 +392,64 @@ function levelBadge(level) {
 
 function skillLevels(t) {
   const map = t.skill_level_map || {}
-  return Object.entries(map).filter(([skill]) => skill).slice(0, 3)
+  if (!map || typeof map !== 'object' || Array.isArray(map)) return []
+  return Object.entries(map)
+    .map(([skill, level]) => [displayText(skill), displayText(level)])
+    .filter(([skill]) => skill)
+    .slice(0, 3)
+}
+
+function numericValue(value) {
+  const number = Number(value)
+  return Number.isFinite(number) && number > 0 ? number : 0
+}
+
+function normaliseScore(value) {
+  const number = numericValue(value)
+  if (!number) return 0
+  if (number <= 1) return number * 100
+  if (number <= 5) return number * 20
+  return Math.min(100, number)
+}
+
+function experienceYears(t) {
+  const explicit = numericValue(t.experience_years)
+  if (explicit) return explicit
+  const raw = displayText(t.experience_raw || t.experience || t.total_experience)
+  const match = raw.match(/(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)/i)
+  return match ? Number(match[1]) : 0
+}
+
+function inferredProfileScore(t) {
+  const skills = allTrainerSkills(t)
+  const certs = asArray(t.certifications)
+  const clients = asArray(t.past_clients)
+  const years = experienceYears(t)
+  let score = skills.length ? 30 : 0
+  score += Math.min(25, skills.length * 4)
+  score += isUsefulCategory(primaryCategory(t)) ? 12 : 0
+  score += displayText(t.name) ? 6 : 0
+  score += Math.min(12, [t.email, t.phone, t.linkedin].filter(item => displayText(item)).length * 4)
+  score += Math.min(15, Math.round(years * 2.5))
+  score += displayText(t.location) ? 4 : 0
+  score += displayText(t.summary || t.bio || t.resume) ? 7 : 0
+  score += Math.min(7, certs.length * 3)
+  score += Math.min(4, clients.length * 2)
+  score += numericValue(t.training_count) ? 3 : 0
+  return Math.max(0, Math.min(100, Math.round(score)))
+}
+
+function trainerProfileScore(t) {
+  const explicitScores = [
+    t.profile_score,
+    t.resume_rank_score,
+    t.overall_score,
+    t.match_score,
+    t.fit_score,
+    t.confidence_score,
+    t.confidence,
+  ].map(normaliseScore).filter(Boolean)
+  return Math.round(Math.max(inferredProfileScore(t), ...explicitScores, 0))
 }
 
 function trainerRating(t) {
@@ -186,7 +462,7 @@ function trainerRating(t) {
     t.star_rating,
   ]
   const explicitRating = ratingFields.find(value => Number.isFinite(Number(value)) && Number(value) > 0)
-  const raw = explicitRating ?? t.resume_rank_score ?? t.match_score ?? t.confidence_score ?? t.confidence ?? 0
+  const raw = explicitRating ?? trainerProfileScore(t)
   let rating = Number(raw) || 0
   if (rating > 5) rating /= 20
   else if (rating > 0 && rating <= 1) rating *= 5
@@ -217,26 +493,82 @@ function compactResumeText(value) {
   if (!value) return ''
   const text = String(value).trim()
   if (/^https?:\/\//i.test(text)) return ''
-  return text.length > 520 ? `${text.slice(0, 520).trim()}...` : text
+  return text.length > 1600 ? `${text.slice(0, 1600).trim()}...` : text
+}
+
+function textValue(value, fallback = 'Not available') {
+  const text = displayText(value)
+  return text || fallback
+}
+
+function dayRateText(value) {
+  const rate = numericValue(value)
+  return rate ? `INR ${rate.toLocaleString('en-IN')}` : 'Not available'
+}
+
+function trainerBreakdown(t) {
+  const existing = t.score_breakdown && typeof t.score_breakdown === 'object' ? t.score_breakdown : {}
+  const skills = allTrainerSkills(t)
+  const certs = asArray(t.certifications)
+  const years = experienceYears(t)
+  const fallback = {
+    technology: { score: isUsefulCategory(primaryCategory(t)) ? 35 : 0, max: 35 },
+    skills: { score: Math.min(25, skills.length * 4 + (displayText(t.technologies) ? 1 : 0)), max: 25 },
+    experience: { score: Math.min(15, Math.round(years * 2.5)), max: 15 },
+    certifications: { score: Math.min(10, certs.length * 5), max: 10 },
+    location: { score: displayText(t.location) ? 10 : 0, max: 10 },
+  }
+  const bestItem = (key) => {
+    const current = existing[key] && typeof existing[key] === 'object' ? existing[key] : {}
+    const currentScore = numericValue(current.score)
+    const fallbackScore = numericValue(fallback[key].score)
+    if (!current.max || fallbackScore > currentScore) return fallback[key]
+    return { ...current, score: currentScore, max: numericValue(current.max) || fallback[key].max }
+  }
+  return {
+    technology: bestItem('technology'),
+    skills: bestItem('skills'),
+    experience: bestItem('experience'),
+    certifications: bestItem('certifications'),
+    location: bestItem('location'),
+  }
 }
 
 function trainerDescription(t) {
-  const skills = asArray(t.skills).slice(0, 6)
+  const skills = allTrainerSkills(t).slice(0, 8)
   const tags = specialisationTags(t).slice(0, 4)
   const certs = asArray(t.certifications).slice(0, 3)
   const category = primaryCategory(t)
-  const experience = t.experience_raw || (t.experience_years ? `${t.experience_years}+ years` : '')
-  const role = t.role_designation || category
+  const years = experienceYears(t)
+  const experience = displayText(t.experience_raw) || (years ? `${years}+ years` : '')
+  const role = trainerTitle(t) || category
+  const score = trainerProfileScore(t)
+  const name = trainerDisplayName(t) || 'This trainer'
+  const summary = cleanSummary(t)
 
   const parts = []
+  if (score) {
+    parts.push(`${name} has a ${score}/100 trainer profile for ${category}.`)
+  }
   if (role || experience) {
-    parts.push(`Resume extracted: ${[role, experience].filter(Boolean).join(' | ')}.`)
+    parts.push(`Profile extracted: ${[role, experience].filter(Boolean).join(' | ')}.`)
   }
   if (skills.length) parts.push(`Skills found in resume: ${skills.join(', ')}.`)
   if (tags.length) parts.push(`Specialisation tags from resume skills: ${tags.join(', ')}.`)
   if (certs.length) parts.push(`Certifications found in resume: ${certs.join(', ')}.`)
-  if (t.summary) parts.push(`Resume summary excerpt: ${String(t.summary)}`)
+  if (summary) parts.push(`Resume summary excerpt: ${summary}`)
   return parts.join(' ')
+}
+
+function DetailSection({ title, icon: Icon, children }) {
+  return (
+    <section className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-800">
+        <Icon className="h-4 w-4 text-blue-600" /> {title}
+      </h4>
+      {children}
+    </section>
+  )
 }
 
 function TrainerPipelinePanel({ trainer, onStartAutomation, sendingAutomation }) {
@@ -323,7 +655,7 @@ function TrainerPipelinePanel({ trainer, onStartAutomation, sendingAutomation })
             currentStage ? 'border-blue-200 bg-blue-50 text-blue-700' :
                            'border-slate-200 bg-slate-50 text-slate-600'
           )}>
-            Status: <span className="font-bold capitalize">{statusText}</span>
+            Trainer Status: <span className="font-bold capitalize">{statusText}</span>
           </div>
           <button
             type="button"
@@ -486,12 +818,21 @@ function TrainerConversationThread({ trainer }) {
 
 function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomation, requestingResume, sendingAutomation }) {
   const category = primaryCategory(t)
+  const skills = allTrainerSkills(t)
   const tags = specialisationTags(t)
   const industries = asArray(t.industry_focus)
   const deliveryLanguages = asArray(t.language_of_delivery)
+  const secondary = asArray(t.secondary_categories)
   const levels = skillLevels(t)
-  const resumeText = compactResumeText(t.resume)
+  const resumeText = compactResumeText(t.resume || t.combined_text || t.extracted_text)
   const pastClients = asArray(t.past_clients)
+  const certs = asArray(t.certifications)
+  const profileScore = trainerProfileScore(t)
+  const breakdown = trainerBreakdown(t)
+  const years = experienceYears(t)
+  const displayName = trainerDisplayName(t)
+  const summary = cleanSummary(t)
+  const resumeUrl = /^https?:\/\//i.test(String(t.resume || '')) ? t.resume : ''
   const [teamsEmail, setTeamsEmail] = useState(t.teams_email || t.microsoft_teams_email || t.teams_upn || '')
   const [savingTeams, setSavingTeams] = useState(false)
   const [showSingleShortlist, setShowSingleShortlist] = useState(false)
@@ -518,58 +859,192 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-5 bg-black/30 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-card-lg w-full max-w-3xl max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2.5rem)] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-white flex-shrink-0">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0">
-              <span className="font-jakarta font-bold text-blue-600 text-lg">{t.name?.charAt(0).toUpperCase()}</span>
+      <div className="bg-white rounded-2xl shadow-card-lg w-full max-w-5xl max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-2.5rem)] overflow-hidden flex flex-col">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 bg-white p-5 flex-shrink-0">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-lg bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-600">Trainer DB</span>
+              <span className="rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">{profileScore}/100 profile</span>
+              <span className={trainerStatusClass(t.status)}>Trainer Status: {trainerStatusLabel(t.status)}</span>
+              <span className={clsx('px-2.5 py-1 rounded-full border text-xs font-semibold', domainBadge(category))}>{category}</span>
+              {t.needs_review && <span className="badge-yellow text-xs">Needs review</span>}
             </div>
-            <div className="min-w-0">
-              <h2 className="font-jakarta font-bold text-slate-900 text-lg truncate">{t.name}</h2>
-              <div className="flex flex-wrap gap-1 mt-1">
-                <span className={clsx('text-xs', STATUS_COLORS[t.status] || 'badge-slate')}>{t.status || 'new'}</span>
-                <span className={clsx('px-2 py-0.5 rounded-full border text-xs font-semibold', domainBadge(t.domain))}>
-                  {category}
-                </span>
-                {t.needs_review && <span className="badge-yellow text-xs">Needs review</span>}
-              </div>
-            </div>
+            <h2 className="mt-2 font-jakarta text-2xl font-bold text-slate-900 truncate">{displayName || 'Unnamed Trainer'}</h2>
+            <p className="mt-1 text-sm text-slate-500 line-clamp-2">
+              {displayText(t.technologies) || trainerTitle(t) || skills.slice(0, 10).join(', ') || 'No technologies listed'}
+            </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-xl transition-colors" aria-label="Close trainer detail">
-            <X className="w-5 h-5 text-slate-500" />
-          </button>
+          <div className="flex flex-shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowSingleShortlist(value => !value)}
+              className={clsx(
+                'hidden items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition-colors sm:flex',
+                showSingleShortlist
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100'
+              )}
+            >
+              <Sparkles className="h-4 w-4" />
+              Pipeline
+            </button>
+            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-xl transition-colors" aria-label="Close trainer detail">
+              <X className="w-5 h-5 text-slate-500" />
+            </button>
+          </div>
         </div>
 
-        <div className="p-5 space-y-5 overflow-y-auto flex-1">
-          <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
-            <div className="mb-2 flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Trainer Profile</p>
-                <p className="mt-0.5 text-xs text-blue-600">Resume details only. Open single shortlist when you want automation.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowSingleShortlist(value => !value)}
-                className={clsx(
-                  'flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition-colors',
-                  showSingleShortlist
-                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                    : 'bg-white text-blue-600 border border-blue-100 hover:bg-blue-50'
+        <div className="p-5 overflow-y-auto flex-1">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="space-y-4">
+              <DetailSection title="Profile Description" icon={BookOpenCheck}>
+                <p className="text-sm leading-6 text-slate-700">{trainerDescription(t) || 'Trainer profile details are still being collected.'}</p>
+                {summary && (
+                  <p className="mt-3 rounded-lg border border-slate-200 bg-white p-3 text-sm leading-6 text-slate-700">
+                    {summary}
+                  </p>
                 )}
-              >
-                <Sparkles className="h-4 w-4" />
-                {showSingleShortlist ? 'Hide Single Shortlist' : 'Single Shortlist / Pipeline'}
-              </button>
+              </DetailSection>
+
+              <DetailSection title="Resume Evidence" icon={FileText}>
+                {resumeText ? (
+                  <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg border border-slate-200 bg-white p-3 font-sans text-sm leading-6 text-slate-700">{resumeText}</pre>
+                ) : resumeUrl ? (
+                  <a href={resumeUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:underline">
+                    <FileText className="h-4 w-4" /> Open resume
+                  </a>
+                ) : (
+                  <p className="text-sm text-slate-500">No resume text or link is stored for this trainer.</p>
+                )}
+              </DetailSection>
+
+              <DetailSection title="Skills & Technologies" icon={Star}>
+                <div className="flex flex-wrap gap-2">
+                  {skills.length ? skills.map(skill => <span key={skill} className="badge-blue text-xs">{skill}</span>) : <span className="text-sm text-slate-500">No skills listed</span>}
+                </div>
+                {tags.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {tags.map(tag => <span key={tag} className="badge-purple text-xs">{tag}</span>)}
+                  </div>
+                )}
+                {secondary.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {secondary.map(item => <span key={item} className="badge-slate text-xs">{item}</span>)}
+                  </div>
+                )}
+                {levels.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {levels.map(([skill, level]) => (
+                      <span key={skill} className={clsx('px-2.5 py-1 rounded-full border text-xs font-semibold', levelBadge(level))}>
+                        {skill}: {level}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </DetailSection>
+
+              <DetailSection title="Microsoft Teams Direct Chat" icon={MessageSquare}>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <div className="relative flex-1">
+                    <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
+                    <input
+                      type="email"
+                      value={teamsEmail}
+                      onChange={e => setTeamsEmail(e.target.value)}
+                      placeholder="Optional Teams email override"
+                      className="w-full rounded-xl border border-indigo-100 bg-white pl-9 pr-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={saveTeamsEmail}
+                    disabled={savingTeams}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+                  >
+                    {savingTeams ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    Save Teams
+                  </button>
+                </div>
+              </DetailSection>
             </div>
-            <p className="text-sm leading-6 text-slate-700">{trainerDescription(t)}</p>
+
+            <div className="space-y-4">
+              <DetailSection title="Contact & Experience" icon={BriefcaseBusiness}>
+                <div className="space-y-2 text-sm text-slate-700">
+                  <p><strong>Experience:</strong> {displayText(t.experience_raw) || (years ? `${years} years` : 'Not available')}</p>
+                  <p><strong>Location:</strong> {textValue(t.location)}</p>
+                  <p><strong>Email:</strong> {textValue(t.email)}</p>
+                  <p><strong>Phone:</strong> {textValue(t.phone)}</p>
+                  <p><strong>Teams:</strong> {textValue(t.teams_email || t.microsoft_teams_email || t.teams_upn)}</p>
+                  <p><strong>LinkedIn:</strong> {displayText(t.linkedin) ? <a className="text-blue-600 hover:underline" href={t.linkedin} target="_blank" rel="noreferrer">Open profile</a> : 'Not available'}</p>
+                  <p><strong>Trainings:</strong> {textValue(t.training_count)}</p>
+                  <p><strong>Day rate:</strong> {dayRateText(t.day_rate)}</p>
+                </div>
+              </DetailSection>
+
+              <DetailSection title="Certifications & Clients" icon={Award}>
+                <div className="space-y-3">
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Certifications</p>
+                    <div className="flex flex-wrap gap-2">
+                      {certs.length ? certs.map(cert => <span key={cert} className="badge-blue text-xs">{cert}</span>) : <span className="text-sm text-slate-500">No certifications listed</span>}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Past Clients</p>
+                    <div className="flex flex-wrap gap-2">
+                      {pastClients.length ? pastClients.map(client => <span key={client} className="badge-slate text-xs">{client}</span>) : <span className="text-sm text-slate-500">No past clients listed</span>}
+                    </div>
+                  </div>
+                </div>
+              </DetailSection>
+
+              <DetailSection title="Match Breakdown" icon={TrendingUp}>
+                <div className="space-y-2">
+                  {[
+                    ['Technology', 'technology'],
+                    ['Skills', 'skills'],
+                    ['Experience', 'experience'],
+                    ['Certifications', 'certifications'],
+                    ['Location', 'location'],
+                  ].map(([label, key]) => {
+                    const item = breakdown[key] || {}
+                    const max = numericValue(item.max) || 1
+                    const score = Math.min(max, numericValue(item.score))
+                    return (
+                      <div key={key}>
+                        <div className="mb-1 flex justify-between text-xs font-semibold text-slate-500">
+                          <span>{label}</span><span>{Math.round(score)}/{Math.round(max)}</span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-slate-200">
+                          <div className="h-full rounded-full bg-blue-500" style={{ width: `${Math.min(100, Math.round((score / max) * 100))}%` }} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </DetailSection>
+
+              {(industries.length > 0 || deliveryLanguages.length > 0 || category || displayText(t.domain)) && (
+                <DetailSection title="Category Details" icon={Users}>
+                  <div className="space-y-2 text-sm text-slate-700">
+                    <p><strong>Primary:</strong> {category}</p>
+                    <p><strong>Domain:</strong> {textValue(t.domain || category)}</p>
+                    {industries.length > 0 && <p><strong>Industry:</strong> {industries.join(', ')}</p>}
+                    {deliveryLanguages.length > 0 && <p><strong>Language:</strong> {deliveryLanguages.join(', ')}</p>}
+                    {displayText(t.reasoning) && <p><strong>Reason:</strong> {displayText(t.reasoning)}</p>}
+                  </div>
+                </DetailSection>
+              )}
+            </div>
           </div>
 
           {showSingleShortlist && (
-            <div className="space-y-4 rounded-2xl border border-blue-100 bg-blue-50/40 p-4">
+            <div className="mt-4 space-y-4 rounded-2xl border border-blue-100 bg-blue-50/40 p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-blue-700">Single Person Shortlist</p>
-                  <p className="mt-0.5 text-xs text-blue-600">Pipeline and communication only for this trainer.</p>
+                  <p className="mt-0.5 text-xs text-blue-600">Pipeline and communication for {displayName || 'this trainer'}.</p>
                 </div>
                 <button
                   type="button"
@@ -586,159 +1061,7 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {t.email && (
-              <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl min-w-0">
-                <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                <a href={`mailto:${t.email}`} className="text-sm text-slate-700 hover:text-blue-600 truncate">{t.email}</a>
-              </div>
-            )}
-            {t.phone && (
-              <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
-                <Phone className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                <span className="text-sm text-slate-700">{t.phone}</span>
-              </div>
-            )}
-            {(t.teams_email || t.microsoft_teams_email || t.teams_upn) && (
-              <div className="flex items-center gap-2 p-3 bg-indigo-50 rounded-xl min-w-0">
-                <MessageSquare className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                <span className="text-sm text-indigo-700 truncate">{t.teams_email || t.microsoft_teams_email || t.teams_upn}</span>
-              </div>
-            )}
-            {t.location && (
-              <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
-                <MapPin className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                <span className="text-sm text-slate-700">{t.location}</span>
-              </div>
-            )}
-            {(t.experience_raw || t.experience_years) && (
-              <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl">
-                <Clock className="w-4 h-4 text-purple-500 flex-shrink-0" />
-                <span className="text-sm text-slate-700">{t.experience_raw || `${t.experience_years} years`}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-4">
-            <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-2">Microsoft Teams Direct Chat</p>
-            {t.email && (
-              <p className="mb-2 text-xs text-indigo-600">
-                Resume email found: <span className="font-semibold">{t.email}</span>. Use Teams override only after confirming the real Teams account.
-              </p>
-            )}
-            <div className="flex flex-col sm:flex-row gap-2">
-              <div className="relative flex-1">
-                <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
-                <input
-                  type="email"
-                  value={teamsEmail}
-                  onChange={e => setTeamsEmail(e.target.value)}
-                  placeholder="Optional Teams email override"
-                  className="w-full rounded-xl border border-indigo-100 bg-white pl-9 pr-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-300"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={saveTeamsEmail}
-                disabled={savingTeams}
-                className="flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
-              >
-                {savingTeams ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                Save Teams
-              </button>
-            </div>
-            <p className="mt-2 text-xs text-indigo-500">The app will not treat a resume email as verified Teams ID. Add an override only when Teams uses a confirmed email.</p>
-          </div>
-
-          {tags.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Specialisation</p>
-              <div className="flex flex-wrap gap-2">
-                {tags.map(tag => <span key={tag} className="badge-purple text-xs">{tag}</span>)}
-              </div>
-            </div>
-          )}
-
-          {t.technologies && (
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Technologies</p>
-              <p className="text-sm text-slate-700 bg-slate-50 rounded-xl p-3 leading-relaxed">{t.technologies}</p>
-            </div>
-          )}
-
-          {resumeText && (
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Resume Snapshot</p>
-              <p className="text-sm text-slate-700 bg-slate-50 rounded-xl p-3 leading-relaxed whitespace-pre-wrap">{resumeText}</p>
-            </div>
-          )}
-
-          {asArray(t.skills).length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Skills</p>
-              <div className="flex flex-wrap gap-2">
-                {asArray(t.skills).map(skill => <span key={skill} className="badge-blue text-xs">{skill}</span>)}
-              </div>
-            </div>
-          )}
-
-          {levels.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Skill Levels</p>
-              <div className="flex flex-wrap gap-2">
-                {levels.map(([skill, level]) => (
-                  <span key={skill} className={clsx('px-2.5 py-1 rounded-full border text-xs font-semibold', levelBadge(level))}>
-                    {skill}: {level}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {(deliveryLanguages.length > 0 || industries.length > 0) && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {deliveryLanguages.length > 0 && (
-                <div className="flex items-start gap-2 p-3 bg-slate-50 rounded-xl">
-                  <Languages className="w-4 h-4 text-teal-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-slate-700">{deliveryLanguages.join(', ')}</span>
-                </div>
-              )}
-              {industries.length > 0 && (
-                <div className="flex items-start gap-2 p-3 bg-slate-50 rounded-xl">
-                  <Briefcase className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-slate-700">{industries.join(', ')}</span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {asArray(t.certifications).length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Certifications</p>
-              <div className="flex flex-wrap gap-2">
-                {asArray(t.certifications).map(cert => (
-                  <span key={cert} className="flex items-center gap-1 badge bg-amber-50 text-amber-700 text-xs">
-                    <Award className="w-3 h-3" /> {cert}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {pastClients.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Past Clients / Training Exposure</p>
-              <div className="flex flex-wrap gap-2">
-                {pastClients.map(client => <span key={client} className="badge-slate text-xs">{client}</span>)}
-              </div>
-            </div>
-          )}
-
-          {t.reasoning && (
-            <p className="text-sm text-slate-600 bg-slate-50 rounded-xl p-3">{t.reasoning}</p>
-          )}
-
-          <div className="flex flex-wrap gap-3 pt-2">
+          <div className="mt-4 flex flex-wrap gap-3 pt-2">
             <button
               type="button"
               onClick={() => setShowSingleShortlist(true)}
@@ -756,14 +1079,14 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
               {requestingResume ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Request Resume
             </button>
-            {t.linkedin && t.linkedin !== '-' && (
+            {displayText(t.linkedin) && (
               <a href={t.linkedin} target="_blank" rel="noreferrer"
                  className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-sm font-medium hover:bg-blue-100 transition-colors">
                 <Linkedin className="w-4 h-4" /> LinkedIn Profile
               </a>
             )}
-            {t.resume && t.resume !== '-' && (
-              <a href={t.resume} target="_blank" rel="noreferrer"
+            {resumeUrl && (
+              <a href={resumeUrl} target="_blank" rel="noreferrer"
                  className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-medium hover:bg-emerald-100 transition-colors">
                 <FileText className="w-4 h-4" /> View Resume
               </a>
@@ -781,7 +1104,10 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
   const industries = asArray(t.industry_focus)
   const deliveryLanguages = asArray(t.language_of_delivery)
   const levels = skillLevels(t)
-  const skills = asArray(t.skills)
+  const skills = allTrainerSkills(t)
+  const profileScore = trainerProfileScore(t)
+  const years = experienceYears(t)
+  const displayName = trainerDisplayName(t)
 
   return (
     <div
@@ -800,16 +1126,16 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
         type="button"
         onClick={(e) => { e.stopPropagation(); onView(t) }}
         className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center flex-shrink-0 hover:from-blue-200 hover:to-blue-100 transition-all"
-        aria-label={`View ${t.name || 'trainer'}`}
+        aria-label={`View ${displayName || 'trainer'}`}
       >
-        <span className="font-jakarta font-bold text-blue-600 text-base">{t.name?.charAt(0).toUpperCase()}</span>
+        <span className="font-jakarta font-bold text-blue-600 text-base">{(displayName || t.name || 'T').charAt(0).toUpperCase()}</span>
       </button>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <button type="button" className="text-left min-w-0 flex-1" onClick={(e) => { e.stopPropagation(); onView(t) }}>
-            <h3 className="font-medium text-slate-900 group-hover:text-blue-600 transition-colors truncate">{t.name}</h3>
-            <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{t.technologies || t.summary}</p>
+            <h3 className="font-medium text-slate-900 group-hover:text-blue-600 transition-colors truncate">{displayName || 'Unnamed Trainer'}</h3>
+            <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{displayText(t.technologies) || trainerTitle(t) || skills.slice(0, 8).join(', ')}</p>
             {tags.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {tags.slice(0, 3).map(tag => <span key={tag} className="badge-purple text-xs">{tag}</span>)}
@@ -819,34 +1145,36 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
 
           <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
             <TrainerRatingStars trainer={t} />
-            <span className={clsx('px-2.5 py-1 rounded-full border text-xs font-semibold', domainBadge(t.domain))}>{category}</span>
-            {t.match_score != null && (
-              <div className={clsx(
-                'w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold',
-                t.match_score >= 80 ? 'bg-emerald-100 text-emerald-700' :
-                t.match_score >= 60 ? 'bg-blue-100 text-blue-700' :
-                t.match_score >= 40 ? 'bg-amber-100 text-amber-700' :
+            <span className={clsx('px-2.5 py-1 rounded-full border text-xs font-semibold', domainBadge(category))}>{category}</span>
+            <div
+              className={clsx(
+                'w-12 h-9 rounded-lg flex flex-col items-center justify-center text-xs font-bold',
+                profileScore >= 80 ? 'bg-emerald-100 text-emerald-700' :
+                profileScore >= 60 ? 'bg-blue-100 text-blue-700' :
+                profileScore >= 40 ? 'bg-amber-100 text-amber-700' :
                 'bg-slate-100 text-slate-500'
-              )}>
-                {Math.round(t.match_score)}
-              </div>
-            )}
-            <span className={STATUS_COLORS[t.status] || 'badge-slate'}>{t.status || 'new'}</span>
+              )}
+              title={`${profileScore}/100 trainer profile score`}
+            >
+              <span className="leading-none">{profileScore}</span>
+              <span className="text-[10px] leading-none opacity-70">score</span>
+            </div>
+            <span className={trainerStatusClass(t.status)}>Trainer Status: {trainerStatusLabel(t.status)}</span>
             <TrainerCardTrustPill trainer={t} />
           </div>
         </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-          {(t.experience_raw || t.experience_years) && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {t.experience_raw || `${t.experience_years} years`}</span>}
-          {t.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {t.location}</span>}
-          {t.email && <span className="flex items-center gap-1 min-w-0"><Mail className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{t.email}</span></span>}
+          {(displayText(t.experience_raw) || years) && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {displayText(t.experience_raw) || `${years} years`}</span>}
+          {displayText(t.location) && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {displayText(t.location)}</span>}
+          {displayText(t.email) && <span className="flex items-center gap-1 min-w-0"><Mail className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{displayText(t.email)}</span></span>}
           {(t.teams_email || t.microsoft_teams_email || t.teams_upn) && (
             <span className="flex items-center gap-1 min-w-0 text-indigo-600">
               <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
-              <span className="truncate">{t.teams_email || t.microsoft_teams_email || t.teams_upn}</span>
+              <span className="truncate">{displayText(t.teams_email || t.microsoft_teams_email || t.teams_upn)}</span>
             </span>
           )}
-          {t.phone && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {t.phone}</span>}
+          {displayText(t.phone) && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {displayText(t.phone)}</span>}
         </div>
 
         {skills.length > 0 && (
@@ -891,7 +1219,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           disabled={sendingAutomation}
           className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-50"
           title="Start automation pipeline"
-          aria-label={`Start automation pipeline for ${t.name || 'trainer'}`}
+          aria-label={`Start automation pipeline for ${displayName || 'trainer'}`}
         >
           {sendingAutomation ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
         </button>
@@ -901,7 +1229,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           disabled={requestingResume}
           className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-50"
           title="Request updated resume"
-          aria-label={`Request updated resume from ${t.name || 'trainer'}`}
+          aria-label={`Request updated resume from ${displayName || 'trainer'}`}
         >
           {requestingResume ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
         </button>
@@ -910,7 +1238,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           onClick={(e) => { e.stopPropagation(); onView(t) }}
           className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"
           title="View trainer details"
-          aria-label={`View details for ${t.name || 'trainer'}`}
+          aria-label={`View details for ${displayName || 'trainer'}`}
         >
           <Eye className="w-4 h-4" />
         </button>
@@ -920,7 +1248,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           disabled={recategorising}
           className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all disabled:opacity-50"
           title="Re-categorise trainer"
-          aria-label={`Re-categorise ${t.name || 'trainer'}`}
+          aria-label={`Re-categorise ${displayName || 'trainer'}`}
         >
           <RefreshCw className={clsx('w-4 h-4', recategorising && 'animate-spin')} />
         </button>
@@ -929,7 +1257,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           onClick={(e) => { e.stopPropagation(); onDelete(t) }}
           className="p-2 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all"
           title="Delete trainer"
-          aria-label={`Delete ${t.name || 'trainer'}`}
+          aria-label={`Delete ${displayName || 'trainer'}`}
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -1015,7 +1343,7 @@ export default function Trainers() {
         industry: industry || undefined,
         experience: experience || undefined,
       })
-      setTrainers(res.data.trainers || [])
+      setTrainers(res.data.items || [])
       setTotal(res.data.total || 0)
       setPages(res.data.pages || 1)
       if (res.data.categories) setCategories(res.data.categories)
@@ -1107,6 +1435,20 @@ export default function Trainers() {
     setIndustry('')
     setExperience('')
     setPage(1)
+  }
+
+  const handleViewTrainer = async (trainer) => {
+    setSelectedTrainer(trainer)
+    if (!trainer?.trainer_id) return
+    try {
+      const res = await getTrainer(trainer.trainer_id)
+      const fullTrainer = res.data?.trainer || res.data
+      if (fullTrainer?.trainer_id) {
+        setSelectedTrainer(current => current?.trainer_id === trainer.trainer_id ? { ...trainer, ...fullTrainer } : current)
+      }
+    } catch (error) {
+      toast.error(error.message || 'Could not load trainer details')
+    }
   }
 
   const handleDelete = async (trainer) => {
@@ -1724,7 +2066,7 @@ export default function Trainers() {
             <TrainerRow
               key={t.trainer_id}
               t={t}
-              onView={setSelectedTrainer}
+              onView={handleViewTrainer}
               onDelete={setConfirmDelete}
               onRecategorise={handleRecategorise}
               onRequestResume={openResumeRequest}

@@ -1,0 +1,2093 @@
+﻿{
+    "success":  true,
+    "checked":  50,
+    "requirements_created":  11,
+    "auto_sent":  3,
+    "failed":  0,
+    "results":  [
+                    {
+                        "processed":  true,
+                        "requirement_id":  "REQ-86993702",
+                        "status":  "auto_sent",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  true,
+                                                "auto_send_block_reason":  "",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0,
+                                                "client_reply":  {
+                                                                     "sent":  true,
+                                                                     "to":  "muttarasusuryateja@gmail.com",
+                                                                     "subject":  "Re: DevOps Trainer Requirement",
+                                                                     "error":  ""
+                                                                 }
+                                            }
+                    },
+                    {
+                        "processed":  true,
+                        "requirement_id":  "REQ-42ACF72D",
+                        "status":  "auto_sent",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  true,
+                                                "auto_send_block_reason":  "",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            }
+                    },
+                    {
+                        "processed":  true,
+                        "requirement_id":  "REQ-2F94A357",
+                        "status":  "auto_sent",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  true,
+                                                "auto_send_block_reason":  "",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "taimoor khan",
+                                          "client_name":  "taimoor khan",
+                                          "client_email":  "taimooracca08@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.66,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "taimoor khan",
+                                          "client_name":  "taimoor khan",
+                                          "client_email":  "taimooracca08@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.68,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "requirement_id":  "REQ-8F415F24",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            }
+                    },
+                    {
+                        "processed":  true,
+                        "requirement_id":  "REQ-8F415F24",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            }
+                    },
+                    {
+                        "processed":  true,
+                        "requirement_id":  "REQ-8F415F24",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            }
+                    },
+                    {
+                        "processed":  true,
+                        "requirement_id":  "REQ-8F415F24",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Twilio",
+                                          "client_name":  "Isa Bell",
+                                          "client_email":  "isa.bell@twilio.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.64,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Twilio",
+                                          "client_name":  "Isa Bell",
+                                          "client_email":  "isa.bell@twilio.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.66,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Saeed Ahmed Davawala",
+                                          "client_name":  "Saeed Ahmed Davawala",
+                                          "client_email":  "saeedd77@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.37,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Oracle DBA",
+                                          "client_name":  "Oracle DBA",
+                                          "client_email":  "trainer.oracledb@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.66,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  "",
+                                          "budget_total":  6302428978.0,
+                                          "budget_currency":  "INR"
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "requirement_id":  "REQ-482B0DCF",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Suman Nandy",
+                                          "client_name":  "Suman Nandy",
+                                          "client_email":  "nandy.suman90@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.37,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Suman Nandy",
+                                          "client_name":  "Suman Nandy",
+                                          "client_email":  "nandy.suman90@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.37,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Sarojini G",
+                                          "client_name":  "Sarojini G",
+                                          "client_email":  "hire.sarojini@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+                                                                    "Availability"
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "requirement_id":  "REQ-482B0DCF",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            }
+                    },
+                    {
+                        "processed":  true,
+                        "requirement_id":  "REQ-482B0DCF",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            }
+                    },
+                    {
+                        "processed":  true,
+                        "requirement_id":  "REQ-482B0DCF",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Muttarasu Sujitha",
+                                          "client_name":  "Muttarasu Sujitha",
+                                          "client_email":  "sujithamuttarasu@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.64,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Ravi Rakesh",
+                                          "client_name":  "Ravi Rakesh",
+                                          "client_email":  "rthi2009@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.37,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Muttarasu Sujitha",
+                                          "client_name":  "Muttarasu Sujitha",
+                                          "client_email":  "sujithamuttarasu@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.64,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Sujitha",
+                                          "client_name":  "Sujitha",
+                                          "client_email":  "sujithaofficial784@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.64,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Muttarasu Sujitha",
+                                          "client_name":  "Muttarasu Sujitha",
+                                          "client_email":  "sujithamuttarasu@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Muttarasu Sujitha",
+                                          "client_name":  "Muttarasu Sujitha",
+                                          "client_email":  "sujithamuttarasu@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Muttarasu Sujitha",
+                                          "client_name":  "Muttarasu Sujitha",
+                                          "client_email":  "sujithamuttarasu@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Sujitha",
+                                          "client_name":  "Sujitha",
+                                          "client_email":  "sujithaofficial784@gmail.com",
+                                          "email_summary":  "20 Days",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.66,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  "20 Days",
+                                          "duration_days":  20
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Ravi Rakesh",
+                                          "client_name":  "Ravi Rakesh",
+                                          "client_email":  "rthi2009@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.37,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Oracle DBA",
+                                          "client_name":  "Oracle DBA",
+                                          "client_email":  "trainer.oracledb@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Synergetics-India",
+                                          "client_name":  "Jyoti Mathapati",
+                                          "client_email":  "jyotimathapati@synergetics-india.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Alchemylearnsoft",
+                                          "client_name":  "Nirakshitha",
+                                          "client_email":  "nirakshitha@alchemylearnsoft.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Sujitha",
+                                          "client_name":  "Sujitha",
+                                          "client_email":  "sujithaofficial784@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.64,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Sujitha",
+                                          "client_name":  "Sujitha",
+                                          "client_email":  "sujithaofficial784@gmail.com",
+                                          "email_summary":  "20 Days",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.66,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  "20 Days",
+                                          "duration_days":  20
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Muttarasu Sujitha",
+                                          "client_name":  "Muttarasu Sujitha",
+                                          "client_email":  "sujithamuttarasu@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Muttarasu Sujitha",
+                                          "client_name":  "Muttarasu Sujitha",
+                                          "client_email":  "sujithamuttarasu@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Muttarasu Sujitha",
+                                          "client_name":  "Muttarasu Sujitha",
+                                          "client_email":  "sujithamuttarasu@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Muttarasu Sujitha",
+                                          "client_name":  "Muttarasu Sujitha",
+                                          "client_email":  "sujithamuttarasu@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Muttarasu Sujitha",
+                                          "client_name":  "Muttarasu Sujitha",
+                                          "client_email":  "sujithamuttarasu@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.49,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "sujithaofficial784",
+                                          "client_name":  "Client",
+                                          "client_email":  "sujithaofficial784@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+                                                                    "Availability"
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.52,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "needs_requirement_clarification",
+                        "status":  "pending_approval",
+                        "mail_automation":  {
+                                                "auto_send_enabled":  true,
+                                                "auto_send_threshold":  0.7,
+                                                "auto_send_candidate":  true,
+                                                "auto_send_eligible":  true,
+                                                "auto_send_ready":  false,
+                                                "auto_send_block_reason":  "confidence_below_threshold",
+                                                "client_authorized_search":  false,
+                                                "pending_client_reply":  false,
+                                                "sent":  0,
+                                                "total":  0
+                                            },
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "sujithaofficial784",
+                                          "client_name":  "Client",
+                                          "client_email":  "sujithaofficial784@gmail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.37,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  true,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "ignored_non_client_email",
+                        "status":  "spam",
+                        "mail_automation":  null,
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Googlemail",
+                                          "client_name":  "Mailer Daemon",
+                                          "client_email":  "mailer-daemon@googlemail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.15,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  false,
+                                          "is_non_client_email":  true,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "ignored_non_client_email",
+                        "status":  "spam",
+                        "mail_automation":  null,
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Googlemail",
+                                          "client_name":  "Mailer Daemon",
+                                          "client_email":  "mailer-daemon@googlemail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.15,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  false,
+                                          "is_non_client_email":  true,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "ignored_non_client_email",
+                        "status":  "spam",
+                        "mail_automation":  null,
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Googlemail",
+                                          "client_name":  "Mailer Daemon",
+                                          "client_email":  "mailer-daemon@googlemail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.15,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  false,
+                                          "is_non_client_email":  true,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "ignored_non_client_email",
+                        "status":  "spam",
+                        "mail_automation":  null,
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Googlemail",
+                                          "client_name":  "Mailer Daemon",
+                                          "client_email":  "mailer-daemon@googlemail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.15,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  false,
+                                          "is_non_client_email":  true,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "ignored_non_client_email",
+                        "status":  "spam",
+                        "mail_automation":  null,
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Googlemail",
+                                          "client_name":  "Mailer Daemon",
+                                          "client_email":  "mailer-daemon@googlemail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.15,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  false,
+                                          "is_non_client_email":  true,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "ignored_non_client_email",
+                        "status":  "spam",
+                        "mail_automation":  null,
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Googlemail",
+                                          "client_name":  "Mailer Daemon",
+                                          "client_email":  "mailer-daemon@googlemail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.15,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  false,
+                                          "is_non_client_email":  true,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "ignored_non_client_email",
+                        "status":  "spam",
+                        "mail_automation":  null,
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Googlemail",
+                                          "client_name":  "Mailer Daemon",
+                                          "client_email":  "mailer-daemon@googlemail.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.15,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  false,
+                                          "is_non_client_email":  true,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "ignored_non_client_email",
+                        "status":  "spam",
+                        "mail_automation":  null,
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Naukri",
+                                          "client_name":  "Client",
+                                          "client_email":  "recommendationnc@naukri.com",
+                                          "email_summary":  "Training requirement details pending",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Training duration not provided",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.15,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  false,
+                                          "is_non_client_email":  true,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  ""
+                                      }
+                    },
+                    {
+                        "processed":  true,
+                        "reason":  "ignored_non_client_email",
+                        "status":  "spam",
+                        "mail_automation":  null,
+                        "extracted":  {
+                                          "technology_needed":  "",
+                                          "technology":  "",
+                                          "domain":  "",
+                                          "required_skills":  [
+
+                                                              ],
+                                          "mode":  "",
+                                          "delivery_mode":  "",
+                                          "audience_level":  "",
+                                          "timing":  "",
+                                          "participant_count":  null,
+                                          "client_company":  "Support",
+                                          "client_name":  "Client",
+                                          "client_email":  "support@support.whatsapp.com",
+                                          "email_summary":  "2 months",
+                                          "requested_details":  [
+
+                                                                ],
+                                          "needs_clarification":  [
+                                                                      "Commercials not provided by client",
+                                                                      "Exact dates not provided",
+                                                                      "Location / mode not provided",
+                                                                      "Participant count not provided"
+                                                                  ],
+                                          "urgency":  "normal",
+                                          "confidence":  0.23,
+                                          "is_training_request":  false,
+                                          "direct_request_language":  false,
+                                          "is_non_client_email":  false,
+                                          "extraction_method":  "deterministic_email_parser",
+                                          "duration_text":  "2 months",
+                                          "duration_days":  40
+                                      }
+                    }
+                ]
+}

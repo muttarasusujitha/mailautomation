@@ -47,6 +47,37 @@ function money(value) {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num)
 }
 
+function clientName(item = {}) {
+  return item.client?.company || item.client?.name || item.client_company || item.requirement?.client_company || item.requirement?.client_name || 'Client'
+}
+
+function clientEmail(item = {}) {
+  return item.client?.email || item.client_email || item.requirement?.client_email || ''
+}
+
+function matchesPipelineItem(item = {}, query = '') {
+  const text = [
+    item.requirement_id,
+    item.domain,
+    item.client?.name,
+    item.client?.company,
+    item.client?.email,
+    item.client_name,
+    item.client_company,
+    item.client_email,
+    item.selected_trainer?.name,
+    item.selected_trainer?.email,
+    item.last_preview,
+    item.job_title,
+    item.technology_needed,
+    item.status,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+  return text.includes(query.toLowerCase())
+}
+
 function msgTone(direction) {
   if (direction === 'received') return 'border-slate-200 bg-white'
   if (direction === 'sent') return 'border-blue-100 bg-blue-50'
@@ -163,27 +194,39 @@ function PoInvoiceModal({ item, onClose, onDone }) {
 
   const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
 
+  const clientEmailValue = clientEmail(item)
+  const clientNameValue = clientName(item)
   const generate = async () => {
-    if (!trainer.trainer_id) return toast.error('Selected trainer is required before invoice generation')
-    if (!item.client?.email) return toast.error('Client email is missing')
+    if (!clientEmailValue) return toast.error('Client email is missing')
     if (!form.client_po_number.trim()) return toast.error('Client PO number is required')
     if (!Number(form.total_amount || 0)) return toast.error('Client PO amount is required')
     setBusy('generate')
     try {
+      const amount = Number(form.total_amount || 0)
+      const items = [{
+        description: item.domain || 'Training',
+        hsn_sac: '999293',
+        quantity: Number(req.duration_days || 1) || 1,
+        rate: amount && Number(req.duration_days || 1) ? Math.round(amount / Number(req.duration_days || 1)) : amount,
+        amount,
+      }]
+
       const res = await api.post(`/requirements/${item.requirement_id}/client-po/generate-invoice`, {
         trainer_id: trainer.trainer_id,
-        client_email: item.client.email,
-        client_name: item.client.company || item.client.name,
+        client_email: clientEmailValue,
+        client_name: clientNameValue,
         client_po_number: form.client_po_number,
         client_po_date: form.client_po_date,
-        total_amount: Number(form.total_amount || 0),
+        total_amount: amount,
         gst_rate: Number(form.gst_rate || 18),
         client_gstin: form.client_gstin,
         client_billing_address: form.client_billing_address,
         client_po_notes: form.client_po_notes,
         technology: item.domain,
+        course_name: item.domain,
         duration_days: req.duration_days,
         mode: req.mode,
+        items,
       })
       toast.success(`Invoice ${res.data.invoice?.invoice_number} generated from client PO`)
       onDone?.()
@@ -327,13 +370,21 @@ export default function ClientPipeline() {
     if (!silent) setLoading(true)
     try {
       const res = await api.get('/client-pipeline', {
-        params: { q: q || undefined, domain: domain || undefined, limit: 120 },
+        params: { limit: 150 },
       })
-      const next = res.data.items || []
-      setItems(next)
-      setDomains(res.data.domains || [])
-      if (!next.some(item => item.requirement_id === selectedId)) {
-        setSelectedId(next[0]?.requirement_id || '')
+      const rawItems = (res.data.pipeline || []).map(item => ({
+        ...item,
+        domain: item.domain || item.technology_needed || item.technology_key || 'Training',
+      }))
+      const allDomains = res.data.domains || Array.from(new Set(rawItems.map(item => item.domain).filter(Boolean)))
+      const filteredItems = rawItems.filter(item => (
+        (!q || matchesPipelineItem(item, q)) &&
+        (!domain || item.domain === domain)
+      ))
+      setItems(filteredItems)
+      setDomains(allDomains)
+      if (!filteredItems.some(item => item.requirement_id === selectedId)) {
+        setSelectedId(filteredItems[0]?.requirement_id || '')
       }
     } catch (e) {
       toast.error(e.message || 'Could not load client pipeline')
@@ -351,6 +402,11 @@ export default function ClientPipeline() {
     setSyncing(true)
     try {
       const res = await api.post('/gmail/sync-now?limit=100')
+      if (res.data?.queued) {
+        toast.success(res.data?.message || 'Gmail sync started. Refreshing shortly.')
+        window.setTimeout(() => load(true), 6000)
+        return
+      }
       toast.success(`Gmail checked: ${res.data?.processed_count || 0} new mail(s) processed`)
       await load(true)
     } catch (e) {
@@ -383,7 +439,7 @@ export default function ClientPipeline() {
     setSendingInvoice(true)
     try {
       await api.post(`/invoices/${selected.invoice.invoice_id}/send`, {})
-      toast.success(`Invoice sent to ${selected.client?.email}`)
+      toast.success(`Invoice sent to ${clientEmail(selected)}`)
       await load(true)
     } catch (e) {
       toast.error(e.message || 'Invoice send failed')
@@ -500,8 +556,8 @@ export default function ClientPipeline() {
                       <span className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">{selected.domain}</span>
                       <span className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">{selected.requirement_id}</span>
                     </div>
-                    <h2 className="mt-3 text-xl font-bold text-slate-950">{selected.client?.company || selected.client?.name || 'Client'}</h2>
-                    <p className="mt-1 text-sm text-slate-500">{selected.client?.email || 'Client email missing'}</p>
+                    <h2 className="mt-3 text-xl font-bold text-slate-950">{clientName(selected)}</h2>
+                    <p className="mt-1 text-sm text-slate-500">{clientEmail(selected) || 'Client email missing'}</p>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button onClick={() => setPoModalOpen(true)} className="btn-secondary text-sm">

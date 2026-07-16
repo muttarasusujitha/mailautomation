@@ -1,0 +1,17 @@
+{
+  "items": [
+    {
+      "domain": "DevOps Sample",
+      "toc": {
+        "title": "DevOps 5-day",
+        "duration_days": 5,
+        "level": "intermediate",
+        "days": [
+          { "day": 1, "title": "Introduction & CI/CD", "subtopics": ["CI basics", "Pipelines"] },
+          { "day": 2, "title": "Containers", "subtopics": ["Docker", "Images"] }
+        ]
+      },
+      "notes": "Imported sample TOC"
+    }
+  ]
+}

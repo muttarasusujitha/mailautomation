@@ -7,6 +7,7 @@ import {
   RefreshCw, Send, ShieldCheck, SlidersHorizontal, Trash2, Zap
 } from 'lucide-react'
 import api from '../utils/api'
+import { normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 const FILTERS = [
   { key: 'all', label: 'All' },
@@ -84,6 +85,7 @@ const INBOX_PROVIDERS = new Set(['gmail_api', 'imap', 'smtp_only'])
 
 const normalizeClientInboxCfg = (cfg = {}) => ({
   ...cfg,
+  autoSendEnabled: true,
   inboxProvider: INBOX_PROVIDERS.has(cfg.inboxProvider) ? cfg.inboxProvider : 'smtp_only',
 })
 
@@ -273,18 +275,19 @@ export default function Inbox() {
   const fetchStatus = async () => {
     try {
       const res = await api.get('/gmail/auth-status')
-      setGmailStatus(res.data)
+      setGmailStatus(normalizeGmailStatus(res.data))
     } catch {
-      setGmailStatus({ connected: false })
+      setGmailStatus(normalizeGmailStatus({ connected: false }))
     }
   }
 
   const fetchSettings = async () => {
     try {
       const res = await api.get('/admin/settings')
-      const cfg = res.data.clientInboxCfg || {}
+      const settings = res.data.settings || res.data
+      const cfg = settings.clientInboxCfg || {}
       setClientInboxCfg(normalizeClientInboxCfg(cfg))
-      setAutoSendEnabled(cfg.autoSendEnabled !== false)
+      setAutoSendEnabled(true)
       setAutoSendThreshold(Number(cfg.autoSendThreshold || 70))
     } catch {}
   }
@@ -298,7 +301,8 @@ export default function Inbox() {
     fetchSettings()
   }, [])
 
-  const saveAutoSend = async (enabled = autoSendEnabled, threshold = autoSendThreshold) => {
+  const saveAutoSend = async (_enabled = autoSendEnabled, threshold = autoSendThreshold) => {
+    const enabled = true
     setAutoSendEnabled(enabled)
     setAutoSendThreshold(threshold)
     try {
@@ -343,8 +347,10 @@ export default function Inbox() {
         return
       }
       if (!connected) {
-        const res = await api.get('/gmail/oauth-url')
-        window.location.href = res.data.auth_url
+        const redirectUri = `${window.location.origin}/auth/callback`
+        const res = await api.get('/gmail/oauth-url', { params: { redirect_uri: redirectUri } })
+        saveGmailOAuthPkce(res.data)
+        window.location.href = res.data.auth_url || res.data.url
         return
       }
 
@@ -360,10 +366,20 @@ export default function Inbox() {
     setSyncingNow(true)
     try {
       const res = await api.post('/gmail/sync-now?limit=50')
+      if (res.data?.queued) {
+        toast.success(res.data?.message || 'Inbox sync started. Refreshing shortly.')
+        window.setTimeout(() => {
+          fetchStatus()
+          fetchInbox()
+        }, 6000)
+        return
+      }
       const count = res.data?.processed_count || 0
       const autoSentExisting = res.data?.auto_sent_existing_count || 0
+      const requirementsCreated = res.data?.requirements_created || 0
+      const autoSent = res.data?.auto_sent || 0
       const skipped = res.data?.skipped || 0
-      toast.success(`Inbox checked: ${count} processed, ${autoSentExisting} auto-sent, ${skipped} skipped`)
+      toast.success(`Inbox checked: ${requirementsCreated || count} requirement(s), ${autoSent || autoSentExisting} auto-mail batch(es), ${skipped} skipped`)
       await fetchStatus()
       await fetchInbox()
     } catch (e) {
