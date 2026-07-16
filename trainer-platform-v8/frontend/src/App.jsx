@@ -87,10 +87,11 @@ export default function App() {
             isLoggedIn ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
           } />
           <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/auth/callback" element={<GmailCallback onLogin={handleLogin} />} />
-          <Route path="/" element={
+          <Route element={
             <PrivateRoute isLoggedIn={isLoggedIn}>
               <Layout onLogout={handleLogout} />
             </PrivateRoute>

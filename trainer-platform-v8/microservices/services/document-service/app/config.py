@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     PORT: int = 8006
     DEBUG: bool = False
 
-    MONGODB_URL: str = "mongodb://localhost:27017"
+    MONGODB_URL: str = "mongodb://127.0.0.1:27017"
     MONGODB_DB_NAME: str = "trainersync"
 
     GEMINI_API_KEY: str = ""

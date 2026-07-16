@@ -37,22 +37,26 @@ function csv(value) {
 }
 
 function toForm(doc) {
-  const levelMap = Object.fromEntries(LEVELS.map(level => [level, [...((doc.level_map || {})[level] || [])]]))
+  const source = doc.level_map ? doc : { ...doc, ...(doc.toc || {}) }
+  const levelMap = Object.fromEntries(LEVELS.map(level => [level, [...((source.level_map || {})[level] || [])]]))
   return {
     ...emptyDomain(),
-    ...doc,
+    ...source,
+    key: source.key || doc.key || doc.domain || '',
+    name: source.name || doc.name || doc.domain || '',
     level_map: levelMap,
-    aliasesText: (doc.aliases || []).join(', '),
-    jiraDailyText: ((doc.jira_practice || {}).daily || []).join('\n'),
-    jiraWeeklyText: ((doc.jira_practice || {}).weekly || []).join('\n'),
-    certificationsText: (doc.certifications || []).join('\n'),
+    aliasesText: (source.aliases || []).join(', '),
+    jiraDailyText: ((source.jira_practice || {}).daily || []).join('\n'),
+    jiraWeeklyText: ((source.jira_practice || {}).weekly || []).join('\n'),
+    certificationsText: (source.certifications || []).join('\n'),
   }
 }
 
 function toPayload(form) {
-  return {
-    key: form.key,
+  const key = form.key || form.name
+  const toc = {
     name: form.name,
+    key,
     icon: form.icon || 'book',
     aliases: csv(form.aliasesText),
     active: form.active,
@@ -62,6 +66,12 @@ function toPayload(form) {
       weekly: lines(form.jiraWeeklyText),
     },
     certifications: lines(form.certificationsText),
+  }
+
+  return {
+    ...toc,
+    domain: key,
+    toc,
   }
 }
 
@@ -103,7 +113,7 @@ export default function TocKnowledge() {
     setLoading(true)
     try {
       const { data } = await getTocKnowledge()
-      const list = data.domains || []
+      const list = data.domains || data.items || []
       setDomains(list)
       if (!selectedKey && list[0]) {
         setSelectedKey(list[0].key)
@@ -165,10 +175,11 @@ export default function TocKnowledge() {
     setSaving(true)
     try {
       const { data } = await saveTocKnowledge(toPayload(form))
+      const savedDomain = typeof data.domain === 'object' ? data.domain : { ...toPayload(form), domain: data.domain || form.key || form.name }
       toast.success('ToC knowledge saved')
       await load()
-      setSelectedKey(data.domain.key)
-      setForm(toForm(data.domain))
+      setSelectedKey(savedDomain.key || savedDomain.domain)
+      setForm(toForm(savedDomain))
     } catch (error) {
       toast.error(error.message || 'Could not save domain')
     } finally {

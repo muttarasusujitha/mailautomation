@@ -9,9 +9,9 @@ class Settings(BaseSettings):
     PORT: int = 8008
     DEBUG: bool = False
 
-    MONGODB_URL: str = "mongodb://localhost:27017"
+    MONGODB_URL: str = "mongodb://127.0.0.1:27017"
     MONGODB_DB_NAME: str = "trainersync"
-    REDIS_URL: str = "redis://localhost:6379"
+    REDIS_URL: str = "redis://127.0.0.1:6379"
     SECRET_KEY: str = "change-me"
     ALLOWED_ORIGINS: str = "http://localhost:3000"
 

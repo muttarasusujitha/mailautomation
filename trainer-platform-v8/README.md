@@ -32,7 +32,7 @@ npm run dev                     # Runs on http://localhost:5173
 
 ## 🔑 Environment Variables (backend/.env)
 ```
-MONGODB_URI=mongodb://localhost:27017
+MONGODB_URI=mongodb://127.0.0.1:27017
 MONGODB_DB=trainersync
 GMAIL_USER=your@gmail.com
 GMAIL_APP_PASSWORD=your_app_password

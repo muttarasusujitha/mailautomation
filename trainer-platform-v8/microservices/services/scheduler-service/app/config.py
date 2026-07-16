@@ -9,13 +9,13 @@ class Settings(BaseSettings):
     PORT: int = 8007
     DEBUG: bool = False
 
-    MONGODB_URL: str = "mongodb://localhost:27017"
+    MONGODB_URL: str = "mongodb://127.0.0.1:27017"
     MONGODB_DB_NAME: str = "trainersync"
 
     # Redis / Celery broker
-    REDIS_URL: str = "redis://localhost:6379"
-    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
-    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/1"
+    REDIS_URL: str = "redis://127.0.0.1:6379"
+    CELERY_BROKER_URL: str = "redis://127.0.0.1:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://127.0.0.1:6379/1"
 
     # Internal service URLs (for HTTP calls between services)
     EMAIL_SERVICE_URL: str = "http://email-service:8002"

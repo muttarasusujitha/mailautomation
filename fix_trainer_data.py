@@ -10,7 +10,7 @@ from datetime import datetime
 
 async def fix_trainer_data():
     # Connect to MongoDB
-    mongo_uri = os.getenv("MONGO_URI") or "mongodb://localhost:27017/trainersync"
+    mongo_uri = os.getenv("MONGO_URI") or "mongodb://127.0.0.1:27017/trainersync"
     client = AsyncIOMotorClient(mongo_uri)
     db = client.trainersync
     

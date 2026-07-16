@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 import base64
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Body, Depends, HTTPException, Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
@@ -47,6 +47,113 @@ class AutoGenerateRequest(BaseModel):
     domain: Optional[str] = ""
     duration_days: Optional[float] = 3.0
     level: Optional[str] = "intermediate"
+
+
+LEVEL_KEYS = (
+    "foundation",
+    "core",
+    "advanced",
+    "observability",
+    "security",
+    "projects",
+    "revision",
+    "capstone",
+)
+
+
+def _slugify_domain(value: str) -> str:
+    slug = "".join(ch.lower() if ch.isalnum() else "_" for ch in value.strip())
+    return "_".join(part for part in slug.split("_") if part)
+
+
+def _domain_filter(key: str) -> Dict[str, Any]:
+    return {
+        "$or": [
+            {"domain": {"$regex": f"^{key}$", "$options": "i"}},
+            {"key": key},
+        ]
+    }
+
+
+def _normalise_toc_knowledge(payload: Dict[str, Any]) -> Dict[str, Any]:
+    name = (payload.get("name") or payload.get("domain") or payload.get("key") or "").strip()
+    key = (payload.get("key") or _slugify_domain(name)).strip()
+    if not name:
+        raise HTTPException(422, "Domain name is required")
+    if not key:
+        raise HTTPException(422, "Domain key is required")
+
+    level_map = payload.get("level_map") if isinstance(payload.get("level_map"), dict) else {}
+    toc = payload.get("toc") if isinstance(payload.get("toc"), dict) else {}
+    if not level_map and toc:
+        level_map = toc.get("level_map") or {}
+
+    return {
+        **payload,
+        "key": key,
+        "name": name,
+        "domain": name,
+        "icon": payload.get("icon") or "book",
+        "aliases": payload.get("aliases") or [],
+        "active": payload.get("active", True),
+        "level_map": {level: level_map.get(level, []) for level in LEVEL_KEYS},
+        "jira_practice": payload.get("jira_practice") or {},
+        "certifications": payload.get("certifications") or [],
+        "toc": toc or {"level_map": level_map},
+    }
+
+
+def _parse_import_text(text: str) -> List[Dict[str, Any]]:
+    docs = []
+    blocks = []
+    current_block = []
+    for raw_line in text.splitlines():
+        if raw_line.strip().lower().startswith("technology name:") and current_block:
+            blocks.append("\n".join(current_block).strip())
+            current_block = []
+        current_block.append(raw_line)
+    if current_block:
+        blocks.append("\n".join(current_block).strip())
+
+    for block in blocks:
+        lines = [line.strip() for line in block.splitlines() if line.strip()]
+        name = ""
+        aliases = []
+        level_map = {level: [] for level in LEVEL_KEYS}
+        current_level = "foundation"
+        tools = []
+        certifications = []
+
+        for line in lines:
+            lower = line.lower()
+            if lower.startswith("technology name:"):
+                name = line.split(":", 1)[1].strip()
+            elif lower.startswith("aliases:"):
+                aliases = [item.strip() for item in line.split(":", 1)[1].split(",") if item.strip()]
+            elif lower.startswith("tools:"):
+                tools = [item.strip() for item in line.split(":", 1)[1].split(",") if item.strip()]
+            elif lower.startswith("certifications:"):
+                certifications = [line.split(":", 1)[1].strip()]
+            elif "foundation" in lower and "topic" in lower:
+                current_level = "foundation"
+            elif "core" in lower and "topic" in lower:
+                current_level = "core"
+            elif "advanced" in lower and "topic" in lower:
+                current_level = "advanced"
+            elif line[0].isdigit() or line.startswith("-"):
+                topic = line.lstrip("- ").split(".", 1)[-1].strip()
+                if topic:
+                    level_map[current_level].append({"topic": topic, "subtopics": [], "tools": tools, "lab": ""})
+
+        if name:
+            docs.append(_normalise_toc_knowledge({
+                "name": name,
+                "key": _slugify_domain(name),
+                "aliases": aliases,
+                "level_map": level_map,
+                "certifications": [item for item in certifications if item],
+            }))
+    return docs
 
 
 def _legacy_build_rich_toc_html(toc: Dict[str, Any]) -> str:
@@ -335,51 +442,60 @@ async def list_toc_domains(db: AsyncIOMotorDatabase = Depends(get_db)):
 async def list_toc_knowledge(db: AsyncIOMotorDatabase = Depends(get_db)):
     cursor = db["toc_knowledge"].find({}, {"_id": 0}).sort("domain", 1)
     items = [d async for d in cursor]
-    return {"success": True, "count": len(items), "items": items}
+    return {"success": True, "count": len(items), "items": items, "domains": items}
 
 
 @router.get("/knowledge/{key}")
 async def get_toc_knowledge(key: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     doc = await db["toc_knowledge"].find_one(
-        {"$or": [{"domain": {"$regex": f"^{key}$", "$options": "i"}}, {"key": key}]},
+        _domain_filter(key),
         {"_id": 0}
     )
     if not doc:
         raise HTTPException(404, f"TOC knowledge not found for: {key}")
-    return {"success": True, "item": doc}
+    return {"success": True, "item": doc, "domain": doc}
 
 
 @router.post("/knowledge")
-async def save_toc_knowledge(payload: TocKnowledgeItem, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def save_toc_knowledge(payload: Dict[str, Any] = Body(...), db: AsyncIOMotorDatabase = Depends(get_db)):
     now = datetime.utcnow()
+    doc = _normalise_toc_knowledge(payload)
     await db["toc_knowledge"].update_one(
-        {"domain": {"$regex": f"^{payload.domain}$", "$options": "i"}},
-        {"$set": {**payload.model_dump(), "key": payload.domain.lower(), "updated_at": now},
+        _domain_filter(doc["key"]),
+        {"$set": {**doc, "updated_at": now},
          "$setOnInsert": {"created_at": now}},
         upsert=True,
     )
-    return {"success": True, "domain": payload.domain}
+    return {"success": True, "domain": doc, "item": doc}
 
 
 @router.post("/knowledge/import")
-async def import_toc_knowledge(payload: TocImportRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def import_toc_knowledge(payload: Dict[str, Any] = Body(...), db: AsyncIOMotorDatabase = Depends(get_db)):
     imported = 0
     now = datetime.utcnow()
-    for item in payload.items:
+    docs = []
+    if isinstance(payload.get("items"), list):
+        docs = [_normalise_toc_knowledge(item) for item in payload["items"]]
+    elif isinstance(payload.get("text"), str):
+        docs = _parse_import_text(payload["text"])
+    if not docs:
+        raise HTTPException(422, "Import requires pasted text or at least one item")
+
+    for item in docs:
         await db["toc_knowledge"].update_one(
-            {"domain": {"$regex": f"^{item.domain}$", "$options": "i"}},
-            {"$set": {**item.model_dump(), "key": item.domain.lower(), "updated_at": now},
+            _domain_filter(item["key"]),
+            {"$set": {**item, "updated_at": now},
              "$setOnInsert": {"created_at": now}},
             upsert=True,
         )
         imported += 1
-    return {"success": True, "imported": imported}
+    return {"success": True, "imported": imported, "domains": docs, "items": docs}
 
 
 @router.delete("/knowledge/{key}")
 async def delete_toc_knowledge(key: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     result = await db["toc_knowledge"].delete_one(
-        {"$or": [{"domain": {"$regex": f"^{key}$", "$options": "i"}}, {"key": key}]}
+        _domain_filter(key)
     )
     if result.deleted_count == 0:
         raise HTTPException(404, f"TOC knowledge not found: {key}")
