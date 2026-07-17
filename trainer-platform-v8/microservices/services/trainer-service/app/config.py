@@ -1,3 +1,4 @@
+from pathlib import Path
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 from typing import List
@@ -12,9 +13,9 @@ class Settings(BaseSettings):
     MONGODB_URL: str = "mongodb://127.0.0.1:27017"
     MONGODB_DB_NAME: str = "trainersync"
     REDIS_URL: str = "redis://127.0.0.1:6379"
-    DOCUMENT_SERVICE_URL: str = "http://document-service:8006"
-    EMAIL_SERVICE_URL: str = "http://email-service:8002"
-    NOTIFICATION_SERVICE_URL: str = "http://notification-service:8003"
+    DOCUMENT_SERVICE_URL: str = "http://127.0.0.1:8006"
+    EMAIL_SERVICE_URL: str = "http://127.0.0.1:8002"
+    NOTIFICATION_SERVICE_URL: str = "http://127.0.0.1:8003"
 
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"
@@ -27,7 +28,9 @@ class Settings(BaseSettings):
         return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")]
 
     class Config:
-        env_file = ".env"
+        _base_env_dir = Path(__file__).resolve().parents[3]
+        _local_env_file = _base_env_dir / '.env.local'
+        env_file = str(_local_env_file if _local_env_file.exists() else _base_env_dir / '.env')
         extra = "allow"
 
 

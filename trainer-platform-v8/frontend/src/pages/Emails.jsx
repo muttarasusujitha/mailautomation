@@ -26,9 +26,14 @@ function InterviewModal({ email, onClose, onSuccess }) {
   const handleSubmit = async () => {
     setLoading(true)
     try {
-      const res = await scheduleInterview(email.email_id, date, link)
+      const res = await scheduleInterview(email.email_id, date, link, {
+        trainer_name: email.trainer_name || email.to_name || 'Trainer',
+        trainer_email: email.trainer_email || email.to_email || email.to || '',
+        technology: email.technology || email.requirement_technology || email.domain || 'Training',
+        requirement_id: email.requirement_id || '',
+      })
       if (res.data.success) {
-        toast.success(`✅ Interview scheduled & email sent to ${email.trainer_name}!`)
+        toast.success(`✅ Interview scheduled & email sent to ${email.trainer_name || email.to_name || 'trainer'}!`)
         onSuccess()
         onClose()
       } else {

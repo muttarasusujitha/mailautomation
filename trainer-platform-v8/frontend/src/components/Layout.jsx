@@ -32,7 +32,6 @@ const NAV_GROUPS = [
       { to: '/interview-scheduled',  label: 'Interviews',         icon: CalendarCheck,     keywords: ['interview','schedule','meeting','meet link'] },
       { to: '/client-mail-pipeline', label: 'Client Pipeline',    icon: ReceiptText,       keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
       { to: '/invoices',             label: 'Invoices',           icon: ReceiptText,       keywords: ['invoice','manual invoice','generate invoice','billing'] },
-      { to: '/client-conversations', label: 'Client Threads',     icon: MessageSquare,     keywords: ['client threads','client conversations','conversation','thread'] },
     ],
   },
   {

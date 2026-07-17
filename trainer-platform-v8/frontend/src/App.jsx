@@ -19,7 +19,6 @@ const ClientLeads = lazy(() => import('./pages/ClientLeads'))
 const LinkedInSearch = lazy(() => import('./pages/LinkedInSearch'))
 const LinkedInShortlist = lazy(() => import('./pages/LinkedInShortlist'))
 const NaukriSearch = lazy(() => import('./pages/NaukriSearch'))
-const ClientConversations = lazy(() => import('./pages/ClientConversations'))
 const ClientPipeline = lazy(() => import('./pages/ClientPipeline'))
 const InterviewSchedules = lazy(() => import('./pages/InterviewSchedules'))
 const Invoices = lazy(() => import('./pages/Invoices'))
@@ -110,11 +109,12 @@ export default function App() {
             <Route path="naukri-search" element={<NaukriSearch />} />
             <Route path="client-pipeline" element={<ClientPipeline />} />
             <Route path="client-mail-pipeline" element={<ClientPipeline />} />
-            <Route path="client-conversations" element={<ClientConversations />} />
             <Route path="interview-scheduled" element={<InterviewSchedules />} />
             <Route path="interview" element={<Navigate to="/interview-scheduled" replace />} />
+            <Route path="interview-page" element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="interview-schedule" element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="interview-schedules" element={<Navigate to="/interview-scheduled" replace />} />
+            <Route path="scheduled-interviews" element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
             <Route path="resume-upload" element={<ResumeUpload />} />

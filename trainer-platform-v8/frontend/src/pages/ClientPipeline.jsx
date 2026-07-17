@@ -79,9 +79,43 @@ function matchesPipelineItem(item = {}, query = '') {
 }
 
 function msgTone(direction) {
-  if (direction === 'received') return 'border-slate-200 bg-white'
-  if (direction === 'sent') return 'border-blue-100 bg-blue-50'
-  return 'border-emerald-100 bg-emerald-50'
+  if (direction === 'received') return 'border-slate-200 bg-white text-slate-800'
+  if (direction === 'sent') return 'border-blue-200 bg-blue-600 text-white'
+  return 'border-emerald-200 bg-emerald-50 text-emerald-900'
+}
+
+function msgAlign(direction) {
+  if (direction === 'received') return 'mr-auto'
+  return 'ml-auto'
+}
+
+function msgSpeaker(message = {}) {
+  return message.direction === 'received' ? 'Client' : 'Clahan'
+}
+
+function cleanConversationBody(value = '') {
+  const text = String(value || '').replace(/\r\n/g, '\n')
+  const quoteMarkers = [
+    /\nOn .+ wrote:\s*$/im,
+    /\nOn .+\n.+wrote:\s*$/im,
+    /\nFrom:\s.+$/im,
+    /\n-----Original Message-----/im,
+    /\n_{5,}\s*$/m,
+  ]
+  const cutAt = quoteMarkers
+    .map(pattern => {
+      const match = text.match(pattern)
+      return match?.index ?? -1
+    })
+    .filter(index => index >= 0)
+    .sort((a, b) => a - b)[0]
+  const currentMessage = cutAt >= 0 ? text.slice(0, cutAt) : text
+  return currentMessage
+    .split('\n')
+    .filter(line => !line.trim().startsWith('>'))
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
 function clientMailStages(item = {}) {
@@ -587,8 +621,8 @@ export default function ClientPipeline() {
                 </div>
               </header>
 
-              <div className="grid min-w-0 flex-1 gap-5 p-5 2xl:grid-cols-[360px_minmax(0,1fr)]">
-                <aside className="min-w-0 space-y-4">
+              <div className="flex min-w-0 flex-1 flex-col gap-5 p-5">
+                <div className="grid min-w-0 gap-4 xl:grid-cols-3">
                   <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">Selected Trainer Match</p>
@@ -630,30 +664,40 @@ export default function ClientPipeline() {
                       <p className="flex justify-between gap-3"><span className="text-slate-500">Grand Total</span><strong className="text-right text-slate-900">{money(selected.invoice?.commercials?.grand_total)}</strong></p>
                     </div>
                   </div>
-                </aside>
+                </div>
 
-                <div className="min-w-0 rounded-xl border border-slate-200 bg-slate-50">
-                  <div className="flex items-center justify-between border-b border-slate-200 p-4">
+                <div className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-slate-200 bg-white p-4">
                     <div>
                       <p className="text-sm font-bold text-slate-950">Client and Clahan Conversation</p>
-                      <p className="mt-0.5 text-xs text-slate-500">Requirement, slot, PO and invoice messages in one timeline.</p>
+                      <p className="mt-0.5 text-xs text-slate-500">Requirement, slot, PO and invoice messages in a chat-style timeline.</p>
                     </div>
                     <MessageSquareText className="h-5 w-5 text-slate-400" />
                   </div>
-                  <div className="max-h-[620px] space-y-3 overflow-y-auto p-4 [scrollbar-gutter:stable]">
+                  <div className="max-h-[680px] space-y-4 overflow-y-auto bg-slate-100/70 p-4 [scrollbar-gutter:stable]">
                     {selected.messages?.length ? selected.messages.map((message, index) => (
-                      <div key={`${message.type}-${index}`} className={clsx('min-w-0 rounded-lg border p-4 shadow-sm', msgTone(message.direction))}>
+                      <div
+                        key={`${message.type}-${index}`}
+                        className={clsx(
+                          'min-w-0 max-w-[82%] rounded-2xl border p-4 shadow-sm',
+                          message.direction === 'received' ? 'rounded-bl-sm' : 'rounded-br-sm',
+                          msgAlign(message.direction),
+                          msgTone(message.direction)
+                        )}
+                      >
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            {message.type === 'invoice' ? <IndianRupee className="h-4 w-4 text-emerald-600" /> : message.type === 'client_po' ? <FileText className="h-4 w-4 text-blue-600" /> : <Mail className="h-4 w-4 text-slate-500" />}
-                            <p className="text-sm font-bold text-slate-950">{message.label}</p>
+                            {message.type === 'invoice' ? <IndianRupee className={clsx('h-4 w-4', message.direction === 'sent' ? 'text-white' : 'text-emerald-600')} /> : message.type === 'client_po' ? <FileText className={clsx('h-4 w-4', message.direction === 'sent' ? 'text-white' : 'text-blue-600')} /> : <Mail className={clsx('h-4 w-4', message.direction === 'sent' ? 'text-white' : 'text-slate-500')} />}
+                            <p className={clsx('text-sm font-bold', message.direction === 'sent' ? 'text-white' : 'text-slate-950')}>
+                              {msgSpeaker(message)} · {message.label}
+                            </p>
                           </div>
-                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400">
+                          <span className={clsx('inline-flex items-center gap-1 text-xs font-semibold', message.direction === 'sent' ? 'text-blue-100' : 'text-slate-400')}>
                             <Clock3 className="h-3.5 w-3.5" /> {fmtDate(message.at)}
                           </span>
                         </div>
-                        {message.subject && <p className="mt-2 break-words text-sm font-semibold text-slate-800 [overflow-wrap:anywhere]">{message.subject}</p>}
-                        <pre className="mt-2 max-w-full whitespace-pre-wrap break-words font-sans text-sm leading-6 text-slate-600 [overflow-wrap:anywhere]">{message.body || 'No body captured.'}</pre>
+                        {message.subject && <p className={clsx('mt-2 break-words text-sm font-semibold [overflow-wrap:anywhere]', message.direction === 'sent' ? 'text-white' : 'text-slate-800')}>{message.subject}</p>}
+                        <pre className={clsx('mt-2 max-w-full whitespace-pre-wrap break-words font-sans text-sm leading-6 [overflow-wrap:anywhere]', message.direction === 'sent' ? 'text-blue-50' : 'text-slate-600')}>{cleanConversationBody(message.body) || 'No body captured.'}</pre>
                       </div>
                     )) : (
                       <div className="rounded-lg border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-500">

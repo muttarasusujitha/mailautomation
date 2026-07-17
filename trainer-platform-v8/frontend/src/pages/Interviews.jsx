@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getRequirements, getShortlist, scheduleInterview } from '../utils/api'
+import { getRequirements, getShortlist, sendShortlistInterviewLink } from '../utils/api'
 import toast from 'react-hot-toast'
 import {
   Calendar, Mail, X, Loader2, ExternalLink,
@@ -14,7 +14,7 @@ const MEET_PLATFORMS = [
   { id: 'google', label: 'Google Meet', icon: '🎥', placeholder: 'https://meet.google.com/xxx-xxxx-xxx', color: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
 ]
 
-function ScheduleModal({ trainer, onClose, onSuccess }) {
+function ScheduleModal({ trainer, req, onClose, onSuccess }) {
   const [date, setDate]         = useState('')
   const [link, setLink]         = useState('')
   const [platform, setPlatform] = useState('zoom')
@@ -24,10 +24,23 @@ function ScheduleModal({ trainer, onClose, onSuccess }) {
 
   const handleSubmit = async () => {
     if (!date) return toast.error('Please select interview date and time')
+    if (!trainer) return toast.error('Trainer data is missing')
+    const trainerEmail = trainer.email || trainer.trainer_email || trainer.to_email || ''
+    if (!trainerEmail) return toast.error('Trainer email is required to send the interview invite')
     setLoading(true)
     try {
-      const id = trainer.email_id || trainer.trainer_id
-      const res = await scheduleInterview(id, date, link)
+      const res = await sendShortlistInterviewLink({
+        trainer_id: trainer.trainer_id,
+        trainer_name: trainer.name || trainer.trainer_name || 'Trainer',
+        to_email: trainerEmail,
+        requirement_id: req?.requirement_id || '',
+        interview_link: link,
+        date_time: date,
+        platform: selectedPlatform?.label || 'Google Meet',
+        technology: req?.technology_needed || req?.technology || req?.domain || 'Training',
+        client_email: req?.client_email || '',
+        client_name: req?.client_name || req?.client_company || '',
+      })
       if (res.data.success || res.data.message) {
         toast.success(`Interview scheduled & email sent to ${trainer.name || trainer.trainer_name}!`)
         onSuccess()
@@ -199,7 +212,7 @@ export default function Interviews() {
   return (
     <div className="space-y-6 animate-fade-in">
       {scheduleFor && (
-        <ScheduleModal trainer={scheduleFor} onClose={() => setScheduleFor(null)} onSuccess={reload} />
+        <ScheduleModal trainer={scheduleFor} req={selectedReq} onClose={() => setScheduleFor(null)} onSuccess={reload} />
       )}
 
       <div>

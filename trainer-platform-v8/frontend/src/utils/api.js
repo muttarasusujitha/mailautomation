@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-const api = axios.create({ baseURL: '/api', timeout: 300000 })
+const apiBaseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+
+const api = axios.create({ baseURL: apiBaseURL, timeout: 300000 })
 
 function stringifyApiError(value) {
   try {
@@ -87,8 +89,14 @@ export const retryEmail        = (id)     => api.post(`/emails/${id}/retry`)
 export const sendMailToOne     = (id, msg) => api.post(`/emails/${id}/send-one`, { message: msg })
 export const sendClientSlotsFromEmail = (id, force = true, payload = {}) =>
   api.post(`/emails/${id}/send-client-slots`, { force, ...payload })
-export const scheduleInterview = (id, interview_date, interview_link) =>
-  api.post(`/emails/${id}/schedule-interview`, null, { params: { interview_date, interview_link } })
+export const scheduleInterview = (id, interview_date, interview_link, payload = {}) =>
+  api.post(`/emails/${id}/schedule-interview`, {
+    ...payload,
+    interview_date,
+    interview_link,
+  })
+export const sendShortlistInterviewLink = (payload) =>
+  api.post('/shortlists/send-interview-link', payload)
 export const getDashboardStats = ()       => api.get('/dashboard/stats')
 export const getDashboardAnalytics = (params) => api.get('/dashboard/analytics', { params })
 export const clearDatabase     = ()       => api.delete('/database/clear')
