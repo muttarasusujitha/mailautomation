@@ -123,6 +123,48 @@ async def _bing_search(name: str, domain: str, client: httpx.AsyncClient) -> Dic
     return {}
 
 
+def _normalize_tavily_results(results: Any) -> Dict[str, Any]:
+    if not results:
+        return {}
+    if isinstance(results, dict):
+        results = [results]
+    for item in results:
+        text_values: List[str] = []
+        if isinstance(item, dict):
+            for key in ("email", "phone", "headline", "title", "description", "summary", "name", "company", "location"):
+                value = item.get(key)
+                if isinstance(value, str) and value:
+                    text_values.append(value)
+        else:
+            text_values.append(str(item))
+        raw_text = " ".join(text_values)
+        es, ps = _emails(raw_text), _phones(raw_text)
+        if es or ps:
+            return {
+                "email": es[0] if es else "",
+                "phone": ps[0] if ps else "",
+                "source": "tavily",
+                "confidence": 0.85 if es else 0.70,
+            }
+    return {}
+
+
+async def _tavily_search(name: str, company: str, domain: str) -> Dict[str, Any]:
+    if not (name or company or domain):
+        return {}
+
+    query_parts = [part.strip() for part in [name, company, domain] if part and part.strip()]
+    query = " ".join(query_parts)
+    try:
+        tavily = get_client()
+        loop = asyncio.get_running_loop()
+        results = await loop.run_in_executor(None, lambda: tavily.search_linkedin(query, limit=10))
+        return _normalize_tavily_results(results)
+    except Exception as exc:
+        logger.debug("Tavily search failed: %s", exc)
+        return {}
+
+
 class FindContactRequest(BaseModel):
     name: str = ""
     company: str = ""
@@ -150,6 +192,17 @@ async def find_contact(payload: FindContactRequest):
                 return result
 
     async with httpx.AsyncClient(timeout=payload.timeout, follow_redirects=True) as client:
+        if not (result["email"] and result["phone"]) and payload.name:
+            r = await _tavily_search(payload.name, payload.company, payload.domain)
+            if r:
+                if not result["email"]:
+                    result["email"] = r.get("email", "")
+                if not result["phone"]:
+                    result["phone"] = r.get("phone", "")
+                result.update({"source": r["source"], "confidence": r["confidence"], "found": True})
+                if result["email"] and result["phone"]:
+                    return result
+
         if not (result["email"] and result["phone"]) and payload.name:
             r = await _google_search(payload.name, payload.company, payload.domain, client)
             if r:
