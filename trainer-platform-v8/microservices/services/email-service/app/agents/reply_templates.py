@@ -2,7 +2,7 @@
 from typing import Any, Dict
 
 
-SIGNATURE = "Regards,\nRecruitment Team\nClahan Technologies"
+SIGNATURE = "Best Regards,\nRecruitment Team\nClahan Technologies"
 TRAINER_SIGNATURE = "Regards,\nTrainerSync Team"
 
 
@@ -92,7 +92,7 @@ def _safe_ack(sender_name: str, subject: str) -> Dict[str, Any]:
             f"Dear {name},\n\n"
             "Thank you for your email.\n\n"
             "We have received your message and our team will review it carefully before responding further.\n\n"
-            f"{SIGNATURE}"
+            f"{TRAINER_SIGNATURE}"
         ),
         "auto_send_safe": False,
         "template_key": "human_review_ack",
@@ -112,9 +112,10 @@ def _client_missing_details_reply(client: str, tech: str, missing: str) -> Dict[
     body = (
         f"Dear {client},\n\n"
         f"Thank you for sharing your {tech} training requirement.\n\n"
-        "To help us refine the trainer shortlist, kindly share only the following missing details:\n\n"
+        "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
         f"{missing}\n\n"
-        "Meanwhile, we will begin the initial trainer search based on the information currently available.\n\n"
+        f"Meanwhile, we will begin an initial trainer search based on the {tech} domain and the information currently available. Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
+        "We look forward to your response.\n\n"
         f"{SIGNATURE}"
     )
     return _reply(f"Re: {tech} Trainer Requirement", body, "client_missing_details")
@@ -533,7 +534,7 @@ def build_auto_reply(
             "We have noted the revised dates/timings below and will align trainer availability accordingly:\n\n"
             f"{_details_block(extracted)}\n\n"
             "We will come back with suitable trainer availability and commercials for your review.\n\n"
-            f"{SIGNATURE}"
+            f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Trainer Requirement", body, "client_reschedule_ack")
 
@@ -699,7 +700,7 @@ def build_auto_reply(
             "Dear Trainer,\n\n"
             "Thank you for sharing your profile, availability, and commercial details.\n\n"
             "We will review them for the requirement and update you with the next steps shortly.\n\n"
-            f"{SIGNATURE}"
+            f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_details_ack")
 
@@ -708,7 +709,7 @@ def build_auto_reply(
             "Dear Trainer,\n\n"
             "Thank you for sharing your profile/credentials.\n\n"
             "Kindly also share your availability and commercials for this requirement so we can proceed with client review.\n\n"
-            f"{SIGNATURE}"
+            f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_credentials_ack")
 
@@ -717,7 +718,7 @@ def build_auto_reply(
             "Dear Trainer,\n\n"
             "Thank you for sharing your commercial details.\n\n"
             "Kindly confirm your availability for the proposed schedule as well, so we can share the complete profile with the client.\n\n"
-            f"{SIGNATURE}"
+            f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_commercials_ack")
 
@@ -725,17 +726,17 @@ def build_auto_reply(
         body = (
             "Dear Trainer,\n\n"
             "Thank you for sharing your availability/slots.\n\n"
-            "We will align this with the client schedule and update you with the next step shortly.\n\n"
-            f"{SIGNATURE}"
+            "We are reviewing them with the client and will confirm the next step shortly.\n\n"
+            f"{TRAINER_SIGNATURE}"
         )
-        return _reply(f"Re: {tech} Training Opportunity", body, "trainer_slots_ack")
+        return _reply(f"Re: {tech} Training Opportunity", body, "trainer_slots_ack", auto_send_safe=False)
 
     if scenario == "trainer_more_details":
         body = (
             "Dear Trainer,\n\n"
             "Thank you for your response.\n\n"
             "At this stage, we are first checking your interest, availability, and commercials. Confirmed client details will be shared once your profile is shortlisted for the next step.\n\n"
-            f"{SIGNATURE}"
+            f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_more_details")
 
@@ -744,7 +745,7 @@ def build_auto_reply(
             "Dear Trainer,\n\n"
             "Thank you for the update. We have noted your unavailability for this requirement.\n\n"
             "We will reach out for suitable future opportunities.\n\n"
-            f"{SIGNATURE}"
+            f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_unavailable_ack")
 

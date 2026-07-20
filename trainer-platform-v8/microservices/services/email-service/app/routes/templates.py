@@ -1,12 +1,23 @@
 """Email template composition endpoints."""
-from fastapi import APIRouter
+from __future__ import annotations
+
+from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 
 from app.config import get_settings
+from app.agents import reply_templates as rt
 
 router = APIRouter()
 settings = get_settings()
+
+
+def _require_internal(x_internal_token: str = Header(None)) -> None:
+    # If INTERNAL_SERVICE_TOKEN is configured, require matching header.
+    token = settings.INTERNAL_SERVICE_TOKEN or ""
+    if token:
+        if not x_internal_token or x_internal_token != token:
+            raise HTTPException(status_code=403, detail="Forbidden: invalid internal token")
 
 
 def _from_name() -> str:
@@ -48,6 +59,7 @@ class ShortlistEmailRequest(BaseModel):
     duration: Optional[str] = ""
     mode: Optional[str] = ""
     participants: Optional[str] = ""
+    dates: Optional[str] = ""
 
 
 class InterviewEmailRequest(BaseModel):
@@ -72,19 +84,21 @@ class RetryEmailRequest(BaseModel):
 @router.post("/shortlist-first")
 async def compose_shortlist_first(payload: ShortlistEmailRequest):
     domain = payload.domain or "Training"
-    detail_lines = [f"* Domain/Technology: {domain}"]
+    detail_lines = [f"Domain/Technology: {domain}"]
     if payload.duration:
-        detail_lines.append(f"* Duration: {payload.duration}")
+        detail_lines.append(f"Duration: {payload.duration}")
+    if payload.dates:
+        detail_lines.append(f"Dates/Timings: {payload.dates}")
     if payload.mode:
-        detail_lines.append(f"* Mode: {payload.mode}")
+        detail_lines.append(f"Mode: {payload.mode}")
     if payload.participants:
-        detail_lines.append(f"* Participants: {payload.participants}")
+        detail_lines.append(f"Participants: {payload.participants}")
     detail_text = "\n".join(detail_lines)
 
     missing_note = ""
     if not payload.duration or not payload.participants:
         missing_note = (
-            "\n\nAt this stage, we are checking your interest, commercials, and availability first. "
+            "\n\nAt this stage, we are checking your interest and availability first. "
             "Once you confirm, we will share the confirmed duration, schedule, participants, "
             "and other requirement details as they are finalised."
         )
@@ -99,18 +113,16 @@ Slot 3: 25 June 2026, 4:00 PM – 4:30 PM IST
 
 This helps us process your availability automatically and move forward quickly.
 """
+    missing_note = ""
+    slot_guide = ""
     body = (
         f"Dear {payload.trainer_name or 'Trainer'},\n\n"
         f"We have received a training requirement for {domain} and are looking for a trainer with relevant experience.\n\n"
         f"Training Details:\n\n{detail_text}{missing_note}\n\n"
-        "Please share the following details if you are interested in this requirement:\n\n"
-        "* Commercials/rate per day or per session\n"
-        "* Current availability and preferred slots\n"
-        "* Updated trainer profile/credentials\n"
-        "* Relevant training experience\n"
-        "* LinkedIn profile, if available"
+        "Please let us know if you are interested and available for this requirement. "
+        "Kindly share your updated trainer profile along with relevant experience.\n\n"
         f"{slot_guide}"
-        f"Regards,\n{_from_name()}\n{_from_email()}"
+        "Regards,\nTrainerSync Team"
     )
     return {
         "subject": f"Training Requirement - {domain}",
@@ -186,40 +198,82 @@ class ClientProceedRequest(BaseModel):
 
 
 @router.post("/client/mail2")
-async def compose_client_mail2(payload: ClientMail2Request):
+async def compose_client_mail2(payload: ClientMail2Request, x_internal_token: str = Header(None)):
+    _require_internal(x_internal_token)
     name = payload.client_name or "Client"
-    tech = payload.technology or "Devops"
-    subject = payload.subject or f"Re: {tech} Trainer Requirement"
-    body = (
-        f"Dear {name},\n\n"
-        f"Thank you for sharing your {tech} training requirement.\n\n"
-        "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
+    tech = payload.technology or "training"
+    missing_lines = (
         "* Training duration\n"
         "* Preferred training dates\n"
         "* Daily training timings\n"
         "* Audience level (Beginner / Intermediate / Advanced)\n"
         "* Training mode (Online / Offline / Hybrid)\n"
-        "* Budget or expected commercial range, if available\n\n"
-        "Meanwhile, we will begin an initial trainer search based on the Devops domain and the information currently available. "
-        "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
-        "We look forward to your response.\n\n"
-        f"Regards,\n{_from_name()}\n{_from_email()}"
+        "* Budget or expected commercial charges per day/session"
     )
-    return {"subject": subject, "body": body}
+    reply = rt._client_missing_details_reply(name, tech, missing_lines)
+    return {"subject": reply.get("subject"), "body": reply.get("body")}
 
 
 @router.post("/client/proceed-ack")
-async def compose_client_proceed_ack(payload: ClientProceedRequest):
+async def compose_client_proceed_ack(payload: ClientProceedRequest, x_internal_token: str = Header(None)):
+    _require_internal(x_internal_token)
     name = payload.client_name or "Client"
     tech = payload.technology or "training"
-    subject = f"Re: {tech} Trainer Requirement"
     body = (
         f"Dear {name},\n\n"
-        "Thank you for sharing your training requirement.\n\n"
+        f"Thank you for sharing your {tech} training requirement.\n\n"
         f"We have noted your requirement and will proceed with the initial trainer search for your {tech} requirement based on the information currently available.\n\n"
-        "Our team will start identifying suitable trainers with relevant domain expertise, availability, and experience. "
-        "Once you share any remaining details, we will refine the shortlist further and share the most suitable profiles with commercials and availability for your review.\n\n"
-        f"Regards,\n{_from_name()}\n{_from_email()}"
+        "Our team will start identifying suitable trainers with relevant domain expertise, availability, and experience.\n\n"
+        "To help us refine the shortlist and design the best-fit training content, kindly share only the following missing details:\n\n"
+        "* {Only missing fields}\n\n"
+        "These details will help us recommend better matched trainers and align the course content more accurately with your participants.\n\n"
+        "We will share the most suitable profiles with commercials and availability for your review.\n\n"
+        "Best Regards,\nRecruitment Team\nClahan Technologies"
+    )
+    return {"subject": f"Re: {tech} Trainer Requirement", "body": body}
+
+
+@router.post("/client/full-details")
+async def compose_client_full_details(payload: GenericSimpleRequest, x_internal_token: str = Header(None)):
+    _require_internal(x_internal_token)
+    tech = payload.technology or "training"
+    body = (
+        "Dear Client,\n\n"
+        f"Thank you for sharing the required details for your {tech} training requirement.\n\n"
+        "We will proceed with the trainer search and share suitable profiles with experience, skill set, availability, and commercials for your review shortly.\n\n"
+        "Best Regards,\nRecruitment Team\nClahan Technologies"
+    )
+    return {"subject": f"Re: {tech} Trainer Requirement", "body": body}
+
+
+@router.post("/client/clarification")
+async def compose_client_clarification(payload: GenericSimpleRequest, x_internal_token: str = Header(None)):
+    _require_internal(x_internal_token)
+    body = (
+        "Dear Client,\n\n"
+        "Thank you for sharing the training requirement. To shortlist the right trainer profiles, please confirm the technology/topic, delivery mode, expected dates or duration, participant count, and commercials or budget range.\n\n"
+        "Once we have these details, we will share suitable profiles for your review.\n\n"
+        "Best Regards,\nRecruitment Team\nClahan Technologies"
+    )
+    return {"subject": "Re: Training Requirement Details", "body": body}
+
+
+@router.post("/client-slots")
+async def compose_client_slots(payload: BaseModel, x_internal_token: str = Header(None)):
+    _require_internal(x_internal_token)
+    # payload expected fields: client_name, trainer_name, technology, slots_text
+    client_name = getattr(payload, "client_name", "Client") or "Client"
+    trainer_name = getattr(payload, "trainer_name", "Trainer") or "Trainer"
+    technology = getattr(payload, "technology", "training") or "training"
+    slots_text = getattr(payload, "slots_text", "") or "The trainer's availability slots will be shared shortly."
+    subject = f"Interview Slots — {technology} | {trainer_name}"
+    body = (
+        f"Dear {client_name},\n\n"
+        f"Trainer {trainer_name} has shared the available interview slots for the {technology} requirement.\n\n"
+        "Available slots:\n"
+        f"{slots_text}\n\n"
+        "Kindly confirm your preferred slot at the earliest.\n\n"
+        "Best Regards,\nRecruitment Team\nClahan Technologies"
     )
     return {"subject": subject, "body": body}
 
@@ -279,7 +333,8 @@ async def compose_send_commercials(payload: GenericSimpleRequest):
 
 
 @router.post("/client-budget-reply")
-async def compose_client_budget_reply(payload: GenericSimpleRequest):
+async def compose_client_budget_reply(payload: GenericSimpleRequest, x_internal_token: str = Header(None)):
+    _require_internal(x_internal_token)
     subject = "Budget Received — Thank you"
     body = (
         f"Dear {payload.client_name or 'Client'},\n\n"
@@ -290,7 +345,8 @@ async def compose_client_budget_reply(payload: GenericSimpleRequest):
 
 
 @router.post("/client-budget-ack")
-async def compose_client_budget_ack(payload: GenericSimpleRequest):
+async def compose_client_budget_ack(payload: GenericSimpleRequest, x_internal_token: str = Header(None)):
+    _require_internal(x_internal_token)
     subject = "Budget Acknowledgement"
     body = (
         f"Dear {payload.client_name or 'Client'},\n\n"
@@ -312,29 +368,24 @@ async def compose_rate_gap_resolution(payload: GenericSimpleRequest):
 
 
 @router.post("/client-proceed")
-async def compose_client_proceed(payload: GenericSimpleRequest):
-    subject = "Proceed — Trainer Search Initiated"
-    body = (
-        f"Dear {payload.client_name or 'Client'},\n\n"
-        "We will proceed with the initial trainer search and share shortlisted profiles shortly.\n\n"
-        "Regards,\n" + _from_name()
-    )
-    return {"subject": subject, "body": body}
+async def compose_client_proceed(payload: GenericSimpleRequest, x_internal_token: str = Header(None)):
+    _require_internal(x_internal_token)
+    # Keep wording aligned with shared templates
+    tech = payload.technology or "training"
+    reply = rt._reply("Proceed — Trainer Search Initiated", f"Dear {payload.client_name or 'Client'},\n\nWe will proceed with the initial trainer search and share shortlisted profiles shortly.\n\n{rt.SIGNATURE}", "client_proceed")
+    return {"subject": reply.get("subject"), "body": reply.get("body")}
 
 
 @router.post("/client-alternative")
-async def compose_client_alternative(payload: GenericSimpleRequest):
-    subject = "Alternative Option — Trainer Recommendation"
-    body = (
-        f"Dear {payload.client_name or 'Client'},\n\n"
-        "Thanks — as requested we will share alternative trainer options and details.\n\n"
-        "Regards,\n" + _from_name()
-    )
-    return {"subject": subject, "body": body}
+async def compose_client_alternative(payload: GenericSimpleRequest, x_internal_token: str = Header(None)):
+    _require_internal(x_internal_token)
+    reply = rt._reply("Alternative Option — Trainer Recommendation", f"Dear {payload.client_name or 'Client'},\n\nThanks — as requested we will share alternative trainer options and details.\n\n{rt.SIGNATURE}", "client_alternative")
+    return {"subject": reply.get("subject"), "body": reply.get("body")}
 
 
 @router.post("/client-toc-request")
-async def compose_client_toc_request(payload: GenericSimpleRequest):
+async def compose_client_toc_request(payload: GenericSimpleRequest, x_internal_token: str = Header(None)):
+    _require_internal(x_internal_token)
     subject = "TOC / Course Agenda Request"
     body = (
         f"Dear {payload.client_name or 'Client'},\n\n"

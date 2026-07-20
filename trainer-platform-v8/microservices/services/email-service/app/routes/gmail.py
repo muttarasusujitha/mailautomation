@@ -2,7 +2,8 @@
 import logging
 import os
 import uuid
-from datetime import datetime, timedelta
+import json
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
 import httpx
@@ -70,7 +71,7 @@ def _token_path() -> str:
     return os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "..", p)
 
 
-def _load_creds():
+def _load_creds(refresh_expired: bool = True):
     tp = _token_path()
     if not os.path.exists(tp):
         return None, "token.json not found"
@@ -78,13 +79,41 @@ def _load_creds():
         from google.auth.transport.requests import Request as GReq
         from google.oauth2.credentials import Credentials
         creds = Credentials.from_authorized_user_file(tp, GMAIL_SCOPES)
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(GReq())
+        if refresh_expired and creds and creds.expired and creds.refresh_token:
+            refresh_request = GReq()
+            creds.refresh(lambda *args, **kwargs: refresh_request(*args, timeout=10, **kwargs))
             with open(tp, "w") as fh:
                 fh.write(creds.to_json())
         return creds, ""
     except Exception as exc:
         return None, str(exc)
+
+
+def _read_token_status() -> Dict[str, Any]:
+    tp = _token_path()
+    if not os.path.exists(tp):
+        return {"exists": False, "valid": False, "error": "token.json not found"}
+    try:
+        with open(tp, "r", encoding="utf-8") as fh:
+            token = json.load(fh)
+        expiry_raw = str(token.get("expiry") or "").strip()
+        expired = True
+        if expiry_raw:
+            expiry = datetime.fromisoformat(expiry_raw.replace("Z", "+00:00"))
+            expired = expiry <= datetime.now(timezone.utc)
+        scopes = list(token.get("scopes") or [])
+        has_refresh_token = bool(token.get("refresh_token"))
+        return {
+            "exists": True,
+            "valid": not expired,
+            "connected": (not expired) or has_refresh_token,
+            "expired": expired,
+            "expiry": expiry_raw,
+            "has_refresh_token": has_refresh_token,
+            "scopes": scopes,
+        }
+    except Exception as exc:
+        return {"exists": True, "valid": False, "error": str(exc)}
 
 
 async def _gmail_service():
@@ -103,22 +132,27 @@ async def _gmail_service():
 @router.get("/auth-status")
 async def gmail_auth_status(db: AsyncIOMotorDatabase = Depends(get_db)):
     """Check whether Gmail OAuth token is present and valid."""
-    creds, err = _load_creds()
-    if not creds or not creds.valid:
+    token_status = _read_token_status()
+    connected = bool(token_status.get("connected"))
+    if not connected:
         return {
             "connected": False,
             "valid": False,
             "token_valid": False,
             "calendar_connected": False,
-            "error": err or "Token invalid or expired",
+            "error": token_status.get("error") or "Token invalid or expired",
+            "expired": bool(token_status.get("expired")),
+            "expiry": token_status.get("expiry", ""),
         }
-    scopes = list(getattr(creds, "scopes", []) or [])
-    email = getattr(creds, "_service_account_email", None) or settings.GMAIL_USER
+    scopes = list(token_status.get("scopes") or [])
+    email = settings.GMAIL_USER
     calendar_connected = any("/auth/calendar" in str(scope) for scope in scopes)
     return {
         "connected": True,
-        "valid": True,
-        "token_valid": True,
+        "valid": bool(token_status.get("valid")),
+        "token_valid": bool(token_status.get("valid")),
+        "expired": bool(token_status.get("expired")),
+        "expiry": token_status.get("expiry", ""),
         "email": email,
         "gmail_user": email,
         "configured_user": email,

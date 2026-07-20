@@ -10,7 +10,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, EmailStr
 
 from app.database import get_db
-from app.gmail_client import is_send_quota_error, send_email_async
+from app.gmail_client import is_send_quota_error, send_email_async, _normalize_trainer_reply_body
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -46,6 +46,7 @@ async def send_single_email(
     payload: SendEmailRequest,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
+    body = _normalize_trainer_reply_body(payload.body)
     attachments = []
     if payload.attachments:
         for att in payload.attachments:
@@ -70,7 +71,7 @@ async def send_single_email(
     success, error = await send_email_async(
         to=payload.to,
         subject=payload.subject,
-        body=payload.body,
+        body=body,
         smtp_config=payload.smtp_config,
         tracking_url=payload.tracking_url or "",
         attachments=attachments,
@@ -81,7 +82,8 @@ async def send_single_email(
         "direction": "outbound",
         "recipient": payload.to,
         "subject": payload.subject,
-        "body_snippet": payload.body[:300],
+        "body": body,
+        "body_snippet": body[:300],
         "status": "sent" if success else "failed",
         "error_message": error if not success else "",
         "customer_id": payload.customer_id,
@@ -110,6 +112,7 @@ async def send_bulk_emails(
     results = []
     for item in payload.payloads:
         cfg = item.smtp_config or payload.smtp_config
+        body = _normalize_trainer_reply_body(item.body)
         attachments = []
         if item.attachments:
             for att in item.attachments:
@@ -124,7 +127,7 @@ async def send_bulk_emails(
         success, error = await send_email_async(
             to=item.to,
             subject=item.subject,
-            body=item.body,
+            body=body,
             smtp_config=cfg,
             tracking_url=item.tracking_url or "",
             attachments=attachments,
@@ -135,7 +138,8 @@ async def send_bulk_emails(
             "direction": "outbound",
             "recipient": item.to,
             "subject": item.subject,
-            "body_snippet": item.body[:300],
+            "body": body,
+            "body_snippet": body[:300],
             "status": "sent" if success else "failed",
             "error_message": error if not success else "",
             "customer_id": item.customer_id,

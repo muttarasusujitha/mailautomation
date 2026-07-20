@@ -113,66 +113,84 @@ async def send_automation_mail(
                     "client_name": payload.client_name or "",
                 }
                 if payload.mail_type in ("mail1", "first"):
-                    r = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/shortlist-first", json={
-                        "trainer_name": name,
-                        "domain": technology,
-                        "duration": payload.duration or "",
-                        "mode": payload.mode or "",
-                        "participants": payload.participants or "",
-                    })
+                    r = await client.post(
+                        f"{EMAIL_SVC}/api/v1/email/templates/shortlist-first",
+                        json={
+                            "trainer_name": name,
+                            "domain": technology,
+                            "duration": payload.duration or "",
+                            "mode": payload.mode or "",
+                            "participants": payload.participants or "",
+                        },
+                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
+                    )
                 elif payload.mail_type in ("mail2", "mail2_followup"):
                     tmpl_name = "mail2" if payload.mail_type == "mail2" else "mail2-followup"
                     r = await client.post(
                         f"{EMAIL_SVC}/api/v1/email/templates/{tmpl_name}",
                         json=base_template_payload,
+                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                     )
                 elif payload.mail_type in ("mail3", "mail3_slot_booking"):
                     r = await client.post(
                         f"{EMAIL_SVC}/api/v1/email/templates/mail3-slot-booking",
                         json=base_template_payload,
+                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                     )
                 elif payload.mail_type in ("mail3_slot_followup", "mail3_too_few", "mail3_too_few_slots"):
                     r = await client.post(
                         f"{EMAIL_SVC}/api/v1/email/templates/mail3-too-few",
                         json=base_template_payload,
+                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                     )
                 elif payload.mail_type in ("mail3_too_many", "mail3_too_many_slots"):
                     r = await client.post(
                         f"{EMAIL_SVC}/api/v1/email/templates/mail3-too-many",
                         json=base_template_payload,
+                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                     )
                 elif payload.mail_type == "mail4":
-                    r = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/interview", json={
-                        "trainer_name": name,
-                        "technology": technology,
-                        "req_id": payload.requirement_id or "",
-                        "interview_date": payload.date_time or "",
-                        "interview_link": payload.interview_link or "",
-                    })
+                    r = await client.post(
+                        f"{EMAIL_SVC}/api/v1/email/templates/interview",
+                        json={
+                            "trainer_name": name,
+                            "technology": technology,
+                            "req_id": payload.requirement_id or "",
+                            "interview_date": payload.date_time or "",
+                            "interview_link": payload.interview_link or "",
+                        },
+                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
+                    )
                 elif payload.mail_type in ("mail5", "mail5_ok", "mail5_selection"):
                     r = await client.post(
                         f"{EMAIL_SVC}/api/v1/email/templates/mail5-selection",
                         json=base_template_payload,
+                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                     )
                 elif payload.mail_type in ("mail5_no", "mail5_rejection"):
                     r = await client.post(
                         f"{EMAIL_SVC}/api/v1/email/templates/mail5-rejection",
                         json=base_template_payload,
+                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                     )
                 elif payload.mail_type in ("mail6", "mail6_toc", "toc-request"):
                     r = await client.post(
                         f"{EMAIL_SVC}/api/v1/email/templates/mail6-toc-request",
                         json=base_template_payload,
+                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                     )
                 elif payload.mail_type in ("mail7", "mail7_confirm", "training_confirmation"):
                     r = await client.post(
                         f"{EMAIL_SVC}/api/v1/email/templates/mail7-training-confirmation",
                         json=base_template_payload,
+                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                     )
                 elif payload.mail_type in ("mail1_reminder",):
-                    r = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/retry", json={
-                        "trainer_name": name, "technology": technology,
-                        "req_id": payload.requirement_id or ""})
+                    r = await client.post(
+                        f"{EMAIL_SVC}/api/v1/email/templates/retry",
+                        json={"trainer_name": name, "technology": technology, "req_id": payload.requirement_id or ""},
+                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
+                    )
             if r and r.status_code < 400:
                 tmpl = r.json()
                 body = tmpl.get("body", "")

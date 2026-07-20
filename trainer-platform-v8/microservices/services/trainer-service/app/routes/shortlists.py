@@ -23,6 +23,12 @@ settings = get_settings()
 EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
 NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
+LOCAL_SERVICE_FALLBACKS = {
+    "http://email-service:8002": "http://127.0.0.1:8003",
+    "http://127.0.0.1:8002": "http://127.0.0.1:8003",
+    "http://document-service:8006": "http://127.0.0.1:8006",
+    "http://notification-service:8003": "http://127.0.0.1:8003",
+}
 EXCLUDED_TRAINER_STATUSES = {"interested", "confirmed", "declined"}
 PIPELINE_VERSION = "trainer-match-microservice-v1"
 ACTIVE_PIPELINE_STAGES = {
@@ -83,6 +89,12 @@ class SendClientSlotsRequest(BaseModel):
 
 def _clean(value: Any) -> str:
     return str(value or "").strip()
+
+
+def _clean_duration_text(value: Any) -> str:
+    text = _clean(value)
+    text = re.sub(r"(?i)^to\s+be\s*:?\s*(?=\d)", "", text).strip()
+    return text
 
 
 def _client_interview_message(
@@ -158,6 +170,21 @@ def _safe_int(value: Any, default: int = 0) -> int:
         return int(float(value))
     except (TypeError, ValueError):
         return default
+
+
+async def _post_with_local_fallback(
+    client: httpx.AsyncClient,
+    url: str,
+    **kwargs: Any,
+) -> httpx.Response:
+    try:
+        return await client.post(url, **kwargs)
+    except httpx.RequestError:
+        for service_base, local_base in LOCAL_SERVICE_FALLBACKS.items():
+            if url.startswith(service_base):
+                fallback_url = local_base + url[len(service_base):]
+                return await client.post(fallback_url, **kwargs)
+        raise
 
 
 def _norm(value: Any) -> str:
@@ -617,6 +644,7 @@ async def send_shortlist_mail(
     attempted_recipients = set()
     quota_blocked = False
     for t in targets:
+        auto_toc_sent = False
         trainer_email = t.get("email") or t.get("trainer_email") or ""
         trainer_name = payload.to_name or t.get("name") or t.get("trainer_name") or "Trainer"
         if payload.to_email:
@@ -671,10 +699,16 @@ async def send_shortlist_mail(
                     or shortlist.get("technology_needed")
                     or "Training"
                 )
-                duration = _clean(
+                duration = _clean_duration_text(
                     requirement.get("duration_text")
                     or (f"{requirement.get('duration_days')} day(s)" if requirement.get("duration_days") else "")
                     or (f"{requirement.get('duration_hours')} hour(s)" if requirement.get("duration_hours") else "")
+                )
+                dates = _clean(
+                    requirement.get("preferred_dates")
+                    or requirement.get("training_dates")
+                    or requirement.get("dates")
+                    or requirement.get("date_time_text")
                 )
                 subject = payload.subject or f"Training Opportunity - {payload.requirement_id}"
                 body = payload.body or (
@@ -691,15 +725,18 @@ async def send_shortlist_mail(
                         "client_name": _clean(requirement.get("client_name") or requirement.get("client_company")),
                     }
                     if payload.mail_type in ("mail1", "first"):
-                        tmpl_response = await client.post(
+                        tmpl_response = await _post_with_local_fallback(
+                            client,
                             f"{EMAIL_SVC}/api/v1/email/templates/shortlist-first",
                             json={
                                 "trainer_name": trainer_name,
                                 "domain": domain,
                                 "duration": duration,
+                                "dates": dates,
                                 "mode": _clean(requirement.get("mode")),
                                 "participants": _clean(requirement.get("participant_count")),
                             },
+                            headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                         )
                     else:
                         template_map = {
@@ -745,15 +782,17 @@ async def send_shortlist_mail(
                         }
                         template_name = template_map.get(payload.mail_type)
                         if template_name:
-                            tmpl_response = await client.post(
+                            tmpl_response = await _post_with_local_fallback(
+                                client,
                                 f"{EMAIL_SVC}/api/v1/email/templates/{template_name}",
                                 json={**base_template_payload, "trainer_name": trainer_name},
+                                headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                             )
                     if tmpl_response is not None and tmpl_response.status_code < 400:
                         tmpl = tmpl_response.json()
                         subject = payload.subject or tmpl.get("subject") or subject
                         body = tmpl.get("body") or body
-                r = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
+                r = await _post_with_local_fallback(client, f"{EMAIL_SVC}/api/v1/email/send", json={
                     "to": trainer_email,
                     "subject": subject,
                     "body": body,
@@ -798,6 +837,7 @@ async def send_shortlist_mail(
                                             "requirement_id": payload.requirement_id,
                                             "client_name": _clean(requirement.get("client_name") or requirement.get("client_company")),
                                         },
+                                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                                     )
                                     logger.info("Auto-TOC: template response %s for %s", getattr(tmpl_resp, "status_code", None), trainer_email)
                                     if tmpl_resp.status_code < 400:
@@ -832,6 +872,7 @@ async def send_shortlist_mail(
                                     })
                                     logger.info("Auto-TOC: send response %s for %s", getattr(send_toc, "status_code", None), trainer_email)
                                     if send_toc.status_code < 400:
+                                        auto_toc_sent = True
                                         # update pipeline stage to reflect TOC requested
                                         await db["shortlists"].update_one(
                                             {"requirement_id": payload.requirement_id, "top_trainers.trainer_id": t.get("trainer_id")},
@@ -864,9 +905,11 @@ async def send_shortlist_mail(
             "top_trainers.$.last_mail_attempted_at": now,
         }
         if ok:
+            final_pipeline_status = "toc_requested" if auto_toc_sent else payload.mail_type
+            final_mail_type = "mail6_toc" if auto_toc_sent else payload.mail_type
             set_fields.update({
-                "top_trainers.$.pipeline_status": payload.mail_type,
-                "top_trainers.$.last_mail_type": payload.mail_type,
+                "top_trainers.$.pipeline_status": final_pipeline_status,
+                "top_trainers.$.last_mail_type": final_mail_type,
                 "top_trainers.$.last_mailed_at": now,
                 "top_trainers.$.last_mail_error": "",
             })
@@ -926,13 +969,17 @@ async def send_interview_link(
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            r = await client.post(f"{EMAIL_SVC}/api/v1/email/templates/interview", json={
-                "trainer_name": name,
-                "technology": technology,
-                "req_id": payload.requirement_id,
-                "interview_date": interview_date,
-                "interview_link": payload.interview_link,
-            })
+            r = await client.post(
+                f"{EMAIL_SVC}/api/v1/email/templates/interview",
+                json={
+                    "trainer_name": name,
+                    "technology": technology,
+                    "req_id": payload.requirement_id,
+                    "interview_date": interview_date,
+                    "interview_link": payload.interview_link,
+                },
+                headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
+            )
             r.raise_for_status()
             tmpl = r.json()
             trainer_response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
@@ -1104,20 +1151,44 @@ async def send_client_slots(
     technology = _clean(req.get("technology_needed") or req.get("technology") or req.get("domain")) or "training"
     client_name = _clean(payload.client_name or req.get("client_name") or req.get("client_company")) or "Client"
 
-    body = (
-        f"Dear {client_name},\n\n"
-        f"Trainer {trainer_name} has shared the available interview slots for the {technology} requirement.\n\n"
-        "Available slots:\n"
-        f"{slots_text}\n\n"
-        "Kindly confirm your preferred slot at the earliest.\n\n"
-        "Regards,\nTrainerSync Team"
-    )
-
+    # Prefer using the email-service template for client slots when available
     try:
         async with httpx.AsyncClient(timeout=30) as client:
+            tmpl_resp = await client.post(
+                f"{EMAIL_SVC}/api/v1/email/templates/client-slots",
+                json={
+                    "client_name": client_name,
+                    "trainer_name": trainer_name,
+                    "technology": technology,
+                    "slots_text": slots_text,
+                },
+                headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
+            )
+            if tmpl_resp is not None and tmpl_resp.status_code < 400:
+                tmpl = tmpl_resp.json()
+                subject = tmpl.get("subject") or f"Trainer Interview Slots - {technology} | {trainer_name}"
+                body = tmpl.get("body") or (
+                    f"Dear {client_name},\n\n"
+                    f"Trainer {trainer_name} has shared the available interview slots for the {technology} requirement.\n\n"
+                    "Available slots:\n"
+                    f"{slots_text}\n\n"
+                    "Kindly confirm your preferred slot at the earliest.\n\n"
+                    "Regards,\nTrainerSync Team"
+                )
+            else:
+                subject = f"Trainer Interview Slots - {technology} | {trainer_name}"
+                body = (
+                    f"Dear {client_name},\n\n"
+                    f"Trainer {trainer_name} has shared the available interview slots for the {technology} requirement.\n\n"
+                    "Available slots:\n"
+                    f"{slots_text}\n\n"
+                    "Kindly confirm your preferred slot at the earliest.\n\n"
+                    "Regards,\nTrainerSync Team"
+                )
+
             response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
                 "to": client_email,
-                "subject": f"Trainer Interview Slots - {technology} | {trainer_name}",
+                "subject": subject,
                 "body": body,
                 "mail_type": "client_slots",
                 "requirement_id": payload.requirement_id,

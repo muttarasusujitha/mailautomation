@@ -6,7 +6,9 @@
 #   docker-compose logs -f        # tail all logs
 ##############################################################################
 
-x-common-env: &common-env {}
+x-common-env: &common-env
+  MONGODB_URL: mongodb://mongo:27017
+  REDIS_URL: redis://redis:6379
 
 x-service-defaults: &service-defaults
   restart: unless-stopped

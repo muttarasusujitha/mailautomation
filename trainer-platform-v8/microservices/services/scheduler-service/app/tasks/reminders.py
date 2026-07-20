@@ -82,6 +82,7 @@ async def _do_followup_reminders():
             tmpl_resp = httpx.post(
                 f"{settings.EMAIL_SERVICE_URL}/api/v1/email/templates/retry",
                 json={"trainer_name": trainer_name, "technology": technology, "req_id": req_id},
+                headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                 timeout=10,
             )
             tmpl = tmpl_resp.json()
@@ -159,6 +160,7 @@ async def _do_followup2_reminders():
             tmpl_resp = httpx.post(
                 f"{settings.EMAIL_SERVICE_URL}/api/v1/email/templates/retry",
                 json={"trainer_name": trainer_name, "technology": technology, "req_id": req_id},
+                headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                 timeout=10,
             )
             tmpl = tmpl_resp.json()
@@ -235,6 +237,7 @@ async def _do_followup3_reminders():
             tmpl_resp = httpx.post(
                 f"{settings.EMAIL_SERVICE_URL}/api/v1/email/templates/retry",
                 json={"trainer_name": trainer_name, "technology": technology, "req_id": req_id},
+                headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                 timeout=10,
             )
             tmpl = tmpl_resp.json()

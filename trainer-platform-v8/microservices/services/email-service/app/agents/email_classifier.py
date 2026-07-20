@@ -93,7 +93,24 @@ SCENARIO_KEYWORDS: List[Tuple[str, Iterable[str]]] = [
     ("trainer_not_interested", ("not interested", "not relevant", "not my area", "remove me", "do not send", "not suitable for me", "not looking for this")),
     ("trainer_unavailable", ("not available", "unavailable", "occupied", "not possible", "cannot take", "calendar packed", "travelling", "traveling", "busy on those dates", "available next month", "contact later")),
     ("trainer_partial_availability", ("half day", "weekends only", "evening slots", "after 6 pm", "available except", "tentatively available", "let me check", "will confirm availability", "available partially")),
-    ("trainer_more_details", ("share more details", "client details", "duration", "topics", "mode", "schedule", "audience level", "participant count", "client name", "budget", "location", "jd", "requirement details")),
+    ("trainer_more_details", (
+        "share more details",
+        "please share more details",
+        "can you share more details",
+        "provide more details",
+        "need more details",
+        "more details on the requirement",
+        "more details on the client",
+        "additional details",
+        "details required",
+        "more information",
+        "need more information",
+        "let me know the details",
+        "can you please share details",
+        "can you provide details",
+        "can you share details",
+        "share client details",
+    )),
     ("trainer_credentials_sent", (
         "attached profile",
         "updated profile",
@@ -252,6 +269,22 @@ def _scenario(text: str) -> Tuple[str, List[str]]:
     scores.sort(key=lambda item: item[1], reverse=True)
     best = scores[0][0]
     matched = [name for name, score in scores[:8]]
+    has_client_requirement = "new_training_requirement" in matched or bool(
+        re.search(
+            r"\b(?:need|require|required|requirement|looking\s+for)\b.{0,90}\b(?:trainer|training|workshop|instructor)\b",
+            text,
+            flags=re.IGNORECASE,
+        )
+    )
+    has_client_detail_fields = bool(
+        re.search(
+            r"\b(?:training\s+dates?|duration|mode|location|participants?|participant\s+level|client\s+domain|budget|commercials?)\s*:",
+            text,
+            flags=re.IGNORECASE,
+        )
+    )
+    if has_client_requirement and has_client_detail_fields:
+        return "new_training_requirement", matched
     if "legal_notice" in matched:
         best = "legal_notice"
     elif "fraud_security" in matched:

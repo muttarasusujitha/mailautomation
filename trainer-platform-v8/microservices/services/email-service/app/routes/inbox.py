@@ -28,6 +28,11 @@ settings = get_settings()
 CORE_API_URL = settings.CORE_API_URL.rstrip("/")
 TRAINER_SERVICE_URL = settings.TRAINER_SERVICE_URL.rstrip("/")
 LOCAL_TZ = timezone(timedelta(hours=5, minutes=30))
+LOCAL_SERVICE_FALLBACKS = {
+    "http://core-api:8001": "http://127.0.0.1:8001",
+    "http://trainer-service:8004": "http://127.0.0.1:8004",
+    "http://intelligence-service:8005": "http://127.0.0.1:8005",
+}
 
 FINAL_CLIENT_STATUSES = {"auto_sent", "sent", "approved", "rejected", "spam", "ignored"}
 BLOCKED_CLIENT_STATUSES = {"rejected", "spam", "ignored"}
@@ -359,6 +364,21 @@ def _normalise_threshold(value: Any, default: float = 0.7) -> float:
     return max(0.0, min(threshold, 1.0))
 
 
+async def _post_with_local_fallback(
+    client: httpx.AsyncClient,
+    url: str,
+    **kwargs: Any,
+) -> httpx.Response:
+    try:
+        return await client.post(url, **kwargs)
+    except httpx.RequestError:
+        for docker_base, local_base in LOCAL_SERVICE_FALLBACKS.items():
+            if url.startswith(docker_base):
+                fallback_url = local_base + url[len(docker_base):]
+                return await client.post(fallback_url, **kwargs)
+        raise
+
+
 def _configured_mailbox_addresses(settings_doc: Dict[str, Any]) -> List[str]:
     email_cfg = settings_doc.get("emailCfg") or {}
     candidates = [
@@ -612,6 +632,13 @@ def _trainer_automation_update(send_result: Dict[str, Any]) -> Dict[str, Any]:
     retry_after = _parse_retry_after(str(send_result))
     now = _now()
 
+    if send_result.get("handoff") == "shortlist1":
+        return {
+            "trainer_automation_status": "shortlist1_handoff",
+            "trainer_automation_started_at": now,
+            "pending_trainer_automation": False,
+            "auto_send_retry_after": None,
+        }
     if sent_count > 0 or already_sent_count > 0:
         return {
             "trainer_automation_status": "started",
@@ -635,20 +662,20 @@ def _trainer_automation_update(send_result: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _field_value(text: str, labels: List[str]) -> str:
-    label_pattern = "|".join(re.escape(label) for label in labels)
+    label_pattern = "|".join(re.escape(label) for label in sorted(labels, key=len, reverse=True))
     pattern = re.compile(
         rf"(?im)^\s*(?:[-*\u2022]\s*)?(?:\*\*)?\s*(?:{label_pattern})"
-        rf"\s*(?:\*\*)?\s*[:\-]\s*(.+?)\s*$"
+        rf"(?![A-Za-z0-9])\s*(?:\*\*)?\s*[:\-]\s*(.+?)\s*$"
     )
     match = pattern.search(text or "")
     return _clean(match.group(1)) if match else ""
 
 
 def _field_block_value(text: str, labels: List[str]) -> str:
-    label_pattern = "|".join(re.escape(label) for label in labels)
+    label_pattern = "|".join(re.escape(label) for label in sorted(labels, key=len, reverse=True))
     start_pattern = re.compile(
         rf"(?i)^\s*(?:[-*\u2022]\s*)?(?:\*\*)?\s*(?:{label_pattern})"
-        rf"\s*(?:\*\*)?\s*[:\-]\s*(.*?)\s*$"
+        rf"(?![A-Za-z0-9])\s*(?:\*\*)?\s*[:\-]\s*(.*?)\s*$"
     )
     next_label_pattern = re.compile(
         r"(?i)^\s*(?:[-*\u2022]\s*)?(?:\*\*)?\s*[A-Z][A-Za-z /&()]{1,45}"
@@ -684,6 +711,14 @@ def _client_wants_to_proceed_now(subject: str, body: str) -> bool:
         for pattern in DETAILS_LATER_PATTERNS
     )
     return bool(has_proceed_signal or has_details_later_signal)
+
+
+def _client_will_send_details_later(subject: str, body: str) -> bool:
+    text = _plain_text(f"{subject}\n{body}").lower()
+    return any(
+        re.search(pattern, text, flags=re.IGNORECASE | re.DOTALL)
+        for pattern in DETAILS_LATER_PATTERNS
+    )
 
 
 def _is_obvious_non_client_email(sender_email: str, subject: str, body: str) -> bool:
@@ -816,6 +851,8 @@ def _extract_preferred_dates(text: str) -> Dict[str, Any]:
     raw = _field_value(text, [
         "Preferred Training Dates",
         "Preferred Dates",
+        "Dates/Timings",
+        "Dates and Timings",
         "Training Dates",
         "Training Date",
         "Dates",
@@ -850,6 +887,8 @@ def _extract_budget(text: str) -> Dict[str, Any]:
     ])
     source = raw or text
     marker_match = re.search(r"(?:budget|commercials?|rate|cost|price)[^\n\r]{0,160}", source, flags=re.IGNORECASE)
+    if not raw and not marker_match:
+        return {}
     search_text = marker_match.group(0) if marker_match else source
     amounts = [
         _safe_float(match.group(1))
@@ -929,6 +968,10 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
     )
     if participant_match:
         participants = _safe_int(participant_match.group(1))
+    elif participant_text:
+        participant_number = re.search(r"\d+", participant_text)
+        if participant_number:
+            participants = _safe_int(participant_number.group(0))
 
     signals = sum(1 for signal in TRAINING_SIGNALS if signal in lower)
     confidence = 0.15
@@ -1060,6 +1103,11 @@ def _merge_existing_requirement_context(
             if previous_value not in (None, "", []):
                 merged[field] = previous_value
 
+    budget_range = str(merged.get("budget_range") or "")
+    if re.search(r"\bSubject:\b|\bTraining Dates?:\b", budget_range, flags=re.IGNORECASE):
+        for field in ("budget_total", "budget_per_day", "budget_min", "budget_max", "budget_range", "budget_currency"):
+            merged.pop(field, None)
+
     technology = merged.get("technology_needed") or merged.get("technology") or merged.get("domain")
     if technology:
         merged["technology_needed"] = technology
@@ -1092,7 +1140,7 @@ def _client_salutation(extracted: Dict[str, Any]) -> str:
 
 
 def _reply_signature() -> str:
-    return f"Regards,\n{settings.FROM_NAME or 'TrainerSync'}"
+    return "Best Regards,\nRecruitment Team\nClahan Technologies"
 
 
 def _format_missing_details(extracted: Dict[str, Any]) -> str:
@@ -1100,50 +1148,85 @@ def _format_missing_details(extracted: Dict[str, Any]) -> str:
     if not missing:
         return ""
 
-    lines = [f"* {item}" for item in missing]
-    return "\n".join(lines) + "\n\n"
+    lines = [f"- {item}" for item in missing]
+    return "\n".join(lines)
 
 
 def _client_reply_for_requirement(extracted: Dict[str, Any]) -> Dict[str, str]:
     technology = extracted.get("technology_needed") or "training"
-    missing_details = _format_missing_details(extracted)
-    if missing_details:
-        body = (
-            "Dear Client,\n\n"
-            f"Thank you for sharing your {technology} training requirement.\n\n"
-            "We will begin the initial trainer search based on the information currently available.\n\n"
-            "To help us refine the shortlist, kindly share only the following missing details:\n\n"
-            f"{missing_details}"
-            "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles with experience, skill set, availability, and commercials for your review.\n\n"
-            "We look forward to your response.\n\n"
-            "Regards,\n"
-            "Recruitment Team,\n"
-            "Calhan Technologies"
-        )
-    else:
-        body = (
-            "Dear Client,\n\n"
-            f"Thank you for sharing the required details for your {technology} training requirement.\n\n"
-            "We will proceed with the trainer search and share suitable profiles with experience, skill set, availability, and commercials for your review shortly.\n\n"
-            + _reply_signature()
-        )
+    duration = extracted.get("duration_text") or (
+        f"{extracted.get('duration_days')} days" if extracted.get("duration_days") else "To be confirmed"
+    )
+    dates = (
+        extracted.get("training_dates")
+        or extracted.get("preferred_dates")
+        or " to ".join(part for part in [extracted.get("timeline_start"), extracted.get("timeline_end")] if part)
+        or extracted.get("timing")
+        or "To be confirmed"
+    )
+    budget = "To be confirmed"
+    if extracted.get("budget_range"):
+        budget = str(extracted["budget_range"])
+    elif extracted.get("budget_per_day"):
+        budget = f"{extracted.get('budget_currency') or 'INR'} {extracted['budget_per_day']} per day"
+    elif extracted.get("budget_total"):
+        budget = f"{extracted.get('budget_currency') or 'INR'} {extracted['budget_total']}"
+    body = (
+        "Dear Client,\n\n"
+        "Thank you for sharing the required details.\n\n"
+        "We have noted the following details:\n\n"
+        f"Technology/Domain: {technology}\n"
+        f"Duration: {duration}\n"
+        f"Dates/Timings: {dates}\n"
+        f"Mode/Location: {extracted.get('mode') or 'To be confirmed'}\n"
+        f"Participant Count: {extracted.get('participant_count') if extracted.get('participant_count') is not None else 'To be confirmed'}\n"
+        f"Participant Level: {extracted.get('audience_level') or 'To be confirmed'}\n"
+        f"Client Domain: {extracted.get('client_domain') or extracted.get('client_industry') or 'To be confirmed'}\n"
+        f"Budget/Commercial Range: {budget}\n\n"
+        f"We will proceed with the trainer search for your {technology} requirement and share suitable profiles with availability and commercials for your review shortly.\n\n"
+        + _reply_signature()
+    )
     return {"subject": f"Re: {technology} Trainer Requirement", "body": body}
 
 
-def _client_proceed_ack_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
+def _client_full_details_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
     technology = extracted.get("technology_needed") or "training"
-    client_name = _client_salutation(extracted)
+    body = (
+        "Dear Client,\n\n"
+        "Thank you for sharing the required details for your training requirement.\n\n"
+        "We will proceed with the trainer search and share suitable profiles with experience, skill set, availability, and commercials for your review shortly.\n\n"
+        + _reply_signature()
+    )
+    return {"subject": f"Re: {technology} Trainer Requirement", "body": body}
+
+
+def _client_proceed_ack_reply(extracted: Dict[str, Any], details_later: bool = False) -> Dict[str, str]:
+    technology = extracted.get("technology_needed") or "training"
+    if details_later:
+        body = (
+            "Dear Client,\n\n"
+            "Thank you for the update.\n\n"
+            "We have noted that you will share the remaining details later.\n\n"
+            f"We will proceed with the initial trainer search for your {technology} requirement based on the information currently available.\n\n"
+            "Our team will start identifying suitable trainers with relevant domain expertise, availability, and experience.\n\n"
+            "Once you share the remaining details, we will refine the shortlist and align the training content more accurately with your participants.\n\n"
+            "We will share the most suitable profiles with commercials and availability for your review.\n\n"
+            + _reply_signature()
+        )
+        return {"subject": f"Re: {technology} Trainer Requirement", "body": body}
+
     missing_details = _format_missing_details(extracted)
     missing_block = ""
     if missing_details:
         missing_block = (
-            "To help us refine the shortlist, kindly share only the following missing details:\n\n"
+            "To help us refine the shortlist and design the best-fit training content, kindly share only the following missing details:\n\n"
             f"{missing_details}"
+            "\n\nThese details will help us recommend better matched trainers and align the course content more accurately with your participants.\n\n"
         )
     body = (
-        f"Dear {client_name},\n\n"
+        "Dear Client,\n\n"
         "Thank you for sharing your training requirement.\n\n"
-        f"We have noted your requirement and will proceed with the initial trainer search for your {technology} requirement based on the information currently available.\n\n"
+        "We have noted your requirement and will proceed with the initial trainer search for your training requirement based on the information currently available.\n\n"
         "Our team will start identifying suitable trainers with relevant domain expertise, availability, and experience.\n\n"
         f"{missing_block}"
         "We will share the most suitable profiles with commercials and availability for your review.\n\n"
@@ -1153,9 +1236,8 @@ def _client_proceed_ack_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
 
 
 def _client_clarification_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
-    client_name = _client_salutation(extracted)
     body = (
-        f"Dear {client_name},\n\n"
+        "Dear Client,\n\n"
         "Thank you for sharing the training requirement. To shortlist the right trainer profiles, "
         "please confirm the technology/topic, delivery mode, expected dates or duration, participant count, "
         "and commercials or budget range.\n\n"
@@ -1163,6 +1245,32 @@ def _client_clarification_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
         + _reply_signature()
     )
     return {"subject": "Re: Training Requirement Details", "body": body}
+
+
+def _trainer_mail2_details_reply(email_doc: Dict[str, Any]) -> Dict[str, str]:
+    trainer_name = _clean(email_doc.get("trainer_name") or email_doc.get("from_name") or "Trainer")
+    domain = _clean(
+        email_doc.get("technology")
+        or (email_doc.get("extracted") or {}).get("technology_needed")
+        or (email_doc.get("requirement") or {}).get("technology_needed")
+        or "Training"
+    )
+    body = (
+        f"Dear {trainer_name},\n\n"
+        "Thank you for your response.\n\n"
+        "To proceed further, kindly share the below details:\n\n"
+        "* Total years of experience\n"
+        "* Number of trainings conducted previously\n"
+        "* Relevant certifications\n"
+        "* Preferred training mode (Online / Offline)\n"
+        "* Availability for Full-Day or Half-Day sessions\n"
+        "* Expected commercial charges per day/session\n"
+        "* Current location\n"
+        "* Availability for the mentioned dates\n\n"
+        "Regards,\n"
+        "TrainerSync Team"
+    )
+    return {"subject": f"Training Requirement - {domain} | Additional Details Required", "body": body}
 
 
 def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str) -> Dict[str, str]:
@@ -1286,6 +1394,7 @@ def _trainer_commercial_amounts(text: Any) -> List[int]:
     amounts: List[int] = []
     patterns = [
         (rf"(?:INR|Rs\.?|{rupee})\s*([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?", False),
+        (r"\b(?:commercials?|rates?|charges?|fees?|cost)\b\D{0,80}([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?", False),
         (r"([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?\s*(?:/-)?\s*(?:per\s*(?:day|session)|/day|/session)", True),
     ]
     contextual_line = re.compile(r"\b(?:commercials?|rates?|charges?|fees?|cost)\b", flags=re.IGNORECASE)
@@ -1459,8 +1568,7 @@ def _trainer_budget_negotiation_message(
     body = (
         f"Dear {trainer_name},\n\n"
         f"Thank you for sharing your details and commercials for the {technology} requirement.\n\n"
-        f"The client has confirmed a budget of INR {client_budget:,.0f} {unit_text}. "
-        f"To align with this budget, kindly confirm if you can proceed at INR {target_amount:,.0f} {unit_text}.\n\n"
+        f"After internal commercial review, kindly confirm if you can proceed at INR {target_amount:,.0f} {unit_text}.\n\n"
         "Please let us know if this revised commercial is workable.\n\n"
         "Regards,\n"
         "TrainerSync Team"
@@ -1590,6 +1698,21 @@ def _slot_reply_intent(text: Any) -> str:
     if metrics["slot_count"] > 0 or metrics["slot_hints"] > 0 or metrics["date_hits"] > 0 or metrics["time_hits"] > 0:
         return "unclear_slots"
     return "unknown"
+
+
+def _extract_slot_lines(text: Any) -> str:
+    reply_text = _strip_quoted_email_history(text)
+    lines = [line.strip() for line in reply_text.splitlines() if line.strip()]
+    slot_lines: List[str] = []
+    for line in lines:
+        normalized = re.sub(r"\s+", " ", line).strip()
+        if re.search(
+            r"(\bslot\s*\d+\b|(?:^|[\s*.-])\d+[.)]\s*|\b(?:mon|tue|wed|thu|fri|sat|sun)(?:day)?\b|\b\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\b|\b\d{1,2}[:.]\d{2}\s*(?:am|pm)\b)",
+            normalized,
+            flags=re.IGNORECASE,
+        ):
+            slot_lines.append(normalized)
+    return "\n".join(slot_lines) if slot_lines else reply_text
 
 
 def _slot_followup_message(trainer: Dict[str, Any], intent: str) -> Dict[str, str]:
@@ -1913,15 +2036,26 @@ async def _handle_trainer_commercial_negotiation_reply(
         )
         return {"attempted": True, "success": False, "reason": status, "intent": intent}
 
+    source_email_id = email_doc.get("email_id")
+    source_negotiation_email_id = (source_log or {}).get("email_id") or email_doc.get("source_outbound_email_id") or ""
+    source_gmail_message_id = _current_inbound_message_id(email_doc)
+    existing_filters: List[Dict[str, Any]] = []
+    if source_email_id:
+        existing_filters.append({"source_email_id": source_email_id})
+    if source_negotiation_email_id:
+        existing_filters.append({"source_commercial_negotiation_email_id": source_negotiation_email_id})
+    if source_gmail_message_id:
+        existing_filters.append({"source_gmail_message_id": source_gmail_message_id})
+    if target_amount:
+        existing_filters.append({"trainer_target_rate": target_amount})
     existing_query: Dict[str, Any] = {
         "direction": "outbound",
         "status": "sent",
         "mail_type": "mail3",
         "requirement_id": requirement_id,
         "trainer_id": trainer_id,
+        "$or": existing_filters or [{"source_email_id": source_email_id or ""}],
     }
-    if source_log and (source_log.get("sent_at") or source_log.get("created_at")):
-        existing_query["created_at"] = {"$gte": source_log.get("sent_at") or source_log.get("created_at")}
     existing = await db["email_logs"].find_one(
         existing_query,
         {"_id": 0, "email_id": 1, "sent_at": 1, "recipient": 1, "to_email": 1},
@@ -1978,9 +2112,9 @@ async def _handle_trainer_commercial_negotiation_reply(
         "status": "sent" if success else "failed",
         "error_message": error if not success else "",
         "mail_type": "mail3",
-        "source_email_id": email_doc.get("email_id"),
-        "source_gmail_message_id": _current_inbound_message_id(email_doc),
-        "source_commercial_negotiation_email_id": (source_log or {}).get("email_id") or "",
+        "source_email_id": source_email_id,
+        "source_gmail_message_id": source_gmail_message_id,
+        "source_commercial_negotiation_email_id": source_negotiation_email_id,
         "requirement_id": requirement_id,
         "trainer_id": trainer_id,
         "trainer_name": trainer.get("name") or email_doc.get("trainer_name") or "",
@@ -2236,7 +2370,8 @@ async def _handle_trainer_slot_reply(
             "intent": intent,
         }
 
-    message = _client_slots_message(requirement, shortlist, trainer, reply_text)
+    slot_text = _extract_slot_lines(reply_text)
+    message = _client_slots_message(requirement, shortlist, trainer, slot_text)
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
     success, error = await send_email_async(
@@ -2264,7 +2399,7 @@ async def _handle_trainer_slot_reply(
         "trainer_id": trainer_id,
         "trainer_name": trainer.get("name") or email_doc.get("trainer_name") or "",
         "client_email": client_email,
-        "slot_text": reply_text,
+        "slot_text": slot_text,
         "sent_at": now if success else None,
         "created_at": now,
         "updated_at": now,
@@ -2275,11 +2410,12 @@ async def _handle_trainer_slot_reply(
             "top_trainers.$.pipeline_status": "slot_booked",
             "top_trainers.$.slot_status": "sent_to_client" if success else "client_slot_send_failed",
             "top_trainers.$.slot_reply_at": now,
-            "top_trainers.$.slot_reply_text": reply_text,
+            "top_trainers.$.slot_reply_text": slot_text,
             "top_trainers.$.client_slots_sent": bool(success),
             "top_trainers.$.client_slots_sent_at": now if success else None,
             "top_trainers.$.client_slots_email_id": email_id if success else "",
             "top_trainers.$.client_slot_error": "" if success else (error or "Client slot email failed"),
+            "top_trainers.$.last_mail_error": "" if success else (error or "Client slot email failed"),
             "top_trainers.$.updated_at": now,
             "updated_at": now,
         }},
@@ -2291,7 +2427,7 @@ async def _handle_trainer_slot_reply(
         "email_id": email_id,
         "to": client_email,
         "intent": intent,
-        "slot_text": reply_text,
+        "slot_text": slot_text,
     }
 
 
@@ -2325,6 +2461,66 @@ def _parse_slot_date(text: str) -> Optional[datetime]:
             return datetime(year, month, day)
         except ValueError:
             continue
+    month_names = {
+        "jan": 1,
+        "january": 1,
+        "feb": 2,
+        "february": 2,
+        "mar": 3,
+        "march": 3,
+        "apr": 4,
+        "april": 4,
+        "may": 5,
+        "jun": 6,
+        "june": 6,
+        "jul": 7,
+        "july": 7,
+        "aug": 8,
+        "august": 8,
+        "sep": 9,
+        "sept": 9,
+        "september": 9,
+        "oct": 10,
+        "october": 10,
+        "nov": 11,
+        "november": 11,
+        "dec": 12,
+        "december": 12,
+    }
+    for match in re.finditer(
+        r"\b(?:mon|tue|wed|thu|fri|sat|sun)(?:day)?[,]?\s+"
+        r"(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
+        r"\s+(\d{1,2})(?:st|nd|rd|th)?[,]?\s+(\d{2,4})\b",
+        text,
+        flags=re.IGNORECASE,
+    ):
+        month = month_names.get(match.group(1).lower())
+        day = int(match.group(2))
+        year = int(match.group(3))
+        if year < 100:
+            year += 2000
+        if month:
+            try:
+                return datetime(year, month, day)
+            except ValueError:
+                continue
+    for match in re.finditer(
+        r"\b(\d{1,2})(?:st|nd|rd|th)?\s+"
+        r"(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
+        r"[,]?\s+(\d{2,4})\b",
+        text,
+        flags=re.IGNORECASE,
+    ):
+        day = int(match.group(1))
+        month = month_names.get(match.group(2).lower())
+        year = int(match.group(3))
+        if year < 100:
+            year += 2000
+        if month:
+            try:
+                return datetime(year, month, day)
+            except ValueError:
+                continue
     return None
 
 
@@ -2345,7 +2541,18 @@ def _parse_time_range(text: str, date_value: datetime) -> Optional[tuple[datetim
         flags=re.IGNORECASE,
     )
     if not match:
-        return None
+        single = re.search(r"\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b", _normalise_slot_text(text), flags=re.IGNORECASE)
+        if not single:
+            return None
+        start_hour, start_minute = _time_to_24h(
+            int(single.group(1)),
+            int(single.group(2) or 0),
+            single.group(3),
+        )
+        start = date_value.replace(hour=start_hour, minute=start_minute, second=0, microsecond=0)
+        end = start + timedelta(minutes=30)
+        label = f"{start.strftime('%d/%m/%Y, %I:%M %p')} - {end.strftime('%I:%M %p')}"
+        return start, end, label
     start_hour, start_minute = _time_to_24h(
         int(match.group(1)),
         int(match.group(2) or 0),
@@ -2756,31 +2963,9 @@ async def _handle_client_slot_confirmation_reply(
     )
     meeting_link = calendar_event.get("meet_link") or ""
     if not calendar_event.get("success") or not meeting_link:
-        error = calendar_event.get("error") or "Google Meet link creation failed."
-        await db["shortlists"].update_one(
-            {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
-            {"$set": {
-                "top_trainers.$.pipeline_status": "slot_booked",
-                "top_trainers.$.slot_status": "meet_link_failed",
-                "top_trainers.$.slot_reply_at": now,
-                "top_trainers.$.slot_reply_text": reply_text,
-                "top_trainers.$.last_mail_type_attempted": "mail4",
-                "top_trainers.$.last_mail_attempted_at": now,
-                "top_trainers.$.last_mail_error": error,
-                "top_trainers.$.google_meet_error": error,
-                "top_trainers.$.updated_at": now,
-                "updated_at": now,
-            }},
-        )
-        return {
-            "attempted": True,
-            "success": False,
-            "reason": "google_meet_link_failed",
-            "error": error,
-            "intent": intent,
-            "slot_text": reply_text,
-            "calendar_event": calendar_event,
-        }
+        calendar_error = calendar_event.get("error") or "Google Meet link creation failed."
+        calendar_event = {**calendar_event, "success": False, "error": calendar_error}
+        meeting_link = ""
 
     mail_payload = InterviewEmailRequest(
         trainer_name=trainer_name,
@@ -2955,6 +3140,9 @@ async def _handle_client_selection_reply(
     patterns = [
         r"\bwe have selected\b",
         r"\bwe selected\b",
+        r"\bhe is selected\b",
+        r"\bshe is selected\b",
+        r"\btrainer is selected\b",
         r"\bselected the trainer\b",
         r"\byou have been selected\b",
         r"\btrainer selected\b",
@@ -2982,6 +3170,40 @@ async def _handle_client_selection_reply(
     }
     await db["shortlists"].update_one({"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id}, {"$set": update})
 
+    mail5_result: Dict[str, Any] = {}
+    try:
+        prior_mail5 = await db["email_logs"].find_one(
+            {
+                "direction": "outbound",
+                "requirement_id": requirement_id,
+                "trainer_id": trainer_id,
+                "mail_type": {"$in": ["mail5", "mail5_ok", "mail5_selection"]},
+                "status": "sent",
+            },
+            {"_id": 0, "email_id": 1},
+        )
+        if prior_mail5:
+            mail5_result = {"skipped": True, "reason": "mail5_already_sent", "email_id": prior_mail5.get("email_id")}
+        else:
+            async with httpx.AsyncClient(timeout=120) as client:
+                response = await _post_with_local_fallback(
+                    client,
+                    f"{TRAINER_SERVICE_URL}/api/v1/shortlists/send-mail",
+                    json={
+                        "requirement_id": requirement_id,
+                        "trainer_ids": [trainer_id],
+                        "mail_type": "mail5_ok",
+                    },
+                )
+                mail5_result = {
+                    "status_code": response.status_code,
+                    "success": response.status_code < 400,
+                    "body": response.text[:500],
+                }
+    except Exception as exc:
+        logger.exception("Failed to auto-send Mail 5 after client selection for %s/%s", requirement_id, trainer_id)
+        mail5_result = {"success": False, "error": str(exc)}
+
     try:
         email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
         await db["email_logs"].insert_one({
@@ -2996,13 +3218,20 @@ async def _handle_client_selection_reply(
             "mail_type": "client_selection",
             "requirement_id": requirement_id,
             "trainer_id": trainer_id,
+            "automation_result": mail5_result,
             "created_at": now,
             "updated_at": now,
         })
     except Exception:
         pass
 
-    return {"attempted": True, "success": True, "reason": "client_selected", "selected_at": now}
+    return {
+        "attempted": True,
+        "success": True,
+        "reason": "client_selected",
+        "selected_at": now,
+        "mail5_result": mail5_result,
+    }
 
 
 async def _handle_client_budget_reply(
@@ -3034,14 +3263,25 @@ async def _handle_client_budget_reply(
     if target_amount <= 0:
         return {"attempted": True, "success": False, "reason": "invalid_target_rate", "error": "Client budget is too low to calculate trainer rate"}
 
+    source_email_id = email_doc.get("email_id")
+    source_commercial_email_id = email_doc.get("source_outbound_email_id") or ""
+    source_gmail_message_id = _current_inbound_message_id(email_doc)
+    existing_filters: List[Dict[str, Any]] = []
+    if source_email_id:
+        existing_filters.append({"source_email_id": source_email_id})
+    if source_commercial_email_id:
+        existing_filters.append({"source_client_commercial_email_id": source_commercial_email_id})
+    if source_gmail_message_id:
+        existing_filters.append({"source_gmail_message_id": source_gmail_message_id})
+    existing_filters.append({"client_budget": client_budget, "trainer_target_rate": target_amount})
     existing = await db["email_logs"].find_one(
         {
             "direction": "outbound",
             "status": "sent",
             "mail_type": "commercial_negotiation",
-            "source_email_id": email_doc.get("email_id"),
             "requirement_id": requirement_id,
             "trainer_id": trainer_id,
+            "$or": existing_filters,
         },
         {"_id": 0, "email_id": 1, "sent_at": 1, "recipient": 1, "to_email": 1},
         sort=[("created_at", -1)],
@@ -3114,8 +3354,8 @@ async def _handle_client_budget_reply(
         "status": "sent" if success else "failed",
         "error_message": error if not success else "",
         "mail_type": "commercial_negotiation",
-        "source_email_id": email_doc.get("email_id"),
-        "source_gmail_message_id": _current_inbound_message_id(email_doc),
+        "source_email_id": source_email_id,
+        "source_gmail_message_id": source_gmail_message_id,
         "source_client_commercial_email_id": (commercial_log or {}).get("email_id") or "",
         "requirement_id": requirement_id,
         "trainer_id": trainer_id,
@@ -3363,6 +3603,18 @@ async def _send_client_auto_reply(
     else:
         mail_type = "office_auto_reply"
 
+    client_template_marker = ""
+    if mail_type == "client_auto_reply":
+        client_template_marker = (
+            "We have noted that you will share the remaining details later."
+            if "We have noted that you will share the remaining details later." in body
+            else "Thank you for sharing the required details."
+            if "Thank you for sharing the required details." in body
+            else "Thank you for sharing the required details for your training requirement."
+            if "Thank you for sharing the required details for your training requirement." in body
+            else ""
+        )
+
     source_gmail_message_id = _current_inbound_message_id(email_doc)
     duplicate_terms = []
     if email_doc.get("email_id"):
@@ -3372,14 +3624,22 @@ async def _send_client_auto_reply(
     existing_sent_log = None
     duplicate_query = None
     if duplicate_terms:
+        duplicate_mail_types = (
+            ["client_auto_reply", "client_reply"]
+            if mail_type == "client_auto_reply"
+            else ["trainer_auto_reply", "mail2"] if mail_type in {"trainer_auto_reply", "mail2"}
+            else ["office_auto_reply"]
+        )
         duplicate_query = {
-            "mail_type": {"$in": ["client_auto_reply", "trainer_auto_reply", "office_auto_reply", "client_reply", "mail2"]},
+            "mail_type": {"$in": duplicate_mail_types},
             "status": "sent",
             "$and": [
                 {"$or": [{"to_email": to}, {"recipient": to}]},
                 {"$or": duplicate_terms},
             ],
         }
+        if mail_type == "client_auto_reply" and client_template_marker:
+            duplicate_query["body"] = {"$regex": re.escape(client_template_marker), "$options": "i"}
         existing_sent_log = await db["email_logs"].find_one(duplicate_query, {"_id": 0, "sent_at": 1, "created_at": 1})
     if existing_sent_log:
         sent_at = existing_sent_log.get("sent_at") or existing_sent_log.get("created_at") or _now()
@@ -3408,6 +3668,37 @@ async def _send_client_auto_reply(
             "source_gmail_message_id": source_gmail_message_id,
         }
 
+    if mail_type == "client_auto_reply":
+        recent_cutoff = _now() - timedelta(hours=12)
+        template_marker = client_template_marker
+        if template_marker:
+            recent_template_reply = await db["email_logs"].find_one(
+                {
+                    "mail_type": "client_auto_reply",
+                    "status": "sent",
+                    "subject": subject,
+                    "body": {"$regex": re.escape(template_marker), "$options": "i"},
+                    "$and": [
+                        {"$or": [{"to_email": to}, {"recipient": to}]},
+                        {"$or": [{"sent_at": {"$gte": recent_cutoff}}, {"created_at": {"$gte": recent_cutoff}}]},
+                    ],
+                },
+                {"_id": 0, "sent_at": 1, "created_at": 1, "email_id": 1},
+                sort=[("created_at", -1)],
+            )
+            if recent_template_reply:
+                sent_at = recent_template_reply.get("sent_at") or recent_template_reply.get("created_at") or _now()
+                return {
+                    "success": True,
+                    "error": "",
+                    "already_sent": True,
+                    "deduped_by_template": True,
+                    "to": to,
+                    "subject": subject,
+                    "sent_at": sent_at,
+                    "source_gmail_message_id": source_gmail_message_id,
+                }
+
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
     success, error = await send_email_async(to=to, subject=subject, body=body, smtp_config=smtp_config)
@@ -3423,6 +3714,7 @@ async def _send_client_auto_reply(
             "body_snippet": body[:300],
             "status": "sent",
             "mail_type": mail_type,
+            "reply_template_key": email_doc.get("reply_template_key") or "",
             "source_email_id": email_doc.get("email_id"),
             "source_gmail_message_id": source_gmail_message_id,
             "requirement_id": effective_requirement_id,
@@ -3624,7 +3916,7 @@ async def _create_requirement(
 
     payload = _requirement_payload_from_email(email_doc, extracted)
     async with httpx.AsyncClient(timeout=90) as client:
-        response = await client.post(f"{CORE_API_URL}/api/v1/requirements", json=payload)
+        response = await _post_with_local_fallback(client, f"{CORE_API_URL}/api/v1/requirements", json=payload)
         response.raise_for_status()
         return response.json()
 
@@ -3634,7 +3926,8 @@ async def _send_initial_trainer_mail(
     extracted: Dict[str, Any],
 ) -> Dict[str, Any]:
     async with httpx.AsyncClient(timeout=120) as client:
-        response = await client.post(
+        response = await _post_with_local_fallback(
+            client,
             f"{TRAINER_SERVICE_URL}/api/v1/shortlists/send-mail",
             json={
                 "requirement_id": requirement_id,
@@ -3658,7 +3951,8 @@ async def _call_intelligence_search(
     payload = {"domain": domain, "location": location or "", "max_results": max_results, "save_leads": True}
     try:
         async with httpx.AsyncClient(timeout=90) as client:
-            r = await client.post(
+            r = await _post_with_local_fallback(
+                client,
                 "http://intelligence-service:8005/api/v1/intelligence/trainers/search",
                 json=payload,
             )
@@ -3744,7 +4038,7 @@ async def _process_client_requirement_email(
     body = email_doc.get("clean_body") or email_doc.get("raw_body") or email_doc.get("body") or ""
     now = _now()
     settings = await _auto_send_settings(db)
-    sender_email = _email_address(email_doc.get("from_email") or "")
+    sender_email = _email_address(email_doc.get("from_email") or email_doc.get("sender") or "")
     if sender_email and sender_email in set(settings.get("mailbox_addresses") or []):
         update = {
             "processed": True,
@@ -3768,20 +4062,119 @@ async def _process_client_requirement_email(
             "status": "ignored",
         }
 
+    source_mail_type = str(email_doc.get("source_outbound_mail_type") or "").strip()
+    if source_mail_type in {"mail1", "mail1_reminder"} and email_doc.get("requirement_id") and email_doc.get("trainer_id"):
+        reply = _trainer_mail2_details_reply(email_doc)
+        send_email_doc = {
+            **email_doc,
+            "from_email": sender_email or email_doc.get("from_email") or email_doc.get("sender") or "",
+            "email_classification": {"person_type": "trainer", "scenario": "trainer_interested"},
+            "office_mail_category": "trainer_interested",
+        }
+        auto_reply_result = await _send_client_auto_reply(db, send_email_doc, reply, email_doc.get("requirement_id") or "")
+        update = {
+            "processed": True,
+            "processed_at": auto_reply_result.get("sent_at") or now,
+            "status": "processed" if auto_reply_result.get("success") else "reply_failed",
+            "reply_status": "sent" if auto_reply_result.get("success") else "failed",
+            "generated_reply": reply,
+            "ai_reply": reply["body"],
+            "draft_reply": reply["body"],
+            "reply_template_key": "mail2",
+            "email_classification": {"person_type": "trainer", "scenario": "trainer_interested"},
+            "office_mail_category": "trainer_interested",
+            "auto_send_candidate": True,
+            "auto_send_eligible": True,
+            "auto_send_ready": True,
+            "auto_send_error": "" if auto_reply_result.get("success") else auto_reply_result.get("error", "Send failed"),
+            "reply_error": "" if auto_reply_result.get("success") else auto_reply_result.get("error", "Send failed"),
+            "reply_sent": bool(auto_reply_result.get("success")),
+            "reply_sent_at": auto_reply_result.get("sent_at"),
+            "reply_sent_for_message_id": auto_reply_result.get("source_gmail_message_id"),
+            "updated_at": _now(),
+        }
+        await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": update})
+        return {
+            "processed": True,
+            "email_id": email_doc.get("email_id"),
+            "status": update["status"],
+            "reason": "trainer_mail1_reply",
+            "auto_reply": auto_reply_result,
+        }
+
+    if source_mail_type in {"mail2", "mail2_followup"} and email_doc.get("requirement_id") and email_doc.get("trainer_id"):
+        trainer_doc = {
+            **email_doc,
+            "from_email": sender_email or email_doc.get("from_email") or email_doc.get("sender") or "",
+            "classification_body": _strip_quoted_email_history(body) or body,
+            "email_classification": {"person_type": "trainer", "scenario": "trainer_details_sent"},
+            "office_mail_category": "trainer_details_sent",
+        }
+        forward_result = await _forward_trainer_commercials_to_client(
+            db,
+            trainer_doc,
+            {"person_type": "trainer", "scenario": "trainer_details_sent"},
+        )
+        success = bool(forward_result.get("success") or forward_result.get("attempted"))
+        update = {
+            "processed": True,
+            "processed_at": now,
+            "status": "processed" if success else "needs_manual_review",
+            "reply_status": "details_received" if success else "pending_review",
+            "reply_template_key": "trainer_details_received",
+            "email_classification": {"person_type": "trainer", "scenario": "trainer_details_sent"},
+            "office_mail_category": "trainer_details_sent",
+            "trainer_details_received": True,
+            "trainer_details_received_at": now,
+            "commercial_forward_result": forward_result,
+            "auto_send_candidate": False,
+            "auto_send_eligible": False,
+            "auto_send_ready": False,
+            "auto_send_block_reason": "",
+            "auto_send_error": "" if success else forward_result.get("error", forward_result.get("reason", "")),
+            "reply_error": "" if success else forward_result.get("error", forward_result.get("reason", "")),
+            "updated_at": _now(),
+        }
+        await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": update})
+        return {
+            "processed": True,
+            "email_id": email_doc.get("email_id"),
+            "status": update["status"],
+            "reason": "trainer_mail2_details_received",
+            "commercial_forward": forward_result,
+        }
+
+    latest_body = _strip_quoted_email_history(body)
+    extraction_body = latest_body or body
     extracted = _extract_requirement_from_email(
         subject=subject,
-        body=body,
+        body=extraction_body,
         sender_email=email_doc.get("from_email") or "",
         sender_name=email_doc.get("from_name") or "",
     )
     extracted = _merge_existing_requirement_context(extracted, email_doc)
-    classification_body = _strip_quoted_email_history(body)
+    classification_body = latest_body
     classification = classify_email(
         subject=subject,
         body=classification_body,
         sender_email=email_doc.get("from_email") or "",
         sender_name=email_doc.get("from_name") or "",
     )
+    extracted_client_requirement = bool(
+        not extracted.get("is_non_client_email")
+        and extracted.get("direct_request_language")
+        and _has_training_domain(extracted)
+    )
+    if extracted_client_requirement:
+        classification = {
+            **classification,
+            "person_type": "corporate_client",
+            "scenario": "new_training_requirement",
+            "auto_reply_allowed": True,
+            "requires_human": False,
+        }
+        extracted["is_training_request"] = True
+        extracted["is_non_client_email"] = False
     non_requirement_person_types = {
         "trainer",
         "job_seeker",
@@ -3811,8 +4204,8 @@ async def _process_client_requirement_email(
     ):
         extracted["is_non_client_email"] = True
         extracted["is_training_request"] = False
-    client_authorized_search = _client_wants_to_proceed_now(subject, body)
-    details_ready_for_search = _has_details_for_trainer_search(extracted)
+    details_later = _client_will_send_details_later(subject, classification_body)
+    client_authorized_search = _client_wants_to_proceed_now(subject, classification_body)
     should_start_trainer_search = _should_start_trainer_automation(subject, email_doc, extracted)
     reply: Dict[str, str] = {}
     template_reply = build_auto_reply(
@@ -3823,13 +4216,26 @@ async def _process_client_requirement_email(
     )
     selected_template_key = template_reply.get("template_key") or ""
     if extracted.get("is_training_request"):
-        reply = _client_proceed_ack_reply(extracted) if (client_authorized_search or details_ready_for_search) else _client_reply_for_requirement(extracted)
-        selected_template_key = "client_proceed_ack" if (client_authorized_search or details_ready_for_search) else "client_missing_details"
+        missing_details = extracted.get("needs_clarification") or []
+        if not missing_details:
+            reply = _client_full_details_reply(extracted)
+            selected_template_key = "client_full_details_received"
+        elif client_authorized_search:
+            reply = _client_proceed_ack_reply(extracted, details_later=details_later)
+            selected_template_key = "client_proceed_ack"
+        else:
+            reply = _client_reply_for_requirement(extracted)
+            selected_template_key = "client_missing_details"
     elif extracted.get("direct_request_language") and not extracted.get("is_non_client_email"):
         reply = _client_clarification_reply(extracted)
         selected_template_key = "client_clarification"
     elif template_reply.get("body"):
         reply = {"subject": template_reply.get("subject") or subject, "body": template_reply["body"]}
+
+    is_client_requirement_template = bool(
+        extracted.get("is_training_request")
+        and selected_template_key in {"client_proceed_ack", "client_missing_details", "client_full_details_received"}
+    )
 
     is_initial_requirement_request = (
         extracted.get("direct_request_language")
@@ -3897,6 +4303,51 @@ async def _process_client_requirement_email(
         "reply_template_key": selected_template_key,
         "classification_body": classification_body,
     }
+
+    source_mail_type_for_routing = str(send_email_doc.get("source_outbound_mail_type") or "").strip()
+    if source_mail_type_for_routing in {"mail3", "mail3_slot_followup", "mail3_too_many_slots"}:
+        try:
+            trainer_slot_result = await _handle_trainer_slot_reply(db, send_email_doc)
+        except Exception as exc:
+            logger.exception("Trainer slot automation failed for %s", email_doc.get("email_id"))
+            trainer_slot_result = {"attempted": True, "success": False, "error": str(exc)}
+        if trainer_slot_result.get("attempted"):
+            automation = {
+                "auto_send_enabled": settings["enabled"],
+                "auto_send_threshold": settings["threshold"],
+                "auto_send_candidate": False,
+                "auto_send_eligible": False,
+                "auto_send_ready": False,
+                "auto_send_block_reason": "",
+                "client_authorized_search": False,
+                "pending_client_reply": False,
+                "sent": 1 if trainer_slot_result.get("success") else 0,
+                "total": 1,
+                "trainer_slot_automation": trainer_slot_result,
+            }
+            set_update: Dict[str, Any] = {
+                **base_update,
+                "status": "auto_sent" if trainer_slot_result.get("success") else "needs_manual_review",
+                "reply_status": "auto_sent" if trainer_slot_result.get("success") else "needs_manual_review",
+                "processed": True,
+                "processed_at": trainer_slot_result.get("sent_at") or now,
+                "classification_reason": "trainer_slot_reply",
+                "reply_template_key": "trainer_slot_reply",
+                "trainer_slot_automation": trainer_slot_result,
+                "mail_automation": automation,
+                "auto_send_candidate": False,
+                "auto_send_eligible": False,
+                "auto_send_ready": False,
+                "updated_at": _now(),
+            }
+            await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": set_update})
+            return {
+                "processed": True,
+                "reason": "trainer_slot_reply",
+                "status": set_update.get("status"),
+                "mail_automation": automation,
+                "extracted": extracted,
+            }
 
     try:
         # First check if the client reply indicates the trainer was selected
@@ -4058,6 +4509,7 @@ async def _process_client_requirement_email(
             "processed": True,
             "processed_at": client_budget_result.get("sent_at") or now,
             "classification_reason": "client_budget_reply",
+            "reply_template_key": "client_budget_reply",
             "client_budget_automation": client_budget_result,
             "mail_automation": automation,
             "auto_send_candidate": False,
@@ -4208,6 +4660,7 @@ async def _process_client_requirement_email(
             raise RuntimeError("Core API did not return a requirement_id")
 
         existing_mail_automation = email_doc.get("mail_automation") or {}
+        already_replied_to_latest = _has_replied_to_latest_message(email_doc)
         send_result: Dict[str, Any] = {
             "auto_send_enabled": settings["enabled"],
             "auto_send_threshold": settings["threshold"],
@@ -4216,7 +4669,7 @@ async def _process_client_requirement_email(
             "auto_send_ready": auto_send_ready,
             "auto_send_block_reason": auto_send_block_reason,
             "client_authorized_search": client_authorized_search,
-            "pending_client_reply": False,
+            "pending_client_reply": bool(reply and is_client_requirement_template and not already_replied_to_latest),
             "sent": 0,
             "total": 0,
         }
@@ -4227,12 +4680,19 @@ async def _process_client_requirement_email(
             if _safe_int(existing_mail_automation.get("sent"), 0) > 0:
                 send_result["sent"] = _safe_int(existing_mail_automation.get("sent"), 0)
                 send_result["total"] = _safe_int(existing_mail_automation.get("total"), send_result["sent"])
-        already_replied_to_latest = _has_replied_to_latest_message(email_doc)
         final_status = "auto_sent" if already_replied_to_latest else "pending_approval"
         reply_status = "auto_sent" if already_replied_to_latest else "pending_approval"
         reply_sent_update: Dict[str, Any] = {}
 
-        should_auto_send_reply = _should_attempt_auto_reply(email_doc, settings, auto_send_eligible, reply, confidence=confidence)
+        needs_corrective_full_details_reply = bool(
+            already_replied_to_latest
+            and selected_template_key == "client_full_details_received"
+            and reply
+        )
+        should_auto_send_reply = (
+            needs_corrective_full_details_reply
+            or _should_attempt_auto_reply(email_doc, settings, auto_send_eligible, reply, confidence=confidence)
+        )
         if should_auto_send_reply:
             auto_reply_result = await _send_client_auto_reply(db, {**send_email_doc, "requirement_id": requirement_id}, reply, requirement_id)
             send_result["client_reply"] = {
@@ -4605,6 +5065,8 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
                 "mail3_too_many_slots",
                 "mail6_toc",
                 "client_slots",
+                "client_interview_schedule",
+                "mail4",
             }
         )
         if (
@@ -4647,12 +5109,19 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
                         "trainer_name": 1,
                         "source_outbound_email_id": 1,
                         "source_outbound_mail_type": 1,
+                        "processed": 1,
                     },
                 )
                 if linked_doc:
                     await db.email_logs.update_one(
                         {"gmail_message_id": msg_id_hdr},
                         {"$set": {
+                            "from_email": reply.get("from_email") or existing.get("from_email") or existing.get("sender") or "",
+                            "sender": reply.get("from_email") or existing.get("sender") or "",
+                            "body": (reply.get("body") or existing.get("body") or "")[:2000],
+                            "raw_body": reply.get("body") or existing.get("raw_body") or "",
+                            "clean_body": reply.get("body") or existing.get("clean_body") or "",
+                            "body_snippet": (reply.get("body") or existing.get("body_snippet") or "")[:500],
                             "requirement_id": linked_doc.get("requirement_id") or "",
                             "trainer_id": linked_doc.get("trainer_id") or "",
                             "trainer_name": linked_doc.get("trainer_name") or "",
@@ -4661,6 +5130,8 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
                             "updated_at": _now(),
                         }},
                     )
+                    if not linked_doc.get("processed"):
+                        await _process_client_requirement_email(db, linked_doc)
                 continue
 
         now = _now()
@@ -4668,7 +5139,12 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
             "email_id": f"INB-{uuid.uuid4().hex[:10].upper()}",
             "direction": "inbound",
             "sender": reply.get("from_email"),
+            "from_email": reply.get("from_email"),
+            "from_raw": reply.get("from_raw"),
             "subject": reply.get("subject"),
+            "body": (reply.get("body") or "")[:2000],
+            "raw_body": reply.get("body") or "",
+            "clean_body": reply.get("body") or "",
             "body_snippet": (reply.get("body") or "")[:500],
             "gmail_message_id": msg_id_hdr,
             "latest_gmail_message_id": msg_id_hdr,
@@ -4698,6 +5174,7 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
                 "trainer_name": 1,
                 "source_outbound_email_id": 1,
                 "source_outbound_mail_type": 1,
+                "processed": 1,
             },
         )
         if linked_doc:
@@ -4712,6 +5189,8 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
                     "updated_at": _now(),
                 }},
             )
+            if not linked_doc.get("processed"):
+                await _process_client_requirement_email(db, linked_doc)
         stored += 1
     return stored
 
@@ -4785,8 +5264,35 @@ async def _process_pending_client_emails(db: AsyncIOMotorDatabase, limit: int = 
             },
         ],
     }
+    linked_trainer_reply_query = {
+        "$and": [
+            {"requirement_id": {"$nin": ["", None]}},
+            {"trainer_id": {"$nin": ["", None]}},
+            {"source_outbound_mail_type": {
+                "$in": [
+                    "mail1",
+                    "mail1_reminder",
+                    "mail2",
+                    "mail2_followup",
+                    "commercial_negotiation",
+                    "trainer_rate_discussion",
+                    "mail3",
+                    "mail3_slot_followup",
+                    "mail3_too_many_slots",
+                    "mail6_toc",
+                    "client_slots",
+                    "client_interview_schedule",
+                    "mail4",
+                ]
+            }},
+            {"processed": {"$ne": True}},
+            {"status": {"$nin": list(FINAL_CLIENT_STATUSES)}},
+            retry_due_query,
+        ],
+    }
     query = {
         "$or": [
+            linked_trainer_reply_query,
             {"$and": [today_query, {"pending_trainer_automation": True}, retry_due_query]},
             {"$and": [today_query, latest_message_needs_reply_query]},
             pending_work_query,

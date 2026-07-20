@@ -180,16 +180,20 @@ async def check_email_replies(
     background_tasks: BackgroundTasks,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    """Poll Gmail inbox for replies and update email_logs with sentiment."""
-    from app.routes.inbox import _poll_and_store
-    background_tasks.add_task(
-        _poll_and_store,
-        db,
-        since_days=payload.since_days,
-        max_messages=payload.max_messages,
-        from_emails=payload.from_emails,
-    )
-    return {"success": True, "message": "Reply check triggered in background."}
+    """Poll Gmail inbox for replies, then process trainer/client automation."""
+    from app.routes.inbox import _poll_and_store, _process_pending_client_emails
+
+    async def _poll_then_process() -> None:
+        await _poll_and_store(
+            db,
+            since_days=payload.since_days,
+            max_messages=payload.max_messages,
+            from_emails=payload.from_emails,
+        )
+        await _process_pending_client_emails(db, limit=payload.max_messages)
+
+    background_tasks.add_task(_poll_then_process)
+    return {"success": True, "message": "Reply check and automation processing triggered in background."}
 
 
 # ─── POST /emails/{email_id}/schedule-interview ───────────────────────────────

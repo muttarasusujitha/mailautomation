@@ -18,6 +18,9 @@ const FILTERS = [
   { key: 'spam', label: 'Spam' },
 ]
 
+const REQUEST_REFRESH_INTERVAL_MS = 5000
+const INBOX_AUTO_SYNC_INTERVAL_MS = 30000
+
 const STATUS_META = {
   pending_approval: { label: 'Pending Approval', tone: 'amber' },
   auto_sent: { label: 'Auto Sent', tone: 'emerald' },
@@ -396,6 +399,7 @@ export default function ClientRequests() {
   const [filter, setFilter] = useState('all')
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
+  const autoSyncRunningRef = useRef(false)
 
   const loadRequests = async (silent = false) => {
     if (!silent) setLoading(true)
@@ -422,7 +426,7 @@ export default function ClientRequests() {
 
   useEffect(() => {
     loadRequests()
-    refreshInterval.current = window.setInterval(() => loadRequests(true), 1000)
+    refreshInterval.current = window.setInterval(() => loadRequests(true), REQUEST_REFRESH_INTERVAL_MS)
     return () => {
       if (refreshInterval.current) {
         window.clearInterval(refreshInterval.current)
@@ -431,25 +435,35 @@ export default function ClientRequests() {
     }
   }, [filter])
 
-  const syncNow = async () => {
-    setSyncing(true)
+  const syncNow = async (silent = false) => {
+    if (autoSyncRunningRef.current) return
+    autoSyncRunningRef.current = true
+    if (!silent) setSyncing(true)
     try {
       const res = await api.post('/gmail/sync-now?limit=50')
       if (res.data?.queued) {
-        toast.success(res.data?.message || 'Inbox sync started. Refreshing shortly.')
+        if (!silent) toast.success(res.data?.message || 'Inbox sync started. Refreshing shortly.')
         window.setTimeout(() => loadRequests(), 6000)
         return
       }
       const created = res.data?.requirements_created || 0
       const autoSent = res.data?.auto_sent || 0
-      toast.success(`Inbox checked: ${created} requirement(s), ${autoSent} auto-mail batch(es)`)
-      await loadRequests()
+      if (!silent) toast.success(`Inbox checked: ${created} requirement(s), ${autoSent} auto-mail batch(es)`)
+      await loadRequests(true)
     } catch (e) {
-      toast.error(e.response?.data?.detail || e.message || 'Inbox sync failed')
+      if (!silent) toast.error(e.response?.data?.detail || e.message || 'Inbox sync failed')
     } finally {
-      setSyncing(false)
+      autoSyncRunningRef.current = false
+      if (!silent) setSyncing(false)
     }
   }
+
+  useEffect(() => {
+    const runAutoSync = () => syncNow(true)
+    runAutoSync()
+    const interval = window.setInterval(runAutoSync, INBOX_AUTO_SYNC_INTERVAL_MS)
+    return () => window.clearInterval(interval)
+  }, [])
 
   const retryClientUpdate = async item => {
     if (!item?.email_id || retryingUpdateId) return
@@ -525,7 +539,7 @@ export default function ClientRequests() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button onClick={syncNow} disabled={syncing} className="btn-secondary text-sm disabled:opacity-50">
+          <button onClick={() => syncNow(false)} disabled={syncing} className="btn-secondary text-sm disabled:opacity-50">
             {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
             Check Inbox Now
           </button>

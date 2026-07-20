@@ -170,8 +170,41 @@ def _build_sender_candidates(
     return candidates
 
 
+def _is_trainer_reply(body: str) -> bool:
+    normalized = str(body or "").lower()
+    return (
+        "trainersync team" in normalized
+        or "training opportunity" in normalized
+        or "dear trainer" in normalized
+    )
+
+
+def _normalize_trainer_reply_body(body: str) -> str:
+    if not _is_trainer_reply(body):
+        return body
+    text = str(body or "")
+    text = re.sub(
+        r"(?:Best\s+Regards|Regards|Warm\s+Regards),?\s*\nRecruitment Team,?\s*\nClahan Technologies",
+        "Regards,\nTrainerSync Team",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        r"(?:Best\s+Regards|Regards|Warm\s+Regards),?\s*\nRecruitment Team,?\s*\nCalhan Technologies",
+        "Regards,\nTrainerSync Team",
+        text,
+        flags=re.IGNORECASE,
+    )
+    return text
+
+
 def _html_template(body: str, from_name: str, from_email: str, tracking_url: str = "") -> str:
+    body = _normalize_trainer_reply_body(body)
     from_email = _normalize_email_address(from_email)
+    if _is_trainer_reply(body):
+        from_email = "sujithaofficial784@gmail.com"
+    display_name = "TrainerSync" if _is_trainer_reply(body) else (from_name or "TrainerSync")
+    tagline = "Trainer Coordination Platform" if _is_trainer_reply(body) else "AI-Powered Trainer Matching Platform"
     html_body = body.replace("\n", "<br>")
     pixel = (
         f'<img src="{tracking_url}" width="1" height="1" alt="" style="display:none;" />'
@@ -185,12 +218,12 @@ def _html_template(body: str, from_name: str, from_email: str, tracking_url: str
 <table width="600" cellpadding="0" cellspacing="0"
   style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
 <tr><td style="background:linear-gradient(135deg,#2563eb,#1d4ed8);padding:28px 36px;">
-<h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;">{from_name or 'TrainerSync'}</h1>
-<p style="margin:4px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">AI-Powered Trainer Matching Platform</p>
+<h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;">{display_name}</h1>
+<p style="margin:4px 0 0;color:rgba(255,255,255,0.75);font-size:13px;">{tagline}</p>
 </td></tr>
 <tr><td style="padding:32px 36px;color:#1e293b;font-size:15px;line-height:1.8;">{html_body}</td></tr>
 <tr><td style="background:#f1f5f9;padding:20px 36px;border-top:1px solid #e2e8f0;">
-<p style="margin:0;color:#94a3b8;font-size:12px;">{from_name or 'TrainerSync'} &bull; {from_email}</p>
+<p style="margin:0;color:#94a3b8;font-size:12px;">{display_name} &bull; {from_email}</p>
 </td></tr>
 </table></td></tr></table>
 {pixel}
@@ -206,14 +239,17 @@ def send_gmail_oauth(
     tracking_url: str = "",
     attachments: Optional[List[Dict[str, Any]]] = None,
 ) -> Tuple[bool, str]:
+    body = _normalize_trainer_reply_body(body)
     service, error = _load_oauth_service()
     if not service:
         return False, error
     try:
         profile = service.users().getProfile(userId="me").execute()
         gmail_user = profile.get("emailAddress") or settings.GMAIL_USER
-        sender_name = from_name or settings.FROM_NAME
+        sender_name = "TrainerSync" if _is_trainer_reply(body) else (from_name or settings.FROM_NAME)
         sender_email = _resolve_sender_email(from_email or settings.FROM_EMAIL or gmail_user)
+        if _is_trainer_reply(body):
+            sender_email = "sujithaofficial784@gmail.com"
 
         msg = MIMEMultipart("mixed") if attachments else MIMEMultipart("alternative")
         msg["Subject"] = subject
@@ -264,6 +300,7 @@ def send_smtp(
     tracking_url: str = "",
     attachments: Optional[List[Dict[str, Any]]] = None,
 ) -> Tuple[bool, str]:
+    body = _normalize_trainer_reply_body(body)
     candidates = _build_sender_candidates(smtp_config)
     last_error: Optional[Exception] = None
 
@@ -272,6 +309,9 @@ def send_smtp(
         pwd = str(candidate.get("smtpPass") or settings.effective_gmail_pass or "").replace(" ", "")
         from_name = candidate.get("fromName") or settings.FROM_NAME
         from_email = _resolve_sender_email(candidate.get("fromEmail") or settings.FROM_EMAIL or user)
+        if _is_trainer_reply(body):
+            from_name = "TrainerSync"
+            from_email = "sujithaofficial784@gmail.com"
         host = candidate.get("smtpHost") or settings.SMTP_HOST
         port = int(candidate.get("smtpPort") or settings.SMTP_PORT)
 
@@ -368,92 +408,122 @@ def check_imap_replies(
 ) -> List[Dict[str, Any]]:
     """Poll Gmail IMAP inbox for replies."""
     cfg = imap_config or {}
-    user = cfg.get("imapUser") or cfg.get("smtpUser") or settings.GMAIL_USER
-    pwd = (cfg.get("imapPass") or cfg.get("smtpPass") or settings.effective_gmail_pass).replace(" ", "")
     host = cfg.get("imapHost") or settings.IMAP_HOST
     port = int(cfg.get("imapPort") or settings.IMAP_PORT)
-    if not user or not pwd:
+
+    candidates: List[Tuple[str, str]] = []
+
+    def add_candidate(user_value: str, pass_value: str) -> None:
+        user_clean = (user_value or "").strip()
+        pass_clean = (pass_value or "").replace(" ", "")
+        if not user_clean or not pass_clean:
+            return
+        key = user_clean.lower()
+        if any(existing_user.lower() == key for existing_user, _ in candidates):
+            return
+        candidates.append((user_clean, pass_clean))
+
+    add_candidate(
+        cfg.get("imapUser") or cfg.get("smtpUser") or settings.GMAIL_USER,
+        cfg.get("imapPass") or cfg.get("smtpPass") or settings.effective_gmail_pass,
+    )
+    add_candidate(settings.GMAIL_FALLBACK_USER, settings.effective_gmail_fallback_pass)
+    if settings.GMAIL_FALLBACK_FROM_EMAIL:
+        add_candidate(settings.GMAIL_FALLBACK_FROM_EMAIL, settings.effective_gmail_fallback_pass)
+    if settings.FROM_EMAIL:
+        add_candidate(settings.FROM_EMAIL, settings.effective_gmail_fallback_pass or settings.effective_gmail_pass)
+
+    if not candidates:
         logger.warning("IMAP check skipped: Gmail user/password not configured")
         return []
 
     replies = []
-    mail = None
-    try:
-        mail = imaplib.IMAP4_SSL(host, port, timeout=20)
-        mail.login(user, pwd)
-        mail.select("inbox")
-        since = (datetime.now() - timedelta(days=since_days)).strftime("%d-%b-%Y")
+    seen_message_ids: set = set()
 
-        msg_ids: List[bytes] = []
-        if from_emails:
-            seen: set = set()
-            for sender in from_emails[:100]:
-                _, data = mail.search(None, f'(SINCE {since} FROM "{sender}")')
-                for mid in (data[0].split() if data and data[0] else []):
-                    if mid not in seen:
-                        seen.add(mid)
-                        msg_ids.append(mid)
-        else:
-            _, data = mail.search(None, f"(SINCE {since})")
-            msg_ids = data[0].split() if data and data[0] else []
+    for user, pwd in candidates:
+        mail = None
+        try:
+            mail = imaplib.IMAP4_SSL(host, port, timeout=20)
+            mail.login(user, pwd)
+            mail.select("inbox")
+            since = (datetime.now() - timedelta(days=since_days)).strftime("%d-%b-%Y")
 
-        for mid in msg_ids[-max_messages:]:
-            try:
-                _, msg_data = mail.fetch(mid, "(RFC822)")
-                if not msg_data or not isinstance(msg_data[0], tuple):
-                    continue
-                msg = message_from_bytes(msg_data[0][1])
-                from_addr = msg.get("From", "")
-                from_email = parseaddr(from_addr)[1] or from_addr
-                subject = _decode_header(msg.get("Subject", ""))
-                body_text = ""
-                if msg.is_multipart():
-                    for part in msg.walk():
-                        if part.get_content_type() == "text/plain":
-                            body_text = part.get_payload(decode=True).decode("utf-8", errors="ignore")
-                            break
-                else:
-                    body_text = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+            msg_ids: List[bytes] = []
+            if from_emails:
+                seen: set = set()
+                for sender in from_emails[:100]:
+                    _, data = mail.search(None, f'(SINCE {since} FROM "{sender}")')
+                    for mid in (data[0].split() if data and data[0] else []):
+                        if mid not in seen:
+                            seen.add(mid)
+                            msg_ids.append(mid)
+            else:
+                _, data = mail.search(None, f"(SINCE {since})")
+                msg_ids = data[0].split() if data and data[0] else []
 
+            for mid in msg_ids[-max_messages:]:
                 try:
-                    date_hdr = msg.get("Date", "")
-                    received_at = parsedate_to_datetime(date_hdr).replace(tzinfo=None) if date_hdr else datetime.utcnow()
+                    _, msg_data = mail.fetch(mid, "(RFC822)")
+                    if not msg_data or not isinstance(msg_data[0], tuple):
+                        continue
+                    msg = message_from_bytes(msg_data[0][1])
+                    message_id_header = msg.get("Message-ID", "")
+                    if message_id_header and message_id_header in seen_message_ids:
+                        continue
+                    if message_id_header:
+                        seen_message_ids.add(message_id_header)
+                    from_addr = msg.get("From", "")
+                    from_email = parseaddr(from_addr)[1] or from_addr
+                    subject = _decode_header(msg.get("Subject", ""))
+                    body_text = ""
+                    if msg.is_multipart():
+                        for part in msg.walk():
+                            if part.get_content_type() == "text/plain":
+                                body_text = part.get_payload(decode=True).decode("utf-8", errors="ignore")
+                                break
+                    else:
+                        body_text = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+
+                    try:
+                        date_hdr = msg.get("Date", "")
+                        received_at = parsedate_to_datetime(date_hdr).replace(tzinfo=None) if date_hdr else datetime.utcnow()
+                    except Exception:
+                        received_at = datetime.utcnow()
+
+                    lower = body_text.lower()
+                    is_pos = any(s in lower for s in POSITIVE_SIGNALS)
+                    is_neg = any(s in lower for s in NEGATIVE_SIGNALS)
+                    sentiment = "positive" if is_pos else ("negative" if is_neg else "neutral")
+                    action = "mark_interested" if is_pos else ("mark_declined" if is_neg else "requires_review")
+
+                    replies.append({
+                        "msg_id": mid.decode() if isinstance(mid, bytes) else str(mid),
+                        "message_id_header": message_id_header,
+                        "in_reply_to": msg.get("In-Reply-To", ""),
+                        "references": msg.get("References", ""),
+                        "from_email": from_email,
+                        "from_raw": from_addr,
+                        "subject": subject,
+                        "body": body_text[:2000],
+                        "sentiment": sentiment,
+                        "action": action,
+                        "received_at": received_at.isoformat(),
+                        "imap_user": user,
+                    })
                 except Exception:
-                    received_at = datetime.utcnow()
-
-                lower = body_text.lower()
-                is_pos = any(s in lower for s in POSITIVE_SIGNALS)
-                is_neg = any(s in lower for s in NEGATIVE_SIGNALS)
-                sentiment = "positive" if is_pos else ("negative" if is_neg else "neutral")
-                action = "mark_interested" if is_pos else ("mark_declined" if is_neg else "requires_review")
-
-                replies.append({
-                    "msg_id": mid.decode() if isinstance(mid, bytes) else str(mid),
-                    "message_id_header": msg.get("Message-ID", ""),
-                    "in_reply_to": msg.get("In-Reply-To", ""),
-                    "references": msg.get("References", ""),
-                    "from_email": from_email,
-                    "from_raw": from_addr,
-                    "subject": subject,
-                    "body": body_text[:2000],
-                    "sentiment": sentiment,
-                    "action": action,
-                    "received_at": received_at.isoformat(),
-                })
+                    continue
+        except Exception:
+            logger.exception("IMAP check failed for configured mailbox")
+        finally:
+            try:
+                if mail:
+                    mail.close()
             except Exception:
-                continue
-    except Exception:
-        logger.exception("IMAP check failed")
-    finally:
-        try:
-            if mail:
-                mail.close()
-        except Exception:
-            pass
-        try:
-            if mail:
-                mail.logout()
-        except Exception:
-            pass
+                pass
+            try:
+                if mail:
+                    mail.logout()
+            except Exception:
+                pass
 
     return replies
