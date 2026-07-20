@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     MONGODB_DB_NAME: str = "trainersync"
     REDIS_URL: str = "redis://127.0.0.1:6379"
     SECRET_KEY: str = "change-me"
-    ALLOWED_ORIGINS: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = "https://localhost:3000"
 
     @property
     def allowed_origins_list(self) -> List[str]:

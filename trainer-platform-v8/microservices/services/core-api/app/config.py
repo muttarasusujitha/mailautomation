@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://127.0.0.1:6379"
     SECRET_KEY: str = "change-me-in-production"
 
-    ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:8080"
+    ALLOWED_ORIGINS: str = "https://localhost:3000,https://localhost:8080"
 
     @property
     def allowed_origins_list(self) -> List[str]:

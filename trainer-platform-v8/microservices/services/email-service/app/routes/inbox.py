@@ -29,9 +29,9 @@ CORE_API_URL = settings.CORE_API_URL.rstrip("/")
 TRAINER_SERVICE_URL = settings.TRAINER_SERVICE_URL.rstrip("/")
 LOCAL_TZ = timezone(timedelta(hours=5, minutes=30))
 LOCAL_SERVICE_FALLBACKS = {
-    "http://core-api:8001": "http://127.0.0.1:8001",
-    "http://trainer-service:8004": "http://127.0.0.1:8004",
-    "http://intelligence-service:8005": "http://127.0.0.1:8005",
+    "https://core-api:8001": "http://127.0.0.1:8001",
+    "https://trainer-service:8004": "http://127.0.0.1:8004",
+    "https://intelligence-service:8005": "http://127.0.0.1:8005",
 }
 
 FINAL_CLIENT_STATUSES = {"auto_sent", "sent", "approved", "rejected", "spam", "ignored"}
@@ -3768,7 +3768,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         "client_name": extracted.get("client_name"),
         "client_company": extracted.get("client_company"),
         "client_email": extracted.get("client_email"),
-        "top_n": 10,
+        "top_n": 5,
         "send_emails": False,
         "status": "active",
         "priority": "high" if extracted.get("urgency") == "urgent" else "medium",
@@ -3953,7 +3953,7 @@ async def _call_intelligence_search(
         async with httpx.AsyncClient(timeout=90) as client:
             r = await _post_with_local_fallback(
                 client,
-                "http://intelligence-service:8005/api/v1/intelligence/trainers/search",
+                "https://intelligence-service:8005/api/v1/intelligence/trainers/search",
                 json=payload,
             )
             if r.status_code < 400:
@@ -4002,6 +4002,7 @@ async def _start_trainer_search_after_client_reply(
 async def _process_client_requirement_email(
     db: AsyncIOMotorDatabase,
     email_doc: Dict[str, Any],
+    force_new_requirement: bool = False,
 ) -> Dict[str, Any]:
     if not _is_today_or_newer(email_doc):
         now = _now()
@@ -4207,6 +4208,12 @@ async def _process_client_requirement_email(
     details_later = _client_will_send_details_later(subject, classification_body)
     client_authorized_search = _client_wants_to_proceed_now(subject, classification_body)
     should_start_trainer_search = _should_start_trainer_automation(subject, email_doc, extracted)
+    if (
+        extracted.get("is_training_request")
+        and _has_training_domain(extracted)
+        and (client_authorized_search or details_later)
+    ):
+        should_start_trainer_search = True
     reply: Dict[str, str] = {}
     template_reply = build_auto_reply(
         classification,
@@ -4653,7 +4660,7 @@ async def _process_client_requirement_email(
             email_doc,
             extracted,
             db,
-            reuse_existing_client_requirement=_is_reply_thread(subject, email_doc),
+            reuse_existing_client_requirement=not force_new_requirement and _is_reply_thread(subject, email_doc),
         )
         requirement_id = requirement_result.get("requirement_id")
         if not requirement_id:
@@ -4715,12 +4722,8 @@ async def _process_client_requirement_email(
                     "auto_send_ready": False,
                     "auto_send_retry_after": None,
                 })
-                # Run intelligence search to enrich candidates before emailing trainers
-                try:
-                    intel_result = await _call_intelligence_search(extracted, max_results=20)
-                    send_result["intel_search"] = intel_result
-                    # If intelligence found profiles, prefer sending to trainers via trainer service
-                    if _safe_int(intel_result.get("found"), 0) > 0:
+                if should_start_trainer_search:
+                    try:
                         trainer_send_result = await _send_initial_trainer_mail(requirement_id, extracted)
                         trainer_sent_count = _safe_int(trainer_send_result.get("sent"), 0)
                         send_result["trainer_mail"] = trainer_send_result
@@ -4733,23 +4736,17 @@ async def _process_client_requirement_email(
                             and reply_sent_update.get("trainer_automation_status") == "failed"
                         ):
                             final_status = "trainer_email_failed"
-                    else:
-                        # No profiles found; mark pending automation so background processes can retry
+                    except Exception as exc:
+                        logger.exception("Trainer automation failed after auto client reply for %s", email_doc.get("email_id"))
+                        send_result["trainer_mail"] = {"sent": 0, "error": str(exc)}
+                        final_status = "trainer_email_failed"
                         reply_sent_update.update({
-                            "trainer_automation_status": "no_profiles_found",
+                            "trainer_automation_status": "failed",
+                            "trainer_automation_error": str(exc),
+                            "trainer_automation_failed_at": _now(),
                             "pending_trainer_automation": True,
+                            "auto_send_retry_after": _parse_retry_after(str(exc)),
                         })
-                except Exception as exc:
-                    logger.exception("Trainer automation failed after auto client reply for %s", email_doc.get("email_id"))
-                    send_result["trainer_mail"] = {"sent": 0, "error": str(exc)}
-                    final_status = "trainer_email_failed"
-                    reply_sent_update.update({
-                        "trainer_automation_status": "failed",
-                        "trainer_automation_error": str(exc),
-                        "trainer_automation_failed_at": _now(),
-                        "pending_trainer_automation": True,
-                        "auto_send_retry_after": _parse_retry_after(str(exc)),
-                    })
             else:
                 error = auto_reply_result.get("error", "Send failed")
                 retry_after = _parse_retry_after(error)

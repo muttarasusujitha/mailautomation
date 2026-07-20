@@ -661,7 +661,7 @@ async def request_client_po(
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             await client.post(
-                "http://email-service:8002/api/v1/email/send",
+                "https://email-service:8002/api/v1/email/send",
                 json={
                     "to": client_email,
                     "subject": subject,
@@ -713,7 +713,7 @@ async def request_client_budget_increase(
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             await client.post(
-                "http://email-service:8002/api/v1/email/send",
+                "https://email-service:8002/api/v1/email/send",
                 json={"to": client_email, "subject": subject, "body": body,
                       "requirement_id": req_id, "mail_type": "budget_increase_request"},
             )
@@ -791,7 +791,7 @@ async def generate_invoice_from_requirement_po(
         try:
             async with _httpx.AsyncClient(timeout=30) as client:
                 po_resp = await client.post(
-                    "http://trainer-service:8004/api/v1/purchase-orders/generate",
+                    "https://trainer-service:8004/api/v1/purchase-orders/generate",
                     json=po_payload,
                 )
             if po_resp.status_code >= 400:
@@ -830,7 +830,7 @@ async def generate_invoice_from_requirement_po(
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             r = await client.post(
-                f"http://trainer-service:8004/api/v1/purchase-orders/{po_id}/generate-invoice",
+                f"https://trainer-service:8004/api/v1/purchase-orders/{po_id}/generate-invoice",
                 json={
                     "invoice_number": payload.invoice_number,
                     "gst_number": payload.gst_number,

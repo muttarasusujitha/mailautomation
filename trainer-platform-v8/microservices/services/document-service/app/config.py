@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # Max resume upload size in bytes (default 10 MB)
     MAX_UPLOAD_BYTES: int = 10_485_760
 
-    ALLOWED_ORIGINS: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = "https://localhost:3000"
 
     @property
     def allowed_origins_list(self) -> List[str]:

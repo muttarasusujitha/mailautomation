@@ -13,7 +13,7 @@ from app.database import get_db
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
-EMAIL_SVC = "http://email-service:8002"
+EMAIL_SVC = "https://email-service:8002"
 
 
 class TrainerLeadCreate(BaseModel):
@@ -124,7 +124,7 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
     try:
         async with httpx.AsyncClient(timeout=25) as client:
             r = await client.post(
-                "http://intelligence-service:8005/api/v1/intelligence/trainers/search",
+                "https://intelligence-service:8005/api/v1/intelligence/trainers/search",
                 json={"domain": payload.domain, "location": payload.location or "", "max_results": payload.max_results, "save_leads": False},
             )
             if r.status_code < 400:
@@ -194,7 +194,7 @@ async def enrich_public_emails(payload: EnrichRequest, db: AsyncIOMotorDatabase 
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 r = await client.post(
-                    "http://intelligence-service:8005/api/v1/intelligence/contacts/find",
+                    "https://intelligence-service:8005/api/v1/intelligence/contacts/find",
                     json={"name": lead.get("name", ""), "domain": lead.get("domain", ""),
                           "linkedin_url": lead.get("linkedin_url", "")},
                 )

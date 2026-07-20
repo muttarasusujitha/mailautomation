@@ -222,8 +222,8 @@ services:
       PORT: "8007"
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
-      EMAIL_SERVICE_URL: http://email-service:8002
-      NOTIFICATION_SERVICE_URL: http://notification-service:8003
+      EMAIL_SERVICE_URL: https://email-service:8002
+      NOTIFICATION_SERVICE_URL: https://notification-service:8003
     env_file: .env
     expose:
       - "8007"
@@ -246,8 +246,8 @@ services:
       <<: *common-env
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
-      EMAIL_SERVICE_URL: http://email-service:8002
-      NOTIFICATION_SERVICE_URL: http://notification-service:8003
+      EMAIL_SERVICE_URL: https://email-service:8002
+      NOTIFICATION_SERVICE_URL: https://notification-service:8003
     env_file: .env
     healthcheck:
       disable: true

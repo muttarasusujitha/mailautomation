@@ -86,8 +86,118 @@ function trainerMailStats(item = {}) {
   }
 }
 
+function clientReplyStats(item = {}) {
+  const automation = item.mail_automation || item.client_email_doc?.mail_automation || {}
+  const reply = automation.client_reply || {}
+  return {
+    sent: Boolean(reply.sent || item.reply_sent || item.client_email_doc?.reply_sent || item.reply_status === 'auto_sent'),
+    to: reply.to || item.from_email || item.client_email || item.client_email_doc?.from_email || '',
+    subject: reply.subject || item.subject || '',
+    error: reply.error || item.reply_error || item.auto_send_error || '',
+    at: item.reply_sent_at || item.auto_sent_at || item.client_email_doc?.reply_sent_at || item.client_email_doc?.auto_sent_at || '',
+  }
+}
+
 function shortlistTrainers(item = {}) {
   return item.shortlist?.top_trainers || item.top_trainers || []
+}
+
+function stepState({ done = false, active = false, blocked = false } = {}) {
+  if (done) return 'done'
+  if (blocked) return 'blocked'
+  if (active) return 'active'
+  return 'waiting'
+}
+
+function stepTone(state) {
+  if (state === 'done') return 'border-emerald-200 bg-emerald-50 text-emerald-800'
+  if (state === 'active') return 'border-blue-200 bg-blue-50 text-blue-800'
+  if (state === 'blocked') return 'border-amber-200 bg-amber-50 text-amber-800'
+  return 'border-slate-200 bg-slate-50 text-slate-500'
+}
+
+function stepIcon(state) {
+  if (state === 'done') return <CheckCircle2 className="h-4 w-4" />
+  if (state === 'active') return <Loader2 className="h-4 w-4 animate-spin" />
+  if (state === 'blocked') return <AlertCircle className="h-4 w-4" />
+  return <Clock3 className="h-4 w-4" />
+}
+
+function buildClientSteps(item = {}) {
+  const missing = missingDetails(item)
+  const trainers = shortlistTrainers(item)
+  const mailStats = trainerMailStats(item)
+  const replyStats = clientReplyStats(item)
+  const hasGeneratedReply = Boolean(item.ai_reply || item.draft_reply || item.generated_reply?.body || item.client_email_doc?.ai_reply)
+  const requirementDone = Boolean(item.requirement_id)
+  const domainDone = hasDomain(item)
+  const autoStatus = item.trainer_automation_status || item.client_email_doc?.trainer_automation_status || ''
+  const automationTried = Boolean(item.mail_automation?.trainer_mail || item.client_email_doc?.mail_automation?.trainer_mail || autoStatus)
+  const mailSent = mailStats.sent > 0
+  const hasMailError = Boolean(mailStats.error)
+
+  return [
+    {
+      key: 'client_received',
+      title: 'Client Mail Received',
+      status: stepState({ done: true }),
+      detail: clean(item.from_email || item.client_email_doc?.from_email, 'Client email captured'),
+      meta: fmtDate(item.received_at || item.created_at || item.client_email_doc?.received_at),
+    },
+    {
+      key: 'details_filled',
+      title: 'Details Auto-Filled',
+      status: stepState({ done: domainDone, blocked: !domainDone }),
+      detail: domainDone ? `${pickTechnology(item)}${missing.length ? `, ${missing.length} field(s) still missing` : ', enough to proceed'}` : 'Domain / technology not detected',
+      meta: missing.length ? `Missing: ${missing.join(', ')}` : 'Ready for trainer search',
+    },
+    {
+      key: 'reply_prepared',
+      title: 'Clahan Reply Prepared',
+      status: stepState({ done: hasGeneratedReply || replyStats.sent, active: domainDone && !hasGeneratedReply && !replyStats.sent }),
+      detail: hasGeneratedReply || replyStats.sent ? clean(item.reply_template_key || item.client_email_doc?.reply_template_key, 'Reply template selected') : 'Waiting for AI reply template',
+      meta: replyStats.subject,
+    },
+    {
+      key: 'client_reply_sent',
+      title: 'Client Reply Sent',
+      status: stepState({ done: replyStats.sent, active: hasGeneratedReply && !replyStats.sent, blocked: Boolean(replyStats.error) }),
+      detail: replyStats.sent ? `Sent to ${clean(replyStats.to, 'client')}` : replyStats.error || 'Waiting to send client acknowledgement',
+      meta: fmtDate(replyStats.at),
+    },
+    {
+      key: 'requirement_created',
+      title: 'Requirement Created',
+      status: stepState({ done: requirementDone, active: replyStats.sent && !requirementDone }),
+      detail: requirementDone ? clean(item.requirement_id, 'Requirement ready') : 'Waiting for requirement record',
+      meta: requirementDone ? 'Used by Shortlist1' : '',
+    },
+    {
+      key: 'resume_search',
+      title: 'Uploaded Resume Search',
+      status: stepState({ done: trainers.length > 0, active: requirementDone && !trainers.length && !hasMailError, blocked: hasMailError }),
+      detail: trainers.length ? `${trainers.length} trainer(s) ranked from uploaded resumes` : hasMailError || 'Searching uploaded trainer resumes',
+      meta: `${mailStats.total || trainers.length || 0} candidate(s) available`,
+    },
+    {
+      key: 'mail1_trainers',
+      title: 'Mail1 To Trainers',
+      status: stepState({ done: mailSent, active: trainers.length > 0 && !mailSent && !hasMailError, blocked: hasMailError }),
+      detail: mailSent ? `${mailStats.sent} trainer mail(s) sent` : hasMailError || 'Waiting to send Mail1',
+      meta: mailStats.total ? `${mailStats.sent}/${mailStats.total} sent` : '',
+    },
+    {
+      key: 'shortlist1_handoff',
+      title: 'Shortlist1 Takeover',
+      status: stepState({ done: mailSent, active: false, blocked: !hasDomain(item) }),
+      detail: mailSent
+        ? 'Open trainer pipeline in Shortlist1 and continue Mail1 replies from there'
+        : trainers.length > 0
+        ? 'Shortlist ready. Continue Mail1 from Shortlist1 to send outreach'
+        : 'Waiting for top 5 before Shortlist1 takeover',
+      meta: autoStatus ? `Status: ${autoStatus}` : 'Mail1 is managed by Shortlist1',
+    },
+  ]
 }
 
 function stageState(item = {}, key) {
@@ -95,6 +205,8 @@ function stageState(item = {}, key) {
   const missing = missingDetails(item)
   const trainers = shortlistTrainers(item)
   const autoStatus = item.trainer_automation_status || item.client_email_doc?.trainer_automation_status || ''
+  const mailStats = trainerMailStats(item)
+  const mailSent = mailStats.sent > 0
   const hasReply = Boolean(item.ai_reply || item.draft_reply || item.generated_reply?.body || item.client_email_doc?.ai_reply)
 
   if (key === 'received') return 'done'
@@ -106,7 +218,7 @@ function stageState(item = {}, key) {
     return 'blocked'
   }
   if (key === 'shortlist') return trainers.length ? 'done' : hasDomain(item) ? 'ready' : 'blocked'
-  if (key === 'shortlist1') return trainers.length ? 'done' : hasDomain(item) ? 'ready' : 'blocked'
+  if (key === 'shortlist1') return mailSent ? 'done' : trainers.length ? 'waiting' : hasDomain(item) ? 'ready' : 'blocked'
   return 'blocked'
 }
 
@@ -148,24 +260,52 @@ function normalizePipelineItem(email = {}, pipelineItems = []) {
 }
 
 function StageRail({ item }) {
+  const steps = buildClientSteps(item)
   return (
-    <div className="overflow-x-auto pb-1">
-      <div className="flex min-w-max items-start">
-        {STAGES.map(([key, title, sub], index) => {
-          const state = stageState(item, key)
-          const done = state === 'done'
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-bold text-slate-950">Client Pipeline Steps</p>
+          <p className="mt-1 text-sm text-slate-500">Track the request from client mail receipt through requirement creation, trainer search, and Shortlist1 takeover. This finishes the shortlist prep, then Shortlist1 handles the rest of Mail1 and trainer outreach.</p>
+        </div>
+        <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          {steps.filter(step => step.status === 'done').length}/{steps.length} completed
+        </span>
+      </div>
+
+      <div className="grid gap-3 xl:grid-cols-2">
+        {steps.map((step, index) => {
+          const badgeText = step.status === 'done'
+            ? 'Done'
+            : step.status === 'active'
+            ? 'Processing'
+            : step.status === 'blocked'
+            ? 'Needs attention'
+            : 'Waiting'
+
           return (
-            <div key={key} className="flex items-start">
-              <div className="flex w-[122px] flex-col items-center text-center">
-                <span className={clsx('flex h-8 w-8 items-center justify-center rounded-full border text-xs font-black', stageTone(state))}>
-                  {done ? <CheckCircle2 className="h-4 w-4" /> : index + 1}
+            <div key={step.key} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className={clsx('flex h-9 w-9 items-center justify-center rounded-full border text-sm font-black', stepTone(step.status))}>
+                    {stepIcon(step.status)}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-slate-950">{`${index + 1}. ${step.title}`}</p>
+                    {step.meta ? <p className="mt-1 text-xs text-slate-500">{step.meta}</p> : null}
+                  </div>
+                </div>
+                <span className={clsx(
+                  'rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase',
+                  step.status === 'done' ? 'bg-emerald-100 text-emerald-700' :
+                  step.status === 'active' ? 'bg-blue-100 text-blue-700' :
+                  step.status === 'blocked' ? 'bg-amber-100 text-amber-700' :
+                  'bg-slate-100 text-slate-500'
+                )}>
+                  {badgeText}
                 </span>
-                <p className="mt-2 text-[11px] font-black text-slate-800">{title}</p>
-                <p className="mt-0.5 max-w-[108px] text-[10px] leading-3 text-slate-400">{sub}</p>
               </div>
-              {index < STAGES.length - 1 && (
-                <div className={clsx('mt-4 h-0.5 w-10 rounded-full', done ? 'bg-emerald-500' : 'bg-slate-200')} />
-              )}
+              <p className="mt-3 text-sm leading-6 text-slate-600">{step.detail}</p>
             </div>
           )
         })}
@@ -371,7 +511,7 @@ export default function ClientPipeline() {
     setProcessing(true)
     try {
       const res = await api.post(`/inbox/${selected.email_id}/create-requirement`)
-      toast.success(res.data?.requirement_id ? 'Requirement and shortlist created. Continue Mail 1 from Shortlist1.' : 'Client request processed.')
+      toast.success(res.data?.requirement_id ? 'Requirement and shortlist created. Continue Mail1 and remaining trainer outreach from Shortlist1.' : 'Client request processed.')
       await load(true)
     } catch (e) {
       toast.error(e.message || 'Could not create requirement')

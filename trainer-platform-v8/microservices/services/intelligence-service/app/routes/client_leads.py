@@ -13,7 +13,7 @@ from app.database import get_db
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
-EMAIL_SVC = "http://email-service:8002"
+EMAIL_SVC = "https://email-service:8002"
 
 
 class ClientLeadCreate(BaseModel):
@@ -152,7 +152,7 @@ async def search_public_leads(payload: SearchPublicRequest, db: AsyncIOMotorData
         import httpx as _httpx
         async with _httpx.AsyncClient(timeout=20) as client:
             r = await client.post(
-                "http://intelligence-service:8005/api/v1/intelligence/trainers/search",
+                "https://intelligence-service:8005/api/v1/intelligence/trainers/search",
                 json={"domain": payload.query, "location": payload.location or "", "max_results": payload.max_results},
             )
             if r.status_code < 400:

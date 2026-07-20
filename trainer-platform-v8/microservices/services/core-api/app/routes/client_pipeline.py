@@ -292,6 +292,31 @@ async def get_client_pipeline(
         for t in top_trainers:
             stage = t.get("pipeline_status") or t.get("status") or "unknown"
             stage_counts[stage] = stage_counts.get(stage, 0) + 1
+        public_top_trainers = [
+            {
+                key: trainer.get(key)
+                for key in (
+                    "trainer_id",
+                    "name",
+                    "trainer_name",
+                    "email",
+                    "trainer_email",
+                    "match_score",
+                    "pipeline_status",
+                    "status",
+                    "rank",
+                    "experience_years",
+                    "technologies",
+                    "technology_category",
+                    "location",
+                    "last_mail_type",
+                    "last_mailed_at",
+                    "last_mail_error",
+                )
+                if trainer.get(key) is not None
+            }
+            for trainer in top_trainers[:10]
+        ]
 
         item = {
             **req,
@@ -305,11 +330,13 @@ async def get_client_pipeline(
             "selected_trainer": selected_trainer or {},
             "shortlist": {
                 "total_trainers": len(top_trainers),
+                "top_trainers": public_top_trainers,
                 "stage_counts": stage_counts,
                 "selected_trainer_id": selected_trainer_id,
                 "selected_trainer_name": shortlist.get("selected_trainer_name") or (selected_trainer or {}).get("name"),
                 "selection_status": shortlist.get("selection_status"),
             },
+            "top_trainers": public_top_trainers,
             "messages": timeline["messages"],
             "last_preview": timeline["last_preview"],
         }

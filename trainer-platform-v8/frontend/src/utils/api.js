@@ -78,6 +78,7 @@ export const tickTrainerAutomationPipeline = (id, data) => api.post(`/trainers/$
 export const getTrainerAutomationStatus = (id) => api.get(`/trainers/${id}/automation-status`)
 export const getTrainerConversationThread = (id, params = {}) => api.get(`/trainers/${id}/conversation-thread`, { params })
 export const getRequirements   = ()       => api.get('/requirements')
+export const getRequirement    = (id)     => api.get(`/requirements/${id}`)
 export const createRequirement = (data)   => api.post('/requirements', data)
 export const updateRequirement = (id, data) => api.patch(`/requirements/${id}`, data)
 export const deleteRequirement = (id)     => api.delete(`/requirements/${id}`)

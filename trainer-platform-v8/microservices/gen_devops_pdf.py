@@ -31,7 +31,7 @@ payload = {
 }
 
 html = mod.build_toc_html(payload)
-url = 'http://document-service:8006/api/v1/documents/pdf/html-to-pdf?filename=devops_10day.pdf'
+url = 'https://document-service:8006/api/v1/documents/pdf/html-to-pdf?filename=devops_10day.pdf'
 response = requests.post(url, data=html.encode('utf-8'), headers={'Content-Type': 'text/html'}, timeout=120)
 print('status', response.status_code)
 if response.status_code == 200:

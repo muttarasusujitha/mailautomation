@@ -5,7 +5,7 @@ import json
 async def sync_inbox():
     async with httpx.AsyncClient(timeout=30) as client:
         try:
-            response = await client.post('http://localhost:8000/api/gmail/sync-now')
+            response = await client.post('https://localhost:8000/api/gmail/sync-now')
             print('Status:', response.status_code)
             result = response.json()
             print('\n✅ INBOX SYNC RESULTS:')

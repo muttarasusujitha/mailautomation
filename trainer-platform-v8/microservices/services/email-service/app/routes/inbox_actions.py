@@ -158,7 +158,7 @@ async def create_requirement_from_inbox_email(
     doc = await db["client_emails"].find_one({"email_id": email_id}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Inbox email not found")
-    return {"success": True, **await _process_client_requirement_email(db, doc)}
+    return {"success": True, **await _process_client_requirement_email(db, doc, force_new_requirement=True)}
 
 
 @router.post("/{email_id}/approve")

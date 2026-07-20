@@ -228,7 +228,7 @@ async def find_and_send_mail(payload: FindAndSendRequest):
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             r = await client.post(
-                "http://email-service:8002/api/v1/email/send",
+                "https://email-service:8002/api/v1/email/send",
                 json={"to": to_email, "subject": subject, "body": body, "smtp_config": payload.smtp_config},
             )
         email_sent = r.status_code < 400

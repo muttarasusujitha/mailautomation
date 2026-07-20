@@ -24,10 +24,10 @@ EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
 NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
 LOCAL_SERVICE_FALLBACKS = {
-    "http://email-service:8002": "http://127.0.0.1:8003",
+    "https://email-service:8002": "http://127.0.0.1:8003",
     "http://127.0.0.1:8002": "http://127.0.0.1:8003",
-    "http://document-service:8006": "http://127.0.0.1:8006",
-    "http://notification-service:8003": "http://127.0.0.1:8003",
+    "https://document-service:8006": "http://127.0.0.1:8006",
+    "https://notification-service:8003": "http://127.0.0.1:8003",
 }
 EXCLUDED_TRAINER_STATUSES = {"interested", "confirmed", "declined"}
 PIPELINE_VERSION = "trainer-match-microservice-v1"

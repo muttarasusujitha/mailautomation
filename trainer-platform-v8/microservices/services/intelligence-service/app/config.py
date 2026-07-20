@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     PROXYCURL_API_KEY: str = ""
     SERPER_API_KEY: str = ""
 
-    ALLOWED_ORIGINS: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = "https://localhost:3000"
 
     @property
     def allowed_origins_list(self) -> List[str]:

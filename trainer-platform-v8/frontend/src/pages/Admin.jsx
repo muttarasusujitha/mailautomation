@@ -151,7 +151,7 @@ export default function Admin() {
     tenantId: 'common',
     clientId: '',
     clientSecret: '',
-    redirectUri: 'http://localhost:8000/api/teams-direct/oauth-callback',
+    redirectUri: 'https://localhost:8000/api/teams-direct/oauth-callback',
     senderUser: '',
   })
   const [teamsDirectStatus, setTeamsDirectStatus] = useState({

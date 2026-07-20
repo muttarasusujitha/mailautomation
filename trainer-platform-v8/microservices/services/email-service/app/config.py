@@ -54,9 +54,9 @@ class Settings(BaseSettings):
     GOOGLE_CALENDAR_ID: str = "primary"
     GOOGLE_CALENDAR_TIMEZONE: str = "Asia/Kolkata"
     GMAIL_PUBSUB_TOPIC: str = ""
-    FRONTEND_URL: str = "http://localhost:5173"
-    CORE_API_URL: str = "http://core-api:8001"
-    TRAINER_SERVICE_URL: str = "http://trainer-service:8004"
+    FRONTEND_URL: str = "https://localhost:5173"
+    CORE_API_URL: str = "https://core-api:8001"
+    TRAINER_SERVICE_URL: str = "https://trainer-service:8004"
     INTERNAL_SERVICE_TOKEN: str = ""
 
     @field_validator("FROM_EMAIL", mode="before")
@@ -88,7 +88,7 @@ class Settings(BaseSettings):
 
     ANTHROPIC_API_KEY: str = ""
     ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
-    ALLOWED_ORIGINS: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = "https://localhost:3000"
 
     @property
     def allowed_origins_list(self) -> List[str]:

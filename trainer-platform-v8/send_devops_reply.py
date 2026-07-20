@@ -37,7 +37,7 @@ if email:
         print(f"\n📤 Sending auto-reply...")
         try:
             response = requests.post(
-                f"http://localhost:8000/api/inbox/{email_id}/approve",
+                f"https://localhost:8000/api/inbox/{email_id}/approve",
                 json={},
                 timeout=10
             )
@@ -56,7 +56,7 @@ if email:
         
         try:
             response = requests.post(
-                f"http://localhost:8000/api/inbox/{email_id}/approve",
+                f"https://localhost:8000/api/inbox/{email_id}/approve",
                 json={},
                 timeout=10
             )

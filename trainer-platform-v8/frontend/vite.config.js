@@ -16,10 +16,10 @@ export default defineConfig(({ mode }) => {
   const coreApiTarget =
     env.VITE_CORE_API_PROXY_TARGET ||
     env.VITE_API_PROXY_TARGET ||
-    'http://127.0.0.1:8001'
-  const intelligenceServiceTarget = env.VITE_INTELLIGENCE_SERVICE_PROXY_TARGET || 'http://127.0.0.1:8005'
-  const emailServiceTarget = env.VITE_EMAIL_SERVICE_PROXY_TARGET || 'http://127.0.0.1:8003'
-  const trainerServiceTarget = env.VITE_TRAINER_SERVICE_PROXY_TARGET || 'http://127.0.0.1:8004'
+    'https://127.0.0.1:8001'
+  const intelligenceServiceTarget = env.VITE_INTELLIGENCE_SERVICE_PROXY_TARGET || 'https://127.0.0.1:8005'
+  const emailServiceTarget = env.VITE_EMAIL_SERVICE_PROXY_TARGET || 'https://127.0.0.1:8003'
+  const trainerServiceTarget = env.VITE_TRAINER_SERVICE_PROXY_TARGET || 'https://127.0.0.1:8004'
   const rewriteApiToV1 = env.VITE_API_PROXY_REWRITE_TO_V1 !== 'false'
 
   return {

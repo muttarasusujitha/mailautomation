@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import api, { deleteRequirement, getRequirements, getShortlist, updateRequirement } from '../utils/api'
+import api, { deleteRequirement, getRequirement, getRequirements, getShortlist, updateRequirement } from '../utils/api'
 import toast from 'react-hot-toast'
 import {
   Users, Mail, Clock, MapPin, Phone,
@@ -4346,7 +4346,10 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Shortlist1() {
-  const targetRequirementId = new URLSearchParams(globalThis.location.search).get('requirement_id') || ''
+  const rawReqParam = new URLSearchParams(globalThis.location.search).get('requirement_id') || ''
+  // If the query param contains surrounding text (copied content), extract canonical REQ-XXXX token
+  const reqMatch = (rawReqParam || '').match(/(REQ-[A-Z0-9]+)/i)
+  const targetRequirementId = reqMatch ? reqMatch[1] : rawReqParam.trim()
   const [reqs, setReqs]               = useState([])
   const [selectedReq, setSelectedReq] = useState(null)
   const [trainers, setTrainers]       = useState([])
@@ -4356,23 +4359,45 @@ export default function Shortlist1() {
   const [clientContactOpen, setClientContactOpen] = useState(false)
   const [savingClientContact, setSavingClientContact] = useState(false)
   const [deletingReqId, setDeletingReqId] = useState('')
+  const [missingRequirement, setMissingRequirement] = useState(false)
   const [autoMode, setAutoMode] = useState(false)
   const [allowAutoReminders, setAllowAutoReminders] = useState(false)
 
   useEffect(() => {
-    setLoadingReqs(true)
-    getRequirements()
-      .then(r => {
+    const loadRequirements = async () => {
+      setLoadingReqs(true)
+      try {
+        const r = await getRequirements()
         const list = r.data.requirements || []
         setReqs(list)
+
         if (targetRequirementId) {
           const match = list.find(req => String(req.requirement_id) === String(targetRequirementId))
-          if (match) setSelectedReq(match)
+          if (match) {
+            setSelectedReq(match)
+            setMissingRequirement(false)
+          } else {
+            try {
+              const reqRes = await getRequirement(targetRequirementId)
+              const requirement = reqRes.data
+              setSelectedReq(requirement)
+              setReqs(prev => prev.some(item => item.requirement_id === requirement.requirement_id) ? prev : [requirement, ...prev])
+              setMissingRequirement(false)
+            } catch {
+              setMissingRequirement(true)
+            }
+          }
+        } else {
+          setMissingRequirement(false)
         }
-      })
-      .catch(() => {})
-      .finally(() => setLoadingReqs(false))
-  }, [])
+      } catch {
+      } finally {
+        setLoadingReqs(false)
+      }
+    }
+
+    loadRequirements()
+  }, [targetRequirementId])
 
   useEffect(() => {
     let cancelled = false
@@ -4676,6 +4701,11 @@ export default function Shortlist1() {
           <p className="text-sm font-semibold text-slate-700 mb-3">Select Requirement</p>
           {loadingReqs ? (
             <div className="flex items-center gap-2 text-sm text-slate-400"><Loader2 className="w-4 h-4 animate-spin" /> Loading...</div>
+          ) : missingRequirement ? (
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              <p className="font-semibold">Requirement not found</p>
+              <p className="mt-2 text-sm text-slate-600">The requested requirement ID was not found. Please check the URL or select a different request.</p>
+            </div>
           ) : reqs.length === 0 ? (
             <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-xl text-sm text-amber-700">
               <AlertCircle className="w-4 h-4" /> No requirements yet. Go to Find Trainers first.

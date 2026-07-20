@@ -10,7 +10,7 @@ settings = get_settings()
 client = MongoClient(settings.mongodb_uri)
 db = client[settings.mongodb_db]
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "https://localhost:8000"
 
 print("=== APPROVING PENDING EMAILS ===\n")
 
