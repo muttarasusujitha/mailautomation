@@ -12,6 +12,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 from app.database import get_db
+from app.clients.tavily import get_client
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -205,6 +206,29 @@ class FindAndSendRequest(BaseModel):
     subject: str = ""
     body: str = ""
     smtp_config: Optional[Dict[str, Any]] = None
+
+
+class LinkedInSearchRequest(BaseModel):
+    query: str
+    limit: int = 10
+    params: Optional[Dict[str, Any]] = None
+
+
+@router.post("/linkedin/search")
+async def linkedin_search(payload: LinkedInSearchRequest):
+    """Proxy endpoint to perform LinkedIn-style searches via Tavily.
+
+    Uses a thread executor to call the synchronous Tavily client without
+    blocking the event loop.
+    """
+    try:
+        tavily = get_client()
+        loop = asyncio.get_running_loop()
+        results = await loop.run_in_executor(None, lambda: tavily.search_linkedin(payload.query, limit=payload.limit, **(payload.params or {})))
+        return {"success": True, "results": results}
+    except Exception as exc:
+        logger.exception("Tavily /linkedin/search failed: %s", exc)
+        return {"success": False, "error": str(exc)}
 
 
 @router.post("/find-and-send-mail")
