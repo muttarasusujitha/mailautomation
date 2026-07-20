@@ -91,7 +91,7 @@ async def _bing_trainer_search(domain: str, location: str, client: httpx.AsyncCl
 
 
 class FreeSearchRequest(BaseModel):
-    domain: str
+    domain: Optional[str] = ""
     location: Optional[str] = ""
     max_results: int = 10
     save_leads: bool = False
@@ -103,6 +103,16 @@ async def free_search_trainers(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Search for trainers via public Google/Bing LinkedIn signals."""
+    if not payload.domain:
+        return {
+            "success": False,
+            "error": "domain is required for trainer search",
+            "domain": payload.domain,
+            "location": payload.location,
+            "found": 0,
+            "profiles": [],
+        }
+
     all_profiles: List[Dict[str, Any]] = []
     seen_slugs: set = set()
 
