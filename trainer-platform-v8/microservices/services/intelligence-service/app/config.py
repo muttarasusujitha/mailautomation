@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     # LinkedIn / search
     PROXYCURL_API_KEY: str = ""
     SERPER_API_KEY: str = ""
+    TAVILY_API_KEY: str = ""
+    TAVILY_API_URL: str = "https://api.tavily.dev"
 
     ALLOWED_ORIGINS: str = "https://localhost:3000"
 
