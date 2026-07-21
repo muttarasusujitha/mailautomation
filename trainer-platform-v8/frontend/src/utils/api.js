@@ -109,8 +109,8 @@ function slugifyDomain(value) {
   return String(value || '')
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
+    .replaceAll(/[^a-z0-9]+/g, '_')
+    .replaceAll(/^_+|_+$/g, '')
 }
 
 function parseTocImportText(text) {

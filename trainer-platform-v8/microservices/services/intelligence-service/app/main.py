@@ -9,6 +9,7 @@ from app.routes import (
     client_intelligence,
     contact_finder,
     free_search,
+    linkedin_leads,
     client_leads,
     trainer_profile_leads,
     ai,
@@ -44,6 +45,7 @@ app.include_router(categorisation.router,       prefix="/api/v1/intelligence",  
 app.include_router(client_intelligence.router,  prefix="/api/v1/intelligence",              tags=["client-intelligence"])
 app.include_router(contact_finder.router,       prefix="/api/v1/contact-finder",            tags=["contact-finder"])
 app.include_router(free_search.router,          prefix="/api/v1/intelligence/trainers",     tags=["free-search"])
+app.include_router(linkedin_leads.router,        prefix="/api/v1/linkedin-leads",            tags=["linkedin-leads"])
 app.include_router(client_leads.router,         prefix="/api/v1/client-leads",              tags=["client-leads"])
 app.include_router(trainer_profile_leads.router,prefix="/api/v1/trainer-profile-leads",     tags=["trainer-profile-leads"])
 app.include_router(ai.router,                   prefix="/api/v1/ai",                        tags=["ai"])

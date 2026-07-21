@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     SERPER_API_KEY: str = ""
     TAVILY_API_KEY: str = ""
     TAVILY_API_URL: str = "https://api.tavily.dev"
+    TAVILY_SEARCH_DEPTH: str = "basic"
 
     ALLOWED_ORIGINS: str = "https://localhost:3000"
 

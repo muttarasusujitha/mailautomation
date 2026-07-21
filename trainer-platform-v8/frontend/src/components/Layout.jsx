@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import {
   BarChart3, Bell, BookOpen, BriefcaseBusiness, CalendarCheck,
   CheckCircle2, ChevronRight, FileSearch, Globe2, Home,
-  LayoutDashboard, LogOut, Mail, Menu, MessageSquare,
+  LayoutDashboard, LogOut, Mail, Menu,
   ReceiptText, Search, Settings, Upload, UserCircle, Users, Zap, X,
 } from 'lucide-react'
 import BrandMark from './BrandMark'

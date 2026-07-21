@@ -41,7 +41,8 @@ class EnrichRequest(BaseModel):
 
 
 class SearchPublicRequest(BaseModel):
-    domain: str
+    domain: Optional[str] = ""
+    query: Optional[str] = ""
     location: Optional[str] = ""
     max_results: int = 10
 
@@ -120,12 +121,16 @@ async def delete_trainer_leads_by_domain(domain: str = Query(...), db: AsyncIOMo
 @router.post("/search-public")
 async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     """Search for trainers via public web and store as leads."""
+    search_text = (payload.query or payload.domain or "").strip()
+    if not search_text:
+        return {"success": False, "error": "query or domain is required", "found": 0, "new_stored": 0}
+
     profiles = []
     try:
         async with httpx.AsyncClient(timeout=25) as client:
             r = await client.post(
                 "https://intelligence-service:8005/api/v1/intelligence/trainers/search",
-                json={"domain": payload.domain, "location": payload.location or "", "max_results": payload.max_results, "save_leads": False},
+                json={"query": search_text, "domain": payload.domain or search_text, "location": payload.location or "", "max_results": payload.max_results, "save_leads": False},
             )
             if r.status_code < 400:
                 profiles = r.json().get("profiles", [])
@@ -136,16 +141,27 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
     new_count = 0
     for p in profiles:
         slug = p.get("slug", "")
-        if not slug:
+        source_url = p.get("source_url", "")
+        source = p.get("source", "linkedin")
+        if not slug and not source_url:
             continue
-        exists = await db["trainer_profile_leads"].find_one({"linkedin_slug": slug}, {"_id": 1})
+        exists = await db["trainer_profile_leads"].find_one(
+            {"$or": [{"source_url": source_url}, {"linkedin_slug": slug}]},
+            {"_id": 1},
+        )
         if exists:
             continue
         lead_id = f"TPL-{uuid.uuid4().hex[:10].upper()}"
         await db["trainer_profile_leads"].insert_one({
-            "lead_id": lead_id, "linkedin_url": p.get("source_url", ""),
-            "linkedin_slug": slug, "snippet": p.get("snippet", ""),
-            "domain": payload.domain, "source": "public_search",
+            "lead_id": lead_id,
+            "name": p.get("title", ""),
+            "linkedin_url": source_url if source == "linkedin" else "",
+            "linkedin_slug": slug if source == "linkedin" else "",
+            "source_url": source_url,
+            "external_slug": slug,
+            "snippet": p.get("snippet", ""),
+            "domain": payload.domain or search_text,
+            "source": source,
             "status": "found", "verification_tier": "unverified",
             "created_at": now, "updated_at": now,
         })

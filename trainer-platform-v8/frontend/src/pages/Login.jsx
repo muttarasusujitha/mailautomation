@@ -131,7 +131,7 @@ export default function Login({ onLogin }) {
     try {
       const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
       const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-        `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`
+        `%${('00' + c.codePointAt(0).toString(16)).slice(-2)}`
       ).join(''))
       return JSON.parse(jsonPayload)
     } catch {
@@ -201,7 +201,7 @@ export default function Login({ onLogin }) {
     document.head.appendChild(script)
 
     return () => {
-      document.head.removeChild(script)
+      script.remove()
     }
   }, [googleClientId])
 

@@ -262,7 +262,9 @@ class FindAndSendRequest(BaseModel):
 
 
 class LinkedInSearchRequest(BaseModel):
-    query: str
+    query: str = ""
+    domain: str = ""
+    location: str = ""
     limit: int = 10
     params: Optional[Dict[str, Any]] = None
 
@@ -274,10 +276,20 @@ async def linkedin_search(payload: LinkedInSearchRequest):
     Uses a thread executor to call the synchronous Tavily client without
     blocking the event loop.
     """
+    query = (payload.query or "").strip()
+    if not query:
+        query = " ".join(part for part in [
+            (payload.domain or "").strip(),
+            "trainer instructor corporate training" if payload.domain else "",
+            (payload.location or "").strip(),
+        ] if part)
+    if not query:
+        return {"success": False, "error": "query or domain is required", "results": []}
+
     try:
         tavily = get_client()
         loop = asyncio.get_running_loop()
-        results = await loop.run_in_executor(None, lambda: tavily.search_linkedin(payload.query, limit=payload.limit, **(payload.params or {})))
+        results = await loop.run_in_executor(None, lambda: tavily.search_linkedin(query, limit=payload.limit, **(payload.params or {})))
         return {"success": True, "results": results}
     except Exception as exc:
         logger.exception("Tavily /linkedin/search failed: %s", exc)

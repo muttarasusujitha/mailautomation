@@ -268,7 +268,7 @@ function uniqueByLower(values) {
 }
 
 function hasSkillAlias(text, alias) {
-  const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\\$&`)
   return new RegExp(`(^|[^a-z0-9+#.])${escaped}($|[^a-z0-9+#.])`, 'i').test(text)
 }
 
@@ -311,7 +311,7 @@ function detectedSkillsFromText(text) {
   SKILL_PATTERNS.forEach(([skill, aliases]) => {
     if (aliases.some(alias => hasSkillAlias(text, alias))) matches.push(skill)
   })
-  if (matches.some(skill => skill === 'MERN Stack')) {
+  if (matches.includes('MERN Stack')) {
     matches.push('MongoDB', 'Express.js', 'React', 'Node.js', 'JavaScript')
   }
   return uniqueByLower(matches)
@@ -416,7 +416,7 @@ function experienceYears(t) {
   const explicit = numericValue(t.experience_years)
   if (explicit) return explicit
   const raw = displayText(t.experience_raw || t.experience || t.total_experience)
-  const match = raw.match(/(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)/i)
+  const match = /(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)/i.exec(raw)
   return match ? Number(match[1]) : 0
 }
 
@@ -1165,10 +1165,10 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
         </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-          {(displayText(t.experience_raw) || years) && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {displayText(t.experience_raw) || `${years} years`}</span>}
+          {Boolean(displayText(t.experience_raw) || years) && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {displayText(t.experience_raw) || `${years} years`}</span>}
           {displayText(t.location) && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {displayText(t.location)}</span>}
           {displayText(t.email) && <span className="flex items-center gap-1 min-w-0"><Mail className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{displayText(t.email)}</span></span>}
-          {(t.teams_email || t.microsoft_teams_email || t.teams_upn) && (
+          {Boolean(t.teams_email || t.microsoft_teams_email || t.teams_upn) && (
             <span className="flex items-center gap-1 min-w-0 text-indigo-600">
               <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
               <span className="truncate">{displayText(t.teams_email || t.microsoft_teams_email || t.teams_upn)}</span>

@@ -67,23 +67,23 @@ function parseRequirementDate(value) {
   const text = cleanDateValue(value)
   if (!text) return null
 
-  const iso = text.match(/\b(\d{4})-(\d{2})-(\d{2})\b/)
+  const iso = /\b(\d{4})-(\d{2})-(\d{2})\b/.exec(text)
   if (iso) return makeDate(iso[1], Number(iso[2]) - 1, iso[3])
 
-  const numericDayFirst = text.match(/\b(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})\b/)
+  const numericDayFirst = /\b(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})\b/.exec(text)
   if (numericDayFirst) {
     const year = parseYear(numericDayFirst[3])
     if (year) return makeDate(year, Number(numericDayFirst[2]) - 1, numericDayFirst[1])
   }
 
-  const dayMonth = text.match(/\b(\d{1,2})\s*([A-Za-z]{3,9})\.?,?\s*(\d{2,4})?\b/)
+  const dayMonth = /\b(\d{1,2})\s*([A-Za-z]{3,9})\.? ,?\s*(\d{2,4})?\b/.exec(text)
   if (dayMonth) {
     const month = MONTHS[dayMonth[2].toLowerCase()]
     const year = parseYear(dayMonth[3] || new Date().getFullYear())
     if (month !== undefined && year) return makeDate(year, month, dayMonth[1])
   }
 
-  const monthDay = text.match(/\b([A-Za-z]{3,9})\.?\s*(\d{1,2}),?\s*(\d{2,4})?\b/)
+  const monthDay = /\b([A-Za-z]{3,9})\.?\s*(\d{1,2}),?\s*(\d{2,4})?\b/.exec(text)
   if (monthDay) {
     const month = MONTHS[monthDay[1].toLowerCase()]
     const year = parseYear(monthDay[3] || new Date().getFullYear())
@@ -100,7 +100,7 @@ function daysInclusive(start, end) {
 }
 
 function swappedIndianDateFromIso(value) {
-  const match = cleanDateValue(value).match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(cleanDateValue(value))
   if (!match) return null
   const year = Number(match[1])
   const month = Number(match[2])

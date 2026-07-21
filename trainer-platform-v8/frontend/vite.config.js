@@ -29,6 +29,7 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
       proxy: {
         '/api/client-leads': apiProxyConfig(intelligenceServiceTarget, rewriteApiToV1),
+        '/api/linkedin-leads': apiProxyConfig(intelligenceServiceTarget, rewriteApiToV1),
         '/api/trainer-profile-leads': apiProxyConfig(intelligenceServiceTarget, rewriteApiToV1),
         '/api/gmail': apiProxyConfig(emailServiceTarget, rewriteApiToV1),
         '/api/email': apiProxyConfig(emailServiceTarget, rewriteApiToV1),

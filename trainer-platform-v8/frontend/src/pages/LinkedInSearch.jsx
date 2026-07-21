@@ -102,7 +102,7 @@ export default function LinkedInSearch() {
     setSearching(true)
     try {
       const domains = searchDomains.split(',').map(item => item.trim()).filter(Boolean)
-      const endpoint = isTrainer ? '/trainer-profile-leads/search-public' : '/client-leads/search-public'
+      const endpoint = '/linkedin-leads/search'
 
       // ── CREDIT-SAFE payload ─────────────────────────────────────────────
       // max_queries:  8  = uses ~8-24 Tavily credits per run (was 180-480!)
@@ -110,8 +110,10 @@ export default function LinkedInSearch() {
       // max_domains:  4  = only top 4 IT domains at a time
       // deep_search: false = use high-signal phrases only (saves 6x credits)
       const payload = {
-        source:      isTrainer ? 'linkedin' : undefined,
+        source: 'linkedin',
+        mode: isTrainer ? 'trainer' : 'client',
         max_results: 3,
+        save: true,
         max_queries: 8,
         max_domains: 4,
         concurrency: 3,
@@ -121,9 +123,8 @@ export default function LinkedInSearch() {
         payload.domains = domains
       }
       if (!isTrainer && !domains.length) {
-        payload.auto_discover = true
-        payload.max_queries   = 6    // was 180 — now credit safe
-        payload.max_results   = 3
+        payload.query = 'trainer required training requirement'
+        payload.max_results = 3
       }
       const res = await api.post(endpoint, payload)
       const savedCount = res.data.saved_count || 0
@@ -136,21 +137,6 @@ export default function LinkedInSearch() {
         toast.success(`No new profiles saved; ${skippedCount} result${skippedCount === 1 ? '' : 's'} checked/skipped`)
       } else {
         toast.success('No new public results saved')
-      }
-      if (isTrainer && (res.data.saved_count || 0) > 0) {
-        const enrichResults = await Promise.allSettled(
-          domains.map(domain => api.post('/trainer-profile-leads/enrich-public-emails', {
-            domain,
-            source: 'linkedin',
-            limit: 200,
-            deep_link_scan: true,
-            fetch_source_page: true,
-          }))
-        )
-        const enrichedCount = enrichResults.reduce((total, item) => (
-          item.status === 'fulfilled' ? total + (item.value.data.enriched_count || 0) : total
-        ), 0)
-        if (enrichedCount) toast.success(`Fetched ${enrichedCount} verified public email${enrichedCount === 1 ? '' : 's'} from resumes/links`)
       }
       setFilter('all')
       setSelectedDomain('all')

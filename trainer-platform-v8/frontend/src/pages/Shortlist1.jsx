@@ -92,8 +92,8 @@ BODY:
     metadata: { trainerName, domain, stage },
   })
   const text = response.data?.reply || ''
-  const subjectMatch = text.match(/SUBJECT:\s*(.+)/i)
-  const bodyMatch = text.match(/BODY:\s*([\s\S]+)/i)
+  const subjectMatch = /SUBJECT:\s*(.+)/i.exec(text)
+  const bodyMatch = /BODY:\s*([\s\S]+)/i.exec(text)
   return {
     subject: subjectMatch?.[1]?.trim() || fallback?.subject || '',
     body: bodyMatch?.[1]?.trim() || text.trim() || fallback?.body || '',
@@ -683,7 +683,7 @@ function hasRequestedTrainerDetails(text = '') {
 function parseMoneyAmount(value) {
   if (value === null || value === undefined || value === '') return 0
   if (typeof value === 'number') return Number.isFinite(value) ? value : 0
-  const match = String(value).replace(/,/g, '').match(/\d+(?:\.\d+)?/)
+  const match = /\d+(?:\.\d+)?/.exec(String(value).replace(/,/g, ''))
   return match ? Number(match[0]) : 0
 }
 
@@ -697,7 +697,7 @@ function extractCommercialQuote(text = '') {
     /(\d+(?:\.\d+)?)\D{0,15}(?:per|\/)\s*(hour|hr|day|session)/i,
   ]
   for (const rx of patterns) {
-    const match = compact.match(rx)
+    const match = rx.exec(compact)
     if (!match) continue
     const amount = Number(match[1])
     const unitRaw = String(match[2] || '').toLowerCase()

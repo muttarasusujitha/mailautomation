@@ -88,10 +88,10 @@ function InvoiceRow({ item, active, onClick, onAutoGenerate, busy }) {
   return (
     <div className={clsx('w-full border-b border-slate-100 px-4 py-3 text-left transition hover:bg-slate-50', active && 'bg-blue-50')}>
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0" onClick={onClick} role="button">
+        <button type="button" className="min-w-0 text-left" onClick={onClick}>
           <p className="truncate text-sm font-semibold text-slate-950">{item.client?.company || item.client?.name || item.client?.email || 'Client'}</p>
           <p className="mt-1 truncate text-xs text-slate-500">{item.domain || 'Training'} - {item.requirement_id}</p>
-        </div>
+        </button>
         <div className="flex items-center gap-2">
           <span className={clsx('shrink-0 rounded-full px-2 py-1 text-[11px] font-bold ring-1', statusClass(status))}>{status}</span>
           {isPending && (
