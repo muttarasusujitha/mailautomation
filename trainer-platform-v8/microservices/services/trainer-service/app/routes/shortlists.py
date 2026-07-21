@@ -23,9 +23,11 @@ settings = get_settings()
 EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
 NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
+CORE_API_SVC = settings.CORE_API_URL.rstrip("/")
 LOCAL_SERVICE_FALLBACKS = {
     "https://email-service:8002": "http://127.0.0.1:8003",
     "http://127.0.0.1:8002": "http://127.0.0.1:8003",
+    "http://core-api:8001": "http://127.0.0.1:8001",
     "https://document-service:8006": "http://127.0.0.1:8006",
     "https://notification-service:8003": "http://127.0.0.1:8003",
 }
@@ -185,6 +187,42 @@ async def _post_with_local_fallback(
                 fallback_url = local_base + url[len(service_base):]
                 return await client.post(fallback_url, **kwargs)
         raise
+
+
+async def _get_with_local_fallback(
+    client: httpx.AsyncClient,
+    url: str,
+    **kwargs: Any,
+) -> httpx.Response:
+    try:
+        return await client.get(url, **kwargs)
+    except httpx.RequestError:
+        for service_base, local_base in LOCAL_SERVICE_FALLBACKS.items():
+            if url.startswith(service_base):
+                fallback_url = local_base + url[len(service_base):]
+                return await client.get(fallback_url, **kwargs)
+        raise
+
+
+async def _load_requirement_from_core(requirement_id: str, db: AsyncIOMotorDatabase) -> Optional[Dict[str, Any]]:
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            response = await _get_with_local_fallback(client, f"{CORE_API_SVC}/api/v1/requirements/{requirement_id}")
+        if response.status_code >= 400:
+            return None
+        requirement = response.json()
+        if not isinstance(requirement, dict) or not requirement.get("requirement_id"):
+            return None
+        requirement.pop("_id", None)
+        await db["requirements"].update_one(
+            {"requirement_id": requirement["requirement_id"]},
+            {"$set": {**requirement, "updated_at": datetime.utcnow()}},
+            upsert=True,
+        )
+        return requirement
+    except Exception:
+        logger.exception("Failed to load requirement %s from core-api", requirement_id)
+        return None
 
 
 def _norm(value: Any) -> str:
@@ -609,6 +647,8 @@ async def get_thread_states(db: AsyncIOMotorDatabase = Depends(get_db)):
 async def get_shortlist(requirement_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     doc = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0})
     requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    if not requirement:
+        requirement = await _load_requirement_from_core(requirement_id, db)
     if requirement:
         doc = await _sync_shortlist_with_trainers(db, requirement, doc)
     elif not doc:
@@ -624,6 +664,13 @@ async def send_shortlist_mail(
     """Send the configured mail_type email to one or all trainers on a shortlist."""
     shortlist = await db["shortlists"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
     requirement = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
+    if not requirement:
+        requirement = await _load_requirement_from_core(payload.requirement_id, db) or {}
+    if requirement:
+        shortlist = await _sync_shortlist_with_trainers(db, requirement, shortlist)
+    elif not shortlist:
+        raise HTTPException(404, "Shortlist not found")
+
     top_trainers: List[Dict[str, Any]] = shortlist.get("top_trainers") or []
 
     if payload.to_email:

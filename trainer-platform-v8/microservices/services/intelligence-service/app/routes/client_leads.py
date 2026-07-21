@@ -59,26 +59,40 @@ class SendLeadEmailRequest(BaseModel):
 
 
 class SearchPublicRequest(BaseModel):
-    query: str
+    query: Optional[str] = ""
+    domains: Optional[List[str]] = None
     domain: Optional[str] = ""
     location: Optional[str] = ""
     max_results: int = 10
+    max_queries: Optional[int] = None
 
 
 @router.get("")
 async def list_client_leads(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    limit: Optional[int] = Query(None, ge=1, le=500),
     status: Optional[str] = None,
     domain: Optional[str] = None,
+    q: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     query: Dict[str, Any] = {}
-    if status:
+    if status and status.lower() != "all":
         query["status"] = status
     if domain:
         query["domain"] = {"$regex": domain, "$options": "i"}
+    if q:
+        query["$or"] = [
+            {"company_name": {"$regex": q, "$options": "i"}},
+            {"contact_name": {"$regex": q, "$options": "i"}},
+            {"domain": {"$regex": q, "$options": "i"}},
+            {"notes": {"$regex": q, "$options": "i"}},
+            {"source_url": {"$regex": q, "$options": "i"}},
+        ]
     total = await db["client_leads"].count_documents(query)
+    if limit is not None:
+        page_size = limit
     skip = (page - 1) * page_size
     cursor = db["client_leads"].find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(page_size)
     items = [d async for d in cursor]
@@ -146,20 +160,75 @@ async def analyze_lead(payload: AnalyzeLeadRequest, db: AsyncIOMotorDatabase = D
 @router.post("/search-public")
 async def search_public_leads(payload: SearchPublicRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     """Search for client companies using public web signals."""
-    # Delegates to intelligence free-search pattern
+    search_terms: List[str] = []
+    if payload.query:
+        search_terms.append(payload.query.strip())
+    if payload.domain:
+        search_terms.append(payload.domain.strip())
+    for domain in payload.domains or []:
+        term = str(domain or "").strip()
+        if term:
+            search_terms.append(term)
+    search_terms = list(dict.fromkeys(search_terms))[: payload.max_queries or len(search_terms)]
+    if not search_terms:
+        return {"success": False, "error": "query or domain is required", "results": [], "saved_count": 0}
+
     results = []
+    saved_count = 0
+    skipped_count = 0
+    now = datetime.utcnow()
     try:
         import httpx as _httpx
         async with _httpx.AsyncClient(timeout=20) as client:
-            r = await client.post(
-                "https://intelligence-service:8005/api/v1/intelligence/trainers/search",
-                json={"domain": payload.query, "location": payload.location or "", "max_results": payload.max_results},
-            )
-            if r.status_code < 400:
-                results = r.json().get("profiles", [])
+            for term in search_terms:
+                r = await client.post(
+                    "https://intelligence-service:8005/api/v1/intelligence/trainers/search",
+                    json={
+                        "query": f"{term} trainer requirement corporate training client hiring",
+                        "domain": term,
+                        "location": payload.location or "",
+                        "max_results": max(payload.max_results, 50),
+                    },
+                )
+                if r.status_code >= 400:
+                    continue
+                for item in r.json().get("profiles", []):
+                    source_url = item.get("source_url", "")
+                    if not source_url:
+                        skipped_count += 1
+                        continue
+                    results.append(item)
+                    exists = await db["client_leads"].find_one({"source_url": source_url}, {"_id": 1})
+                    if exists:
+                        skipped_count += 1
+                        continue
+                    lead_id = f"CL-{uuid.uuid4().hex[:10].upper()}"
+                    await db["client_leads"].insert_one({
+                        "lead_id": lead_id,
+                        "company_name": item.get("title") or "Public training lead",
+                        "contact_name": "",
+                        "email": "",
+                        "phone": "",
+                        "domain": term,
+                        "source": item.get("source", "public_search"),
+                        "source_url": source_url,
+                        "linkedin_url": source_url if item.get("source") == "linkedin" else "",
+                        "notes": item.get("snippet", ""),
+                        "status": "new",
+                        "created_at": now,
+                        "updated_at": now,
+                    })
+                    saved_count += 1
     except Exception as exc:
         logger.warning("Public search failed: %s", exc)
-    return {"success": True, "query": payload.query, "results": results}
+    return {
+        "success": True,
+        "query": payload.query or ", ".join(search_terms),
+        "results": results,
+        "saved_count": saved_count,
+        "new_stored": saved_count,
+        "skipped_count": skipped_count,
+    }
 
 
 @router.post("/auto-discover-now")

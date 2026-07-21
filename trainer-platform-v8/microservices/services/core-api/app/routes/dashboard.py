@@ -58,8 +58,18 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     new_req_week = await db["requirements"].count_documents({"created_at": {"$gte": week_ago}})
 
     # Trainers
-    total_trainers = await db["trainers"].count_documents({})
-    new_trainers_week = await db["trainers"].count_documents({"created_at": {"$gte": week_ago}})
+    # Resume uploads create rows in both `trainers` and `resume_uploads` in the
+    # normal path, but older/imported data can exist only as upload records or
+    # discovered trainer leads. Keep the headline inventory from dropping to 0
+    # when profile data exists outside the confirmed trainers collection.
+    confirmed_trainers = await db["trainers"].count_documents({})
+    uploaded_resume_records = await db["resume_uploads"].count_documents({})
+    trainer_leads = await db["trainer_profile_leads"].count_documents({})
+    total_trainers = max(confirmed_trainers, uploaded_resume_records, trainer_leads)
+    new_confirmed_trainers_week = await db["trainers"].count_documents({"created_at": {"$gte": week_ago}})
+    new_uploaded_resumes_week = await db["resume_uploads"].count_documents({"created_at": {"$gte": week_ago}})
+    new_trainer_leads_week = await db["trainer_profile_leads"].count_documents({"created_at": {"$gte": week_ago}})
+    new_trainers_week = max(new_confirmed_trainers_week, new_uploaded_resumes_week, new_trainer_leads_week)
 
     # Emails
     # Some legacy send logs have no direction field, while inbound logs are
@@ -133,6 +143,9 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
         },
         "trainers": {
             "total": total_trainers,
+            "confirmed": confirmed_trainers,
+            "uploaded_resumes": uploaded_resume_records,
+            "leads": trainer_leads,
             "new_this_week": new_trainers_week,
         },
         "emails": {

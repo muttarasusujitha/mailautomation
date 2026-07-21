@@ -229,7 +229,7 @@ export default function Dashboard() {
   const totalEmails    = Number(stats?.total_emails_sent ?? stats?.emails?.total_sent ?? 0)
   const failedEmails   = Number(stats?.total_emails_failed ?? stats?.emails?.failed ?? 0)
   const totalReplies   = Number(stats?.total_replies ?? stats?.emails?.total_replies ?? 0)
-  const totalTrainers  = Number(stats?.total_trainers ?? stats?.trainers?.total ?? 0)
+  const totalTrainers  = Number(stats?.trainers?.total ?? stats?.total_trainers ?? 0)
   const pendingReview  = Number(stats?.pending_review ?? stats?.trainers?.pending_review ?? 0)
   const interested     = Number(stats?.interested_count ?? stats?.interested ?? 0)
   const whatsapp       = stats?.whatsapp || {}

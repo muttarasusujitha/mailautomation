@@ -42,9 +42,13 @@ class EnrichRequest(BaseModel):
 
 class SearchPublicRequest(BaseModel):
     domain: Optional[str] = ""
+    domains: Optional[List[str]] = None
     query: Optional[str] = ""
+    queries: Optional[List[Dict[str, Any]]] = None
+    source: Optional[str] = "linkedin"
     location: Optional[str] = ""
     max_results: int = 10
+    max_queries: Optional[int] = None
 
 
 class SendOutreachRequest(BaseModel):
@@ -63,16 +67,28 @@ class VerifyInternalRequest(BaseModel):
 async def list_trainer_leads(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    limit: Optional[int] = Query(None, ge=1, le=500),
     status: Optional[str] = None,
     domain: Optional[str] = None,
+    q: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     query: Dict[str, Any] = {}
-    if status:
+    if status and status.lower() != "all":
         query["status"] = status
     if domain:
         query["domain"] = {"$regex": domain, "$options": "i"}
+    if q:
+        query["$or"] = [
+            {"name": {"$regex": q, "$options": "i"}},
+            {"trainer_name": {"$regex": q, "$options": "i"}},
+            {"headline": {"$regex": q, "$options": "i"}},
+            {"domain": {"$regex": q, "$options": "i"}},
+            {"snippet": {"$regex": q, "$options": "i"}},
+        ]
     total = await db["trainer_profile_leads"].count_documents(query)
+    if limit is not None:
+        page_size = limit
     skip = (page - 1) * page_size
     cursor = db["trainer_profile_leads"].find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(page_size)
     items = [d async for d in cursor]
@@ -121,35 +137,93 @@ async def delete_trainer_leads_by_domain(domain: str = Query(...), db: AsyncIOMo
 @router.post("/search-public")
 async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     """Search for trainers via public web and store as leads."""
-    search_text = (payload.query or payload.domain or "").strip()
-    if not search_text:
-        return {"success": False, "error": "query or domain is required", "found": 0, "new_stored": 0}
+    search_items: List[Dict[str, str]] = []
+    for item in payload.queries or []:
+        query_text = str(item.get("query") or item.get("text") or item.get("title") or "").strip()
+        domain_text = str(item.get("domain") or payload.domain or "").strip()
+        if query_text or domain_text:
+            search_items.append({"query": query_text or domain_text, "domain": domain_text or query_text})
+
+    if not search_items:
+        domains = payload.domains or ([payload.domain] if payload.domain else [])
+        for domain in domains:
+            domain_text = str(domain or "").strip()
+            if domain_text:
+                search_items.append({"query": domain_text, "domain": domain_text})
+
+    if payload.query:
+        search_items.insert(0, {"query": payload.query.strip(), "domain": payload.domain or payload.query.strip()})
+
+    max_queries = payload.max_queries or len(search_items)
+    search_items = search_items[:max_queries]
+    if not search_items:
+        return {
+            "success": False,
+            "error": "query or domain is required",
+            "found": 0,
+            "new_stored": 0,
+            "saved_count": 0,
+            "skipped_count": 0,
+            "skipped": [],
+        }
 
     profiles = []
+    search_error = ""
     try:
-        async with httpx.AsyncClient(timeout=25) as client:
-            r = await client.post(
-                "https://intelligence-service:8005/api/v1/intelligence/trainers/search",
-                json={"query": search_text, "domain": payload.domain or search_text, "location": payload.location or "", "max_results": payload.max_results, "save_leads": False},
-            )
-            if r.status_code < 400:
-                profiles = r.json().get("profiles", [])
+        async with httpx.AsyncClient(timeout=30) as client:
+            for item in search_items:
+                r = await client.post(
+                    "https://intelligence-service:8005/api/v1/intelligence/trainers/search",
+                    json={
+                        "query": item["query"],
+                        "domain": item["domain"],
+                        "location": payload.location or "",
+                        "max_results": max(payload.max_results, 50),
+                        "save_leads": False,
+                    },
+                )
+                if r.status_code < 400:
+                    for profile in r.json().get("profiles", []):
+                        profile["_searched_domain"] = item["domain"]
+                        profiles.append(profile)
+                else:
+                    search_error = r.text[:300]
     except Exception as exc:
+        search_error = str(exc)
         logger.warning("Public search failed: %s", exc)
 
     now = datetime.utcnow()
     new_count = 0
+    skipped: List[Dict[str, Any]] = []
+    seen_urls: set = set()
     for p in profiles:
         slug = p.get("slug", "")
         source_url = p.get("source_url", "")
         source = p.get("source", "linkedin")
         if not slug and not source_url:
+            skipped.append({"reason": "missing_identifier", "title": p.get("title", ""), "source": source})
             continue
+        if source_url in seen_urls:
+            skipped.append({"reason": "duplicate_in_search", "source_url": source_url, "source": source})
+            continue
+        seen_urls.add(source_url)
+
+        dedupe_terms: List[Dict[str, str]] = []
+        if source_url:
+            dedupe_terms.append({"source_url": source_url})
+            if source == "linkedin":
+                dedupe_terms.append({"linkedin_url": source_url})
+        if slug:
+            dedupe_terms.append({"external_slug": slug})
+            if source == "linkedin":
+                dedupe_terms.append({"linkedin_slug": slug})
+
         exists = await db["trainer_profile_leads"].find_one(
-            {"$or": [{"source_url": source_url}, {"linkedin_slug": slug}]},
+            {"$or": dedupe_terms},
             {"_id": 1},
         )
         if exists:
+            skipped.append({"reason": "already_saved", "source_url": source_url, "slug": slug, "source": source})
             continue
         lead_id = f"TPL-{uuid.uuid4().hex[:10].upper()}"
         await db["trainer_profile_leads"].insert_one({
@@ -160,13 +234,21 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
             "source_url": source_url,
             "external_slug": slug,
             "snippet": p.get("snippet", ""),
-            "domain": payload.domain or search_text,
+            "domain": p.get("_searched_domain") or payload.domain or p.get("domain", ""),
             "source": source,
             "status": "found", "verification_tier": "unverified",
             "created_at": now, "updated_at": now,
         })
         new_count += 1
-    return {"success": True, "found": len(profiles), "new_stored": new_count}
+    return {
+        "success": True,
+        "found": len(profiles),
+        "new_stored": new_count,
+        "saved_count": new_count,
+        "skipped_count": len(skipped),
+        "skipped": skipped[:20],
+        "search_error": search_error,
+    }
 
 
 @router.post("/enrich-from-mails")

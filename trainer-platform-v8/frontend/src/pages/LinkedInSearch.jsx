@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import {
@@ -60,8 +60,42 @@ function leadSearchText(lead) {
   ].join(' ').toLowerCase()
 }
 
+function trainerProfileText(lead) {
+  return [
+    lead?.trainer_name,
+    lead?.headline,
+    lead?.profile_text,
+    lead?.snippet,
+  ].join(' ').toLowerCase()
+}
+
+function domainTerms(domain) {
+  const generic = new Set([
+    'trainer',
+    'training',
+    'corporate',
+    'freelance',
+    'technical',
+    'online',
+    'instructor',
+    'consultant',
+    'developer',
+    'india',
+    'indian',
+  ])
+  const terms = String(domain || '').toLowerCase().match(/[a-z0-9+#.]+/g) || []
+  return terms.filter(term => term.length > 1 && !generic.has(term))
+}
+
 function isTrainerProviderProfile(lead) {
-  return Boolean(lead)
+  const text = trainerProfileText(lead)
+  const terms = domainTerms(lead?.domain)
+  const hasSkillMatch = !terms.length || terms.some(term => text.includes(term))
+  return Boolean(
+    lead?.source_url?.includes('linkedin.com/in/')
+    && /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
+    && hasSkillMatch,
+  )
 }
 
 export default function LinkedInSearch() {
@@ -75,6 +109,7 @@ export default function LinkedInSearch() {
   const [searching, setSearching] = useState(false)
   const [deletingDomain, setDeletingDomain] = useState('')
   const [verifyingLead, setVerifyingLead] = useState('')
+  const autoClientSearchStarted = useRef(false)
 
   const isTrainer = mode === 'trainer'
 
@@ -82,7 +117,9 @@ export default function LinkedInSearch() {
     setLoading(true)
     try {
       const endpoint = isTrainer ? '/trainer-profile-leads' : '/client-leads'
-      const res = await api.get(endpoint, { params: { status: filter, q, limit: 150 } })
+      const params = { q, limit: 150 }
+      if (filter !== 'all') params.status = filter
+      const res = await api.get(endpoint, { params })
       const rows = res.data.leads || []
       setLeads(isTrainer ? rows.filter(isTrainerProviderProfile) : rows)
     } catch (e) {
@@ -106,15 +143,15 @@ export default function LinkedInSearch() {
 
       // ── CREDIT-SAFE payload ─────────────────────────────────────────────
       // max_queries:  8  = uses ~8-24 Tavily credits per run (was 180-480!)
-      // max_results:  3  = 3 results per query (was 5-10)
+      // max_results: trainer search needs breadth; client-post search stays small
       // max_domains:  4  = only top 4 IT domains at a time
       // deep_search: false = use high-signal phrases only (saves 6x credits)
       const payload = {
         source: 'linkedin',
         mode: isTrainer ? 'trainer' : 'client',
-        max_results: 3,
+        max_results: isTrainer ? 50 : 10,
         save: true,
-        max_queries: 8,
+        max_queries: isTrainer ? 8 : 3,
         max_domains: 4,
         concurrency: 3,
         deep_search: false,
@@ -123,8 +160,9 @@ export default function LinkedInSearch() {
         payload.domains = domains
       }
       if (!isTrainer && !domains.length) {
-        payload.query = 'trainer required training requirement'
-        payload.max_results = 3
+        payload.domains = ['Python trainer', 'Full stack trainer', 'Java trainer', 'DevOps trainer', 'AWS trainer']
+        payload.max_results = 10
+        payload.max_queries = 2
       }
       const res = await api.post(endpoint, payload)
       const savedCount = res.data.saved_count || 0
@@ -134,7 +172,13 @@ export default function LinkedInSearch() {
       } else if (res.data.search_error) {
         toast.error(`Public search failed: ${res.data.search_error}`)
       } else if (isTrainer && skippedCount) {
-        toast.success(`No new profiles saved; ${skippedCount} result${skippedCount === 1 ? '' : 's'} checked/skipped`)
+        const firstReason = res.data.skipped?.[0]?.reason
+        const reasonText = firstReason === 'already_saved'
+          ? 'already saved'
+          : firstReason === 'duplicate_in_search'
+            ? 'duplicate results'
+            : 'already saved or duplicate'
+        toast.success(`No new profiles saved; ${skippedCount} result${skippedCount === 1 ? '' : 's'} ${reasonText}`)
       } else {
         toast.success('No new public results saved')
       }
@@ -142,7 +186,7 @@ export default function LinkedInSearch() {
       setSelectedDomain('all')
       setQ('')
       const listEndpoint = isTrainer ? '/trainer-profile-leads' : '/client-leads'
-      const listRes = await api.get(listEndpoint, { params: { status: 'all', q: '', limit: 150 } })
+      const listRes = await api.get(listEndpoint, { params: { q: '', limit: 150 } })
       setLeads(listRes.data.leads || [])
     } catch (e) {
       toast.error(e.message)
@@ -150,6 +194,12 @@ export default function LinkedInSearch() {
       setSearching(false)
     }
   }
+
+  useEffect(() => {
+    if (isTrainer || loading || searching || leads.length >= 10 || autoClientSearchStarted.current) return
+    autoClientSearchStarted.current = true
+    runSearch()
+  }, [isTrainer, loading, searching, leads.length])
 
   const patchLead = async (lead, payload) => {
     try {

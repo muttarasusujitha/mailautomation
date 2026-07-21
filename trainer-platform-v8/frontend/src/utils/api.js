@@ -39,7 +39,10 @@ api.interceptors.response.use(
   err => {
     const data = err.response?.data
     const message = formatApiError(data?.detail || data?.message || data?.error || data) || err.message || 'Error'
-    return Promise.reject(new Error(message))
+    const apiError = new Error(message)
+    apiError.response = err.response
+    apiError.status = err.response?.status
+    return Promise.reject(apiError)
   }
 )
 

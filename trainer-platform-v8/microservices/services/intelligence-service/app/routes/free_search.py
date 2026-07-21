@@ -64,8 +64,39 @@ def _normalize_tavily_profiles(results: Any) -> List[Dict[str, Any]]:
     return profiles
 
 
-async def _tavily_trainer_search(search_text: str, location: str, max_results: int) -> List[Dict[str, Any]]:
-    query = f'{search_text} trainer instructor corporate training'
+def _matches_requested_domain(profile: Dict[str, Any], search_text: str) -> bool:
+    """Keep broad web search results anchored to the requested technology."""
+    wanted = re.sub(r"[^a-z0-9+#. ]+", " ", (search_text or "").lower()).strip()
+    if not wanted:
+        return True
+    haystack = " ".join([
+        str(profile.get("title") or ""),
+        str(profile.get("snippet") or ""),
+        str(profile.get("slug") or ""),
+        str(profile.get("source_url") or ""),
+    ]).lower()
+    tokens = [token for token in wanted.split() if len(token) > 1 and token not in {"trainer", "instructor", "training"}]
+    if not tokens:
+        return True
+    return any(token in haystack for token in tokens)
+
+
+def _is_current_year_result(profile: Dict[str, Any]) -> bool:
+    """Reject results that explicitly advertise an older year in the title/snippet."""
+    current_year = datetime.utcnow().year
+    haystack = " ".join([
+        str(profile.get("title") or ""),
+        str(profile.get("snippet") or ""),
+    ])
+    years = [int(year) for year in re.findall(r"\b20\d{2}\b", haystack)]
+    return not years or max(years) >= current_year
+
+
+async def _tavily_trainer_search(search_text: str, location: str, max_results: int, query_suffix: str = "") -> List[Dict[str, Any]]:
+    current_year = datetime.utcnow().year
+    query = f'"{search_text}" {current_year} trainer instructor corporate training'
+    if query_suffix:
+        query += f" {query_suffix}"
     if location:
         query += f" {location}"
     query += " site:linkedin.com/in OR site:naukri.com"
@@ -80,6 +111,7 @@ async def _tavily_trainer_search(search_text: str, location: str, max_results: i
         "max_results": max_results,
         "search_depth": settings.TAVILY_SEARCH_DEPTH,
         "include_domains": ["linkedin.com", "naukri.com"],
+        "time_range": "year",
     }
     headers = {
         "Authorization": f"Bearer {settings.TAVILY_API_KEY}",
@@ -112,6 +144,7 @@ async def free_search_trainers(
 ):
     """Search for trainers via plain Tavily API."""
     search_text = (payload.query or payload.domain or "").strip()
+    match_text = (payload.domain or payload.query or "").strip()
     if not search_text:
         return {
             "success": False,
@@ -126,16 +159,34 @@ async def free_search_trainers(
     all_profiles: List[Dict[str, Any]] = []
     seen_slugs: set = set()
 
-    results = [await _tavily_trainer_search(search_text, payload.location or "", payload.max_results)]
+    requested = max(1, min(int(payload.max_results or 10), 100))
+    per_query = min(max(requested, 20), 50)
+    query_suffixes = [
+        "",
+        '"corporate trainer"',
+        '"freelance trainer"',
+        '"technical trainer"',
+        '"online trainer"',
+        '"training consultant"',
+    ]
+    results = await asyncio.gather(*[
+        _tavily_trainer_search(search_text, payload.location or "", per_query, suffix)
+        for suffix in query_suffixes
+    ])
 
     for batch in results:
         for p in batch:
             dedupe_key = p.get("source_url") or p.get("slug")
-            if dedupe_key and dedupe_key not in seen_slugs:
+            if (
+                dedupe_key
+                and dedupe_key not in seen_slugs
+                and _matches_requested_domain(p, match_text)
+                and _is_current_year_result(p)
+            ):
                 seen_slugs.add(dedupe_key)
                 all_profiles.append(p)
 
-    profiles = all_profiles[: payload.max_results]
+    profiles = all_profiles[:requested]
 
     if payload.save_leads and profiles:
         now = datetime.utcnow()

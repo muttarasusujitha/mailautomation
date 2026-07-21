@@ -3276,7 +3276,7 @@ export default function Shortlist() {
     setLoadingReqs(true)
     getRequirements()
       .then(r => {
-        const list = r.data.requirements || []
+        const list = r.data.requirements || r.data.items || []
         setReqs(list)
         if (targetRequirementId) {
           const match = list.find(req => String(req.requirement_id) === String(targetRequirementId))
@@ -3317,7 +3317,15 @@ export default function Shortlist() {
         })
         setStates(merged)
       })
-      .catch(() => toast.error('Could not load shortlist'))
+      .catch(e => {
+        if (e.response?.status === 404) {
+          setTrainers([])
+          setStates({})
+          toast.error(e.response?.data?.detail || 'No shortlist found for this requirement yet')
+          return
+        }
+        toast.error(e.response?.data?.detail || e.message || 'Could not load shortlist')
+      })
       .finally(() => setLoadingTrainers(false))
   }, [selectedReq])
 

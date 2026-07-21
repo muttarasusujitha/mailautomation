@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     DOCUMENT_SERVICE_URL: str = "https://document-service:8006"
     EMAIL_SERVICE_URL: str = "https://email-service:8002"
     NOTIFICATION_SERVICE_URL: str = "https://notification-service:8003"
+    CORE_API_URL: str = "http://core-api:8001"
     INTERNAL_SERVICE_TOKEN: str = ""
 
     GEMINI_API_KEY: str = ""

@@ -144,8 +144,8 @@ export default function ClientLeads() {
       const endpoint = leadMode === 'trainer' ? '/trainer-profile-leads/search-public' : '/client-leads/search-public'
       const res = await api.post(endpoint, {
         domains,
-        max_results: 5,
-        max_queries: 12,
+        max_results: 50,
+        max_queries: leadMode === 'trainer' ? 20 : 12,
       })
       toast.success(`Public search saved ${res.data.saved_count || 0} lead(s)`)
       await load()
