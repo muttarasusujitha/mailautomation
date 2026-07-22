@@ -7,7 +7,8 @@
 ##############################################################################
 
 x-common-env: &common-env
-  MONGODB_URL: mongodb://mongo:27017
+  # Use the host MongoDB so local data is shared with the microservices stack.
+  MONGODB_URL: mongodb://host.docker.internal:27017
   REDIS_URL: redis://redis:6379
 
 x-service-defaults: &service-defaults
@@ -116,6 +117,8 @@ services:
       SERVICE_NAME: email-service
       PORT: "8002"
     env_file: .env
+    ports:
+      - "8002:8002"
     expose:
       - "8002"
     volumes:
@@ -158,6 +161,8 @@ services:
       SERVICE_NAME: trainer-service
       PORT: "8004"
     env_file: .env
+    ports:
+      - "8004:8004"
     expose:
       - "8004"
     healthcheck:
@@ -178,6 +183,8 @@ services:
       SERVICE_NAME: intelligence-service
       PORT: "8005"
     env_file: .env
+    ports:
+      - "8005:8005"
     expose:
       - "8005"
     healthcheck:

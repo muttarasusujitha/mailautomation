@@ -652,7 +652,34 @@ async def get_shortlist(requirement_id: str, db: AsyncIOMotorDatabase = Depends(
     if requirement:
         doc = await _sync_shortlist_with_trainers(db, requirement, doc)
     elif not doc:
-        raise HTTPException(404, "Shortlist not found")
+        now = datetime.utcnow()
+        doc = {
+            "shortlist_id": f"SL-{uuid.uuid4().hex[:8].upper()}",
+            "requirement_id": requirement_id,
+            "technology_needed": "",
+            "top_trainers": [],
+            "total_matched": 0,
+            "total_trainers_scanned": 0,
+            "total_available": 0,
+            "category_filter_applied": False,
+            "no_category_match": False,
+            "category_match_count": 0,
+            "pipeline_summary": {
+                "pipeline_version": PIPELINE_VERSION,
+                "status": "missing_requirement",
+                "total_candidates": 0,
+                "ranked_count": 0,
+                "top_count": 0,
+                "warnings": ["Requirement not found for this shortlist id."],
+                "errors": [],
+            },
+            "pipeline_warnings": ["Requirement not found for this shortlist id."],
+            "pipeline_errors": [],
+            "auto_created": False,
+            "missing_requirement": True,
+            "created_at": now,
+            "updated_at": now,
+        }
     return _shortlist_response(doc)
 
 

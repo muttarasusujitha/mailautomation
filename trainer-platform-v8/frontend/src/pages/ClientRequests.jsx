@@ -406,7 +406,7 @@ export default function ClientRequests() {
     try {
       const [requestsRes, updatesRes] = await Promise.all([
         api.get('/inbox', {
-          params: { status: filter === 'all' ? '' : filter, limit: 200 },
+          params: { status: filter === 'all' ? '' : filter, include_hidden: filter === 'all', limit: 200 },
         }),
         api.get('/client-updates', { params: { limit: 25 } }),
       ])

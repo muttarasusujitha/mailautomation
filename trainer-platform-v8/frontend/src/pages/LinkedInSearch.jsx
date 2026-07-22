@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import {
-  BriefcaseBusiness, CheckCircle2, ExternalLink, Globe2, Mail, RefreshCw,
+  BriefcaseBusiness, CheckCircle2, ChevronRight, ExternalLink, Globe2, Mail, RefreshCw,
   Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
@@ -99,6 +100,7 @@ function isTrainerProviderProfile(lead) {
 }
 
 export default function LinkedInSearch() {
+  const navigate = useNavigate()
   const [mode, setMode] = useState('client')
   const [leads, setLeads] = useState([])
   const [filter, setFilter] = useState('all')
@@ -264,6 +266,11 @@ export default function LinkedInSearch() {
     }
   }
 
+  const openLinkedInPipeline = (domain) => {
+    const targetDomain = domain === 'all' ? (searchDomains || q || '') : domain
+    navigate(`/linkedin-pipeline?domain=${encodeURIComponent(targetDomain)}&from=linkedin-search`)
+  }
+
   const domainOptions = useMemo(() => {
     const counts = new Map()
     leads.forEach(lead => {
@@ -383,6 +390,15 @@ export default function LinkedInSearch() {
               >
                 {domain} ({count})
               </button>
+              {isTrainer && (
+                <button
+                  onClick={() => openLinkedInPipeline(domain)}
+                  title={`Open ${domain} LinkedIn pipeline`}
+                  className={clsx('border-l px-2 transition', selectedDomain === domain ? 'border-blue-500 hover:bg-blue-700' : 'border-slate-200 text-blue-600 hover:bg-blue-50')}
+                >
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              )}
               <button
                 onClick={() => removeDomain(domain, count)}
                 disabled={deletingDomain === domain}

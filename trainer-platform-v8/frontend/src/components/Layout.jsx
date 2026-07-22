@@ -19,8 +19,8 @@ const NAV_GROUPS = [
       { to: '/shortlist1',        label: 'AI Pipeline',        icon: Zap,             keywords: ['advanced','shortlist1','shortlist','pipeline'] },
       { to: '/shortlist',         label: 'Shortlist',          icon: Users,           keywords: ['shortlist','trainer shortlist'] },
       { to: '/linkedin-search',   label: 'LinkedIn Search',    icon: Globe2,          keywords: ['linkedin','public search','client post search','trainer profile search'] },
+      { to: '/linkedin-pipeline', label: 'LinkedIn Pipeline',  icon: Zap,             keywords: ['linkedin pipeline','linkedin automation','linkedin trainers','linkedin outreach'] },
       { to: '/naukri-search',     label: 'Naukri Search',      icon: BriefcaseBusiness, keywords: ['naukri','naukri search','naukri public','naukri trainer'] },
-      { to: '/linkedin-shortlist',label: 'LinkedIn Shortlist', icon: CheckCircle2,    keywords: ['linkedin shortlist','shortlisted linkedin','trainer lead shortlist','client post shortlist'] },
       { to: '/trainers',          label: 'Trainer Database',   icon: Users,           keywords: ['trainers','database'] },
     ],
   },
@@ -28,7 +28,6 @@ const NAV_GROUPS = [
     label: 'Client Work',
     items: [
       { to: '/client-requests',      label: 'Client Requests',    icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
-      { to: '/client-leads',         label: 'Client Leads',       icon: Search,            keywords: ['client leads','lead finder','linkedin leads'] },
       { to: '/interview-scheduled',  label: 'Interviews',         icon: CalendarCheck,     keywords: ['interview','schedule','meeting','meet link'] },
       { to: '/client-mail-pipeline', label: 'Client Pipeline',    icon: ReceiptText,       keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
       { to: '/invoices',             label: 'Invoices',           icon: ReceiptText,       keywords: ['invoice','manual invoice','generate invoice','billing'] },
