@@ -32,6 +32,7 @@ class TrainerLeadUpdate(BaseModel):
     email: Optional[str] = None
     phone: Optional[str] = None
     domain: Optional[str] = None
+    requirement_id: Optional[str] = None
     status: Optional[str] = None
     notes: Optional[str] = None
 
@@ -42,6 +43,7 @@ class EnrichRequest(BaseModel):
 
 class SearchPublicRequest(BaseModel):
     domain: Optional[str] = ""
+    requirement_id: Optional[str] = ""
     domains: Optional[List[str]] = None
     query: Optional[str] = ""
     queries: Optional[List[Dict[str, Any]]] = None
@@ -70,6 +72,7 @@ async def list_trainer_leads(
     limit: Optional[int] = Query(None, ge=1, le=500),
     status: Optional[str] = None,
     domain: Optional[str] = None,
+    requirement_id: Optional[str] = None,
     q: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
@@ -78,6 +81,8 @@ async def list_trainer_leads(
         query["status"] = status
     if domain:
         query["domain"] = {"$regex": domain, "$options": "i"}
+    if requirement_id:
+        query["requirement_id"] = requirement_id
     if q:
         query["$or"] = [
             {"name": {"$regex": q, "$options": "i"}},
@@ -235,6 +240,7 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
             "external_slug": slug,
             "snippet": p.get("snippet", ""),
             "domain": p.get("_searched_domain") or payload.domain or p.get("domain", ""),
+            "requirement_id": payload.requirement_id or "",
             "source": source,
             "status": "found", "verification_tier": "unverified",
             "created_at": now, "updated_at": now,

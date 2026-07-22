@@ -4383,8 +4383,27 @@ export default function Shortlist1() {
               setSelectedReq(requirement)
               setReqs(prev => prev.some(item => item.requirement_id === requirement.requirement_id) ? prev : [requirement, ...prev])
               setMissingRequirement(false)
-            } catch {
-              setMissingRequirement(true)
+            } catch (err) {
+              if (err.response?.status === 404) {
+                try {
+                  const shortlistRes = await getShortlist(targetRequirementId)
+                  const shortlist = shortlistRes.data || {}
+                  const trainers = shortlist.top_trainers || shortlist.trainers || []
+                  const requirement = {
+                    requirement_id: targetRequirementId,
+                    technology_needed: shortlist.technology_needed || '',
+                    top_n: trainers.length || 0,
+                    client_email: '',
+                  }
+                  setSelectedReq(requirement)
+                  setReqs(prev => prev.some(item => item.requirement_id === requirement.requirement_id) ? prev : [requirement, ...prev])
+                  setMissingRequirement(false)
+                } catch {
+                  setMissingRequirement(true)
+                }
+              } else {
+                setMissingRequirement(true)
+              }
             }
           }
         } else {

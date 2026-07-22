@@ -24,7 +24,9 @@ HIDDEN_DEFAULT_SENDER_REGEX = (
 )
 
 
-def _status_filter(status: Optional[str]) -> Dict[str, Any]:
+def _status_filter(status: Optional[str], include_hidden: bool = False) -> Dict[str, Any]:
+    if include_hidden and (not status or status == "all"):
+        return {}
     if not status or status == "all":
         return {
             "$and": [
@@ -96,11 +98,12 @@ class ProcessPendingRequest(BaseModel):
 @router.get("")
 async def list_inbox_emails(
     status: Optional[str] = Query(None),
+    include_hidden: bool = Query(False),
     limit: int = Query(50, ge=1, le=200),
     page: int = Query(1, ge=1),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    query = _status_filter(status)
+    query = _status_filter(status, include_hidden)
 
     total = await db["client_emails"].count_documents(query)
     skip = (page - 1) * limit

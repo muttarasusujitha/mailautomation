@@ -80,7 +80,7 @@ export const sendTrainerAutomationMail = (id, data) => api.post(`/trainers/${id}
 export const tickTrainerAutomationPipeline = (id, data) => api.post(`/trainers/${id}/automation-pipeline/tick`, data)
 export const getTrainerAutomationStatus = (id) => api.get(`/trainers/${id}/automation-status`)
 export const getTrainerConversationThread = (id, params = {}) => api.get(`/trainers/${id}/conversation-thread`, { params })
-export const getRequirements   = ()       => api.get('/requirements')
+export const getRequirements   = (params = {}) => api.get('/requirements', { params: { page_size: 100, ...params } })
 export const getRequirement    = (id)     => api.get(`/requirements/${id}`)
 export const createRequirement = (data)   => api.post('/requirements', data)
 export const updateRequirement = (id, data) => api.patch(`/requirements/${id}`, data)

@@ -15,9 +15,8 @@ const Trainers = lazy(() => import('./pages/Trainers'))
 const Requirements = lazy(() => import('./pages/Requirements'))
 const Emails = lazy(() => import('./pages/Emails'))
 const ClientRequests = lazy(() => import('./pages/ClientRequests'))
-const ClientLeads = lazy(() => import('./pages/ClientLeads'))
 const LinkedInSearch = lazy(() => import('./pages/LinkedInSearch'))
-const LinkedInShortlist = lazy(() => import('./pages/LinkedInShortlist'))
+const LinkedInPipeline = lazy(() => import('./pages/LinkedInPipeline'))
 const NaukriSearch = lazy(() => import('./pages/NaukriSearch'))
 const ClientPipeline = lazy(() => import('./pages/ClientPipeline'))
 const InterviewSchedules = lazy(() => import('./pages/InterviewSchedules'))
@@ -103,9 +102,8 @@ export default function App() {
             <Route path="emails"       element={<Emails />} />
             <Route path="inbox"        element={<Navigate to="/client-requests" replace />} />
             <Route path="client-requests" element={<ClientRequests />} />
-            <Route path="client-leads" element={<ClientLeads />} />
             <Route path="linkedin-search" element={<LinkedInSearch />} />
-            <Route path="linkedin-shortlist" element={<LinkedInShortlist />} />
+            <Route path="linkedin-pipeline" element={<LinkedInPipeline />} />
             <Route path="naukri-search" element={<NaukriSearch />} />
             <Route path="client-pipeline" element={<ClientPipeline />} />
             <Route path="client-mail-pipeline" element={<ClientPipeline />} />

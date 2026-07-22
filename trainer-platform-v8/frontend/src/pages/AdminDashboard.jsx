@@ -69,6 +69,12 @@ const monthStartInput = () => {
 
 const number = (value) => Number(value || 0).toLocaleString('en-IN')
 
+const formatDays = (value) => {
+  const num = Number(value ?? 0)
+  if (!Number.isFinite(num)) return '0'
+  return num % 1 === 0 ? String(Math.round(num)) : num.toFixed(1)
+}
+
 const currency = (value, code = 'INR') =>
   new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -399,8 +405,8 @@ export default function Dashboard() {
             <MetricCard
               icon={Clock3}
               label="Avg Days to Close"
-              value={`${Number(cards.average_days_to_close || 0).toFixed(1)}`}
-              sub="Based on generated POs"
+              value={`${formatDays(cards.average_days_to_close)} days`}
+              sub={`${number(poMonth.count)} generated POs this month`}
               tone="amber"
             />
             <MetricCard
@@ -413,8 +419,8 @@ export default function Dashboard() {
             <MetricCard
               icon={MessageCircle}
               label="WhatsApp Delivery"
-              value={`${whatsapp.delivery_rate || 0}%`}
-              sub={`${number(whatsapp.delivered)} delivered of ${number(whatsapp.total)}`}
+              value={`${number(whatsapp.delivered)} / ${number(whatsapp.total)}`}
+              sub={`${number(whatsapp.sent)} sent or queued, ${number(whatsapp.failed)} failed`}
               tone="green"
               onClick={() => navigate('/admin?section=whatsapp')}
             />
