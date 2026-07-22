@@ -14,6 +14,25 @@ from app.database import get_db
 router = APIRouter()
 logger = logging.getLogger(__name__)
 EMAIL_SVC = "https://email-service:8002"
+LOCAL_SERVICE_FALLBACKS = {
+    "https://email-service:8002": "http://127.0.0.1:8003",
+    "http://email-service:8002": "http://127.0.0.1:8003",
+}
+
+
+async def _post_with_local_fallback(
+    client: httpx.AsyncClient,
+    url: str,
+    **kwargs: Any,
+) -> httpx.Response:
+    try:
+        return await client.post(url, **kwargs)
+    except httpx.RequestError:
+        for service_base, local_base in LOCAL_SERVICE_FALLBACKS.items():
+            if url.startswith(service_base):
+                fallback_url = local_base + url[len(service_base):]
+                return await client.post(fallback_url, **kwargs)
+        raise
 
 
 class TrainerLeadCreate(BaseModel):
@@ -370,8 +389,11 @@ async def send_lead_outreach(
     )
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            r = await client.post(f"{EMAIL_SVC}/api/v1/email/send",
-                                  json={"to": to_email, "subject": subject, "body": body})
+            r = await _post_with_local_fallback(
+                client,
+                f"{EMAIL_SVC}/api/v1/email/send",
+                json={"to": to_email, "subject": subject, "body": body},
+            )
         success = r.status_code < 400
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc

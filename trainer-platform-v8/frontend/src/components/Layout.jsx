@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import {
   BarChart3, Bell, BookOpen, BriefcaseBusiness, CalendarCheck,
-  CheckCircle2, ChevronRight, FileSearch, Globe2, Home,
+  ChevronRight, FileSearch, Globe2, Home,
   LayoutDashboard, LogOut, Mail, Menu,
   ReceiptText, Search, Settings, Upload, UserCircle, Users, Zap, X,
 } from 'lucide-react'
@@ -27,10 +27,11 @@ const NAV_GROUPS = [
   {
     label: 'Client Work',
     items: [
-      { to: '/client-requests',      label: 'Client Requests',    icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
-      { to: '/interview-scheduled',  label: 'Interviews',         icon: CalendarCheck,     keywords: ['interview','schedule','meeting','meet link'] },
-      { to: '/client-mail-pipeline', label: 'Client Pipeline',    icon: ReceiptText,       keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
-      { to: '/invoices',             label: 'Invoices',           icon: ReceiptText,       keywords: ['invoice','manual invoice','generate invoice','billing'] },
+      { to: '/client-requests',          label: 'Client Requests',         icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
+      { to: '/linkedin-client-pipeline', label: 'LinkedIn Client Pipeline', icon: Mail, keywords: ['linkedin client pipeline','client posts','client lead pipeline','mail 1'] },
+      { to: '/interview-scheduled',      label: 'Interviews',              icon: CalendarCheck, keywords: ['interview','schedule','meeting','meet link'] },
+      { to: '/client-mail-pipeline',     label: 'Client Pipeline',         icon: ReceiptText, keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
+      { to: '/invoices',                 label: 'Invoices',                icon: ReceiptText, keywords: ['invoice','manual invoice','generate invoice','billing'] },
     ],
   },
   {
