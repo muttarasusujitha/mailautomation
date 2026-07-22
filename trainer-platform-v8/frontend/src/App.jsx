@@ -17,6 +17,7 @@ const Emails = lazy(() => import('./pages/Emails'))
 const ClientRequests = lazy(() => import('./pages/ClientRequests'))
 const LinkedInSearch = lazy(() => import('./pages/LinkedInSearch'))
 const LinkedInPipeline = lazy(() => import('./pages/LinkedInPipeline'))
+const LinkedInClientPipeline = lazy(() => import('./pages/LinkedInClientPipeline'))
 const NaukriSearch = lazy(() => import('./pages/NaukriSearch'))
 const ClientPipeline = lazy(() => import('./pages/ClientPipeline'))
 const InterviewSchedules = lazy(() => import('./pages/InterviewSchedules'))
@@ -104,6 +105,7 @@ export default function App() {
             <Route path="client-requests" element={<ClientRequests />} />
             <Route path="linkedin-search" element={<LinkedInSearch />} />
             <Route path="linkedin-pipeline" element={<LinkedInPipeline />} />
+            <Route path="linkedin-client-pipeline" element={<LinkedInClientPipeline />} />
             <Route path="naukri-search" element={<NaukriSearch />} />
             <Route path="client-pipeline" element={<ClientPipeline />} />
             <Route path="client-mail-pipeline" element={<ClientPipeline />} />

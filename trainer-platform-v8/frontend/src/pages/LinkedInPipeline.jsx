@@ -236,16 +236,59 @@ function pipelineStep(status) {
 
 function PipelineRail({ status }) {
   const step = pipelineStep(status)
-  const labels = ['Found', 'Mail1', 'Details', 'Slots', 'Interview', 'Select', 'ToC', 'Confirm']
+  const labels = ['Mail 1', 'Details', 'Slot', 'Interview', 'Selected', 'ToC', 'Confirmed']
   return (
-    <div className="mt-3 grid grid-cols-4 gap-1 sm:grid-cols-8">
+    <div className="mt-3 flex flex-wrap items-center gap-1.5">
       {labels.map((label, index) => (
-        <div key={label} className={clsx('rounded-md px-2 py-1 text-center text-[10px] font-bold', index <= step ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400')}>
-          {label}
+        <div key={label} className="flex items-center gap-1">
+          <span className={clsx(
+            'flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold',
+            index < Math.max(step, 1) ? 'bg-blue-500 text-white shadow-sm shadow-blue-200' : 'bg-slate-200 text-slate-500',
+          )}>
+            {index + 1}
+          </span>
+          <span className={clsx('text-xs font-medium', index < Math.max(step, 1) ? 'text-blue-600' : 'text-slate-400')}>{label}</span>
         </div>
       ))}
     </div>
   )
+}
+
+function stageLabel(status) {
+  const labels = {
+    found: 'Mail 1 is next',
+    reviewed: 'Mail 1 is next',
+    outreach_sent: 'Waiting for Reply',
+    details_requested: 'Details Requested',
+    acknowledged: 'Details Review',
+    slot_requested: 'Slot Requested',
+    interview_scheduled: 'Interview Scheduled',
+    selected: 'Selected',
+    toc_requested: 'ToC Requested',
+    training_confirmed: 'Training Confirmed',
+    converted: 'Converted',
+    rejected: 'Rejected',
+  }
+  return labels[status] || status.replaceAll('_', ' ')
+}
+
+function leadSkills(lead) {
+  const raw = [
+    lead.domain,
+    lead.skills,
+    lead.technologies,
+    lead.headline,
+  ].flatMap(item => Array.isArray(item) ? item : String(item || '').split(/[,|]/))
+  const seen = new Set()
+  return raw
+    .map(item => String(item || '').trim())
+    .filter(item => {
+      const key = item.toLowerCase()
+      if (!item || seen.has(key) || item.length > 34) return false
+      seen.add(key)
+      return true
+    })
+    .slice(0, 6)
 }
 
 export default function LinkedInPipeline() {
@@ -261,6 +304,7 @@ export default function LinkedInPipeline() {
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(false)
   const [working, setWorking] = useState(false)
+  const [sendingLeadId, setSendingLeadId] = useState('')
   const [mailContext, setMailContext] = useState({
     domain: '',
     duration: '',
@@ -418,10 +462,10 @@ export default function LinkedInPipeline() {
 
   const sendLead = async (lead, mailType = selectedTemplates[lead.lead_id] || 'mail1') => {
     if (!leadEmail(lead)) {
-      toast.error('This LinkedIn trainer has phone only. Add/find an email before sending a pipeline mail.')
+      toast.error('No email found for this LinkedIn trainer. Run Automation 1: Find Contacts, or add an email before sending.')
       return
     }
-    setWorking(true)
+    setSendingLeadId(lead.lead_id)
     try {
       const mail = buildMail({ lead, mailContext, mailType })
       await api.post(`/trainer-profile-leads/${lead.lead_id}/send-email`, { lead_ids: [lead.lead_id], ...mail })
@@ -429,9 +473,9 @@ export default function LinkedInPipeline() {
       toast.success(`${templateLabel(mailType)} sent`)
       await load()
     } catch (e) {
-      toast.error(e.message)
+      toast.error(e.response?.data?.detail || e.message || 'LinkedIn manual mail failed')
     } finally {
-      setWorking(false)
+      setSendingLeadId('')
     }
   }
 
@@ -650,51 +694,116 @@ export default function LinkedInPipeline() {
           <div className="divide-y divide-slate-100">
             {leads.map((lead, index) => {
               const leadStatus = clean(lead.status, 'found')
+              const step = pipelineStep(leadStatus)
+              const percent = Math.max(0, Math.round((step / 7) * 100))
+              const nextLabel = step === 0 ? 'Mail 1 is next' : `${templateLabel(selectedTemplates[lead.lead_id] || 'mail2')} is next`
+              const skills = leadSkills(lead)
               return (
-                <div key={lead.lead_id} className="px-4 py-4">
-                  <div className="grid gap-3 xl:grid-cols-[minmax(260px,1.25fr)_minmax(360px,1.7fr)_minmax(280px,1fr)] xl:items-center">
-                    <div className="min-w-0">
+                <article key={lead.lead_id} className="px-4 py-4">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-sm font-bold text-amber-700">{index + 1}</span>
+                    <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-sm font-bold text-amber-700">{index + 1}</span>
-                        <div className="min-w-0">
-                          <p className="truncate font-bold text-slate-950">{leadName(lead)}</p>
-                          <p className="truncate text-xs font-semibold text-slate-500">{clean(lead.domain, 'Domain pending')}</p>
-                        </div>
-                        <span className={clsx('rounded-lg border px-2 py-0.5 text-xs font-semibold capitalize', statusTone(leadStatus))}>{leadStatus.replaceAll('_', ' ')}</span>
+                        <h3 className="max-w-full truncate text-base font-bold text-slate-950">{leadName(lead)}</h3>
+                        <span className={clsx('rounded-lg border px-2 py-0.5 text-xs font-bold capitalize', statusTone(leadStatus))}>
+                          Trainer Status: {stageLabel(leadStatus)}
+                        </span>
                         <VerificationBadge tier={lead.verification_tier || 'linkedin_signal'} />
                       </div>
+                      <p className="mt-0.5 truncate text-xs font-semibold text-slate-500">{clean(lead.domain, 'Domain pending')}</p>
+
                       <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-semibold text-slate-500">
                         {leadEmail(lead) && <a href={`mailto:${leadEmail(lead)}`} className="inline-flex items-center gap-1 text-slate-600"><Mail className="h-3 w-3" /> {leadEmail(lead)}</a>}
                         {leadPhone(lead) && <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3" /> {leadPhone(lead)}</span>}
                         {leadUrl(lead) && <a href={leadUrl(lead)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-blue-600"><ExternalLink className="h-3 w-3" /> LinkedIn</a>}
                       </div>
-                    </div>
 
-                    <div>
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Pipeline Progress</span>
-                        <span className="rounded-full border border-slate-200 px-2 py-0.5 text-xs font-bold text-slate-600">{Math.round((pipelineStep(leadStatus) / 7) * 100)}%</span>
-                      </div>
+                      {skills.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {skills.slice(0, 5).map(skill => (
+                            <span key={skill} className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-xs text-blue-700">{skill}</span>
+                          ))}
+                          {skills.length > 5 && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">+{skills.length - 5}</span>}
+                        </div>
+                      )}
+
                       <PipelineRail status={leadStatus} />
-                      <div className="mt-2 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700">
-                        {pipelineStep(leadStatus) === 0 ? 'Mail 1 is next for this LinkedIn trainer' : `${templateLabel(selectedTemplates[lead.lead_id] || 'mail2')} is next`}
+
+                      <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Pipeline Progress</p>
+                            <p className="text-sm font-bold text-slate-950">{nextLabel}</p>
+                          </div>
+                          <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-600">{percent}%</span>
+                        </div>
+                        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200">
+                          <div className="h-full rounded-full bg-blue-500" style={{ width: `${percent}%` }} />
+                        </div>
+                        <div className="mt-3 grid gap-2 md:grid-cols-4">
+                          <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                            <p className="text-[11px] font-bold uppercase text-slate-400">Trainer Mails</p>
+                            <p className="text-xs font-bold text-slate-700">{step}/7 complete</p>
+                          </div>
+                          <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                            <p className="text-[11px] font-bold uppercase text-slate-400">Contact</p>
+                            <p className="text-xs font-bold text-slate-700">{leadEmail(lead) ? 'Email saved' : leadPhone(lead) ? 'Phone only' : 'Needs enrichment'}</p>
+                          </div>
+                          <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                            <p className="text-[11px] font-bold uppercase text-slate-400">Commercial</p>
+                            <p className="text-xs font-bold text-slate-700">Not started</p>
+                          </div>
+                          <div className="rounded-lg border border-slate-200 bg-white px-3 py-2">
+                            <p className="text-[11px] font-bold uppercase text-slate-400">Current Stage</p>
+                            <p className="text-xs font-bold text-slate-700">{stageLabel(leadStatus)}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700">
+                        {leadStatus === 'outreach_sent' ? 'Mail 1 sent - waiting for trainer reply' : `${nextLabel} for this LinkedIn trainer`}
+                      </div>
+                      <div className="mt-2 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2 text-xs font-semibold text-orange-600">
+                        Auto reminders: 6h - 12h - 24h
+                      </div>
+                      <div className="mt-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-700">
+                        Negotiate Rate
+                      </div>
+
+                      <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-3">
+                        <div className="grid gap-3 lg:grid-cols-[1fr_260px_auto_auto_auto] lg:items-center">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wide text-blue-700">Manual Mail Templates</p>
+                            <p className="text-xs text-blue-600">Use only when you need to override the automation.</p>
+                          </div>
+                          <select
+                            className="input bg-white"
+                            value={selectedTemplates[lead.lead_id] || 'mail1'}
+                            onChange={e => setSelectedTemplates(prev => ({ ...prev, [lead.lead_id]: e.target.value }))}
+                          >
+                            {PIPELINE_MAIL_OPTIONS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
+                          </select>
+                          <button
+                            onClick={() => sendLead(lead)}
+                            disabled={!!sendingLeadId}
+                            title={leadEmail(lead) ? `Send ${templateLabel(selectedTemplates[lead.lead_id] || 'mail1')}` : 'Email is required before sending'}
+                            className={clsx('btn-primary justify-center text-sm disabled:opacity-50', !leadEmail(lead) && 'opacity-70')}
+                          >
+                            {sendingLeadId === lead.lead_id ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                            {sendingLeadId === lead.lead_id ? 'Sending...' : 'Send'}
+                          </button>
+                          <button onClick={() => patchLead(lead, { status: 'reviewed' })} className="btn-secondary justify-center text-sm"><CheckCircle2 className="h-4 w-4" /> Reviewed</button>
+                          <button onClick={() => patchLead(lead, { status: 'converted' })} className="btn-secondary justify-center text-sm text-emerald-700"><ShieldCheck className="h-4 w-4" /> Converted</button>
+                        </div>
                       </div>
                     </div>
-
-                    <div className="grid gap-2 sm:grid-cols-[1fr_auto]">
-                      <select
-                        className="input"
-                        value={selectedTemplates[lead.lead_id] || 'mail1'}
-                        onChange={e => setSelectedTemplates(prev => ({ ...prev, [lead.lead_id]: e.target.value }))}
-                      >
-                        {PIPELINE_MAIL_OPTIONS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
-                      </select>
-                      <button onClick={() => sendLead(lead)} disabled={working || !leadEmail(lead)} className="btn-primary justify-center text-sm disabled:opacity-50"><Send className="h-4 w-4" /> Send</button>
-                      <button onClick={() => patchLead(lead, { status: 'reviewed' })} className="btn-secondary justify-center text-sm"><CheckCircle2 className="h-4 w-4" /> Reviewed</button>
-                      <button onClick={() => patchLead(lead, { status: 'converted' })} className="btn-secondary justify-center text-sm text-emerald-700"><ShieldCheck className="h-4 w-4" /> Converted</button>
-                    </div>
+                    {leadUrl(lead) && (
+                      <a href={leadUrl(lead)} target="_blank" rel="noreferrer" className="shrink-0 rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200">
+                        Thread
+                      </a>
+                    )}
                   </div>
-                </div>
+                </article>
               )
             })}
           </div>
