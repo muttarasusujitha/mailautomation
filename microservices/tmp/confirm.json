@@ -1,0 +1,9 @@
+﻿{
+    "trainer_id":  "TR-9F05A606",
+    "mail_type":  "mail7_confirm",
+    "subject":  "Training Confirmation - DevOps",
+    "to_email":  "sujithamuttarasu@gmail.com",
+    "body":  "Dear Rajesh,\\n\\nTraining is confirmed per schedule. Thank you.\\n\\nRegards,\\nTrainerSync Team",
+    "trainer_name":  "Rajesh Mukherjee",
+    "requirement_id":  "REQ-3CCC4154"
+}

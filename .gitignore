@@ -11,9 +11,18 @@ config/token.json
 **/config/token*.bak
 **/config/*.secret.json
 
+*.db
+*.db-journal
+.chrome-diagnostic*
+Last Browser
+Last Version
+Local State
+
 # Python
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -27,6 +36,7 @@ build/
 .vite/
 
 # Local/editor files
+.vscode/
 .DS_Store
 Thumbs.db
 .runlogs/
@@ -35,3 +45,8 @@ Thumbs.db
 
 # Accidental sibling copy outside the app folder
 /frontend/
+
+# Logs and runtime
+.scannerwork/
+.coverage
+htmlcov/

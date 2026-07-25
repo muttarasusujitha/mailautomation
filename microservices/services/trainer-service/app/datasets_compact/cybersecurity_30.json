@@ -1,0 +1,453 @@
+{
+  "domain": "Cybersecurity",
+  "name": "Cybersecurity",
+  "icon": "shield",
+  "program_title": "Cybersecurity Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Cybersecurity Expert",
+  "certifications": [
+    "CEH - Certified Ethical Hacker",
+    "AWS Certified Security - Specialty",
+    "CompTIA Security+",
+    "CISSP - Certified Information Systems Security Professional"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Security Fundamentals",
+      "subtopics": [
+        "CIA Triad",
+        "Threats",
+        "Vulnerabilities",
+        "Risk Management"
+      ],
+      "tools": [
+        "OWASP"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Security basics"
+    },
+    {
+      "day": 2,
+      "topic": "Security Fundamentals",
+      "subtopics": [
+        "CIA Triad",
+        "Threats",
+        "Vulnerabilities",
+        "Risk Management"
+      ],
+      "tools": [
+        "OWASP"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Security basics"
+    },
+    {
+      "day": 3,
+      "topic": "Network Security",
+      "subtopics": [
+        "Firewalls",
+        "VPN",
+        "Intrusion Detection",
+        "Network Analysis"
+      ],
+      "tools": [
+        "Wireshark"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Network security"
+    },
+    {
+      "day": 4,
+      "topic": "Network Security",
+      "subtopics": [
+        "Firewalls",
+        "VPN",
+        "Intrusion Detection",
+        "Network Analysis"
+      ],
+      "tools": [
+        "Wireshark"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Network security"
+    },
+    {
+      "day": 5,
+      "topic": "Cryptography",
+      "subtopics": [
+        "Symmetric Encryption",
+        "Asymmetric Encryption",
+        "Hashing"
+      ],
+      "tools": [
+        "OpenSSL"
+      ],
+      "jira_focus": "Sprint planning; review progress for Cryptography",
+      "lab_task": "Cryptographic concepts"
+    },
+    {
+      "day": 6,
+      "topic": "Cryptography",
+      "subtopics": [
+        "Symmetric Encryption",
+        "Asymmetric Encryption",
+        "Hashing"
+      ],
+      "tools": [
+        "OpenSSL"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Cryptographic concepts"
+    },
+    {
+      "day": 7,
+      "topic": "Access Control",
+      "subtopics": [
+        "Authentication",
+        "Authorization",
+        "RBAC",
+        "Privilege Management"
+      ],
+      "tools": [
+        "LDAP"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Access control"
+    },
+    {
+      "day": 8,
+      "topic": "Access Control",
+      "subtopics": [
+        "Authentication",
+        "Authorization",
+        "RBAC",
+        "Privilege Management"
+      ],
+      "tools": [
+        "LDAP"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Access control"
+    },
+    {
+      "day": 9,
+      "topic": "Web Application Security",
+      "subtopics": [
+        "OWASP Top 10",
+        "SQL Injection",
+        "XSS",
+        "CSRF"
+      ],
+      "tools": [
+        "Burp Suite"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Web app security"
+    },
+    {
+      "day": 10,
+      "topic": "Web Application Security",
+      "subtopics": [
+        "OWASP Top 10",
+        "SQL Injection",
+        "XSS",
+        "CSRF"
+      ],
+      "tools": [
+        "Burp Suite"
+      ],
+      "jira_focus": "Sprint planning; review progress for Web Application Security",
+      "lab_task": "Web app security"
+    },
+    {
+      "day": 11,
+      "topic": "Vulnerability Assessment",
+      "subtopics": [
+        "Scanning",
+        "Reporting",
+        "Remediation",
+        "Validation"
+      ],
+      "tools": [
+        "Nessus",
+        "OpenVAS"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Vulnerability scanning"
+    },
+    {
+      "day": 12,
+      "topic": "Vulnerability Assessment",
+      "subtopics": [
+        "Scanning",
+        "Reporting",
+        "Remediation",
+        "Validation"
+      ],
+      "tools": [
+        "Nessus",
+        "OpenVAS"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Vulnerability scanning"
+    },
+    {
+      "day": 13,
+      "topic": "Penetration Testing",
+      "subtopics": [
+        "Reconnaissance",
+        "Exploitation",
+        "Post-Exploitation"
+      ],
+      "tools": [
+        "Metasploit"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Penetration testing"
+    },
+    {
+      "day": 14,
+      "topic": "Penetration Testing",
+      "subtopics": [
+        "Reconnaissance",
+        "Exploitation",
+        "Post-Exploitation"
+      ],
+      "tools": [
+        "Metasploit"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Penetration testing"
+    },
+    {
+      "day": 15,
+      "topic": "Malware Analysis",
+      "subtopics": [
+        "Static Analysis",
+        "Dynamic Analysis",
+        "Behavior"
+      ],
+      "tools": [
+        "IDA Pro"
+      ],
+      "jira_focus": "Sprint planning; review progress for Malware Analysis",
+      "lab_task": "Malware analysis"
+    },
+    {
+      "day": 16,
+      "topic": "Malware Analysis",
+      "subtopics": [
+        "Static Analysis",
+        "Dynamic Analysis",
+        "Behavior"
+      ],
+      "tools": [
+        "IDA Pro"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Malware analysis"
+    },
+    {
+      "day": 17,
+      "topic": "Incident Response",
+      "subtopics": [
+        "Detection",
+        "Analysis",
+        "Containment",
+        "Recovery"
+      ],
+      "tools": [
+        "SIEM"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Incident response"
+    },
+    {
+      "day": 18,
+      "topic": "Incident Response",
+      "subtopics": [
+        "Detection",
+        "Analysis",
+        "Containment",
+        "Recovery"
+      ],
+      "tools": [
+        "SIEM"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Incident response"
+    },
+    {
+      "day": 19,
+      "topic": "Forensics",
+      "subtopics": [
+        "Evidence Collection",
+        "Analysis",
+        "Chain of Custody"
+      ],
+      "tools": [
+        "EnCase"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Digital forensics"
+    },
+    {
+      "day": 20,
+      "topic": "Forensics",
+      "subtopics": [
+        "Evidence Collection",
+        "Analysis",
+        "Chain of Custody"
+      ],
+      "tools": [
+        "EnCase"
+      ],
+      "jira_focus": "Sprint planning; review progress for Forensics",
+      "lab_task": "Digital forensics"
+    },
+    {
+      "day": 21,
+      "topic": "Cloud Security",
+      "subtopics": [
+        "AWS Security",
+        "Azure Security",
+        "IAM"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Cloud security"
+    },
+    {
+      "day": 22,
+      "topic": "Cloud Security",
+      "subtopics": [
+        "AWS Security",
+        "Azure Security",
+        "IAM"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Cloud security"
+    },
+    {
+      "day": 23,
+      "topic": "Container Security",
+      "subtopics": [
+        "Docker Security",
+        "Kubernetes Security"
+      ],
+      "tools": [
+        "Trivy",
+        "Falco"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Container security"
+    },
+    {
+      "day": 24,
+      "topic": "Container Security",
+      "subtopics": [
+        "Docker Security",
+        "Kubernetes Security"
+      ],
+      "tools": [
+        "Trivy",
+        "Falco"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Container security"
+    },
+    {
+      "day": 25,
+      "topic": "DevSecOps",
+      "subtopics": [
+        "Security in CI/CD",
+        "SAST/DAST",
+        "Dependency Scanning"
+      ],
+      "tools": [
+        "SonarQube"
+      ],
+      "jira_focus": "Sprint planning; review progress for DevSecOps",
+      "lab_task": "DevSecOps practices"
+    },
+    {
+      "day": 26,
+      "topic": "DevSecOps",
+      "subtopics": [
+        "Security in CI/CD",
+        "SAST/DAST",
+        "Dependency Scanning"
+      ],
+      "tools": [
+        "SonarQube"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "DevSecOps practices"
+    },
+    {
+      "day": 27,
+      "topic": "Compliance & Standards",
+      "subtopics": [
+        "ISO 27001",
+        "SOC2",
+        "GDPR",
+        "HIPAA"
+      ],
+      "tools": [
+        "Compliance"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Security standards"
+    },
+    {
+      "day": 28,
+      "topic": "Compliance & Standards",
+      "subtopics": [
+        "ISO 27001",
+        "SOC2",
+        "GDPR",
+        "HIPAA"
+      ],
+      "tools": [
+        "Compliance"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Security standards"
+    },
+    {
+      "day": 29,
+      "topic": "Advanced Topics",
+      "subtopics": [
+        "Zero Trust",
+        "Threat Hunting",
+        "Security Architecture"
+      ],
+      "tools": [
+        "Advanced"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Advanced security"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Zero Trust",
+        "Threat Hunting",
+        "Security Architecture"
+      ],
+      "tools": [
+        "Advanced"
+      ],
+      "jira_focus": "Sprint planning; review progress for Advanced Topics",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    }
+  ]
+}
