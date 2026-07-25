@@ -1,0 +1,36 @@
+﻿*.db
+*.db-journal
+.chrome-diagnostic*
+Last Browser
+Last Version
+Local State
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.vite/
+.vscode/
+
+# Logs and runtime
+*.log
+.runlogs/
+.scannerwork/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
