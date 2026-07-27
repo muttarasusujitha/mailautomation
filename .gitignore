@@ -39,6 +39,7 @@ build/
 .vscode/
 .DS_Store
 Thumbs.db
+<<<<<<< HEAD
 .runlogs/
 *.log
 *.tmp
@@ -50,3 +51,8 @@ Thumbs.db
 .scannerwork/
 .coverage
 htmlcov/
+=======
+
+# Ignore sensitive email service OAuth token config
+microservices/services/email-service/config/token.json
+>>>>>>> 884f222 (Remove OAuth token file from history and ignore it)
