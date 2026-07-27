@@ -78,7 +78,7 @@ Strict output rules:
 - Do not use Dear Sir/Madam.
 - End with exactly:
 Regards,
-TrainerSync Team
+Clahan Technologies
 sujithaofficial784@gmail.com
 - Generate only subject and body.
 - Format exactly:
@@ -383,9 +383,18 @@ function normalizePipelineStage(value = '') {
 
 function resolveTrainerStage(trainer, req, state) {
   const authoritative = backendAuthoritativeStage(trainer, req)
+  const stateStage = normalizePipelineStage(state?.status)
+  if (
+    authoritative &&
+    stateStage &&
+    stateStage !== 'pending' &&
+    ['waiting_reply1', 'mail1_sent', 'waiting_reply2'].includes(authoritative) &&
+    !['waiting_reply1', 'mail1_sent', 'waiting_reply2'].includes(stateStage)
+  ) {
+    return stateStage
+  }
   if (authoritative) return authoritative
 
-  const stateStage = normalizePipelineStage(state?.status)
   if (stateStage && stateStage !== 'pending') return stateStage
 
   const backendStage = normalizePipelineStage(
@@ -451,25 +460,69 @@ function greeting(trainer) {
   return `Dear ${name || 'Trainer'},`
 }
 
-const TRAINER_SIGNATURE = 'Regards,\nTrainerSync Team\nsujithaofficial784@gmail.com'
+function cleanDetailValue(value) {
+  return value == null ? '' : String(value).trim()
+}
+
+function mail1RequirementDetails(req = {}, details = {}) {
+  const duration = cleanDetailValue(
+    details.duration ||
+    req.duration_text ||
+    (req.duration_days ? `${req.duration_days} day(s)` : '') ||
+    (req.duration_hours ? `${req.duration_hours} hour(s)` : '')
+  )
+  const timing = cleanDetailValue(req.timing || req.schedule || req.training_timing || req.training_dates || req.timeline_start)
+  const mode = cleanDetailValue(details.mode || req.mode || req.training_mode || req.delivery_mode)
+  const participants = cleanDetailValue(details.participants || req.participant_count || req.participants)
+  const commercial = cleanDetailValue(
+    req.trainer_visible_budget_per_session ||
+    req.trainer_requested_budget_per_session ||
+    req.budget_per_day ||
+    req.client_budget_per_day ||
+    req.budget_per_hour ||
+    req.budget_total ||
+    req.budget ||
+    req.commercials?.total_amount
+  )
+  return {
+    duration,
+    timing,
+    mode,
+    participants,
+    commercial: commercial ? (/^\d+(\.\d+)?$/.test(commercial) ? `INR ${Number(commercial).toLocaleString('en-IN')}` : commercial) : '',
+  }
+}
+
+function mail1MissingClientDetails(detailMap) {
+  return [
+    !detailMap.duration ? 'duration' : '',
+    !detailMap.timing ? 'timing/schedule' : '',
+    !detailMap.mode ? 'training mode' : '',
+    !detailMap.commercial ? 'commercials/budget' : '',
+  ].filter(Boolean)
+}
+
+const TRAINER_SIGNATURE = 'Regards,\nClahan Technologies\nsujithaofficial784@gmail.com'
 
 // ─── Email template builders ──────────────────────────────────────────────────
 function mail1Template(trainer, req, hasDetails, details, isReminder = false, reminderNum = 0) {
   const domain = details?.domain || req.technology_needed
+  const detailMap = mail1RequirementDetails(req, details)
+  const missingDetails = mail1MissingClientDetails(detailMap)
   const hello = greeting(trainer)
   const reminderPrefix = isReminder
     ? `${hello}\n\nThis is a gentle follow-up (Reminder ${reminderNum}) to our earlier email regarding the ${domain} training requirement.\n\nWe haven't received your response yet. Kindly let us know your interest and availability at the earliest.\n\n---\n\n`
     : ''
   let body = `${reminderPrefix}${hello}\n\nWe have received a training requirement for ${domain} and are looking for a trainer with relevant experience.\n\nTraining Details:\n\nDomain/Technology: ${domain}`
-  if (hasDetails) {
-    if (details.duration)     body += `\nDuration: ${details.duration}`
-    if (details.mode)         body += `\nMode: ${details.mode}`
-    if (details.participants) body += `\nParticipants: ${details.participants}`
+  if (detailMap.duration) body += `\nDuration: ${detailMap.duration}`
+  if (detailMap.timing) body += `\nTiming/Schedule: ${detailMap.timing}`
+  if (detailMap.mode) body += `\nMode: ${detailMap.mode}`
+  if (detailMap.participants) body += `\nParticipants: ${detailMap.participants}`
+  if (detailMap.commercial) body += `\nCommercials/Budget: ${detailMap.commercial}`
+  if (missingDetails.length) {
+    body += `\n\nThe client has not provided the ${missingDetails.join(', ')} yet. We will share those details later once we receive them.`
   }
-  if (!details?.duration || !details?.participants) {
-    body += `\n\nAt this stage, we are checking your interest and availability first. Once you confirm, we will share the confirmed duration, schedule, participants, and other requirement details as they are finalized.`
-  }
-  body += `\n\nPlease let us know if you are interested and available for this requirement. Kindly share your updated trainer profile along with relevant experience.\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`
+  body += `\n\nPlease let us know if you are interested and available for this requirement. Kindly share your updated trainer profile along with relevant experience.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
   const subject = isReminder
     ? `[Reminder ${reminderNum}] Training Requirement – ${domain}`
     : `Training Requirement – ${domain}`
@@ -484,25 +537,41 @@ function isMail1OffStageQuestion(text = '') {
   return asksQuestion && offStageTopic
 }
 
+function isDeliveryBounce(text = '') {
+  const clean = stripQuotedEmail(text).toLowerCase()
+  return /\b(address not found|message blocked|wasn'?t delivered|delivery incomplete|mail delivery subsystem|undeliverable)\b/.test(clean)
+}
+
 function mail1QuestionRedirectTemplate(trainer, req) {
   const domain = req?.technology_needed || 'the training requirement'
+  const detailMap = mail1RequirementDetails(req)
+  const knownLines = [
+    detailMap.duration ? `Duration: ${detailMap.duration}` : '',
+    detailMap.timing ? `Timing/Schedule: ${detailMap.timing}` : '',
+    detailMap.mode ? `Mode: ${detailMap.mode}` : '',
+    detailMap.commercial ? `Commercials/Budget: ${detailMap.commercial}` : '',
+  ].filter(Boolean)
+  const missingDetails = mail1MissingClientDetails(detailMap)
+  const detailReply = knownLines.length
+    ? `Available details:\n${knownLines.join('\n')}\n\n${missingDetails.length ? `The client has not provided the ${missingDetails.join(', ')} yet. We will share those details later once we receive them.` : 'These are the details currently available from the client.'}`
+    : `The client has not provided the duration, timing/schedule, training mode, or commercials/budget yet. We will share those details later once we receive them.`
   return {
     subject: `Re: Training Requirement - ${domain}`,
-    body: `${greeting(trainer)}\n\nThank you for your question.\n\nAt this stage, we are first checking your interest and availability for the ${domain} requirement. Confirmed duration, schedule, participant count, client details, and Google Meet / meeting link details will be shared in the next step once your profile is shortlisted and the client confirms the discussion.\n\nFor now, could you please confirm if you are interested and available for this requirement? If yes, kindly share your updated trainer profile and relevant experience.\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`,
+    body: `${greeting(trainer)}\n\nThank you for your question.\n\n${detailReply}\n\nFor now, could you please confirm if you are interested and available for the ${domain} requirement? If yes, kindly share your updated trainer profile and relevant experience.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`,
   }
 }
 
 function mail2Template(trainer, req) {
   return {
     subject: `Training Requirement – ${req.technology_needed} | Additional Details Required`,
-    body: `${greeting(trainer)}\n\nThank you for your response.\n\nTo proceed further, kindly share the below details:\n\n* Total years of experience\n* Number of trainings conducted previously\n* Relevant certifications\n* Preferred training mode (Online / Offline)\n* Availability for Full-Day or Half-Day sessions\n* Expected commercial charges per day/session\n* Current location\n* Availability for the mentioned dates\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nThank you for your response.\n\nTo proceed further, kindly share the below details:\n\n* Total years of experience\n* Number of trainings conducted previously\n* Relevant certifications\n* Preferred training mode (Online / Offline)\n* Availability for Full-Day or Half-Day sessions\n* Expected commercial charges per day/session\n* Current location\n* Availability for the mentioned dates\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
   }
 }
 
 function mail2FollowupTemplate(trainer, req) {
   return {
     subject: `Re: Training Requirement – ${req.technology_needed} | Details Required`,
-    body: `${greeting(trainer)}\n\nThank you for confirming your interest.\n\nTo proceed further, kindly share the above requested details:\n\n* Total years of experience\n* Number of trainings conducted previously\n* Relevant certifications\n* Preferred training mode (Online / Offline)\n* Availability for Full-Day or Half-Day sessions\n* Expected commercial charges per day/session\n* Current location\n* Availability for the mentioned dates\n\nOnce we receive these details, we can move ahead with the next step.\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nThank you for confirming your interest.\n\nTo proceed further, kindly share the above requested details:\n\n* Total years of experience\n* Number of trainings conducted previously\n* Relevant certifications\n* Preferred training mode (Online / Offline)\n* Availability for Full-Day or Half-Day sessions\n* Expected commercial charges per day/session\n* Current location\n* Availability for the mentioned dates\n\nOnce we receive these details, we can move ahead with the next step.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
   }
 }
 
@@ -515,7 +584,7 @@ function trainerCommercialNegotiationTemplate(trainer, req, quote, target) {
     : ''
   return {
     subject: `Re: Training Requirement - ${domain} | Commercial Discussion`,
-    body: `${greeting(trainer)}\n\nThank you for sharing your details and commercials for the ${domain} requirement.\n\n${clientBudgetLine}To align with this budget, kindly confirm if you can proceed at INR ${target.amount.toLocaleString('en-IN')} ${unitText}.\n\nPlease let us know if this revised commercial is workable.\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nThank you for sharing your details and commercials for the ${domain} requirement.\n\n${clientBudgetLine}To align with this budget, kindly confirm if you can proceed at INR ${target.amount.toLocaleString('en-IN')} ${unitText}.\n\nPlease let us know if this revised commercial is workable.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
   }
 }
 
@@ -529,7 +598,7 @@ function mail3Template(trainer, req, trainerDates) {
   
   return {
     subject: `Interview Slot Booking - ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nThank you for sharing your details.\n\nWe would like to book an interview slot with you. Based on your availability, please confirm one of the following slots:\n\nexample\n${slotsText}\n\nKindly confirm your preferred slot at the earliest.\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nThank you for sharing your details.\n\nWe would like to book an interview slot with you. Based on your availability, please confirm one of the following slots:\n\nexample\n${slotsText}\n\nKindly confirm your preferred slot at the earliest.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
   }
 }
 
@@ -550,21 +619,21 @@ function mail3TooManySlotsTemplate(trainer) {
 function mail4Template(trainer, req, interviewLink, platform, dateTime) {
   return {
     subject: `Interview Schedule Confirmation – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nYour interview has been scheduled. Please find the details below:\n\nDate & Time: ${dateTime || '[Date & Time]'}\nPlatform: ${platform || 'Google Meet'}\nMeeting Link: ${interviewLink || '[Google Meet Link]'}\n\nPlease join on time. Let us know if you need any assistance.\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nYour interview has been scheduled. Please find the details below:\n\nDate & Time: ${dateTime || '[Date & Time]'}\nPlatform: ${platform || 'Google Meet'}\nMeeting Link: ${interviewLink || '[Google Meet Link]'}\n\nPlease join on time. Let us know if you need any assistance.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
   }
 }
 
 function mail5SelectedTemplate(trainer, req) {
   return {
     subject: `Congratulations! You have been Selected – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nCongratulations! We are pleased to inform you that you have been selected for the ${req.technology_needed} training requirement.\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nCongratulations! We are pleased to inform you that you have been selected for the ${req.technology_needed} training requirement.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
   }
 }
 
 function mail5RejectedTemplate(trainer, req) {
   return {
     subject: `Update on Training Requirement – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nThank you for your time and interest in the ${req.technology_needed} training requirement.\n\nAfter careful consideration, we regret to inform you that we have decided to proceed with another trainer at this time.\n\nWe will keep your profile on record and reach out for future opportunities.\n\nThank you once again for your cooperation.\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nThank you for your time and interest in the ${req.technology_needed} training requirement.\n\nAfter careful consideration, we regret to inform you that we have decided to proceed with another trainer at this time.\n\nWe will keep your profile on record and reach out for future opportunities.\n\nThank you once again for your cooperation.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
   }
 }
 
@@ -572,7 +641,7 @@ function mail5RejectedTemplate(trainer, req) {
 function mailTocAutoTemplate(trainer, req) {
   return {
     subject: `Action Required: ToC / Course Agenda – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nCongratulations again on being selected for the ${req.technology_needed} training!\n\nTo initiate the onboarding process, kindly share the following at the earliest:\n\n* Detailed Table of Contents (ToC) / Course Agenda\n* Day-wise session breakdown\n* Tools, software, or prerequisites required by participants\n* Estimated preparation time needed\n\nPlease revert at the earliest so we can coordinate with the client on schedule.\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nCongratulations again on being selected for the ${req.technology_needed} training!\n\nTo initiate the onboarding process, kindly share the following at the earliest:\n\n* Detailed Table of Contents (ToC) / Course Agenda\n* Day-wise session breakdown\n* Tools, software, or prerequisites required by participants\n* Estimated preparation time needed\n\nPlease revert at the earliest so we can coordinate with the client on schedule.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
   }
 }
 
@@ -580,7 +649,7 @@ function mailTocAutoTemplate(trainer, req) {
 function mailTrainingConfirmedTemplate(trainer, req, contactName, contactPhone, contactEmail, trainingDate, venue) {
   return {
     subject: `Training Schedule Confirmed – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nWe are pleased to confirm your engagement for the ${req.technology_needed} training. Please find the final details below:\n\nTraining Date: ${trainingDate || '[Training Date]'}\nVenue / Platform: ${venue || '[Venue / Platform]'}\n\nAction Items Before Training:\n* Ensure all materials and slides are ready\n* Share soft copies of training content with us 2 days prior\n* Confirm your availability 24 hours before the training\n\nFor any questions or additional information, please contact:\n\n👤 ${contactName || '[Contact Name]'}\n📞 ${contactPhone || '[Phone Number]'}\n📧 ${contactEmail || '[Email]'}\n\nWe look forward to a successful training session!\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nWe are pleased to confirm your engagement for the ${req.technology_needed} training. Please find the final details below:\n\nTraining Date: ${trainingDate || '[Training Date]'}\nVenue / Platform: ${venue || '[Venue / Platform]'}\n\nAction Items Before Training:\n* Ensure all materials and slides are ready\n* Share soft copies of training content with us 2 days prior\n* Confirm your availability 24 hours before the training\n\nFor any questions or additional information, please contact:\n\n👤 ${contactName || '[Contact Name]'}\n📞 ${contactPhone || '[Phone Number]'}\n📧 ${contactEmail || '[Email]'}\n\nWe look forward to a successful training session!\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
   }
 }
 
@@ -636,6 +705,16 @@ function stripQuotedEmail(text = '') {
     .filter(line => !line.trim().startsWith('>'))
     .join('\n')
     .trim()
+}
+
+function messageTime(message = {}) {
+  return new Date(
+    message.sent_at ||
+    message.received_at ||
+    message.created_at ||
+    message.updated_at ||
+    0
+  ).getTime()
 }
 
 const TRAINING_COUNT_WORDS = new Set(['training', 'trainings', 'session', 'sessions', 'batch', 'batches', 'conducted'])
@@ -893,10 +972,10 @@ async function sendSlotClarificationMail({ trainer, req }) {
 function latestReplyAfter(messages, sentTypes = []) {
   const sent = messages.filter(m => m.direction === 'sent' && sentTypes.includes(m.mail_type))
   if (!sent.length) return null
-  const lastSentTime = Math.max(...sent.map(m => new Date(m.sent_at || 0).getTime()))
+  const lastSentTime = Math.max(...sent.map(messageTime))
   return [...messages]
-    .sort((a, b) => new Date(a.sent_at || 0).getTime() - new Date(b.sent_at || 0).getTime())
-    .findLast(m => m.direction === 'received' && new Date(m.sent_at || 0).getTime() > lastSentTime) || null
+    .sort((a, b) => messageTime(a) - messageTime(b))
+    .findLast(m => m.direction === 'received' && messageTime(m) > lastSentTime) || null
 }
 
 async function sendSlotsToClient({ trainer, req, slotText = '', force = false, clientEmail = '', clientName = '' }) {
@@ -982,9 +1061,9 @@ function ClientEmailModal({
 function inferPipelineStateFromThread(messages = []) {
   if (!messages.length) return null
 
-  const sorted = [...messages].sort((a, b) => new Date(a.sent_at || 0).getTime() - new Date(b.sent_at || 0).getTime())
+  const sorted = [...messages].sort((a, b) => messageTime(a) - messageTime(b))
   const sentTypes = new Set(sorted.filter(m => m.direction === 'sent').map(m => m.mail_type))
-  const ts = msg => new Date(msg?.sent_at || Date.now()).getTime()
+  const ts = msg => messageTime(msg) || Date.now()
 
   if (sentTypes.has('mail5_no')) return { status: 'rejected' }
   if (sentTypes.has('mail7_confirm')) return { status: 'training_confirmed' }
@@ -2204,7 +2283,7 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
           const reqMatch = !m.requirement_id || String(m.requirement_id) === String(req.requirement_id)
           return trainerMatch && reqMatch
         })
-        filtered.sort((a, b) => new Date(a.sent_at || 0) - new Date(b.sent_at || 0))
+        filtered.sort((a, b) => messageTime(a) - messageTime(b))
         if (silent && lastMessageCountRef.current && filtered.length > lastMessageCountRef.current) {
           toast.success('New conversation reply received')
         }
@@ -2301,7 +2380,7 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
                       </span>
                     )}
                     <span className="text-xs text-slate-400">
-                      {msg.sent_at ? new Date(msg.sent_at).toLocaleString() : ''}
+                      {(msg.sent_at || msg.received_at || msg.created_at) ? new Date(msg.sent_at || msg.received_at || msg.created_at).toLocaleString() : ''}
                     </span>
                   </div>
                 </div>
@@ -2597,44 +2676,28 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           )
           if (!mail1Messages.length) continue
 
-          const firstSentTime = Math.min(...mail1Messages.map(m => new Date(m.sent_at || 0).getTime()))
-          const lastSentTime = Math.max(...mail1Messages.map(m => new Date(m.sent_at || 0).getTime()))
+          const firstSentTime = Math.min(...mail1Messages.map(messageTime))
+          const lastSentTime = Math.max(...mail1Messages.map(messageTime))
           const repliesAfterMail1 = messages
-            .filter(m => m.direction === 'received' && new Date(m.sent_at || 0).getTime() > firstSentTime)
-            .sort((a, b) => new Date(a.sent_at || 0).getTime() - new Date(b.sent_at || 0).getTime())
+            .filter(m => m.direction === 'received' && messageTime(m) > firstSentTime && !isDeliveryBounce(m.body || ''))
+            .sort((a, b) => messageTime(a) - messageTime(b))
 
           if (repliesAfterMail1.length) {
             const latest = repliesAfterMail1[repliesAfterMail1.length - 1]
             const firstReply = repliesAfterMail1[0]
             const intent = detectIntent(latest.body)
             const rank = trainers.indexOf(trainer) + 1
-            const replyAt = new Date(firstReply.sent_at || Date.now()).getTime()
+            const replyAt = messageTime(firstReply) || Date.now()
 
             if (intent === 'negative') {
               toast(`🤖 Auto: ${trainer.name} (Rank ${rank}) declined ❌`, { icon: '⏭️', duration: 5000 })
               setStage(trainer, 'rejected')
-            } else if (intent === 'positive' || intent === 'toc_received') {
-              toast(`🤖 Auto: ${trainer.name} replied to Mail 1 ✅ — queued for details`, { icon: '📬', duration: 4000 })
-              setStage(trainer, 'mail1_replied', { mail1ReplyAt: replyAt })
-            } else if (isMail1OffStageQuestion(latest.body)) {
-              const latestReplyAt = new Date(latest.sent_at || Date.now()).getTime()
-              const handledAt = nextStates[trainer.trainer_id]?.mail1QuestionRedirectAt || 0
-              const guardKey = `${req.requirement_id}:${trainer.trainer_id}:mail1_question_redirect:${latestReplyAt}:${stripQuotedEmail(latest.body).slice(0, 80)}`
-              if (latestReplyAt > handledAt && shouldSendOnce(guardKey)) {
-                const { subject, body } = mail1QuestionRedirectTemplate(trainer, req)
-                const res = await api.post('/shortlists/send-mail', {
-                  trainer_id:     trainer.trainer_id,
-                  trainer_name:   trainer.name,
-                  to_email:       trainer.email,
-                  requirement_id: req.requirement_id,
-                  subject,
-                  body,
-                  mail_type: 'mail1_question_redirect',
-                })
-                showSendStatusToast({ trainerName: trainer.name, result: res.data, title: 'Interest clarification sent' })
-                toast(`Auto: ${trainer.name} asked for later-stage details. Interest clarification sent.`, { icon: 'i', duration: 5000 })
-              }
-              setStage(trainer, 'waiting_reply1', { mail1QuestionRedirectAt: latestReplyAt })
+            } else {
+              toast(`Auto: ${trainer.name} replied to Mail 1 - queued for details`, { icon: 'mail', duration: 4000 })
+              setStage(trainer, 'mail1_replied', {
+                mail1ReplyAt: replyAt,
+                mail1QuestionReply: isMail1OffStageQuestion(latest.body),
+              })
             }
             continue
           }
@@ -2721,7 +2784,9 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
 
         if (activeStage === 'details_received') {
           const messages = await getThread(activeTrainer)
-          
+          runningRef.current = false
+          return
+           
           // AUTO: Send trainer commercials to client after mail2 reply received
           const clientCommercialsSent = messages.some(m => m.direction === 'sent' && m.mail_type === 'trainer_commercials_to_client')
           
@@ -2733,6 +2798,10 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
             runningRef.current = false
             return
           }
+
+          toast(`Commercials were sent to ${req.client_name || 'client'}. Wait for client approval before slot booking.`, { icon: 'INR', duration: 4000 })
+          runningRef.current = false
+          return
 
           // Commercials sent - now proceed with slot booking
           const mail3AlreadySent = messages.some(m => m.direction === 'sent' && m.mail_type === 'mail3')
@@ -2779,7 +2848,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
               return
             }
             setStage(activeTrainer, 'details_received', {
-              detailsAcceptedAt: new Date(latestDetailsReply.sent_at || Date.now()).getTime(),
+              detailsAcceptedAt: messageTime(latestDetailsReply) || Date.now(),
             })
             toast(`🤖 Auto: ${activeTrainer.name} shared the requested details — ready for Slot Booking`, { icon: '✅', duration: 5000 })
             runningRef.current = false
@@ -2794,19 +2863,19 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           if (!mail3Messages.length) { runningRef.current = false; return }
 
           if (mail2Messages.length && !nextStates[activeTrainer.trainer_id]?.slotConfirmed) {
-            const lastMail2Time = Math.max(...mail2Messages.map(m => new Date(m.sent_at || 0).getTime()))
-            const firstMail3Time = Math.min(...mail3Messages.map(m => new Date(m.sent_at || 0).getTime()))
+            const lastMail2Time = Math.max(...mail2Messages.map(messageTime))
+            const firstMail3Time = Math.min(...mail3Messages.map(messageTime))
             const mail2Replies = messages
               .filter(m =>
                 m.direction === 'received' &&
-                new Date(m.sent_at || 0).getTime() > lastMail2Time &&
-                new Date(m.sent_at || 0).getTime() < firstMail3Time
+                messageTime(m) > lastMail2Time &&
+                messageTime(m) < firstMail3Time
               )
-              .sort((a, b) => new Date(a.sent_at || 0).getTime() - new Date(b.sent_at || 0).getTime())
+              .sort((a, b) => messageTime(a) - messageTime(b))
 
             if (mail2Replies.length && !mail2Replies.some(m => hasRequestedTrainerDetails(m.body))) {
               const latestMail2Reply = mail2Replies[mail2Replies.length - 1]
-              const replyTime = new Date(latestMail2Reply.sent_at || Date.now()).getTime()
+              const replyTime = messageTime(latestMail2Reply) || Date.now()
               const handledAt = nextStates[activeTrainer.trainer_id]?.detailsFollowupAt || 0
               const guardKey = `${req.requirement_id}:${activeTrainer.trainer_id}:mail2_followup:${replyTime}:${stripQuotedEmail(latestMail2Reply.body).slice(0, 80)}`
               if (replyTime > handledAt && shouldSendOnce(guardKey)) {
@@ -2828,15 +2897,15 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
             }
           }
 
-          const lastMail3Time = Math.max(...mail3Messages.map(m => new Date(m.sent_at || 0).getTime()))
+          const lastMail3Time = Math.max(...mail3Messages.map(messageTime))
           const handledAt = nextStates[activeTrainer.trainer_id]?.slotReplyAt || 0
           const newReplies = messages
             .filter(m =>
               m.direction === 'received' &&
-              new Date(m.sent_at || 0).getTime() > lastMail3Time &&
-              new Date(m.sent_at || 0).getTime() > handledAt
+              messageTime(m) > lastMail3Time &&
+              messageTime(m) > handledAt
             )
-            .sort((a, b) => new Date(a.sent_at || 0).getTime() - new Date(b.sent_at || 0).getTime())
+            .sort((a, b) => messageTime(a) - messageTime(b))
 
           if (!newReplies.length) {
             runningRef.current = false
@@ -2844,7 +2913,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           }
 
           const latest = newReplies[newReplies.length - 1]
-          const replyTime = new Date(latest.sent_at || Date.now()).getTime()
+          const replyTime = messageTime(latest) || Date.now()
           const intent = detectIntent(latest.body)
           const rank = trainers.indexOf(activeTrainer) + 1
 
@@ -2916,21 +2985,21 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           const messages = await getThread(activeTrainer)
           const sentMails = messages.filter(m => m.direction === 'sent')
           if (!sentMails.length) { runningRef.current = false; return }
-          const lastSentTime = Math.max(...sentMails.map(m => new Date(m.sent_at || 0).getTime()))
+          const lastSentTime = Math.max(...sentMails.map(messageTime))
           const newReplies = messages.filter(m =>
             m.direction === 'received' &&
-            new Date(m.sent_at || 0).getTime() > lastSentTime
+            messageTime(m) > lastSentTime
           )
           if (!newReplies.length) { runningRef.current = false; return }
 
           const latest = newReplies[newReplies.length - 1]
           const intent = detectIntent(latest.body)
-          const replyTime = new Date(latest.sent_at || Date.now()).getTime()
+          const replyTime = messageTime(latest) || Date.now()
           const handledAt = nextStates[activeTrainer.trainer_id]?.detailsFollowupAt || 0
           const rank   = trainers.indexOf(activeTrainer) + 1
           const lastSentMail = sentMails
             .slice()
-            .sort((a, b) => new Date(b.sent_at || 0).getTime() - new Date(a.sent_at || 0).getTime())[0]
+            .sort((a, b) => messageTime(b) - messageTime(a))[0]
           const isNegotiationReply = lastSentMail?.mail_type === 'commercial_negotiation'
           const isClientBudgetRevisionReply = lastSentMail?.mail_type === 'client_budget_revision_request'
           const acceptedNegotiatedCommercial = isNegotiationReply && isCommercialAcceptedAfterNegotiation(latest.body, req)
@@ -3006,9 +3075,15 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           }
 
           if (acceptedNegotiatedCommercial) {
-            toast(`Auto: ${activeTrainer.name} accepted revised commercials. Moving to slot booking.`, { icon: 'INR', duration: 5000 })
+            toast(`Auto: ${activeTrainer.name} accepted revised commercials. Send commercials to the client before slot booking.`, { icon: 'INR', duration: 5000 })
+            setStage(activeTrainer, 'details_received', { commercialAcceptedAt: replyTime })
+            runningRef.current = false
+            return
           } else if (acceptedClientBudgetRevision) {
-            toast(`Auto: client approved revised commercials for ${activeTrainer.name}. Moving to slot booking.`, { icon: 'INR', duration: 5000 })
+            toast(`Auto: client approved revised commercials for ${activeTrainer.name}. Slot booking is now ready.`, { icon: 'INR', duration: 5000 })
+            setStage(activeTrainer, 'details_received', { clientBudgetRevisionAcceptedAt: replyTime })
+            runningRef.current = false
+            return
           } else if (!hasRequestedTrainerDetails(latest.body)) {
             const guardKey = `${req.requirement_id}:${activeTrainer.trainer_id}:mail2_followup:${replyTime}:${stripQuotedEmail(latest.body).slice(0, 80)}`
             if (replyTime > handledAt && shouldSendOnce(guardKey)) {
@@ -3047,6 +3122,13 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
             runningRef.current = false
             return
           }
+
+          toast(`Auto: ${activeTrainer.name} shared trainer details. Send commercials to the client before slot booking.`, { icon: 'INR', duration: 5000 })
+          setStage(activeTrainer, 'details_received', {
+            detailsAcceptedAt: replyTime,
+          })
+          runningRef.current = false
+          return
 
           const { subject, body } = mail3Template(activeTrainer, req, '')
           const res = await api.post('/shortlists/send-mail', {
@@ -3447,7 +3529,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           to_email: trainer.email,
           requirement_id: req.requirement_id,
           subject: `Training Engagement Update – ${req.technology_needed} | Rate Discussion`,
-          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for sharing your details and commercials for the ${req.technology_needed} requirement.\n\nThe client has confirmed a budget of INR ${clientAmount.toLocaleString('en-IN')} per day. To align with this budget, kindly confirm if you can proceed at INR ${targetAmount.toLocaleString('en-IN')} per day.\n\nPlease let us know if this revised commercial is workable.\n\nRegards,\nTrainerSync Team\nsujithaofficial784@gmail.com`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for sharing your details and commercials for the ${req.technology_needed} requirement.\n\nThe client has confirmed a budget of INR ${clientAmount.toLocaleString('en-IN')} per day. To align with this budget, kindly confirm if you can proceed at INR ${targetAmount.toLocaleString('en-IN')} per day.\n\nPlease let us know if this revised commercial is workable.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`,
           mail_type: 'trainer_rate_discussion',
         })
         
@@ -3614,7 +3696,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             m.direction === 'received' && 
             m.mail_type !== 'mail1' && 
             m.mail_type !== 'mail3'
-          ).sort((a, b) => new Date(b.sent_at || 0) - new Date(a.sent_at || 0))[0]
+          ).sort((a, b) => messageTime(b) - messageTime(a))[0]
         }
         
         if (!mail2Reply) {
@@ -3670,7 +3752,10 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         
         if (isSendMailDelivered(commercialRes?.data)) {
           toast.success(`✅ Notification & Commercials sent to ${req.client_name || 'client'}`)
-          
+          onStatusUpdate(trainer.trainer_id, 'details_received', { clientCommercialsSentAt: Date.now() })
+          setSendingCommercials(false)
+          return
+
           // Now send mail3 (slot booking) after commercials are approved
           try {
             const { subject: mail3Subject, body: mail3Body } = mail3Template(trainer, req, '')
@@ -4185,7 +4270,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     const latestDetailsReply = latestReplyAfter(messages, ['mail2', 'mail2_followup'])
     if (latestDetailsReply && hasRequestedTrainerDetails(latestDetailsReply.body) && ['waiting_reply2', 'details_requested', 'slot_booked'].includes(current)) {
       update('details_received', {
-        detailsAcceptedAt: new Date(latestDetailsReply.sent_at || Date.now()).getTime(),
+        detailsAcceptedAt: messageTime(latestDetailsReply) || Date.now(),
       })
       return
     }
@@ -4193,7 +4278,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     const latestMail1Reply = latestReplyAfter(messages, ['mail1', 'mail1_reminder'])
     if (latestMail1Reply && ['pending', 'mail1_sent', 'waiting_reply1'].includes(current)) {
       update('mail1_replied', {
-        mail1ReplyAt: new Date(latestMail1Reply.sent_at || Date.now()).getTime(),
+        mail1ReplyAt: messageTime(latestMail1Reply) || Date.now(),
       })
       return
     }
@@ -4202,7 +4287,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     if (latestSlotReply && current === 'slot_booked' && !state?.slotConfirmed) {
       const slotText = stripQuotedEmail(latestSlotReply.body)
       if (!hasProperInterviewSlots(slotText)) {
-        const replyTime = new Date(latestSlotReply.sent_at || Date.now()).getTime()
+        const replyTime = messageTime(latestSlotReply) || Date.now()
         if (replyTime > (state?.slotClarificationAt || 0)) {
           sendSlotClarificationMail({ trainer, req })
             .then(res => showSendStatusToast({ trainerName: trainer.name, result: res, title: 'Slot clarification sent' }))
@@ -4212,7 +4297,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         return
       }
       update('slot_booked', {
-        slotReplyAt: new Date(latestSlotReply.sent_at || Date.now()).getTime(),
+        slotReplyAt: messageTime(latestSlotReply) || Date.now(),
         slotConfirmed: true,
         clientSlotText: slotText,
       })
@@ -4404,7 +4489,7 @@ export default function Shortlist1() {
   const [savingClientContact, setSavingClientContact] = useState(false)
   const [deletingReqId, setDeletingReqId] = useState('')
   const [missingRequirement, setMissingRequirement] = useState(false)
-  const [autoMode, setAutoMode] = useState(false)
+  const [autoMode, setAutoMode] = useState(true)
   const [allowAutoReminders, setAllowAutoReminders] = useState(false)
 
   useEffect(() => {
@@ -4468,12 +4553,12 @@ export default function Shortlist1() {
       .then(res => {
         if (cancelled) return
         const settings = res.data?.settings || res.data || {}
-        setAutoMode(truthySetting(settings.pipeline?.autoSend))
+        setAutoMode(settings.pipeline?.autoSend === undefined ? true : truthySetting(settings.pipeline?.autoSend))
         setAllowAutoReminders(remindersAllowedFromSettings(settings))
       })
       .catch(() => {
         if (!cancelled) {
-          setAutoMode(false)
+          setAutoMode(true)
           setAllowAutoReminders(false)
         }
       })

@@ -28,7 +28,7 @@ LOCAL_SERVICE_FALLBACKS = {
     "https://email-service:8002": "http://127.0.0.1:8003",
     "http://127.0.0.1:8002": "http://127.0.0.1:8003",
     "http://core-api:8001": "http://127.0.0.1:8001",
-    "https://document-service:8006": "http://127.0.0.1:8006",
+    "https://document-service:8006": "http://document-service:8006",
     "https://notification-service:8003": "http://127.0.0.1:8003",
 }
 EXCLUDED_TRAINER_STATUSES = {"interested", "confirmed", "declined"}
@@ -48,6 +48,32 @@ ACTIVE_PIPELINE_STAGES = {
     "toc_received_pending",
     "training_confirmed",
 }
+MAIL2_TYPES = {"mail2", "mail2_followup"}
+CLIENT_COMMERCIAL_MAIL_TYPES = {
+    "trainer_commercials_to_client",
+    "commercial_details_notification",
+}
+POSITIVE_REPLY_SIGNALS = (
+    "interested",
+    "i am interested",
+    "i'm interested",
+    "available",
+    "yes",
+    "confirm",
+    "okay",
+    "ok",
+    "fine",
+    "share details",
+    "send details",
+)
+NEGATIVE_REPLY_SIGNALS = (
+    "not interested",
+    "not available",
+    "decline",
+    "cannot",
+    "can't",
+    "no",
+)
 
 
 class SendMailRequest(BaseModel):
@@ -56,6 +82,7 @@ class SendMailRequest(BaseModel):
     trainer_ids: Optional[List[str]] = None
     to_email: Optional[str] = ""
     to_name: Optional[str] = ""
+    trainer_name: Optional[str] = ""
     mail_type: str = "mail1"
     subject: Optional[str] = ""
     body: Optional[str] = ""
@@ -120,7 +147,8 @@ def _client_interview_message(
         f"Meeting Link: {interview_link}\n\n"
         "Kindly join on time and let us know if any change is required.\n\n"
         "Regards,\n"
-        "TrainerSync Team"
+        "Clahan Technologies\n"
+        "sujithaofficial784@gmail.com"
     )
     return {"subject": subject, "body": body}
 
@@ -172,6 +200,117 @@ def _safe_int(value: Any, default: int = 0) -> int:
         return int(float(value))
     except (TypeError, ValueError):
         return default
+
+
+def _money_to_int(raw_amount: Any, suffix: str = "") -> int:
+    amount = _safe_float(str(raw_amount or "").replace(",", ""), 0)
+    suffix = str(suffix or "").lower()
+    if suffix in {"k", "thousand"}:
+        amount *= 1000
+    elif suffix in {"lakh", "lakhs"}:
+        amount *= 100000
+    return int(round(amount))
+
+
+def _commercial_amounts_from_text(text: Any) -> List[int]:
+    raw = _clean(text)
+    if not raw:
+        return []
+    rupee = re.escape(chr(0x20B9))
+    amounts: List[int] = []
+    patterns = [
+        (rf"(?:INR|Rs\.?|{rupee})\s*([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?", False),
+        (r"\b(?:commercials?|rates?|charges?|fees?|cost|quote|quoted)\b\D{0,80}([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?", False),
+        (r"([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?\s*(?:/-)?\s*(?:per\s*(?:day|session|hour|hr)|/day|/session|/hour|/hr)", True),
+    ]
+    contextual_line = re.compile(r"\b(?:commercials?|rates?|charges?|fees?|cost|quote|quoted)\b", flags=re.IGNORECASE)
+    for line in raw.splitlines():
+        line_has_money_context = bool(contextual_line.search(line))
+        for pattern, requires_context in patterns:
+            for match in re.finditer(pattern, line, flags=re.IGNORECASE):
+                if requires_context and not line_has_money_context:
+                    continue
+                amount = _money_to_int(match.group(1), match.group(2) if len(match.groups()) > 1 else "")
+                if amount >= 1000 and amount not in amounts:
+                    amounts.append(amount)
+    return amounts
+
+
+def _trainer_commercial_amounts(trainer: Dict[str, Any]) -> List[int]:
+    amounts: List[int] = []
+    for key in (
+        "commercial_amount",
+        "commercial_rate",
+        "quoted_amount",
+        "quoted_rate",
+        "day_rate",
+        "rate",
+        "trainer_target_rate",
+    ):
+        amount = _money_to_int(trainer.get(key))
+        if amount >= 1000 and amount not in amounts:
+            amounts.append(amount)
+    for key in (
+        "commercials",
+        "commercial_text",
+        "commercial_details",
+        "reply_text",
+        "last_reply_snippet",
+    ):
+        for amount in _commercial_amounts_from_text(trainer.get(key)):
+            if amount not in amounts:
+                amounts.append(amount)
+    return amounts
+
+
+def _is_positive_reply_doc(reply: Dict[str, Any]) -> bool:
+    sentiment = _clean(reply.get("sentiment") or reply.get("reply_sentiment")).lower()
+    action = _clean(reply.get("action")).lower()
+    scenario = _clean(reply.get("office_mail_category") or reply.get("scenario")).lower()
+    if sentiment == "positive" or action == "mark_interested":
+        return True
+    if scenario in {"trainer_details_sent", "trainer_commercials_sent"}:
+        return True
+    text = _clean(reply.get("body") or reply.get("body_snippet") or reply.get("reply_text")).lower()
+    if any(signal in text for signal in NEGATIVE_REPLY_SIGNALS):
+        return False
+    return any(signal in text for signal in POSITIVE_REPLY_SIGNALS)
+
+
+def _client_email_from_requirement(requirement: Dict[str, Any], shortlist: Dict[str, Any]) -> str:
+    return _clean(
+        requirement.get("client_email")
+        or requirement.get("email")
+        or shortlist.get("client_email")
+        or shortlist.get("client_contact_email")
+    )
+
+
+def _client_commercial_message(
+    requirement: Dict[str, Any],
+    shortlist: Dict[str, Any],
+    trainer: Dict[str, Any],
+    amounts: List[int],
+) -> Dict[str, str]:
+    technology = _clean(
+        requirement.get("technology_needed")
+        or requirement.get("technology")
+        or requirement.get("domain")
+        or shortlist.get("technology_needed")
+        or "training"
+    )
+    client_name = _clean(requirement.get("client_name") or requirement.get("client_company") or shortlist.get("client_name")) or "Client"
+    trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
+    rate_lines = "\n".join(f"- INR {amount:,.0f} per day/session" for amount in sorted(amounts))
+    subject = f"Trainer Commercials for Approval - {technology} | {trainer_name}"
+    body = (
+        f"Dear {client_name},\n\n"
+        f"Please find the commercials shared by {trainer_name} for the {technology} requirement.\n\n"
+        f"{rate_lines}\n\n"
+        "Please confirm if we can proceed with this trainer. Once approved, we will coordinate the next steps.\n\n"
+        "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
+    )
+    return {"subject": subject, "body": body}
 
 
 async def _post_with_local_fallback(
@@ -616,18 +755,88 @@ def _thread_log_response(log: Dict[str, Any]) -> Dict[str, Any]:
     return item
 
 
+def _log_text_for_thread(log: Dict[str, Any]) -> str:
+    return "\n".join(
+        _clean(log.get(key))
+        for key in ("subject", "body", "body_snippet", "raw_body", "clean_body")
+        if log.get(key)
+    )
+
+
+def _log_matches_trainer_thread(log: Dict[str, Any], trainer_id: str, trainer_name: str) -> bool:
+    if trainer_id and _clean(log.get("trainer_id")) == trainer_id:
+        return True
+    text = _log_text_for_thread(log)
+    if trainer_id and re.search(rf"\bRef\s*:\s*REQ-[A-Z0-9-]+\s*/\s*{re.escape(trainer_id)}\b", text, flags=re.IGNORECASE):
+        return True
+    if trainer_name and re.search(rf"\bDear\s+{re.escape(trainer_name)}\b", text, flags=re.IGNORECASE):
+        return True
+    return False
+
+
 @router.get("/thread")
 async def get_shortlist_thread(
     requirement_id: str = Query(...),
+    trainer_id: str = Query(""),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
+    trainer_email = ""
+    trainer_name = ""
+    if trainer_id:
+        shortlist = await db["shortlists"].find_one(
+            {"requirement_id": requirement_id},
+            {"_id": 0, "top_trainers": 1},
+        ) or {}
+        for trainer in shortlist.get("top_trainers") or []:
+            if str(trainer.get("trainer_id") or "") == str(trainer_id):
+                trainer_email = _clean(trainer.get("email") or trainer.get("trainer_email"))
+                trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name"))
+                break
+
     logs = await (
         db["email_logs"]
         .find({"requirement_id": requirement_id}, {"_id": 0})
         .sort("created_at", -1)
-        .to_list(200)
+        .to_list(500)
     )
-    messages = [_thread_log_response(log) for log in logs]
+    if trainer_id:
+        specific_logs = [
+            log for log in logs
+            if _log_matches_trainer_thread(log, trainer_id, trainer_name)
+        ]
+        if specific_logs:
+            logs = specific_logs
+        elif trainer_email:
+            email_regex = {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}
+            logs = await (
+                db["email_logs"]
+                .find(
+                    {
+                        "$or": [
+                            {"from_email": email_regex},
+                            {"sender": email_regex},
+                            {"sender_email": email_regex},
+                            {"recipient": email_regex},
+                            {"to_email": email_regex},
+                        ]
+                    },
+                    {"_id": 0},
+                )
+                .sort("created_at", -1)
+                .to_list(200)
+            )
+    messages = []
+    for log in logs:
+        item = _thread_log_response(log)
+        if trainer_id and not item.get("trainer_id") and trainer_email and _log_matches_trainer_thread(log, trainer_id, trainer_name):
+            sender = _clean(item.get("from_email") or item.get("sender") or item.get("sender_email")).lower()
+            recipient = _clean(item.get("recipient") or item.get("to_email")).lower()
+            if sender == trainer_email.lower() or recipient == trainer_email.lower():
+                item["trainer_id"] = trainer_id
+                item["trainer_name"] = item.get("trainer_name") or trainer_name
+        if requirement_id and not item.get("requirement_id"):
+            item["requirement_id"] = requirement_id
+        messages.append(item)
     return {"success": True, "requirement_id": requirement_id, "thread": messages, "messages": messages}
 
 
@@ -684,11 +893,68 @@ async def get_shortlist(requirement_id: str, db: AsyncIOMotorDatabase = Depends(
     changed = False
     for trainer in top_trainers:
         stage = _clean(trainer.get("pipeline_status") or trainer.get("last_mail_type")).lower()
+        trainer_id = _clean(trainer.get("trainer_id"))
+        trainer_email = _clean(trainer.get("email") or trainer.get("trainer_email"))
+        waiting_for_mail1_reply = stage in {"waiting_reply1", "mail1", "mail1_sent", "mail1_reminder"}
+        if waiting_for_mail1_reply:
+            reply_terms: List[Dict[str, Any]] = [
+                {
+                    "requirement_id": requirement_id,
+                    "direction": {"$in": ["inbound", "received"]},
+                    "source_outbound_mail_type": {"$in": ["mail1", "mail1_reminder"]},
+                }
+            ]
+            if trainer_id:
+                reply_terms[0]["trainer_id"] = trainer_id
+            elif trainer_email:
+                email_regex = {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}
+                reply_terms[0]["$or"] = [
+                    {"from_email": email_regex},
+                    {"sender": email_regex},
+                    {"sender_email": email_regex},
+                ]
+            else:
+                reply_terms = []
+
+            if reply_terms:
+                inbound_reply = await db["email_logs"].find_one(
+                    reply_terms[0],
+                    {
+                        "_id": 0,
+                        "created_at": 1,
+                        "received_at": 1,
+                        "body": 1,
+                        "body_snippet": 1,
+                        "sentiment": 1,
+                        "reply_sentiment": 1,
+                        "action": 1,
+                        "office_mail_category": 1,
+                        "scenario": 1,
+                    },
+                    sort=[("created_at", -1)],
+                )
+                if inbound_reply:
+                    positive_reply = _is_positive_reply_doc(inbound_reply)
+                    mail2_query: Dict[str, Any] = {
+                        "requirement_id": requirement_id,
+                        "mail_type": {"$in": ["mail2", "mail2_followup"]},
+                        "status": "sent",
+                    }
+                    if trainer_id:
+                        mail2_query["trainer_id"] = trainer_id
+                    elif trainer_email:
+                        mail2_query["recipient"] = {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}
+                    mail2_sent = await db["email_logs"].find_one(mail2_query, {"_id": 0, "email_id": 1})
+                    trainer["pipeline_status"] = "waiting_reply2" if mail2_sent else ("mail1_replied" if positive_reply else "mail1_question")
+                    trainer["mail1_replied_at"] = inbound_reply.get("received_at") or inbound_reply.get("created_at")
+                    trainer["last_reply_snippet"] = _clean(inbound_reply.get("body_snippet") or inbound_reply.get("body"))[:500]
+                    trainer["reply_sentiment"] = "positive" if positive_reply else "needs_review"
+                    changed = True
+                    continue
+
         if stage not in {"mail1", "mail1_sent", "mail1_reminder"}:
             continue
 
-        trainer_id = _clean(trainer.get("trainer_id"))
-        trainer_email = _clean(trainer.get("email") or trainer.get("trainer_email"))
         sent_query: Dict[str, Any] = {
             "requirement_id": requirement_id,
             "mail_type": {"$in": ["mail1", "mail1_reminder"]},
@@ -737,17 +1003,44 @@ async def send_shortlist_mail(
     top_trainers: List[Dict[str, Any]] = shortlist.get("top_trainers") or []
 
     if payload.to_email:
+        matched = next(
+            (t for t in top_trainers if str(t.get("trainer_id") or "") == str(payload.trainer_id or "")),
+            {},
+        )
         targets = [{
             "trainer_id": payload.trainer_id or "",
             "email": payload.to_email,
-            "name": payload.to_name or "Recipient",
+            "name": payload.to_name or payload.trainer_name or matched.get("name") or matched.get("trainer_name") or "Trainer",
         }]
     elif payload.trainer_ids:
         targets = [t for t in top_trainers if t.get("trainer_id") in payload.trainer_ids]
     else:
         targets = [t for t in top_trainers if t.get("pipeline_status") not in ("stopped_selected", "declined")]
 
+    mail_type = _clean(payload.mail_type).lower()
+    if mail_type in MAIL2_TYPES and not payload.to_email:
+        targets = [
+            t for t in targets
+            if _clean(t.get("pipeline_status")).lower() in {"mail1_replied", "waiting_reply2", "details_received"}
+            or _clean(t.get("reply_sentiment")).lower() == "positive"
+        ]
+    elif mail_type in CLIENT_COMMERCIAL_MAIL_TYPES and not payload.to_email:
+        commercial_targets = []
+        for t in targets:
+            amounts = _trainer_commercial_amounts(t)
+            if not amounts:
+                continue
+            enriched = dict(t)
+            enriched["_commercial_amounts"] = amounts
+            enriched["_lowest_commercial_amount"] = min(amounts)
+            commercial_targets.append(enriched)
+        targets = sorted(commercial_targets, key=lambda item: item.get("_lowest_commercial_amount", 0))
+
     if not targets:
+        if mail_type in MAIL2_TYPES:
+            return {"success": True, "sent": 0, "message": "No positive mail1 trainer replies found for mail2"}
+        if mail_type in CLIENT_COMMERCIAL_MAIL_TYPES:
+            return {"success": True, "sent": 0, "message": "No trainers with commercial amounts found for client commercial mail"}
         return {"success": True, "sent": 0, "message": "No eligible trainers found"}
 
     results = []
@@ -760,8 +1053,11 @@ async def send_shortlist_mail(
         if payload.to_email:
             trainer_email = payload.to_email
             trainer_name = payload.to_name or trainer_name
+        elif mail_type in CLIENT_COMMERCIAL_MAIL_TYPES:
+            trainer_email = _client_email_from_requirement(requirement, shortlist)
         if not trainer_email:
-            results.append({"trainer_id": t.get("trainer_id"), "status": "skipped_no_email"})
+            reason = "skipped_no_client_email" if mail_type in CLIENT_COMMERCIAL_MAIL_TYPES else "skipped_no_email"
+            results.append({"trainer_id": t.get("trainer_id"), "status": reason})
             continue
         if quota_blocked:
             results.append({
@@ -783,8 +1079,10 @@ async def send_shortlist_mail(
         attempted_recipients.add(recipient_key)
 
         error_message = ""
+        sent_email_id = ""
         try:
             async with httpx.AsyncClient(timeout=30) as client:
+                trainer_ref = f"Ref: {payload.requirement_id} / {t.get('trainer_id') or payload.trainer_id or ''}"
                 domain = _clean(
                     requirement.get("technology_needed")
                     or requirement.get("domain")
@@ -806,8 +1104,17 @@ async def send_shortlist_mail(
                 body = payload.body or (
                     f"Dear {trainer_name},\n\n"
                     "We have a training requirement matching your profile. Please revert if interested.\n\n"
-                    "Regards,\nTrainerSync Team"
+                    "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
                 )
+                if not payload.body and mail_type in CLIENT_COMMERCIAL_MAIL_TYPES:
+                    commercial_message = _client_commercial_message(
+                        requirement,
+                        shortlist,
+                        t,
+                        t.get("_commercial_amounts") or _trainer_commercial_amounts(t),
+                    )
+                    subject = payload.subject or commercial_message["subject"]
+                    body = commercial_message["body"]
                 if not payload.body:
                     tmpl_response = None
                     base_template_payload = {
@@ -816,7 +1123,9 @@ async def send_shortlist_mail(
                         "requirement_id": payload.requirement_id,
                         "client_name": _clean(requirement.get("client_name") or requirement.get("client_company")),
                     }
-                    if payload.mail_type in ("mail1", "first"):
+                    if mail_type in CLIENT_COMMERCIAL_MAIL_TYPES:
+                        tmpl_response = None
+                    elif payload.mail_type in ("mail1", "first"):
                         tmpl_response = await _post_with_local_fallback(
                             client,
                             f"{EMAIL_SVC}/api/v1/email/templates/shortlist-first",
@@ -884,6 +1193,8 @@ async def send_shortlist_mail(
                         tmpl = tmpl_response.json()
                         subject = payload.subject or tmpl.get("subject") or subject
                         body = tmpl.get("body") or body
+                if trainer_ref not in body:
+                    body = f"{body.rstrip()}\n\n{trainer_ref}"
                 r = await _post_with_local_fallback(client, f"{EMAIL_SVC}/api/v1/email/send", json={
                     "to": trainer_email,
                     "subject": subject,
@@ -898,6 +1209,10 @@ async def send_shortlist_mail(
                 if not ok:
                     error_message = f"{r.status_code}: {r.text[:300]}"
                 else:
+                    try:
+                        sent_email_id = (r.json() or {}).get("email_id", "")
+                    except Exception:
+                        sent_email_id = ""
                     await asyncio.sleep(1.5)
                     # If this was a trainer selection (mail5 family), automatically request/send TOC
                     try:
@@ -986,6 +1301,7 @@ async def send_shortlist_mail(
             "trainer_id": t.get("trainer_id"),
             "email": trainer_email,
             "status": "sent" if ok else "failed",
+            "email_id": sent_email_id,
             "error_message": error_message,
         })
         if not ok and _is_mail_quota_error(error_message):
@@ -997,7 +1313,17 @@ async def send_shortlist_mail(
             "top_trainers.$.last_mail_attempted_at": now,
         }
         if ok:
-            final_pipeline_status = "toc_requested" if auto_toc_sent else payload.mail_type
+            waiting_stage_by_mail_type = {
+                "mail1": "waiting_reply1",
+                "first": "waiting_reply1",
+                "mail1_reminder": "waiting_reply1",
+                "mail1_question_redirect": "waiting_reply1",
+                "mail2": "waiting_reply2",
+                "mail2_followup": "waiting_reply2",
+                "commercial_negotiation": "waiting_reply2",
+                "trainer_rate_discussion": "waiting_reply2",
+            }
+            final_pipeline_status = "toc_requested" if auto_toc_sent else waiting_stage_by_mail_type.get(payload.mail_type, payload.mail_type)
             final_mail_type = "mail6_toc" if auto_toc_sent else payload.mail_type
             set_fields.update({
                 "top_trainers.$.pipeline_status": final_pipeline_status,
@@ -1005,6 +1331,11 @@ async def send_shortlist_mail(
                 "top_trainers.$.last_mailed_at": now,
                 "top_trainers.$.last_mail_error": "",
             })
+            if sent_email_id:
+                set_fields[f"top_trainers.$.{final_mail_type}_email_id"] = sent_email_id
+                if final_mail_type in {"mail1", "mail1_reminder"}:
+                    set_fields["top_trainers.$.mail1_email_id"] = sent_email_id
+                    set_fields["top_trainers.$.mail1_sent_at"] = now
         else:
             set_fields["top_trainers.$.last_mail_error"] = error_message or "Email delivery failed"
 
@@ -1265,7 +1596,7 @@ async def send_client_slots(
                     "Available slots:\n"
                     f"{slots_text}\n\n"
                     "Kindly confirm your preferred slot at the earliest.\n\n"
-                    "Regards,\nTrainerSync Team"
+                    "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
                 )
             else:
                 subject = f"Trainer Interview Slots - {technology} | {trainer_name}"
@@ -1275,7 +1606,7 @@ async def send_client_slots(
                     "Available slots:\n"
                     f"{slots_text}\n\n"
                     "Kindly confirm your preferred slot at the earliest.\n\n"
-                    "Regards,\nTrainerSync Team"
+                    "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
                 )
 
             response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={

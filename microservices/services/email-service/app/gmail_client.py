@@ -99,6 +99,7 @@ def _load_oauth_service():
 
 
 PLACEHOLDER_SENDERS = {
+    "your-gmail@gmail.com",
     "your-gmail-address@gmail.com",
     "your-email@gmail.com",
     "yourname@example.com",
@@ -127,7 +128,7 @@ def _resolve_sender_email(from_email: str = "") -> str:
     normalized = _normalize_email_address(from_email or "")
     if normalized:
         return normalized
-    return _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "")
+    return _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "") or "sujithaofficial784@gmail.com"
 
 
 def _build_sender_candidates(
@@ -173,7 +174,8 @@ def _build_sender_candidates(
 def _is_trainer_reply(body: str) -> bool:
     normalized = str(body or "").lower()
     return (
-        "trainersync team" in normalized
+        "clahan technologies" in normalized
+        or "trainersync team" in normalized
         or "training opportunity" in normalized
         or "dear trainer" in normalized
     )
@@ -185,13 +187,13 @@ def _normalize_trainer_reply_body(body: str) -> str:
     text = str(body or "")
     text = re.sub(
         r"(?:Best\s+Regards|Regards|Warm\s+Regards),?\s*\nRecruitment Team,?\s*\nClahan Technologies",
-        "Regards,\nTrainerSync Team",
+        "Regards,\nClahan Technologies",
         text,
         flags=re.IGNORECASE,
     )
     text = re.sub(
         r"(?:Best\s+Regards|Regards|Warm\s+Regards),?\s*\nRecruitment Team,?\s*\nCalhan Technologies",
-        "Regards,\nTrainerSync Team",
+        "Regards,\nClahan Technologies",
         text,
         flags=re.IGNORECASE,
     )
@@ -200,9 +202,9 @@ def _normalize_trainer_reply_body(body: str) -> str:
 
 def _html_template(body: str, from_name: str, from_email: str, tracking_url: str = "") -> str:
     body = _normalize_trainer_reply_body(body)
-    from_email = _normalize_email_address(from_email)
-    display_name = "TrainerSync" if _is_trainer_reply(body) else (from_name or "TrainerSync")
-    tagline = "Trainer Coordination Platform" if _is_trainer_reply(body) else "AI-Powered Trainer Matching Platform"
+    from_email = _normalize_email_address(from_email) or _resolve_sender_email("")
+    display_name = "Clahan Technologies" if _is_trainer_reply(body) else (from_name or "Clahan Technologies")
+    tagline = "Trainer Coordination Platform" if _is_trainer_reply(body) else "Trainer Matching Platform"
     html_body = body.replace("\n", "<br>")
     pixel = (
         f'<img src="{tracking_url}" width="1" height="1" alt="" style="display:none;" />'
@@ -244,7 +246,7 @@ def send_gmail_oauth(
     try:
         profile = service.users().getProfile(userId="me").execute()
         gmail_user = profile.get("emailAddress") or settings.GMAIL_USER
-        sender_name = "TrainerSync" if _is_trainer_reply(body) else (from_name or settings.FROM_NAME)
+        sender_name = "Clahan Technologies" if _is_trainer_reply(body) else (from_name or settings.FROM_NAME)
         sender_email = _resolve_sender_email(from_email or settings.FROM_EMAIL or gmail_user)
 
         msg = MIMEMultipart("mixed") if attachments else MIMEMultipart("alternative")
@@ -326,7 +328,7 @@ def send_smtp(
         from_name = candidate.get("fromName") or settings.FROM_NAME
         from_email = _resolve_sender_email(candidate.get("fromEmail") or settings.FROM_EMAIL or user)
         if _is_trainer_reply(body):
-            from_name = "TrainerSync"
+            from_name = "Clahan Technologies"
         host = candidate.get("smtpHost") or settings.SMTP_HOST
         port = int(candidate.get("smtpPort") or settings.SMTP_PORT)
 
@@ -506,9 +508,9 @@ def check_imap_replies(
                         received_at = datetime.utcnow()
 
                     lower = body_text.lower()
-                    is_pos = any(s in lower for s in POSITIVE_SIGNALS)
                     is_neg = any(s in lower for s in NEGATIVE_SIGNALS)
-                    sentiment = "positive" if is_pos else ("negative" if is_neg else "neutral")
+                    is_pos = False if is_neg else any(s in lower for s in POSITIVE_SIGNALS)
+                    sentiment = "negative" if is_neg else ("positive" if is_pos else "neutral")
                     action = "mark_interested" if is_pos else ("mark_declined" if is_neg else "requires_review")
 
                     replies.append({

@@ -226,6 +226,14 @@ def _person_type(sender_email: str, text: str) -> str:
         return "internal_team"
     if _contains_any(text, ("invoice", "payment", "gst", "contract", "agreement", "legal notice")):
         return "finance_legal"
+    client_request_signals = (
+        r"\b(?:need|require|required|looking\s+for|seeking|want|hire)\b.{0,90}\b(?:trainer|training|workshop|instructor|profiles?|resource|consultant)\b",
+        r"\b(?:trainer|training|workshop|instructor)\b.{0,90}\b(?:need|required|requirement|profiles?|available|availability|share|send|provide)\b",
+        r"\brequirement\s+(?:for|of)\b.{0,90}\b(?:trainer|training|workshop|instructor|facilitator)\b",
+        r"\b(?:please|kindly)\s+(?:share|send|provide)\b.{0,90}\b(?:trainer|profiles?|resume|commercials?|availability)\b",
+    )
+    if any(re.search(pattern, text, flags=re.IGNORECASE) for pattern in client_request_signals):
+        return "corporate_client"
     trainer_signals = (
         "my profile",
         "updated profile",

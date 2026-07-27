@@ -25,6 +25,7 @@ def _from_name() -> str:
 
 
 PLACEHOLDER_EMAILS = {
+    "your-gmail@gmail.com",
     "your-gmail-address@gmail.com",
     "your-email@gmail.com",
     "yourname@example.com",
@@ -50,7 +51,7 @@ def _from_email() -> str:
     # fall back to the requested persistent sender address so templates never show
     # the placeholder email in outgoing messages.
     email = _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "")
-    return email or "sujithaofficial585@gmail.com"
+    return email or "sujithaofficial784@gmail.com"
 
 
 class ShortlistEmailRequest(BaseModel):
@@ -122,7 +123,7 @@ This helps us process your availability automatically and move forward quickly.
         "Please let us know if you are interested and available for this requirement. "
         "Kindly share your updated trainer profile along with relevant experience.\n\n"
         f"{slot_guide}"
-        "Regards,\nTrainerSync Team"
+        "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
     )
     return {
         "subject": f"Training Requirement - {domain}",
@@ -423,7 +424,7 @@ async def compose_mail3_slot_booking(payload: GenericSimpleRequest):
         "• [Slot 3]\n\n"
         "Kindly confirm your preferred slot at the earliest.\n\n"
         "Regards,\n"
-        "TrainerSync Team"
+        "Clahan Technologies"
     )
     return {"subject": subject, "body": body}
 

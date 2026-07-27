@@ -18,15 +18,6 @@ import {
 } from 'lucide-react'
 import api from '../utils/api'
 
-const STAGES = [
-  ['received', 'Client Request', 'Inbox received'],
-  ['extracted', 'Details Filled', 'Domain and fields'],
-  ['reply', 'Clahan Reply', 'Reply template'],
-  ['autofind', 'Auto Finding', 'Search decision'],
-  ['shortlist', 'Top 5 Shortlist', 'Trainer ranking'],
-  ['shortlist1', 'Shortlist1', 'Trainer mail flow'],
-]
-
 const DETAIL_FIELDS = [
   ['technology_needed', 'Domain / Technology'],
   ['duration_text', 'Training duration'],
@@ -79,10 +70,12 @@ function hasDomain(item = {}) {
 function trainerMailStats(item = {}) {
   const automation = item.mail_automation || item.client_email_doc?.mail_automation || {}
   const trainerMail = automation.trainer_mail || automation
+  const isHandoff = trainerMail.handoff === 'shortlist1' || item.trainer_automation_status === 'shortlist1_handoff' || item.client_email_doc?.trainer_automation_status === 'shortlist1_handoff'
   return {
     sent: Number(trainerMail.sent || automation.sent || 0),
     total: Number(trainerMail.total || automation.total || 0),
-    error: trainerMail.error || automation.error || item.trainer_automation_error || '',
+    error: isHandoff ? '' : trainerMail.error || automation.error || item.trainer_automation_error || '',
+    handoff: isHandoff,
   }
 }
 
@@ -132,9 +125,8 @@ function buildClientSteps(item = {}) {
   const requirementDone = Boolean(item.requirement_id)
   const domainDone = hasDomain(item)
   const autoStatus = item.trainer_automation_status || item.client_email_doc?.trainer_automation_status || ''
-  const automationTried = Boolean(item.mail_automation?.trainer_mail || item.client_email_doc?.mail_automation?.trainer_mail || autoStatus)
-  const mailSent = mailStats.sent > 0
   const hasMailError = Boolean(mailStats.error)
+  const shortlistReady = trainers.length > 0
 
   return [
     {
@@ -175,58 +167,20 @@ function buildClientSteps(item = {}) {
     {
       key: 'resume_search',
       title: 'Uploaded Resume Search',
-      status: stepState({ done: trainers.length > 0, active: requirementDone && !trainers.length && !hasMailError, blocked: hasMailError }),
+      status: stepState({ done: shortlistReady, active: requirementDone && !shortlistReady && !hasMailError, blocked: hasMailError }),
       detail: trainers.length ? `${trainers.length} trainer(s) ranked from uploaded resumes` : hasMailError || 'Searching uploaded trainer resumes',
       meta: `${mailStats.total || trainers.length || 0} candidate(s) available`,
     },
     {
-      key: 'mail1_trainers',
-      title: 'Mail1 To Trainers',
-      status: stepState({ done: mailSent, active: trainers.length > 0 && !mailSent && !hasMailError, blocked: hasMailError }),
-      detail: mailSent ? `${mailStats.sent} trainer mail(s) sent` : hasMailError || 'Waiting to send Mail1',
-      meta: mailStats.total ? `${mailStats.sent}/${mailStats.total} sent` : '',
-    },
-    {
       key: 'shortlist1_handoff',
       title: 'Shortlist1 Takeover',
-      status: stepState({ done: mailSent, active: false, blocked: !hasDomain(item) }),
-      detail: mailSent
-        ? 'Open trainer pipeline in Shortlist1 and continue Mail1 replies from there'
-        : trainers.length > 0
-        ? 'Shortlist ready. Continue Mail1 from Shortlist1 to send outreach'
+      status: stepState({ done: shortlistReady, active: requirementDone && !shortlistReady && !hasMailError, blocked: !hasDomain(item) || hasMailError }),
+      detail: shortlistReady
+        ? 'Shortlist ready. Continue all trainer outreach from Shortlist1'
         : 'Waiting for top 5 before Shortlist1 takeover',
-      meta: autoStatus ? `Status: ${autoStatus}` : 'Mail1 is managed by Shortlist1',
+      meta: autoStatus ? `Status: ${autoStatus}` : 'Trainer mails are managed by Shortlist1',
     },
   ]
-}
-
-function stageState(item = {}, key) {
-  const extracted = pickExtracted(item)
-  const missing = missingDetails(item)
-  const trainers = shortlistTrainers(item)
-  const autoStatus = item.trainer_automation_status || item.client_email_doc?.trainer_automation_status || ''
-  const mailStats = trainerMailStats(item)
-  const mailSent = mailStats.sent > 0
-  const hasReply = Boolean(item.ai_reply || item.draft_reply || item.generated_reply?.body || item.client_email_doc?.ai_reply)
-
-  if (key === 'received') return 'done'
-  if (key === 'extracted') return hasDomain(item) ? (missing.length ? 'partial' : 'done') : 'blocked'
-  if (key === 'reply') return hasReply || item.reply_sent || item.reply_status === 'auto_sent' ? 'done' : hasDomain(item) ? 'ready' : 'blocked'
-  if (key === 'autofind') {
-    if (['started', 'no_trainers_emailed', 'failed', 'no_profiles_found'].includes(autoStatus)) return autoStatus === 'failed' ? 'blocked' : 'done'
-    if (item.pending_trainer_automation || item.client_authorized_trainer_search || hasDomain(item)) return 'ready'
-    return 'blocked'
-  }
-  if (key === 'shortlist') return trainers.length ? 'done' : hasDomain(item) ? 'ready' : 'blocked'
-  if (key === 'shortlist1') return mailSent ? 'done' : trainers.length ? 'waiting' : hasDomain(item) ? 'ready' : 'blocked'
-  return 'blocked'
-}
-
-function stageTone(state) {
-  if (state === 'done') return 'border-emerald-500 bg-emerald-600 text-white'
-  if (state === 'partial') return 'border-amber-300 bg-amber-50 text-amber-700'
-  if (state === 'ready') return 'border-blue-300 bg-blue-50 text-blue-700'
-  return 'border-slate-200 bg-slate-100 text-slate-400'
 }
 
 function searchText(item = {}) {
@@ -266,7 +220,7 @@ function StageRail({ item }) {
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-bold text-slate-950">Client Pipeline Steps</p>
-          <p className="mt-1 text-sm text-slate-500">Track the request from client mail receipt through requirement creation, trainer search, and Shortlist1 takeover. This finishes the shortlist prep, then Shortlist1 handles the rest of Mail1 and trainer outreach.</p>
+          <p className="mt-1 text-sm text-slate-500">Track the request from client mail receipt through requirement creation, trainer search, and Shortlist1 takeover. This finishes shortlist prep, then Shortlist1 handles trainer outreach.</p>
         </div>
         <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
           {steps.filter(step => step.status === 'done').length}/{steps.length} completed
@@ -339,7 +293,6 @@ function DetailGrid({ item }) {
 
 function RequestCard({ item, active, onClick }) {
   const missing = missingDetails(item)
-  const mailStats = trainerMailStats(item)
   const trainers = shortlistTrainers(item)
   return (
     <button
@@ -483,8 +436,8 @@ export default function ClientPipeline() {
   const syncGmail = async () => {
     setSyncing(true)
     try {
-      const res = await api.post('/gmail/sync-now?limit=100')
-      toast.success(res.data?.message || 'Gmail sync started')
+      const res = await api.post('/emails/check-replies', { max_messages: 100, since_days: 7 })
+      toast.success(res.data?.message || 'Reply check started')
       window.setTimeout(() => load(true), 6000)
     } catch (e) {
       toast.error(e.message || 'Gmail sync failed')
@@ -511,7 +464,7 @@ export default function ClientPipeline() {
     setProcessing(true)
     try {
       const res = await api.post(`/inbox/${selected.email_id}/create-requirement`)
-      toast.success(res.data?.requirement_id ? 'Requirement and shortlist created. Continue Mail1 and remaining trainer outreach from Shortlist1.' : 'Client request processed.')
+      toast.success(res.data?.requirement_id ? 'Requirement and shortlist created. Continue trainer outreach from Shortlist1.' : 'Client request processed.')
       await load(true)
     } catch (e) {
       toast.error(e.message || 'Could not create requirement')
