@@ -11,7 +11,7 @@ from email.header import decode_header, make_header
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.utils import parseaddr, parsedate_to_datetime
+from email.utils import make_msgid, parseaddr, parsedate_to_datetime
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -131,6 +131,10 @@ def _resolve_sender_email(from_email: str = "") -> str:
     return _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "") or "sujithaofficial784@gmail.com"
 
 
+def generate_message_id() -> str:
+    return make_msgid(domain="trainersync.local")
+
+
 def _build_sender_candidates(
     smtp_config: Optional[Dict[str, Any]] = None,
     from_name: str = "",
@@ -173,12 +177,17 @@ def _build_sender_candidates(
 
 def _is_trainer_reply(body: str) -> bool:
     normalized = str(body or "").lower()
-    return (
-        "clahan technologies" in normalized
-        or "trainersync team" in normalized
-        or "training opportunity" in normalized
-        or "dear trainer" in normalized
+    if re.search(r"\bdear\s+(?:trainer|consultant|candidate)\b", normalized):
+        return True
+    trainer_markers = (
+        "training opportunity",
+        "trainer availability",
+        "trainer profile",
+        "commercials for approval",
+        "interview slot booking",
+        "please confirm your availability",
     )
+    return any(marker in normalized for marker in trainer_markers)
 
 
 def _normalize_trainer_reply_body(body: str) -> str:
@@ -238,6 +247,7 @@ def send_gmail_oauth(
     from_email: str = "",
     tracking_url: str = "",
     attachments: Optional[List[Dict[str, Any]]] = None,
+    message_id_header: str = "",
 ) -> Tuple[bool, str]:
     body = _normalize_trainer_reply_body(body)
     service, error = _load_oauth_service()
@@ -254,6 +264,7 @@ def send_gmail_oauth(
         msg["From"] = f"{sender_name} <{sender_email}>"
         msg["To"] = to
         msg["Reply-To"] = sender_email
+        msg["Message-ID"] = message_id_header or generate_message_id()
 
         alt = MIMEMultipart("alternative") if attachments else msg
         if attachments:
@@ -287,6 +298,7 @@ def send_gmail_oauth(
                 },
                 tracking_url=tracking_url,
                 attachments=attachments,
+                message_id_header=message_id_header,
             )
         return False, _friendly_send_error(exc)
 
@@ -298,6 +310,7 @@ def send_smtp(
     smtp_config: Optional[Dict[str, Any]] = None,
     tracking_url: str = "",
     attachments: Optional[List[Dict[str, Any]]] = None,
+    message_id_header: str = "",
 ) -> Tuple[bool, str]:
     body = _normalize_trainer_reply_body(body)
     candidates = _build_sender_candidates(smtp_config)
@@ -317,6 +330,7 @@ def send_smtp(
             from_email=(smtp_config or {}).get("fromEmail") or settings.FROM_EMAIL,
             tracking_url=tracking_url,
             attachments=attachments,
+            message_id_header=message_id_header,
         )
         if oauth_success:
             return True, ""
@@ -354,6 +368,7 @@ def send_smtp(
             msg["From"] = f"{from_name} <{from_email}>"
             msg["To"] = to
             msg["Reply-To"] = from_email
+            msg["Message-ID"] = message_id_header or generate_message_id()
             alternative.attach(MIMEText(body, "plain"))
             alternative.attach(MIMEText(_html_template(body, from_name, from_email, tracking_url), "html"))
 
@@ -383,7 +398,7 @@ def send_smtp(
             if "gmail" in host.lower() and idx < len(candidates) - 1:
                 continue
             if "gmail" in host.lower():
-                return send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
+                return send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url, message_id_header=message_id_header)
             return False, "SMTP authentication failed"
         except Exception as exc:
             last_error = exc
@@ -394,7 +409,7 @@ def send_smtp(
             if is_send_quota_error(exc):
                 return False, _friendly_send_error(exc)
             if "gmail" in host.lower():
-                oauth_success, oauth_error = send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
+                oauth_success, oauth_error = send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url, message_id_header=message_id_header)
                 if oauth_success:
                     return True, ""
                 return False, oauth_error or str(exc)
@@ -412,9 +427,10 @@ async def send_email_async(
     smtp_config: Optional[Dict[str, Any]] = None,
     tracking_url: str = "",
     attachments: Optional[List[Dict[str, Any]]] = None,
+    message_id_header: str = "",
 ) -> Tuple[bool, str]:
     loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, send_smtp, to, subject, body, smtp_config, tracking_url, attachments)
+    return await loop.run_in_executor(None, send_smtp, to, subject, body, smtp_config, tracking_url, attachments, message_id_header)
 
 
 def check_imap_replies(

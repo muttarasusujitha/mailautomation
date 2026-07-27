@@ -18,7 +18,7 @@ from app.agents.email_classifier import classify_email
 from app.agents.reply_templates import build_auto_reply
 from app.calendar_client import create_google_meet_event
 from app.database import get_db
-from app.gmail_client import check_imap_replies, send_email_async
+from app.gmail_client import check_imap_replies, generate_message_id, send_email_async
 from app.routes.templates import InterviewEmailRequest, compose_interview
 
 router = APIRouter()
@@ -1474,6 +1474,48 @@ async def _mark_shortlist_pipeline_mail_sent(
     return bool(result.matched_count)
 
 
+async def _mark_shortlist_trainer_reply_received(
+    db: AsyncIOMotorDatabase,
+    email_doc: Dict[str, Any],
+    *,
+    stage: str,
+    status: str,
+    reply_at: Optional[datetime] = None,
+    error: str = "",
+) -> bool:
+    requirement_id = email_doc.get("requirement_id") or ""
+    trainer_id = email_doc.get("trainer_id") or ""
+    if not requirement_id or not trainer_id:
+        return False
+
+    now = reply_at or _now()
+    body = email_doc.get("body_snippet") or email_doc.get("clean_body") or email_doc.get("body") or ""
+    set_fields = {
+        "top_trainers.$.pipeline_status": status,
+        "top_trainers.$.reply_status": "received",
+        "top_trainers.$.last_reply_at": now,
+        "top_trainers.$.last_reply_email_id": email_doc.get("email_id") or "",
+        "top_trainers.$.last_reply_snippet": str(body or "")[:500],
+        "top_trainers.$.reply_sentiment": email_doc.get("sentiment") or email_doc.get("reply_sentiment") or "",
+        "top_trainers.$.updated_at": now,
+        "updated_at": now,
+    }
+    if stage == "mail1":
+        set_fields["top_trainers.$.mail1_replied_at"] = now
+    elif stage == "mail2":
+        set_fields["top_trainers.$.mail2_replied_at"] = now
+        set_fields["top_trainers.$.trainer_details_received"] = True
+        set_fields["top_trainers.$.trainer_details_received_at"] = now
+    if error:
+        set_fields["top_trainers.$.last_mail_error"] = error
+
+    result = await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": set_fields},
+    )
+    return bool(result.matched_count)
+
+
 def _money_to_int(raw_amount: Any, suffix: str = "") -> int:
     amount = _safe_float(str(raw_amount or "").replace(",", ""), 0)
     suffix = str(suffix or "").lower()
@@ -1921,11 +1963,13 @@ async def _send_client_interview_schedule_email(
         interview_date=interview_date,
         meeting_link=meeting_link,
     )
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=client_email,
         subject=message["subject"],
         body=message["body"],
         smtp_config=smtp_config,
+        message_id_header=message_id_header,
     )
     email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
     event = calendar_event or {}
@@ -1935,6 +1979,8 @@ async def _send_client_interview_schedule_email(
         "recipient": client_email,
         "to_email": client_email,
         "subject": message["subject"],
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
         "body": message["body"],
         "body_snippet": message["body"][:300],
         "status": "sent" if success else "failed",
@@ -2211,11 +2257,13 @@ async def _handle_trainer_commercial_negotiation_reply(
     message = _trainer_slot_booking_message(trainer, requirement, shortlist)
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=trainer_email,
         subject=message["subject"],
         body=message["body"],
         smtp_config=smtp_config,
+        message_id_header=message_id_header,
     )
     email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
     await db["email_logs"].insert_one({
@@ -2224,6 +2272,8 @@ async def _handle_trainer_commercial_negotiation_reply(
         "recipient": trainer_email,
         "to_email": trainer_email,
         "subject": message["subject"],
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
         "body": message["body"],
         "body_snippet": message["body"][:300],
         "status": "sent" if success else "failed",
@@ -2372,11 +2422,13 @@ async def _handle_trainer_slot_reply(
         message = _slot_followup_message(trainer, intent)
         settings_doc = await _load_admin_settings(db)
         smtp_config = settings_doc.get("emailCfg") or None
+        message_id_header = generate_message_id()
         success, error = await send_email_async(
             to=trainer_email,
             subject=message["subject"],
             body=message["body"],
             smtp_config=smtp_config,
+            message_id_header=message_id_header,
         )
         email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
         await db["email_logs"].insert_one({
@@ -2385,6 +2437,8 @@ async def _handle_trainer_slot_reply(
             "recipient": trainer_email,
             "to_email": trainer_email,
             "subject": message["subject"],
+            "gmail_message_id": message_id_header,
+            "message_id_header": message_id_header,
             "body": message["body"],
             "body_snippet": message["body"][:300],
             "status": "sent" if success else "failed",
@@ -2491,11 +2545,13 @@ async def _handle_trainer_slot_reply(
     message = _client_slots_message(requirement, shortlist, trainer, slot_text)
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=client_email,
         subject=message["subject"],
         body=message["body"],
         smtp_config=smtp_config,
+        message_id_header=message_id_header,
     )
     email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
     await db["email_logs"].insert_one({
@@ -2504,6 +2560,8 @@ async def _handle_trainer_slot_reply(
         "recipient": client_email,
         "to_email": client_email,
         "subject": message["subject"],
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
         "body": message["body"],
         "body_snippet": message["body"][:300],
         "status": "sent" if success else "failed",
@@ -3094,11 +3152,13 @@ async def _handle_client_slot_confirmation_reply(
     message = await compose_interview(mail_payload)
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=trainer_email,
         subject=message["subject"],
         body=message["body"],
         smtp_config=smtp_config,
+        message_id_header=message_id_header,
     )
     email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
     await db["email_logs"].insert_one({
@@ -3107,6 +3167,8 @@ async def _handle_client_slot_confirmation_reply(
         "recipient": trainer_email,
         "to_email": trainer_email,
         "subject": message["subject"],
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
         "body": message["body"],
         "body_snippet": message["body"][:300],
         "status": "sent" if success else "failed",
@@ -3452,11 +3514,13 @@ async def _handle_client_budget_reply(
     message = _trainer_budget_negotiation_message(trainer, requirement, shortlist, client_budget, target_amount, unit)
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=trainer_email,
         subject=message["subject"],
         body=message["body"],
         smtp_config=smtp_config,
+        message_id_header=message_id_header,
     )
     now = _now()
     email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
@@ -3466,6 +3530,8 @@ async def _handle_client_budget_reply(
         "recipient": trainer_email,
         "to_email": trainer_email,
         "subject": message["subject"],
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
         "body": message["body"],
         "body_snippet": message["body"][:300],
         "status": "sent" if success else "failed",
@@ -3634,11 +3700,13 @@ async def _forward_trainer_commercials_to_client(
     message = _trainer_commercial_body(requirement, shortlist, trainer, client_rates)
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=client_email,
         subject=message["subject"],
         body=message["body"],
         smtp_config=smtp_config,
+        message_id_header=message_id_header,
     )
     now = _now()
     email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
@@ -3648,6 +3716,8 @@ async def _forward_trainer_commercials_to_client(
         "recipient": client_email,
         "to_email": client_email,
         "subject": message["subject"],
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
         "body": message["body"],
         "body_snippet": message["body"][:300],
         "status": "sent" if success else "failed",
@@ -3843,7 +3913,14 @@ async def _send_client_auto_reply(
 
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
-    success, error = await send_email_async(to=to, subject=subject, body=body, smtp_config=smtp_config)
+    message_id_header = generate_message_id()
+    success, error = await send_email_async(
+        to=to,
+        subject=subject,
+        body=body,
+        smtp_config=smtp_config,
+        message_id_header=message_id_header,
+    )
     now = _now()
     if success:
         await db["email_logs"].insert_one({
@@ -3852,6 +3929,8 @@ async def _send_client_auto_reply(
             "recipient": to,
             "to_email": to,
             "subject": subject,
+            "gmail_message_id": message_id_header,
+            "message_id_header": message_id_header,
             "body": body,
             "body_snippet": body[:300],
             "status": "sent",
@@ -4204,6 +4283,14 @@ async def _process_client_requirement_email(
             "updated_at": now,
         }
         await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": update})
+        await _mark_shortlist_trainer_reply_received(
+            db,
+            email_doc,
+            stage="mail1",
+            status="waiting_reply2" if auto_reply_result.get("success") else "mail1_replied",
+            reply_at=now,
+            error="" if auto_reply_result.get("success") else auto_reply_result.get("error", "Mail 2 send failed"),
+        )
         return {
             "processed": True,
             "email_id": email_doc.get("email_id"),
@@ -4243,6 +4330,14 @@ async def _process_client_requirement_email(
             "updated_at": _now(),
         }
         await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": update})
+        await _mark_shortlist_trainer_reply_received(
+            db,
+            trainer_doc,
+            stage="mail2",
+            status="details_received",
+            reply_at=now,
+            error="" if success else forward_result.get("error", forward_result.get("reason", "")),
+        )
         return {
             "processed": True,
             "email_id": email_doc.get("email_id"),

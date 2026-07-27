@@ -10,7 +10,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 from app.database import get_db
-from app.gmail_client import send_email_async
+from app.gmail_client import generate_message_id, send_email_async
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -214,12 +214,15 @@ async def approve_inbox_reply(
         if existing_sent_log:
             success, error = True, ""
             sent_at = existing_sent_log.get("sent_at") or existing_sent_log.get("created_at") or now
+            message_id_header = existing_sent_log.get("gmail_message_id") or existing_sent_log.get("message_id_header") or ""
         else:
+            message_id_header = generate_message_id()
             success, error = await send_email_async(
                 to=to,
                 subject=subject,
                 body=reply_body,
                 smtp_config=await _smtp_config(db),
+                message_id_header=message_id_header,
             )
             sent_at = now
         if success:
@@ -236,6 +239,8 @@ async def approve_inbox_reply(
                     "recipient": to,
                     "to_email": to,
                     "subject": subject,
+                    "gmail_message_id": message_id_header,
+                    "message_id_header": message_id_header,
                     "body": reply_body,
                     "body_snippet": reply_body[:300],
                     "status": "sent",
