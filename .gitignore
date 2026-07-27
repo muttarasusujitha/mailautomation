@@ -34,3 +34,6 @@ htmlcov/
 # OS/editor junk
 .DS_Store
 Thumbs.db
+
+# Ignore sensitive email service OAuth token config
+microservices/services/email-service/config/token.json
