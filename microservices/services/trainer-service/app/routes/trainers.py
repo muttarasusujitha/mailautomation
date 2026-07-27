@@ -399,25 +399,28 @@ async def _post_to_document_service(part: _UploadPart) -> Dict[str, Any]:
     import httpx
 
     settings = get_settings()
-    base_urls = [settings.DOCUMENT_SERVICE_URL.rstrip("/")]
-    local_url = "http://127.0.0.1:8006"
-    if local_url not in base_urls:
-        base_urls.append(local_url)
+    base_url = settings.DOCUMENT_SERVICE_URL.rstrip("/")
+    if base_url.startswith("https://document-service:8006"):
+        base_url = base_url.replace("https://", "http://", 1)
 
     last_error = ""
-    for base_url in base_urls:
+    try:
+        async with httpx.AsyncClient(timeout=120) as client:
+            response = await client.post(
+                f"{base_url}/api/v1/documents/resume/upload",
+                files={"file": (part.filename, part.data, part.content_type)},
+            )
+        if response.status_code < 400:
+            return response.json()
+        # Document service returned an HTTP error (reachable but processing failed).
         try:
-            async with httpx.AsyncClient(timeout=120) as client:
-                response = await client.post(
-                    f"{base_url}/api/v1/documents/resume/upload",
-                    files={"file": (part.filename, part.data, part.content_type)},
-                )
-            if response.status_code < 400:
-                return response.json()
-            last_error = response.text[:300]
-        except Exception as exc:
-            last_error = str(exc)
-            continue
+            return response.json()
+        except Exception:
+            raise HTTPException(response.status_code, f"Document service upload failed: {response.text[:300]}")
+    except Exception as exc:
+        last_error = str(exc)
+    raise HTTPException(502, f"Document service upload failed: {last_error}")
+    # All attempts failed due to connection errors.
     raise HTTPException(502, f"Document service upload failed: {last_error}")
 
 

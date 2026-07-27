@@ -216,7 +216,7 @@ async def schedule_interview(
         f"- Technology: {payload.technology}\n"
         f"- Duration: 30 minutes\n"
         + (f"- Join: {link}\n" if link else "")
-        + "\nPlease confirm your availability.\n\nRegards,\nTrainerSync Team"
+        + "\nPlease confirm your availability.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com"
     )
 
     success, error = await send_email_async(
@@ -271,7 +271,7 @@ async def send_client_slots(
         f"Dear {client_name},\n\n"
         "Please find below the trainer's available slots for your review:\n\n"
         f"{slots_text}\n\n"
-        "Kindly confirm your preferred slot.\n\nRegards,\nTrainerSync Team"
+        "Kindly confirm your preferred slot.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com"
     )
     success, error = await send_email_async(to=client_email, subject=subject, body=body)
     now = datetime.utcnow()

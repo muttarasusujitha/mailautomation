@@ -199,7 +199,7 @@ async def send_automation_mail(
             logger.warning("Template fetch failed, using fallback: %s", exc)
 
     if not body:
-        from_name = getattr(settings, "FROM_NAME", None) or "TrainerSync Team"
+        from_name = getattr(settings, "FROM_NAME", None) or "Clahan Technologies"
         from_email = getattr(settings, "FROM_EMAIL", None) or "sujithaofficial585@gmail.com"
         body = (
             f"Dear {name},\n\n"
@@ -297,7 +297,7 @@ async def request_resume(
         f"Dear {name},\n\n"
         "We came across your profile and would like to consider you for a training assignment.\n\n"
         "Could you please share your updated trainer profile/resume at your earliest convenience?\n\n"
-        "Regards,\nTrainerSync Team"
+        "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
     )
     try:
         async with httpx.AsyncClient(timeout=30) as client:

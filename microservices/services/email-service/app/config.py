@@ -6,6 +6,7 @@ from typing import List
 
 
 PLACEHOLDER_EMAILS = {
+    "your-gmail@gmail.com",
     "your-gmail-address@gmail.com",
     "your-email@gmail.com",
     "yourname@example.com",
@@ -45,8 +46,8 @@ class Settings(BaseSettings):
     GMAIL_FALLBACK_PASS: str = ""
     GMAIL_FALLBACK_FROM_NAME: str = ""
     GMAIL_FALLBACK_FROM_EMAIL: str = ""
-    FROM_NAME: str = "TrainerSync"
-    FROM_EMAIL: str = ""
+    FROM_NAME: str = "Clahan Technologies"
+    FROM_EMAIL: str = "sujithaofficial784@gmail.com"
     GOOGLE_TOKEN_FILE: str = "config/token.json"
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
