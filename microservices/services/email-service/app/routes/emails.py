@@ -9,7 +9,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 from app.database import get_db
-from app.gmail_client import send_email_async
+from app.gmail_client import generate_message_id, send_email_async
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -105,11 +105,13 @@ async def send_one_email(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Send a single targeted email and log it."""
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=payload.to,
         subject=payload.subject,
         body=payload.body,
         smtp_config=payload.smtp_config,
+        message_id_header=message_id_header,
     )
     now = datetime.utcnow()
     log = {
@@ -117,6 +119,8 @@ async def send_one_email(
         "direction": "outbound",
         "recipient": payload.to,
         "subject": payload.subject,
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
         "body_snippet": payload.body[:300],
         "status": "sent" if success else "failed",
         "mail_type": payload.mail_type,
@@ -151,16 +155,20 @@ async def retry_email(
     if doc.get("status") == "sent":
         return {"success": True, "message": "Already sent", "email_id": email_id}
 
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=doc.get("recipient", ""),
         subject=doc.get("subject", ""),
         body=doc.get("body_snippet", ""),
+        message_id_header=message_id_header,
     )
     now = datetime.utcnow()
     await db["email_logs"].update_one(
         {"email_id": email_id},
         {"$set": {
             "status": "sent" if success else "failed",
+            "gmail_message_id": message_id_header,
+            "message_id_header": message_id_header,
             "sent_at": now if success else None,
             "error_message": error or "",
             "retry_count": (doc.get("retry_count") or 0) + 1,
@@ -219,16 +227,20 @@ async def schedule_interview(
         + "\nPlease confirm your availability.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com"
     )
 
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=payload.trainer_email,
         subject=subject,
         body=body,
         smtp_config=payload.smtp_config,
+        message_id_header=message_id_header,
     )
     now = datetime.utcnow()
     update: Dict[str, Any] = {
         "interview_scheduled": True,
         "interview_mail_sent": success,
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
         "interview_date": payload.interview_date,
         "interview_link": link,
         "interview_slot_start": payload.slot_start,
@@ -273,11 +285,23 @@ async def send_client_slots(
         f"{slots_text}\n\n"
         "Kindly confirm your preferred slot.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com"
     )
-    success, error = await send_email_async(to=client_email, subject=subject, body=body)
+    message_id_header = generate_message_id()
+    success, error = await send_email_async(
+        to=client_email,
+        subject=subject,
+        body=body,
+        message_id_header=message_id_header,
+    )
     now = datetime.utcnow()
     await db["email_logs"].update_one(
         {"email_id": email_id},
-        {"$set": {"client_slots_sent": success, "client_slots_sent_at": now, "updated_at": now}},
+        {"$set": {
+            "client_slots_sent": success,
+            "client_slots_sent_at": now,
+            "gmail_message_id": message_id_header,
+            "message_id_header": message_id_header,
+            "updated_at": now,
+        }},
     )
     if not success:
         raise HTTPException(502, detail={"error": error})

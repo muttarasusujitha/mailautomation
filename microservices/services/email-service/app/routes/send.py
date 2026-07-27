@@ -10,7 +10,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, EmailStr
 
 from app.database import get_db
-from app.gmail_client import is_send_quota_error, send_email_async, _normalize_trainer_reply_body
+from app.gmail_client import generate_message_id, is_send_quota_error, send_email_async, _normalize_trainer_reply_body
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -68,6 +68,7 @@ async def send_single_email(
         except Exception:
             logger.exception("Failed to log attachment filenames")
 
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=payload.to,
         subject=payload.subject,
@@ -75,6 +76,7 @@ async def send_single_email(
         smtp_config=payload.smtp_config,
         tracking_url=payload.tracking_url or "",
         attachments=attachments,
+        message_id_header=message_id_header,
     )
     now = datetime.utcnow()
     log = {
@@ -82,6 +84,8 @@ async def send_single_email(
         "direction": "outbound",
         "recipient": payload.to,
         "subject": payload.subject,
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
         "body": body,
         "body_snippet": body[:300],
         "status": "sent" if success else "failed",
@@ -124,6 +128,7 @@ async def send_bulk_emails(
                     })
                 except Exception as exc:
                     return HTTPException(400, detail={"message": "Invalid attachment encoding", "error": str(exc)})
+        message_id_header = generate_message_id()
         success, error = await send_email_async(
             to=item.to,
             subject=item.subject,
@@ -131,6 +136,7 @@ async def send_bulk_emails(
             smtp_config=cfg,
             tracking_url=item.tracking_url or "",
             attachments=attachments,
+            message_id_header=message_id_header,
         )
         now = datetime.utcnow()
         log = {
@@ -138,6 +144,8 @@ async def send_bulk_emails(
             "direction": "outbound",
             "recipient": item.to,
             "subject": item.subject,
+            "gmail_message_id": message_id_header,
+            "message_id_header": message_id_header,
             "body": body,
             "body_snippet": body[:300],
             "status": "sent" if success else "failed",
