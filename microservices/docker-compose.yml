@@ -7,7 +7,7 @@
 ##############################################################################
 
 x-common-env: &common-env
-  # Use the host MongoDB so local data is shared with the microservices stack.
+  # Use the real host MongoDB so containers do not fall back to the empty Docker Mongo volume.
   MONGODB_URL: mongodb://host.docker.internal:27017
   REDIS_URL: redis://redis:6379
 
@@ -229,8 +229,8 @@ services:
       PORT: "8007"
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
-      EMAIL_SERVICE_URL: https://email-service:8002
-      NOTIFICATION_SERVICE_URL: https://notification-service:8003
+      EMAIL_SERVICE_URL: http://email-service:8002
+      NOTIFICATION_SERVICE_URL: http://notification-service:8003
     env_file: .env
     expose:
       - "8007"
@@ -253,8 +253,8 @@ services:
       <<: *common-env
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
-      EMAIL_SERVICE_URL: https://email-service:8002
-      NOTIFICATION_SERVICE_URL: https://notification-service:8003
+      EMAIL_SERVICE_URL: http://email-service:8002
+      NOTIFICATION_SERVICE_URL: http://notification-service:8003
     env_file: .env
     healthcheck:
       disable: true

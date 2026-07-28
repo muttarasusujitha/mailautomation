@@ -660,7 +660,7 @@ async def categorise_all_trainers(
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             await client.post(
-                "https://intelligence-service:8005/api/v1/intelligence/categorise/bulk",
+                "http://intelligence-service:8005/api/v1/intelligence/categorise/bulk",
                 json={"limit": limit, "dry_run": False},
             )
         await db["categorise_jobs"].update_one(
@@ -685,7 +685,7 @@ async def categorise_single_trainer(trainer_id: str, db: AsyncIOMotorDatabase = 
     try:
         async with httpx.AsyncClient(timeout=60) as client:
             r = await client.post(
-                "https://intelligence-service:8005/api/v1/intelligence/categorise",
+                "http://intelligence-service:8005/api/v1/intelligence/categorise",
                 json={"trainer_id": trainer_id, "trainer": trainer, "save": True},
             )
         if r.status_code < 400:

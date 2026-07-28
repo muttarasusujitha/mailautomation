@@ -16,8 +16,8 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 EMAIL_SVC = "http://email-service:8002"
 LOCAL_SERVICE_FALLBACKS = {
-    "https://email-service:8002": "http://127.0.0.1:8002",
-    "http://email-service:8002": "http://127.0.0.1:8002",
+    "https://email-service:8002": "http://email-service:8002",
+    "http://127.0.0.1:8002": "http://email-service:8002",
 }
 
 
@@ -353,7 +353,7 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
         async with httpx.AsyncClient(timeout=30) as client:
             for item in search_items:
                 r = await client.post(
-                    "https://intelligence-service:8005/api/v1/intelligence/trainers/search",
+                    "http://intelligence-service:8005/api/v1/intelligence/trainers/search",
                     json={
                         "query": item["query"],
                         "domain": item["domain"],
@@ -473,7 +473,7 @@ async def enrich_public_emails(payload: EnrichRequest, db: AsyncIOMotorDatabase 
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 r = await client.post(
-                    "https://intelligence-service:8005/api/v1/intelligence/contacts/find",
+                    "http://intelligence-service:8005/api/v1/intelligence/contacts/find",
                     json={"name": lead.get("name", ""), "domain": lead.get("domain", ""),
                           "linkedin_url": lead.get("linkedin_url", "")},
                 )

@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import {
   AlertTriangle, BriefcaseBusiness, CalendarCheck, CalendarDays, CheckCircle2, Clock,
   ExternalLink, FileText, IndianRupee, Link2, Loader2, Mail, MapPin, RefreshCw,
-  Search, Send, Users, Video, X
+  Search, Send, Trash2, Users, Video, X
 } from 'lucide-react'
 import api from '../utils/api'
 
@@ -409,6 +409,7 @@ export default function ClientRequests() {
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [processingId, setProcessingId] = useState('')
+  const [deletingId, setDeletingId] = useState('')
   const [retryingUpdateId, setRetryingUpdateId] = useState('')
   const [filter, setFilter] = useState('all')
   const [query, setQuery] = useState('')
@@ -519,6 +520,24 @@ export default function ClientRequests() {
       toast.error(e.response?.data?.detail || e.message || 'Could not create requirement')
     } finally {
       setProcessingId('')
+    }
+  }
+
+  const deleteClientRequest = async item => {
+    if (!item?.email_id || deletingId) return
+    const label = item.from_name || item.from_email || item.subject || 'this client request'
+    if (!window.confirm(`Delete ${label} from Client Requests?`)) return
+    setDeletingId(item.email_id)
+    try {
+      await api.delete(`/inbox/${item.email_id}`)
+      setRequests(prev => prev.filter(req => req.email_id !== item.email_id))
+      setSelected(current => current?.email_id === item.email_id ? null : current)
+      toast.success('Client request deleted')
+      await loadRequests(true)
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Could not delete client request')
+    } finally {
+      setDeletingId('')
     }
   }
 
@@ -653,7 +672,7 @@ export default function ClientRequests() {
                         <p className="font-semibold text-slate-900">{item.from_name || item.from_email || 'Client'}</p>
                         <p className="mt-1 text-xs text-slate-500">{item.from_email}</p>
                         <p className="mt-1 flex items-center gap-1 text-xs text-slate-400">
-                          <Clock className="h-3 w-3" /> {fmtDate(item.received_at)}
+                          <Clock className="h-3 w-3" /> {fmtDate(item.received_at || item.created_at || item.updated_at)}
                         </p>
                       </td>
                       <td className="px-4 py-4 align-top">
@@ -702,6 +721,14 @@ export default function ClientRequests() {
                               Create Req
                             </button>
                           )}
+                          <button
+                            onClick={() => deleteClientRequest(item)}
+                            disabled={deletingId === item.email_id}
+                            title="Delete client request"
+                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-60"
+                          >
+                            {deletingId === item.email_id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                          </button>
                           <button onClick={() => setSelected(item)} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
                             View
                           </button>

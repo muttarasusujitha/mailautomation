@@ -12,7 +12,7 @@ from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import make_msgid, parseaddr, parsedate_to_datetime
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from app.config import get_settings
@@ -207,6 +207,24 @@ def _normalize_trainer_reply_body(body: str) -> str:
         flags=re.IGNORECASE,
     )
     return text
+
+
+def _strip_quoted_email_history(value: str) -> str:
+    text = str(value or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not text:
+        return ""
+    kept = []
+    marker_re = re.compile(
+        r"^(?:On .{0,160} wrote:|From:\s+|Sent:\s+|To:\s+|Subject:\s+|-{2,}\s*Original Message\s*-{2,})",
+        flags=re.IGNORECASE,
+    )
+    for line in text.splitlines():
+        clean_line = re.sub(r"\s+", " ", line).strip()
+        if clean_line.startswith(">") or marker_re.search(clean_line):
+            break
+        kept.append(line)
+    stripped = "\n".join(kept).strip()
+    return stripped or text
 
 
 def _html_template(body: str, from_name: str, from_email: str, tracking_url: str = "") -> str:
@@ -519,11 +537,19 @@ def check_imap_replies(
 
                     try:
                         date_hdr = msg.get("Date", "")
-                        received_at = parsedate_to_datetime(date_hdr).replace(tzinfo=None) if date_hdr else datetime.utcnow()
+                        if date_hdr:
+                            parsed_date = parsedate_to_datetime(date_hdr)
+                            if parsed_date.tzinfo:
+                                received_at = parsed_date.astimezone(timezone.utc).replace(tzinfo=None)
+                            else:
+                                received_at = parsed_date
+                        else:
+                            received_at = datetime.utcnow()
                     except Exception:
                         received_at = datetime.utcnow()
 
-                    lower = body_text.lower()
+                    classification_text = _strip_quoted_email_history(body_text)
+                    lower = classification_text.lower()
                     is_neg = any(s in lower for s in NEGATIVE_SIGNALS)
                     is_pos = False if is_neg else any(s in lower for s in POSITIVE_SIGNALS)
                     sentiment = "negative" if is_neg else ("positive" if is_pos else "neutral")

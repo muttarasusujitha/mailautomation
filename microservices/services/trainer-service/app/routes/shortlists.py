@@ -25,11 +25,11 @@ DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
 NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
 CORE_API_SVC = settings.CORE_API_URL.rstrip("/")
 LOCAL_SERVICE_FALLBACKS = {
-    "https://email-service:8002": "http://127.0.0.1:8003",
-    "http://127.0.0.1:8002": "http://127.0.0.1:8003",
+    "https://email-service:8002": "http://email-service:8002",
+    "http://127.0.0.1:8002": "http://email-service:8002",
     "http://core-api:8001": "http://127.0.0.1:8001",
     "https://document-service:8006": "http://document-service:8006",
-    "https://notification-service:8003": "http://127.0.0.1:8003",
+    "https://notification-service:8003": "http://notification-service:8003",
 }
 EXCLUDED_TRAINER_STATUSES = {"interested", "confirmed", "declined"}
 PIPELINE_VERSION = "trainer-match-microservice-v1"
@@ -1324,6 +1324,19 @@ async def send_shortlist_mail(
                 "trainer_rate_discussion": "waiting_reply2",
             }
             final_pipeline_status = "toc_requested" if auto_toc_sent else waiting_stage_by_mail_type.get(payload.mail_type, payload.mail_type)
+            current_status = _clean(t.get("pipeline_status")).lower()
+            has_details = bool(t.get("trainer_details_received_at") or t.get("mail2_replied_at"))
+            has_client_commercial = bool(
+                t.get("client_commercial_sent")
+                or t.get("client_commercial_sent_at")
+                or _clean(t.get("commercial_status")).lower() in {"sent_to_client", "accepted_by_trainer", "approved_by_client"}
+            )
+            if final_pipeline_status == "waiting_reply2" and (
+                current_status in {"details_received", "slot_booked", "interview_scheduled", "selected", "toc_requested", "training_confirmed"}
+                or has_details
+                or has_client_commercial
+            ):
+                final_pipeline_status = current_status if current_status in {"slot_booked", "interview_scheduled", "selected", "toc_requested", "training_confirmed"} else "details_received"
             final_mail_type = "mail6_toc" if auto_toc_sent else payload.mail_type
             set_fields.update({
                 "top_trainers.$.pipeline_status": final_pipeline_status,
@@ -1541,6 +1554,17 @@ async def send_client_slots(
     if not client_email:
         raise HTTPException(400, "client_email is required")
 
+    slots_text = _clean(payload.slot_text)
+    if not slots_text:
+        slots_text = "\n".join(
+            f"Slot {i+1}: {s.get('date_display', '')} {s.get('time_display', '')}".strip()
+            for i, s in enumerate(payload.slots)
+            if _clean(s.get("date_display") or s.get("date") or s.get("time_display") or s.get("time"))
+        )
+    slots_text = _clean(slots_text)
+    if not slots_text:
+        raise HTTPException(400, "Trainer slots are required before sending to client")
+
     if not payload.force:
         existing = await db["email_logs"].find_one(
             {
@@ -1550,10 +1574,16 @@ async def send_client_slots(
                 "requirement_id": payload.requirement_id,
                 "trainer_id": payload.trainer_id,
             },
-            {"_id": 0, "email_id": 1, "recipient": 1, "to_email": 1, "sent_at": 1},
+            {"_id": 0, "email_id": 1, "recipient": 1, "to_email": 1, "sent_at": 1, "slot_text": 1, "body": 1},
             sort=[("created_at", -1)],
         )
-        if existing:
+        existing_slots = _clean(existing.get("slot_text") if existing else "")
+        existing_body = _clean(existing.get("body") if existing else "")
+        existing_is_placeholder = (
+            not existing_slots
+            and "availability slots will be shared shortly" in existing_body.lower()
+        )
+        if existing and not existing_is_placeholder:
             return {
                 "success": True,
                 "already_sent": True,
@@ -1561,15 +1591,6 @@ async def send_client_slots(
                 "sent_to": existing.get("to_email") or existing.get("recipient"),
                 "slots_count": len(payload.slots),
             }
-
-    slots_text = _clean(payload.slot_text)
-    if not slots_text:
-        slots_text = "\n".join(
-            f"Slot {i+1}: {s.get('date_display', '')} {s.get('time_display', '')}".strip()
-            for i, s in enumerate(payload.slots)
-        )
-    if not slots_text:
-        slots_text = "The trainer's availability slots will be shared shortly."
 
     technology = _clean(req.get("technology_needed") or req.get("technology") or req.get("domain")) or "training"
     client_name = _clean(payload.client_name or req.get("client_name") or req.get("client_company")) or "Client"

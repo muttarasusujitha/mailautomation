@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
@@ -184,8 +184,8 @@ async def retry_email(
 
 @router.post("/check-replies")
 async def check_email_replies(
-    payload: CheckRepliesRequest,
     background_tasks: BackgroundTasks,
+    payload: CheckRepliesRequest = Body(default_factory=CheckRepliesRequest),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Poll Gmail inbox for replies, then process trainer/client automation."""

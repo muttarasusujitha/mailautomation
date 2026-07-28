@@ -202,27 +202,6 @@ export default function Admin() {
     return () => clearTimeout(timer)
   }, [location.search])
 
-  // Load settings from localStorage on component mount
-  useEffect(() => {
-    try {
-      const savedSettings = localStorage.getItem('admin_settings')
-      if (savedSettings) {
-        const parsed = JSON.parse(savedSettings)
-        if (parsed.profile) setProfile({...profile, ...parsed.profile})
-        if (parsed.emailCfg) setEmailCfg({...emailCfg, ...parsed.emailCfg})
-        if (parsed.twilioCfg) setTwilioCfg({...twilioCfg, ...parsed.twilioCfg})
-        if (parsed.clientInboxCfg) setClientInboxCfg({...clientInboxCfg, ...normalizeClientInboxCfg(parsed.clientInboxCfg)})
-        if (parsed.teamsCfg) setTeamsCfg({...teamsCfg, ...parsed.teamsCfg})
-        if (parsed.teamsDirectCfg) setTeamsDirectCfg({...teamsDirectCfg, ...parsed.teamsDirectCfg})
-        if (parsed.notif) setNotif({...notif, ...parsed.notif})
-        if (parsed.pipeline) setPipeline({...pipeline, ...parsed.pipeline})
-        if (parsed.keys) setKeys({...keys, ...parsed.keys})
-      }
-    } catch {
-      localStorage.removeItem(SETTINGS_STORAGE_KEY)
-    }
-  }, [])
-
   useEffect(() => {
     let cancelled = false
 
@@ -241,15 +220,8 @@ export default function Admin() {
 
     const loadSettings = async () => {
       try {
-        const cached = localStorage.getItem(SETTINGS_STORAGE_KEY)
-        if (cached) applySettings(JSON.parse(cached))
-      } catch {
-        localStorage.removeItem(SETTINGS_STORAGE_KEY)
-      }
-
-      try {
         const res = await fetch('/api/admin/settings')
-        if (!res.ok) return
+        if (!res.ok) throw new Error('settings unavailable')
         const data = await res.json()
         const settings = data.settings || data
         if (Object.keys(settings).length) {
@@ -257,7 +229,12 @@ export default function Admin() {
           localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
         }
       } catch {
-        // Local cache above keeps the form persistent when the API is offline.
+        try {
+          const cached = localStorage.getItem(SETTINGS_STORAGE_KEY)
+          if (cached) applySettings(JSON.parse(cached))
+        } catch {
+          localStorage.removeItem(SETTINGS_STORAGE_KEY)
+        }
       }
 
       try {

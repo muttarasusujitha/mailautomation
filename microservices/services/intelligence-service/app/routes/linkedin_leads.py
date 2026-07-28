@@ -17,8 +17,8 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 EMAIL_SVC = "http://email-service:8002"
 LOCAL_SERVICE_FALLBACKS = {
-    "https://email-service:8002": "http://127.0.0.1:8002",
-    "http://email-service:8002": "http://127.0.0.1:8002",
+    "https://email-service:8002": "http://email-service:8002",
+    "http://127.0.0.1:8002": "http://email-service:8002",
 }
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+\-]{2,64}@[A-Za-z0-9.\-]{2,253}\.[A-Za-z]{2,12}")
 PHONE_RE = re.compile(r"(?:\+91|0091|91)?[\s.\-()]*(6[\d\s.\-()]{9,20}|7[\d\s.\-()]{9,20}|8[\d\s.\-()]{9,20}|9[\d\s.\-()]{9,20})")

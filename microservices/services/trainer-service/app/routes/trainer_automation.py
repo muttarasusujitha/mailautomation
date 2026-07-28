@@ -200,7 +200,7 @@ async def send_automation_mail(
 
     if not body:
         from_name = getattr(settings, "FROM_NAME", None) or "Clahan Technologies"
-        from_email = getattr(settings, "FROM_EMAIL", None) or "sujithaofficial585@gmail.com"
+        from_email = getattr(settings, "FROM_EMAIL", None) or "sujithaofficial784@gmail.com"
         body = (
             f"Dear {name},\n\n"
             "We have a training requirement matching your profile. Please revert if interested.\n\n"
