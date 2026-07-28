@@ -88,7 +88,7 @@ export const deleteRequirement = (id)     => api.delete(`/requirements/${id}`)
 export const shortlistOnly     = (data)   => api.post('/requirements/shortlist-only', data)
 export const getShortlist      = (id)     => api.get(`/shortlists/${id}`)
 export const getEmails         = (params) => api.get('/emails', { params })
-export const checkReplies      = ()       => api.post('/emails/check-replies')
+export const checkReplies      = (payload = {}) => api.post('/emails/check-replies', { since_days: 7, max_messages: 100, ...payload })
 export const retryEmail        = (id)     => api.post(`/emails/${id}/retry`)
 export const sendMailToOne     = (id, msg) => api.post(`/emails/${id}/send-one`, { message: msg })
 export const sendClientSlotsFromEmail = (id, force = true, payload = {}) =>

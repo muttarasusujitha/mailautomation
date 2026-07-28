@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-client = MongoClient('mongodb://mongo:27017')
+client = MongoClient('mongodb://host.docker.internal:27017')
 db = client.get_database('trainersync')
 results = list(db['admin_settings'].find({}, {'_id':1,'emailCfg.imapHost':1,'imapHost':1}))
 if not results:

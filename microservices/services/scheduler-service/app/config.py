@@ -18,8 +18,8 @@ class Settings(BaseSettings):
     CELERY_RESULT_BACKEND: str = "redis://127.0.0.1:6379/1"
 
     # Internal service URLs (for HTTP calls between services)
-    EMAIL_SERVICE_URL: str = "https://email-service:8002"
-    NOTIFICATION_SERVICE_URL: str = "https://notification-service:8003"
+    EMAIL_SERVICE_URL: str = "http://email-service:8002"
+    NOTIFICATION_SERVICE_URL: str = "http://notification-service:8003"
 
     # Reminder lead-time in hours
     INTERVIEW_REMINDER_HOURS_BEFORE: int = 1

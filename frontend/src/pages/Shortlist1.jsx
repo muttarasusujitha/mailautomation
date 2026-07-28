@@ -110,6 +110,35 @@ function money(v) {
   return `INR ${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
+function compactMoney(v) {
+  const n = parseMoneyAmount(v)
+  if (!n) return ''
+  return `INR ${n.toLocaleString('en-IN')}`
+}
+
+function poDurationText(req = {}) {
+  return (
+    req.duration_text ||
+    req.training_duration ||
+    req.duration ||
+    (req.duration_hours ? `${req.duration_hours} hours` : '') ||
+    (req.duration_days ? `${req.duration_days} days` : '')
+  )
+}
+
+function poCommercialText(req = {}, trainer = {}) {
+  const value =
+    req.client_budget_per_day ||
+    req.budget_per_day ||
+    req.budget_total ||
+    req.budget ||
+    trainer.client_budget_amount ||
+    trainer.trainer_target_rate ||
+    trainer.day_rate
+  const amount = compactMoney(value)
+  return amount ? `${amount} per day/session` : ''
+}
+
 function channelStatus(label, result, successLabel = 'sent') {
   if (!result) return { label, value: 'Not returned', tone: 'warn', detail: '' }
   const numberDetail = result.to_number ? `To: ${result.to_number}` : (result.teams_email ? `To: ${result.teams_email}` : '')
@@ -314,7 +343,7 @@ function syncInboxReplies(force = false) {
   if (!force && now - lastInboxSyncAt < REPLY_SYNC_THROTTLE_MS) return Promise.resolve(null)
   if (!inboxSyncPromise) {
     lastInboxSyncAt = now
-    inboxSyncPromise = api.post('/emails/check-replies')
+    inboxSyncPromise = api.post('/emails/check-replies', { since_days: 7, max_messages: 100 })
       .catch(() => null)
       .finally(() => { inboxSyncPromise = null })
   }
@@ -381,9 +410,41 @@ function normalizePipelineStage(value = '') {
   return BACKEND_PIPELINE_STAGE_ALIASES[stage] || (STAGES[stage] ? stage : normalizeBackendStage(stage))
 }
 
+const PIPELINE_STAGE_RANK = {
+  pending: 0,
+  waiting_reply1: 1,
+  mail1_sent: 1,
+  mail1_replied: 2,
+  details_requested: 3,
+  waiting_reply2: 3,
+  details_received: 4,
+  slot_booked: 5,
+  interview_scheduled: 6,
+  selected: 7,
+  toc_requested: 8,
+  toc_received_pending: 9,
+  training_confirmed: 10,
+  po_requested: 11,
+  client_po_received: 12,
+  invoice_generated: 13,
+  invoice_sent: 14,
+  rejected: 99,
+  stopped_selected: 99,
+}
+
+function isBackendAheadOfLocal(backendStage, stateStage) {
+  if (!backendStage || !stateStage || stateStage === 'pending') return false
+  const backendRank = PIPELINE_STAGE_RANK[backendStage] ?? -1
+  const stateRank = PIPELINE_STAGE_RANK[stateStage] ?? -1
+  return backendRank > stateRank
+}
+
 function resolveTrainerStage(trainer, req, state) {
   const authoritative = backendAuthoritativeStage(trainer, req)
   const stateStage = normalizePipelineStage(state?.status)
+  const backendStage = normalizePipelineStage(
+    trainer?.pipeline_status || trainer?.status || trainer?.last_mail_type || trainer?.last_automation_mail_type
+  )
   if (
     authoritative &&
     stateStage &&
@@ -395,11 +456,10 @@ function resolveTrainerStage(trainer, req, state) {
   }
   if (authoritative) return authoritative
 
+  if (isBackendAheadOfLocal(backendStage, stateStage)) return backendStage
+
   if (stateStage && stateStage !== 'pending') return stateStage
 
-  const backendStage = normalizePipelineStage(
-    trainer?.pipeline_status || trainer?.status || trainer?.last_mail_type || trainer?.last_automation_mail_type
-  )
   return backendStage || stateStage || 'pending'
 }
 
@@ -464,6 +524,27 @@ function cleanDetailValue(value) {
   return value == null ? '' : String(value).trim()
 }
 
+function trainerBudgetFromClientAmount(amount, unit = 'day') {
+  const numeric = parseMoneyAmount(amount)
+  if (!numeric || numeric <= 0) return null
+  const markup = unit === 'hour' ? 500 : 5000
+  const trainerAmount = numeric - markup
+  if (trainerAmount <= 0) return null
+  return { amount: trainerAmount, unit, clientAmount: numeric, markup }
+}
+
+function trainerVisibleBudgetInfo(req = {}) {
+  const explicit = parseMoneyAmount(req.trainer_visible_budget_per_session || req.trainer_requested_budget_per_session)
+  if (explicit > 0) return { amount: explicit, unit: 'day' }
+  const hourly = trainerBudgetFromClientAmount(req.budget_per_hour || req.hourly_rate || req.client_budget_per_hour, 'hour')
+  if (hourly) return hourly
+  const day = trainerBudgetFromClientAmount(req.budget_per_day || req.day_rate || req.client_budget_per_day, 'day')
+  if (day) return day
+  const total = trainerBudgetFromClientAmount(req.budget_total || req.total_budget || req.budget || req.commercials?.total_amount, 'day')
+  if (total) return total
+  return null
+}
+
 function mail1RequirementDetails(req = {}, details = {}) {
   const duration = cleanDetailValue(
     details.duration ||
@@ -474,16 +555,8 @@ function mail1RequirementDetails(req = {}, details = {}) {
   const timing = cleanDetailValue(req.timing || req.schedule || req.training_timing || req.training_dates || req.timeline_start)
   const mode = cleanDetailValue(details.mode || req.mode || req.training_mode || req.delivery_mode)
   const participants = cleanDetailValue(details.participants || req.participant_count || req.participants)
-  const commercial = cleanDetailValue(
-    req.trainer_visible_budget_per_session ||
-    req.trainer_requested_budget_per_session ||
-    req.budget_per_day ||
-    req.client_budget_per_day ||
-    req.budget_per_hour ||
-    req.budget_total ||
-    req.budget ||
-    req.commercials?.total_amount
-  )
+  const trainerBudget = trainerVisibleBudgetInfo(req)
+  const commercial = cleanDetailValue(trainerBudget?.amount || '')
   return {
     duration,
     timing,
@@ -825,7 +898,8 @@ function clientBudgetInfo(req = {}) {
 
 function negotiationTarget(clientBudget) {
   if (!clientBudget?.amount) return null
-  const raw = clientBudget.amount * 0.8
+  const decrement = clientBudget.unit === 'hour' ? 500 : 5000
+  const raw = clientBudget.amount - decrement
   const roundTo = clientBudget.unit === 'hour' ? 100 : 500
   return {
     unit: clientBudget.unit,
@@ -1104,11 +1178,15 @@ function inferPipelineStateFromThread(messages = []) {
 
   if (sentTypes.has('mail2') || sentTypes.has('mail2_followup')) {
     const detailsReply = latestReplyAfter(sorted, ['mail2', 'mail2_followup'])
-    if (detailsReply && detectIntent(detailsReply.body) === 'negative') {
-      return { status: 'rejected' }
-    }
     if (detailsReply && hasRequestedTrainerDetails(detailsReply.body)) {
       return { status: 'details_received', detailsAcceptedAt: ts(detailsReply) }
+    }
+    const anyCompleteDetailsReply = sorted.find(m => m.direction === 'received' && hasRequestedTrainerDetails(m.body))
+    if (anyCompleteDetailsReply) {
+      return { status: 'details_received', detailsAcceptedAt: ts(anyCompleteDetailsReply) }
+    }
+    if (detailsReply && detectIntent(detailsReply.body) === 'negative') {
+      return { status: 'rejected' }
     }
     return { status: 'waiting_reply2' }
   }
@@ -3849,16 +3927,22 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     setSendingClientPo(true)
     try {
       const subject = 'Request for Purchase Order'
-      const duration = req.duration_days || req.training_duration || '10 Days'
-      const dayRate = req.day_rate || req.day_rate_display || '₹18,000 per day'
-      const body = `Dear ${req.client_name || 'Client'},\n\nThank you for confirming the **${req.technology_needed || 'DevOps'}** training requirement.\n\nWe have identified a suitable trainer for this engagement.\n\n**Training Details:**\n\n- **Domain:** ${req.technology_needed || 'DevOps'}\n- **Duration:** ${duration}\n- **Commercials:** ${dayRate}\nKindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements.\n\nPlease let us know if you require any additional information.\n\nRegards,\nRecruitment Team\nClahan Technologies`
+      const duration = poDurationText(req) || 'To be confirmed'
+      const trainingDates = state?.trainingDate || req.training_dates || req.timeline_start || ''
+      const dayRate = poCommercialText(req, trainer) || 'To be confirmed'
+      const trainingDateLine = trainingDates ? `- **Training Dates:** ${trainingDates}\n` : ''
+      const modeText = [req.mode || req.delivery_mode || '', req.location || ''].filter(Boolean).join(' / ')
+      const modeLine = modeText ? `- **Mode/Location:** ${modeText}\n` : ''
+      const participantText = req.participant_count || req.participants || ''
+      const participantLine = participantText ? `- **Participants:** ${participantText}\n` : ''
+      const body = `Dear ${req.client_name || 'Client'},\n\nThank you for confirming the **${req.technology_needed || 'DevOps'}** training requirement.\n\nWe have identified a suitable trainer for this engagement.\n\n**Training Details:**\n\n- **Domain:** ${req.technology_needed || 'DevOps'}\n- **Duration:** ${duration}\n${trainingDateLine}${modeLine}${participantLine}- **Commercials:** ${dayRate}\n\nKindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements.\n\nPlease let us know if you require any additional information.\n\nRegards,\nRecruitment Team\nClahan Technologies`
 
       const res = await api.post(`/requirements/${req.requirement_id}/request-client-po`, {
         trainer_id: trainer.trainer_id,
         trainer_name: trainer.name,
         client_email: req.client_email,
         client_name: req.client_name || req.client_company || '',
-        training_dates: state?.trainingDate || req.training_dates || req.timeline_start || '',
+        training_dates: trainingDates,
         subject,
         body,
       })

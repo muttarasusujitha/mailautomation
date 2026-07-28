@@ -22,7 +22,7 @@ services:
     env_file:
       - ./microservices/backend/.env
     environment:
-      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_URI: mongodb://host.docker.internal:27017
       MONGODB_DB: trainersync
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/0

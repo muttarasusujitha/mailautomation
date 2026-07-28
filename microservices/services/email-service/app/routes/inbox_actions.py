@@ -1,7 +1,7 @@
 """Client inbox management — approve, reject, regenerate-reply."""
 import logging
 import uuid
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from email.utils import parseaddr
 from typing import Any, Dict, List, Optional
 
@@ -49,6 +49,23 @@ def _count_status_query(statuses: List[str]) -> Dict[str, Any]:
         "$or": [
             {"status": {"$in": statuses}},
             {"reply_status": {"$in": statuses}},
+        ],
+    }
+
+
+def _today_query() -> Dict[str, Any]:
+    # The UI is used in IST while Mongo datetimes are stored in UTC.
+    ist_offset = timedelta(hours=5, minutes=30)
+    today_ist = datetime.utcnow() + ist_offset
+    start_ist = datetime.combine(today_ist.date(), time.min)
+    end_ist = start_ist + timedelta(days=1)
+    start_utc = start_ist - ist_offset
+    end_utc = end_ist - ist_offset
+    return {
+        "$or": [
+            {"created_at": {"$gte": start_utc, "$lt": end_utc}},
+            {"updated_at": {"$gte": start_utc, "$lt": end_utc}},
+            {"received_at": {"$gte": start_ist.isoformat(), "$lt": end_ist.isoformat()}},
         ],
     }
 
@@ -107,15 +124,40 @@ async def list_inbox_emails(
 
     total = await db["client_emails"].count_documents(query)
     skip = (page - 1) * limit
-    cursor = (
-        db["client_emails"]
-        .find(query, {"_id": 0, "raw_body": 0})
-        .sort("created_at", -1)
-        .skip(skip)
-        .limit(limit)
-    )
+    pipeline = [
+        {"$match": query},
+        {
+            "$addFields": {
+                "_sort_received_at": {
+                    "$switch": {
+                        "branches": [
+                            {
+                                "case": {"$eq": [{"$type": "$received_at"}, "date"]},
+                                "then": "$received_at",
+                            },
+                            {
+                                "case": {"$eq": [{"$type": "$received_at"}, "string"]},
+                                "then": {
+                                    "$dateFromString": {
+                                        "dateString": "$received_at",
+                                        "onError": "$created_at",
+                                        "onNull": "$created_at",
+                                    }
+                                },
+                            },
+                        ],
+                        "default": "$created_at",
+                    }
+                }
+            }
+        },
+        {"$sort": {"_sort_received_at": -1, "created_at": -1, "updated_at": -1}},
+        {"$skip": skip},
+        {"$limit": limit},
+        {"$project": {"_id": 0, "raw_body": 0, "_sort_received_at": 0}},
+    ]
+    cursor = db["client_emails"].aggregate(pipeline)
     items = [_normalise_item_status(d) async for d in cursor]
-    today_start = datetime.combine(datetime.utcnow().date(), time.min)
     status_count = db["client_emails"].count_documents
     return {
         "success": True,
@@ -125,7 +167,7 @@ async def list_inbox_emails(
         "pages": max(1, (total + limit - 1) // limit),
         "emails": items,
         "stats": {
-            "today": await status_count({"created_at": {"$gte": today_start}}),
+            "today": await status_count(_today_query()),
             "pending_approval": await status_count(_count_status_query(PENDING_STATUSES)),
             "auto_sent": await status_count(_count_status_query(["auto_sent"])),
             "sent": await status_count(_count_status_query(["sent"])),
@@ -162,6 +204,16 @@ async def create_requirement_from_inbox_email(
     if not doc:
         raise HTTPException(404, "Inbox email not found")
     return {"success": True, **await _process_client_requirement_email(db, doc, force_new_requirement=True)}
+
+
+@router.delete("/{email_id}", status_code=204)
+async def delete_inbox_email(
+    email_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    result = await db["client_emails"].delete_one({"email_id": email_id})
+    if result.deleted_count == 0:
+        raise HTTPException(404, "Inbox email not found")
 
 
 @router.post("/{email_id}/approve")
@@ -205,7 +257,7 @@ async def approve_inbox_reply(
                 "status": "sent",
                 "$and": [
                     {"$or": [{"recipient": to}, {"to_email": to}]},
-                    {"$or": [*duplicate_markers, {"subject": subject}]},
+                    {"$or": duplicate_markers},
                 ],
             },
             {"_id": 0, "sent_at": 1, "created_at": 1},

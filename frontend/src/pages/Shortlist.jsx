@@ -164,7 +164,7 @@ function syncShortlistRepliesIfDue(force = false) {
   if (!force && now - lastShortlistReplyCheckAt < REPLY_SYNC_THROTTLE_MS) return Promise.resolve(null)
   if (!shortlistReplyCheckPromise) {
     lastShortlistReplyCheckAt = now
-    shortlistReplyCheckPromise = api.post('/emails/check-replies')
+    shortlistReplyCheckPromise = api.post('/emails/check-replies', { since_days: 7, max_messages: 100 })
       .catch(() => null)
       .finally(() => { shortlistReplyCheckPromise = null })
   }

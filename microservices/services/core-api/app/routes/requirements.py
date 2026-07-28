@@ -639,11 +639,36 @@ async def request_client_po(
         body = payload.body
     else:
         tech = doc.get('technology_needed') or doc.get('technology') or 'DevOps'
-        duration = str(doc.get('duration_days') or doc.get('training_duration') or '10 Days')
+        duration = str(
+            doc.get('duration_text')
+            or doc.get('training_duration')
+            or doc.get('duration')
+            or (f"{doc.get('duration_hours')} hours" if doc.get('duration_hours') else "")
+            or (f"{doc.get('duration_days')} days" if doc.get('duration_days') else "")
+            or 'To be confirmed'
+        )
         training_dates = payload.training_dates or doc.get('training_dates') or doc.get('timeline_start') or ''
         duration_line = f"- **Duration:** {duration}\n" if duration else ''
         dates_line = f"- **Training Dates:** {training_dates}\n" if training_dates else ''
-        day_rate = (str(doc.get('day_rate')) + ' per day') if doc.get('day_rate') else '₹18,000 per day'
+        mode_text = " / ".join(str(v) for v in [doc.get('mode') or doc.get('delivery_mode'), doc.get('location')] if v)
+        mode_line = f"- **Mode/Location:** {mode_text}\n" if mode_text else ''
+        participant_count = doc.get('participant_count') or doc.get('participants')
+        participant_line = f"- **Participants:** {participant_count}\n" if participant_count else ''
+        commercial_value = (
+            doc.get('client_budget_per_day')
+            or doc.get('budget_per_day')
+            or doc.get('budget_total')
+            or doc.get('budget')
+            or doc.get('day_rate')
+        )
+        if commercial_value:
+            try:
+                amount = float(commercial_value)
+                day_rate = f"INR {amount:,.0f} per day/session"
+            except (TypeError, ValueError):
+                day_rate = f"{commercial_value} per day/session"
+        else:
+            day_rate = 'To be confirmed'
         body = (
             f"Dear {payload.client_name or doc.get('client_name') or doc.get('client_company') or 'Client'},\n\n"
             f"Thank you for confirming the **{tech}** training requirement.\n\n"
@@ -652,6 +677,8 @@ async def request_client_po(
             f"- **Domain:** {tech}\n"
             f"{duration_line}"
             f"{dates_line}"
+            f"{mode_line}"
+            f"{participant_line}"
             f"- **Commercials:** {day_rate}\n\n"
             f"Kindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements.\n\n"
             f"Please let us know if you require any additional information.\n\n"
@@ -661,7 +688,7 @@ async def request_client_po(
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             await client.post(
-                "https://email-service:8002/api/v1/email/send",
+                "http://email-service:8002/api/v1/email/send",
                 json={
                     "to": client_email,
                     "subject": subject,
@@ -713,7 +740,7 @@ async def request_client_budget_increase(
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             await client.post(
-                "https://email-service:8002/api/v1/email/send",
+                "http://email-service:8002/api/v1/email/send",
                 json={"to": client_email, "subject": subject, "body": body,
                       "requirement_id": req_id, "mail_type": "budget_increase_request"},
             )
@@ -791,7 +818,7 @@ async def generate_invoice_from_requirement_po(
         try:
             async with _httpx.AsyncClient(timeout=30) as client:
                 po_resp = await client.post(
-                    "https://trainer-service:8004/api/v1/purchase-orders/generate",
+                    "http://trainer-service:8004/api/v1/purchase-orders/generate",
                     json=po_payload,
                 )
             if po_resp.status_code >= 400:
@@ -830,7 +857,7 @@ async def generate_invoice_from_requirement_po(
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             r = await client.post(
-                f"https://trainer-service:8004/api/v1/purchase-orders/{po_id}/generate-invoice",
+                f"http://trainer-service:8004/api/v1/purchase-orders/{po_id}/generate-invoice",
                 json={
                     "invoice_number": payload.invoice_number,
                     "gst_number": payload.gst_number,
