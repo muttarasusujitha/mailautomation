@@ -1,0 +1,449 @@
+{
+  "domain": "Salesforce",
+  "name": "Salesforce",
+  "icon": "cloud",
+  "program_title": "Salesforce Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Salesforce Expert",
+  "certifications": [
+    "Salesforce Certified Associate",
+    "Salesforce Certified Administrator",
+    "Salesforce Certified Developer",
+    "Salesforce Certified Platform App Builder"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Salesforce Fundamentals",
+      "subtopics": [
+        "Platform Overview",
+        "Orgs",
+        "Setup",
+        "Navigation"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Salesforce basics"
+    },
+    {
+      "day": 2,
+      "topic": "Salesforce Fundamentals",
+      "subtopics": [
+        "Platform Overview",
+        "Orgs",
+        "Setup",
+        "Navigation"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Salesforce basics"
+    },
+    {
+      "day": 3,
+      "topic": "Core Objects & Records",
+      "subtopics": [
+        "Accounts",
+        "Contacts",
+        "Opportunities",
+        "Leads"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Core objects"
+    },
+    {
+      "day": 4,
+      "topic": "Core Objects & Records",
+      "subtopics": [
+        "Accounts",
+        "Contacts",
+        "Opportunities",
+        "Leads"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Core objects"
+    },
+    {
+      "day": 5,
+      "topic": "Customization Basics",
+      "subtopics": [
+        "Custom Fields",
+        "Record Types",
+        "Page Layouts"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Sprint planning; review progress for Customization Basics",
+      "lab_task": "Basic customization"
+    },
+    {
+      "day": 6,
+      "topic": "Customization Basics",
+      "subtopics": [
+        "Custom Fields",
+        "Record Types",
+        "Page Layouts"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Basic customization"
+    },
+    {
+      "day": 7,
+      "topic": "Automation - Workflow",
+      "subtopics": [
+        "Workflow Rules",
+        "Actions",
+        "Time-Dependent"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Workflow automation"
+    },
+    {
+      "day": 8,
+      "topic": "Automation - Workflow",
+      "subtopics": [
+        "Workflow Rules",
+        "Actions",
+        "Time-Dependent"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Workflow automation"
+    },
+    {
+      "day": 9,
+      "topic": "Automation - Process Builder",
+      "subtopics": [
+        "Process Builder",
+        "Actions",
+        "Logic"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Process builder"
+    },
+    {
+      "day": 10,
+      "topic": "Automation - Process Builder",
+      "subtopics": [
+        "Process Builder",
+        "Actions",
+        "Logic"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Sprint planning; review progress for Automation - Process Builder",
+      "lab_task": "Process builder"
+    },
+    {
+      "day": 11,
+      "topic": "Automation - Flow Builder",
+      "subtopics": [
+        "Flows",
+        "Screens",
+        "Actions",
+        "Complex Logic"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Flow automation"
+    },
+    {
+      "day": 12,
+      "topic": "Automation - Flow Builder",
+      "subtopics": [
+        "Flows",
+        "Screens",
+        "Actions",
+        "Complex Logic"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Flow automation"
+    },
+    {
+      "day": 13,
+      "topic": "Data Management",
+      "subtopics": [
+        "Data Import",
+        "Export",
+        "Duplicate Management"
+      ],
+      "tools": [
+        "Data Loader"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Data management"
+    },
+    {
+      "day": 14,
+      "topic": "Data Management",
+      "subtopics": [
+        "Data Import",
+        "Export",
+        "Duplicate Management"
+      ],
+      "tools": [
+        "Data Loader"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Data management"
+    },
+    {
+      "day": 15,
+      "topic": "Reports & Dashboards",
+      "subtopics": [
+        "Report Types",
+        "Formulas",
+        "Dashboards"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Sprint planning; review progress for Reports & Dashboards",
+      "lab_task": "Reports and dashboards"
+    },
+    {
+      "day": 16,
+      "topic": "Reports & Dashboards",
+      "subtopics": [
+        "Report Types",
+        "Formulas",
+        "Dashboards"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Reports and dashboards"
+    },
+    {
+      "day": 17,
+      "topic": "Apex Basics",
+      "subtopics": [
+        "Classes",
+        "Methods",
+        "Variables",
+        "Syntax"
+      ],
+      "tools": [
+        "Apex"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Apex programming"
+    },
+    {
+      "day": 18,
+      "topic": "Apex Basics",
+      "subtopics": [
+        "Classes",
+        "Methods",
+        "Variables",
+        "Syntax"
+      ],
+      "tools": [
+        "Apex"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Apex programming"
+    },
+    {
+      "day": 19,
+      "topic": "Apex Advanced",
+      "subtopics": [
+        "Triggers",
+        "Collections",
+        "Exception Handling"
+      ],
+      "tools": [
+        "Apex"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Advanced Apex"
+    },
+    {
+      "day": 20,
+      "topic": "Apex Advanced",
+      "subtopics": [
+        "Triggers",
+        "Collections",
+        "Exception Handling"
+      ],
+      "tools": [
+        "Apex"
+      ],
+      "jira_focus": "Sprint planning; review progress for Apex Advanced",
+      "lab_task": "Advanced Apex"
+    },
+    {
+      "day": 21,
+      "topic": "Visualforce Pages",
+      "subtopics": [
+        "VF Syntax",
+        "Components",
+        "Controller"
+      ],
+      "tools": [
+        "Visualforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Visualforce development"
+    },
+    {
+      "day": 22,
+      "topic": "Visualforce Pages",
+      "subtopics": [
+        "VF Syntax",
+        "Components",
+        "Controller"
+      ],
+      "tools": [
+        "Visualforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Visualforce development"
+    },
+    {
+      "day": 23,
+      "topic": "Lightning Components",
+      "subtopics": [
+        "LWC",
+        "Components",
+        "Data Binding",
+        "Events"
+      ],
+      "tools": [
+        "Lightning"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Lightning development"
+    },
+    {
+      "day": 24,
+      "topic": "Lightning Components",
+      "subtopics": [
+        "LWC",
+        "Components",
+        "Data Binding",
+        "Events"
+      ],
+      "tools": [
+        "Lightning"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Lightning development"
+    },
+    {
+      "day": 25,
+      "topic": "Integration",
+      "subtopics": [
+        "REST API",
+        "SOAP",
+        "Webhooks"
+      ],
+      "tools": [
+        "Salesforce API"
+      ],
+      "jira_focus": "Sprint planning; review progress for Integration",
+      "lab_task": "Integration basics"
+    },
+    {
+      "day": 26,
+      "topic": "Integration",
+      "subtopics": [
+        "REST API",
+        "SOAP",
+        "Webhooks"
+      ],
+      "tools": [
+        "Salesforce API"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Integration basics"
+    },
+    {
+      "day": 27,
+      "topic": "Data Security",
+      "subtopics": [
+        "Profiles",
+        "Permission Sets",
+        "Sharing Rules"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Security and access"
+    },
+    {
+      "day": 28,
+      "topic": "Data Security",
+      "subtopics": [
+        "Profiles",
+        "Permission Sets",
+        "Sharing Rules"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Security and access"
+    },
+    {
+      "day": 29,
+      "topic": "Deployment & Testing",
+      "subtopics": [
+        "Change Sets",
+        "Sandboxes",
+        "Testing",
+        "Metadata"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Deployment & testing"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Change Sets",
+        "Sandboxes",
+        "Testing",
+        "Metadata"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Sprint planning; review progress for Deployment & Testing",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    }
+  ]
+}

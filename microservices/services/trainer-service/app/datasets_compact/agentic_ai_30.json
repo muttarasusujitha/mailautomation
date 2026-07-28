@@ -1,0 +1,459 @@
+{
+  "domain": "Agentic AI",
+  "name": "Agentic AI",
+  "icon": "robot",
+  "program_title": "Agentic AI Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Agentic AI Expert",
+  "certifications": [
+    "AWS Certified ML Specialty",
+    "Google Cloud AI Engineer",
+    "Azure AI Engineer Associate",
+    "LangChain Developer Certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "AI Fundamentals",
+      "subtopics": [
+        "AI/ML/DL",
+        "Agents",
+        "Large Language Models"
+      ],
+      "tools": [
+        "Python"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "AI concepts"
+    },
+    {
+      "day": 2,
+      "topic": "AI Fundamentals",
+      "subtopics": [
+        "AI/ML/DL",
+        "Agents",
+        "Large Language Models"
+      ],
+      "tools": [
+        "Python"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "AI concepts"
+    },
+    {
+      "day": 3,
+      "topic": "LLM Basics",
+      "subtopics": [
+        "Transformers",
+        "Tokenization",
+        "Embeddings",
+        "Fine-tuning"
+      ],
+      "tools": [
+        "HuggingFace"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Large language models"
+    },
+    {
+      "day": 4,
+      "topic": "LLM Basics",
+      "subtopics": [
+        "Transformers",
+        "Tokenization",
+        "Embeddings",
+        "Fine-tuning"
+      ],
+      "tools": [
+        "HuggingFace"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Large language models"
+    },
+    {
+      "day": 5,
+      "topic": "Prompt Engineering",
+      "subtopics": [
+        "Techniques",
+        "Few-shot",
+        "Chain of Thought",
+        "Prompt Optimization"
+      ],
+      "tools": [
+        "GPT-4",
+        "Claude"
+      ],
+      "jira_focus": "Sprint planning; review progress for Prompt Engineering",
+      "lab_task": "Prompt design"
+    },
+    {
+      "day": 6,
+      "topic": "Prompt Engineering",
+      "subtopics": [
+        "Techniques",
+        "Few-shot",
+        "Chain of Thought",
+        "Prompt Optimization"
+      ],
+      "tools": [
+        "GPT-4",
+        "Claude"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Prompt design"
+    },
+    {
+      "day": 7,
+      "topic": "LangChain Fundamentals",
+      "subtopics": [
+        "Chains",
+        "Agents",
+        "Tools",
+        "Memory"
+      ],
+      "tools": [
+        "LangChain"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "LangChain basics"
+    },
+    {
+      "day": 8,
+      "topic": "LangChain Fundamentals",
+      "subtopics": [
+        "Chains",
+        "Agents",
+        "Tools",
+        "Memory"
+      ],
+      "tools": [
+        "LangChain"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "LangChain basics"
+    },
+    {
+      "day": 9,
+      "topic": "Building Simple Agents",
+      "subtopics": [
+        "ReAct",
+        "Agent Design",
+        "Tool Integration"
+      ],
+      "tools": [
+        "LangChain"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Simple agent architecture"
+    },
+    {
+      "day": 10,
+      "topic": "Building Simple Agents",
+      "subtopics": [
+        "ReAct",
+        "Agent Design",
+        "Tool Integration"
+      ],
+      "tools": [
+        "LangChain"
+      ],
+      "jira_focus": "Sprint planning; review progress for Building Simple Agents",
+      "lab_task": "Simple agent architecture"
+    },
+    {
+      "day": 11,
+      "topic": "Complex Agent Workflows",
+      "subtopics": [
+        "Multi-step Reasoning",
+        "Tool Chaining",
+        "Error Recovery"
+      ],
+      "tools": [
+        "LangChain"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Advanced agent patterns"
+    },
+    {
+      "day": 12,
+      "topic": "Complex Agent Workflows",
+      "subtopics": [
+        "Multi-step Reasoning",
+        "Tool Chaining",
+        "Error Recovery"
+      ],
+      "tools": [
+        "LangChain"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Advanced agent patterns"
+    },
+    {
+      "day": 13,
+      "topic": "RAG - Retrieval Augmented Generation",
+      "subtopics": [
+        "Vector Databases",
+        "Embeddings",
+        "Retrieval"
+      ],
+      "tools": [
+        "Pinecone",
+        "Chroma"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "RAG systems"
+    },
+    {
+      "day": 14,
+      "topic": "RAG - Retrieval Augmented Generation",
+      "subtopics": [
+        "Vector Databases",
+        "Embeddings",
+        "Retrieval"
+      ],
+      "tools": [
+        "Pinecone",
+        "Chroma"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "RAG systems"
+    },
+    {
+      "day": 15,
+      "topic": "Vector Databases",
+      "subtopics": [
+        "Storage",
+        "Similarity Search",
+        "Indexing",
+        "Scaling"
+      ],
+      "tools": [
+        "Pinecone",
+        "Weaviate"
+      ],
+      "jira_focus": "Sprint planning; review progress for Vector Databases",
+      "lab_task": "Vector storage"
+    },
+    {
+      "day": 16,
+      "topic": "Vector Databases",
+      "subtopics": [
+        "Storage",
+        "Similarity Search",
+        "Indexing",
+        "Scaling"
+      ],
+      "tools": [
+        "Pinecone",
+        "Weaviate"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Vector storage"
+    },
+    {
+      "day": 17,
+      "topic": "OpenAI API",
+      "subtopics": [
+        "API Usage",
+        "Models",
+        "Streaming",
+        "Cost Optimization"
+      ],
+      "tools": [
+        "OpenAI API"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "OpenAI integration"
+    },
+    {
+      "day": 18,
+      "topic": "OpenAI API",
+      "subtopics": [
+        "API Usage",
+        "Models",
+        "Streaming",
+        "Cost Optimization"
+      ],
+      "tools": [
+        "OpenAI API"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "OpenAI integration"
+    },
+    {
+      "day": 19,
+      "topic": "Other LLM Providers",
+      "subtopics": [
+        "Anthropic",
+        "Google",
+        "Cohere",
+        "Open Source Models"
+      ],
+      "tools": [
+        "Anthropic",
+        "LLama"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Multiple LLM providers"
+    },
+    {
+      "day": 20,
+      "topic": "Other LLM Providers",
+      "subtopics": [
+        "Anthropic",
+        "Google",
+        "Cohere",
+        "Open Source Models"
+      ],
+      "tools": [
+        "Anthropic",
+        "LLama"
+      ],
+      "jira_focus": "Sprint planning; review progress for Other LLM Providers",
+      "lab_task": "Multiple LLM providers"
+    },
+    {
+      "day": 21,
+      "topic": "Agent Evaluation & Testing",
+      "subtopics": [
+        "Metrics",
+        "Benchmarks",
+        "Failure Modes"
+      ],
+      "tools": [
+        "Pytest"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Agent evaluation"
+    },
+    {
+      "day": 22,
+      "topic": "Agent Evaluation & Testing",
+      "subtopics": [
+        "Metrics",
+        "Benchmarks",
+        "Failure Modes"
+      ],
+      "tools": [
+        "Pytest"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Agent evaluation"
+    },
+    {
+      "day": 23,
+      "topic": "Production Deployment",
+      "subtopics": [
+        "Scalability",
+        "Monitoring",
+        "Cost Management"
+      ],
+      "tools": [
+        "AWS",
+        "Azure"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Agent deployment"
+    },
+    {
+      "day": 24,
+      "topic": "Production Deployment",
+      "subtopics": [
+        "Scalability",
+        "Monitoring",
+        "Cost Management"
+      ],
+      "tools": [
+        "AWS",
+        "Azure"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Agent deployment"
+    },
+    {
+      "day": 25,
+      "topic": "Memory Management",
+      "subtopics": [
+        "Conversation History",
+        "State Management",
+        "Summarization"
+      ],
+      "tools": [
+        "LangChain"
+      ],
+      "jira_focus": "Sprint planning; review progress for Memory Management",
+      "lab_task": "Agent memory"
+    },
+    {
+      "day": 26,
+      "topic": "Memory Management",
+      "subtopics": [
+        "Conversation History",
+        "State Management",
+        "Summarization"
+      ],
+      "tools": [
+        "LangChain"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Agent memory"
+    },
+    {
+      "day": 27,
+      "topic": "Tool Integration & APIs",
+      "subtopics": [
+        "Custom Tools",
+        "API Integration",
+        "Error Handling"
+      ],
+      "tools": [
+        "FastAPI"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Tool development"
+    },
+    {
+      "day": 28,
+      "topic": "Tool Integration & APIs",
+      "subtopics": [
+        "Custom Tools",
+        "API Integration",
+        "Error Handling"
+      ],
+      "tools": [
+        "FastAPI"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Tool development"
+    },
+    {
+      "day": 29,
+      "topic": "Advanced Agentic Patterns",
+      "subtopics": [
+        "Multi-agent Systems",
+        "Emergent Behavior",
+        "Autonomous Agents"
+      ],
+      "tools": [
+        "Agentic"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Advanced patterns"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Multi-agent Systems",
+        "Emergent Behavior",
+        "Autonomous Agents"
+      ],
+      "tools": [
+        "Agentic"
+      ],
+      "jira_focus": "Sprint planning; review progress for Advanced Agentic Patterns",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    }
+  ]
+}

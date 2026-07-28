@@ -1,0 +1,447 @@
+{
+  "domain": "Cloud",
+  "name": "Cloud",
+  "icon": "cloud",
+  "program_title": "Cloud Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Cloud Expert",
+  "certifications": [
+    "AWS Solutions Architect - Associate",
+    "Google Cloud Associate Cloud Engineer",
+    "Azure Fundamentals",
+    "Cloud Security Knowledge"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Cloud Fundamentals",
+      "subtopics": [
+        "IaaS/PaaS/SaaS",
+        "Deployment Models",
+        "Benefits",
+        "Risks"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Cloud basics"
+    },
+    {
+      "day": 2,
+      "topic": "Cloud Fundamentals",
+      "subtopics": [
+        "IaaS/PaaS/SaaS",
+        "Deployment Models",
+        "Benefits",
+        "Risks"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Cloud basics"
+    },
+    {
+      "day": 3,
+      "topic": "AWS Fundamentals",
+      "subtopics": [
+        "Services",
+        "EC2",
+        "S3",
+        "VPC"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "AWS core services"
+    },
+    {
+      "day": 4,
+      "topic": "AWS Fundamentals",
+      "subtopics": [
+        "Services",
+        "EC2",
+        "S3",
+        "VPC"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "AWS core services"
+    },
+    {
+      "day": 5,
+      "topic": "AWS Advanced",
+      "subtopics": [
+        "Auto Scaling",
+        "Load Balancers",
+        "RDS",
+        "Lambda"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Sprint planning; review progress for AWS Advanced",
+      "lab_task": "AWS advanced services"
+    },
+    {
+      "day": 6,
+      "topic": "AWS Advanced",
+      "subtopics": [
+        "Auto Scaling",
+        "Load Balancers",
+        "RDS",
+        "Lambda"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "AWS advanced services"
+    },
+    {
+      "day": 7,
+      "topic": "Google Cloud Fundamentals",
+      "subtopics": [
+        "Compute",
+        "Storage",
+        "Networking"
+      ],
+      "tools": [
+        "GCP"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "GCP services"
+    },
+    {
+      "day": 8,
+      "topic": "Google Cloud Fundamentals",
+      "subtopics": [
+        "Compute",
+        "Storage",
+        "Networking"
+      ],
+      "tools": [
+        "GCP"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "GCP services"
+    },
+    {
+      "day": 9,
+      "topic": "Google Cloud Advanced",
+      "subtopics": [
+        "BigQuery",
+        "Dataflow",
+        "Cloud Run"
+      ],
+      "tools": [
+        "GCP"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "GCP advanced services"
+    },
+    {
+      "day": 10,
+      "topic": "Google Cloud Advanced",
+      "subtopics": [
+        "BigQuery",
+        "Dataflow",
+        "Cloud Run"
+      ],
+      "tools": [
+        "GCP"
+      ],
+      "jira_focus": "Sprint planning; review progress for Google Cloud Advanced",
+      "lab_task": "GCP advanced services"
+    },
+    {
+      "day": 11,
+      "topic": "Azure Fundamentals",
+      "subtopics": [
+        "Virtual Machines",
+        "Storage",
+        "Networking"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Azure services"
+    },
+    {
+      "day": 12,
+      "topic": "Azure Fundamentals",
+      "subtopics": [
+        "Virtual Machines",
+        "Storage",
+        "Networking"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Azure services"
+    },
+    {
+      "day": 13,
+      "topic": "Azure Advanced",
+      "subtopics": [
+        "App Service",
+        "Functions",
+        "Containers"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Azure advanced services"
+    },
+    {
+      "day": 14,
+      "topic": "Azure Advanced",
+      "subtopics": [
+        "App Service",
+        "Functions",
+        "Containers"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Azure advanced services"
+    },
+    {
+      "day": 15,
+      "topic": "Networking in Cloud",
+      "subtopics": [
+        "VPC/Virtual Networks",
+        "Subnets",
+        "Routing",
+        "Security Groups"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Sprint planning; review progress for Networking in Cloud",
+      "lab_task": "Cloud networking"
+    },
+    {
+      "day": 16,
+      "topic": "Networking in Cloud",
+      "subtopics": [
+        "VPC/Virtual Networks",
+        "Subnets",
+        "Routing",
+        "Security Groups"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Cloud networking"
+    },
+    {
+      "day": 17,
+      "topic": "Storage Solutions",
+      "subtopics": [
+        "Object Storage",
+        "Block Storage",
+        "File Storage"
+      ],
+      "tools": [
+        "Cloud Storage"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Storage options"
+    },
+    {
+      "day": 18,
+      "topic": "Storage Solutions",
+      "subtopics": [
+        "Object Storage",
+        "Block Storage",
+        "File Storage"
+      ],
+      "tools": [
+        "Cloud Storage"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Storage options"
+    },
+    {
+      "day": 19,
+      "topic": "Databases in Cloud",
+      "subtopics": [
+        "SQL/NoSQL",
+        "Managed Services",
+        "Replication"
+      ],
+      "tools": [
+        "Cloud Databases"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Database services"
+    },
+    {
+      "day": 20,
+      "topic": "Databases in Cloud",
+      "subtopics": [
+        "SQL/NoSQL",
+        "Managed Services",
+        "Replication"
+      ],
+      "tools": [
+        "Cloud Databases"
+      ],
+      "jira_focus": "Sprint planning; review progress for Databases in Cloud",
+      "lab_task": "Database services"
+    },
+    {
+      "day": 21,
+      "topic": "Container Orchestration",
+      "subtopics": [
+        "Kubernetes",
+        "Container Services",
+        "Cluster Management"
+      ],
+      "tools": [
+        "K8s"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Container orchestration"
+    },
+    {
+      "day": 22,
+      "topic": "Container Orchestration",
+      "subtopics": [
+        "Kubernetes",
+        "Container Services",
+        "Cluster Management"
+      ],
+      "tools": [
+        "K8s"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Container orchestration"
+    },
+    {
+      "day": 23,
+      "topic": "Serverless Computing",
+      "subtopics": [
+        "Functions",
+        "Event-driven",
+        "Scaling"
+      ],
+      "tools": [
+        "Serverless"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Serverless platforms"
+    },
+    {
+      "day": 24,
+      "topic": "Serverless Computing",
+      "subtopics": [
+        "Functions",
+        "Event-driven",
+        "Scaling"
+      ],
+      "tools": [
+        "Serverless"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Serverless platforms"
+    },
+    {
+      "day": 25,
+      "topic": "Infrastructure as Code",
+      "subtopics": [
+        "Terraform",
+        "CloudFormation",
+        "Ansible"
+      ],
+      "tools": [
+        "IaC Tools"
+      ],
+      "jira_focus": "Sprint planning; review progress for Infrastructure as Code",
+      "lab_task": "Infrastructure automation"
+    },
+    {
+      "day": 26,
+      "topic": "Infrastructure as Code",
+      "subtopics": [
+        "Terraform",
+        "CloudFormation",
+        "Ansible"
+      ],
+      "tools": [
+        "IaC Tools"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Infrastructure automation"
+    },
+    {
+      "day": 27,
+      "topic": "Cloud Security",
+      "subtopics": [
+        "IAM",
+        "Encryption",
+        "Compliance",
+        "Best Practices"
+      ],
+      "tools": [
+        "Cloud Security"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Cloud security"
+    },
+    {
+      "day": 28,
+      "topic": "Cloud Security",
+      "subtopics": [
+        "IAM",
+        "Encryption",
+        "Compliance",
+        "Best Practices"
+      ],
+      "tools": [
+        "Cloud Security"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Cloud security"
+    },
+    {
+      "day": 29,
+      "topic": "Cost Optimization & Governance",
+      "subtopics": [
+        "Cost Analysis",
+        "Resource Optimization",
+        "Governance"
+      ],
+      "tools": [
+        "Cost Management"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Cost and governance"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Cost Analysis",
+        "Resource Optimization",
+        "Governance"
+      ],
+      "tools": [
+        "Cost Management"
+      ],
+      "jira_focus": "Sprint planning; review progress for Cost Optimization & Governance",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    }
+  ]
+}

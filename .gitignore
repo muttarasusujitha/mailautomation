@@ -10,13 +10,26 @@ config/token.json
 **/config/token.json
 **/config/token*.bak
 **/config/*.secret.json
+microservices/services/email-service/config/token.json
+
+# Databases and browser state
+*.db
+*.db-journal
+.chrome-diagnostic*
+Last Browser
+Last Version
+Local State
 
 # Python
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+htmlcov/
 .venv/
 venv/
 
@@ -27,9 +40,11 @@ build/
 .vite/
 
 # Local/editor files
+.vscode/
 .DS_Store
 Thumbs.db
 .runlogs/
+.scannerwork/
 *.log
 *.tmp
 
