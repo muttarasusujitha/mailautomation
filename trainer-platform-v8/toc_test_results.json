@@ -1,0 +1,104 @@
+{
+  "total": 16,
+  "generated": 16,
+  "emailed": 16,
+  "failed": [],
+  "generated_tocs": [
+    {
+      "domain": "DevOps",
+      "toc_id": "TOC-9B5CF8A0B7",
+      "title": "DevOps Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Python",
+      "toc_id": "TOC-25E14CB527",
+      "title": "Python Mastery",
+      "days": 10
+    },
+    {
+      "domain": "React",
+      "toc_id": "TOC-D2BD9D54FE",
+      "title": "React.js Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Full Stack",
+      "toc_id": "TOC-A570FC297A",
+      "title": "Full Stack Development Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Data Engineering",
+      "toc_id": "TOC-BC20EC3C6C",
+      "title": "Data Engineering Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Machine Learning",
+      "toc_id": "TOC-0F2795EDFB",
+      "title": "Machine Learning Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Testing & QA",
+      "toc_id": "TOC-0C3EEB2F34",
+      "title": "Testing & QA Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Cybersecurity",
+      "toc_id": "TOC-7C7EC7157C",
+      "title": "Cybersecurity Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Power BI",
+      "toc_id": "TOC-D84D005B89",
+      "title": "Power BI Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Salesforce",
+      "toc_id": "TOC-B851582CDE",
+      "title": "Salesforce Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Java",
+      "toc_id": "TOC-171891BA13",
+      "title": "Java Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Project Management",
+      "toc_id": "TOC-8EEE7410F2",
+      "title": "Project Management Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Agentic AI",
+      "toc_id": "TOC-DF0016957A",
+      "title": "Agentic AI Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Azure AI Datasets",
+      "toc_id": "TOC-34C6472C43",
+      "title": "Azure AI Datasets & GenAI Data Services Mastery",
+      "days": 10
+    },
+    {
+      "domain": "AWS AI Datasets",
+      "toc_id": "TOC-8E7261321D",
+      "title": "AWS AI Datasets & GenAI Data Services Mastery",
+      "days": 10
+    },
+    {
+      "domain": "Prompt Engineering",
+      "toc_id": "TOC-06A75C5B45",
+      "title": "Prompt Engineering Mastery",
+      "days": 10
+    }
+  ]
+}
