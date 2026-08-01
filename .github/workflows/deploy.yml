@@ -1,0 +1,77 @@
+name: TrainerSync Deployment Pipeline
+ 
+on:
+  push:
+    branches:
+      - main
+ 
+jobs:
+  deploy:
+ 
+    runs-on: ubuntu-latest
+ 
+    steps:
+ 
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+ 
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+ 
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+ 
+          chmod 600 ~/.ssh/id_rsa
+ 
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+ 
+      - name: Deploy to EC2
+        run: |
+ 
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << EOF
+ 
+          set -e
+ 
+          cd ${{ secrets.PROJECT_PATH }}
+ 
+          echo "Updating Repository..."
+ 
+          git fetch origin
+ 
+          git reset --hard origin/main
+ 
+          echo "Checking Docker Compose..."
+ 
+          docker compose config
+ 
+          echo "Stopping old containers..."
+ 
+          docker compose down --remove-orphans
+ 
+          echo "Removing old images..."
+ 
+          docker image prune -f
+ 
+          echo "Building latest images..."
+ 
+          docker compose build --parallel
+ 
+          echo "Starting containers..."
+ 
+          docker compose up -d
+ 
+          echo "Waiting for containers..."
+ 
+          sleep 20
+ 
+          echo "Running Containers"
+ 
+          docker compose ps
+ 
+          echo "Docker Status"
+ 
+          docker ps
+ 
+          echo "Deployment Successful"
+ 
+          EOF
