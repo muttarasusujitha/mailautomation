@@ -17,7 +17,7 @@ from app.config import get_settings
 from app.agents.email_classifier import classify_email
 from app.agents.reply_templates import build_auto_reply
 from app.calendar_client import create_google_meet_event
-from app.database import get_db
+from shared.database.service import get_db
 from app.gmail_client import check_imap_replies, generate_message_id, send_email_async
 from app.routes.templates import InterviewEmailRequest, compose_interview
 

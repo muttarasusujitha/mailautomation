@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, EmailStr
 
-from app.database import get_db
+from shared.database.service import get_db
 from app.gmail_client import generate_message_id, is_send_quota_error, send_email_async, _normalize_trainer_reply_body
 
 router = APIRouter()

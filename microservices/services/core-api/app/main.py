@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.database import init_db, shutdown_db
+from shared.database.service import init_db as connect_service_db, shutdown_db
 from app.routes import (
     customers,
     requirements,
@@ -21,7 +21,7 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_db()
+    await connect_service_db(settings)
     yield
     await shutdown_db()
 

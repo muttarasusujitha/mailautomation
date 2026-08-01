@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from bson import ObjectId
 from typing import Optional
 
-from app.database import get_db
+from shared.database.service import get_db
 from shared.models.schemas import EmailLog, PaginatedResponse
 
 router = APIRouter()

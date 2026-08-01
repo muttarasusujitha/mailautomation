@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from app.database import get_db
+from shared.database.service import get_db
 from app.config import get_settings
 
 router = APIRouter()

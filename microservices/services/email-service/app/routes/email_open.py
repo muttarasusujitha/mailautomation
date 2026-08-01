@@ -4,7 +4,7 @@ from fastapi.responses import Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from datetime import datetime
 
-from app.database import get_db
+from shared.database.service import get_db
 
 router = APIRouter()
 
