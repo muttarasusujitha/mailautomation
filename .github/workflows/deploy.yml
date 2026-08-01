@@ -1,4 +1,4 @@
-name: TrainerSync Deployment Pipeline
+﻿name: TrainerSync Deployment Pipeline
 
 on:
   push:
@@ -37,16 +37,16 @@ if '\\n' in key:
     key = key.replace('\\n', '\n')
 path = Path.home() / '.ssh' / 'id_rsa'
 path.write_text(key)
-print('KEY_LEN=' + str(len(key)))
+print('SSH key length:', len(key))
 PY
           chmod 600 ~/.ssh/id_rsa
           ls -l ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${EC2_HOST}" >> ~/.ssh/known_hosts || true
 
       - name: Deploy to EC2
         run: |
           set -euo pipefail
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
           set -euo pipefail
           cd "${{ secrets.PROJECT_PATH }}"
           echo "Updating Repository..."
