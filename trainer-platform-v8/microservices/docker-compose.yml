@@ -7,8 +7,10 @@
 ##############################################################################
 
 x-common-env: &common-env
-  # Use the host MongoDB so local data is shared with the microservices stack.
-  MONGODB_URL: mongodb://host.docker.internal:27017
+  # In Docker/AWS, services reach MongoDB by Compose service name.
+  # Override from .env if you use Atlas or another external MongoDB.
+  MONGODB_URL: ${MONGODB_URL:-mongodb://mongo:27017}
+  MONGODB_DB_NAME: ${MONGODB_DB_NAME:-trainersync}
   REDIS_URL: redis://redis:6379
 
 x-service-defaults: &service-defaults
@@ -76,7 +78,9 @@ services:
       <<: *common-env
       SERVICE_NAME: auth-service
       PORT: "8008"
-    env_file: .env
+    env_file:
+      - .env
+      - services/auth-service/.env
     expose:
       - "8008"
     healthcheck:
@@ -96,7 +100,9 @@ services:
       <<: *common-env
       SERVICE_NAME: core-api
       PORT: "8001"
-    env_file: .env
+    env_file:
+      - .env
+      - services/core-api/.env
     expose:
       - "8001"
     healthcheck:
@@ -116,7 +122,9 @@ services:
       <<: *common-env
       SERVICE_NAME: email-service
       PORT: "8002"
-    env_file: .env
+    env_file:
+      - .env
+      - services/email-service/.env
     ports:
       - "8002:8002"
     expose:
@@ -140,7 +148,9 @@ services:
       <<: *common-env
       SERVICE_NAME: notification-service
       PORT: "8003"
-    env_file: .env
+    env_file:
+      - .env
+      - services/notification-service/.env
     expose:
       - "8003"
     healthcheck:
@@ -160,7 +170,9 @@ services:
       <<: *common-env
       SERVICE_NAME: trainer-service
       PORT: "8004"
-    env_file: .env
+    env_file:
+      - .env
+      - services/trainer-service/.env
     ports:
       - "8004:8004"
     expose:
@@ -182,7 +194,9 @@ services:
       <<: *common-env
       SERVICE_NAME: intelligence-service
       PORT: "8005"
-    env_file: .env
+    env_file:
+      - .env
+      - services/intelligence-service/.env
     ports:
       - "8005:8005"
     expose:
@@ -204,7 +218,9 @@ services:
       <<: *common-env
       SERVICE_NAME: document-service
       PORT: "8006"
-    env_file: .env
+    env_file:
+      - .env
+      - services/document-service/.env
     ports:
       - "8006:8006"
     expose:
@@ -229,9 +245,11 @@ services:
       PORT: "8007"
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
-      EMAIL_SERVICE_URL: https://email-service:8002
-      NOTIFICATION_SERVICE_URL: https://notification-service:8003
-    env_file: .env
+      EMAIL_SERVICE_URL: http://email-service:8002
+      NOTIFICATION_SERVICE_URL: http://notification-service:8003
+    env_file:
+      - .env
+      - services/scheduler-service/.env
     expose:
       - "8007"
     healthcheck:
@@ -253,9 +271,11 @@ services:
       <<: *common-env
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
-      EMAIL_SERVICE_URL: https://email-service:8002
-      NOTIFICATION_SERVICE_URL: https://notification-service:8003
-    env_file: .env
+      EMAIL_SERVICE_URL: http://email-service:8002
+      NOTIFICATION_SERVICE_URL: http://notification-service:8003
+    env_file:
+      - .env
+      - services/scheduler-service/.env
     healthcheck:
       disable: true
     depends_on:
@@ -280,7 +300,9 @@ services:
       <<: *common-env
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/1
-    env_file: .env
+    env_file:
+      - .env
+      - services/scheduler-service/.env
     volumes:
       - celery_beat_data:/app/celerybeat-schedule
     healthcheck:

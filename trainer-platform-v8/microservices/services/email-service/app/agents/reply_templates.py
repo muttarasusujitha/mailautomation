@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 
 SIGNATURE = "Best Regards,\nRecruitment Team\nClahan Technologies"
-TRAINER_SIGNATURE = "Regards,\nTrainerSync Team"
+TRAINER_SIGNATURE = "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
 
 
 def _clean(value: Any, default: str = "") -> str:
@@ -479,6 +479,14 @@ def build_auto_reply(
         return _safe_ack(sender_name, subject)
 
     scenario = classification.get("scenario") or "general_enquiry"
+    person_type = str(classification.get("person_type") or "").strip().lower()
+    if (
+        scenario.startswith("trainer_")
+        and person_type != "trainer"
+        and extracted.get("is_training_request")
+        and not extracted.get("is_non_client_email")
+    ):
+        scenario = "client_sent_details" if not _missing_lines(extracted) else "new_training_requirement"
     tech = _technology(extracted)
     client = _client_name(extracted)
     missing = _missing_lines(extracted)

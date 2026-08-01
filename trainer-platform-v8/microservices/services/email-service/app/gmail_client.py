@@ -11,8 +11,8 @@ from email.header import decode_header, make_header
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.utils import parseaddr, parsedate_to_datetime
-from datetime import datetime, timedelta
+from email.utils import make_msgid, parseaddr, parsedate_to_datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from app.config import get_settings
@@ -99,6 +99,7 @@ def _load_oauth_service():
 
 
 PLACEHOLDER_SENDERS = {
+    "your-gmail@gmail.com",
     "your-gmail-address@gmail.com",
     "your-email@gmail.com",
     "yourname@example.com",
@@ -127,7 +128,11 @@ def _resolve_sender_email(from_email: str = "") -> str:
     normalized = _normalize_email_address(from_email or "")
     if normalized:
         return normalized
-    return _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "")
+    return _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "") or "sujithaofficial784@gmail.com"
+
+
+def generate_message_id() -> str:
+    return make_msgid(domain="trainersync.local")
 
 
 def _build_sender_candidates(
@@ -172,11 +177,17 @@ def _build_sender_candidates(
 
 def _is_trainer_reply(body: str) -> bool:
     normalized = str(body or "").lower()
-    return (
-        "trainersync team" in normalized
-        or "training opportunity" in normalized
-        or "dear trainer" in normalized
+    if re.search(r"\bdear\s+(?:trainer|consultant|candidate)\b", normalized):
+        return True
+    trainer_markers = (
+        "training opportunity",
+        "trainer availability",
+        "trainer profile",
+        "commercials for approval",
+        "interview slot booking",
+        "please confirm your availability",
     )
+    return any(marker in normalized for marker in trainer_markers)
 
 
 def _normalize_trainer_reply_body(body: str) -> str:
@@ -185,26 +196,42 @@ def _normalize_trainer_reply_body(body: str) -> str:
     text = str(body or "")
     text = re.sub(
         r"(?:Best\s+Regards|Regards|Warm\s+Regards),?\s*\nRecruitment Team,?\s*\nClahan Technologies",
-        "Regards,\nTrainerSync Team",
+        "Regards,\nClahan Technologies",
         text,
         flags=re.IGNORECASE,
     )
     text = re.sub(
         r"(?:Best\s+Regards|Regards|Warm\s+Regards),?\s*\nRecruitment Team,?\s*\nCalhan Technologies",
-        "Regards,\nTrainerSync Team",
+        "Regards,\nClahan Technologies",
         text,
         flags=re.IGNORECASE,
     )
     return text
 
 
+def _strip_quoted_email_history(value: str) -> str:
+    text = str(value or "").replace("\r\n", "\n").replace("\r", "\n")
+    if not text:
+        return ""
+    kept = []
+    marker_re = re.compile(
+        r"^(?:On .{0,160} wrote:|From:\s+|Sent:\s+|To:\s+|Subject:\s+|-{2,}\s*Original Message\s*-{2,})",
+        flags=re.IGNORECASE,
+    )
+    for line in text.splitlines():
+        clean_line = re.sub(r"\s+", " ", line).strip()
+        if clean_line.startswith(">") or marker_re.search(clean_line):
+            break
+        kept.append(line)
+    stripped = "\n".join(kept).strip()
+    return stripped or text
+
+
 def _html_template(body: str, from_name: str, from_email: str, tracking_url: str = "") -> str:
     body = _normalize_trainer_reply_body(body)
-    from_email = _normalize_email_address(from_email)
-    if _is_trainer_reply(body):
-        from_email = "sujithaofficial784@gmail.com"
-    display_name = "TrainerSync" if _is_trainer_reply(body) else (from_name or "TrainerSync")
-    tagline = "Trainer Coordination Platform" if _is_trainer_reply(body) else "AI-Powered Trainer Matching Platform"
+    from_email = _normalize_email_address(from_email) or _resolve_sender_email("")
+    display_name = "Clahan Technologies" if _is_trainer_reply(body) else (from_name or "Clahan Technologies")
+    tagline = "Trainer Coordination Platform" if _is_trainer_reply(body) else "Trainer Matching Platform"
     html_body = body.replace("\n", "<br>")
     pixel = (
         f'<img src="{tracking_url}" width="1" height="1" alt="" style="display:none;" />'
@@ -238,6 +265,7 @@ def send_gmail_oauth(
     from_email: str = "",
     tracking_url: str = "",
     attachments: Optional[List[Dict[str, Any]]] = None,
+    message_id_header: str = "",
 ) -> Tuple[bool, str]:
     body = _normalize_trainer_reply_body(body)
     service, error = _load_oauth_service()
@@ -246,16 +274,15 @@ def send_gmail_oauth(
     try:
         profile = service.users().getProfile(userId="me").execute()
         gmail_user = profile.get("emailAddress") or settings.GMAIL_USER
-        sender_name = "TrainerSync" if _is_trainer_reply(body) else (from_name or settings.FROM_NAME)
+        sender_name = "Clahan Technologies" if _is_trainer_reply(body) else (from_name or settings.FROM_NAME)
         sender_email = _resolve_sender_email(from_email or settings.FROM_EMAIL or gmail_user)
-        if _is_trainer_reply(body):
-            sender_email = "sujithaofficial784@gmail.com"
 
         msg = MIMEMultipart("mixed") if attachments else MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"] = f"{sender_name} <{sender_email}>"
         msg["To"] = to
         msg["Reply-To"] = sender_email
+        msg["Message-ID"] = message_id_header or generate_message_id()
 
         alt = MIMEMultipart("alternative") if attachments else msg
         if attachments:
@@ -288,6 +315,8 @@ def send_gmail_oauth(
                     "smtpPort": settings.SMTP_PORT,
                 },
                 tracking_url=tracking_url,
+                attachments=attachments,
+                message_id_header=message_id_header,
             )
         return False, _friendly_send_error(exc)
 
@@ -299,10 +328,31 @@ def send_smtp(
     smtp_config: Optional[Dict[str, Any]] = None,
     tracking_url: str = "",
     attachments: Optional[List[Dict[str, Any]]] = None,
+    message_id_header: str = "",
 ) -> Tuple[bool, str]:
     body = _normalize_trainer_reply_body(body)
     candidates = _build_sender_candidates(smtp_config)
     last_error: Optional[Exception] = None
+
+    smtp_password_present = any(
+        bool((candidate.get("smtpPass") or settings.effective_gmail_pass or "").strip())
+        for candidate in candidates
+    )
+    if not smtp_password_present:
+        logger.info("SMTP password missing; retrying via Gmail OAuth fallback")
+        oauth_success, oauth_error = send_gmail_oauth(
+            to=to,
+            subject=subject,
+            body=body,
+            from_name=(smtp_config or {}).get("fromName") or settings.FROM_NAME,
+            from_email=(smtp_config or {}).get("fromEmail") or settings.FROM_EMAIL,
+            tracking_url=tracking_url,
+            attachments=attachments,
+            message_id_header=message_id_header,
+        )
+        if oauth_success:
+            return True, ""
+        logger.warning("Gmail OAuth fallback failed while SMTP password was absent: %s", oauth_error)
 
     for idx, candidate in enumerate(candidates):
         user = candidate.get("smtpUser") or settings.GMAIL_USER
@@ -310,8 +360,7 @@ def send_smtp(
         from_name = candidate.get("fromName") or settings.FROM_NAME
         from_email = _resolve_sender_email(candidate.get("fromEmail") or settings.FROM_EMAIL or user)
         if _is_trainer_reply(body):
-            from_name = "TrainerSync"
-            from_email = "sujithaofficial784@gmail.com"
+            from_name = "Clahan Technologies"
         host = candidate.get("smtpHost") or settings.SMTP_HOST
         port = int(candidate.get("smtpPort") or settings.SMTP_PORT)
 
@@ -337,6 +386,7 @@ def send_smtp(
             msg["From"] = f"{from_name} <{from_email}>"
             msg["To"] = to
             msg["Reply-To"] = from_email
+            msg["Message-ID"] = message_id_header or generate_message_id()
             alternative.attach(MIMEText(body, "plain"))
             alternative.attach(MIMEText(_html_template(body, from_name, from_email, tracking_url), "html"))
 
@@ -366,7 +416,7 @@ def send_smtp(
             if "gmail" in host.lower() and idx < len(candidates) - 1:
                 continue
             if "gmail" in host.lower():
-                return send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
+                return send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url, message_id_header=message_id_header)
             return False, "SMTP authentication failed"
         except Exception as exc:
             last_error = exc
@@ -377,7 +427,7 @@ def send_smtp(
             if is_send_quota_error(exc):
                 return False, _friendly_send_error(exc)
             if "gmail" in host.lower():
-                oauth_success, oauth_error = send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url)
+                oauth_success, oauth_error = send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url, message_id_header=message_id_header)
                 if oauth_success:
                     return True, ""
                 return False, oauth_error or str(exc)
@@ -395,9 +445,10 @@ async def send_email_async(
     smtp_config: Optional[Dict[str, Any]] = None,
     tracking_url: str = "",
     attachments: Optional[List[Dict[str, Any]]] = None,
+    message_id_header: str = "",
 ) -> Tuple[bool, str]:
     loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, send_smtp, to, subject, body, smtp_config, tracking_url, attachments)
+    return await loop.run_in_executor(None, send_smtp, to, subject, body, smtp_config, tracking_url, attachments, message_id_header)
 
 
 def check_imap_replies(
@@ -486,14 +537,22 @@ def check_imap_replies(
 
                     try:
                         date_hdr = msg.get("Date", "")
-                        received_at = parsedate_to_datetime(date_hdr).replace(tzinfo=None) if date_hdr else datetime.utcnow()
+                        if date_hdr:
+                            parsed_date = parsedate_to_datetime(date_hdr)
+                            if parsed_date.tzinfo:
+                                received_at = parsed_date.astimezone(timezone.utc).replace(tzinfo=None)
+                            else:
+                                received_at = parsed_date
+                        else:
+                            received_at = datetime.utcnow()
                     except Exception:
                         received_at = datetime.utcnow()
 
-                    lower = body_text.lower()
-                    is_pos = any(s in lower for s in POSITIVE_SIGNALS)
+                    classification_text = _strip_quoted_email_history(body_text)
+                    lower = classification_text.lower()
                     is_neg = any(s in lower for s in NEGATIVE_SIGNALS)
-                    sentiment = "positive" if is_pos else ("negative" if is_neg else "neutral")
+                    is_pos = False if is_neg else any(s in lower for s in POSITIVE_SIGNALS)
+                    sentiment = "negative" if is_neg else ("positive" if is_pos else "neutral")
                     action = "mark_interested" if is_pos else ("mark_declined" if is_neg else "requires_review")
 
                     replies.append({
@@ -527,3 +586,139 @@ def check_imap_replies(
                 pass
 
     return replies
+
+
+def _decode_gmail_body_data(value: str) -> str:
+    if not value:
+        return ""
+    try:
+        padded = value + ("=" * (-len(value) % 4))
+        return base64.urlsafe_b64decode(padded.encode("utf-8")).decode("utf-8", errors="ignore")
+    except Exception:
+        return ""
+
+
+def _extract_gmail_payload_text(payload: Dict[str, Any]) -> str:
+    """Extract readable text from a Gmail API message payload."""
+    plain_candidates: List[str] = []
+    html_candidates: List[str] = []
+
+    def walk(part: Dict[str, Any]) -> None:
+        mime_type = str(part.get("mimeType") or "").lower()
+        data = (part.get("body") or {}).get("data") or ""
+        if data and mime_type.startswith("text/plain"):
+            plain_candidates.append(_decode_gmail_body_data(data))
+        elif data and mime_type.startswith("text/html"):
+            html_candidates.append(_decode_gmail_body_data(data))
+        for child in part.get("parts") or []:
+            if isinstance(child, dict):
+                walk(child)
+
+    walk(payload or {})
+    text = "\n".join(item.strip() for item in plain_candidates if item.strip()).strip()
+    if text:
+        return text
+    html_text = "\n".join(item.strip() for item in html_candidates if item.strip()).strip()
+    if not html_text:
+        return ""
+    html_text = re.sub(r"(?is)<(script|style).*?>.*?</\1>", " ", html_text)
+    html_text = re.sub(r"(?is)<br\s*/?>", "\n", html_text)
+    html_text = re.sub(r"(?is)</p\s*>", "\n", html_text)
+    html_text = re.sub(r"(?s)<[^>]+>", " ", html_text)
+    html_text = re.sub(r"[ \t\r\f\v]+", " ", html_text)
+    html_text = re.sub(r"\n\s+", "\n", html_text)
+    return html_text.strip()
+
+
+def check_gmail_oauth_replies(
+    since_days: int = 7,
+    max_messages: int = 50,
+    from_emails: Optional[List[str]] = None,
+) -> Tuple[List[Dict[str, Any]], str]:
+    """Poll Gmail through the connected OAuth token and return inbox reply objects."""
+    service, error = _load_oauth_service()
+    if not service:
+        return [], error
+
+    query_parts = [f"newer_than:{max(1, int(since_days))}d", "-from:me"]
+    sender_filters = []
+    for sender in (from_emails or [])[:100]:
+        sender_clean = _normalize_email_address(sender)
+        if sender_clean:
+            sender_filters.append(f"from:{sender_clean}")
+    if sender_filters:
+        query_parts.append("(" + " OR ".join(sender_filters) + ")")
+
+    try:
+        response = service.users().messages().list(
+            userId="me",
+            labelIds=["INBOX"],
+            q=" ".join(query_parts),
+            maxResults=max(1, min(int(max_messages), 500)),
+        ).execute()
+        message_refs = response.get("messages") or []
+    except Exception as exc:
+        logger.exception("Gmail OAuth inbox list failed")
+        return [], str(exc)
+
+    replies: List[Dict[str, Any]] = []
+    seen_message_ids: set = set()
+    for ref in message_refs:
+        gmail_id = ref.get("id")
+        if not gmail_id:
+            continue
+        try:
+            msg = service.users().messages().get(
+                userId="me",
+                id=gmail_id,
+                format="full",
+            ).execute()
+            payload = msg.get("payload") or {}
+            headers = {
+                str(item.get("name") or "").lower(): str(item.get("value") or "")
+                for item in (payload.get("headers") or [])
+            }
+            message_id_header = headers.get("message-id") or gmail_id
+            if message_id_header in seen_message_ids:
+                continue
+            seen_message_ids.add(message_id_header)
+
+            from_raw = headers.get("from", "")
+            from_email = parseaddr(from_raw)[1] or from_raw
+            subject = _decode_header(headers.get("subject", ""))
+            body_text = _extract_gmail_payload_text(payload)
+            if not body_text:
+                body_text = msg.get("snippet") or ""
+
+            try:
+                date_hdr = headers.get("date", "")
+                received_at = parsedate_to_datetime(date_hdr).replace(tzinfo=None) if date_hdr else datetime.utcnow()
+            except Exception:
+                received_at = datetime.utcnow()
+
+            lower = body_text.lower()
+            is_pos = any(s in lower for s in POSITIVE_SIGNALS)
+            is_neg = any(s in lower for s in NEGATIVE_SIGNALS)
+            sentiment = "positive" if is_pos else ("negative" if is_neg else "neutral")
+            action = "mark_interested" if is_pos else ("mark_declined" if is_neg else "requires_review")
+
+            replies.append({
+                "msg_id": gmail_id,
+                "message_id_header": message_id_header,
+                "in_reply_to": headers.get("in-reply-to", ""),
+                "references": headers.get("references", ""),
+                "from_email": from_email,
+                "from_raw": from_raw,
+                "subject": subject,
+                "body": body_text[:2000],
+                "sentiment": sentiment,
+                "action": action,
+                "received_at": received_at.isoformat(),
+                "gmail_thread_id": msg.get("threadId", ""),
+                "source": "gmail_oauth",
+            })
+        except Exception:
+            logger.exception("Gmail OAuth inbox message fetch failed")
+            continue
+
+    return replies, ""

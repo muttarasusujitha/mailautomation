@@ -53,6 +53,19 @@ def _upload_domain_query(domain: str) -> Dict[str, Any]:
     }
 
 
+def _location_value(doc: Dict[str, Any]) -> str:
+    extracted = doc.get("extracted_data") if isinstance(doc.get("extracted_data"), dict) else {}
+    return str(
+        doc.get("location")
+        or doc.get("city")
+        or doc.get("current_location")
+        or extracted.get("location")
+        or extracted.get("city")
+        or extracted.get("current_location")
+        or "Location not set"
+    ).strip()
+
+
 @router.get("/by-email")
 async def get_resume_by_email(
     email: str = Query(..., description="Trainer email address"),
@@ -110,6 +123,9 @@ async def domain_summary(db: AsyncIOMotorDatabase = Depends(get_db)):
             "trainer_id": 1,
             "name": 1,
             "email": 1,
+            "location": 1,
+            "city": 1,
+            "current_location": 1,
             "technology_category": 1,
             "domain": {"$ifNull": ["$technology_category", "$primary_category"]},
         }},
@@ -122,6 +138,9 @@ async def domain_summary(db: AsyncIOMotorDatabase = Depends(get_db)):
             "trainer_id": 1,
             "filename": 1,
             "processing_status": 1,
+            "location": "$extracted_data.location",
+            "city": "$extracted_data.city",
+            "current_location": "$extracted_data.current_location",
             "domain": {
                 "$ifNull": [
                     "$extracted_data.technology_category",
@@ -136,29 +155,42 @@ async def domain_summary(db: AsyncIOMotorDatabase = Depends(get_db)):
     domains: Dict[str, Dict[str, Any]] = {}
     async for trainer in db["trainers"].aggregate(trainer_pipeline):
         key = str(trainer.get("domain") or "Uncategorised")
-        bucket = domains.setdefault(key, {"domain": key, "trainers": [], "uploads": []})
+        location = _location_value(trainer)
+        bucket = domains.setdefault(key, {"domain": key, "trainers": [], "uploads": [], "locations": {}})
+        location_bucket = bucket["locations"].setdefault(location, {"location": location, "trainers_count": 0, "uploads_count": 0})
+        location_bucket["trainers_count"] += 1
         bucket["trainers"].append(_json_safe({
             "type": "trainer",
             "trainer_id": trainer.get("trainer_id"),
             "name": trainer.get("name"),
             "email": trainer.get("email"),
+            "location": location,
         }))
 
     async for upload in db["resume_uploads"].aggregate(upload_pipeline):
         key = str(upload.get("domain") or "Uncategorised")
-        bucket = domains.setdefault(key, {"domain": key, "trainers": [], "uploads": []})
+        location = _location_value(upload)
+        bucket = domains.setdefault(key, {"domain": key, "trainers": [], "uploads": [], "locations": {}})
+        location_bucket = bucket["locations"].setdefault(location, {"location": location, "trainers_count": 0, "uploads_count": 0})
+        location_bucket["uploads_count"] += 1
         bucket["uploads"].append(_json_safe({
             "type": "upload",
             "upload_id": upload.get("upload_id"),
             "trainer_id": upload.get("trainer_id"),
             "filename": upload.get("filename"),
             "processing_status": upload.get("processing_status"),
+            "location": location,
         }))
 
     domain_rows = []
     for bucket in domains.values():
         bucket["trainers_count"] = len(bucket["trainers"])
         bucket["uploads_count"] = len(bucket["uploads"])
+        bucket["locations"] = sorted(
+            bucket["locations"].values(),
+            key=lambda item: (item["trainers_count"] + item["uploads_count"], item["location"]),
+            reverse=True,
+        )
         bucket["trainers"] = bucket["trainers"][:5]
         bucket["uploads"] = bucket["uploads"][:5]
         domain_rows.append(bucket)

@@ -1,55 +1,23 @@
 services:
-  mongo:
-    image: mongo:7
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    ports:
-      - "6380:6379"
-    volumes:
-      - redis_data:/data
-
-  backend:
-    build:
-      context: ./microservices/backend
-    restart: unless-stopped
-    env_file:
-      - ./microservices/backend/.env
-    environment:
-      MONGODB_URI: mongodb://mongo:27017
-      MONGODB_DB: trainersync
-      REDIS_URL: redis://redis:6379/0
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
-      FRONTEND_URL: https://localhost:5174
-    ports:
-      - "8001:8000"
-    volumes:
-      - ./backend/config:/app/config
-      - ./backend/uploads:/app/uploads
-    depends_on:
-      - mongo
-      - redis
-
   frontend:
     build:
       context: ./frontend
     restart: unless-stopped
     environment:
       VITE_API_BASE_URL: /api
-      VITE_API_PROXY_TARGET: http://backend:8000
+      VITE_API_PROXY_TARGET: http://ts-gateway
       VITE_API_PROXY_REWRITE_TO_V1: "true"
+      VITE_DEV_PORT: "5173"
+      VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID:-126721172338-cdgjih6mknr138lnoh1h79iouiuks6ae.apps.googleusercontent.com}
+      VITE_LINKEDIN_CLIENT_ID: ${VITE_LINKEDIN_CLIENT_ID:-}
+      VITE_LINKEDIN_REDIRECT_URI: ${VITE_LINKEDIN_REDIRECT_URI:-https://localhost:5174/auth/linkedin/callback}
+      VITE_LINKEDIN_SCOPES: ${VITE_LINKEDIN_SCOPES:-r_liteprofile r_emailaddress}
     ports:
-      - "5174:5174"
-    depends_on:
-      - backend
-
+      - "5173:5173"
+    networks:
+      - default
+      - trainersync_microservices
+ 
   sonarqube:
     image: sonarqube:community
     restart: unless-stopped
@@ -63,7 +31,7 @@ services:
       - sonarqube_logs:/opt/sonarqube/logs
     profiles:
       - quality
-
+ 
   sonar-scanner:
     image: sonarsource/sonar-scanner-cli:latest
     profiles:
@@ -76,10 +44,15 @@ services:
     environment:
       SONAR_TOKEN: ${SONAR_TOKEN:-}
     command: sonar-scanner -Dsonar.host.url=http://sonarqube:9000
-
+ 
 volumes:
-  mongo_data:
-  redis_data:
   sonarqube_data:
   sonarqube_extensions:
   sonarqube_logs:
+
+networks:
+  trainersync_microservices:
+    external: true
+    name: microservices_trainersync
+ 
+ 

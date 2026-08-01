@@ -4,12 +4,12 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 from app.database import get_db
-from app.gmail_client import send_email_async
+from app.gmail_client import generate_message_id, send_email_async
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -56,7 +56,7 @@ class CheckRepliesRequest(BaseModel):
 @router.get("")
 async def list_emails(
     page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
+    page_size: int = Query(1000, ge=1, le=2000),
     direction: Optional[str] = None,
     mail_type: Optional[str] = None,
     trainer_id: Optional[str] = None,
@@ -105,11 +105,13 @@ async def send_one_email(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Send a single targeted email and log it."""
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=payload.to,
         subject=payload.subject,
         body=payload.body,
         smtp_config=payload.smtp_config,
+        message_id_header=message_id_header,
     )
     now = datetime.utcnow()
     log = {
@@ -117,6 +119,8 @@ async def send_one_email(
         "direction": "outbound",
         "recipient": payload.to,
         "subject": payload.subject,
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
         "body_snippet": payload.body[:300],
         "status": "sent" if success else "failed",
         "mail_type": payload.mail_type,
@@ -151,16 +155,20 @@ async def retry_email(
     if doc.get("status") == "sent":
         return {"success": True, "message": "Already sent", "email_id": email_id}
 
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=doc.get("recipient", ""),
         subject=doc.get("subject", ""),
         body=doc.get("body_snippet", ""),
+        message_id_header=message_id_header,
     )
     now = datetime.utcnow()
     await db["email_logs"].update_one(
         {"email_id": email_id},
         {"$set": {
             "status": "sent" if success else "failed",
+            "gmail_message_id": message_id_header,
+            "message_id_header": message_id_header,
             "sent_at": now if success else None,
             "error_message": error or "",
             "retry_count": (doc.get("retry_count") or 0) + 1,
@@ -176,8 +184,8 @@ async def retry_email(
 
 @router.post("/check-replies")
 async def check_email_replies(
-    payload: CheckRepliesRequest,
     background_tasks: BackgroundTasks,
+    payload: CheckRepliesRequest = Body(default_factory=CheckRepliesRequest),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Poll Gmail inbox for replies, then process trainer/client automation."""
@@ -216,19 +224,23 @@ async def schedule_interview(
         f"- Technology: {payload.technology}\n"
         f"- Duration: 30 minutes\n"
         + (f"- Join: {link}\n" if link else "")
-        + "\nPlease confirm your availability.\n\nRegards,\nTrainerSync Team"
+        + "\nPlease confirm your availability.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com"
     )
 
+    message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=payload.trainer_email,
         subject=subject,
         body=body,
         smtp_config=payload.smtp_config,
+        message_id_header=message_id_header,
     )
     now = datetime.utcnow()
     update: Dict[str, Any] = {
         "interview_scheduled": True,
         "interview_mail_sent": success,
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
         "interview_date": payload.interview_date,
         "interview_link": link,
         "interview_slot_start": payload.slot_start,
@@ -271,13 +283,32 @@ async def send_client_slots(
         f"Dear {client_name},\n\n"
         "Please find below the trainer's available slots for your review:\n\n"
         f"{slots_text}\n\n"
-        "Kindly confirm your preferred slot.\n\nRegards,\nTrainerSync Team"
+        "Kindly confirm your preferred slot.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com"
     )
-    success, error = await send_email_async(to=client_email, subject=subject, body=body)
+    message_id_header = generate_message_id()
+    smtp_config = payload.smtp_config
+    if smtp_config is None:
+        from app.routes.inbox import _load_admin_settings
+
+        settings_doc = await _load_admin_settings(db)
+        smtp_config = settings_doc.get("emailCfg") or None
+    success, error = await send_email_async(
+        to=client_email,
+        subject=subject,
+        body=body,
+        smtp_config=smtp_config,
+        message_id_header=message_id_header,
+    )
     now = datetime.utcnow()
     await db["email_logs"].update_one(
         {"email_id": email_id},
-        {"$set": {"client_slots_sent": success, "client_slots_sent_at": now, "updated_at": now}},
+        {"$set": {
+            "client_slots_sent": success,
+            "client_slots_sent_at": now,
+            "gmail_message_id": message_id_header,
+            "message_id_header": message_id_header,
+            "updated_at": now,
+        }},
     )
     if not success:
         raise HTTPException(502, detail={"error": error})

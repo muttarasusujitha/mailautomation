@@ -264,9 +264,70 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
     return public
 
 
+def _candidate_key(trainer: Dict[str, Any]) -> str:
+    return _clean(
+        trainer.get("trainer_id")
+        or trainer.get("lead_id")
+        or trainer.get("linkedin")
+        or trainer.get("linkedin_url")
+        or trainer.get("source_url")
+        or trainer.get("email")
+    ).lower()
+
+
+def _lead_to_trainer_candidate(lead: Dict[str, Any]) -> Dict[str, Any]:
+    source_url = _clean(lead.get("source_url") or lead.get("linkedin_url"))
+    lead_id = _clean(lead.get("lead_id")) or f"TPL-{uuid.uuid4().hex[:8].upper()}"
+    email = _clean(lead.get("email") or lead.get("contact_email"))
+    phone = _clean(lead.get("phone") or lead.get("contact_phone"))
+    domain = _clean(lead.get("domain") or lead.get("technology") or lead.get("headline"))
+    text = _clean(lead.get("profile_text") or lead.get("snippet") or lead.get("post_text") or lead.get("headline"))
+    return {
+        "trainer_id": lead_id,
+        "lead_id": lead_id,
+        "name": _clean(lead.get("trainer_name") or lead.get("name") or lead.get("contact_name") or "LinkedIn Trainer Lead"),
+        "email": email,
+        "phone": phone,
+        "title": _clean(lead.get("headline") or lead.get("title") or domain),
+        "technologies": domain,
+        "domain": domain,
+        "skills": _as_list(lead.get("skills")),
+        "experience_years": _safe_float(lead.get("experience_years"), 0),
+        "linkedin": source_url if "linkedin.com" in source_url.lower() else _clean(lead.get("linkedin_url")),
+        "source_url": source_url,
+        "source": "linkedin_agent",
+        "verification_tier": lead.get("verification_tier") or "linkedin_signal",
+        "resume": text,
+        "summary": text,
+        "status": lead.get("status") or "new",
+        "recommended_next_action": "Verify contact details, then contact trainer",
+    }
+
+
+async def _load_agent_candidates(db: AsyncIOMotorDatabase, requirement: Dict[str, Any], limit: int = 200) -> List[Dict[str, Any]]:
+    technology = _clean(requirement.get("technology_needed") or requirement.get("domain") or requirement.get("title"))
+    required = _as_list(requirement.get("required_skills") or requirement.get("skills") or [technology])
+    terms = [term for term in [technology, *required] if term]
+    clauses: List[dict] = []
+    for term in terms:
+        regex = {"$regex": re.escape(term), "$options": "i"}
+        clauses.extend([
+            {"domain": regex},
+            {"headline": regex},
+            {"trainer_name": regex},
+            {"name": regex},
+            {"snippet": regex},
+            {"profile_text": regex},
+            {"post_text": regex},
+        ])
+    query = {"$or": clauses} if clauses else {}
+    leads = await db["trainer_profile_leads"].find(query, {"_id": 0}).limit(limit).to_list(limit)
+    return [_lead_to_trainer_candidate(lead) for lead in leads]
+
+
 def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     data = dict(existing or {})
-    data.update({k: v for k, v in payload.items() if v is not None})
+    data.update(payload)
 
     technology = _clean(
         data.get("technology_needed")
@@ -345,6 +406,16 @@ async def _build_shortlist_for_requirement(
         raise HTTPException(400, "Requirement id missing")
 
     all_trainers = await db["trainers"].find({}, {"_id": 0}).to_list(10000)
+    resume_db_count = len(all_trainers)
+    agent_trainers = await _load_agent_candidates(db, requirement)
+    seen = {_candidate_key(trainer) for trainer in all_trainers if _candidate_key(trainer)}
+    added_agent_count = 0
+    for trainer in agent_trainers:
+        key = _candidate_key(trainer)
+        if key and key not in seen:
+            seen.add(key)
+            all_trainers.append(trainer)
+            added_agent_count += 1
     available_trainers = [
         trainer for trainer in all_trainers
         if _clean(trainer.get("status")).lower() not in EXCLUDED_TRAINER_STATUSES
@@ -406,6 +477,8 @@ async def _build_shortlist_for_requirement(
                 "status": "completed",
                 "detail": {
                     "total_trainers_scanned": len(all_trainers),
+                    "resume_db_candidates": resume_db_count,
+                    "agent_linkedin_candidates": added_agent_count,
                     "available_trainers": len(available_trainers),
                     "ranked_count": len(scored),
                     "top_count": len(top_trainers),
@@ -535,7 +608,7 @@ async def update_requirement(
     current = await db.requirements.find_one(_requirement_query(req_id))
     if not current:
         raise HTTPException(404, "Requirement not found")
-    data = {k: v for k, v in payload.items() if v is not None}
+    data = dict(payload)
     if not data:
         raise HTTPException(400, "No fields to update")
     if any(key in data for key in ("technology_needed", "domain", "title", "job_title")):
@@ -639,11 +712,36 @@ async def request_client_po(
         body = payload.body
     else:
         tech = doc.get('technology_needed') or doc.get('technology') or 'DevOps'
-        duration = str(doc.get('duration_days') or doc.get('training_duration') or '10 Days')
+        duration = str(
+            doc.get('duration_text')
+            or doc.get('training_duration')
+            or doc.get('duration')
+            or (f"{doc.get('duration_hours')} hours" if doc.get('duration_hours') else "")
+            or (f"{doc.get('duration_days')} days" if doc.get('duration_days') else "")
+            or 'To be confirmed'
+        )
         training_dates = payload.training_dates or doc.get('training_dates') or doc.get('timeline_start') or ''
         duration_line = f"- **Duration:** {duration}\n" if duration else ''
         dates_line = f"- **Training Dates:** {training_dates}\n" if training_dates else ''
-        day_rate = (str(doc.get('day_rate')) + ' per day') if doc.get('day_rate') else '₹18,000 per day'
+        mode_text = " / ".join(str(v) for v in [doc.get('mode') or doc.get('delivery_mode'), doc.get('location')] if v)
+        mode_line = f"- **Mode/Location:** {mode_text}\n" if mode_text else ''
+        participant_count = doc.get('participant_count') or doc.get('participants')
+        participant_line = f"- **Participants:** {participant_count}\n" if participant_count else ''
+        commercial_value = (
+            doc.get('client_budget_per_day')
+            or doc.get('budget_per_day')
+            or doc.get('budget_total')
+            or doc.get('budget')
+            or doc.get('day_rate')
+        )
+        if commercial_value:
+            try:
+                amount = float(commercial_value)
+                day_rate = f"INR {amount:,.0f} per day/session"
+            except (TypeError, ValueError):
+                day_rate = f"{commercial_value} per day/session"
+        else:
+            day_rate = 'To be confirmed'
         body = (
             f"Dear {payload.client_name or doc.get('client_name') or doc.get('client_company') or 'Client'},\n\n"
             f"Thank you for confirming the **{tech}** training requirement.\n\n"
@@ -652,6 +750,8 @@ async def request_client_po(
             f"- **Domain:** {tech}\n"
             f"{duration_line}"
             f"{dates_line}"
+            f"{mode_line}"
+            f"{participant_line}"
             f"- **Commercials:** {day_rate}\n\n"
             f"Kindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements.\n\n"
             f"Please let us know if you require any additional information.\n\n"
@@ -661,7 +761,7 @@ async def request_client_po(
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             await client.post(
-                "https://email-service:8002/api/v1/email/send",
+                "http://email-service:8002/api/v1/email/send",
                 json={
                     "to": client_email,
                     "subject": subject,
@@ -713,7 +813,7 @@ async def request_client_budget_increase(
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             await client.post(
-                "https://email-service:8002/api/v1/email/send",
+                "http://email-service:8002/api/v1/email/send",
                 json={"to": client_email, "subject": subject, "body": body,
                       "requirement_id": req_id, "mail_type": "budget_increase_request"},
             )
@@ -791,7 +891,7 @@ async def generate_invoice_from_requirement_po(
         try:
             async with _httpx.AsyncClient(timeout=30) as client:
                 po_resp = await client.post(
-                    "https://trainer-service:8004/api/v1/purchase-orders/generate",
+                    "http://trainer-service:8004/api/v1/purchase-orders/generate",
                     json=po_payload,
                 )
             if po_resp.status_code >= 400:
@@ -830,7 +930,7 @@ async def generate_invoice_from_requirement_po(
     try:
         async with _httpx.AsyncClient(timeout=30) as client:
             r = await client.post(
-                f"https://trainer-service:8004/api/v1/purchase-orders/{po_id}/generate-invoice",
+                f"http://trainer-service:8004/api/v1/purchase-orders/{po_id}/generate-invoice",
                 json={
                     "invoice_number": payload.invoice_number,
                     "gst_number": payload.gst_number,

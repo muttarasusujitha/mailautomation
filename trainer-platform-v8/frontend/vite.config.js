@@ -16,17 +16,20 @@ export default defineConfig(({ mode }) => {
   const coreApiTarget =
     env.VITE_CORE_API_PROXY_TARGET ||
     env.VITE_API_PROXY_TARGET ||
-    'http://127.0.0.1:8000'
-  const intelligenceServiceTarget = env.VITE_INTELLIGENCE_SERVICE_PROXY_TARGET || 'http://127.0.0.1:8000'
-  const emailServiceTarget = env.VITE_EMAIL_SERVICE_PROXY_TARGET || 'http://127.0.0.1:8000'
-  const trainerServiceTarget = env.VITE_TRAINER_SERVICE_PROXY_TARGET || 'http://127.0.0.1:8000'
+    'http://host.docker.internal:8000'
+  const intelligenceServiceTarget = env.VITE_INTELLIGENCE_SERVICE_PROXY_TARGET || coreApiTarget
+  const emailServiceTarget = env.VITE_EMAIL_SERVICE_PROXY_TARGET || coreApiTarget
+  const trainerServiceTarget = env.VITE_TRAINER_SERVICE_PROXY_TARGET || coreApiTarget
   const rewriteApiToV1 = env.VITE_API_PROXY_REWRITE_TO_V1 !== 'false'
+  const devHost = env.VITE_DEV_HOST || '0.0.0.0'
+  const devPort = Number(env.VITE_DEV_PORT || 5174)
 
   return {
     plugins: [react()],
     server: {
-      port: 5174,
-      strictPort: true,
+      host: devHost,
+      port: devPort,
+      strictPort: false,
       proxy: {
         '/api/client-leads': apiProxyConfig(intelligenceServiceTarget, rewriteApiToV1),
         '/api/linkedin-leads': apiProxyConfig(intelligenceServiceTarget, rewriteApiToV1),

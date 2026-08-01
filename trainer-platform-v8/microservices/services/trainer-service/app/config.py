@@ -14,9 +14,9 @@ class Settings(BaseSettings):
     MONGODB_URL: str = "mongodb://127.0.0.1:27017"
     MONGODB_DB_NAME: str = "trainersync"
     REDIS_URL: str = "redis://127.0.0.1:6379"
-    DOCUMENT_SERVICE_URL: str = "https://document-service:8006"
-    EMAIL_SERVICE_URL: str = "https://email-service:8002"
-    NOTIFICATION_SERVICE_URL: str = "https://notification-service:8003"
+    DOCUMENT_SERVICE_URL: str = "http://document-service:8006"
+    EMAIL_SERVICE_URL: str = "http://email-service:8002"
+    NOTIFICATION_SERVICE_URL: str = "http://notification-service:8003"
     CORE_API_URL: str = "http://core-api:8001"
     INTERNAL_SERVICE_TOKEN: str = ""
 
@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     GEMINI_MODEL: str = "gemini-1.5-flash"
     ANTHROPIC_API_KEY: str = ""
 
-    ALLOWED_ORIGINS: str = "https://localhost:3000"
+    ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,https://localhost:3000"
 
     @field_validator("DEBUG", mode="before")
     @classmethod

@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     VENDOR_WHATSAPP_NUMBER: str = ""
     DEFAULT_COUNTRY_CODE: str = "+91"
 
-    ALLOWED_ORIGINS: str = "https://localhost:3000"
+    ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,https://localhost:3000"
 
     @property
     def allowed_origins_list(self) -> List[str]:

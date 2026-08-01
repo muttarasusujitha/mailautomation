@@ -36,6 +36,22 @@ def _json_safe(value: Any) -> Any:
     return value
 
 
+def _trainer_from_upload(upload: Dict[str, Any], corrections: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    extracted = upload.get("extracted_data") if isinstance(upload.get("extracted_data"), dict) else {}
+    trainer = {**extracted, **(corrections or {})}
+    trainer["original_trainer_id"] = trainer.get("trainer_id") or upload.get("trainer_id")
+    trainer["trainer_id"] = upload.get("upload_id") or trainer["original_trainer_id"]
+    trainer["source"] = trainer.get("source") or "resume_upload"
+    trainer["source_sheet"] = trainer.get("source_sheet") or "resume_upload"
+    trainer["upload_id"] = upload.get("upload_id")
+    trainer["resume_filename"] = upload.get("filename")
+    trainer["processing_status"] = "confirmed"
+    trainer["status"] = trainer.get("status") or "pending_review"
+    trainer["updated_at"] = datetime.utcnow()
+    trainer.setdefault("created_at", upload.get("created_at") or trainer["updated_at"])
+    return trainer
+
+
 @router.get("")
 async def list_resume_uploads(
     page: int = Query(1, ge=1),
@@ -118,13 +134,14 @@ async def confirm_resume(
 
     await db["resume_uploads"].update_one({"upload_id": upload_id}, {"$set": update_fields})
 
-    if trainer_id and corrections:
-        await db["trainers"].update_one(
-            {"trainer_id": trainer_id},
-            {"$set": {**corrections, "updated_at": now}},
-        )
+    trainer_profile = _trainer_from_upload(upload, corrections)
+    await db["trainers"].update_one(
+        {"trainer_id": trainer_profile["trainer_id"]},
+        {"$set": trainer_profile},
+        upsert=True,
+    )
 
-    return {"success": True, "upload_id": upload_id, "trainer_id": trainer_id, "status": "confirmed"}
+    return {"success": True, "upload_id": upload_id, "trainer_id": trainer_profile["trainer_id"], "status": "confirmed"}
 
 
 @router.post("/confirm-resumes")

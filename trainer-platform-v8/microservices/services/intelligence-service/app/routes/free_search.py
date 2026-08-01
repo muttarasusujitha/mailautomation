@@ -1,10 +1,12 @@
-"""Trainer search using Tavily LinkedIn/Naukri signals."""
+"""Trainer search using public LinkedIn/Naukri signals."""
 import asyncio
+import html
 import logging
 import re
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from urllib.parse import parse_qs, quote_plus, unquote, urlparse
 
 import httpx
 from fastapi import APIRouter, Depends
@@ -66,6 +68,13 @@ def _normalize_tavily_profiles(results: Any) -> List[Dict[str, Any]]:
 
 def _matches_requested_domain(profile: Dict[str, Any], search_text: str) -> bool:
     """Keep broad web search results anchored to the requested technology."""
+    sparse_linkedin_profile = (
+        str(profile.get("source") or "") == "linkedin"
+        and "linkedin.com/in/" in str(profile.get("source_url") or "").lower()
+        and len(" ".join([str(profile.get("title") or ""), str(profile.get("snippet") or "")]).strip()) < 80
+    )
+    if sparse_linkedin_profile:
+        return True
     wanted = re.sub(r"[^a-z0-9+#. ]+", " ", (search_text or "").lower()).strip()
     if not wanted:
         return True
@@ -129,6 +138,168 @@ async def _tavily_trainer_search(search_text: str, location: str, max_results: i
     return []
 
 
+async def _brave_trainer_search(search_text: str, location: str, max_results: int, query_suffix: str = "") -> List[Dict[str, Any]]:
+    current_year = datetime.utcnow().year
+    query = f'"{search_text}" {current_year} trainer instructor corporate training'
+    if query_suffix:
+        query += f" {query_suffix}"
+    if location:
+        query += f" {location}"
+    query += " site:linkedin.com/in OR site:naukri.com"
+
+    settings = get_settings()
+    api_key = settings.BRAVE_SEARCH_API_KEY.strip()
+    if not api_key:
+        return []
+
+    requested = max(1, min(max_results, 100))
+    headers = {
+        "Accept": "application/json",
+        "Accept-Encoding": "gzip",
+        "X-Subscription-Token": api_key,
+    }
+    profiles: List[Dict[str, Any]] = []
+    seen_urls: set = set()
+    try:
+        async with httpx.AsyncClient(timeout=20, follow_redirects=True, headers=headers) as client:
+            for offset in range(0, min(10, (requested + 19) // 20)):
+                resp = await client.get(
+                    "https://api.search.brave.com/res/v1/web/search",
+                    params={
+                        "q": query,
+                        "count": min(20, requested),
+                        "offset": offset,
+                        "country": "IN" if location and "india" in location.lower() else None,
+                        "search_lang": "en",
+                        "safesearch": "moderate",
+                        "result_filter": "web",
+                    },
+                )
+                resp.raise_for_status()
+                for item in (resp.json().get("web") or {}).get("results", []):
+                    profile = _profile_from_url(
+                        item.get("url") or "",
+                        snippet=item.get("description") or "",
+                        title=item.get("title") or "",
+                    )
+                    if profile and profile["source_url"] not in seen_urls:
+                        seen_urls.add(profile["source_url"])
+                        profiles.append(profile)
+                if len(profiles) >= requested:
+                    break
+    except Exception as exc:
+        logger.warning("Brave trainer search failed: %s", exc)
+    return profiles[:requested]
+
+
+def _clean_public_result_url(raw_url: str) -> str:
+    url = html.unescape(str(raw_url or "")).strip()
+    parsed = urlparse(url)
+    qs = parse_qs(parsed.query)
+    for key in ("uddg", "url", "u", "q"):
+        if qs.get(key):
+            url = unquote(qs[key][0])
+            break
+    return url.replace("&amp;", "&").strip().rstrip(").,;")
+
+
+def _is_profile_url(url: str) -> bool:
+    parsed = urlparse(str(url or ""))
+    host = parsed.netloc.lower()
+    path = parsed.path.lower()
+    return (
+        parsed.scheme in {"http", "https"}
+        and (
+            ("linkedin.com" in host and path.startswith("/in/"))
+            or ("naukri.com" in host)
+        )
+    )
+
+
+def _public_result_items(page_html: str) -> List[Dict[str, Any]]:
+    items: List[Dict[str, Any]] = []
+    seen_urls: set = set()
+    generic_links = re.findall(r'(?is)<a[^>]+href=["\']([^"\']*(?:linkedin\.com/in|naukri\.com)[^"\']*)["\'][^>]*>(.*?)</a>', page_html or "")
+    for href, title_html in generic_links:
+        title = re.sub(r"(?is)<[^>]+>", " ", title_html)
+        title = re.sub(r"\s+", " ", html.unescape(title)).strip()
+        url = _clean_public_result_url(href)
+        if _is_profile_url(url) and url not in seen_urls:
+            profile = _profile_from_url(url, snippet="", title=title or url.rsplit("/", 1)[-1].replace("-", " "))
+            if profile:
+                seen_urls.add(url)
+                items.append(profile)
+    if items:
+        return items
+
+    blocks = re.findall(r'(?is)<a[^>]+class="[^"]*result__a[^"]*"[^>]+href="([^"]+)"[^>]*>(.*?)</a>', page_html or "")
+    for href, title_html in blocks:
+        title = re.sub(r"(?is)<[^>]+>", " ", title_html)
+        title = re.sub(r"\s+", " ", html.unescape(title)).strip()
+        url = _clean_public_result_url(href)
+        profile = _profile_from_url(url, snippet="", title=title)
+        if profile and _is_profile_url(url) and url not in seen_urls:
+            seen_urls.add(url)
+            items.append(profile)
+    if items:
+        return items
+    for match in re.finditer(r'https?://(?:www\.)?(?:linkedin\.com/in|naukri\.com)/[^"\'<>\s]+', page_html or "", re.IGNORECASE):
+        url = _clean_public_result_url(match.group(0))
+        profile = _profile_from_url(url, title=url.rsplit("/", 1)[-1].replace("-", " "))
+        if profile and _is_profile_url(url) and url not in seen_urls:
+            seen_urls.add(url)
+            items.append(profile)
+    return items
+
+
+async def _public_trainer_search(search_text: str, location: str, max_results: int, query_suffix: str = "") -> List[Dict[str, Any]]:
+    current_year = datetime.utcnow().year
+    query = f'"{search_text}" {current_year} trainer instructor corporate training'
+    if query_suffix:
+        query += f" {query_suffix}"
+    if location:
+        query += f" {location}"
+    query += " site:linkedin.com/in OR site:naukri.com"
+    requested = max(1, min(max_results, 100))
+    encoded = quote_plus(query)
+    urls = []
+    for start in range(0, requested + 20, 30):
+        urls.append(f"https://html.duckduckgo.com/html/?q={encoded}&s={start}")
+        urls.append(f"https://duckduckgo.com/html/?q={encoded}&s={start}")
+    for start in range(0, requested + 20, 10):
+        urls.append(f"https://www.google.com/search?q={encoded}&num=10&start={start}")
+    for first in range(1, requested + 20, 10):
+        urls.append(f"https://www.bing.com/search?q={encoded}&count=10&first={first}")
+    headers = {
+        "User-Agent": "Mozilla/5.0 (compatible; TrainerSyncPublicSearch/1.0)",
+        "Accept": "text/html,application/xhtml+xml",
+    }
+    async with httpx.AsyncClient(timeout=12, follow_redirects=True, headers=headers) as client:
+        profiles: List[Dict[str, Any]] = []
+        seen_urls: set = set()
+        semaphore = asyncio.Semaphore(8)
+
+        async def fetch_items(url: str) -> List[Dict[str, Any]]:
+            async with semaphore:
+                try:
+                    resp = await client.get(url)
+                    if resp.status_code < 400:
+                        return _public_result_items(resp.text)
+                except Exception as exc:
+                    logger.info("Built-in public trainer search failed for %s: %s", search_text, exc)
+            return []
+
+        for batch in await asyncio.gather(*[fetch_items(url) for url in urls]):
+            for item in batch:
+                source_url = item.get("source_url") or item.get("url")
+                if source_url and source_url not in seen_urls:
+                    seen_urls.add(source_url)
+                    profiles.append(item)
+            if len(profiles) >= requested:
+                return profiles[:requested]
+    return profiles[:requested]
+
+
 class FreeSearchRequest(BaseModel):
     domain: Optional[str] = ""
     query: Optional[str] = ""
@@ -173,6 +344,16 @@ async def free_search_trainers(
         _tavily_trainer_search(search_text, payload.location or "", per_query, suffix)
         for suffix in query_suffixes
     ])
+    if not any(results):
+        results = await asyncio.gather(*[
+            _brave_trainer_search(search_text, payload.location or "", per_query, suffix)
+            for suffix in query_suffixes
+        ])
+    if not any(results):
+        results = await asyncio.gather(*[
+            _public_trainer_search(search_text, payload.location or "", per_query, suffix)
+            for suffix in query_suffixes
+        ])
 
     for batch in results:
         for p in batch:

@@ -183,6 +183,42 @@ def _safe_float(value: Any) -> float:
         return float(match.group(1)) if match else 0.0
 
 
+LOCATION_ALIASES = [
+    ("Kolkata", ["kolkata", "kolkatha", "calcutta"]),
+    ("Bangalore", ["bangalore", "banglore", "bengaluru", "bengalore"]),
+    ("Hyderabad", ["hyderabad", "hyderbad", "hydrabad"]),
+    ("Chennai", ["chennai"]),
+    ("Mumbai", ["mumbai", "bombay"]),
+    ("Pune", ["pune"]),
+    ("Delhi NCR", ["delhi", "new delhi", "ncr", "gurgaon", "gurugram", "noida"]),
+    ("Ahmedabad", ["ahmedabad"]),
+    ("Jaipur", ["jaipur"]),
+    ("Kochi", ["kochi", "cochin"]),
+    ("Coimbatore", ["coimbatore"]),
+    ("Indore", ["indore"]),
+    ("Lucknow", ["lucknow"]),
+    ("Bhubaneswar", ["bhubaneswar"]),
+    ("Nagpur", ["nagpur"]),
+]
+
+
+def _infer_location_from_text(text: str) -> str:
+    haystack = f" {text or ''} ".lower()
+    for location, aliases in LOCATION_ALIASES:
+        for alias in aliases:
+            if re.search(rf"(^|[^a-z0-9]){re.escape(alias)}($|[^a-z0-9])", haystack, re.IGNORECASE):
+                return location
+    return ""
+
+
+def _infer_experience_from_text(text: str) -> float:
+    values = [
+        float(match.group(1))
+        for match in re.finditer(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)", text or "", re.IGNORECASE)
+    ]
+    return max(values) if values else 0.0
+
+
 def _infer_category(skills: List[str], text: str, current: Any = "") -> str:
     current_text = _clean_text(current)
     if current_text and current_text.lower() not in EMPTY_CATEGORIES:
@@ -275,10 +311,15 @@ def _normalise_profile(profile: Dict[str, Any], raw_text: str) -> Dict[str, Any]
     if not _clean_text(result.get("technologies")) and skills:
         result["technologies"] = ", ".join(skills)
 
-    years = _safe_float(result.get("experience_years"))
+    years = max(_safe_float(result.get("experience_years")), _infer_experience_from_text(raw_text))
     result["experience_years"] = years
     if years and not _clean_text(result.get("experience_raw")):
         result["experience_raw"] = f"{years:g} years"
+
+    if not _clean_text(result.get("location")):
+        inferred_location = _infer_location_from_text(raw_text)
+        if inferred_location:
+            result["location"] = inferred_location
 
     if _clean_text(result.get("summary")).lower() == _clean_text(result.get("name")).lower():
         result["summary"] = ""

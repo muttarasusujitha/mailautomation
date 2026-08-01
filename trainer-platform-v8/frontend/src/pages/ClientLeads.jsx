@@ -234,7 +234,7 @@ export default function ClientLeads() {
               {leadMode === 'trainer' ? 'Find Trainer Profiles' : 'Find Leads Now'}
               </button>
               <span className="rounded-lg border border-blue-200 bg-white/70 px-3 py-2 text-xs font-semibold text-blue-700">
-                Requires TAVILY_API_KEY
+                Public web search agent
               </span>
             </div>
           </div>

@@ -70,7 +70,10 @@ export default function LinkedInClientPipeline() {
   const [leads, setLeads] = useState([])
   const [filter, setFilter] = useState('all')
   const [q, setQ] = useState('')
+  const [searchDomains, setSearchDomains] = useState('Python trainer, DevOps trainer, Java trainer')
   const [loading, setLoading] = useState(false)
+  const [searching, setSearching] = useState(false)
+  const [backfilling, setBackfilling] = useState(false)
   const [sendingLeadId, setSendingLeadId] = useState('')
 
   const loadLeads = async () => {
@@ -112,12 +115,54 @@ export default function LinkedInClientPipeline() {
     }
   }
 
+  const fetchLinkedInClientPosts = async () => {
+    const domains = searchDomains.split(',').map(item => item.trim()).filter(Boolean)
+    if (!domains.length) {
+      toast.error('Enter one or more domains, like Python trainer')
+      return
+    }
+    setSearching(true)
+    try {
+      const res = await api.post('/linkedin-leads/search', {
+        mode: 'client',
+        source: 'linkedin',
+        domains,
+        max_results: 30,
+        max_queries: 3,
+        save: true,
+      })
+      const saved = res.data.saved_count || 0
+      const found = res.data.found || 0
+      const sent = res.data.auto_sent_count || 0
+      const savedText = saved ? `Saved ${saved} LinkedIn client post${saved === 1 ? '' : 's'}` : `Found ${found}; no new posts saved`
+      toast.success(sent ? `${savedText}; auto-sent Mail 1 to ${sent}` : savedText)
+      await loadLeads()
+    } catch (e) {
+      toast.error(e.message || 'LinkedIn client search failed')
+    } finally {
+      setSearching(false)
+    }
+  }
+
   const patchLead = async (lead, payload) => {
     try {
       await api.patch(`/client-leads/${lead.lead_id}`, payload)
       await loadLeads()
     } catch (e) {
       toast.error(e.message || 'Unable to update lead')
+    }
+  }
+
+  const backfillOldContacts = async () => {
+    setBackfilling(true)
+    try {
+      const res = await api.post('/linkedin-leads/backfill-client-contacts', { limit: 50, auto_send: true })
+      toast.success(`Checked ${res.data.checked || 0}; updated ${res.data.updated_count || 0}; auto-sent ${res.data.auto_sent_count || 0}`)
+      await loadLeads()
+    } catch (e) {
+      toast.error(e.message || 'Unable to backfill old posts')
+    } finally {
+      setBackfilling(false)
     }
   }
 
@@ -170,6 +215,25 @@ export default function LinkedInClientPipeline() {
       </div>
 
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="mb-4 grid gap-3 border-b border-slate-100 pb-4 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <p className="text-sm font-bold text-slate-900">Find LinkedIn Client Posts</p>
+            <p className="mt-1 text-xs text-slate-500">Search posts where clients are seeking trainers. Emails and phone numbers mentioned in the post are saved for outreach.</p>
+            <input
+              className="input mt-2"
+              value={searchDomains}
+              onChange={e => setSearchDomains(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && fetchLinkedInClientPosts()}
+              placeholder="Python trainer, DevOps trainer, Java trainer"
+            />
+          </div>
+          <button onClick={fetchLinkedInClientPosts} disabled={searching} className="btn-primary text-sm disabled:opacity-50">
+            {searching ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />} Fetch Client Posts
+          </button>
+          <button onClick={backfillOldContacts} disabled={backfilling} className="btn-secondary text-sm disabled:opacity-50">
+            {backfilling ? <RefreshCw className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Backfill Old Contacts
+          </button>
+        </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-sm font-bold text-slate-900">Client Pipeline Filters</p>
@@ -237,7 +301,7 @@ export default function LinkedInClientPipeline() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     onClick={() => sendMail(lead)}
-                    disabled={!lead.email && !lead.contact_email || sendingLeadId === lead.lead_id}
+                    disabled={(!lead.email && !lead.contact_email) || sendingLeadId === lead.lead_id}
                     className="btn-primary text-sm disabled:opacity-50"
                   >
                     {sendingLeadId === lead.lead_id ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Send Mail 1
