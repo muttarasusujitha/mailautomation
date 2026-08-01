@@ -30,8 +30,32 @@ jobs:
           : "${EC2_SSH_KEY:?EC2_SSH_KEY secret is required}"
           : "${EC2_HOST:?EC2_HOST secret is required}"
           mkdir -p ~/.ssh
-          python -c 'import os; from pathlib import Path; key=os.environ["EC2_SSH_KEY"]; key=key.replace("\r", ""); key=key.replace("\\n", "\n"); path=Path.home() / ".ssh" / "id_rsa"; path.write_text(key); print("SSH key length:", len(key))'
+          python - <<'PY'
+import base64
+import os
+from pathlib import Path
+
+key = os.environ["EC2_SSH_KEY"].strip()
+key = key.replace("\r", "")
+key = key.replace("\\n", "\n")
+
+if "BEGIN " not in key:
+    try:
+        decoded = base64.b64decode(key, validate=True).decode()
+    except Exception:
+        decoded = ""
+    if "BEGIN " in decoded:
+        key = decoded.replace("\r", "").strip()
+
+key = key + "\n"
+path = Path.home() / ".ssh" / "id_rsa"
+path.write_text(key)
+first_line = key.splitlines()[0] if key.splitlines() else ""
+print("SSH key first line:", first_line)
+print("SSH key lines:", len(key.splitlines()))
+PY
           chmod 600 ~/.ssh/id_rsa
+          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
           ls -l ~/.ssh/id_rsa
           ssh-keyscan -H "${EC2_HOST}" >> ~/.ssh/known_hosts || true
 
