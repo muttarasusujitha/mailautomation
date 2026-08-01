@@ -16,24 +16,36 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Setup Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
       - name: Configure SSH key
         env:
           EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
+          set -euo pipefail
           mkdir -p ~/.ssh
-          python3 - <<'PY'
+          python - <<'PY'
 import os
 from pathlib import Path
 key = os.environ['EC2_SSH_KEY']
-key = key.replace('\\r', '')
-key = key.replace('\\n', '\n')
-Path.home().joinpath('.ssh', 'id_rsa').write_text(key)
+key = key.replace('\r', '')
+if '\\n' in key:
+    key = key.replace('\\n', '\n')
+path = Path.home() / '.ssh' / 'id_rsa'
+path.write_text(key)
+print('KEY_LEN=' + str(len(key)))
 PY
           chmod 600 ~/.ssh/id_rsa
+          ls -l ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
         run: |
+          set -euo pipefail
           ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
           set -euo pipefail
           cd "${{ secrets.PROJECT_PATH }}"
