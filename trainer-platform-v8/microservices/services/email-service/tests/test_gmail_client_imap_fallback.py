@@ -51,12 +51,14 @@ def test_check_imap_replies_uses_fallback_credentials(monkeypatch):
     monkeypatch.setattr(gmail_client.settings, "GMAIL_FALLBACK_USER", "fallback@gmail.com")
     monkeypatch.setattr(gmail_client.settings, "GMAIL_FALLBACK_APP_PASSWORD", "fallback-pass")
     monkeypatch.setattr(gmail_client.settings, "GMAIL_FALLBACK_PASS", "")
+    monkeypatch.setattr(gmail_client.settings, "GMAIL_FALLBACK_FROM_EMAIL", "")
+    monkeypatch.setattr(gmail_client.settings, "FROM_EMAIL", "")
 
     replies = gmail_client.check_imap_replies(since_days=3, max_messages=5)
 
     assert replies == []
-    assert len(created_mailboxes) == 1
-    assert created_mailboxes[0].login_calls == [
-        ("primary@gmail.com", "primary-pass"),
-        ("fallback@gmail.com", "fallback-pass"),
+    assert len(created_mailboxes) == 2
+    assert [mailbox.login_calls for mailbox in created_mailboxes] == [
+        [("primary@gmail.com", "primary-pass")],
+        [("fallback@gmail.com", "fallback-pass")],
     ]

@@ -24,10 +24,14 @@ const InterviewSchedules = lazy(() => import('./pages/InterviewSchedules'))
 const Invoices = lazy(() => import('./pages/Invoices'))
 const ResumeUpload = lazy(() => import('./pages/ResumeUpload'))
 const GmailCallback = lazy(() => import('./pages/GmailCallback'))
+const LinkedInCallback = lazy(() => import('./pages/LinkedInCallback'))
 const Admin = lazy(() => import('./pages/Admin'))
 const TocKnowledge = lazy(() => import('./pages/TocKnowledge'))
 const Shortlist = lazy(() => import('./pages/Shortlist'))
 const Shortlist1 = lazy(() => import('./pages/Shortlist1'))
+const CommunicationPipeline = lazy(() => import('./pages/CommunicationPipeline'))
+const TrainerCommunicationPipeline = lazy(() => import('./pages/TrainerCommunicationPipeline'))
+const ClientCommunicationPipeline = lazy(() => import('./pages/ClientCommunicationPipeline'))
 const Profile = lazy(() => import('./pages/Profile'))
 
 function PrivateRoute({ children, isLoggedIn }) {
@@ -90,6 +94,7 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/auth/callback" element={<GmailCallback onLogin={handleLogin} />} />
+          <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
           <Route element={
             <PrivateRoute isLoggedIn={isLoggedIn}>
               <Layout onLogout={handleLogout} />
@@ -123,6 +128,9 @@ export default function App() {
             <Route path="interviews"   element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="shortlist"    element={<Shortlist />} />
             <Route path="ai-pipeline"  element={<Shortlist1 />} />
+            <Route path="communication-pipeline" element={<CommunicationPipeline />} />
+            <Route path="trainer-communication-pipeline" element={<TrainerCommunicationPipeline />} />
+            <Route path="client-communication-pipeline" element={<ClientCommunicationPipeline />} />
             <Route path="shortlist1"   element={<Shortlist1 />} />
             <Route path="profile"      element={<Profile />} />
           </Route>

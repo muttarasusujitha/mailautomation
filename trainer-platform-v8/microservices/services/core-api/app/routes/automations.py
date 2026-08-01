@@ -65,7 +65,7 @@ async def update_automation(
     payload: AutomationUpdate,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    data = {k: v for k, v in payload.model_dump().items() if v is not None}
+    data = payload.model_dump(exclude_unset=True)
     if not data:
         raise HTTPException(400, "No fields to update")
     data["updated_at"] = datetime.utcnow()

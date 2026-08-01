@@ -11,6 +11,7 @@ import {
   FileText,
   Loader2,
   Mail,
+  MapPin,
   Phone,
   RefreshCw,
   Trash2,
@@ -126,6 +127,10 @@ function PreviewCard({ item }) {
     )
   }
 
+  const locationText = item.location || item.city || item.current_location || 'Location not found'
+  const years = Number(item.experience_years || 0)
+  const experienceText = years ? `${years.toLocaleString('en-IN', { maximumFractionDigits: 1 })} yrs experience` : 'Experience not found'
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -141,7 +146,8 @@ function PreviewCard({ item }) {
       <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-600">
         {item.email && <span className="flex items-center gap-2"><Mail className="w-4 h-4 text-slate-400" />{item.email}</span>}
         {item.phone && <span className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-400" />{item.phone}</span>}
-        <span>{item.experience_years || 0} yrs experience</span>
+        <span className="flex items-center gap-2"><MapPin className="w-4 h-4 text-slate-400" />{locationText}</span>
+        <span>{experienceText}</span>
         <span className="flex items-center gap-1"><DollarSign className="w-4 h-4 text-slate-400" />{item.day_rate ? `Day rate ${item.day_rate}` : 'Day rate not found'}</span>
       </div>
 
@@ -237,6 +243,15 @@ function DomainDatabase({ summary, loading, onRefresh, onSelectDomain }) {
                   </div>
                   {sampleItems.length > 0 && (
                     <div className="mt-3 space-y-1.5">
+                      {(domain.locations || []).length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {(domain.locations || []).slice(0, 5).map(location => (
+                            <span key={location.location} className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                              {location.location}: {(location.trainers_count || 0) + (location.uploads_count || 0)}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       {sampleItems.map((item, index) => (
                         <div key={`${item.sampleType}-${item.trainer_id || item.upload_id || item.email || item.filename || index}`} className="rounded-lg bg-white px-3 py-2">
                           <div className="flex items-center justify-between gap-2 text-xs">
@@ -248,7 +263,7 @@ function DomainDatabase({ summary, loading, onRefresh, onSelectDomain }) {
                             </span>
                           </div>
                           <p className="mt-0.5 truncate text-[11px] text-slate-400">
-                            {item.email || item.filename || item.trainer_id || item.upload_id}
+                            {[item.location, item.email || item.filename || item.trainer_id || item.upload_id].filter(Boolean).join(' | ')}
                           </p>
                         </div>
                       ))}

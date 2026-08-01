@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 
 import httpx
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, Response
+from fastapi.responses import RedirectResponse
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
@@ -41,9 +42,12 @@ def _default_oauth_redirect(request: Request) -> str:
 
 
 def _oauth_client_config(redirect_uri: str) -> Dict[str, Any]:
+    client_id = settings.GOOGLE_CLIENT_ID.strip()
+    client_secret = settings.GOOGLE_CLIENT_SECRET.strip()
+
     return {"web": {
-        "client_id": settings.GOOGLE_CLIENT_ID.strip(),
-        "client_secret": settings.GOOGLE_CLIENT_SECRET.strip(),
+        "client_id": client_id,
+        "client_secret": client_secret,
         "redirect_uris": [redirect_uri],
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
@@ -209,10 +213,13 @@ async def get_gmail_oauth_url(
         raise HTTPException(500, str(exc)) from exc
 
 
-@router.post("/oauth-callback")
-async def gmail_oauth_callback(request: Request, db: AsyncIOMotorDatabase = Depends(get_db)):
+async def _exchange_gmail_oauth_code(
+    request: Request,
+    db: AsyncIOMotorDatabase,
+    body: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """Exchange OAuth code for tokens and persist token.json."""
-    body = await request.json()
+    body = body or {}
     code = body.get("code") or request.query_params.get("code") or ""
     state = body.get("state") or request.query_params.get("state") or ""
     fallback_code_verifier = body.get("code_verifier") or body.get("codeVerifier") or ""
@@ -241,7 +248,14 @@ async def gmail_oauth_callback(request: Request, db: AsyncIOMotorDatabase = Depe
             autogenerate_code_verifier=False,
         )
         flow.redirect_uri = redirect_uri
-        flow.fetch_token(code=code)
+        try:
+            flow.fetch_token(code=code)
+        except Exception as exc:
+            # Log full exception and surface a clearer HTTP error for diagnostics.
+            logger.exception("Google token fetch failed during OAuth code exchange")
+            # Avoid logging secrets; include the exception text for debugging.
+            err_text = str(exc)
+            raise HTTPException(502, f"Google token exchange failed: {err_text}") from exc
         if state:
             await db["gmail_oauth_states"].delete_one({"state": state})
         tp = _token_path()
@@ -253,6 +267,23 @@ async def gmail_oauth_callback(request: Request, db: AsyncIOMotorDatabase = Depe
         if isinstance(exc, HTTPException):
             raise
         raise HTTPException(500, str(exc)) from exc
+
+
+@router.post("/oauth-callback")
+async def gmail_oauth_callback(request: Request, db: AsyncIOMotorDatabase = Depends(get_db)):
+    body = await request.json()
+    return await _exchange_gmail_oauth_code(request, db, body)
+
+
+@router.get("/oauth-callback")
+async def gmail_oauth_callback_get(request: Request, db: AsyncIOMotorDatabase = Depends(get_db)):
+    error = request.query_params.get("error")
+    if error:
+        frontend_url = settings.FRONTEND_URL.strip().rstrip("/") or "http://localhost:5174"
+        return RedirectResponse(f"{frontend_url}/admin?gmail_error={error}")
+    await _exchange_gmail_oauth_code(request, db, {})
+    frontend_url = settings.FRONTEND_URL.strip().rstrip("/") or "http://localhost:5174"
+    return RedirectResponse(f"{frontend_url}/admin?gmail_connected=1")
 
 
 @router.post("/disconnect")

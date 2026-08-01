@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-5.5"
+    OPENAI_BASE_URL: str = "https://api.openai.com/v1"
 
     # Local Ollama Sonnet model settings
     OLLAMA_BINARY: str = "ollama"
@@ -25,11 +28,12 @@ class Settings(BaseSettings):
     # LinkedIn / search
     PROXYCURL_API_KEY: str = ""
     SERPER_API_KEY: str = ""
+    BRAVE_SEARCH_API_KEY: str = ""
     TAVILY_API_KEY: str = ""
     TAVILY_API_URL: str = "https://api.tavily.dev"
     TAVILY_SEARCH_DEPTH: str = "basic"
 
-    ALLOWED_ORIGINS: str = "https://localhost:3000"
+    ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,http://0.0.0.0:5174,http://*:5174,https://localhost:3000"
 
     @property
     def allowed_origins_list(self) -> List[str]:

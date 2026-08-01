@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import {
   BarChart3, Bell, BookOpen, BriefcaseBusiness, CalendarCheck,
-  ChevronRight, FileSearch, Globe2, Home,
+  ChevronRight, FileSearch, GitBranch, Globe2, Home,
   LayoutDashboard, LogOut, Mail, Menu,
   ReceiptText, Search, Settings, Upload, UserCircle, Users, Zap, X,
 } from 'lucide-react'
@@ -17,6 +17,7 @@ const NAV_GROUPS = [
       { to: '/resume-upload',     label: 'Upload Resumes',     icon: Upload,          keywords: ['upload','resume','import'] },
       { to: '/requirements',      label: 'Find Trainers',      icon: FileSearch,      keywords: ['find','requirement','match'] },
       { to: '/shortlist1',        label: 'AI Pipeline',        icon: Zap,             keywords: ['advanced','shortlist1','shortlist','pipeline'] },
+      { to: '/trainer-communication-pipeline', label: 'Trainer Comms', icon: GitBranch, keywords: ['trainer communication','trainer pipeline','trainer reply','trainer ai reply','trainer mail'] },
       { to: '/shortlist',         label: 'Shortlist',          icon: Users,           keywords: ['shortlist','trainer shortlist'] },
       { to: '/linkedin-search',   label: 'LinkedIn Search',    icon: Globe2,          keywords: ['linkedin','public search','client post search','trainer profile search'] },
       { to: '/linkedin-pipeline', label: 'LinkedIn Pipeline',  icon: Zap,             keywords: ['linkedin pipeline','linkedin automation','linkedin trainers','linkedin outreach'] },
@@ -28,6 +29,7 @@ const NAV_GROUPS = [
     label: 'Client Work',
     items: [
       { to: '/client-requests',          label: 'Client Requests',         icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
+      { to: '/client-communication-pipeline', label: 'Client Comms', icon: GitBranch, keywords: ['client communication','client pipeline','client reply','client ai reply','client mail'] },
       { to: '/linkedin-client-pipeline', label: 'LinkedIn Client Pipeline', icon: Mail, keywords: ['linkedin client pipeline','client posts','client lead pipeline','mail 1'] },
       { to: '/interview-scheduled',      label: 'Interviews',              icon: CalendarCheck, keywords: ['interview','schedule','meeting','meet link'] },
       { to: '/client-mail-pipeline',     label: 'Client Pipeline',         icon: ReceiptText, keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },

@@ -18,6 +18,12 @@ const STATUS_LABELS = {
   converted: 'Converted',
   rejected: 'Rejected',
 }
+const RECENCY = [
+  { key: 'today', label: 'Today' },
+  { key: 'week', label: 'This Week' },
+  { key: 'month', label: 'This Month' },
+  { key: 'year', label: `${new Date().getFullYear()}` },
+]
 
 function statusClass(status) {
   if (status === 'converted') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
@@ -92,11 +98,23 @@ function isTrainerProviderProfile(lead) {
   const text = trainerProfileText(lead)
   const terms = domainTerms(lead?.domain)
   const hasSkillMatch = !terms.length || terms.some(term => text.includes(term))
+  const hasTrainerUrl = lead?.source_url?.includes('linkedin.com/in/')
+    || lead?.source_url?.includes('linkedin.com/posts/')
+    || lead?.source_url?.includes('linkedin.com/feed/update')
+    || lead?.lead_type === 'resume_trainer_post'
   return Boolean(
-    lead?.source_url?.includes('linkedin.com/in/')
+    hasTrainerUrl
     && /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
     && hasSkillMatch,
   )
+}
+
+function leadEmail(lead) {
+  return String(lead?.email || lead?.contact_email || '').trim()
+}
+
+function leadPhone(lead) {
+  return String(lead?.phone || lead?.contact_phone || '').trim()
 }
 
 export default function LinkedInSearch() {
@@ -104,6 +122,7 @@ export default function LinkedInSearch() {
   const [mode, setMode] = useState('client')
   const [leads, setLeads] = useState([])
   const [filter, setFilter] = useState('all')
+  const [recency, setRecency] = useState('week')
   const [q, setQ] = useState('')
   const [selectedDomain, setSelectedDomain] = useState('all')
   const [searchDomains, setSearchDomains] = useState('')
@@ -119,7 +138,7 @@ export default function LinkedInSearch() {
     setLoading(true)
     try {
       const endpoint = isTrainer ? '/trainer-profile-leads' : '/client-leads'
-      const params = { q, limit: 150 }
+      const params = { q, limit: 150, recency }
       if (filter !== 'all') params.status = filter
       const res = await api.get(endpoint, { params })
       const rows = res.data.leads || []
@@ -131,7 +150,7 @@ export default function LinkedInSearch() {
     }
   }
 
-  useEffect(() => { load() }, [filter, mode])
+  useEffect(() => { load() }, [filter, mode, recency])
   useEffect(() => {
     setSelectedDomain('all')
     setSearchDomains(isTrainer ? 'Python' : '')
@@ -151,6 +170,7 @@ export default function LinkedInSearch() {
       const payload = {
         source: 'linkedin',
         mode: isTrainer ? 'trainer' : 'client',
+        recency,
         max_results: isTrainer ? 50 : 10,
         save: true,
         max_queries: isTrainer ? 8 : 3,
@@ -169,8 +189,10 @@ export default function LinkedInSearch() {
       const res = await api.post(endpoint, payload)
       const savedCount = res.data.saved_count || 0
       const skippedCount = res.data.skipped_count || 0
+      const autoSentCount = res.data.auto_sent_count || 0
       if (savedCount) {
-        toast.success(`Saved ${savedCount} public result${savedCount === 1 ? '' : 's'}`)
+        const savedText = `Saved ${savedCount} public result${savedCount === 1 ? '' : 's'}`
+        toast.success(autoSentCount ? `${savedText}; auto-sent Mail 1 to ${autoSentCount}` : savedText)
       } else if (res.data.search_error) {
         toast.error(`Public search failed: ${res.data.search_error}`)
       } else if (isTrainer && skippedCount) {
@@ -188,7 +210,7 @@ export default function LinkedInSearch() {
       setSelectedDomain('all')
       setQ('')
       const listEndpoint = isTrainer ? '/trainer-profile-leads' : '/client-leads'
-      const listRes = await api.get(listEndpoint, { params: { q: '', limit: 150 } })
+      const listRes = await api.get(listEndpoint, { params: { q: '', limit: 150, recency } })
       setLeads(listRes.data.leads || [])
     } catch (e) {
       toast.error(e.message)
@@ -325,6 +347,19 @@ export default function LinkedInSearch() {
         <button onClick={() => setMode('trainer')} className={clsx('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition', isTrainer ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}>
           <Users className="h-4 w-4" /> Indian Trainer Profiles
         </button>
+      </div>
+
+      <div className="linkedin-glow-panel flex flex-wrap items-center gap-2 rounded-lg border border-[#d8e6f5] bg-[#edf5ff] p-2">
+        <span className="px-2 text-xs font-bold uppercase tracking-wide text-slate-500">Recent</span>
+        {RECENCY.map(item => (
+          <button
+            key={item.key}
+            onClick={() => setRecency(item.key)}
+            className={clsx('rounded-lg px-3 py-2 text-sm font-semibold transition', recency === item.key ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
       <section className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] p-4">
@@ -466,8 +501,8 @@ export default function LinkedInSearch() {
                 {lead.verification_status === 'unverified' && (
                   <span className="rounded-lg bg-amber-50 px-2 py-1 font-semibold text-amber-700">No internal match</span>
                 )}
-                {lead.contact_email && <a className={clsx('rounded-lg px-2 py-1 font-semibold', lead.verification_status === 'verified' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700')} href={`mailto:${lead.contact_email}`}>{lead.contact_email}</a>}
-                {lead.contact_phone && <span className={clsx('rounded-lg px-2 py-1', lead.verification_status === 'verified' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-50')}>{lead.contact_phone}</span>}
+                {leadEmail(lead) && <a className={clsx('rounded-lg px-2 py-1 font-semibold', lead.verification_status === 'verified' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700')} href={`mailto:${leadEmail(lead)}`}>{leadEmail(lead)}</a>}
+                {leadPhone(lead) && <span className={clsx('rounded-lg px-2 py-1', lead.verification_status === 'verified' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-50')}>{leadPhone(lead)}</span>}
                 {lead.source_url && (
                   <a className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-1 font-semibold text-blue-700" href={lead.source_url} target="_blank" rel="noreferrer">
                     <ExternalLink className="h-3 w-3" /> {isTrainer ? 'Open LinkedIn Profile' : 'Open Post'}

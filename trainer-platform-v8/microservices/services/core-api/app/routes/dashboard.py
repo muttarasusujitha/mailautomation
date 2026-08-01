@@ -13,6 +13,19 @@ logger = logging.getLogger(__name__)
 PENDING_CLIENT_STATUSES = ["pending_approval", "pending_review", "needs_manual_review"]
 OPEN_REQUIREMENT_STATUSES = ["active", "open", "pending", "in_progress"]
 CLOSED_REQUIREMENT_STATUSES = ["closed", "fulfilled", "completed", "cancelled"]
+HIDDEN_CLIENT_STATUSES = ["spam", "ignored"]
+HIDDEN_CLIENT_SENDER_REGEX = (
+    r"noreply|no-reply|donotreply|postmaster|newsletter|updates-noreply|"
+    r"recommendationnc|onlinecourses|@linkedin\.com$|@naukri\.com$|"
+    r"@alison\.com$|@reliancedigital\.in$|@nptel\.iitm\.ac\.in$"
+)
+NON_OUTREACH_MAIL_TYPES = [
+    "business_excel_report",
+    "office_job_application_ack",
+    "office_vendor_followup_ack",
+    "office_vendor_hotlist_ack",
+    "test",
+]
 PIPELINE_TRAINER_STAGES = [
     "shortlisted",
     "mail1_sent",
@@ -97,7 +110,15 @@ def _date_bucket(date_value: datetime, start: datetime, end: datetime) -> str:
 
 
 def _outbound_email_query(extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    return {"direction": {"$ne": "inbound"}, **(extra or {})}
+    base = {
+        "direction": {"$ne": "inbound"},
+        "$or": [
+            {"mail_type": {"$exists": False}},
+            {"mail_type": None},
+            {"mail_type": {"$nin": NON_OUTREACH_MAIL_TYPES}},
+        ],
+    }
+    return {"$and": [base, extra]} if extra else base
 
 
 def _date_recent_query(field: str, since: datetime) -> Dict[str, Any]:
@@ -115,6 +136,32 @@ def _client_status_query(statuses: List[str]) -> Dict[str, Any]:
         "$or": [
             {"status": {"$in": statuses}},
             {"reply_status": {"$in": statuses}},
+        ],
+    }
+
+
+def _client_inbox_query() -> Dict[str, Any]:
+    return {
+        "$and": [
+            {"status": {"$nin": HIDDEN_CLIENT_STATUSES}},
+            {"reply_status": {"$nin": HIDDEN_CLIENT_STATUSES}},
+            {"$nor": [{"from_email": {"$regex": HIDDEN_CLIENT_SENDER_REGEX, "$options": "i"}}]},
+        ],
+    }
+
+
+def _client_today_query() -> Dict[str, Any]:
+    ist_offset = timedelta(hours=5, minutes=30)
+    today_ist = datetime.utcnow() + ist_offset
+    start_ist = today_ist.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_ist = start_ist + timedelta(days=1)
+    start_utc = start_ist - ist_offset
+    end_utc = end_ist - ist_offset
+    return {
+        "$or": [
+            {"created_at": {"$gte": start_utc, "$lt": end_utc}},
+            {"updated_at": {"$gte": start_utc, "$lt": end_utc}},
+            {"received_at": {"$gte": start_ist.isoformat(), "$lt": end_ist.isoformat()}},
         ],
     }
 
@@ -168,13 +215,22 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     )
 
     # Client inbox
-    total_client_requests = await db["client_emails"].count_documents({})
-    client_requests_today = await db["client_emails"].count_documents({"created_at": {"$gte": today_start}})
-    client_pending = await db["client_emails"].count_documents(_client_status_query(PENDING_CLIENT_STATUSES))
-    client_requirements_created = await db["client_emails"].count_documents({
-        "requirement_id": {"$exists": True, "$nin": ["", None]},
+    total_client_requests = await db["client_emails"].count_documents(_client_inbox_query())
+    client_requests_today = await db["client_emails"].count_documents({
+        "$and": [_client_inbox_query(), _client_today_query()],
     })
-    inbox_pending = await db["client_emails"].count_documents({"processed": {"$ne": True}})
+    client_pending = await db["client_emails"].count_documents({
+        "$and": [_client_inbox_query(), _client_status_query(PENDING_CLIENT_STATUSES)],
+    })
+    client_requirements_created = await db["client_emails"].count_documents({
+        "$and": [
+            _client_inbox_query(),
+            {"requirement_id": {"$exists": True, "$nin": ["", None]}},
+        ],
+    })
+    inbox_pending = await db["client_emails"].count_documents({
+        "$and": [_client_inbox_query(), {"processed": {"$ne": True}}],
+    })
 
     # Shortlists
     total_shortlists = await db["shortlists"].count_documents({})

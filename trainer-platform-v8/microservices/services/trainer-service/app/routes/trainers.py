@@ -57,6 +57,23 @@ SKILL_PATTERNS = [
     ("SQL", ["sql"]),
     ("PostgreSQL", ["postgresql", "postgres"]),
 ]
+LOCATION_ALIASES = [
+    ("Kolkata", ["kolkata", "calcutta"]),
+    ("Bangalore", ["bangalore", "banglore", "bengaluru", "bengalore"]),
+    ("Hyderabad", ["hyderabad", "hyderbad", "hydrabad"]),
+    ("Chennai", ["chennai"]),
+    ("Mumbai", ["mumbai", "bombay"]),
+    ("Pune", ["pune"]),
+    ("Delhi NCR", ["delhi", "new delhi", "ncr", "gurgaon", "gurugram", "noida"]),
+    ("Ahmedabad", ["ahmedabad"]),
+    ("Jaipur", ["jaipur"]),
+    ("Kochi", ["kochi", "cochin"]),
+    ("Coimbatore", ["coimbatore"]),
+    ("Indore", ["indore"]),
+    ("Lucknow", ["lucknow"]),
+    ("Bhubaneswar", ["bhubaneswar"]),
+    ("Nagpur", ["nagpur"]),
+]
 
 
 class TrainerCreate(BaseModel):
@@ -107,6 +124,51 @@ def _oid(doc: dict) -> dict:
     return doc
 
 
+def _upload_as_trainer(upload: Dict[str, Any]) -> Dict[str, Any]:
+    extracted = upload.get("extracted_data") if isinstance(upload.get("extracted_data"), dict) else {}
+    trainer = {**extracted}
+    for key in (
+        "upload_id",
+        "trainer_id",
+        "filename",
+        "file_size",
+        "processing_status",
+        "confidence_score",
+        "created_at",
+        "processed_at",
+        "updated_at",
+        "extracted_text",
+    ):
+        if upload.get(key) is not None and trainer.get(key) in (None, "", []):
+            trainer[key] = upload.get(key)
+    for key in ("location", "city", "state", "country", "current_location", "domain", "technology_category", "primary_category"):
+        if upload.get(key) not in (None, "", []):
+            trainer[key] = upload.get(key)
+    trainer["source"] = trainer.get("source") or "resume_upload"
+    trainer["source_sheet"] = trainer.get("source_sheet") or "resume_upload"
+    trainer["status"] = trainer.get("status") or upload.get("processing_status") or "uploaded"
+    if upload.get("_id") is not None:
+        trainer["_id"] = str(upload["_id"])
+    return trainer
+
+
+def _trainer_profile_from_upload(upload: Dict[str, Any], corrections: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    trainer = _upload_as_trainer(upload)
+    if corrections:
+        trainer.update(corrections)
+    trainer["original_trainer_id"] = trainer.get("trainer_id") or upload.get("trainer_id")
+    trainer["trainer_id"] = upload.get("upload_id") or trainer["original_trainer_id"]
+    trainer["upload_id"] = upload.get("upload_id") or trainer.get("upload_id")
+    trainer["resume_filename"] = upload.get("filename") or trainer.get("resume_filename")
+    trainer["processing_status"] = "confirmed"
+    trainer["status"] = trainer.get("status") or "pending_review"
+    trainer["updated_at"] = datetime.utcnow()
+    trainer.setdefault("created_at", upload.get("created_at") or trainer["updated_at"])
+    trainer.pop("_id", None)
+    trainer.pop("extracted_text", None)
+    return trainer
+
+
 def _json_safe(value: Any) -> Any:
     if isinstance(value, ObjectId):
         return str(value)
@@ -127,8 +189,136 @@ def _append_or(query: Dict[str, Any], clauses: List[Dict[str, Any]]) -> None:
     query["$and"] = existing
 
 
+def _alias_variants(value: str) -> List[str]:
+    text = _clean_text(value)
+    if not text:
+        return []
+
+    lower = text.lower()
+    variants = {text, lower}
+    normalized = re.sub(r"[\s\-_]+", " ", lower).strip()
+    variants.update({normalized, normalized.replace(" ", ""), normalized.replace(" ", "_"), normalized.replace(" ", "-")})
+
+    if normalized in {"fullstack", "full stack", "full_stack", "full-stack"}:
+        variants.update({"fullstack", "full stack", "full_stack", "full-stack"})
+
+    location_aliases = {
+        alias.lower(): names
+        for names, aliases in LOCATION_ALIASES
+        for alias in aliases
+    }
+    if normalized in location_aliases:
+        variants.update(location_aliases[normalized])
+
+    if normalized in {"kolkatha", "kolkata"}:
+        variants.update({"kolkata", "kolkatha"})
+
+    return [item for item in _unique_list(list(variants)) if item]
+
+
 def _regex_clause(field: str, value: str) -> Dict[str, Any]:
-    return {field: {"$regex": re.escape(value.strip()), "$options": "i"}}
+    variants = _alias_variants(value)
+    if not variants:
+        return {field: {"$regex": "", "$options": "i"}}
+    pattern = "|".join(re.escape(v) for v in variants)
+    return {field: {"$regex": f"(?:{pattern})", "$options": "i"}}
+
+
+def _trainer_search_clauses(value: str) -> List[Dict[str, Any]]:
+    return [
+        _regex_clause("name", value),
+        _regex_clause("email", value),
+        _regex_clause("location", value),
+        _regex_clause("city", value),
+        _regex_clause("state", value),
+        _regex_clause("country", value),
+        _regex_clause("current_location", value),
+        _regex_clause("preferred_locations", value),
+        _regex_clause("skills", value),
+        _regex_clause("technologies", value),
+        _regex_clause("technology_category", value),
+        _regex_clause("primary_category", value),
+        _regex_clause("category", value),
+        _regex_clause("domain", value),
+        _regex_clause("secondary_categories", value),
+        _regex_clause("summary", value),
+        _regex_clause("bio", value),
+        _regex_clause("resume", value),
+        _regex_clause("combined_text", value),
+    ]
+
+
+def _upload_search_clauses(value: str) -> List[Dict[str, Any]]:
+    clauses = [
+        _regex_clause("filename", value),
+        _regex_clause("extracted_text", value),
+    ]
+    for field in (
+        "name",
+        "email",
+        "location",
+        "city",
+        "state",
+        "country",
+        "current_location",
+        "skills",
+        "technologies",
+        "technology_category",
+        "primary_category",
+        "category",
+        "domain",
+        "secondary_categories",
+        "summary",
+    ):
+        clauses.append(_regex_clause(f"extracted_data.{field}", value))
+    return clauses
+
+
+def _search_tokens(value: str) -> List[str]:
+    stop_words = {"trainer", "trainers", "training", "mentor", "in", "at", "from", "near", "based"}
+    corrections = {
+        "kolkatha": "kolkata",
+        "banglore": "bangalore",
+        "bengalore": "bangalore",
+        "bangalor": "bangalore",
+        "hyderbad": "hyderabad",
+        "hydrabad": "hyderabad",
+        "fullstac": "fullstack",
+        "fullstak": "fullstack",
+        "fullstacvk": "fullstack",
+        "fullsatck": "fullstack",
+    }
+    tokens = []
+    seen = set()
+    for token in re.findall(r"[A-Za-z0-9+#.]{2,}", value or ""):
+        clean = token.strip()
+        key = clean.lower()
+        clean = corrections.get(key, clean)
+        key = clean.lower()
+        if key in stop_words or key in seen:
+            continue
+        seen.add(key)
+        tokens.append(clean)
+    return tokens[:6]
+
+
+def _location_from_search(value: str) -> str:
+    haystack = f" {' '.join(_search_tokens(value))} ".lower()
+    for location_name, aliases in LOCATION_ALIASES:
+        if any(re.search(rf"(^|[^a-z0-9]){re.escape(alias)}($|[^a-z0-9])", haystack, re.IGNORECASE) for alias in aliases):
+            return location_name
+    return ""
+
+
+def _domain_from_search(value: str) -> str:
+    haystack = f" {' '.join(_search_tokens(value))} ".lower()
+    if re.search(r"(^|[^a-z0-9])full\s*stack($|[^a-z0-9])", haystack) or "fullstack" in haystack:
+        return "Full Stack"
+    for category, keywords in CATEGORY_RULES:
+        aliases = [category.lower(), category.lower().replace(" ", ""), *keywords]
+        if any(re.search(rf"(^|[^a-z0-9+#.]){re.escape(alias)}($|[^a-z0-9+#.])", haystack, re.IGNORECASE) for alias in aliases):
+            return category
+    return ""
 
 
 def _experience_range(value: str) -> Optional[Dict[str, Any]]:
@@ -153,7 +343,7 @@ def _clean_text(value: Any) -> str:
     if value is None:
         return ""
     text = str(value).strip()
-    if text.lower() in {"", "-", "--", "unknown", "n/a", "na", "none", "null", "not available", "not specified"}:
+    if text.lower() in {"", "-", "--", "unknown", "n/a", "na", "none", "null", "not available", "not specified", "location not set"}:
         return ""
     return text
 
@@ -196,6 +386,12 @@ def _has_skill_alias(text: str, alias: str) -> bool:
 def _searchable_text(trainer: Dict[str, Any]) -> str:
     return " ".join([
         _clean_text(trainer.get("name")),
+        _clean_text(trainer.get("location")),
+        _clean_text(trainer.get("city")),
+        _clean_text(trainer.get("state")),
+        _clean_text(trainer.get("country")),
+        _clean_text(trainer.get("current_location")),
+        _clean_text(trainer.get("preferred_locations")),
         _clean_text(trainer.get("primary_category")),
         _clean_text(trainer.get("technology_category")),
         _clean_text(trainer.get("category")),
@@ -205,6 +401,7 @@ def _searchable_text(trainer: Dict[str, Any]) -> str:
         _clean_text(trainer.get("summary")),
         _clean_text(trainer.get("bio")),
         _clean_text(trainer.get("resume")),
+        _clean_text(trainer.get("combined_text")),
         " ".join(_clean_list(trainer.get("skills"))),
         " ".join(_clean_list(trainer.get("secondary_categories"))),
         " ".join(_clean_list(trainer.get("specialisation_tags") or trainer.get("specialty_tags"))),
@@ -273,7 +470,15 @@ def _experience_years(trainer: Dict[str, Any]) -> float:
     years = _safe_float(trainer.get("experience_years"))
     if years:
         return years
-    raw = _clean_text(trainer.get("experience_raw") or trainer.get("experience") or trainer.get("total_experience"))
+    raw = " ".join([
+        _clean_text(trainer.get("experience_raw")),
+        _clean_text(trainer.get("experience")),
+        _clean_text(trainer.get("total_experience")),
+        _clean_text(trainer.get("summary")),
+        _clean_text(trainer.get("bio")),
+        _clean_text(trainer.get("resume")),
+        _clean_text(trainer.get("combined_text")),
+    ])
     match = re.search(r"(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)", raw, re.IGNORECASE)
     return float(match.group(1)) if match else 0.0
 
@@ -344,8 +549,16 @@ def _enrich_trainer_profile(doc: Dict[str, Any]) -> Dict[str, Any]:
     if not _normalise_score(trainer.get("trainer_rating")):
         trainer["trainer_rating"] = round(score / 20, 1) if score else 0
     trainer["score_breakdown"] = _profile_breakdown(trainer, category)
+    years = _experience_years(trainer)
+    if years and not _safe_float(trainer.get("experience_years")):
+        trainer["experience_years"] = years
+        trainer["experience_raw"] = f"{years:g} years"
     if not _clean_text(trainer.get("technologies")) and skills:
         trainer["technologies"] = ", ".join(skills)
+    if not _clean_text(trainer.get("location")):
+        inferred_location = _trainer_location(trainer)
+        if inferred_location != "Location not set":
+            trainer["location"] = inferred_location
     return trainer
 
 
@@ -380,6 +593,107 @@ async def _domain_rows(db: AsyncIOMotorDatabase) -> List[Dict[str, Any]]:
     ]
 
 
+async def _location_rows(db: AsyncIOMotorDatabase) -> List[Dict[str, Any]]:
+    counts: Dict[str, int] = {}
+    fields = {
+        "location": 1,
+        "city": 1,
+        "state": 1,
+        "country": 1,
+        "current_location": 1,
+        "preferred_locations": 1,
+        "summary": 1,
+        "bio": 1,
+        "resume": 1,
+        "combined_text": 1,
+    }
+    async def add_location_counts(trainer: Dict[str, Any]) -> None:
+        values: List[Any] = [
+            trainer.get("location"),
+            trainer.get("city"),
+            trainer.get("state"),
+            trainer.get("country"),
+            trainer.get("current_location"),
+        ]
+        preferred = trainer.get("preferred_locations")
+        if isinstance(preferred, list):
+            values.extend(preferred)
+        elif preferred:
+            values.append(preferred)
+        values.append(_trainer_location(trainer))
+        for value in values:
+            text = str(value or "").strip()
+            if text:
+                counts[text] = counts.get(text, 0) + 1
+
+    async for trainer in db.trainers.find({}, fields):
+        await add_location_counts(trainer)
+    async for upload in db.resume_uploads.find({}, {**fields, "extracted_data": 1, "upload_id": 1, "trainer_id": 1, "filename": 1, "processing_status": 1, "extracted_text": 1}):
+        await add_location_counts(_upload_as_trainer(upload))
+    return [
+        {"location": location, "count": count}
+        for location, count in sorted(counts.items(), key=lambda item: (-item[1], item[0].lower()))
+    ]
+
+
+def _trainer_location(trainer: Dict[str, Any]) -> str:
+    explicit_values = [
+        trainer.get("location"),
+        trainer.get("city"),
+        trainer.get("current_location"),
+        trainer.get("preferred_locations"),
+        trainer.get("state"),
+        trainer.get("country"),
+    ]
+    for value in explicit_values:
+        if isinstance(value, list):
+            for item in value:
+                cleaned = _clean_text(item)
+                if cleaned:
+                    return cleaned
+        else:
+            cleaned = _clean_text(value)
+            if cleaned:
+                return cleaned
+
+    text = _searchable_text(trainer)
+    for location, aliases in LOCATION_ALIASES:
+        if any(re.search(rf"(^|[^a-z0-9]){re.escape(alias)}($|[^a-z0-9])", text, re.IGNORECASE) for alias in aliases):
+            return location
+    return "Location not set"
+
+
+def _matches_location_filter(trainer: Dict[str, Any], location_filter: str) -> bool:
+    location = _location_filter_text(location_filter)
+    if not location:
+        return True
+    return _trainer_location(trainer).lower() == location.lower()
+
+
+def _location_filter_text(value: Any) -> str:
+    raw = str(value or "").strip()
+    if raw.lower() == "location not set":
+        return "Location not set"
+    return _clean_text(raw)
+
+
+def _domain_rank_score(trainer: Dict[str, Any], domain: str) -> int:
+    """Rank a trainer inside a location/domain bucket using resume strength and domain fit."""
+    score = _safe_float(trainer.get("profile_score") or trainer.get("resume_rank_score"))
+    text = _searchable_text(trainer)
+    domain_text = _clean_text(domain).lower()
+    if domain_text and domain_text in text:
+        score += 12
+    domain_tokens = _search_tokens(domain)
+    if domain_tokens:
+        score += min(18, sum(4 for token in domain_tokens if token.lower() in text))
+    if _clean_text(trainer.get("resume") or trainer.get("summary") or trainer.get("bio")):
+        score += 5
+    if _clean_text(trainer.get("location") or trainer.get("city") or trainer.get("current_location")):
+        score += 3
+    return max(0, min(130, round(score)))
+
+
 def _upload_result(filename: str, response_data: Dict[str, Any]) -> Dict[str, Any]:
     profile = response_data.get("profile") or response_data.get("extracted_data") or {}
     return _json_safe({
@@ -399,25 +713,28 @@ async def _post_to_document_service(part: _UploadPart) -> Dict[str, Any]:
     import httpx
 
     settings = get_settings()
-    base_urls = [settings.DOCUMENT_SERVICE_URL.rstrip("/")]
-    local_url = "http://127.0.0.1:8006"
-    if local_url not in base_urls:
-        base_urls.append(local_url)
+    base_url = settings.DOCUMENT_SERVICE_URL.rstrip("/")
+    if base_url.startswith("https://document-service:8006"):
+        base_url = base_url.replace("https://", "http://", 1)
 
     last_error = ""
-    for base_url in base_urls:
+    try:
+        async with httpx.AsyncClient(timeout=120) as client:
+            response = await client.post(
+                f"{base_url}/api/v1/documents/resume/upload",
+                files={"file": (part.filename, part.data, part.content_type)},
+            )
+        if response.status_code < 400:
+            return response.json()
+        # Document service returned an HTTP error (reachable but processing failed).
         try:
-            async with httpx.AsyncClient(timeout=120) as client:
-                response = await client.post(
-                    f"{base_url}/api/v1/documents/resume/upload",
-                    files={"file": (part.filename, part.data, part.content_type)},
-                )
-            if response.status_code < 400:
-                return response.json()
-            last_error = response.text[:300]
-        except Exception as exc:
-            last_error = str(exc)
-            continue
+            return response.json()
+        except Exception:
+            raise HTTPException(response.status_code, f"Document service upload failed: {response.text[:300]}")
+    except Exception as exc:
+        last_error = str(exc)
+    raise HTTPException(502, f"Document service upload failed: {last_error}")
+    # All attempts failed due to connection errors.
     raise HTTPException(502, f"Document service upload failed: {last_error}")
 
 
@@ -451,6 +768,7 @@ async def list_trainers(
     search: Optional[str] = None,
     category: Optional[str] = None,
     domain: Optional[str] = None,
+    location: Optional[str] = None,
     industry: Optional[str] = None,
     experience: Optional[str] = None,
     status: Optional[str] = None,
@@ -477,6 +795,19 @@ async def list_trainers(
             _regex_clause("skills", domain),
             _regex_clause("technologies", domain),
         ])
+    if location:
+        _append_or(query, [
+            _regex_clause("location", location),
+            _regex_clause("city", location),
+            _regex_clause("state", location),
+            _regex_clause("country", location),
+            _regex_clause("current_location", location),
+            _regex_clause("preferred_locations", location),
+            _regex_clause("resume", location),
+            _regex_clause("combined_text", location),
+            _regex_clause("summary", location),
+            _regex_clause("bio", location),
+        ])
     if industry:
         _append_or(query, [
             _regex_clause("industry_focus", industry),
@@ -486,18 +817,27 @@ async def list_trainers(
     if exp_query:
         query["experience_years"] = exp_query
     if search:
-        _append_or(query, [
-            {"name": {"$regex": search, "$options": "i"}},
-            {"email": {"$regex": search, "$options": "i"}},
-            {"skills": {"$regex": search, "$options": "i"}},
-            {"technology_category": {"$regex": search, "$options": "i"}},
-            {"primary_category": {"$regex": search, "$options": "i"}},
-            {"domain": {"$regex": search, "$options": "i"}},
-        ])
-    total = await db.trainers.count_documents(query)
+        tokens = _search_tokens(search)
+        if len(tokens) > 1:
+            for token in tokens:
+                _append_or(query, _trainer_search_clauses(token))
+        else:
+            _append_or(query, _trainer_search_clauses(search))
     skip = (page - 1) * page_size
-    cursor = db.trainers.find(query, {"resume": 0, "combined_text": 0}).skip(skip).limit(page_size).sort("created_at", -1)
-    items = [_enrich_trainer_profile(_oid(d)) async for d in cursor]
+    projection = {"resume": 0, "combined_text": 0}
+    if location:
+        matched_items = []
+        location_filter = _location_filter_text(location)
+        async for doc in db.trainers.find(query, projection).sort("created_at", -1):
+            trainer = _enrich_trainer_profile(_oid(doc))
+            if _matches_location_filter(trainer, location_filter):
+                matched_items.append(trainer)
+        total = len(matched_items)
+        items = matched_items[skip:skip + page_size]
+    else:
+        total = await db.trainers.count_documents(query)
+        cursor = db.trainers.find(query, projection).skip(skip).limit(page_size).sort("created_at", -1)
+        items = [_enrich_trainer_profile(_oid(d)) async for d in cursor]
     return {"items": items, "total": total, "page": page, "page_size": page_size, "pages": max(1, (total + page_size - 1) // page_size)}
 
 
@@ -539,6 +879,12 @@ async def list_trainer_domains(db: AsyncIOMotorDatabase = Depends(get_db)):
     return {"success": True, "domains": await _domain_rows(db)}
 
 
+@router.get("/locations")
+async def list_trainer_locations(db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Return all distinct trainer locations."""
+    return {"success": True, "locations": await _location_rows(db)}
+
+
 @router.get("/industries")
 async def list_trainer_industries(db: AsyncIOMotorDatabase = Depends(get_db)):
     """Return all distinct industries from trainer profiles."""
@@ -549,6 +895,158 @@ async def list_trainer_industries(db: AsyncIOMotorDatabase = Depends(get_db)):
     ]
     industries = [{"industry": r["_id"], "count": r["count"]} async for r in db.trainers.aggregate(pipeline)]
     return {"success": True, "industries": industries}
+
+
+@router.get("/location-groups")
+async def trainer_location_groups(
+    location: Optional[str] = None,
+    search: Optional[str] = None,
+    domain: Optional[str] = None,
+    limit: int = Query(200, ge=1, le=500),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Return trainers grouped by location and domain for drill-down browsing."""
+    query: Dict[str, Any] = {}
+    upload_query: Dict[str, Any] = {}
+    derived_location = _location_from_search(search or "")
+    derived_domain = _domain_from_search(search or "")
+    location_filter = _location_filter_text(location or derived_location)
+    domain_filter = _clean_text(domain or derived_domain)
+    if location_filter and location_filter.lower() != "location not set":
+        trainer_location_clauses = [
+            _regex_clause("location", location_filter),
+            _regex_clause("city", location_filter),
+            _regex_clause("state", location_filter),
+            _regex_clause("country", location_filter),
+            _regex_clause("current_location", location_filter),
+            _regex_clause("preferred_locations", location_filter),
+            _regex_clause("resume", location_filter),
+            _regex_clause("combined_text", location_filter),
+            _regex_clause("summary", location_filter),
+            _regex_clause("bio", location_filter),
+        ]
+        upload_location_clauses = [
+            _regex_clause("location", location_filter),
+            _regex_clause("city", location_filter),
+            _regex_clause("current_location", location_filter),
+            _regex_clause("extracted_text", location_filter),
+            _regex_clause("extracted_data.location", location_filter),
+            _regex_clause("extracted_data.city", location_filter),
+            _regex_clause("extracted_data.state", location_filter),
+            _regex_clause("extracted_data.country", location_filter),
+            _regex_clause("extracted_data.current_location", location_filter),
+            _regex_clause("extracted_data.summary", location_filter),
+        ]
+        _append_or(query, trainer_location_clauses)
+        _append_or(upload_query, upload_location_clauses)
+    if domain_filter:
+        trainer_domain_clauses = [
+            _regex_clause("technology_category", domain_filter),
+            _regex_clause("primary_category", domain_filter),
+            _regex_clause("category", domain_filter),
+            _regex_clause("domain", domain_filter),
+            _regex_clause("secondary_categories", domain_filter),
+            _regex_clause("skills", domain_filter),
+            _regex_clause("technologies", domain_filter),
+        ]
+        upload_domain_clauses = [
+            _regex_clause("domain", domain_filter),
+            _regex_clause("technology_category", domain_filter),
+            _regex_clause("primary_category", domain_filter),
+            _regex_clause("category", domain_filter),
+            _regex_clause("extracted_data.domain", domain_filter),
+            _regex_clause("extracted_data.technology_category", domain_filter),
+            _regex_clause("extracted_data.primary_category", domain_filter),
+            _regex_clause("extracted_data.category", domain_filter),
+            _regex_clause("extracted_data.secondary_categories", domain_filter),
+            _regex_clause("extracted_data.skills", domain_filter),
+            _regex_clause("extracted_data.technologies", domain_filter),
+            _regex_clause("extracted_text", domain_filter),
+        ]
+        _append_or(query, trainer_domain_clauses)
+        _append_or(upload_query, upload_domain_clauses)
+    if search:
+        for token in _search_tokens(search):
+            _append_or(query, _trainer_search_clauses(token))
+            _append_or(upload_query, _upload_search_clauses(token))
+
+    cursor = db.trainers.find(query).sort("created_at", -1).limit(limit)
+    locations: Dict[str, Dict[str, Any]] = {}
+    seen_keys = set()
+
+    def add_to_groups(trainer: Dict[str, Any]) -> None:
+        location_key = _trainer_location(trainer)
+        if location_filter and not _matches_location_filter(trainer, location_filter):
+            return
+        domain_key = _infer_category(trainer) or _clean_text(trainer.get("domain")) or "Uncategorised"
+        if domain_filter and domain_key.lower() != domain_filter.lower():
+            return
+        key_parts = [
+            _clean_text(trainer.get("email")).lower(),
+            _clean_text(trainer.get("name")).lower(),
+            _clean_text(trainer.get("phone")),
+            _clean_text(trainer.get("resume_filename") or trainer.get("filename")).lower(),
+        ]
+        key = "|".join(part for part in key_parts if part)
+        if not key:
+            key = trainer.get("original_trainer_id") or trainer.get("trainer_id") or trainer.get("upload_id") or trainer.get("_id")
+        if key:
+            dedupe_key = str(key).lower()
+            if dedupe_key in seen_keys:
+                return
+            seen_keys.add(dedupe_key)
+        trainer.pop("resume", None)
+        trainer.pop("combined_text", None)
+        trainer.pop("extracted_text", None)
+        location_bucket = locations.setdefault(
+            location_key,
+            {"location": location_key, "count": 0, "domains": {}},
+        )
+        domain_bucket = location_bucket["domains"].setdefault(
+            domain_key,
+            {"domain": domain_key, "count": 0, "trainers": []},
+        )
+        location_bucket["count"] += 1
+        domain_bucket["count"] += 1
+        trainer["domain_rank_score"] = _domain_rank_score(trainer, domain_key)
+        domain_bucket["trainers"].append(trainer)
+
+    async for doc in cursor:
+        add_to_groups(_enrich_trainer_profile(_oid(doc)))
+
+    upload_cursor = db.resume_uploads.find(
+        upload_query,
+        {"combined_text": 0},
+    ).sort("created_at", -1).limit(limit)
+    async for upload in upload_cursor:
+        add_to_groups(_enrich_trainer_profile(_upload_as_trainer(upload)))
+
+    rows = []
+    for location_bucket in locations.values():
+        for domain_bucket in location_bucket["domains"].values():
+            ranked_trainers = sorted(
+                domain_bucket["trainers"],
+                key=lambda item: (
+                    -_safe_float(item.get("domain_rank_score")),
+                    -_safe_float(item.get("profile_score") or item.get("resume_rank_score")),
+                    _clean_text(item.get("name")).lower(),
+                ),
+            )
+            for index, trainer in enumerate(ranked_trainers, start=1):
+                trainer["domain_location_rank"] = index
+                trainer["rank_label"] = f"Top {index}"
+            domain_bucket["trainers"] = ranked_trainers[:20]
+        domains = sorted(
+            location_bucket["domains"].values(),
+            key=lambda item: (-item["count"], item["domain"].lower()),
+        )
+        rows.append({
+            "location": location_bucket["location"],
+            "count": location_bucket["count"],
+            "domains": domains,
+        })
+    rows.sort(key=lambda item: (-item["count"], item["location"].lower()))
+    return {"success": True, "locations": rows, "count": sum(item["count"] for item in rows)}
 
 
 @router.get("/{trainer_id}")
@@ -568,7 +1066,7 @@ async def update_trainer(
     payload: TrainerUpdate,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    data = {k: v for k, v in payload.model_dump().items() if v is not None}
+    data = payload.model_dump(exclude_unset=True)
     if not data:
         raise HTTPException(400, "No fields to update")
     data["updated_at"] = datetime.utcnow()
@@ -657,7 +1155,7 @@ async def categorise_all_trainers(
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             await client.post(
-                "https://intelligence-service:8005/api/v1/intelligence/categorise/bulk",
+                "http://intelligence-service:8005/api/v1/intelligence/categorise/bulk",
                 json={"limit": limit, "dry_run": False},
             )
         await db["categorise_jobs"].update_one(
@@ -682,7 +1180,7 @@ async def categorise_single_trainer(trainer_id: str, db: AsyncIOMotorDatabase = 
     try:
         async with httpx.AsyncClient(timeout=60) as client:
             r = await client.post(
-                "https://intelligence-service:8005/api/v1/intelligence/categorise",
+                "http://intelligence-service:8005/api/v1/intelligence/categorise",
                 json={"trainer_id": trainer_id, "trainer": trainer, "save": True},
             )
         if r.status_code < 400:
@@ -798,13 +1296,29 @@ async def confirm_resume_alias(
 ):
     """Alias: POST /resume-uploads/confirm-resume/{upload_id} (no corrections body)."""
     from datetime import datetime
+    upload = await db["resume_uploads"].find_one({"upload_id": upload_id}, {"_id": 0})
+    if not upload:
+        raise HTTPException(404, "Upload not found")
     result = await db["resume_uploads"].update_one(
         {"upload_id": upload_id},
         {"$set": {"processing_status": "confirmed", "confirmed_at": datetime.utcnow(), "updated_at": datetime.utcnow()}},
     )
     if result.matched_count == 0:
         raise HTTPException(404, "Upload not found")
-    return {"success": True, "upload_id": upload_id, "status": "confirmed"}
+    trainer_profile = _trainer_profile_from_upload(upload)
+    save_result = await db["trainers"].update_one(
+        {"trainer_id": trainer_profile["trainer_id"]},
+        {"$set": trainer_profile},
+        upsert=True,
+    )
+    return {
+        "success": True,
+        "upload_id": upload_id,
+        "trainer_id": trainer_profile["trainer_id"],
+        "status": "confirmed",
+        "inserted": 1 if save_result.upserted_id else 0,
+        "updated": 0 if save_result.upserted_id else 1,
+    }
 
 
 @router.post("/confirm-resumes")
@@ -815,10 +1329,12 @@ async def confirm_resumes_alias(
     """Alias: POST /resume-uploads/confirm-resumes."""
     confirmed = 0
     missing = 0
+    inserted = 0
+    updated = 0
     now = datetime.utcnow()
     corrections = payload.corrections or {}
     for uid in payload.upload_ids:
-        upload = await db["resume_uploads"].find_one({"upload_id": uid}, {"_id": 0, "trainer_id": 1})
+        upload = await db["resume_uploads"].find_one({"upload_id": uid}, {"_id": 0})
         if not upload:
             missing += 1
             continue
@@ -835,18 +1351,22 @@ async def confirm_resumes_alias(
         )
         if result.matched_count:
             confirmed += 1
-        trainer_id = upload.get("trainer_id")
-        if trainer_id and corrections.get(uid):
-            await db["trainers"].update_one(
-                {"trainer_id": trainer_id},
-                {"$set": {**corrections[uid], "updated_at": now}},
-            )
+        trainer_profile = _trainer_profile_from_upload(upload, corrections.get(uid))
+        save_result = await db["trainers"].update_one(
+            {"trainer_id": trainer_profile["trainer_id"]},
+            {"$set": trainer_profile},
+            upsert=True,
+        )
+        if save_result.upserted_id:
+            inserted += 1
+        else:
+            updated += 1
     return {
         "success": missing == 0,
         "confirmed": confirmed,
         "total": len(payload.upload_ids),
         "saved_count": confirmed,
-        "inserted": confirmed,
-        "updated": 0,
+        "inserted": inserted,
+        "updated": updated,
         "error_count": missing,
     }

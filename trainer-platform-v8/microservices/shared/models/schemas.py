@@ -36,6 +36,7 @@ class EmailStatusEnum(str, Enum):
     bounced = "bounced"
     opened = "opened"
     replied = "replied"
+    received = "received"
 
 
 class NotificationChannelEnum(str, Enum):

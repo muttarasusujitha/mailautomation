@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import {
   getTrainers,
   getTrainer,
   deleteTrainer,
   getTrainerCategories,
   getTrainerDomains,
+  getTrainerLocations,
+  getTrainerLocationGroups,
   getTrainerIndustries,
   categoriseTrainer,
   categoriseAllTrainers,
@@ -70,6 +72,26 @@ function trainerStatusClass(value = '') {
   return STATUS_COLORS[value] || 'badge-slate'
 }
 
+function searchAliasMatch(value, aliases) {
+  const text = String(value || '').toLowerCase().replace(/[^a-z0-9+#.]+/g, ' ').trim()
+  if (!text) return ''
+  return aliases.find(([, terms]) => terms.some(term => {
+    const normalizedTerm = term.toLowerCase().replace(/[^a-z0-9+#.]+/g, ' ').trim()
+    return new RegExp(`(^|\\s)${normalizedTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`).test(text)
+  }))?.[0] || ''
+}
+
+function parseLocationBoardSearch(value) {
+  return {
+    location: searchAliasMatch(value, LOCATION_SEARCH_ALIASES),
+    domain: searchAliasMatch(value, DOMAIN_SEARCH_ALIASES),
+  }
+}
+
+function normalizeBoardFilterValue(value) {
+  return String(value || '').trim().toLowerCase()
+}
+
 const STATUSES = ['', 'new', 'contacted', 'interested', 'declined', 'pending_review']
 const SOFTWARE_DOMAINS = [
   'Software Development',
@@ -126,6 +148,25 @@ const EXPERIENCE_OPTIONS = [
   { value: '0-3', label: '0-3 years' },
   { value: '3-7', label: '3-7 years' },
   { value: '7+', label: '7+ years' },
+]
+const LOCATION_SEARCH_ALIASES = [
+  ['Bangalore', ['bangalore', 'banglore', 'bengaluru', 'bengalore', 'bangalor']],
+  ['Hyderabad', ['hyderabad', 'hyderbad', 'hydrabad']],
+  ['Chennai', ['chennai']],
+  ['Mumbai', ['mumbai', 'bombay']],
+  ['Pune', ['pune']],
+  ['Delhi NCR', ['delhi', 'new delhi', 'ncr', 'gurgaon', 'gurugram', 'noida']],
+  ['Kolkata', ['kolkata', 'kolkatha', 'calcutta']],
+  ['Ahmedabad', ['ahmedabad']],
+]
+const DOMAIN_SEARCH_ALIASES = [
+  ['Full Stack', ['full stack', 'fullstack', 'fullstac', 'fullstak', 'fullstacvk', 'fullsatck']],
+  ['DevOps', ['devops', 'dev ops']],
+  ['Cloud', ['cloud', 'aws', 'azure', 'gcp']],
+  ['Data Science', ['data science']],
+  ['Data Engineering', ['data engineering']],
+  ['Cybersecurity', ['cybersecurity', 'cyber security']],
+  ['Programming Languages', ['programming languages', 'java', 'python']],
 ]
 const PIPELINE_MAIL_TEMPLATES = [
   { value: 'mail1', label: 'Mail 1 - First Contact' },
@@ -1108,6 +1149,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
   const profileScore = trainerProfileScore(t)
   const years = experienceYears(t)
   const displayName = trainerDisplayName(t)
+  const displayLocation = displayText(t.display_location || t.location)
 
   return (
     <div
@@ -1166,7 +1208,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
 
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
           {Boolean(displayText(t.experience_raw) || years) && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {displayText(t.experience_raw) || `${years} years`}</span>}
-          {displayText(t.location) && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {displayText(t.location)}</span>}
+          {displayLocation && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {displayLocation}</span>}
           {displayText(t.email) && <span className="flex items-center gap-1 min-w-0"><Mail className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{displayText(t.email)}</span></span>}
           {Boolean(t.teams_email || t.microsoft_teams_email || t.teams_upn) && (
             <span className="flex items-center gap-1 min-w-0 text-indigo-600">
@@ -1274,13 +1316,19 @@ export default function Trainers() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const [domain, setDomain] = useState('')
+  const [location, setLocation] = useState('')
   const [category, setCategory] = useState('')
   const [industry, setIndustry] = useState('')
   const [experience, setExperience] = useState('')
   const [categories, setCategories] = useState([])
   const [domains, setDomains] = useState([])
+  const [locations, setLocations] = useState([])
   const [industries, setIndustries] = useState([])
   const [loading, setLoading] = useState(false)
+  const [locationBoardOpen, setLocationBoardOpen] = useState(false)
+  const [locationBoardLoading, setLocationBoardLoading] = useState(false)
+  const [locationBoardSearch, setLocationBoardSearch] = useState('')
+  const [locationBoardRows, setLocationBoardRows] = useState([])
   const [searchInput, setSearchInput] = useState('')
   const [selectedTrainer, setSelectedTrainer] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
@@ -1317,13 +1365,15 @@ export default function Trainers() {
 
   const loadMeta = useCallback(async () => {
     try {
-      const [catRes, domainRes, industryRes] = await Promise.all([
+      const [catRes, domainRes, locationRes, industryRes] = await Promise.all([
         getTrainerCategories(),
         getTrainerDomains(),
+        getTrainerLocations(),
         getTrainerIndustries(),
       ])
       setCategories(catRes.data.categories || [])
       setDomains(domainRes.data.domains || [])
+      setLocations(locationRes.data.locations || [])
       setIndustries(industryRes.data.industries || [])
     } catch {
       // Filter metadata is helpful, but the trainer list can still render without it.
@@ -1339,6 +1389,7 @@ export default function Trainers() {
         search: search || undefined,
         status: status || undefined,
         domain: domain || undefined,
+        location: location || undefined,
         category: category || undefined,
         industry: industry || undefined,
         experience: experience || undefined,
@@ -1354,7 +1405,65 @@ export default function Trainers() {
     } finally {
       setLoading(false)
     }
-  }, [page, search, status, domain, category, industry, experience])
+  }, [page, search, status, domain, location, category, industry, experience])
+
+  const loadLocationBoard = useCallback(async (overrides = {}) => {
+    setLocationBoardLoading(true)
+    setLocationBoardRows([])
+    const nextLocation = Object.prototype.hasOwnProperty.call(overrides, 'location') ? overrides.location : location
+    const nextSearch = Object.prototype.hasOwnProperty.call(overrides, 'search') ? overrides.search : locationBoardSearch
+    const parsedSearch = parseLocationBoardSearch(nextSearch)
+    const nextDomain = Object.prototype.hasOwnProperty.call(overrides, 'domain') ? overrides.domain : domain
+    try {
+      const res = await getTrainerLocationGroups({
+        location: nextLocation || parsedSearch.location || undefined,
+        search: nextSearch?.trim() || undefined,
+        domain: nextDomain || parsedSearch.domain || undefined,
+        limit: 300,
+      })
+      setLocationBoardRows(res.data.locations || [])
+    } catch (error) {
+      toast.error(error.message || 'Could not load trainer location view')
+    } finally {
+      setLocationBoardLoading(false)
+    }
+  }, [domain, location, locationBoardSearch])
+
+  const locationBoardSearchActive = !!locationBoardSearch.trim()
+  const locationBoardParsedSearch = useMemo(() => parseLocationBoardSearch(locationBoardSearch), [locationBoardSearch])
+  const locationBoardTrainerRows = useMemo(() => {
+    const seen = new Set()
+    const trainers = []
+    const strictLocation = normalizeBoardFilterValue(locationBoardParsedSearch.location || location)
+    const strictDomain = normalizeBoardFilterValue(locationBoardParsedSearch.domain || domain)
+    for (const locationRow of locationBoardRows) {
+      const rowLocation = normalizeBoardFilterValue(locationRow.location)
+      if (strictLocation && rowLocation !== strictLocation) continue
+      for (const domainRow of locationRow.domains || []) {
+        const rowDomain = normalizeBoardFilterValue(domainRow.domain)
+        if (strictDomain && rowDomain !== strictDomain) continue
+        for (const trainer of domainRow.trainers || []) {
+          const key = [
+            displayText(trainer.email).toLowerCase(),
+            displayText(trainerDisplayName(trainer)).toLowerCase(),
+            displayText(trainer.phone),
+            displayText(trainer.resume_filename || trainer.filename).toLowerCase(),
+          ].filter(Boolean).join('|') || trainer.trainer_id || trainer.upload_id || trainer._id
+          if (seen.has(key)) continue
+          seen.add(key)
+          trainers.push({
+            ...trainer,
+            location: trainer.location || locationRow.location,
+            display_location: locationRow.location,
+            domain: trainer.domain || domainRow.domain,
+            technology_category: trainer.technology_category || domainRow.domain,
+            primary_category: trainer.primary_category || domainRow.domain,
+          })
+        }
+      }
+    }
+    return trainers
+  }, [domain, location, locationBoardParsedSearch, locationBoardRows])
 
   const stopPolling = useCallback(() => {
     if (pollRef.current) clearTimeout(pollRef.current)
@@ -1400,6 +1509,11 @@ export default function Trainers() {
   }, [load, page])
 
   useEffect(() => {
+    if (!locationBoardOpen) return
+    loadLocationBoard()
+  }, [locationBoardOpen, loadLocationBoard])
+
+  useEffect(() => {
     if (!automationPollingTrainerId || !selectedTrainer || selectedTrainer.trainer_id !== automationPollingTrainerId) return undefined
     const tick = async () => {
       try {
@@ -1426,14 +1540,28 @@ export default function Trainers() {
     setPage(1)
   }
 
+  const handleLocationBoardSearch = (e) => {
+    e.preventDefault()
+    const nextSearch = e.currentTarget.elements?.locationSearch?.value?.trim() || locationBoardSearch.trim()
+    const parsedSearch = parseLocationBoardSearch(nextSearch)
+    setLocationBoardSearch(nextSearch)
+    setLocation(parsedSearch.location)
+    setDomain(parsedSearch.domain || domain)
+    setLocationBoardOpen(true)
+    loadLocationBoard({ search: nextSearch, location: parsedSearch.location, domain: parsedSearch.domain || domain })
+  }
+
   const handleClearFilters = () => {
     setSearch('')
     setSearchInput('')
     setStatus('')
     setDomain('')
+    setLocation('')
     setCategory('')
     setIndustry('')
     setExperience('')
+    setLocationBoardSearch('')
+    setLocationBoardRows([])
     setPage(1)
   }
 
@@ -1682,6 +1810,7 @@ export default function Trainers() {
   }
 
   const domainOptions = uniqueSorted(softwareDomainsOnly([...SOFTWARE_DOMAINS, ...domains]))
+  const locationOptions = uniqueSorted(locations)
   const categoryOptions = uniqueSorted(categories)
   const industryOptions = uniqueSorted(industries)
 
@@ -1992,13 +2121,13 @@ export default function Trainers() {
           <Filter className="w-4 h-4 text-slate-400" />
           Trainer filters
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-3">
           <form onSubmit={handleSearch} className="md:col-span-2 xl:col-span-2 flex gap-2">
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 className="input pl-9"
-                placeholder="Search name or skill"
+                placeholder="Search Kolkata DevOps trainer"
                 value={searchInput}
                 onChange={e => setSearchInput(e.target.value)}
               />
@@ -2010,6 +2139,18 @@ export default function Trainers() {
             <option value="">All Software Domains</option>
             {domainOptions.map(item => <option key={item} value={item}>{item}</option>)}
           </select>
+
+          <button
+            type="button"
+            onClick={() => {
+              setLocationBoardOpen(true)
+              loadLocationBoard()
+            }}
+            className="btn-secondary justify-center"
+          >
+            <MapPin className="w-4 h-4" />
+            Trainer Location
+          </button>
 
           <select className="input" value={category} onChange={e => { setCategory(e.target.value); setPage(1) }}>
             <option value="">All Categories</option>
@@ -2039,7 +2180,196 @@ export default function Trainers() {
         </div>
         </div>
 
-        {loading ? (
+        {locationBoardOpen && (
+          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div className="border-b border-slate-100 bg-slate-50 px-4 py-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                      <MapPin className="h-4 w-4" />
+                    </span>
+                    Trainer Location
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Location first, then domain, then matching trainer profiles.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="rounded-full bg-white px-3 py-1 font-semibold text-slate-600 ring-1 ring-slate-200">
+                    {locationBoardRows.reduce((sum, row) => sum + (row.count || 0), 0)} trainers
+                  </span>
+                  <span className="rounded-full bg-white px-3 py-1 font-semibold text-slate-600 ring-1 ring-slate-200">
+                    {locationBoardRows.length} locations
+                  </span>
+                  <button type="button" onClick={() => setLocationBoardOpen(false)} className="btn-secondary">
+                    <X className="w-4 h-4" /> Close
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4 p-4">
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-6">
+                <form onSubmit={handleLocationBoardSearch} className="lg:col-span-4 flex gap-2">
+                  <div className="relative flex-1 min-w-0">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      name="locationSearch"
+                      className="input pl-9"
+                      placeholder="Search Kolkata DevOps trainer"
+                      value={locationBoardSearch}
+                      onChange={e => setLocationBoardSearch(e.target.value)}
+                    />
+                  </div>
+                  <button type="submit" className="btn-primary px-4">Search</button>
+                </form>
+                <select
+                  className="input"
+                  value={location}
+                  onChange={e => {
+                    const next = e.target.value
+                    setLocation(next)
+                    setPage(1)
+                    loadLocationBoard({ location: next })
+                  }}
+                >
+                  <option value="">All Trainer Locations</option>
+                  {locationOptions.map(item => <option key={item} value={item}>{item}</option>)}
+                </select>
+                <button type="button" onClick={() => loadLocationBoard()} disabled={locationBoardLoading} className="btn-secondary justify-center disabled:opacity-60">
+                  <RefreshCw className={clsx('w-4 h-4', locationBoardLoading && 'animate-spin')} />
+                  Refresh
+                </button>
+              </div>
+
+              {locationBoardLoading ? (
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                  {[...Array(4)].map((_, index) => (
+                    <div key={index} className="h-44 animate-pulse rounded-xl border border-slate-100 bg-slate-50" />
+                  ))}
+                </div>
+              ) : locationBoardRows.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center">
+                  <MapPin className="mx-auto mb-2 h-8 w-8 text-slate-300" />
+                  <p className="font-medium text-slate-500">No trainers found for this location/domain search</p>
+                </div>
+              ) : locationBoardSearchActive ? (
+                <div className="space-y-3">
+                  {locationBoardTrainerRows.map(trainer => (
+                    <TrainerRow
+                      key={trainer.trainer_id || trainer.upload_id || trainer.email || trainer.name}
+                      t={trainer}
+                      onView={handleViewTrainer}
+                      onDelete={setConfirmDelete}
+                      onRecategorise={handleRecategorise}
+                      onRequestResume={openResumeRequest}
+                      onStartAutomation={startAutomationPipeline}
+                      recategorising={recategorisingId === trainer.trainer_id}
+                      requestingResume={requestingResumeId === trainer.trainer_id}
+                      sendingAutomation={sendingAutomationId === trainer.trainer_id}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  {locationBoardRows.map((locationRow, locationIndex) => (
+                    <div key={locationRow.location} className="rounded-xl border border-slate-200 bg-white">
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-600">
+                            {locationIndex + 1}
+                          </span>
+                          <div>
+                            <h3 className="font-semibold text-slate-900">{locationRow.location}</h3>
+                            <p className="text-xs text-slate-500">{locationRow.count || 0} trainers across {(locationRow.domains || []).length} domains</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className={clsx(
+                        'grid grid-cols-1 gap-3 bg-slate-50 p-3',
+                        locationBoardSearch.trim() ? 'xl:grid-cols-3' : 'xl:grid-cols-2'
+                      )}>
+                        {(locationRow.domains || []).map((domainRow, domainIndex) => (
+                          <div key={`${locationRow.location}-${domainRow.domain}`} className="rounded-xl border border-slate-200 bg-white">
+                            <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-3 py-3">
+                              <div className="min-w-0">
+                                <p className="truncate font-semibold text-slate-900">
+                                  {domainIndex + 1}. {domainRow.domain}
+                                </p>
+                                <p className="text-xs text-slate-500">{domainRow.count || 0} trainers</p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setDomain(domainRow.domain)
+                                  setLocation(locationRow.location === 'Location not set' ? '' : locationRow.location)
+                                  setSearch('')
+                                  setSearchInput('')
+                                  setPage(1)
+                                }}
+                                className="rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100 hover:bg-emerald-100"
+                              >
+                                Apply
+                              </button>
+                            </div>
+                            <div className="divide-y divide-slate-100">
+                              {(domainRow.trainers || []).map(trainer => (
+                                <div
+                                  key={trainer.trainer_id || trainer.email || trainer.name}
+                                  role="button"
+                                  tabIndex={0}
+                                  onClick={() => handleViewTrainer(trainer)}
+                                  onKeyDown={e => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                      e.preventDefault()
+                                      handleViewTrainer(trainer)
+                                    }
+                                  }}
+                                  className="px-3 py-2.5 text-sm hover:bg-blue-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                                >
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <div className="flex min-w-0 items-center gap-2">
+                                        <span className={clsx(
+                                          'rounded-full px-2 py-0.5 text-[10px] font-bold',
+                                          (trainer.domain_location_rank || 0) === 1
+                                            ? 'bg-amber-100 text-amber-700'
+                                            : (trainer.domain_location_rank || 0) === 2
+                                              ? 'bg-blue-100 text-blue-700'
+                                              : 'bg-slate-100 text-slate-600'
+                                        )}>
+                                          {trainer.rank_label || `Top ${trainer.domain_location_rank || ''}`}
+                                        </span>
+                                        <p className="truncate font-semibold text-slate-800">{trainerDisplayName(trainer) || 'Unnamed Trainer'}</p>
+                                      </div>
+                                      <p className="mt-0.5 truncate text-xs text-slate-500">
+                                        {displayText(trainer.technologies) || allTrainerSkills(trainer).slice(0, 5).join(', ') || trainerTitle(trainer)}
+                                      </p>
+                                    </div>
+                                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600" title="Resume/domain rank score">
+                                      {trainer.domain_rank_score || trainerProfileScore(trainer)}
+                                    </span>
+                                  </div>
+                                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+                                    {displayText(locationRow.location) && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> {displayText(locationRow.location)}</span>}
+                                    {displayText(trainer.email) && <span className="truncate">{displayText(trainer.email)}</span>}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {!locationBoardOpen && (loading ? (
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="card p-4 animate-pulse">
@@ -2077,9 +2407,9 @@ export default function Trainers() {
             />
           ))}
         </div>
-        )}
+        ))}
 
-        {pages > 1 && (
+        {!locationBoardOpen && pages > 1 && (
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <p className="text-sm text-slate-500">Page {page} of {pages} - {total} total</p>
           <div className="flex items-center gap-2">

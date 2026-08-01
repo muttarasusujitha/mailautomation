@@ -2,6 +2,7 @@
 import logging
 from typing import Any, Dict, List, Optional
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
@@ -22,6 +23,10 @@ class ChatRequest(BaseModel):
     messages: List[ChatMessage]
     context: Optional[Dict[str, Any]] = None
     system_prompt: Optional[str] = None
+    provider: Optional[str] = None
+    model: Optional[str] = None
+    feature: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
     max_tokens: int = 1000
     temperature: float = 0.7
 
@@ -56,11 +61,11 @@ async def _call_anthropic(messages: List[Dict], system: str, settings, max_token
     return "".join(b.text for b in resp.content if getattr(b, "type", "") == "text").strip()
 
 
-async def _call_gemini(messages: List[Dict], system: str, settings, max_tokens: int, temperature: float) -> str:
+async def _call_gemini(messages: List[Dict], system: str, settings, model_name: str, max_tokens: int, temperature: float) -> str:
     import google.generativeai as genai
     genai.configure(api_key=settings.GEMINI_API_KEY.strip())
     model = genai.GenerativeModel(
-        settings.GEMINI_MODEL,
+        model_name or settings.GEMINI_MODEL,
         generation_config={"temperature": temperature, "max_output_tokens": max_tokens},
         system_instruction=system or "You are TrainerSync AI — a helpful training coordination assistant.",
     )
@@ -70,6 +75,52 @@ async def _call_gemini(messages: List[Dict], system: str, settings, max_tokens: 
     chat = model.start_chat(history=history)
     resp = await asyncio.get_event_loop().run_in_executor(None, lambda: chat.send_message(last))
     return resp.text.strip()
+
+
+async def _call_openai(messages: List[Dict], system: str, settings, model: str, max_tokens: int, temperature: float) -> str:
+    api_key = settings.OPENAI_API_KEY.strip()
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY is not configured")
+
+    base_url = (settings.OPENAI_BASE_URL or "https://api.openai.com/v1").rstrip("/")
+    model_name = model or settings.OPENAI_MODEL
+    if "openrouter.ai" in base_url and model_name.startswith("gpt"):
+        model_name = f"openai/{model_name}"
+
+    chat_messages = [
+        {"role": "system", "content": system or "You are TrainerSync AI - a helpful training coordination assistant."},
+        *messages,
+    ]
+    async with httpx.AsyncClient(timeout=60) as client:
+        resp = await client.post(
+            f"{base_url}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "http://localhost:5173",
+                "X-Title": "TrainerSync Communication Pipeline",
+            },
+            json={
+                "model": model_name,
+                "messages": chat_messages,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+            },
+        )
+        resp.raise_for_status()
+        data = resp.json()
+    message = data.get("choices", [{}])[0].get("message", {})
+    content = message.get("content")
+    if isinstance(content, list):
+        content = "\n".join(
+            part.get("text", "") if isinstance(part, dict) else str(part)
+            for part in content
+        )
+    if content:
+        return str(content).strip()
+
+    fallback = message.get("reasoning") or message.get("refusal") or data.get("error")
+    raise RuntimeError(f"OpenAI-compatible response had no text content: {fallback or data}")
 
 
 @router.post("/chat")
@@ -89,16 +140,26 @@ async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depend
 
     reply = ""
     error = ""
-    if settings.ANTHROPIC_API_KEY.strip():
+    requested_provider = (payload.provider or "").strip().lower()
+    requested_model = (payload.model or settings.OPENAI_MODEL).strip()
+
+    if (requested_provider == "openai" or requested_model.startswith("gpt")) and settings.OPENAI_API_KEY.strip():
+        try:
+            reply = await _call_openai(messages, system, settings, requested_model, payload.max_tokens, payload.temperature)
+        except Exception as exc:
+            logger.warning("OpenAI failed, trying configured fallbacks: %s", exc)
+            error = str(exc)
+
+    if not reply and requested_provider != "openai" and settings.ANTHROPIC_API_KEY.strip():
         try:
             reply = await _call_anthropic(messages, system, settings, payload.max_tokens, payload.temperature)
         except Exception as exc:
             logger.warning("Anthropic failed, trying Gemini: %s", exc)
             error = str(exc)
 
-    if not reply and settings.GEMINI_API_KEY.strip():
+    if not reply and requested_provider != "openai" and settings.GEMINI_API_KEY.strip():
         try:
-            reply = await _call_gemini(messages, system, settings, payload.max_tokens, payload.temperature)
+            reply = await _call_gemini(messages, system, settings, requested_model, payload.max_tokens, payload.temperature)
             error = ""
         except Exception as exc:
             logger.error("Gemini also failed: %s", exc)
@@ -107,12 +168,13 @@ async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depend
     if not reply:
         reply = (
             "I'm sorry, I couldn't process your request right now. "
-            "Please check that ANTHROPIC_API_KEY or GEMINI_API_KEY is configured."
+            f"Assistant model error: {error or 'Please check that OPENAI_API_KEY is configured.'}"
         )
 
     return {
         "success": True,
         "reply": reply,
         "error": error or None,
+        "model": requested_model if reply else None,
         "messages": messages + [{"role": "assistant", "content": reply}],
     }

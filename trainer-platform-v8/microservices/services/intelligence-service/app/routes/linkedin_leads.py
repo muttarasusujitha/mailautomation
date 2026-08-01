@@ -1,9 +1,12 @@
-"""Direct LinkedIn/Naukri lead search using the Tavily API key from env."""
+"""Direct LinkedIn/Naukri lead search using public web signals."""
+import asyncio
+import html
 import logging
 import re
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from urllib.parse import parse_qs, quote_plus, unquote, urlparse
 
 import httpx
 from fastapi import APIRouter, Depends
@@ -63,6 +66,9 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
         return None
 
     source = "linkedin" if "linkedin.com" in url.lower() else "naukri"
+    title = item.get("title") or item.get("name") or ""
+    snippet = item.get("content") or item.get("snippet") or item.get("description") or ""
+    combined_text = f"{title} {snippet}".lower()
     if mode == "client":
         if source != "linkedin":
             return None
@@ -70,18 +76,19 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
             return None
         if re.search(r"linkedin\.com/(jobs|in)/", url, re.IGNORECASE):
             return None
+        if not re.search(
+            r"\b(corporate trainer required|trainer required|training requirement|need trainer|trainer needed|looking for trainer|looking for corporate trainer|require trainer|freelance trainer required)\b",
+            combined_text,
+        ):
+            return None
     if mode == "trainer" and source == "linkedin" and not re.search(r"linkedin\.com/in/", url, re.IGNORECASE):
         return None
-    title = item.get("title") or item.get("name") or ""
-    snippet = item.get("content") or item.get("snippet") or item.get("description") or ""
-    combined_text = f"{title} {snippet}".lower()
     if mode == "trainer":
         if re.search(r"\b(actively seeking|job seeker|looking for job|open to work|full-time role)\b", combined_text):
             return None
-        if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
-            return None
         terms = _domain_terms(domain)
-        if terms and not any(term in combined_text for term in terms):
+        has_sparse_profile_text = source == "linkedin" and re.search(r"linkedin\.com/in/", url, re.IGNORECASE) and len(combined_text.strip()) < 80
+        if terms and combined_text.strip() and not has_sparse_profile_text and not any(term in combined_text for term in terms):
             return None
     slug = _slug_from_url(url)
     if mode == "client":
@@ -147,6 +154,153 @@ async def _plain_tavily_search(query: str, max_results: int) -> List[Dict[str, A
     return data.get("results") or []
 
 
+async def _plain_brave_search(query: str, max_results: int) -> List[Dict[str, Any]]:
+    settings = get_settings()
+    api_key = settings.BRAVE_SEARCH_API_KEY.strip()
+    if not api_key:
+        return []
+
+    requested = max(1, min(max_results, 100))
+    headers = {
+        "Accept": "application/json",
+        "Accept-Encoding": "gzip",
+        "X-Subscription-Token": api_key,
+    }
+    items: List[Dict[str, Any]] = []
+    seen_urls: set = set()
+    async with httpx.AsyncClient(timeout=20, follow_redirects=True, headers=headers) as client:
+        for offset in range(0, min(10, (requested + 19) // 20)):
+            resp = await client.get(
+                "https://api.search.brave.com/res/v1/web/search",
+                params={
+                    "q": query,
+                    "count": min(20, requested),
+                    "offset": offset,
+                    "search_lang": "en",
+                    "safesearch": "moderate",
+                    "result_filter": "web",
+                },
+            )
+            resp.raise_for_status()
+            for result in (resp.json().get("web") or {}).get("results", []):
+                url = result.get("url") or ""
+                if url and url not in seen_urls:
+                    seen_urls.add(url)
+                    items.append({
+                        "url": url,
+                        "title": result.get("title") or "",
+                        "content": result.get("description") or "",
+                    })
+            if len(items) >= requested:
+                break
+    return items[:requested]
+
+
+def _clean_public_result_url(raw_url: str) -> str:
+    url = html.unescape(str(raw_url or "")).strip()
+    if not url:
+        return ""
+    parsed = urlparse(url)
+    qs = parse_qs(parsed.query)
+    for key in ("uddg", "url", "u", "q"):
+        if qs.get(key):
+            url = unquote(qs[key][0])
+            break
+    url = url.replace("&amp;", "&").strip()
+    return url.rstrip(").,;")
+
+
+def _is_profile_url(url: str) -> bool:
+    parsed = urlparse(str(url or ""))
+    host = parsed.netloc.lower()
+    path = parsed.path.lower()
+    return (
+        parsed.scheme in {"http", "https"}
+        and (
+            ("linkedin.com" in host and path.startswith("/in/"))
+            or ("naukri.com" in host)
+        )
+    )
+
+
+def _public_result_items(page_html: str) -> List[Dict[str, Any]]:
+    items: List[Dict[str, Any]] = []
+    seen_urls: set = set()
+    generic_links = re.findall(r'(?is)<a[^>]+href=["\']([^"\']*(?:linkedin\.com/in|naukri\.com)[^"\']*)["\'][^>]*>(.*?)</a>', page_html or "")
+    for href, title_html in generic_links:
+        title = re.sub(r"(?is)<[^>]+>", " ", title_html)
+        title = re.sub(r"\s+", " ", html.unescape(title)).strip()
+        url = _clean_public_result_url(href)
+        if _is_profile_url(url) and url not in seen_urls:
+            seen_urls.add(url)
+            items.append({"url": url, "title": title or url.rsplit("/", 1)[-1].replace("-", " "), "content": ""})
+    if items:
+        return items
+
+    blocks = re.findall(r'(?is)<a[^>]+class="[^"]*result__a[^"]*"[^>]+href="([^"]+)"[^>]*>(.*?)</a>', page_html or "")
+    for href, title_html in blocks:
+        title = re.sub(r"(?is)<[^>]+>", " ", title_html)
+        title = re.sub(r"\s+", " ", html.unescape(title)).strip()
+        url = _clean_public_result_url(href)
+        if _is_profile_url(url) and url not in seen_urls:
+            seen_urls.add(url)
+            items.append({"url": url, "title": title, "content": ""})
+    if items:
+        return items
+
+    for match in re.finditer(r'https?://(?:www\.)?(?:linkedin\.com/in|naukri\.com)/[^"\'<>\s]+', page_html or "", re.IGNORECASE):
+        url = _clean_public_result_url(match.group(0))
+        if _is_profile_url(url) and url not in seen_urls:
+            seen_urls.add(url)
+            items.append({"url": url, "title": url.rsplit("/", 1)[-1].replace("-", " "), "content": ""})
+    return items
+
+
+async def _plain_public_search(query: str, max_results: int) -> List[Dict[str, Any]]:
+    """Search public web without a paid provider and return generic result dicts."""
+    requested = max(1, min(max_results, 100))
+    encoded = quote_plus(query)
+    urls = []
+    for start in range(0, requested + 20, 30):
+        urls.append(f"https://html.duckduckgo.com/html/?q={encoded}&s={start}")
+        urls.append(f"https://duckduckgo.com/html/?q={encoded}&s={start}")
+    for start in range(0, requested + 20, 10):
+        urls.append(f"https://www.google.com/search?q={encoded}&num=10&start={start}")
+    for first in range(1, requested + 20, 10):
+        urls.append(f"https://www.bing.com/search?q={encoded}&count=10&first={first}")
+    headers = {
+        "User-Agent": "Mozilla/5.0 (compatible; TrainerSyncPublicSearch/1.0)",
+        "Accept": "text/html,application/xhtml+xml",
+    }
+    async with httpx.AsyncClient(timeout=12, follow_redirects=True, headers=headers) as client:
+        last_error = ""
+        items: List[Dict[str, Any]] = []
+        seen_urls: set = set()
+
+        async def fetch_items(url: str) -> List[Dict[str, Any]]:
+            try:
+                resp = await client.get(url)
+                if resp.status_code >= 400:
+                    logger.info("Public web search page failed for %s: %s %s", query, resp.status_code, resp.text[:120])
+                    return []
+                return _public_result_items(resp.text)
+            except Exception as exc:
+                last_error = str(exc)
+                return []
+
+        for batch in await asyncio.gather(*[fetch_items(url) for url in urls]):
+            for item in batch:
+                source_url = item.get("url") or item.get("source_url")
+                if source_url and source_url not in seen_urls:
+                    seen_urls.add(source_url)
+                    items.append(item)
+            if len(items) >= requested:
+                return items[:requested]
+        if last_error:
+            logger.warning("Public web search failed for %s: %s", query, last_error)
+    return items[:requested]
+
+
 def _search_queries(domain: str, mode: str, location: str = "") -> List[str]:
     location_text = f" {location}" if location else ""
     if mode == "client":
@@ -183,6 +337,42 @@ def _search_queries(domain: str, mode: str, location: str = "") -> List[str]:
     ]
 
 
+def _fallback_search_lead(domain: str, mode: str, location: str = "") -> Dict[str, Any]:
+    topic = domain.strip() or "trainer"
+    if mode == "client":
+        query = f"{topic} corporate training requirement trainer required {location}".strip()
+        return {
+            "lead_id": f"CL-{uuid.uuid4().hex[:10].upper()}",
+            "company_name": f"{topic} public search lead",
+            "contact_name": "",
+            "domain": topic,
+            "source": "public_search_agent",
+            "source_url": f"https://www.google.com/search?q={quote_plus(query)}",
+            "linkedin_url": f"https://www.linkedin.com/search/results/content/?keywords={quote_plus(query)}",
+            "post_text": f"Public search task for: {query}",
+            "notes": "Exact public post URL was not exposed by the search provider. Review or enrich this search lead.",
+            "status": "new",
+            "confidence": 0.35,
+        }
+    query = f"{topic} corporate trainer instructor consultant {location}".strip()
+    return {
+        "lead_id": f"TPL-{uuid.uuid4().hex[:10].upper()}",
+        "name": f"{topic} public trainer search",
+        "trainer_name": f"{topic} public trainer search",
+        "headline": f"Public search task for {topic} trainers",
+        "domain": topic,
+        "source": "public_search_agent",
+        "source_url": f"https://www.google.com/search?q={quote_plus(query + ' site:linkedin.com/in')}",
+        "linkedin_url": f"https://www.linkedin.com/search/results/people/?keywords={quote_plus(query)}",
+        "external_slug": f"public-search-{re.sub(r'[^a-z0-9]+', '-', topic.lower()).strip('-')[:40]}",
+        "snippet": f"Public search task for: {query}",
+        "profile_text": f"Review Google/LinkedIn public search for {topic} trainers.",
+        "status": "new",
+        "verification_tier": "public_search_task",
+        "confidence": 0.35,
+    }
+
+
 @router.post("/search")
 async def search_linkedin_leads(
     payload: LinkedInLeadSearchRequest,
@@ -205,7 +395,7 @@ async def search_linkedin_leads(
     mode = "client" if payload.mode == "client" else "trainer"
 
     target_results = max(1, min(payload.max_results, 100))
-    query_budget = payload.max_queries or (1 if mode == "client" else 8)
+    query_budget = payload.max_queries or (1 if mode == "client" else 12)
 
     for domain in domains:
         raw_results: List[Dict[str, Any]] = []
@@ -213,9 +403,18 @@ async def search_linkedin_leads(
             if len(all_results) >= target_results:
                 break
             try:
-                raw_results.extend(await _plain_tavily_search(query, min(20, target_results)))
+                batch: List[Dict[str, Any]] = []
+                try:
+                    batch = await _plain_tavily_search(query, min(20, target_results))
+                    if not batch:
+                        batch = await _plain_brave_search(query, target_results)
+                except Exception as exc:
+                    logger.info("Provider search unavailable for %s; using built-in public search: %s", domain, exc)
+                if not batch:
+                    batch = await _plain_public_search(query, target_results)
+                raw_results.extend(batch)
             except Exception as exc:
-                logger.warning("Direct Tavily LinkedIn search failed for %s: %s", domain, exc)
+                logger.warning("Direct public LinkedIn search failed for %s: %s", domain, exc)
                 return {
                     "success": False,
                     "error": str(exc),
@@ -272,6 +471,21 @@ async def search_linkedin_leads(
                     continue
                 await db["trainer_profile_leads"].insert_one({**lead, "created_at": now, "updated_at": now})
             saved_count += 1
+
+        if payload.save and not any((result.get("domain") or "").lower() == domain.lower() for result in all_results):
+            fallback = _fallback_search_lead(domain, mode, payload.location or "")
+            if mode == "client":
+                exists = await db["client_leads"].find_one({"source_url": fallback["source_url"]}, {"_id": 1})
+                if not exists:
+                    await db["client_leads"].insert_one({**fallback, "created_at": now, "updated_at": now})
+                    all_results.append(fallback)
+                    saved_count += 1
+            else:
+                exists = await db["trainer_profile_leads"].find_one({"source_url": fallback["source_url"]}, {"_id": 1})
+                if not exists:
+                    await db["trainer_profile_leads"].insert_one({**fallback, "created_at": now, "updated_at": now})
+                    all_results.append(fallback)
+                    saved_count += 1
 
     return {
         "success": True,

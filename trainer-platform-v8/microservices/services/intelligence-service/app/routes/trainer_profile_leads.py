@@ -3,6 +3,7 @@ import logging
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+from urllib.parse import quote_plus
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -13,26 +14,7 @@ from app.database import get_db
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
-EMAIL_SVC = "https://email-service:8002"
-LOCAL_SERVICE_FALLBACKS = {
-    "https://email-service:8002": "http://127.0.0.1:8003",
-    "http://email-service:8002": "http://127.0.0.1:8003",
-}
-
-
-async def _post_with_local_fallback(
-    client: httpx.AsyncClient,
-    url: str,
-    **kwargs: Any,
-) -> httpx.Response:
-    try:
-        return await client.post(url, **kwargs)
-    except httpx.RequestError:
-        for service_base, local_base in LOCAL_SERVICE_FALLBACKS.items():
-            if url.startswith(service_base):
-                fallback_url = local_base + url[len(service_base):]
-                return await client.post(fallback_url, **kwargs)
-        raise
+EMAIL_SVC = "http://email-service:8002"
 
 
 class TrainerLeadCreate(BaseModel):
@@ -51,7 +33,6 @@ class TrainerLeadUpdate(BaseModel):
     email: Optional[str] = None
     phone: Optional[str] = None
     domain: Optional[str] = None
-    requirement_id: Optional[str] = None
     status: Optional[str] = None
     notes: Optional[str] = None
 
@@ -62,7 +43,6 @@ class EnrichRequest(BaseModel):
 
 class SearchPublicRequest(BaseModel):
     domain: Optional[str] = ""
-    requirement_id: Optional[str] = ""
     domains: Optional[List[str]] = None
     query: Optional[str] = ""
     queries: Optional[List[Dict[str, Any]]] = None
@@ -91,7 +71,6 @@ async def list_trainer_leads(
     limit: Optional[int] = Query(None, ge=1, le=500),
     status: Optional[str] = None,
     domain: Optional[str] = None,
-    requirement_id: Optional[str] = None,
     q: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
@@ -100,8 +79,6 @@ async def list_trainer_leads(
         query["status"] = status
     if domain:
         query["domain"] = {"$regex": domain, "$options": "i"}
-    if requirement_id:
-        query["requirement_id"] = requirement_id
     if q:
         query["$or"] = [
             {"name": {"$regex": q, "$options": "i"}},
@@ -133,7 +110,7 @@ async def create_trainer_lead(payload: TrainerLeadCreate, db: AsyncIOMotorDataba
 
 @router.patch("/{lead_id}")
 async def update_trainer_lead(lead_id: str, payload: TrainerLeadUpdate, db: AsyncIOMotorDatabase = Depends(get_db)):
-    data = {k: v for k, v in payload.model_dump().items() if v is not None}
+    data = payload.model_dump(exclude_unset=True)
     if not data:
         raise HTTPException(400, "No fields to update")
     data["updated_at"] = datetime.utcnow()
@@ -197,7 +174,7 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
         async with httpx.AsyncClient(timeout=30) as client:
             for item in search_items:
                 r = await client.post(
-                    "https://intelligence-service:8005/api/v1/intelligence/trainers/search",
+                    "http://intelligence-service:8005/api/v1/intelligence/trainers/search",
                     json={
                         "query": item["query"],
                         "domain": item["domain"],
@@ -220,7 +197,41 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
     new_count = 0
     skipped: List[Dict[str, Any]] = []
     seen_urls: set = set()
+
+    if not profiles:
+        for item in search_items:
+            domain = item.get("domain") or item.get("query") or "Trainer"
+            search_text = " ".join(part for part in [domain, "corporate trainer instructor consultant", payload.location or "", "site:linkedin.com/in"] if part)
+            source_url = f"https://www.google.com/search?q={quote_plus(search_text)}"
+            exists = await db["trainer_profile_leads"].find_one({"source_url": source_url}, {"_id": 1})
+            if exists:
+                skipped.append({"reason": "already_saved", "source_url": source_url, "source": "public_search_agent"})
+                continue
+            lead_id = f"TPL-{uuid.uuid4().hex[:10].upper()}"
+            await db["trainer_profile_leads"].insert_one({
+                "lead_id": lead_id,
+                "name": f"{domain} public trainer search",
+                "trainer_name": f"{domain} public trainer search",
+                "headline": f"Review public trainer results for {domain}",
+                "linkedin_url": f"https://www.linkedin.com/search/results/people/?keywords={quote_plus(str(domain) + ' trainer')}",
+                "linkedin_slug": "",
+                "source_url": source_url,
+                "external_slug": "",
+                "snippet": "Public search engines did not expose direct profile URLs. Open this saved search, review matching public trainer profiles, then save/contact the right trainer.",
+                "domain": domain,
+                "source": "public_search_agent",
+                "status": "found",
+                "verification_tier": "public_search_task",
+                "confidence": 0.35,
+                "created_at": now,
+                "updated_at": now,
+            })
+            profiles.append({"source_url": source_url, "source": "public_search_agent", "domain": domain})
+            new_count += 1
+
     for p in profiles:
+        if p.get("source") == "public_search_agent":
+            continue
         slug = p.get("slug", "")
         source_url = p.get("source_url", "")
         source = p.get("source", "linkedin")
@@ -259,7 +270,6 @@ async def search_public_trainer_leads(payload: SearchPublicRequest, db: AsyncIOM
             "external_slug": slug,
             "snippet": p.get("snippet", ""),
             "domain": p.get("_searched_domain") or payload.domain or p.get("domain", ""),
-            "requirement_id": payload.requirement_id or "",
             "source": source,
             "status": "found", "verification_tier": "unverified",
             "created_at": now, "updated_at": now,
@@ -317,7 +327,7 @@ async def enrich_public_emails(payload: EnrichRequest, db: AsyncIOMotorDatabase 
         try:
             async with httpx.AsyncClient(timeout=30) as client:
                 r = await client.post(
-                    "https://intelligence-service:8005/api/v1/intelligence/contacts/find",
+                    "http://intelligence-service:8005/api/v1/intelligence/contacts/find",
                     json={"name": lead.get("name", ""), "domain": lead.get("domain", ""),
                           "linkedin_url": lead.get("linkedin_url", "")},
                 )
@@ -389,11 +399,8 @@ async def send_lead_outreach(
     )
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            r = await _post_with_local_fallback(
-                client,
-                f"{EMAIL_SVC}/api/v1/email/send",
-                json={"to": to_email, "subject": subject, "body": body},
-            )
+            r = await client.post(f"{EMAIL_SVC}/api/v1/email/send",
+                                  json={"to": to_email, "subject": subject, "body": body})
         success = r.status_code < 400
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
