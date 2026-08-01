@@ -1,0 +1,459 @@
+{
+  "domain": "Testing & QA",
+  "name": "Testing & QA",
+  "icon": "checkmark",
+  "program_title": "Testing & QA Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Testing & QA Expert",
+  "certifications": [
+    "ISTQB Certified Tester",
+    "AWS Certified DevOps Engineer",
+    "Certified Selenium WebDriver Engineer",
+    "API Testing Certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "QA Fundamentals",
+      "subtopics": [
+        "Testing Types",
+        "Test Plan",
+        "Test Cases",
+        "Defect Management"
+      ],
+      "tools": [
+        "TestRail",
+        "Jira"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "QA basics"
+    },
+    {
+      "day": 2,
+      "topic": "QA Fundamentals",
+      "subtopics": [
+        "Testing Types",
+        "Test Plan",
+        "Test Cases",
+        "Defect Management"
+      ],
+      "tools": [
+        "TestRail",
+        "Jira"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "QA basics"
+    },
+    {
+      "day": 3,
+      "topic": "Manual Testing",
+      "subtopics": [
+        "Test Design",
+        "Test Execution",
+        "Bug Reporting",
+        "Regression Testing"
+      ],
+      "tools": [
+        "TestLink"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Manual test execution"
+    },
+    {
+      "day": 4,
+      "topic": "Manual Testing",
+      "subtopics": [
+        "Test Design",
+        "Test Execution",
+        "Bug Reporting",
+        "Regression Testing"
+      ],
+      "tools": [
+        "TestLink"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Manual test execution"
+    },
+    {
+      "day": 5,
+      "topic": "Web Testing",
+      "subtopics": [
+        "Web Elements",
+        "Locators",
+        "Navigation",
+        "Form Testing"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Sprint planning; review progress for Web Testing",
+      "lab_task": "Web app testing"
+    },
+    {
+      "day": 6,
+      "topic": "Web Testing",
+      "subtopics": [
+        "Web Elements",
+        "Locators",
+        "Navigation",
+        "Form Testing"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Web app testing"
+    },
+    {
+      "day": 7,
+      "topic": "Selenium Basics",
+      "subtopics": [
+        "WebDriver",
+        "Locators",
+        "Actions",
+        "Waits"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Selenium fundamentals"
+    },
+    {
+      "day": 8,
+      "topic": "Selenium Basics",
+      "subtopics": [
+        "WebDriver",
+        "Locators",
+        "Actions",
+        "Waits"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Selenium fundamentals"
+    },
+    {
+      "day": 9,
+      "topic": "Selenium Advanced",
+      "subtopics": [
+        "Page Object Model",
+        "Data-Driven Testing",
+        "Framework"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Advanced Selenium"
+    },
+    {
+      "day": 10,
+      "topic": "Selenium Advanced",
+      "subtopics": [
+        "Page Object Model",
+        "Data-Driven Testing",
+        "Framework"
+      ],
+      "tools": [
+        "Selenium"
+      ],
+      "jira_focus": "Sprint planning; review progress for Selenium Advanced",
+      "lab_task": "Advanced Selenium"
+    },
+    {
+      "day": 11,
+      "topic": "API Testing with Postman",
+      "subtopics": [
+        "REST API",
+        "Request/Response",
+        "Assertions",
+        "Collections"
+      ],
+      "tools": [
+        "Postman"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "API testing"
+    },
+    {
+      "day": 12,
+      "topic": "API Testing with Postman",
+      "subtopics": [
+        "REST API",
+        "Request/Response",
+        "Assertions",
+        "Collections"
+      ],
+      "tools": [
+        "Postman"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "API testing"
+    },
+    {
+      "day": 13,
+      "topic": "API Testing with RestAssured",
+      "subtopics": [
+        "Java REST Client",
+        "BDD",
+        "Assertions"
+      ],
+      "tools": [
+        "RestAssured",
+        "Cucumber"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "API automation"
+    },
+    {
+      "day": 14,
+      "topic": "API Testing with RestAssured",
+      "subtopics": [
+        "Java REST Client",
+        "BDD",
+        "Assertions"
+      ],
+      "tools": [
+        "RestAssured",
+        "Cucumber"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "API automation"
+    },
+    {
+      "day": 15,
+      "topic": "Performance Testing",
+      "subtopics": [
+        "Load Testing",
+        "Stress Testing",
+        "JMeter"
+      ],
+      "tools": [
+        "JMeter",
+        "Gatling"
+      ],
+      "jira_focus": "Sprint planning; review progress for Performance Testing",
+      "lab_task": "Performance testing"
+    },
+    {
+      "day": 16,
+      "topic": "Performance Testing",
+      "subtopics": [
+        "Load Testing",
+        "Stress Testing",
+        "JMeter"
+      ],
+      "tools": [
+        "JMeter",
+        "Gatling"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Performance testing"
+    },
+    {
+      "day": 17,
+      "topic": "Mobile Testing",
+      "subtopics": [
+        "AppiumBasics",
+        "iOS/Android",
+        "Native/Hybrid"
+      ],
+      "tools": [
+        "Appium"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Mobile automation"
+    },
+    {
+      "day": 18,
+      "topic": "Mobile Testing",
+      "subtopics": [
+        "AppiumBasics",
+        "iOS/Android",
+        "Native/Hybrid"
+      ],
+      "tools": [
+        "Appium"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Mobile automation"
+    },
+    {
+      "day": 19,
+      "topic": "CI/CD Integration",
+      "subtopics": [
+        "Jenkins",
+        "GitLab CI",
+        "GitHub Actions"
+      ],
+      "tools": [
+        "GitHub Actions"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Testing in CI/CD"
+    },
+    {
+      "day": 20,
+      "topic": "CI/CD Integration",
+      "subtopics": [
+        "Jenkins",
+        "GitLab CI",
+        "GitHub Actions"
+      ],
+      "tools": [
+        "GitHub Actions"
+      ],
+      "jira_focus": "Sprint planning; review progress for CI/CD Integration",
+      "lab_task": "Testing in CI/CD"
+    },
+    {
+      "day": 21,
+      "topic": "BDD & Cucumber",
+      "subtopics": [
+        "Gherkin",
+        "Feature Files",
+        "Step Definitions"
+      ],
+      "tools": [
+        "Cucumber",
+        "Selenium"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Behavior-driven testing"
+    },
+    {
+      "day": 22,
+      "topic": "BDD & Cucumber",
+      "subtopics": [
+        "Gherkin",
+        "Feature Files",
+        "Step Definitions"
+      ],
+      "tools": [
+        "Cucumber",
+        "Selenium"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Behavior-driven testing"
+    },
+    {
+      "day": 23,
+      "topic": "Test Frameworks",
+      "subtopics": [
+        "TestNG",
+        "Junit",
+        "Fixture Management"
+      ],
+      "tools": [
+        "TestNG"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Java test frameworks"
+    },
+    {
+      "day": 24,
+      "topic": "Test Frameworks",
+      "subtopics": [
+        "TestNG",
+        "Junit",
+        "Fixture Management"
+      ],
+      "tools": [
+        "TestNG"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Java test frameworks"
+    },
+    {
+      "day": 25,
+      "topic": "Debugging & Logging",
+      "subtopics": [
+        "Logs Analysis",
+        "Screenshots",
+        "Video Capture"
+      ],
+      "tools": [
+        "Log4j",
+        "SLF4J"
+      ],
+      "jira_focus": "Sprint planning; review progress for Debugging & Logging",
+      "lab_task": "Debugging failures"
+    },
+    {
+      "day": 26,
+      "topic": "Debugging & Logging",
+      "subtopics": [
+        "Logs Analysis",
+        "Screenshots",
+        "Video Capture"
+      ],
+      "tools": [
+        "Log4j",
+        "SLF4J"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Debugging failures"
+    },
+    {
+      "day": 27,
+      "topic": "Database Testing",
+      "subtopics": [
+        "SQL Queries",
+        "Data Validation",
+        "JDBC"
+      ],
+      "tools": [
+        "SQL",
+        "JDBC"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Database test automation"
+    },
+    {
+      "day": 28,
+      "topic": "Database Testing",
+      "subtopics": [
+        "SQL Queries",
+        "Data Validation",
+        "JDBC"
+      ],
+      "tools": [
+        "SQL",
+        "JDBC"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Database test automation"
+    },
+    {
+      "day": 29,
+      "topic": "Advanced Topics",
+      "subtopics": [
+        "Test Optimization",
+        "Parallel Execution",
+        "Reporting"
+      ],
+      "tools": [
+        "ExtentReports"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Advanced testing"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Test Optimization",
+        "Parallel Execution",
+        "Reporting"
+      ],
+      "tools": [
+        "ExtentReports"
+      ],
+      "jira_focus": "Sprint planning; review progress for Advanced Topics",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    }
+  ]
+}

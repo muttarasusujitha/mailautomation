@@ -20,6 +20,13 @@ Last Browser
 Last Version
 Local State
 
+*.db
+*.db-journal
+.chrome-diagnostic*
+Last Browser
+Last Version
+Local State
+
 # Python
 __pycache__/
 *.py[cod]
@@ -43,6 +50,7 @@ build/
 .vscode/
 .DS_Store
 Thumbs.db
+<<<<<<< HEAD
 .runlogs/
 .scannerwork/
 *.log
@@ -50,3 +58,13 @@ Thumbs.db
 
 # Accidental sibling copy outside the app folder
 /frontend/
+
+# Logs and runtime
+.scannerwork/
+.coverage
+htmlcov/
+=======
+
+# Ignore sensitive email service OAuth token config
+microservices/services/email-service/config/token.json
+>>>>>>> 884f222 (Remove OAuth token file from history and ignore it)
