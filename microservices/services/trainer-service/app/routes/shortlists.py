@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
-from app.database import get_db
+from shared.database.service import get_db
 from app.config import get_settings
 from app.toc_pdf_template import build_toc_html
 

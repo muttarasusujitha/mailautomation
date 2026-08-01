@@ -11,7 +11,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 from app.config import get_settings
-from app.database import get_db
+from shared.database.service import get_db
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

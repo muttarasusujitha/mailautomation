@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 from typing import Any, Dict, Optional
 
-from app.database import get_db
+from shared.database.service import get_db
 from app.teams import send_teams_notification
 
 router = APIRouter()

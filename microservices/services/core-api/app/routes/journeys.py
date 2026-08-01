@@ -4,7 +4,7 @@ from bson import ObjectId
 from datetime import datetime
 from typing import Optional
 
-from app.database import get_db
+from shared.database.service import get_db
 from shared.models.schemas import Journey, JourneyCreate, JourneyUpdate, PaginatedResponse
 
 router = APIRouter()

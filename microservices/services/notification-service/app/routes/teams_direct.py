@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
-from app.database import get_db
+from shared.database.service import get_db
 from app.config import get_settings
 
 router = APIRouter()

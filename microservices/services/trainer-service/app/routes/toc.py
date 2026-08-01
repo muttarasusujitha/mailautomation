@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, root_validator
 
-from app.database import get_db
+from shared.database.service import get_db
 from app.toc_generation_agent import generate_toc_from_dataset, validate_toc
 
 router = APIRouter()
