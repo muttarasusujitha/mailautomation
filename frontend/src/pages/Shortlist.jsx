@@ -34,11 +34,12 @@ function channelStatus(label, result, successLabel = 'sent') {
 }
 
 function showSendStatusToast({ trainerName, result, title = 'Message sent' }) {
+  const delivered = isSendMailDelivered(result)
   const email = {
     label: 'Email',
-    value: result?.success ? 'sent' : 'failed',
-    tone: result?.success ? 'ok' : 'bad',
-    detail: result?.success ? (result?.email_id || '') : (result?.error || 'Unknown error'),
+    value: delivered ? 'sent' : 'failed',
+    tone: delivered ? 'ok' : 'bad',
+    detail: delivered ? (firstSendMailResult(result)?.email_id || result?.email_id || '') : sendMailError(result, 'Unknown error'),
   }
   const channels = [
     email,
@@ -80,6 +81,22 @@ function showSendStatusToast({ trainerName, result, title = 'Message sent' }) {
       </div>
     </div>
   ), { duration: 10000 })
+}
+
+function firstSendMailResult(result = {}) {
+  return Array.isArray(result?.results) ? result.results[0] : null
+}
+
+function isSendMailDelivered(result = {}) {
+  const firstResult = firstSendMailResult(result)
+  if (firstResult) return firstResult.status === 'sent'
+  if (typeof result?.sent === 'number') return result.sent > 0
+  return result?.success === true
+}
+
+function sendMailError(result = {}, fallback = 'Email delivery failed') {
+  const firstResult = firstSendMailResult(result)
+  return firstResult?.error_message || firstResult?.status || result?.error || result?.message || fallback
 }
 
 const STAGES = {
@@ -2495,7 +2512,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       ...(direction ? { direction } : {}),
       ...extra,
     })
-    if (res?.data?.success === false) throw new Error(res.data?.error || 'Send failed')
+    if (!isSendMailDelivered(res?.data)) throw new Error(sendMailError(res?.data, 'Send failed'))
     return res.data
   }
 

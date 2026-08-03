@@ -4,7 +4,7 @@ from datetime import datetime
 from email.utils import parseaddr
 from typing import Any, Dict
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from shared.database.service import get_db
@@ -30,12 +30,15 @@ async def _smtp_config(db: AsyncIOMotorDatabase) -> Dict[str, Any] | None:
 
 
 @router.get("")
-async def list_client_updates(db: AsyncIOMotorDatabase = Depends(get_db)):
+async def list_client_updates(
+    limit: int = Query(100, ge=1, le=200),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
     """List pending client update emails that need to be sent."""
     cursor = db["client_emails"].find(
         {"reply_status": {"$in": ["pending_auto_send", "pending_review", "failed"]}},
         {"_id": 0, "raw_body": 0},
-    ).sort("created_at", -1).limit(100)
+    ).sort("created_at", -1).limit(limit)
     items = [d async for d in cursor]
     return {"success": True, "count": len(items), "updates": items}
 

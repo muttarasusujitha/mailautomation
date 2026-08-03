@@ -586,3 +586,115 @@ def check_imap_replies(
                 pass
 
     return replies
+
+
+def check_gmail_api_replies(
+    since_days: int = 7,
+    max_messages: int = 50,
+    from_emails: Optional[List[str]] = None,
+) -> List[Dict[str, Any]]:
+    """Poll Gmail API inbox for recent messages using OAuth."""
+    service, error = _load_oauth_service()
+    if not service:
+        logger.warning("Gmail API check skipped: %s", error)
+        return []
+
+    query_parts = [f"newer_than:{max(1, int(since_days))}d", "in:inbox"]
+    sender_filters = [
+        _normalize_email_address(sender)
+        for sender in (from_emails or [])
+        if _normalize_email_address(sender)
+    ]
+    if sender_filters:
+        query_parts.append("(" + " OR ".join(f"from:{sender}" for sender in sender_filters[:100]) + ")")
+    query = " ".join(query_parts)
+
+    replies: List[Dict[str, Any]] = []
+    seen_message_ids: set = set()
+    try:
+        response = service.users().messages().list(
+            userId="me",
+            q=query,
+            maxResults=max(1, min(max_messages, 500)),
+        ).execute()
+        messages = response.get("messages") or []
+        for item in messages[:max_messages]:
+            gmail_id = item.get("id")
+            if not gmail_id:
+                continue
+            try:
+                raw_message = service.users().messages().get(
+                    userId="me",
+                    id=gmail_id,
+                    format="raw",
+                ).execute()
+                raw_payload = raw_message.get("raw") or ""
+                if not raw_payload:
+                    continue
+                msg_bytes = base64.urlsafe_b64decode(raw_payload.encode("utf-8"))
+                msg = message_from_bytes(msg_bytes)
+                message_id_header = msg.get("Message-ID", "")
+                if message_id_header and message_id_header in seen_message_ids:
+                    continue
+                if message_id_header:
+                    seen_message_ids.add(message_id_header)
+
+                from_addr = msg.get("From", "")
+                from_email = parseaddr(from_addr)[1] or from_addr
+                subject = _decode_header(msg.get("Subject", ""))
+                body_text = ""
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        if part.get_content_type() == "text/plain":
+                            body_text = part.get_payload(decode=True).decode("utf-8", errors="ignore")
+                            break
+                    if not body_text:
+                        for part in msg.walk():
+                            if part.get_content_type() == "text/html":
+                                body_text = part.get_payload(decode=True).decode("utf-8", errors="ignore")
+                                break
+                else:
+                    body_text = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+
+                try:
+                    date_hdr = msg.get("Date", "")
+                    if date_hdr:
+                        parsed_date = parsedate_to_datetime(date_hdr)
+                        if parsed_date.tzinfo:
+                            received_at = parsed_date.astimezone(timezone.utc).replace(tzinfo=None)
+                        else:
+                            received_at = parsed_date
+                    else:
+                        internal_ms = int(raw_message.get("internalDate") or 0)
+                        received_at = datetime.utcfromtimestamp(internal_ms / 1000) if internal_ms else datetime.utcnow()
+                except Exception:
+                    received_at = datetime.utcnow()
+
+                classification_text = _strip_quoted_email_history(body_text)
+                lower = classification_text.lower()
+                is_neg = any(s in lower for s in NEGATIVE_SIGNALS)
+                is_pos = False if is_neg else any(s in lower for s in POSITIVE_SIGNALS)
+                sentiment = "negative" if is_neg else ("positive" if is_pos else "neutral")
+                action = "mark_interested" if is_pos else ("mark_declined" if is_neg else "requires_review")
+
+                replies.append({
+                    "msg_id": gmail_id,
+                    "gmail_message_id": gmail_id,
+                    "message_id_header": message_id_header,
+                    "in_reply_to": msg.get("In-Reply-To", ""),
+                    "references": msg.get("References", ""),
+                    "from_email": from_email,
+                    "from_raw": from_addr,
+                    "subject": subject,
+                    "body": body_text[:2000],
+                    "sentiment": sentiment,
+                    "action": action,
+                    "received_at": received_at.isoformat(),
+                    "gmail_api_user": "me",
+                })
+            except Exception:
+                logger.exception("Gmail API message fetch failed for %s", gmail_id)
+                continue
+    except Exception:
+        logger.exception("Gmail API inbox check failed")
+    return replies

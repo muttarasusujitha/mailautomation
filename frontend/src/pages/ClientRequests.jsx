@@ -14,6 +14,8 @@ const FILTERS = [
   { key: 'pending_approval', label: 'Pending' },
   { key: 'auto_sent', label: 'Auto Sent' },
   { key: 'approved', label: 'Approved' },
+  { key: 'needs_manual_review', label: 'Review' },
+  { key: 'trainer_email_failed', label: 'Failed' },
   { key: 'rejected', label: 'Rejected' },
   { key: 'spam', label: 'Spam' },
 ]
@@ -23,10 +25,22 @@ const INBOX_AUTO_SYNC_INTERVAL_MS = 30000
 
 const STATUS_META = {
   pending_approval: { label: 'Pending Approval', tone: 'amber' },
+  pending_review: { label: 'Pending Approval', tone: 'amber' },
+  needs_manual_review: { label: 'Needs Review', tone: 'amber' },
+  received: { label: 'Received', tone: 'blue' },
+  processed: { label: 'Processed', tone: 'blue' },
   auto_sent: { label: 'Auto Sent', tone: 'emerald' },
+  sent: { label: 'Sent', tone: 'emerald' },
   approved: { label: 'Approved', tone: 'blue' },
+  reply_failed: { label: 'Reply Failed', tone: 'red' },
+  send_failed: { label: 'Send Failed', tone: 'red' },
+  trainer_email_failed: { label: 'Trainer Email Failed', tone: 'red' },
+  trainer_email_missing: { label: 'Trainer Email Missing', tone: 'amber' },
+  calendar_failed: { label: 'Calendar Failed', tone: 'red' },
+  client_email_failed: { label: 'Client Email Failed', tone: 'red' },
   rejected: { label: 'Rejected', tone: 'red' },
   spam: { label: 'Spam', tone: 'slate' },
+  ignored: { label: 'Ignored', tone: 'slate' },
 }
 
 function fmtDate(value) {
@@ -421,12 +435,12 @@ export default function ClientRequests() {
     try {
       const [requestsRes, updatesRes] = await Promise.all([
         api.get('/inbox', {
-          params: { status: filter === 'all' ? '' : filter, include_hidden: filter === 'all', limit: 200 },
+          params: { status: filter === 'all' ? '' : filter, include_hidden: false, limit: 200 },
         }),
         api.get('/client-updates', { params: { limit: 25 } }),
       ])
       setRequests(requestsRes.data.emails || [])
-      setStats(requestsRes.data.stats || {})
+      setStats({ ...(requestsRes.data.stats || {}), visible_total: requestsRes.data.total || 0 })
       setClientUpdates(updatesRes.data.updates || [])
     } catch (e) {
       if (!silent) {
@@ -563,7 +577,7 @@ export default function ClientRequests() {
     const pending = Number(stats.pending_approval || 0)
     const created = Number(stats.requirements_created || 0)
     return [
-      { icon: Mail, label: 'Today', value: stats.today || 0, tone: 'blue' },
+      { icon: Mail, label: 'Client Requests', value: stats.visible_total || 0, tone: 'blue' },
       { icon: AlertTriangle, label: 'Pending', value: pending, tone: 'amber' },
       { icon: Send, label: 'Auto Sent', value: autoSent, tone: 'emerald' },
       { icon: CheckCircle2, label: 'Requirements Created', value: created, tone: 'slate' },

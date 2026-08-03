@@ -1358,7 +1358,16 @@ async def send_shortlist_mail(
         )
 
     sent = sum(1 for r in results if r["status"] == "sent")
-    return {"success": True, "sent": sent, "total": len(results), "results": results}
+    failed = len(results) - sent
+    success = sent > 0 and failed == 0
+    return {
+        "success": success,
+        "sent": sent,
+        "failed": failed,
+        "total": len(results),
+        "error": "" if success else (results[0].get("error_message") if results else "No emails were sent"),
+        "results": results,
+    }
 
 
 @router.post("/send-interview-link")

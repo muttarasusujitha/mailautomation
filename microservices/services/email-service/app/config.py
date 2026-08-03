@@ -22,7 +22,8 @@ def _normalize_email_value(value: str) -> str:
     if raw.lower().startswith("mailto:"):
         raw = raw[7:]
     raw = raw.split("?", 1)[0].strip()
-    if raw.lower() in PLACEHOLDER_EMAILS:
+    lowered = raw.lower()
+    if lowered in PLACEHOLDER_EMAILS or lowered.startswith("your-"):
         return ""
     return raw
 

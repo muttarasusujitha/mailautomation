@@ -18,7 +18,7 @@ from app.agents.email_classifier import classify_email
 from app.agents.reply_templates import build_auto_reply
 from app.calendar_client import create_google_meet_event
 from shared.database.service import get_db
-from app.gmail_client import check_imap_replies, generate_message_id, send_email_async
+from app.gmail_client import check_gmail_api_replies, check_imap_replies, generate_message_id, send_email_async
 from app.routes.templates import InterviewEmailRequest, compose_interview
 
 router = APIRouter()
@@ -29,9 +29,12 @@ CORE_API_URL = settings.CORE_API_URL.rstrip("/")
 TRAINER_SERVICE_URL = settings.TRAINER_SERVICE_URL.rstrip("/")
 LOCAL_TZ = timezone(timedelta(hours=5, minutes=30))
 LOCAL_SERVICE_FALLBACKS = {
-    "https://core-api:8001": "http://core-api:8001",
-    "https://trainer-service:8004": "http://trainer-service:8004",
-    "https://intelligence-service:8005": "http://intelligence-service:8005",
+    "https://core-api:8001": "http://127.0.0.1:8001",
+    "http://core-api:8001": "http://127.0.0.1:8001",
+    "https://trainer-service:8004": "http://127.0.0.1:8004",
+    "http://trainer-service:8004": "http://127.0.0.1:8004",
+    "https://intelligence-service:8005": "http://127.0.0.1:8005",
+    "http://intelligence-service:8005": "http://127.0.0.1:8005",
     "http://127.0.0.1:8001": "http://127.0.0.1:8001",
     "http://127.0.0.1:8004": "http://127.0.0.1:8004",
     "http://127.0.0.1:8005": "http://127.0.0.1:8005",
@@ -79,6 +82,11 @@ TRAINER_REPLY_SOURCE_MAIL_TYPES = {
     "client_slots",
     "client_interview_schedule",
     "mail4",
+}
+CLIENT_REPLY_SOURCE_MAIL_TYPES = {
+    "client_auto_reply",
+    "client_reply",
+    "office_auto_reply",
 }
 
 FINAL_CLIENT_STATUSES = {"auto_sent", "sent", "approved", "rejected", "spam", "ignored"}
@@ -1087,7 +1095,19 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
     direct_request = _has_direct_training_request_language(subject, body_text)
     non_client_email = _is_obvious_non_client_email(sender_email, subject, body_text)
     technology = _infer_technology(subject, field_body)
-    mode = _field_value(text, ["Mode", "Delivery Mode", "Training Mode"])
+    mode = _field_value(
+        text,
+        [
+            "Mode",
+            "Location",
+            "Venue",
+            "Mode/Location",
+            "Training Mode",
+            "Training Location",
+            "Training Mode/Location",
+            "Delivery Mode",
+        ],
+    )
     if not mode:
         if "online" in lower or "virtual" in lower:
             mode = "Online"
@@ -1269,6 +1289,74 @@ def _merge_existing_requirement_context(
     ):
         merged["direct_request_language"] = True
         merged["is_training_request"] = True
+    return merged
+
+
+async def _merge_requirement_record_context(
+    db: AsyncIOMotorDatabase,
+    extracted: Dict[str, Any],
+    requirement_id: Any,
+) -> Dict[str, Any]:
+    requirement_id = _clean(requirement_id)
+    if not requirement_id:
+        return extracted
+
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    if not requirement:
+        return extracted
+
+    merged = dict(extracted)
+    field_map = {
+        "technology_needed": "technology_needed",
+        "technology": "technology_needed",
+        "domain": "domain",
+        "required_skills": "required_skills",
+        "mode": "mode",
+        "delivery_mode": "mode",
+        "audience_level": "audience_level",
+        "timing": "timing",
+        "preferred_dates": "preferred_dates",
+        "training_dates": "training_dates",
+        "timeline_start": "timeline_start",
+        "timeline_end": "timeline_end",
+        "participant_count": "participant_count",
+        "duration_text": "duration_text",
+        "duration_days": "duration_days",
+        "duration_hours": "duration_hours",
+        "budget_total": "budget_total",
+        "budget_per_day": "budget_per_day",
+        "budget_min": "budget_min",
+        "budget_max": "budget_max",
+        "budget_range": "budget_range",
+        "budget_currency": "budget_currency",
+        "client_domain": "client_domain",
+        "client_industry": "client_industry",
+        "topics": "topics",
+        "custom_topics": "custom_topics",
+        "client_company": "client_company",
+        "client_name": "client_name",
+        "client_email": "client_email",
+    }
+    for target_field, source_field in field_map.items():
+        value = merged.get(target_field)
+        if value in (None, "", []):
+            requirement_value = requirement.get(source_field)
+            if requirement_value not in (None, "", []):
+                merged[target_field] = requirement_value
+
+    technology = merged.get("technology_needed") or merged.get("technology") or merged.get("domain")
+    if technology:
+        merged["technology_needed"] = technology
+        merged["technology"] = technology
+        merged["domain"] = technology
+        if not merged.get("required_skills"):
+            merged["required_skills"] = [technology]
+        if not merged.get("is_non_client_email"):
+            merged["direct_request_language"] = True
+            merged["is_training_request"] = True
+            merged["confidence"] = max(_safe_float(merged.get("confidence"), 0), 0.9)
+
+    merged["needs_clarification"] = _missing_training_details(merged)
     return merged
 
 
@@ -4129,10 +4217,40 @@ async def _find_existing_client_requirement(
 
     technology = _clean(extracted.get("technology_needed") or extracted.get("technology"))
     client_email = _clean(extracted.get("client_email") or email_doc.get("from_email"))
-    if not technology or not client_email:
+    if not client_email:
         return None
 
     status_filter = {"$nin": list(OPEN_REQUIREMENT_EXCLUDED_STATUSES)}
+    thread_requirement_id = _clean(email_doc.get("requirement_id"))
+    if thread_requirement_id:
+        existing = await db["requirements"].find_one(
+            {
+                "requirement_id": thread_requirement_id,
+                "status": status_filter,
+            },
+            {"_id": 0},
+        )
+        if existing:
+            return existing
+
+    if not technology:
+        prior_email = await db["client_emails"].find_one(
+            {
+                "email_id": {"$ne": email_doc.get("email_id")},
+                "from_email": {"$regex": f"^{re.escape(client_email)}$", "$options": "i"},
+                "requirement_id": {"$exists": True, "$nin": ["", None]},
+                "status": {"$nin": ["spam", "rejected"]},
+            },
+            {"_id": 0, "requirement_id": 1, "subject": 1},
+            sort=[("updated_at", -1), ("created_at", -1)],
+        )
+        if prior_email and _subjects_match_thread(email_doc.get("subject"), prior_email.get("subject")):
+            return await db["requirements"].find_one(
+                {"requirement_id": prior_email.get("requirement_id"), "status": status_filter},
+                {"_id": 0},
+            )
+        return None
+
     query = {
         "client_email": {"$regex": f"^{re.escape(client_email)}$", "$options": "i"},
         "technology_needed": {"$regex": f"^{re.escape(technology)}$", "$options": "i"},
@@ -4169,8 +4287,15 @@ async def _create_requirement(
 ) -> Dict[str, Any]:
     email_id = email_doc.get("email_id")
     if email_doc.get("requirement_id"):
-        await _update_existing_requirement_from_extracted(db, email_doc["requirement_id"], extracted)
-        return {"requirement_id": email_doc["requirement_id"], "existing": True}
+        requirement_id = email_doc["requirement_id"]
+        existing_requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+        if existing_requirement:
+            await _update_existing_requirement_from_extracted(db, requirement_id, extracted)
+            return {"requirement_id": requirement_id, "existing": True, "requirement": existing_requirement}
+
+        payload = _requirement_payload_from_email(email_doc, extracted)
+        payload["requirement_id"] = requirement_id
+        return await _create_requirement_via_core_or_db(db, payload)
 
     existing = await db["requirements"].find_one({"metadata.source_email_id": email_id}, {"_id": 0})
     if existing:
@@ -4184,10 +4309,7 @@ async def _create_requirement(
             return {"requirement_id": existing.get("requirement_id"), "existing": True, "requirement": existing}
 
     payload = _requirement_payload_from_email(email_doc, extracted)
-    async with httpx.AsyncClient(timeout=90) as client:
-        response = await _post_with_local_fallback(client, f"{CORE_API_URL}/api/v1/requirements", json=payload)
-        response.raise_for_status()
-        return response.json()
+    return await _create_requirement_via_core_or_db(db, payload)
 
 
 async def _send_initial_trainer_mail(
@@ -4236,6 +4358,42 @@ async def _call_intelligence_search(
     except Exception:
         logger.exception("Intelligence free-search call failed for domain=%s", domain)
     return {"domain": domain, "location": location, "found": 0, "profiles": []}
+
+
+async def _create_requirement_via_core_or_db(
+    db: AsyncIOMotorDatabase,
+    payload: Dict[str, Any],
+) -> Dict[str, Any]:
+    try:
+        async with httpx.AsyncClient(timeout=90) as client:
+            response = await _post_with_local_fallback(client, f"{CORE_API_URL}/api/v1/requirements", json=payload)
+            response.raise_for_status()
+            return response.json()
+    except Exception as exc:
+        logger.warning("Core API requirement creation failed; falling back to direct DB insert: %s", exc)
+
+    now = _now()
+    doc = dict(payload)
+    req_id = _clean(doc.get("requirement_id")) or f"REQ-{uuid.uuid4().hex[:8].upper()}"
+    doc.update({
+        "requirement_id": req_id,
+        "created_at": now,
+        "updated_at": now,
+    })
+    await db["requirements"].update_one(
+        {"requirement_id": req_id},
+        {
+            "$setOnInsert": doc,
+        },
+        upsert=True,
+    )
+    return {
+        "success": True,
+        "requirement_id": req_id,
+        "shortlist": {},
+        "requirement": doc,
+        "created_via": "email_service_db_fallback",
+    }
 
 
 async def _start_trainer_search_after_client_reply(
@@ -4510,6 +4668,7 @@ async def _process_client_requirement_email(
         sender_name=email_doc.get("from_name") or "",
     )
     extracted = _merge_existing_requirement_context(extracted, email_doc)
+    extracted = await _merge_requirement_record_context(db, extracted, email_doc.get("requirement_id"))
     classification_body = latest_body
     classification = classify_email(
         subject=subject,
@@ -4564,6 +4723,22 @@ async def _process_client_requirement_email(
     details_later = _client_will_send_details_later(subject, classification_body)
     client_authorized_search = _client_wants_to_proceed_now(subject, classification_body)
     client_provided_details = _client_provided_requirement_details(subject, classification_body, extracted)
+    is_linked_client_requirement_reply = bool(
+        email_doc.get("requirement_id")
+        and _is_reply_thread(subject, email_doc)
+        and extracted.get("is_training_request")
+        and _has_training_domain(extracted)
+    )
+    if is_linked_client_requirement_reply and client_provided_details:
+        classification = {
+            **classification,
+            "person_type": "corporate_client",
+            "scenario": "client_requirement_details",
+            "auto_reply_allowed": True,
+            "requires_human": False,
+        }
+        extracted["is_non_client_email"] = False
+        extracted["is_training_request"] = True
     should_start_trainer_search = _should_start_trainer_automation(subject, email_doc, extracted)
     if (
         extracted.get("is_training_request")
@@ -5555,7 +5730,7 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
         should_process_linked_automation_reply = (
             is_new_inbound_message
             and bool(merged.get("requirement_id"))
-            and source_mail_type in TRAINER_REPLY_SOURCE_MAIL_TYPES
+            and source_mail_type in (TRAINER_REPLY_SOURCE_MAIL_TYPES | CLIENT_REPLY_SOURCE_MAIL_TYPES)
         )
         if (
             not merged.get("requirement_id")
@@ -5611,7 +5786,11 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
                             "updated_at": _now(),
                         }},
                     )
-                    if not linked_doc.get("processed") or linked_source_mail_type in TRAINER_REPLY_SOURCE_MAIL_TYPES:
+                    if (
+                        not linked_doc.get("processed")
+                        or linked_source_mail_type in TRAINER_REPLY_SOURCE_MAIL_TYPES
+                        or linked_source_mail_type in CLIENT_REPLY_SOURCE_MAIL_TYPES
+                    ):
                         await _process_client_requirement_email(db, linked_doc)
                     stored += 1
                 continue
@@ -5664,7 +5843,11 @@ async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) ->
                     "updated_at": _now(),
                 }},
             )
-            if not linked_doc.get("processed") or linked_source_mail_type in TRAINER_REPLY_SOURCE_MAIL_TYPES:
+            if (
+                not linked_doc.get("processed")
+                or linked_source_mail_type in TRAINER_REPLY_SOURCE_MAIL_TYPES
+                or linked_source_mail_type in CLIENT_REPLY_SOURCE_MAIL_TYPES
+            ):
                 await _process_client_requirement_email(db, linked_doc)
         stored += 1
     return stored
@@ -5780,19 +5963,30 @@ async def _poll_and_store(
     max_messages: int = 50,
     from_emails: Optional[list] = None,
 ) -> int:
-    """Poll IMAP and persist/process messages."""
+    """Poll the configured inbox provider and persist/process messages."""
     settings_doc = await _load_admin_settings(db)
+    inbox_provider = ((settings_doc.get("clientInboxCfg") or {}).get("inboxProvider") or "imap").lower()
     imap_config = settings_doc.get("emailCfg") or None
     loop = asyncio.get_event_loop()
-    replies = await loop.run_in_executor(
-        None,
-        lambda: check_imap_replies(
-            since_days=since_days,
-            max_messages=max_messages,
-            from_emails=from_emails,
-            imap_config=imap_config,
-        ),
-    )
+    if inbox_provider == "gmail_api":
+        replies = await loop.run_in_executor(
+            None,
+            lambda: check_gmail_api_replies(
+                since_days=since_days,
+                max_messages=max_messages,
+                from_emails=from_emails,
+            ),
+        )
+    else:
+        replies = await loop.run_in_executor(
+            None,
+            lambda: check_imap_replies(
+                since_days=since_days,
+                max_messages=max_messages,
+                from_emails=from_emails,
+                imap_config=imap_config,
+            ),
+        )
     return await _process_and_store_replies(db, replies)
 
 

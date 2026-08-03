@@ -16,6 +16,19 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 PENDING_STATUSES = ["pending_approval", "pending_review", "needs_manual_review"]
+VISIBLE_DEFAULT_STATUSES = [
+    "pending_approval",
+    "pending_review",
+    "needs_manual_review",
+    "received",
+    "processed",
+    "reply_failed",
+    "send_failed",
+    "trainer_email_failed",
+    "trainer_email_missing",
+    "calendar_failed",
+    "client_email_failed",
+]
 HIDDEN_DEFAULT_STATUSES = ["spam", "ignored"]
 HIDDEN_DEFAULT_SENDER_REGEX = (
     r"noreply|no-reply|donotreply|postmaster|newsletter|updates-noreply|"
@@ -32,6 +45,14 @@ def _status_filter(status: Optional[str], include_hidden: bool = False) -> Dict[
             "$and": [
                 {"status": {"$nin": HIDDEN_DEFAULT_STATUSES}},
                 {"reply_status": {"$nin": HIDDEN_DEFAULT_STATUSES}},
+                {
+                    "$or": [
+                        {"status": {"$in": VISIBLE_DEFAULT_STATUSES}},
+                        {"reply_status": {"$in": VISIBLE_DEFAULT_STATUSES}},
+                        {"extracted.is_training_request": True},
+                        {"requirement_id": {"$exists": True, "$nin": ["", None]}},
+                    ],
+                },
                 {"$nor": [{"from_email": {"$regex": HIDDEN_DEFAULT_SENDER_REGEX, "$options": "i"}}]},
             ],
         }
