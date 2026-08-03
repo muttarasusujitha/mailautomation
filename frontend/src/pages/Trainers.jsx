@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import {
   getTrainers,
   getTrainer,
@@ -501,6 +502,10 @@ function textValue(value, fallback = 'Not available') {
   return text || fallback
 }
 
+function trainerRecordId(trainer) {
+  return displayText(trainer?.trainer_id || trainer?._id)
+}
+
 function dayRateText(value) {
   const rate = numericValue(value)
   return rate ? `INR ${rate.toLocaleString('en-IN')}` : 'Not available'
@@ -742,20 +747,21 @@ function TrainerConversationThread({ trainer }) {
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const trainerId = trainerRecordId(trainer)
 
   const loadThread = useCallback(async () => {
-    if (!trainer?.trainer_id) return
+    if (!trainerId) return
     setLoading(true)
     setError('')
     try {
-      const res = await getTrainerConversationThread(trainer.trainer_id, { _ts: Date.now() })
+      const res = await getTrainerConversationThread(trainerId, { _ts: Date.now() })
       setMessages(res.data?.messages || [])
     } catch (err) {
       setError(err.message || 'Could not load conversation thread')
     } finally {
       setLoading(false)
     }
-  }, [trainer?.trainer_id])
+  }, [trainerId])
 
   useEffect(() => {
     loadThread()
@@ -834,17 +840,21 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
   const summary = cleanSummary(t)
   const resumeUrl = /^https?:\/\//i.test(String(t.resume || '')) ? t.resume : ''
   const [teamsEmail, setTeamsEmail] = useState(t.teams_email || t.microsoft_teams_email || t.teams_upn || '')
+  const [location, setLocation] = useState(displayText(t.location))
   const [savingTeams, setSavingTeams] = useState(false)
+  const [savingLocation, setSavingLocation] = useState(false)
   const [showSingleShortlist, setShowSingleShortlist] = useState(false)
 
   useEffect(() => {
     setTeamsEmail(t.teams_email || t.microsoft_teams_email || t.teams_upn || '')
+    setLocation(displayText(t.location))
   }, [t])
 
   const saveTeamsEmail = async () => {
+    const trainerId = trainerRecordId(t)
     setSavingTeams(true)
     try {
-      await onUpdate(t.trainer_id, {
+      await onUpdate(trainerId, {
         teams_email: teamsEmail,
         microsoft_teams_email: teamsEmail,
         teams_upn: teamsEmail,
@@ -854,6 +864,19 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
       toast.error(error.message || 'Could not save Teams email')
     } finally {
       setSavingTeams(false)
+    }
+  }
+
+  const saveLocation = async () => {
+    const trainerId = trainerRecordId(t)
+    setSavingLocation(true)
+    try {
+      await onUpdate(trainerId, { location: location.trim() })
+      toast.success('Trainer location saved')
+    } catch (error) {
+      toast.error(error.message || 'Could not save trainer location')
+    } finally {
+      setSavingLocation(false)
     }
   }
 
@@ -972,7 +995,29 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
               <DetailSection title="Contact & Experience" icon={BriefcaseBusiness}>
                 <div className="space-y-2 text-sm text-slate-700">
                   <p><strong>Experience:</strong> {displayText(t.experience_raw) || (years ? `${years} years` : 'Not available')}</p>
-                  <p><strong>Location:</strong> {textValue(t.location)}</p>
+                  <div>
+                    <label className="mb-1 flex items-center gap-1 text-sm font-bold text-slate-700">
+                      <MapPin className="h-3.5 w-3.5 text-blue-500" />
+                      Location
+                    </label>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <input
+                        value={location}
+                        onChange={e => setLocation(e.target.value)}
+                        placeholder="Add trainer location"
+                        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={saveLocation}
+                        disabled={savingLocation}
+                        className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                      >
+                        {savingLocation ? <RefreshCw className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
+                        Save Location
+                      </button>
+                    </div>
+                  </div>
                   <p><strong>Email:</strong> {textValue(t.email)}</p>
                   <p><strong>Phone:</strong> {textValue(t.phone)}</p>
                   <p><strong>Teams:</strong> {textValue(t.teams_email || t.microsoft_teams_email || t.teams_upn)}</p>
@@ -1276,6 +1321,7 @@ export default function Trainers() {
   const [domain, setDomain] = useState('')
   const [category, setCategory] = useState('')
   const [industry, setIndustry] = useState('')
+  const [locationFilter, setLocationFilter] = useState('')
   const [experience, setExperience] = useState('')
   const [categories, setCategories] = useState([])
   const [domains, setDomains] = useState([])
@@ -1341,6 +1387,7 @@ export default function Trainers() {
         domain: domain || undefined,
         category: category || undefined,
         industry: industry || undefined,
+        location: locationFilter || undefined,
         experience: experience || undefined,
       })
       setTrainers(res.data.items || [])
@@ -1354,7 +1401,7 @@ export default function Trainers() {
     } finally {
       setLoading(false)
     }
-  }, [page, search, status, domain, category, industry, experience])
+  }, [page, search, status, domain, category, industry, locationFilter, experience])
 
   const stopPolling = useCallback(() => {
     if (pollRef.current) clearTimeout(pollRef.current)
@@ -1400,7 +1447,7 @@ export default function Trainers() {
   }, [load, page])
 
   useEffect(() => {
-    if (!automationPollingTrainerId || !selectedTrainer || selectedTrainer.trainer_id !== automationPollingTrainerId) return undefined
+    if (!automationPollingTrainerId || !selectedTrainer || trainerRecordId(selectedTrainer) !== automationPollingTrainerId) return undefined
     const tick = async () => {
       try {
         const res = await tickTrainerAutomationPipeline(automationPollingTrainerId, {
@@ -1433,18 +1480,20 @@ export default function Trainers() {
     setDomain('')
     setCategory('')
     setIndustry('')
+    setLocationFilter('')
     setExperience('')
     setPage(1)
   }
 
   const handleViewTrainer = async (trainer) => {
     setSelectedTrainer(trainer)
-    if (!trainer?.trainer_id) return
+    const trainerId = trainerRecordId(trainer)
+    if (!trainerId) return
     try {
-      const res = await getTrainer(trainer.trainer_id)
+      const res = await getTrainer(trainerId)
       const fullTrainer = res.data?.trainer || res.data
       if (fullTrainer?.trainer_id) {
-        setSelectedTrainer(current => current?.trainer_id === trainer.trainer_id ? { ...trainer, ...fullTrainer } : current)
+        setSelectedTrainer(current => trainerRecordId(current) === trainerId ? { ...trainer, ...fullTrainer } : current)
       }
     } catch (error) {
       toast.error(error.message || 'Could not load trainer details')
@@ -1452,8 +1501,9 @@ export default function Trainers() {
   }
 
   const handleDelete = async (trainer) => {
+    const trainerId = trainerRecordId(trainer)
     try {
-      await deleteTrainer(trainer.trainer_id)
+      await deleteTrainer(trainerId)
       toast.success(`${trainer.name} deleted`)
       setConfirmDelete(null)
       load(page)
@@ -1464,12 +1514,13 @@ export default function Trainers() {
   }
 
   const handleRecategorise = async (trainer) => {
-    setRecategorisingId(trainer.trainer_id)
+    const trainerId = trainerRecordId(trainer)
+    setRecategorisingId(trainerId)
     try {
-      const res = await categoriseTrainer(trainer.trainer_id)
+      const res = await categoriseTrainer(trainerId)
       const updated = res.data.trainer
-      setTrainers(prev => prev.map(item => item.trainer_id === trainer.trainer_id ? updated : item))
-      setSelectedTrainer(current => current?.trainer_id === trainer.trainer_id ? updated : current)
+      setTrainers(prev => prev.map(item => trainerRecordId(item) === trainerId ? updated : item))
+      setSelectedTrainer(current => trainerRecordId(current) === trainerId ? updated : current)
       toast.success(`${trainer.name} categorised`)
       loadMeta()
     } catch (error) {
@@ -1482,8 +1533,8 @@ export default function Trainers() {
   const handleUpdateTrainer = async (trainerId, updates) => {
     const res = await updateTrainer(trainerId, updates)
     const updated = res.data.trainer
-    setTrainers(prev => prev.map(item => item.trainer_id === trainerId ? updated : item))
-    setSelectedTrainer(current => current?.trainer_id === trainerId ? updated : current)
+    setTrainers(prev => prev.map(item => trainerRecordId(item) === trainerId ? updated : item))
+    setSelectedTrainer(current => trainerRecordId(current) === trainerId ? updated : current)
     return updated
   }
 
@@ -1504,16 +1555,17 @@ export default function Trainers() {
 
   const handleRequestResume = async () => {
     if (!resumeRequestTrainer) return
+    const trainerId = trainerRecordId(resumeRequestTrainer)
     const wantedDomain = resumeRequestDomain.trim() || resumeRequestTrainer.primary_category || resumeRequestTrainer.domain || 'Training'
-    setRequestingResumeId(resumeRequestTrainer.trainer_id)
+    setRequestingResumeId(trainerId)
     try {
-      const res = await requestTrainerResume(resumeRequestTrainer.trainer_id, {
+      const res = await requestTrainerResume(trainerId, {
         domain: wantedDomain,
       })
       const updated = res.data.trainer
       if (updated?.trainer_id) {
-        setTrainers(prev => prev.map(item => item.trainer_id === updated.trainer_id ? updated : item))
-        setSelectedTrainer(current => current?.trainer_id === updated.trainer_id ? updated : current)
+        setTrainers(prev => prev.map(item => trainerRecordId(item) === trainerRecordId(updated) ? updated : item))
+        setSelectedTrainer(current => trainerRecordId(current) === trainerRecordId(updated) ? updated : current)
       }
       toast.success(`Resume request sent to ${resumeRequestTrainer.name || 'trainer'}`)
       setResumeRequestTrainer(null)
@@ -1555,9 +1607,10 @@ export default function Trainers() {
   }
 
   const applyUpdatedTrainer = (updated) => {
-    if (!updated?.trainer_id) return
-    setTrainers(prev => prev.map(item => item.trainer_id === updated.trainer_id ? updated : item))
-    setSelectedTrainer(current => current?.trainer_id === updated.trainer_id ? updated : current)
+    const updatedId = trainerRecordId(updated)
+    if (!updatedId) return
+    setTrainers(prev => prev.map(item => trainerRecordId(item) === updatedId ? updated : item))
+    setSelectedTrainer(current => trainerRecordId(current) === updatedId ? updated : current)
   }
 
   const startAutomationPipeline = async (trainer, overrides = {}) => {
@@ -1581,9 +1634,10 @@ export default function Trainers() {
       return
     }
 
-    setSendingAutomationId(trainer.trainer_id)
+    const trainerId = trainerRecordId(trainer)
+    setSendingAutomationId(trainerId)
     try {
-      const res = await tickTrainerAutomationPipeline(trainer.trainer_id, {
+      const res = await tickTrainerAutomationPipeline(trainerId, {
         ...automationForm,
         ...overrides,
         domain: overrides.domain || automationForm.domain || trainer.last_automation_mail_domain || trainer.primary_category || trainer.domain || 'Training',
@@ -1596,7 +1650,7 @@ export default function Trainers() {
       } else {
         toast.success(`Automation checked: ${res.data.reason || 'waiting for reply'}`)
       }
-      setAutomationPollingTrainerId(trainer.trainer_id)
+      setAutomationPollingTrainerId(trainerId)
     } catch (error) {
       toast.error(error.response?.data?.detail || error.message || 'Could not start automation')
     } finally {
@@ -1620,7 +1674,7 @@ export default function Trainers() {
       setAutomationMode('manual')
       return
     }
-    const trainerId = automationMailTrainer.trainer_id
+    const trainerId = trainerRecordId(automationMailTrainer)
     setSendingAutomationId(trainerId)
     try {
       const res = await sendTrainerAutomationMail(trainerId, {
@@ -1694,8 +1748,8 @@ export default function Trainers() {
           onUpdate={handleUpdateTrainer}
           onRequestResume={openResumeRequest}
           onStartAutomation={startAutomationPipeline}
-          requestingResume={requestingResumeId === selectedTrainer.trainer_id}
-          sendingAutomation={sendingAutomationId === selectedTrainer.trainer_id}
+          requestingResume={requestingResumeId === trainerRecordId(selectedTrainer)}
+          sendingAutomation={sendingAutomationId === trainerRecordId(selectedTrainer)}
         />
       )}
 
@@ -1980,6 +2034,10 @@ export default function Trainers() {
                 : `Categorising ${categoryJob.total_pending || 0} pending trainers`}
             </span>
           )}
+          <Link to="/trainer-locations" className="btn-secondary">
+            <MapPin className="w-4 h-4" />
+            Trainer Location
+          </Link>
           <button onClick={handleCategoriseAll} disabled={categorisingAll} className="btn-primary disabled:opacity-60">
             <Sparkles className={clsx('w-4 h-4', categorisingAll && 'animate-pulse')} />
             {categorisingAll ? 'Categorising...' : 'Categorise All'}
@@ -1992,7 +2050,7 @@ export default function Trainers() {
           <Filter className="w-4 h-4 text-slate-400" />
           Trainer filters
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-3">
           <form onSubmit={handleSearch} className="md:col-span-2 xl:col-span-2 flex gap-2">
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -2020,6 +2078,16 @@ export default function Trainers() {
             <option value="">All Industries</option>
             {industryOptions.map(item => <option key={item} value={item}>{item}</option>)}
           </select>
+
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              className="input pl-9"
+              placeholder="Location"
+              value={locationFilter}
+              onChange={e => { setLocationFilter(e.target.value); setPage(1) }}
+            />
+          </div>
 
           <select className="input" value={experience} onChange={e => { setExperience(e.target.value); setPage(1) }}>
             {EXPERIENCE_OPTIONS.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
@@ -2064,16 +2132,16 @@ export default function Trainers() {
         <div className="space-y-3">
           {trainers.map(t => (
             <TrainerRow
-              key={t.trainer_id}
+              key={t.trainer_id || t._id || t.email || t.name}
               t={t}
               onView={handleViewTrainer}
               onDelete={setConfirmDelete}
               onRecategorise={handleRecategorise}
               onRequestResume={openResumeRequest}
               onStartAutomation={startAutomationPipeline}
-              recategorising={recategorisingId === t.trainer_id}
-              requestingResume={requestingResumeId === t.trainer_id}
-              sendingAutomation={sendingAutomationId === t.trainer_id}
+              recategorising={recategorisingId === trainerRecordId(t)}
+              requestingResume={requestingResumeId === trainerRecordId(t)}
+              sendingAutomation={sendingAutomationId === trainerRecordId(t)}
             />
           ))}
         </div>

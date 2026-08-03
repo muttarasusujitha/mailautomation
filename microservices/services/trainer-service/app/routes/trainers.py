@@ -107,6 +107,17 @@ def _oid(doc: dict) -> dict:
     return doc
 
 
+def _trainer_public_id(doc: Dict[str, Any]) -> str:
+    return _clean_text(doc.get("trainer_id")) or _clean_text(doc.get("_id"))
+
+
+def _trainer_lookup(identifier: str) -> Dict[str, Any]:
+    clauses: List[Dict[str, Any]] = [{"trainer_id": identifier}]
+    if ObjectId.is_valid(identifier):
+        clauses.append({"_id": ObjectId(identifier)})
+    return {"$or": clauses}
+
+
 def _json_safe(value: Any) -> Any:
     if isinstance(value, ObjectId):
         return str(value)
@@ -129,6 +140,79 @@ def _append_or(query: Dict[str, Any], clauses: List[Dict[str, Any]]) -> None:
 
 def _regex_clause(field: str, value: str) -> Dict[str, Any]:
     return {field: {"$regex": re.escape(value.strip()), "$options": "i"}}
+
+
+def _location_terms(value: str) -> List[str]:
+    text = value.strip()
+    lower = text.lower()
+    if lower in {"hyd", "hyderbad", "hyderabafd", "hyderabd", "hyderabad"}:
+        return ["Hyderabad", "Secunderabad", "hyd"]
+    if lower in {"bangalore", "bengaluru"}:
+        return ["Bangalore", "Bengaluru"]
+    if lower in {"gurgaon", "gurugram"}:
+        return ["Gurgaon", "Gurugram"]
+    return [text]
+
+
+def _location_search_clauses(value: str) -> List[Dict[str, Any]]:
+    fields = ["location", "resume", "combined_text", "extracted_text", "summary", "bio"]
+    return [
+        _regex_clause(field, term)
+        for term in _location_terms(value)
+        for field in fields
+        if term
+    ]
+
+
+def _compact_key(value: Any) -> str:
+    return re.sub(r"[^a-z0-9]+", "", str(value or "").lower())
+
+
+async def _domain_terms(db: AsyncIOMotorDatabase, value: str) -> List[str]:
+    text = value.strip()
+    compact = _compact_key(text)
+    aliases = {
+        "fullstack": ["Full Stack", "Fullstack", "MERN", "MEAN", "React", "Node.js", "Angular"],
+        "mern": ["MERN", "MongoDB", "Express", "React", "Node.js", "Full Stack"],
+        "mean": ["MEAN", "MongoDB", "Express", "Angular", "Node.js", "Full Stack"],
+        "frontend": ["Frontend", "Front End", "React", "Angular", "Vue", "JavaScript"],
+        "backend": ["Backend", "Back End", "Node.js", "Python", "Java", "Django", "Spring Boot"],
+        "devops": ["DevOps", "Docker", "Kubernetes", "Jenkins", "Terraform"],
+    }
+    terms = aliases.get(compact, [text])
+    cursor = db["toc_knowledge"].find({}, {"_id": 0, "domain": 1, "key": 1, "name": 1, "aliases": 1, "toc": 1})
+    async for doc in cursor:
+        toc = doc.get("toc") if isinstance(doc.get("toc"), dict) else {}
+        doc_terms = [
+            doc.get("domain"),
+            doc.get("key"),
+            doc.get("name"),
+            toc.get("domain"),
+            toc.get("key"),
+            toc.get("name"),
+            *(doc.get("aliases") or []),
+            *(toc.get("aliases") or []),
+        ]
+        cleaned = [_clean_text(term) for term in doc_terms]
+        if compact in {_compact_key(term) for term in cleaned if term}:
+            terms.extend(cleaned)
+    return _unique_list(terms)
+
+
+async def _domain_search_clauses(db: AsyncIOMotorDatabase, value: str) -> List[Dict[str, Any]]:
+    fields = [
+        "technology_category", "primary_category", "category", "domain",
+        "secondary_categories", "skills", "technologies",
+        "resume", "combined_text", "extracted_text", "summary", "bio",
+        "role_designation",
+    ]
+    terms = await _domain_terms(db, value)
+    return [
+        _regex_clause(field, term)
+        for term in terms
+        for field in fields
+        if term
+    ]
 
 
 def _experience_range(value: str) -> Optional[Dict[str, Any]]:
@@ -328,6 +412,9 @@ def _profile_breakdown(trainer: Dict[str, Any], category: str) -> Dict[str, Dict
 
 def _enrich_trainer_profile(doc: Dict[str, Any]) -> Dict[str, Any]:
     trainer = dict(doc)
+    public_id = _trainer_public_id(trainer)
+    if public_id:
+        trainer["trainer_id"] = public_id
     skills = _all_skills(trainer)
     if skills:
         trainer["skills"] = skills
@@ -455,6 +542,7 @@ async def list_trainers(
     category: Optional[str] = None,
     domain: Optional[str] = None,
     industry: Optional[str] = None,
+    location: Optional[str] = None,
     experience: Optional[str] = None,
     status: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
@@ -471,20 +559,14 @@ async def list_trainers(
             _regex_clause("category", category),
         ])
     if domain:
-        _append_or(query, [
-            _regex_clause("technology_category", domain),
-            _regex_clause("primary_category", domain),
-            _regex_clause("category", domain),
-            _regex_clause("domain", domain),
-            _regex_clause("secondary_categories", domain),
-            _regex_clause("skills", domain),
-            _regex_clause("technologies", domain),
-        ])
+        _append_or(query, await _domain_search_clauses(db, domain))
     if industry:
         _append_or(query, [
             _regex_clause("industry_focus", industry),
             _regex_clause("past_clients", industry),
         ])
+    if location:
+        _append_or(query, _location_search_clauses(location))
     exp_query = _experience_range(experience or "")
     if exp_query:
         query["experience_years"] = exp_query
@@ -557,7 +639,7 @@ async def list_trainer_industries(db: AsyncIOMotorDatabase = Depends(get_db)):
 @router.get("/{trainer_id}")
 async def get_trainer(trainer_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     doc = await db.trainers.find_one(
-        {"$or": [{"trainer_id": trainer_id}, {"_id": ObjectId(trainer_id)} if len(trainer_id) == 24 else {"trainer_id": trainer_id}]},
+        _trainer_lookup(trainer_id),
         {"combined_text": 0},
     )
     if not doc:
@@ -575,16 +657,16 @@ async def update_trainer(
     if not data:
         raise HTTPException(400, "No fields to update")
     data["updated_at"] = datetime.utcnow()
-    result = await db.trainers.update_one({"trainer_id": trainer_id}, {"$set": data})
+    result = await db.trainers.update_one(_trainer_lookup(trainer_id), {"$set": data})
     if result.matched_count == 0:
         raise HTTPException(404, "Trainer not found")
-    doc = await db.trainers.find_one({"trainer_id": trainer_id}, {"resume": 0, "combined_text": 0})
+    doc = await db.trainers.find_one(_trainer_lookup(trainer_id), {"resume": 0, "combined_text": 0})
     return _enrich_trainer_profile(_oid(doc))
 
 
 @router.delete("/{trainer_id}", status_code=204)
 async def delete_trainer(trainer_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
-    result = await db.trainers.delete_one({"trainer_id": trainer_id})
+    result = await db.trainers.delete_one(_trainer_lookup(trainer_id))
     if result.deleted_count == 0:
         raise HTTPException(404, "Trainer not found")
 
@@ -679,7 +761,8 @@ async def categorise_all_trainers(
 async def categorise_single_trainer(trainer_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     """Trigger AI categorisation for a single trainer via intelligence-service."""
     import httpx
-    trainer = await db.trainers.find_one({"trainer_id": trainer_id}, {"_id": 0})
+    trainer_doc = await db.trainers.find_one(_trainer_lookup(trainer_id))
+    trainer = _json_safe(trainer_doc) if trainer_doc else None
     if not trainer:
         raise HTTPException(404, "Trainer not found")
     try:

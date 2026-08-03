@@ -5,7 +5,7 @@ import {
   BarChart3, Bell, BookOpen, BriefcaseBusiness, CalendarCheck,
   ChevronRight, FileSearch, Globe2, Home,
   LayoutDashboard, LogOut, Mail, Menu,
-  ReceiptText, Search, Settings, Upload, UserCircle, Users, Zap, X,
+  MapPin, ReceiptText, Search, Settings, Upload, UserCircle, Users, Zap, X,
 } from 'lucide-react'
 import BrandMark from './BrandMark'
 
@@ -22,6 +22,7 @@ const NAV_GROUPS = [
       { to: '/linkedin-pipeline', label: 'LinkedIn Pipeline',  icon: Zap,             keywords: ['linkedin pipeline','linkedin automation','linkedin trainers','linkedin outreach'] },
       { to: '/naukri-search',     label: 'Naukri Search',      icon: BriefcaseBusiness, keywords: ['naukri','naukri search','naukri public','naukri trainer'] },
       { to: '/trainers',          label: 'Trainer Database',   icon: Users,           keywords: ['trainers','database'] },
+      { to: '/trainer-locations', label: 'Trainer Locations',  icon: MapPin,          keywords: ['trainer location','locations','city','trainer city'] },
     ],
   },
   {

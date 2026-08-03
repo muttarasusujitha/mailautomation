@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 import httpx
+from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
@@ -19,6 +20,21 @@ EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
 
 PIPELINE_STAGES = ["mail1", "mail1_reminder", "mail2", "mail3", "mail4", "mail5_ok", "mail5_no", "mail6_toc", "mail7_confirm"]
+
+
+def _clean_text(value: Any) -> str:
+    return str(value or "").strip()
+
+
+def _trainer_lookup(identifier: str) -> Dict[str, Any]:
+    clauses = [{"trainer_id": identifier}]
+    if ObjectId.is_valid(identifier):
+        clauses.append({"_id": ObjectId(identifier)})
+    return {"$or": clauses}
+
+
+def _public_trainer_id(trainer: Dict[str, Any], fallback: str) -> str:
+    return _clean_text(trainer.get("trainer_id")) or _clean_text(trainer.get("_id")) or fallback
 
 
 class SendAutomationMailRequest(BaseModel):
@@ -91,7 +107,8 @@ async def send_automation_mail(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Send a specific pipeline stage email to a trainer."""
-    trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or {}
+    trainer = await db["trainers"].find_one(_trainer_lookup(trainer_id)) or {}
+    public_trainer_id = _public_trainer_id(trainer, trainer_id)
     email = payload.trainer_email or trainer.get("email", "")
     name = payload.trainer_name or trainer.get("name", "Trainer")
 
@@ -215,7 +232,7 @@ async def send_automation_mail(
         async with httpx.AsyncClient(timeout=30) as client:
             r = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
                 "to": email, "subject": subject, "body": body,
-                "mail_type": payload.mail_type, "trainer_id": trainer_id,
+                "mail_type": payload.mail_type, "trainer_id": public_trainer_id,
                 "trainer_name": name,
                 "requirement_id": payload.requirement_id,
                 "smtp_config": payload.smtp_config,
@@ -232,7 +249,7 @@ async def send_automation_mail(
     if payload.requirement_id:
         now = datetime.utcnow()
         await db["shortlists"].update_one(
-            {"requirement_id": payload.requirement_id, "top_trainers.trainer_id": trainer_id},
+            {"requirement_id": payload.requirement_id, "top_trainers.trainer_id": public_trainer_id},
             {"$set": {
                 "top_trainers.$.pipeline_status": payload.mail_type,
                 "top_trainers.$.last_mail_type": payload.mail_type,
@@ -240,7 +257,7 @@ async def send_automation_mail(
             }},
         )
 
-    return {"success": True, "trainer_id": trainer_id, "mail_type": payload.mail_type, "sent_to": email}
+    return {"success": True, "trainer_id": public_trainer_id, "mail_type": payload.mail_type, "sent_to": email}
 
 
 @router.post("/{trainer_id}/automation-pipeline/tick")
@@ -250,13 +267,14 @@ async def automation_pipeline_tick(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Advance a trainer to the next pipeline stage."""
-    trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or {}
+    trainer = await db["trainers"].find_one(_trainer_lookup(trainer_id)) or {}
     if not trainer:
         raise HTTPException(404, "Trainer not found")
+    public_trainer_id = _public_trainer_id(trainer, trainer_id)
 
     # Find current stage from email logs
     latest_log = await db["email_logs"].find_one(
-        {"trainer_id": trainer_id, "requirement_id": payload.requirement_id or {"$exists": True}},
+        {"trainer_id": public_trainer_id, "requirement_id": payload.requirement_id or {"$exists": True}},
         {"_id": 0, "mail_type": 1},
         sort=[("created_at", -1)],
     )
@@ -272,7 +290,7 @@ async def automation_pipeline_tick(
 
     return {
         "success": True,
-        "trainer_id": trainer_id,
+        "trainer_id": public_trainer_id,
         "current_stage": current_stage,
         "next_stage": next_stage,
         "message": f"Ready to send {next_stage}. Call /send-automation-mail with mail_type={next_stage}",
@@ -286,7 +304,8 @@ async def request_resume(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Send a resume request email to a trainer."""
-    trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or {}
+    trainer = await db["trainers"].find_one(_trainer_lookup(trainer_id)) or {}
+    public_trainer_id = _public_trainer_id(trainer, trainer_id)
     email = trainer.get("email", "")
     name = trainer.get("name", "Trainer")
 
@@ -304,9 +323,9 @@ async def request_resume(
             await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
                 "to": email, "subject": "Profile / Resume Request — TrainerSync",
                 "body": body, "mail_type": "resume_request",
-                "trainer_id": trainer_id, "requirement_id": requirement_id or "",
+                "trainer_id": public_trainer_id, "requirement_id": requirement_id or "",
             })
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
 
-    return {"success": True, "trainer_id": trainer_id, "sent_to": email}
+    return {"success": True, "trainer_id": public_trainer_id, "sent_to": email}
