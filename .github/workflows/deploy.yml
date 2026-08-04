@@ -241,13 +241,13 @@ jobs:
           REPO: ${{ github.event.repository.name }}
           GHCR_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          ssh ${EC2_USER}@${EC2_HOST} << 'EOF'
+          ssh ${EC2_USER}@${EC2_HOST} << EOF
           set -e
 
           cd /home/ubuntu/trainersync
           echo "$GHCR_TOKEN" | docker login ghcr.io \ 
-          -u "$GH_USER" \
-          --password-stdin
+            -u "$GH_USER" \
+            --password-stdin
 
           echo "Deploy Backend"
 
