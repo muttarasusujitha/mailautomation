@@ -829,6 +829,8 @@ function hasTrainingCount(text = '') {
 function hasRequestedTrainerDetails(text = '') {
   const t = stripQuotedEmail(text).toLowerCase()
   if (!t) return false
+  if (acceptsSameCommercial(t)) return true
+  if (extractCommercialQuote(t) && /\b(available|availability|ok|okay|fine|accepted|agree|workable|proceed|yes)\b/i.test(t)) return true
 
   const fieldSignals = [
     'total years of experience',
@@ -873,6 +875,8 @@ function extractCommercialQuote(text = '') {
     /(\d+(?:\.\d+)?)\s*(?:inr|rs\.?|₹)\s*(?:\/|\s*per\s*)\s*(hour|hr|day|session)/i,
     /(?:charges?|commercials?|rate|fees?|cost)\D{0,25}(\d+(?:\.\d+)?)\D{0,15}(hour|hr|day|session)/i,
     /(\d+(?:\.\d+)?)\D{0,15}(?:per|\/)\s*(hour|hr|day|session)/i,
+    /(?:charges?|commercials?|commercial|rate|fees?|cost|budget)\D{0,40}(\d+(?:\.\d+)?)/i,
+    /(\d+(?:\.\d+)?)\D{0,40}(?:charges?|commercials?|commercial|rate|fees?|cost|budget)/i,
   ]
   for (const rx of patterns) {
     const match = rx.exec(compact)
@@ -883,6 +887,12 @@ function extractCommercialQuote(text = '') {
     if (Number.isFinite(amount) && amount > 0) return { amount, unit }
   }
   return null
+}
+
+function acceptsSameCommercial(text = '') {
+  const clean = stripQuotedEmail(text).toLowerCase()
+  return /\b(same|client|your|given|shared|mentioned|above)\b.{0,40}\b(commercial|budget|rate|amount|charges?)\b.{0,40}\b(ok|okay|fine|accepted|agree|workable|proceed)\b/.test(clean) ||
+    /\b(ok|okay|fine|accepted|agree|workable|proceed)\b.{0,40}\b(same|client|your|given|shared|mentioned|above)\b.{0,40}\b(commercial|budget|rate|amount|charges?)\b/.test(clean)
 }
 
 function clientBudgetInfo(req = {}) {
@@ -2613,6 +2623,119 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           nextStates[trainer.trainer_id] = { ...(nextStates[trainer.trainer_id] || {}), status, ...extra }
           onStatusUpdate(trainer.trainer_id, status, extra)
         }
+        const sendMail3SlotBooking = async (trainer, extraStage = {}) => {
+          const { subject, body } = mail3Template(trainer, req, '')
+          const mail3Res = await api.post('/shortlists/send-mail', {
+            trainer_id: trainer.trainer_id,
+            trainer_name: trainer.name,
+            to_email: trainer.email,
+            requirement_id: req.requirement_id,
+            subject,
+            body,
+            mail_type: 'mail3',
+            client_email: req.client_email,
+            client_name: req.client_name || req.client_company,
+          })
+          showSendStatusToast({ trainerName: trainer.name, result: mail3Res.data, title: 'Slot booking sent' })
+          if (!isSendMailDelivered(mail3Res?.data)) {
+            toast.error(sendMailError(mail3Res?.data, 'Failed to send Mail 3 slot booking'))
+            return false
+          }
+
+          setStage(trainer, 'slot_booked', {
+            mail3SentAt: Date.now(),
+            ...extraStage,
+          })
+          return true
+        }
+        const sendClientCommercialsFromReply = async (trainer, reply, reason = 'details') => {
+          if (!req.client_email) {
+            toast.error('Client email is missing. Cannot send trainer commercials to client.')
+            return false
+          }
+
+          const replyContent = reply?.body || reply?.reply_text || reply?.content || ''
+          const trainerOffer = trainerVisibleBudgetInfo(req)
+          const quote = extractCommercialQuote(replyContent) ||
+            (acceptsSameCommercial(replyContent) && trainerOffer?.amount ? { amount: trainerOffer.amount, unit: trainerOffer.unit } : null)
+          if (!quote?.amount) {
+            toast.error(`No commercial amount or same-commercial acceptance found in ${trainer.name}'s reply.`)
+            return false
+          }
+
+          const acceptedClientCommercial = trainerOffer?.amount &&
+            trainerOffer.unit === quote.unit &&
+            quote.amount <= trainerOffer.amount
+          const clientAmount = quote.amount + 5000
+          const unitText = quote.unit === 'hour' ? 'per hour' : quote.unit === 'session' ? 'per session' : 'per day'
+          const guardKey = `${req.requirement_id}:${trainer.trainer_id}:client_commercials:${reason}:${acceptedClientCommercial ? 'accepted' : clientAmount}:${messageTime(reply)}`
+          if (!shouldSendOnce(guardKey)) return true
+
+          try {
+            const notificationRes = await api.post('/shortlists/send-mail', {
+              trainer_id: trainer.trainer_id,
+              trainer_name: trainer.name,
+              to_email: req.client_email,
+              requirement_id: req.requirement_id,
+              subject: `Trainer Details Received - ${req.technology_needed} | ${trainer.name}`,
+              body: `Hi ${req.client_name || 'Team'},\n\nGood news! Trainer ${trainer.name} has confirmed their availability and shared the required details for the ${req.technology_needed} requirement.\n\nWe are sharing the commercials for your review in the next email.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+              mail_type: 'commercial_details_notification',
+            })
+            showSendStatusToast({ trainerName: trainer.name, result: notificationRes.data, title: 'Client notification sent' })
+          } catch {
+            // Non-blocking: send the actual commercial mail even if this heads-up fails.
+          }
+
+          if (acceptedClientCommercial) {
+            const acceptedRes = await api.post('/shortlists/send-mail', {
+              trainer_id: trainer.trainer_id,
+              trainer_name: trainer.name,
+              to_email: req.client_email,
+              requirement_id: req.requirement_id,
+              subject: `Trainer Accepted Your Commercial - ${req.technology_needed} | ${trainer.name}`,
+              body: `Hi ${req.client_name || 'Team'},\n\nTrainer ${trainer.name} has confirmed availability and is okay to proceed with your commercial for the ${req.technology_needed} requirement.\n\nAccepted Commercial:\n- INR ${trainerOffer.amount.toLocaleString('en-IN')} ${unitText}\n\nWe will proceed with interview slot coordination next.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+              mail_type: 'client_budget_acknowledgment',
+            })
+            showSendStatusToast({ trainerName: trainer.name, result: acceptedRes.data, title: 'Client commercial acceptance sent' })
+            if (!isSendMailDelivered(acceptedRes?.data)) {
+              toast.error(sendMailError(acceptedRes?.data, 'Failed to notify client about accepted commercial'))
+              return false
+            }
+
+            const mail3Sent = await sendMail3SlotBooking(trainer, {
+              detailsAcceptedAt: messageTime(reply) || Date.now(),
+              clientCommercialsSentAt: Date.now(),
+              commercialAcceptedByTrainerAt: Date.now(),
+              commercial_status: 'accepted_by_trainer',
+            })
+            if (!mail3Sent) return false
+            toast(`Auto: ${trainer.name} accepted the client commercial. Mail 3 slot booking sent.`, { icon: 'INR', duration: 5000 })
+            return true
+          }
+
+          const commercialRes = await api.post('/shortlists/send-mail', {
+            trainer_id: trainer.trainer_id,
+            trainer_name: trainer.name,
+            to_email: req.client_email,
+            requirement_id: req.requirement_id,
+            subject: `Trainer Commercials for Approval - ${req.technology_needed} | ${trainer.name}`,
+            body: `Hi ${req.client_name || 'Team'},\n\nTrainer ${trainer.name} has shared the required details and commercials for the ${req.technology_needed} requirement.\n\nCommercial Rate for Client Review:\n- INR ${clientAmount.toLocaleString('en-IN')} ${unitText}\n\nPlease review and confirm if this rate is acceptable. Once approved, we will proceed with interview slot coordination.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+            mail_type: 'trainer_commercials_to_client',
+          })
+          showSendStatusToast({ trainerName: trainer.name, result: commercialRes.data, title: 'Client commercials sent' })
+          if (!isSendMailDelivered(commercialRes?.data)) {
+            toast.error(sendMailError(commercialRes?.data, 'Failed to send commercials to client'))
+            return false
+          }
+
+          setStage(trainer, 'details_received', {
+            detailsAcceptedAt: messageTime(reply) || Date.now(),
+            clientCommercialsSentAt: Date.now(),
+            commercial_status: 'sent_to_client',
+          })
+          toast(`Auto: commercials sent to ${req.client_name || 'client'} for approval.`, { icon: 'INR', duration: 5000 })
+          return true
+        }
         const getThread = async trainer => {
           const res = await api.get(
             `/shortlists/thread?trainer_id=${trainer.trainer_id}&requirement_id=${req.requirement_id}`
@@ -2862,6 +2985,31 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
 
         if (activeStage === 'details_received') {
           const messages = await getThread(activeTrainer)
+          const latestDetailsReply = latestReplyAfter(messages, ['mail2', 'mail2_followup', 'commercial_negotiation', 'trainer_rate_discussion'])
+          const alreadySentClientCommercials = messages.some(m =>
+            m.direction === 'sent' &&
+            ['trainer_commercials_to_client', 'commercial_details_notification'].includes(m.mail_type)
+          ) || Boolean(nextStates[activeTrainer.trainer_id]?.clientCommercialsSentAt)
+          const clientAcceptedCommercial = messages.some(m =>
+            m.direction === 'sent' &&
+            m.mail_type === 'client_budget_acknowledgment'
+          ) || nextStates[activeTrainer.trainer_id]?.commercial_status === 'accepted_by_trainer'
+          const mail3AlreadySent = messages.some(m => m.direction === 'sent' && m.mail_type === 'mail3')
+          if (!alreadySentClientCommercials && latestDetailsReply) {
+            await sendClientCommercialsFromReply(activeTrainer, latestDetailsReply, 'details_received')
+          } else if (clientAcceptedCommercial && !mail3AlreadySent) {
+            const mail3Sent = await sendMail3SlotBooking(activeTrainer, {
+              detailsAcceptedAt: messageTime(latestDetailsReply) || nextStates[activeTrainer.trainer_id]?.detailsAcceptedAt || Date.now(),
+              clientCommercialsSentAt: nextStates[activeTrainer.trainer_id]?.clientCommercialsSentAt || Date.now(),
+              commercialAcceptedByTrainerAt: nextStates[activeTrainer.trainer_id]?.commercialAcceptedByTrainerAt || Date.now(),
+              commercial_status: 'accepted_by_trainer',
+            })
+            if (mail3Sent) {
+              toast(`Auto: ${activeTrainer.name} already accepted client commercial. Mail 3 slot booking sent.`, { icon: 'INR', duration: 5000 })
+            }
+          } else if (alreadySentClientCommercials) {
+            toast(`Commercials were sent to ${req.client_name || 'client'}. Wait for client approval before slot booking.`, { icon: 'INR', duration: 4000 })
+          }
           runningRef.current = false
           return
            
@@ -2882,8 +3030,8 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           return
 
           // Commercials sent - now proceed with slot booking
-          const mail3AlreadySent = messages.some(m => m.direction === 'sent' && m.mail_type === 'mail3')
-          if (!mail3AlreadySent) {
+          const legacyMail3AlreadySent = messages.some(m => m.direction === 'sent' && m.mail_type === 'mail3')
+          if (!legacyMail3AlreadySent) {
             const { subject, body } = mail3Template(activeTrainer, req, '')
             const res = await api.post('/shortlists/send-mail', {
               trainer_id:     activeTrainer.trainer_id,
@@ -3153,8 +3301,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           }
 
           if (acceptedNegotiatedCommercial) {
-            toast(`Auto: ${activeTrainer.name} accepted revised commercials. Send commercials to the client before slot booking.`, { icon: 'INR', duration: 5000 })
-            setStage(activeTrainer, 'details_received', { commercialAcceptedAt: replyTime })
+            await sendClientCommercialsFromReply(activeTrainer, latest, 'accepted_negotiation')
             runningRef.current = false
             return
           } else if (acceptedClientBudgetRevision) {
@@ -3201,10 +3348,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
             return
           }
 
-          toast(`Auto: ${activeTrainer.name} shared trainer details. Send commercials to the client before slot booking.`, { icon: 'INR', duration: 5000 })
-          setStage(activeTrainer, 'details_received', {
-            detailsAcceptedAt: replyTime,
-          })
+          await sendClientCommercialsFromReply(activeTrainer, latest, 'mail2_details')
           runningRef.current = false
           return
 

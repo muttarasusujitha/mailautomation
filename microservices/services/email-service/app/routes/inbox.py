@@ -1660,6 +1660,38 @@ def _money_to_int(raw_amount: Any, suffix: str = "") -> int:
     return int(round(amount))
 
 
+def _trainer_profile_commercial_amounts(trainer: Dict[str, Any]) -> List[int]:
+    amounts: List[int] = []
+    for key in (
+        "commercial_amount",
+        "commercial_rate",
+        "quoted_amount",
+        "quoted_rate",
+        "day_rate",
+        "rate",
+        "trainer_target_rate",
+    ):
+        amount = _money_to_int(trainer.get(key))
+        if amount >= 1000 and amount not in amounts:
+            amounts.append(amount)
+
+    for key in (
+        "commercials",
+        "commercial_text",
+        "commercial_details",
+        "reply_text",
+        "last_reply_snippet",
+    ):
+        text = trainer.get(key)
+        if not text:
+            continue
+        for amount in _trainer_commercial_amounts(text):
+            if amount >= 1000 and amount not in amounts:
+                amounts.append(amount)
+
+    return sorted(amounts)
+
+
 def _trainer_commercial_amounts(text: Any) -> List[int]:
     reply_text = _strip_quoted_email_history(text)
     if not reply_text:
@@ -3841,6 +3873,11 @@ async def _forward_trainer_commercials_to_client(
         trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or {}
     if not trainer:
         trainer = {"trainer_id": trainer_id, "name": email_doc.get("trainer_name") or "Trainer", "email": trainer_email}
+
+    if not amounts:
+        fallback_amounts = _trainer_profile_commercial_amounts(trainer)
+        if fallback_amounts:
+            amounts = fallback_amounts
 
     if not amounts:
         error = "Trainer details received, but no commercial amount was found."
