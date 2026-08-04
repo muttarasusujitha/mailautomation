@@ -68,9 +68,7 @@ services:
 
   auth-service:
     container_name: ts-auth-service
-    build:
-      context: ..
-      dockerfile: microservices/services/auth-service/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/auth-service:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -88,9 +86,7 @@ services:
 
   core-api:
     container_name: ts-core-api
-    build:
-      context: ..
-      dockerfile: microservices/services/core-api/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/core-api:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -108,9 +104,7 @@ services:
 
   email-service:
     container_name: ts-email-service
-    build:
-      context: ..
-      dockerfile: microservices/services/email-service/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/email-service:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -132,9 +126,7 @@ services:
 
   notification-service:
     container_name: ts-notification-service
-    build:
-      context: ..
-      dockerfile: microservices/services/notification-service/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/notification-service:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -152,9 +144,7 @@ services:
 
   trainer-service:
     container_name: ts-trainer-service
-    build:
-      context: ..
-      dockerfile: microservices/services/trainer-service/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/trainer-service:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -174,9 +164,7 @@ services:
 
   intelligence-service:
     container_name: ts-intelligence-service
-    build:
-      context: ..
-      dockerfile: microservices/services/intelligence-service/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/intelligence-service:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -196,9 +184,7 @@ services:
 
   document-service:
     container_name: ts-document-service
-    build:
-      context: ..
-      dockerfile: microservices/services/document-service/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/document-service:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -219,9 +205,7 @@ services:
   # ── Scheduler: FastAPI management API ────────────────────────────────────────
   scheduler-service:
     container_name: ts-scheduler-api
-    build:
-      context: ..
-      dockerfile: microservices/services/scheduler-service/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/scheduler-service:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -244,9 +228,7 @@ services:
   # ── Celery worker ─────────────────────────────────────────────────────────────
   celery-worker:
     container_name: ts-celery-worker
-    build:
-      context: ..
-      dockerfile: microservices/services/scheduler-service/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/celery-service:latest
     command: celery -A app.celery_app worker --loglevel=info --concurrency=4
     <<: *service-defaults
     environment:
@@ -271,9 +253,7 @@ services:
   # ── Celery beat (periodic task scheduler) ─────────────────────────────────────
   celery-beat:
     container_name: ts-celery-beat
-    build:
-      context: ..
-      dockerfile: microservices/services/scheduler-service/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/celery-beat-service:latest
     command: celery -A app.celery_app beat --loglevel=info --scheduler celery.beat.PersistentScheduler --schedule=/app/celerybeat-schedule/celerybeat-schedule
     <<: *service-defaults
     environment:
@@ -292,9 +272,7 @@ services:
   # ── API Gateway (nginx) ───────────────────────────────────────────────────────
   gateway:
     container_name: ts-gateway
-    build:
-      context: ..
-      dockerfile: microservices/gateway/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/gateway-service:latest
     restart: unless-stopped
     networks:
       - trainersync

@@ -1,42 +1,4 @@
 services:
-  mongo:
-    image: mongo:7
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    ports:
-      - "6380:6379"
-    volumes:
-      - redis_data:/data
-
-  backend:
-    build:
-      context: ./microservices/backend
-    restart: unless-stopped
-    env_file:
-      - ./microservices/backend/.env
-    environment:
-      MONGODB_URI: mongodb://host.docker.internal:27017
-      MONGODB_DB: trainersync
-      REDIS_URL: redis://redis:6379/0
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
-      FRONTEND_URL: https://localhost:5174
-    ports:
-      - "8001:8000"
-    volumes:
-      - ./backend/config:/app/config
-      - ./backend/uploads:/app/uploads
-    depends_on:
-      - mongo
-      - redis
-
   frontend:
     build:
       context: ./frontend
@@ -47,8 +9,8 @@ services:
       VITE_API_PROXY_REWRITE_TO_V1: "true"
     ports:
       - "5174:5174"
-    depends_on:
-      - backend
+    networks:
+      - microservices_trainersync
 
   sonarqube:
     image: sonarqube:community
@@ -83,3 +45,7 @@ volumes:
   sonarqube_data:
   sonarqube_extensions:
   sonarqube_logs:
+
+networks:
+  trainersync:
+    driver: bridge
