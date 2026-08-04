@@ -12,6 +12,7 @@ const Feedback = lazy(() => import('./pages/Feedback'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const Trainers = lazy(() => import('./pages/Trainers'))
+const TrainerLocations = lazy(() => import('./pages/TrainerLocations'))
 const Requirements = lazy(() => import('./pages/Requirements'))
 const Emails = lazy(() => import('./pages/Emails'))
 const ClientRequests = lazy(() => import('./pages/ClientRequests'))
@@ -101,6 +102,7 @@ export default function App() {
             <Route path="dashboard"    element={<Dashboard />} />
             <Route path="admin-dashboard" element={<AdminDashboard />} />
             <Route path="trainers"     element={<Trainers />} />
+            <Route path="trainer-locations" element={<TrainerLocations />} />
             <Route path="requirements" element={<Requirements />} />
             <Route path="emails"       element={<Emails />} />
             <Route path="inbox"        element={<Navigate to="/client-requests" replace />} />

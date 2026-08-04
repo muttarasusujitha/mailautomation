@@ -30,10 +30,10 @@ celery_app.conf.update(
 
 # ── Beat schedule ──────────────────────────────────────────────────────────────
 celery_app.conf.beat_schedule = {
-    # Poll Gmail inbox every 5 minutes
-    "poll-inbox-every-5-min": {
+    # Poll Gmail inbox every minute so trainer/client automations continue without the browser open.
+    "poll-inbox-every-minute": {
         "task": "app.tasks.inbox_poll.poll_inbox",
-        "schedule": crontab(minute="*/5"),
+        "schedule": crontab(minute="*"),
         "args": [],
     },
     # Check and send interview reminders every 10 minutes

@@ -376,6 +376,58 @@ def _tokens(value: Any) -> set[str]:
     return {token for token in _norm(value).split() if len(token) > 1}
 
 
+def _date_tokens(value: Any) -> set[str]:
+    text = _clean(value).lower()
+    tokens: set[str] = set()
+    for match in re.finditer(r"\b\d{1,2}\s*[/-]\s*\d{1,2}(?:\s*[/-]\s*\d{2,4})?\b", text):
+        tokens.add(re.sub(r"\s+", "", match.group(0)))
+    for match in re.finditer(
+        r"\b\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*(?:\s+\d{2,4})?\b",
+        text,
+    ):
+        tokens.add(re.sub(r"\s+", " ", match.group(0)))
+    return tokens
+
+
+def _requirement_date_tokens(requirement: Dict[str, Any]) -> set[str]:
+    tokens: set[str] = set()
+    for key in ("training_dates", "preferred_dates", "timeline_start", "timeline_end", "dates"):
+        tokens |= _date_tokens(requirement.get(key))
+    return tokens
+
+
+async def _trainer_has_date_conflict(db: AsyncIOMotorDatabase, trainer_id: str, requirement: Dict[str, Any]) -> bool:
+    required_tokens = _requirement_date_tokens(requirement)
+    if not trainer_id or not required_tokens:
+        return False
+    active_stages = {"slot_booked", "interview_scheduled", "selected", "toc_requested", "toc_received_pending", "training_confirmed"}
+    cursor = db["shortlists"].find(
+        {"top_trainers.trainer_id": trainer_id},
+        {"_id": 0, "requirement_id": 1, "training_dates": 1, "timeline_start": 1, "timeline_end": 1, "top_trainers": 1},
+    )
+    async for shortlist in cursor:
+        if shortlist.get("requirement_id") == requirement.get("requirement_id"):
+            continue
+        linked_req = await db["requirements"].find_one({"requirement_id": shortlist.get("requirement_id")}, {"_id": 0}) or {}
+        for trainer in shortlist.get("top_trainers") or []:
+            if _clean(trainer.get("trainer_id")) != _clean(trainer_id):
+                continue
+            stage = _clean(trainer.get("pipeline_status") or trainer.get("status")).lower()
+            if stage not in active_stages:
+                continue
+            conflict_text = " ".join(_clean(v) for v in [
+                trainer.get("interview_date"),
+                trainer.get("training_dates"),
+                trainer.get("slot_reply_text"),
+                shortlist.get("training_dates"),
+                shortlist.get("timeline_start"),
+                shortlist.get("timeline_end"),
+            ])
+            if required_tokens & (_date_tokens(conflict_text) | _requirement_date_tokens(linked_req)):
+                return True
+    return False
+
+
 def _profile_text(trainer: Dict[str, Any]) -> str:
     parts = [
         trainer.get("name"),
@@ -501,6 +553,8 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
 
     min_exp = _safe_float(requirement.get("min_experience_years"), 0.0)
     exp = _trainer_experience(trainer)
+    if min_exp > 0 and exp < min_exp:
+        return None
     exp_score = 15.0 if min_exp and exp >= min_exp else min(exp * 1.5, 15.0)
     score += exp_score
     breakdown["experience"] = round(exp_score, 2)
@@ -636,6 +690,11 @@ async def _sync_shortlist_with_trainers(
         for trainer in available_trainers
         if (scored_trainer := _score_trainer(trainer, requirement)) is not None
     ]
+    if _requirement_date_tokens(requirement):
+        scored = [
+            trainer for trainer in scored
+            if not await _trainer_has_date_conflict(db, _clean(trainer.get("trainer_id")), requirement)
+        ]
     scored.sort(
         key=lambda trainer: (
             _safe_float(trainer.get("match_score"), 0),

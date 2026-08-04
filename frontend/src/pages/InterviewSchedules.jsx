@@ -5,6 +5,7 @@ import {
   CalendarCheck,
   Clock,
   ExternalLink,
+  CalendarDays,
   Link2,
   Loader2,
   Mail,
@@ -33,6 +34,9 @@ function meetingTime(item = {}) {
 }
 
 function meetingState(item = {}) {
+  if (item.reschedule_requested || String(item.slot_status || '').includes('reschedule') || String(item.pipeline_status || '').includes('reschedule')) {
+    return 'reschedule'
+  }
   const raw = meetingTime(item)
   if (!raw) return 'pending'
   const time = new Date(raw).getTime()
@@ -59,6 +63,11 @@ function normalizeSchedule(item = {}) {
     start_iso: item.start_iso || item.interview_at || calendar.start || item.sent_at || item.created_at,
     timezone: item.timezone || calendar.timezone || '',
     calendar_event_id: item.calendar_event_id || calendar.event_id || item.email_id || '',
+    reschedule_requested: Boolean(item.reschedule_requested),
+    reschedule_requested_by: item.reschedule_requested_by || '',
+    reschedule_request_text: item.reschedule_request_text || '',
+    slot_status: item.slot_status || '',
+    pipeline_status: item.pipeline_status || '',
   }
 }
 
@@ -68,6 +77,172 @@ function openMeeting(link) {
     return
   }
   window.open(link, '_blank', 'noopener,noreferrer')
+}
+
+function defaultRescheduleNote(item = {}) {
+  return `Hi ${item.trainer_name || 'Trainer'},
+
+The client has requested to reschedule the interview for ${item.domain || 'the training requirement'}.
+
+Client proposed slots:
+- [Date and time 1]
+- [Date and time 2]
+- [Date and time 3]
+
+Please confirm which slot works for you. Once confirmed, we will share the updated meeting link with both you and the client.
+
+Regards,
+Clahan Technologies`
+}
+
+function ReschedulePanel({ selected, onDone }) {
+  const [slotsText, setSlotsText] = useState('')
+  const [trainerNote, setTrainerNote] = useState('')
+  const [finalDate, setFinalDate] = useState('')
+  const [meetLink, setMeetLink] = useState('')
+  const [sendingTrainer, setSendingTrainer] = useState(false)
+  const [sendingFinal, setSendingFinal] = useState(false)
+
+  useEffect(() => {
+    setSlotsText('')
+    setTrainerNote(defaultRescheduleNote(selected || {}))
+    setFinalDate(selected?.date_time_text || '')
+    setMeetLink(selected?.meet_link || '')
+  }, [selected?.email_id, selected?.calendar_event_id])
+
+  const sendClientSlotsToTrainer = async () => {
+    if (!selected?.requirement_id || !selected?.trainer_id) {
+      toast.error('Requirement or trainer id is missing')
+      return
+    }
+    if (!selected?.trainer_email) {
+      toast.error('Trainer email is missing')
+      return
+    }
+    const proposedSlots = slotsText.trim()
+    if (!proposedSlots) {
+      toast.error('Add the client proposed dates/slots first')
+      return
+    }
+
+    setSendingTrainer(true)
+    try {
+      const body = trainerNote.replace(
+        '- [Date and time 1]\n- [Date and time 2]\n- [Date and time 3]',
+        proposedSlots
+      )
+      const res = await api.post('/shortlists/send-mail', {
+        requirement_id: selected.requirement_id,
+        trainer_id: selected.trainer_id,
+        trainer_name: selected.trainer_name,
+        to_email: selected.trainer_email,
+        subject: `Reschedule Request - ${selected.domain || 'Interview'}`,
+        body,
+        mail_type: 'mail4_reschedule_request',
+      })
+      if (!res.data?.success) throw new Error(res.data?.error || 'Could not send reschedule request')
+      toast.success('Client proposed slots sent to trainer')
+      onDone?.()
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not send to trainer')
+    } finally {
+      setSendingTrainer(false)
+    }
+  }
+
+  const sendFinalReschedule = async () => {
+    if (!selected?.requirement_id || !selected?.trainer_id) {
+      toast.error('Requirement or trainer id is missing')
+      return
+    }
+    if (!finalDate.trim()) {
+      toast.error('Enter the confirmed new date/time')
+      return
+    }
+    if (!meetLink.trim()) {
+      toast.error('Paste the new Google Meet link')
+      return
+    }
+
+    setSendingFinal(true)
+    try {
+      const res = await api.post('/shortlists/send-interview-link', {
+        requirement_id: selected.requirement_id,
+        trainer_id: selected.trainer_id,
+        trainer_name: selected.trainer_name,
+        to_email: selected.trainer_email,
+        client_email: selected.client_email,
+        client_name: selected.client_name || selected.client_company,
+        technology: selected.domain,
+        interview_date: finalDate.trim(),
+        date_time: finalDate.trim(),
+        interview_link: meetLink.trim(),
+        platform: 'Google Meet',
+      })
+      if (!res.data?.success) throw new Error(res.data?.error || 'Could not send updated interview link')
+      toast.success('Updated meeting link sent to client and trainer')
+      onDone?.()
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not send updated link')
+    } finally {
+      setSendingFinal(false)
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-bold text-amber-950">Reschedule Workflow</p>
+          <p className="mt-1 text-xs font-semibold text-amber-700">Use when client asks for new dates or trainer says busy.</p>
+        </div>
+        <CalendarDays className="h-5 w-5 text-amber-600" />
+      </div>
+
+      <div className="mt-4 grid gap-4 xl:grid-cols-2">
+        <div className="rounded-lg border border-amber-200 bg-white p-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Client Proposed Slots</p>
+          <textarea
+            value={slotsText}
+            onChange={e => setSlotsText(e.target.value)}
+            rows={4}
+            placeholder={'- 12 Aug 2026, 11:00 AM IST\n- 13 Aug 2026, 3:00 PM IST\n- 14 Aug 2026, 5:00 PM IST'}
+            className="mt-2 w-full rounded-lg border border-slate-200 p-3 text-sm outline-none focus:border-blue-400"
+          />
+          <textarea
+            value={trainerNote}
+            onChange={e => setTrainerNote(e.target.value)}
+            rows={7}
+            className="mt-2 w-full rounded-lg border border-slate-200 p-3 text-sm outline-none focus:border-blue-400"
+          />
+          <button onClick={sendClientSlotsToTrainer} disabled={sendingTrainer} className="btn-secondary mt-3 w-full justify-center text-sm">
+            {sendingTrainer ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+            Send Slots To Trainer
+          </button>
+        </div>
+
+        <div className="rounded-lg border border-emerald-200 bg-white p-3">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Trainer Accepted Slot</p>
+          <input
+            value={finalDate}
+            onChange={e => setFinalDate(e.target.value)}
+            placeholder="Confirmed date/time"
+            className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-blue-400"
+          />
+          <input
+            value={meetLink}
+            onChange={e => setMeetLink(e.target.value)}
+            placeholder="Google Meet link"
+            className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-blue-400"
+          />
+          <button onClick={sendFinalReschedule} disabled={sendingFinal} className="btn-primary mt-3 w-full justify-center text-sm">
+            {sendingFinal ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />}
+            Send Updated Link To Both
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function ContactLine({ icon: Icon, label, value }) {
@@ -99,6 +274,7 @@ function MeetingRow({ item, active, onClick }) {
           'rounded-lg px-2 py-1 text-xs font-bold capitalize',
           state === 'starting' ? 'bg-emerald-50 text-emerald-700' :
             state === 'upcoming' ? 'bg-blue-50 text-blue-700' :
+              state === 'reschedule' ? 'bg-amber-50 text-amber-700' :
               state === 'completed' ? 'bg-slate-100 text-slate-500' :
                 'bg-amber-50 text-amber-700'
         )}>
@@ -202,6 +378,7 @@ export default function InterviewSchedules() {
     all: items.length,
     upcoming: items.filter(item => meetingState(item) === 'upcoming').length,
     starting: items.filter(item => meetingState(item) === 'starting').length,
+    reschedule: items.filter(item => meetingState(item) === 'reschedule').length,
     completed: items.filter(item => meetingState(item) === 'completed').length,
   }
 
@@ -221,11 +398,12 @@ export default function InterviewSchedules() {
         </button>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-5">
         {[
           ['All', counts.all, 'all'],
           ['Upcoming', counts.upcoming, 'upcoming'],
           ['Starting Now', counts.starting, 'starting'],
+          ['Reschedule', counts.reschedule, 'reschedule'],
           ['Completed', counts.completed, 'completed'],
         ].map(([label, count, key]) => (
           <button
@@ -326,6 +504,14 @@ export default function InterviewSchedules() {
                         <ContactLine icon={Mail} label="Trainer Mail" value={selected.trainer_email} />
                       </div>
                     </div>
+                    {selected.reschedule_requested && (
+                      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                        <p className="font-bold">Reschedule requested by {selected.reschedule_requested_by || 'participant'}</p>
+                        {selected.reschedule_request_text && (
+                          <p className="mt-2 whitespace-pre-wrap text-xs font-semibold">{selected.reschedule_request_text}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
@@ -352,6 +538,10 @@ export default function InterviewSchedules() {
                       <p className="mt-1">This page shows a browser/toast notification 5 minutes before the interview starts.</p>
                     </div>
                   </div>
+                </div>
+
+                <div className="mt-4">
+                  <ReschedulePanel selected={selected} onDone={load} />
                 </div>
               </div>
             )}

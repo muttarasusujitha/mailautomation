@@ -527,10 +527,9 @@ function cleanDetailValue(value) {
 function trainerBudgetFromClientAmount(amount, unit = 'day') {
   const numeric = parseMoneyAmount(amount)
   if (!numeric || numeric <= 0) return null
-  const markup = unit === 'hour' ? 500 : 5000
-  const trainerAmount = numeric - markup
+  const trainerAmount = trainerRateFromClientBudget(numeric)
   if (trainerAmount <= 0) return null
-  return { amount: trainerAmount, unit, clientAmount: numeric, markup }
+  return { amount: trainerAmount, unit, clientAmount: numeric, marginPercent: 30 }
 }
 
 function trainerVisibleBudgetInfo(req = {}) {
@@ -906,10 +905,18 @@ function clientBudgetInfo(req = {}) {
   return null
 }
 
+function trainerRateFromClientBudget(amount) {
+  return Math.max(0, Math.floor((Number(amount) || 0) * 0.70))
+}
+
+function clientRateFromTrainerRate(amount) {
+  const value = Number(amount) || 0
+  return value > 0 ? Math.ceil(value / 0.70) : 0
+}
+
 function negotiationTarget(clientBudget) {
   if (!clientBudget?.amount) return null
-  const decrement = clientBudget.unit === 'hour' ? 500 : 5000
-  const raw = clientBudget.amount - decrement
+  const raw = trainerRateFromClientBudget(clientBudget.amount)
   const roundTo = clientBudget.unit === 'hour' ? 100 : 500
   return {
     unit: clientBudget.unit,
@@ -919,11 +926,12 @@ function negotiationTarget(clientBudget) {
 
 function clientBudgetIncreaseTarget(clientBudget) {
   if (!clientBudget?.amount) return null
-  const increment = clientBudget.unit === 'hour' ? 500 : 5000
+  const requested = clientRateFromTrainerRate(clientBudget.amount)
+  const increment = Math.max(0, requested - clientBudget.amount)
   return {
     unit: clientBudget.unit,
     increment,
-    amount: clientBudget.amount + increment,
+    amount: requested,
   }
 }
 
@@ -963,8 +971,7 @@ function extractCommercialCounterOffer(replyText = '', clientBudget = null) {
   const clean = stripQuotedEmail(replyText).toLowerCase().replace(/,/g, '')
   if (!clean) return null
   if (clientBudget?.amount) {
-    const increment = clientBudget.unit === 'hour' ? 500 : 5000
-    const trainerTarget = Math.max(0, clientBudget.amount - increment)
+    const trainerTarget = trainerRateFromClientBudget(clientBudget.amount)
     const extraPatterns = [
       /(?:extra|more|additional|increase)\D{0,30}(?:inr|rs\.?|₹)?\s*(\d+(?:\.\d+)?)\s*(k)?\b/i,
       /(?:inr|rs\.?|₹)?\s*(\d+(?:\.\d+)?)\s*(k)?\b\D{0,20}(?:extra|more|additional)/i,
@@ -991,8 +998,7 @@ function isCommercialAcceptedAfterNegotiation(replyText, req) {
   const quote = extractCommercialCounterOffer(replyText, clientBudget)
   if (!quote && detectIntent(replyText) === 'positive') return true
   if (!quote || !clientBudget || quote.unit !== clientBudget.unit) return false
-  const increment = clientBudget.unit === 'hour' ? 500 : 5000
-  return quote.amount + increment <= clientBudget.amount
+  return clientRateFromTrainerRate(quote.amount) <= clientBudget.amount
 }
 
 function hasProperInterviewSlots(text = '') {
@@ -2666,7 +2672,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           const acceptedClientCommercial = trainerOffer?.amount &&
             trainerOffer.unit === quote.unit &&
             quote.amount <= trainerOffer.amount
-          const clientAmount = quote.amount + 5000
+          const clientAmount = clientRateFromTrainerRate(quote.amount)
           const unitText = quote.unit === 'hour' ? 'per hour' : quote.unit === 'session' ? 'per session' : 'per day'
           const guardKey = `${req.requirement_id}:${trainer.trainer_id}:client_commercials:${reason}:${acceptedClientCommercial ? 'accepted' : clientAmount}:${messageTime(reply)}`
           if (!shouldSendOnce(guardKey)) return true
@@ -3007,8 +3013,10 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
             if (mail3Sent) {
               toast(`Auto: ${activeTrainer.name} already accepted client commercial. Mail 3 slot booking sent.`, { icon: 'INR', duration: 5000 })
             }
+          } else if (alreadySentClientCommercials && !mail3AlreadySent) {
+            toast(`Commercials were sent to ${req.client_name || 'client'}. Waiting for client approval before Mail 3.`, { icon: 'INR', duration: 4000 })
           } else if (alreadySentClientCommercials) {
-            toast(`Commercials were sent to ${req.client_name || 'client'}. Wait for client approval before slot booking.`, { icon: 'INR', duration: 4000 })
+            toast(`Commercials were sent to ${req.client_name || 'client'} and Mail 3 is already sent.`, { icon: 'INR', duration: 4000 })
           }
           runningRef.current = false
           return
@@ -3243,8 +3251,8 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
               runningRef.current = false
               return
             }
-            const quoteMarkup = clientBudget?.unit === 'hour' ? 500 : 5000
-            const stillAboveClientBudget = revisedQuote && clientBudget && revisedQuote.unit === clientBudget.unit && revisedQuote.amount + quoteMarkup > clientBudget.amount
+            const requestedRateForQuote = revisedQuote ? clientRateFromTrainerRate(revisedQuote.amount) : 0
+            const stillAboveClientBudget = revisedQuote && clientBudget && revisedQuote.unit === clientBudget.unit && requestedRateForQuote > clientBudget.amount
             if (stillAboveClientBudget) {
               if (!clientBudget) {
                 toast.error('Client budget is missing. Cannot request a revised commercial from client.')
@@ -3252,8 +3260,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
                 return
               }
               try {
-                const increment = clientBudget.unit === 'hour' ? 500 : 5000
-                const requestedBudget = revisedQuote.amount + increment
+                const requestedBudget = requestedRateForQuote
                 const clientRes = await requestClientBudgetIncrease({ trainer: activeTrainer, req, clientBudget, requestedBudget })
                 const requestedBudgetDisplay = Number(clientRes?.requested_budget || requestedBudget || 0)
                 const unit = clientRes?.unit || clientBudget.unit || 'day'
@@ -3429,10 +3436,10 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     setSendingNegotiation(true)
     try {
       const budgetAmount = parseInt(clientBudget)
-      const trainerOffer = budgetAmount - 5000 // Clahan markup
+      const trainerOffer = trainerRateFromClientBudget(budgetAmount)
 
       if (trainerOffer <= 0) {
-        toast.error('❌ Client budget must be more than ₹5,000 for trainer offer')
+        toast.error('Client budget must be valid for trainer offer')
         setSendingNegotiation(false)
         return
       }
@@ -3732,11 +3739,11 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           return
         }
         
-        const targetAmount = clientAmount - 5000
+        const targetAmount = trainerRateFromClientBudget(clientAmount)
         const gap = trainerAmount - targetAmount
         
         if (targetAmount <= 0) {
-          toast.error('❌ Client budget must be more than ₹5,000 for trainer offer')
+          toast.error('Client budget must be valid for trainer offer')
           return
         }
 
@@ -3939,7 +3946,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         // Build client rates with Clahan markup
         const clientRates = commercialMatches.map(c => {
           const amount = parseInt(c.replace(/[₹,inr\s]/gi, ''))
-          return `₹${(amount + 5000).toLocaleString('en-IN')}`
+          return `₹${clientRateFromTrainerRate(amount).toLocaleString('en-IN')}`
         })
         
         // Only show final client rates - don't mention trainer's original charges or Clahan markup
@@ -4576,7 +4583,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             {clientBudget && !isNaN(clientBudget) && (
               <div className="mb-4 p-3 bg-amber-50 rounded-lg">
                 <p className="text-xs font-semibold text-amber-900">
-                  Trainer Offer: ₹{(parseInt(clientBudget) - 5000).toLocaleString('en-IN')}/day
+                  Trainer Offer: ₹{trainerRateFromClientBudget(parseInt(clientBudget)).toLocaleString('en-IN')}/day
                 </p>
                 <p className="text-xs text-amber-800 mt-1">
                   (Client budget: ₹{parseInt(clientBudget).toLocaleString('en-IN')}/day)

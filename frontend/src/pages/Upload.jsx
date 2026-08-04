@@ -7,10 +7,10 @@ import {
   Archive,
   CheckCircle2,
   Database,
-  DollarSign,
   FileText,
   Loader2,
   Mail,
+  MapPin,
   Phone,
   RefreshCw,
   Trash2,
@@ -142,7 +142,7 @@ function PreviewCard({ item }) {
         {item.email && <span className="flex items-center gap-2"><Mail className="w-4 h-4 text-slate-400" />{item.email}</span>}
         {item.phone && <span className="flex items-center gap-2"><Phone className="w-4 h-4 text-slate-400" />{item.phone}</span>}
         <span>{item.experience_years || 0} yrs experience</span>
-        <span className="flex items-center gap-1"><DollarSign className="w-4 h-4 text-slate-400" />{item.day_rate ? `Day rate ${item.day_rate}` : 'Day rate not found'}</span>
+        <span className="flex items-center gap-1"><MapPin className="w-4 h-4 text-slate-400" />{item.location || 'Location not found'}</span>
       </div>
 
       {item.skills?.length > 0 && (
@@ -534,13 +534,6 @@ export default function UploadPage() {
         />
       </div>
 
-      <DomainDatabase
-        summary={domainSummary}
-        loading={domainSummaryLoading}
-        onRefresh={loadDomainSummary}
-        onSelectDomain={(domain) => previewCleanupForDomain(domain, true)}
-      />
-
       <div className="flex flex-wrap gap-3">
         <button onClick={() => handleUpload(false)} disabled={loading || saving || !allFiles.length} className="btn-primary disabled:opacity-50">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
@@ -563,6 +556,13 @@ export default function UploadPage() {
           </button>
         )}
       </div>
+
+      <DomainDatabase
+        summary={domainSummary}
+        loading={domainSummaryLoading}
+        onRefresh={loadDomainSummary}
+        onSelectDomain={(domain) => previewCleanupForDomain(domain, true)}
+      />
 
       {preview && (
         <section className="space-y-3">

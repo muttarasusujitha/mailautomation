@@ -78,7 +78,15 @@ TRAINER_REPLY_SOURCE_MAIL_TYPES = {
     "mail3",
     "mail3_slot_followup",
     "mail3_too_many_slots",
+    "mail4_reschedule_request",
+    "mail5",
+    "mail5_ok",
+    "mail5_selection",
     "mail6_toc",
+    "toc-request",
+    "mail7",
+    "mail7_confirm",
+    "training_confirmation",
     "client_slots",
     "client_interview_schedule",
     "mail4",
@@ -87,6 +95,15 @@ CLIENT_REPLY_SOURCE_MAIL_TYPES = {
     "client_auto_reply",
     "client_reply",
     "office_auto_reply",
+    "trainer_commercials_to_client",
+    "commercial_details_notification",
+    "client_budget_acknowledgment",
+    "client_budget_revision_request",
+    "client_slots",
+    "client_interview_schedule",
+    "client_interview_reschedule_request",
+    "client_toc_details_request",
+    "client_toc_details_followup",
 }
 
 FINAL_CLIENT_STATUSES = {"auto_sent", "sent", "approved", "rejected", "spam", "ignored"}
@@ -1436,6 +1453,17 @@ def _client_full_details_reply(extracted: Dict[str, Any]) -> Dict[str, str]:
 def _client_proceed_ack_reply(extracted: Dict[str, Any], details_later: bool = False) -> Dict[str, str]:
     technology = extracted.get("technology_needed") or "training"
     if details_later:
+        if not _has_training_domain(extracted):
+            body = (
+                "Dear Client,\n\n"
+                "Thank you for the update.\n\n"
+                "We have noted that you will share the training requirement details later.\n\n"
+                "Once you share the technology/topic, duration, mode, participant count, preferred dates/location, and budget or commercial range, we will proceed with identifying suitable trainer profiles.\n\n"
+                "We look forward to receiving the details.\n\n"
+                + _reply_signature()
+            )
+            return {"subject": "Re: Training Requirement Details", "body": body}
+
         body = (
             "Dear Client,\n\n"
             "Thank you for the update.\n\n"
@@ -1747,6 +1775,34 @@ def _commercial_unit(text: Any) -> str:
     if re.search(r"\b(?:per\s*(?:hour|hr)|/hour|/hr)\b", reply_text):
         return "hour"
     return "day"
+
+
+def _trainer_rate_from_client_budget(client_budget: float) -> float:
+    return max(float(client_budget or 0) * 0.70, 0)
+
+
+def _client_rate_from_trainer_rate(trainer_rate: float) -> float:
+    trainer_rate = float(trainer_rate or 0)
+    return trainer_rate / 0.70 if trainer_rate > 0 else 0
+
+
+def _trainer_commercial_matches_requirement(amounts: List[int], requirement: Dict[str, Any]) -> bool:
+    if not amounts:
+        return False
+    client_budget = _safe_float(
+        requirement.get("client_budget_per_day")
+        or requirement.get("budget_per_day")
+        or requirement.get("budget"),
+        0.0,
+    )
+    trainer_budget = _safe_float(
+        requirement.get("trainer_visible_budget_per_session")
+        or requirement.get("trainer_requested_budget_per_session"),
+        0.0,
+    )
+    if not trainer_budget and client_budget:
+        trainer_budget = _trainer_rate_from_client_budget(client_budget)
+    return bool(trainer_budget and min(amounts) <= trainer_budget)
 
 
 def _find_shortlist_trainer(shortlist: Dict[str, Any], trainer_id: str) -> Dict[str, Any]:
@@ -2498,6 +2554,117 @@ async def _handle_trainer_commercial_negotiation_reply(
     }
 
 
+async def _send_trainer_mail3_if_missing(
+    db: AsyncIOMotorDatabase,
+    requirement_id: str,
+    trainer_id: str,
+    trainer: Dict[str, Any],
+    requirement: Dict[str, Any],
+    shortlist: Dict[str, Any],
+    source_email_id: str = "",
+    source_gmail_message_id: str = "",
+) -> Dict[str, Any]:
+    existing = await db["email_logs"].find_one(
+        {
+            "direction": "outbound",
+            "status": "sent",
+            "mail_type": "mail3",
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+        },
+        {"_id": 0, "email_id": 1, "sent_at": 1, "recipient": 1, "to_email": 1},
+        sort=[("created_at", -1)],
+    )
+    if existing:
+        sent_at = existing.get("sent_at") or _now()
+        await db["shortlists"].update_one(
+            {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+            {"$set": {
+                "top_trainers.$.pipeline_status": "slot_booked",
+                "top_trainers.$.last_mail_type": "mail3",
+                "top_trainers.$.last_mail_type_attempted": "mail3",
+                "top_trainers.$.last_mail_attempted_at": sent_at,
+                "top_trainers.$.last_mailed_at": sent_at,
+                "top_trainers.$.last_mail_error": "",
+                "top_trainers.$.updated_at": _now(),
+                "updated_at": _now(),
+            }},
+        )
+        return {
+            "success": True,
+            "already_sent": True,
+            "email_id": existing.get("email_id"),
+            "to": existing.get("to_email") or existing.get("recipient"),
+        }
+
+    trainer_email = _email_address(trainer.get("email") or trainer.get("trainer_email"))
+    if not trainer_email:
+        return {"success": False, "reason": "missing_trainer_email", "error": "Trainer email missing"}
+
+    message = _trainer_slot_booking_message(trainer, requirement, shortlist)
+    settings_doc = await _load_admin_settings(db)
+    message_id_header = generate_message_id()
+    success, error = await send_email_async(
+        to=trainer_email,
+        subject=message["subject"],
+        body=message["body"],
+        smtp_config=settings_doc.get("emailCfg") or None,
+        message_id_header=message_id_header,
+    )
+    now = _now()
+    email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
+    await db["email_logs"].insert_one({
+        "email_id": email_id,
+        "direction": "outbound",
+        "recipient": trainer_email,
+        "to_email": trainer_email,
+        "subject": message["subject"],
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
+        "body": message["body"],
+        "body_snippet": message["body"][:300],
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "mail_type": "mail3",
+        "source_email_id": source_email_id,
+        "source_gmail_message_id": source_gmail_message_id,
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer.get("name") or trainer.get("trainer_name") or "",
+        "client_email": requirement.get("client_email") or shortlist.get("client_email") or "",
+        "client_name": requirement.get("client_name") or requirement.get("client_company") or shortlist.get("client_name") or "",
+        "sent_at": now if success else None,
+        "created_at": now,
+        "updated_at": now,
+    })
+    set_fields = {
+        "top_trainers.$.pipeline_status": "slot_booked" if success else "details_received",
+        "top_trainers.$.last_mail_type_attempted": "mail3",
+        "top_trainers.$.last_mail_attempted_at": now,
+        "top_trainers.$.updated_at": now,
+        "updated_at": now,
+    }
+    if success:
+        set_fields.update({
+            "top_trainers.$.last_mail_type": "mail3",
+            "top_trainers.$.last_mailed_at": now,
+            "top_trainers.$.last_mail_error": "",
+        })
+    else:
+        set_fields["top_trainers.$.last_mail_error"] = error or "Mail 3 slot booking send failed"
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": set_fields},
+    )
+    return {
+        "success": bool(success),
+        "error": error or "",
+        "email_id": email_id,
+        "to": trainer_email,
+        "subject": message["subject"],
+    }
+
+
 async def _handle_trainer_slot_reply(
     db: AsyncIOMotorDatabase,
     email_doc: Dict[str, Any],
@@ -2711,6 +2878,25 @@ async def _handle_trainer_slot_reply(
         }
 
     slot_text = _extract_slot_lines(reply_text)
+    if not _has_proper_interview_slots(slot_text):
+        await db["shortlists"].update_one(
+            {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+            {"$set": {
+                "top_trainers.$.pipeline_status": "slot_booked",
+                "top_trainers.$.slot_status": "invalid_slot_text",
+                "top_trainers.$.slot_reply_at": now,
+                "top_trainers.$.slot_reply_text": reply_text,
+                "top_trainers.$.client_slot_error": "Trainer reply did not include dated time slots; client slot mail was not sent.",
+                "top_trainers.$.updated_at": now,
+                "updated_at": now,
+            }},
+        )
+        return {
+            "attempted": True,
+            "success": False,
+            "reason": "invalid_slot_text",
+            "error": "Trainer reply did not include dated time slots; client slot mail was not sent.",
+        }
     message = _client_slots_message(requirement, shortlist, trainer, slot_text)
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
@@ -2834,7 +3020,7 @@ def _parse_slot_date(text: str) -> Optional[datetime]:
     for match in re.finditer(
         r"\b(?:mon(?:day)?|tue(?:sday)?|wed(?:nesday)?|thu(?:rsday)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?)[,]?\s+"
         r"(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
-        r"\s+(\d{1,2})(?:st|nd|rd|th)?[,]?\s+(\d{2,4})\b",
+        r"\s+(\d{1,2})(?:st|nd|rd|th)?\s*[,]?\s+(\d{2,4})\b",
         text,
         flags=re.IGNORECASE,
     ):
@@ -2851,7 +3037,7 @@ def _parse_slot_date(text: str) -> Optional[datetime]:
     for match in re.finditer(
         r"\b(\d{1,2})(?:st|nd|rd|th)?\s+"
         r"(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
-        r"[,]?\s+(\d{2,4})\b",
+        r"\s*[,]?\s+(\d{2,4})\b",
         text,
         flags=re.IGNORECASE,
     ):
@@ -2978,10 +3164,23 @@ def _is_google_meet_link(value: Any) -> bool:
     return "meet.google.com" in str(value or "").lower()
 
 
+def _is_reschedule_request(text: Any) -> bool:
+    lower = _strip_quoted_email_history(text).lower()
+    if not lower:
+        return False
+    return bool(re.search(
+        r"\b(?:reschedul(?:e|ed|ing)|re-schedul(?:e|ed|ing)|postpone|prepone|change\s+(?:the\s+)?(?:time|slot|date)|new\s+(?:slot|time|date)|another\s+(?:slot|time|date)|busy|not\s+available|unavailable|cannot\s+attend|can't\s+attend|cant\s+attend)\b",
+        lower,
+        flags=re.IGNORECASE,
+    ))
+
+
 def _slot_confirmation_intent(text: Any) -> str:
     lower = _strip_quoted_email_history(text).lower()
     if not lower:
         return "unknown"
+    if _is_reschedule_request(lower):
+        return "reschedule"
     if re.search(r"\b(?:not available|unavailable|not possible|cannot|can't|cant|decline|no thanks|nope|sorry)\b", lower, flags=re.IGNORECASE):
         return "rejected"
     if re.search(r"\bslot\s*\d+\b", lower, flags=re.IGNORECASE):
@@ -2993,6 +3192,239 @@ def _slot_confirmation_intent(text: Any) -> str:
     if re.search(r"\b(preferred slot|preferred option|selected slot|confirm(ed|ation)?|works for|works well|suits (?:me|us)|available|available for)\b", lower, flags=re.IGNORECASE):
         return "selected_slot"
     return "unknown"
+
+
+async def _handle_interview_reschedule_reply(
+    db: AsyncIOMotorDatabase,
+    email_doc: Dict[str, Any],
+) -> Dict[str, Any]:
+    source_mail_type = str(email_doc.get("source_outbound_mail_type") or "").strip()
+    subject = str(email_doc.get("subject") or "")
+    is_interview_thread = (
+        source_mail_type in {"mail4", "client_interview_schedule", "mail4_reschedule_request"}
+        or bool(re.search(r"(Interview Schedule|Interview Link|Meeting Link|Google Meet|Reschedule Request)", subject, flags=re.IGNORECASE))
+    )
+    if not is_interview_thread:
+        return {"attempted": False, "reason": "not_interview_thread"}
+
+    reply_text = _strip_quoted_email_history(
+        email_doc.get("classification_body")
+        or email_doc.get("clean_body")
+        or email_doc.get("raw_body")
+        or email_doc.get("body")
+        or ""
+    )
+    if not _is_reschedule_request(reply_text):
+        return {"attempted": False, "reason": "not_reschedule_reply"}
+
+    requirement_id = email_doc.get("requirement_id") or ""
+    trainer_id = email_doc.get("trainer_id") or ""
+    if not requirement_id or not trainer_id:
+        return {"attempted": True, "success": False, "reason": "missing_requirement_or_trainer_link", "error": "Requirement/trainer link missing"}
+
+    shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+    trainer = _find_shortlist_trainer(shortlist, trainer_id)
+    if not trainer:
+        trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or {}
+    trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name") or email_doc.get("trainer_name")) or "Trainer"
+    trainer_email = _email_address(trainer.get("email") or trainer.get("trainer_email") or email_doc.get("trainer_email"))
+    inbound_sender = _email_address(email_doc.get("from_email") or email_doc.get("sender_email") or email_doc.get("from"))
+    client_email = await _client_email_from_context(db, requirement_id, trainer_email, requirement, shortlist)
+    client_name = _client_name_from_context(requirement, shortlist)
+    technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or shortlist.get("technology_needed")) or "training"
+    now = _now()
+
+    sender_is_trainer = bool(trainer_email and inbound_sender == trainer_email)
+    target_email = client_email if sender_is_trainer else trainer_email
+    target_name = client_name if sender_is_trainer else trainer_name
+    if not target_email:
+        await db["shortlists"].update_one(
+            {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+            {"$set": {
+                "top_trainers.$.pipeline_status": "interview_reschedule_requested",
+                "top_trainers.$.slot_status": "reschedule_needs_manual_email",
+                "top_trainers.$.reschedule_requested_by": "trainer" if sender_is_trainer else "client",
+                "top_trainers.$.reschedule_request_text": reply_text,
+                "top_trainers.$.updated_at": now,
+                "updated_at": now,
+            }},
+        )
+        return {"attempted": True, "success": False, "reason": "missing_target_email", "error": "Other side email missing"}
+
+    if sender_is_trainer:
+        subject_line = f"Interview Reschedule Request - {technology} | {trainer_name}"
+        body = (
+            f"Dear {target_name or 'Team'},\n\n"
+            f"Trainer {trainer_name} has requested to reschedule the interview for the {technology} requirement.\n\n"
+            "Trainer message:\n"
+            f"{reply_text}\n\n"
+            "Kindly share 2-3 alternate slots that work for you. Once we receive your preferred slots, we will coordinate with the trainer and share the updated meeting link.\n\n"
+            "Regards,\nRecruitment Team,\nClahan Technologies"
+        )
+        mail_type = "client_interview_reschedule_request"
+    else:
+        subject_line = f"Interview Reschedule Request - {technology}"
+        body = (
+            f"Hi {target_name or 'Trainer'},\n\n"
+            f"The client has requested to reschedule the interview for the {technology} requirement.\n\n"
+            "Client message / proposed slots:\n"
+            f"{reply_text}\n\n"
+            "Please confirm which slot works for you, or share 2-3 alternate available slots. Once confirmed, we will send the updated meeting link to both sides.\n\n"
+            "Regards,\nClahan Technologies"
+        )
+        mail_type = "mail4_reschedule_request"
+
+    settings_doc = await _load_admin_settings(db)
+    message_id_header = generate_message_id()
+    success, error = await send_email_async(
+        to=target_email,
+        subject=subject_line,
+        body=body,
+        smtp_config=settings_doc.get("emailCfg") or None,
+        message_id_header=message_id_header,
+    )
+    email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
+    await db["email_logs"].insert_one({
+        "email_id": email_id,
+        "direction": "outbound",
+        "recipient": target_email,
+        "to_email": target_email,
+        "subject": subject_line,
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
+        "body": body,
+        "body_snippet": body[:300],
+        "status": "sent" if success else "failed",
+        "error_message": error if not success else "",
+        "mail_type": mail_type,
+        "source_email_id": email_doc.get("email_id"),
+        "source_gmail_message_id": _current_inbound_message_id(email_doc),
+        "requirement_id": requirement_id,
+        "trainer_id": trainer_id,
+        "trainer_name": trainer_name,
+        "client_email": client_email,
+        "client_name": client_name,
+        "interview_scheduled": True,
+        "reschedule_requested": True,
+        "reschedule_requested_by": "trainer" if sender_is_trainer else "client",
+        "reschedule_request_text": reply_text,
+        "sent_at": now if success else None,
+        "created_at": now,
+        "updated_at": now,
+    })
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {
+            "top_trainers.$.pipeline_status": "interview_reschedule_requested",
+            "top_trainers.$.slot_status": "reschedule_coordination",
+            "top_trainers.$.reschedule_requested": True,
+            "top_trainers.$.reschedule_requested_by": "trainer" if sender_is_trainer else "client",
+            "top_trainers.$.reschedule_request_text": reply_text,
+            "top_trainers.$.reschedule_forward_email_id": email_id,
+            "top_trainers.$.last_mail_type": mail_type,
+            "top_trainers.$.last_mail_type_attempted": mail_type,
+            "top_trainers.$.last_mail_attempted_at": now,
+            "top_trainers.$.last_mailed_at": now if success else None,
+            "top_trainers.$.last_mail_error": "" if success else error,
+            "top_trainers.$.updated_at": now,
+            "updated_at": now,
+        }},
+    )
+    return {
+        "attempted": True,
+        "success": bool(success),
+        "reason": "interview_reschedule_forwarded",
+        "requested_by": "trainer" if sender_is_trainer else "client",
+        "email_id": email_id,
+        "to": target_email,
+        "mail_type": mail_type,
+        "error": error or "",
+        "sent_at": now,
+    }
+
+
+def _looks_like_toc_reply(text: Any) -> bool:
+    lower = _strip_quoted_email_history(text).lower()
+    if not lower:
+        return False
+    return bool(re.search(
+        r"\b(?:toc|table\s+of\s+contents|course\s+agenda|training\s+agenda|day[-\s]?wise|curriculum|module\s+wise|session\s+plan|prerequisite|learning\s+outcomes?|attached|attachment)\b",
+        lower,
+        flags=re.IGNORECASE,
+    ))
+
+
+async def _handle_trainer_toc_reply(
+    db: AsyncIOMotorDatabase,
+    email_doc: Dict[str, Any],
+) -> Dict[str, Any]:
+    source_mail_type = str(email_doc.get("source_outbound_mail_type") or "").strip()
+    subject = str(email_doc.get("subject") or "")
+    is_toc_thread = (
+        source_mail_type in {"mail6", "mail6_toc", "toc-request"}
+        or bool(re.search(r"(ToC|Table of Contents|Course Agenda|Training Agenda)", subject, flags=re.IGNORECASE))
+    )
+    if not is_toc_thread:
+        return {"attempted": False, "reason": "not_toc_thread"}
+
+    requirement_id = email_doc.get("requirement_id") or ""
+    trainer_id = email_doc.get("trainer_id") or ""
+    if not requirement_id or not trainer_id:
+        return {"attempted": True, "success": False, "reason": "missing_requirement_or_trainer_link"}
+
+    reply_text = _strip_quoted_email_history(
+        email_doc.get("classification_body")
+        or email_doc.get("clean_body")
+        or email_doc.get("raw_body")
+        or email_doc.get("body")
+        or ""
+    )
+    if not _looks_like_toc_reply(reply_text):
+        return {"attempted": False, "reason": "not_toc_content"}
+
+    now = _now()
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {
+            "top_trainers.$.pipeline_status": "toc_received_pending",
+            "top_trainers.$.toc_status": "received",
+            "top_trainers.$.toc_received_at": now,
+            "top_trainers.$.toc_reply_email_id": email_doc.get("email_id") or "",
+            "top_trainers.$.toc_reply_text": reply_text,
+            "top_trainers.$.last_mail_type": "mail6_toc",
+            "top_trainers.$.updated_at": now,
+            "selection_status": "toc_received_pending",
+            "updated_at": now,
+        }},
+    )
+    try:
+        await db["email_logs"].insert_one({
+            "email_id": f"EML-{uuid.uuid4().hex[:10].upper()}",
+            "direction": "inbound",
+            "from": email_doc.get("from") or email_doc.get("from_email") or "",
+            "from_email": email_doc.get("from_email") or "",
+            "to_email": email_doc.get("to_email") or "",
+            "subject": subject,
+            "body_snippet": reply_text[:300],
+            "status": "received",
+            "mail_type": "trainer_toc_received",
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "source_email_id": email_doc.get("email_id"),
+            "created_at": now,
+            "updated_at": now,
+        })
+    except Exception:
+        pass
+
+    return {
+        "attempted": True,
+        "success": True,
+        "reason": "trainer_toc_received",
+        "status": "toc_received_pending",
+        "sent_at": now,
+    }
 
 
 async def _handle_client_slot_confirmation_reply(
@@ -3467,6 +3899,78 @@ async def _handle_client_slot_confirmation_reply(
     }
 
 
+async def _auto_request_client_po(
+    db: AsyncIOMotorDatabase,
+    *,
+    requirement_id: str,
+    trainer_id: str,
+) -> Dict[str, Any]:
+    if not requirement_id:
+        return {"attempted": False, "reason": "missing_requirement_id"}
+
+    requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0})
+    if not requirement:
+        return {"attempted": True, "success": False, "reason": "requirement_not_found"}
+    if requirement.get("client_po_requested"):
+        return {"attempted": True, "skipped": True, "reason": "po_already_requested"}
+
+    prior_po = await db["email_logs"].find_one(
+        {
+            "direction": "outbound",
+            "requirement_id": requirement_id,
+            "mail_type": "client_po_request",
+            "status": "sent",
+        },
+        {"_id": 0, "email_id": 1},
+    )
+    if prior_po:
+        now = _now()
+        await db["requirements"].update_one(
+            {"requirement_id": requirement_id},
+            {"$set": {"client_po_requested": True, "client_po_requested_at": now, "updated_at": now}},
+        )
+        return {"attempted": True, "skipped": True, "reason": "po_request_already_sent", "email_id": prior_po.get("email_id")}
+
+    client_email = (
+        requirement.get("client_email")
+        or requirement.get("from_email")
+        or requirement.get("requester_email")
+        or ""
+    )
+    if not client_email:
+        return {"attempted": True, "success": False, "reason": "missing_client_email"}
+
+    trainer_name = ""
+    shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0, "top_trainers": 1})
+    for trainer in (shortlist or {}).get("top_trainers", []):
+        if str(trainer.get("trainer_id") or "") == str(trainer_id or ""):
+            trainer_name = trainer.get("name") or trainer.get("trainer_name") or ""
+            break
+
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await _post_with_local_fallback(
+                client,
+                f"{CORE_API_URL}/api/v1/requirements/{requirement_id}/request-client-po",
+                json={
+                    "client_email": client_email,
+                    "client_name": requirement.get("client_name") or requirement.get("client_company") or "",
+                    "trainer_id": trainer_id,
+                    "trainer_name": trainer_name,
+                    "training_dates": requirement.get("training_dates") or requirement.get("timeline_start") or "",
+                },
+            )
+        return {
+            "attempted": True,
+            "success": response.status_code < 400,
+            "status_code": response.status_code,
+            "body": response.text[:500],
+        }
+    except Exception as exc:
+        logger.exception("Failed to auto-request client PO for %s/%s", requirement_id, trainer_id)
+        return {"attempted": True, "success": False, "error": str(exc)}
+
+
 async def _handle_client_selection_reply(
     db: AsyncIOMotorDatabase,
     email_doc: Dict[str, Any],
@@ -3552,6 +4056,12 @@ async def _handle_client_selection_reply(
         logger.exception("Failed to auto-send Mail 5 after client selection for %s/%s", requirement_id, trainer_id)
         mail5_result = {"success": False, "error": str(exc)}
 
+    po_request_result = await _auto_request_client_po(
+        db,
+        requirement_id=requirement_id,
+        trainer_id=trainer_id,
+    )
+
     try:
         email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
         await db["email_logs"].insert_one({
@@ -3566,7 +4076,10 @@ async def _handle_client_selection_reply(
             "mail_type": "client_selection",
             "requirement_id": requirement_id,
             "trainer_id": trainer_id,
-            "automation_result": mail5_result,
+            "automation_result": {
+                "mail5_result": mail5_result,
+                "po_request_result": po_request_result,
+            },
             "created_at": now,
             "updated_at": now,
         })
@@ -3579,6 +4092,7 @@ async def _handle_client_selection_reply(
         "reason": "client_selected",
         "selected_at": now,
         "mail5_result": mail5_result,
+        "po_request_result": po_request_result,
     }
 
 
@@ -3606,8 +4120,7 @@ async def _handle_client_budget_reply(
         return {"attempted": True, "success": False, "reason": "missing_client_budget", "error": "No client budget amount found"}
     client_budget = max(client_budget_amounts)
     unit = _commercial_unit(reply_text)
-    markup = 500 if unit == "hour" else 5000
-    target_amount = max(client_budget - markup, 0)
+    target_amount = _trainer_rate_from_client_budget(client_budget)
     if target_amount <= 0:
         return {"attempted": True, "success": False, "reason": "invalid_target_rate", "error": "Client budget is too low to calculate trainer rate"}
 
@@ -3851,6 +4364,27 @@ async def _forward_trainer_commercials_to_client(
         sort=[("created_at", -1)],
     )
     if existing:
+        shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+        requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
+        trainer = _find_shortlist_trainer(shortlist, trainer_id)
+        if not trainer:
+            trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or {}
+        if not trainer:
+            trainer = {"trainer_id": trainer_id, "name": email_doc.get("trainer_name") or "Trainer", "email": trainer_email}
+        comparable_amounts = amounts or _trainer_profile_commercial_amounts(trainer)
+        if _trainer_commercial_matches_requirement(comparable_amounts, requirement):
+            mail3_result = await _send_trainer_mail3_if_missing(
+                db,
+                requirement_id,
+                trainer_id,
+                trainer,
+                requirement,
+                shortlist,
+                source_email_id=email_doc.get("email_id") or "",
+                source_gmail_message_id=_current_inbound_message_id(email_doc),
+            )
+        else:
+            mail3_result = {"success": False, "skipped": True, "reason": "waiting_for_client_commercial_approval"}
         await _set_trainer_commercial_forward_status(
             db,
             requirement_id,
@@ -3864,6 +4398,7 @@ async def _forward_trainer_commercials_to_client(
             "already_sent": True,
             "email_id": existing.get("email_id"),
             "to": existing.get("to_email") or existing.get("recipient"),
+            "mail3": mail3_result,
         }
 
     shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
@@ -3890,7 +4425,7 @@ async def _forward_trainer_commercials_to_client(
         await _set_trainer_commercial_forward_status(db, requirement_id, trainer_id, "missing_client_email", error)
         return {"attempted": True, "success": False, "reason": "missing_client_email", "error": error}
 
-    client_rates = [amount + 5000 for amount in amounts]
+    client_rates = [_client_rate_from_trainer_rate(amount) for amount in amounts]
     message = _trainer_commercial_body(requirement, shortlist, trainer, client_rates)
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
@@ -3929,7 +4464,21 @@ async def _forward_trainer_commercials_to_client(
     })
     if success:
         await _set_trainer_commercial_forward_status(db, requirement_id, trainer_id, "sent_to_client", sent_at=now)
+        if _trainer_commercial_matches_requirement(amounts, requirement):
+            mail3_result = await _send_trainer_mail3_if_missing(
+                db,
+                requirement_id,
+                trainer_id,
+                trainer,
+                requirement,
+                shortlist,
+                source_email_id=email_doc.get("email_id") or "",
+                source_gmail_message_id=_current_inbound_message_id(email_doc),
+            )
+        else:
+            mail3_result = {"success": False, "skipped": True, "reason": "waiting_for_client_commercial_approval"}
     else:
+        mail3_result = {"success": False, "reason": "commercial_forward_failed"}
         await _set_trainer_commercial_forward_status(
             db,
             requirement_id,
@@ -3946,6 +4495,7 @@ async def _forward_trainer_commercials_to_client(
         "to": client_email,
         "subject": message["subject"],
         "client_rates": client_rates,
+        "mail3": mail3_result,
     }
 
 
@@ -4126,9 +4676,27 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
     trainer_budget = None
     if client_budget not in (None, "", []):
         try:
-            trainer_budget = max(float(client_budget) - 5000, 0)
+            trainer_budget = max(float(client_budget) * 0.70, 0)
         except (TypeError, ValueError):
             trainer_budget = None
+    source_text = " ".join([
+        str(extracted.get("experience") or ""),
+        str(extracted.get("experience_years") or ""),
+        str(extracted.get("min_experience_years") or ""),
+        str(email_doc.get("classification_body") or ""),
+        str(email_doc.get("clean_body") or ""),
+        str(email_doc.get("raw_body") or ""),
+        str(email_doc.get("body") or ""),
+    ])
+    min_experience_years = _safe_int(extracted.get("min_experience_years") or extracted.get("experience_years"), 0)
+    if not min_experience_years:
+        exp_match = re.search(
+            r"\b(?:minimum|min\.?|at\s+least|required|require|need|needs|with|above)?\s*(\d{1,2})\+?\s*(?:years?|yrs?)\s*(?:of\s*)?(?:experience|exp)?\b",
+            source_text,
+            flags=re.IGNORECASE,
+        )
+        if exp_match:
+            min_experience_years = _safe_int(exp_match.group(1), 0)
     return {
         "title": f"{technology} Trainer",
         "technology_needed": technology,
@@ -4150,6 +4718,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         "client_budget_per_day": client_budget,
         "trainer_visible_budget_per_session": trainer_budget,
         "trainer_requested_budget_per_session": trainer_budget,
+        "min_experience_years": min_experience_years or None,
         "budget_min": extracted.get("budget_min"),
         "budget_max": extracted.get("budget_max"),
         "budget_range": extracted.get("budget_range"),
@@ -4760,6 +5329,18 @@ async def _process_client_requirement_email(
     details_later = _client_will_send_details_later(subject, classification_body)
     client_authorized_search = _client_wants_to_proceed_now(subject, classification_body)
     client_provided_details = _client_provided_requirement_details(subject, classification_body, extracted)
+    if details_later and not extracted.get("is_non_client_email"):
+        classification = {
+            **classification,
+            "person_type": "corporate_client",
+            "scenario": "client_will_share_details_later",
+            "auto_reply_allowed": True,
+            "requires_human": False,
+        }
+        extracted["is_non_client_email"] = False
+        extracted["is_training_request"] = True
+        extracted["direct_request_language"] = True
+        extracted["confidence"] = max(_safe_float(extracted.get("confidence"), 0), 0.9)
     is_linked_client_requirement_reply = bool(
         email_doc.get("requirement_id")
         and _is_reply_thread(subject, email_doc)
@@ -4940,6 +5521,90 @@ async def _process_client_requirement_email(
                 "mail_automation": automation,
                 "extracted": extracted,
             }
+
+    try:
+        interview_reschedule_result = await _handle_interview_reschedule_reply(db, send_email_doc)
+    except Exception as exc:
+        logger.exception("Interview reschedule automation failed for %s", email_doc.get("email_id"))
+        interview_reschedule_result = {"attempted": True, "success": False, "error": str(exc)}
+    if interview_reschedule_result.get("attempted"):
+        automation = {
+            "auto_send_enabled": settings["enabled"],
+            "auto_send_threshold": settings["threshold"],
+            "auto_send_candidate": False,
+            "auto_send_eligible": False,
+            "auto_send_ready": False,
+            "auto_send_block_reason": "",
+            "client_authorized_search": False,
+            "pending_client_reply": False,
+            "sent": 1 if interview_reschedule_result.get("success") else 0,
+            "total": 1,
+            "interview_reschedule": interview_reschedule_result,
+        }
+        set_update: Dict[str, Any] = {
+            **base_update,
+            "status": "auto_sent" if interview_reschedule_result.get("success") else "needs_manual_review",
+            "reply_status": "auto_sent" if interview_reschedule_result.get("success") else "needs_manual_review",
+            "processed": True,
+            "processed_at": interview_reschedule_result.get("sent_at") or now,
+            "classification_reason": "interview_reschedule",
+            "interview_reschedule": interview_reschedule_result,
+            "mail_automation": automation,
+            "auto_send_candidate": False,
+            "auto_send_eligible": False,
+            "auto_send_ready": False,
+            "updated_at": _now(),
+        }
+        await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": set_update})
+        return {
+            "processed": True,
+            "reason": "interview_reschedule",
+            "status": set_update.get("status"),
+            "mail_automation": automation,
+            "extracted": extracted,
+        }
+
+    try:
+        trainer_toc_result = await _handle_trainer_toc_reply(db, send_email_doc)
+    except Exception as exc:
+        logger.exception("Trainer ToC automation failed for %s", email_doc.get("email_id"))
+        trainer_toc_result = {"attempted": True, "success": False, "error": str(exc)}
+    if trainer_toc_result.get("attempted"):
+        automation = {
+            "auto_send_enabled": settings["enabled"],
+            "auto_send_threshold": settings["threshold"],
+            "auto_send_candidate": False,
+            "auto_send_eligible": False,
+            "auto_send_ready": False,
+            "auto_send_block_reason": "",
+            "client_authorized_search": False,
+            "pending_client_reply": False,
+            "sent": 0,
+            "total": 1,
+            "trainer_toc": trainer_toc_result,
+        }
+        set_update: Dict[str, Any] = {
+            **base_update,
+            "status": "auto_sent" if trainer_toc_result.get("success") else "needs_manual_review",
+            "reply_status": "auto_sent" if trainer_toc_result.get("success") else "needs_manual_review",
+            "processed": True,
+            "processed_at": trainer_toc_result.get("sent_at") or now,
+            "classification_reason": "trainer_toc_received",
+            "trainer_toc": trainer_toc_result,
+            "mail_automation": automation,
+            "auto_send_candidate": False,
+            "auto_send_eligible": False,
+            "auto_send_ready": False,
+            "updated_at": _now(),
+        }
+        await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": set_update})
+        return {
+            "processed": True,
+            "reason": "trainer_toc_received",
+            "status": set_update.get("status"),
+            "mail_automation": automation,
+            "extracted": extracted,
+        }
 
     try:
         # First check if the client reply indicates the trainer was selected

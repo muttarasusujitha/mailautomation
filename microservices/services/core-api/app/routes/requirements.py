@@ -37,6 +37,94 @@ def _clean(value: Any) -> str:
     return str(value or "").strip()
 
 
+def _amounts_from_text(value: Any) -> List[int]:
+    text = str(value or "")
+    if not text:
+        return []
+    amounts: List[int] = []
+    patterns = [
+        r"(?:inr|rs\.?|₹)\s*([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?",
+        r"\b(?:commercials?|rates?|charges?|fees?|cost|budget|quote|quoted)\b\D{0,80}([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?",
+    ]
+    for pattern in patterns:
+        for match in re.finditer(pattern, text, flags=re.IGNORECASE):
+            try:
+                amount = float(str(match.group(1)).replace(",", ""))
+            except (TypeError, ValueError):
+                continue
+            suffix = str(match.group(2) or "").lower()
+            if suffix in {"k", "thousand"}:
+                amount *= 1000
+            elif suffix in {"lakh", "lakhs"}:
+                amount *= 100000
+            if amount > 0:
+                amounts.append(int(round(amount)))
+    return amounts
+
+
+async def _latest_client_commercial(
+    db: AsyncIOMotorDatabase,
+    req_id: str,
+    trainer_id: str = "",
+) -> Any:
+    shortlist = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0, "top_trainers": 1})
+    selected_trainer: Dict[str, Any] = {}
+    for trainer in (shortlist or {}).get("top_trainers", []):
+        if trainer_id and str(trainer.get("trainer_id") or "") == str(trainer_id):
+            selected_trainer = trainer
+            break
+        if not selected_trainer and trainer.get("pipeline_status") in {"selected", "toc_requested", "toc_received_pending", "training_confirmed"}:
+            selected_trainer = trainer
+    for key in (
+        "client_commercial_rate",
+        "client_rate",
+        "approved_client_rate",
+        "approved_rate",
+        "client_budget",
+        "client_commercial",
+        "commercial_amount",
+        "commercial_rate",
+        "day_rate",
+        "rate",
+        "commercials",
+        "commercial",
+        "commercial_details",
+        "commercial_text",
+    ):
+        value = selected_trainer.get(key)
+        if isinstance(value, (int, float)) and value > 0:
+            return value
+        amounts = _amounts_from_text(value)
+        if amounts:
+            return max(amounts)
+
+    query: Dict[str, Any] = {
+        "requirement_id": req_id,
+        "direction": "outbound",
+        "status": "sent",
+        "mail_type": {"$in": [
+            "trainer_commercials_to_client",
+            "commercial_details_notification",
+            "client_budget_acknowledgment",
+            "client_budget_revision_request",
+            "trainer_rate_discussion",
+        ]},
+    }
+    if trainer_id:
+        query["trainer_id"] = trainer_id
+    logs = await db["email_logs"].find(
+        query,
+        {"_id": 0, "body": 1, "body_snippet": 1, "subject": 1, "created_at": 1},
+    ).sort("created_at", -1).limit(5).to_list(5)
+    for log in logs:
+        amounts = _amounts_from_text(
+            "\n".join(str(log.get(key) or "") for key in ("subject", "body", "body_snippet"))
+        )
+        if amounts:
+            return max(amounts)
+    return None
+
+
 def _as_list(value: Any) -> List[str]:
     if value is None:
         return []
@@ -85,6 +173,58 @@ def _norm(value: Any) -> str:
 
 def _tokens(value: Any) -> set[str]:
     return {token for token in _norm(value).split() if len(token) > 1}
+
+
+def _date_tokens(value: Any) -> set[str]:
+    text = _clean(value).lower()
+    tokens: set[str] = set()
+    for match in re.finditer(r"\b\d{1,2}\s*[/-]\s*\d{1,2}(?:\s*[/-]\s*\d{2,4})?\b", text):
+        tokens.add(re.sub(r"\s+", "", match.group(0)))
+    for match in re.finditer(
+        r"\b\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*(?:\s+\d{2,4})?\b",
+        text,
+    ):
+        tokens.add(re.sub(r"\s+", " ", match.group(0)))
+    return tokens
+
+
+def _requirement_date_tokens(requirement: Dict[str, Any]) -> set[str]:
+    tokens: set[str] = set()
+    for key in ("training_dates", "preferred_dates", "timeline_start", "timeline_end", "dates"):
+        tokens |= _date_tokens(requirement.get(key))
+    return tokens
+
+
+async def _trainer_has_date_conflict(db: AsyncIOMotorDatabase, trainer_id: str, requirement: Dict[str, Any]) -> bool:
+    required_tokens = _requirement_date_tokens(requirement)
+    if not trainer_id or not required_tokens:
+        return False
+    active_stages = {"slot_booked", "interview_scheduled", "selected", "toc_requested", "toc_received_pending", "training_confirmed"}
+    cursor = db["shortlists"].find(
+        {"top_trainers.trainer_id": trainer_id},
+        {"_id": 0, "requirement_id": 1, "training_dates": 1, "timeline_start": 1, "timeline_end": 1, "top_trainers": 1},
+    )
+    async for shortlist in cursor:
+        if shortlist.get("requirement_id") == requirement.get("requirement_id"):
+            continue
+        linked_req = await db["requirements"].find_one({"requirement_id": shortlist.get("requirement_id")}, {"_id": 0}) or {}
+        for trainer in shortlist.get("top_trainers") or []:
+            if _clean(trainer.get("trainer_id")) != _clean(trainer_id):
+                continue
+            stage = _clean(trainer.get("pipeline_status") or trainer.get("status")).lower()
+            if stage not in active_stages:
+                continue
+            conflict_text = " ".join(_clean(v) for v in [
+                trainer.get("interview_date"),
+                trainer.get("training_dates"),
+                trainer.get("slot_reply_text"),
+                shortlist.get("training_dates"),
+                shortlist.get("timeline_start"),
+                shortlist.get("timeline_end"),
+            ])
+            if required_tokens & (_date_tokens(conflict_text) | _requirement_date_tokens(linked_req)):
+                return True
+    return False
 
 
 def _profile_text(trainer: Dict[str, Any]) -> str:
@@ -219,6 +359,8 @@ def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Opti
 
     min_exp = _safe_float(requirement.get("min_experience_years"), 0.0)
     exp = _trainer_experience(trainer)
+    if min_exp > 0 and exp < min_exp:
+        return None
     if min_exp > 0:
         exp_score = 15.0 if exp >= min_exp else 10.0 * (exp / max(min_exp, 1.0))
     else:
@@ -293,7 +435,7 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
     data["timing"] = _clean(data.get("timing"))
     data["preferred_location"] = _clean(data.get("preferred_location") or data.get("location"))
     data["top_n"] = max(1, min(_safe_int(data.get("top_n"), 5), 20))
-    data["min_experience_years"] = _safe_int(data.get("min_experience_years"), 2)
+    data["min_experience_years"] = _safe_int(data.get("min_experience_years"), 0)
     data["send_emails"] = bool(data.get("send_emails", False))
     data.setdefault("status", "active")
     data.setdefault("priority", "medium")
@@ -354,6 +496,11 @@ async def _build_shortlist_for_requirement(
         for trainer in available_trainers
         if (scored_trainer := _score_trainer(trainer, requirement)) is not None
     ]
+    if _requirement_date_tokens(requirement):
+        scored = [
+            trainer for trainer in scored
+            if not await _trainer_has_date_conflict(db, _clean(trainer.get("trainer_id")), requirement)
+        ]
     scored.sort(
         key=lambda trainer: (
             _safe_float(trainer.get("match_score"), 0),
@@ -654,13 +801,8 @@ async def request_client_po(
         mode_line = f"- **Mode/Location:** {mode_text}\n" if mode_text else ''
         participant_count = doc.get('participant_count') or doc.get('participants')
         participant_line = f"- **Participants:** {participant_count}\n" if participant_count else ''
-        commercial_value = (
-            doc.get('client_budget_per_day')
-            or doc.get('budget_per_day')
-            or doc.get('budget_total')
-            or doc.get('budget')
-            or doc.get('day_rate')
-        )
+        latest_commercial_value = await _latest_client_commercial(db, req_id, payload.trainer_id)
+        commercial_value = latest_commercial_value
         if commercial_value:
             try:
                 amount = float(commercial_value)
@@ -669,6 +811,11 @@ async def request_client_po(
                 day_rate = f"{commercial_value} per day/session"
         else:
             day_rate = 'To be confirmed'
+        if not latest_commercial_value and day_rate == 'To be confirmed':
+            raise HTTPException(
+                400,
+                "Latest approved commercial is missing. PO request was not sent.",
+            )
         body = (
             f"Dear {payload.client_name or doc.get('client_name') or doc.get('client_company') or 'Client'},\n\n"
             f"Thank you for confirming the **{tech}** training requirement.\n\n"

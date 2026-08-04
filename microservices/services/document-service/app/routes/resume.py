@@ -71,6 +71,12 @@ CATEGORY_RULES = [
 ]
 
 EMPTY_CATEGORIES = {"", "-", "unknown", "uncategorised", "uncategorized", "general", "multi-skillset", "not available"}
+COMMON_LOCATION_NAMES = [
+    "Bengaluru", "Bangalore", "Hyderabad", "Chennai", "Pune", "Mumbai", "Delhi",
+    "New Delhi", "Gurugram", "Gurgaon", "Noida", "Kolkata", "Ahmedabad", "Jaipur",
+    "Coimbatore", "Kochi", "Trivandrum", "Thiruvananthapuram", "Indore", "Nagpur",
+    "Chandigarh", "Mysuru", "Mysore", "Visakhapatnam", "Vijayawada", "India",
+]
 
 
 def _extract_pdf_text(file_bytes: bytes) -> str:
@@ -183,6 +189,57 @@ def _safe_float(value: Any) -> float:
         return float(match.group(1)) if match else 0.0
 
 
+def _extract_location(text: str, email: str = "", phone: str = "") -> str:
+    head = "\n".join(str(text or "").splitlines()[:30])
+    if not head:
+        return ""
+
+    labelled = re.search(
+        r"\b(?:current\s+)?(?:location|city|based\s+in)\b\s*[:\-]\s*([A-Za-z][A-Za-z .,-]{1,80})",
+        head,
+        flags=re.IGNORECASE,
+    )
+    if labelled:
+        value = re.split(r"\s{2,}|\||•|·|;", labelled.group(1).strip())[0].strip(" ,-")
+        if value:
+            return value
+
+    email_pattern = re.escape(email) if email else r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"
+    phone_pattern = re.escape(phone) if phone else r"\+?\d[\d ().-]{8,20}\d"
+    contact_line = re.search(
+        rf"{email_pattern}[\s|•·,;-]+{phone_pattern}[\s|•·,;-]+([A-Za-z][A-Za-z .,-]{{1,80}})",
+        head,
+        flags=re.IGNORECASE,
+    )
+    if not contact_line:
+        contact_line = re.search(
+            rf"{phone_pattern}[\s|•·,;-]+{email_pattern}[\s|•·,;-]+([A-Za-z][A-Za-z .,-]{{1,80}})",
+            head,
+            flags=re.IGNORECASE,
+        )
+    if contact_line:
+        value = re.split(r"\s{2,}|\||•|·|;", contact_line.group(1).strip())[0].strip(" ,-")
+        value = re.sub(
+            r"\b(?:linkedin|github|portfolio|platform engineer|developer|trainer)\b.*$",
+            "",
+            value,
+            flags=re.IGNORECASE,
+        ).strip(" ,-")
+        if value:
+            return "Bengaluru" if value.lower() == "bangalore" else value
+
+    for line in head.splitlines():
+        clean = _clean_text(line)
+        if not clean:
+            continue
+        for city in COMMON_LOCATION_NAMES:
+            match = re.search(rf"\b{re.escape(city)}\b(?:\s*,\s*(?:India|IN))?", clean, flags=re.IGNORECASE)
+            if match:
+                found = match.group(0)
+                return "Bengaluru" if found.lower() == "bangalore" else found
+    return ""
+
+
 def _infer_category(skills: List[str], text: str, current: Any = "") -> str:
     current_text = _clean_text(current)
     if current_text and current_text.lower() not in EMPTY_CATEGORIES:
@@ -272,6 +329,9 @@ def _normalise_profile(profile: Dict[str, Any], raw_text: str) -> Dict[str, Any]
         result["primary_category"] = category
         result["domain"] = category
 
+    if not _clean_text(result.get("location")):
+        result["location"] = _extract_location(raw_text, result.get("email") or "", result.get("phone") or "")
+
     if not _clean_text(result.get("technologies")) and skills:
         result["technologies"] = ", ".join(skills)
 
@@ -306,22 +366,41 @@ def _regex_profile(text: str, filename: str) -> Dict[str, Any]:
 
     # Derive name: first non-empty line that looks like a name
     name = ""
+    title = ""
     for line in text.splitlines()[:12]:
         clean = re.sub(r"[^A-Za-z .'-]", " ", line).strip()
         clean = re.sub(r"\s+", " ", clean)
+        raw_line = _clean_text(line)
         words = clean.split()
+        if "@" in raw_line or re.search(r"\+?\d[\d ().-]{8,20}\d", raw_line):
+            continue
+        if re.search(r"\b\d+(?:\.\d+)?\+?\s*(?:years?|yrs?)\b", raw_line, flags=re.IGNORECASE):
+            continue
+        if len(_detected_skills_from_text(raw_line)) >= 2:
+            continue
+        lower_clean = clean.lower()
+        if any(title_word in lower_clean for title_word in ["engineer", "developer", "architect", "consultant", "trainer", "manager", "specialist"]):
+            if not title and 1 <= len(words) <= 6:
+                title = clean.title()
+            continue
         if 2 <= len(words) <= 5 and not any(w.lower() in {"resume", "cv", "email", "phone"} for w in words):
             name = clean.title()
             break
     if not name:
         stem = re.sub(r"[_\-]+", " ", filename.rsplit(".", 1)[0]).strip().title()
         name = re.sub(r"\b(Resume|Cv|Profile|Trainer)\b", "", stem, flags=re.IGNORECASE).strip()
-    name, title = _split_name_title(name)
+    name, split_title = _split_name_title(name)
+    title = split_title or title
 
     return {
         "name": name,
         "email": email_m.group(0) if email_m else "",
         "phone": phone_m.group(0).strip() if phone_m else "",
+        "location": _extract_location(
+            text,
+            email_m.group(0) if email_m else "",
+            phone_m.group(0).strip() if phone_m else "",
+        ),
         "linkedin": li_m.group(0) if li_m else "",
         "experience_years": max(exp_vals) if exp_vals else 0,
         "role_designation": title,

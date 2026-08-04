@@ -397,7 +397,7 @@ export default function Admin() {
         toast.success('SMTP/IMAP mode is active. Google OAuth skipped.')
         return
       }
-      if (!gmailStatus.connected) {
+      if (!gmailStatus.connected || !gmailStatus.calendar_connected) {
         const redirectUri = `${window.location.protocol}//${window.location.hostname}:8000/api/gmail/oauth-callback`
         const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
         const oauthData = await oauthRes.json().catch(() => ({}))

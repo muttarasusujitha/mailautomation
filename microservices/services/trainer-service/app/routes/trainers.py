@@ -164,6 +164,10 @@ def _location_search_clauses(value: str) -> List[Dict[str, Any]]:
     ]
 
 
+def _strict_location_search_clauses(value: str) -> List[Dict[str, Any]]:
+    return [_regex_clause("location", term) for term in _location_terms(value) if term]
+
+
 def _compact_key(value: Any) -> str:
     return re.sub(r"[^a-z0-9]+", "", str(value or "").lower())
 
@@ -536,13 +540,14 @@ def _expand_zip_upload(filename: str, data: bytes) -> List[_UploadPart]:
 @router.get("")
 async def list_trainers(
     page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
-    limit: Optional[int] = Query(None, ge=1, le=100),
+    page_size: int = Query(20, ge=1, le=1000),
+    limit: Optional[int] = Query(None, ge=1, le=1000),
     search: Optional[str] = None,
     category: Optional[str] = None,
     domain: Optional[str] = None,
     industry: Optional[str] = None,
     location: Optional[str] = None,
+    strict_location: bool = Query(False),
     experience: Optional[str] = None,
     status: Optional[str] = None,
     db: AsyncIOMotorDatabase = Depends(get_db),
@@ -566,7 +571,7 @@ async def list_trainers(
             _regex_clause("past_clients", industry),
         ])
     if location:
-        _append_or(query, _location_search_clauses(location))
+        _append_or(query, _strict_location_search_clauses(location) if strict_location else _location_search_clauses(location))
     exp_query = _experience_range(experience or "")
     if exp_query:
         query["experience_years"] = exp_query
@@ -581,7 +586,13 @@ async def list_trainers(
         ])
     total = await db.trainers.count_documents(query)
     skip = (page - 1) * page_size
-    cursor = db.trainers.find(query, {"resume": 0, "combined_text": 0}).skip(skip).limit(page_size).sort("created_at", -1)
+    sort_fields = [
+        ("resume_rank_score", -1),
+        ("profile_score", -1),
+        ("trainer_rating", -1),
+        ("created_at", -1),
+    ] if strict_location else [("created_at", -1)]
+    cursor = db.trainers.find(query, {"resume": 0, "combined_text": 0}).skip(skip).limit(page_size).sort(sort_fields)
     items = [_enrich_trainer_profile(_oid(d)) async for d in cursor]
     return {"items": items, "total": total, "page": page, "page_size": page_size, "pages": max(1, (total + page_size - 1) // page_size)}
 
