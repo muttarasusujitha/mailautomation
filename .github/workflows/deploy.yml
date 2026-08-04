@@ -164,6 +164,8 @@ jobs:
 
           - image: gateway
             dockerfile: microservices/gateway/Dockerfile
+          - image: frontend
+            dockerfile: frontend/Dockerfile
 
     steps:
       - uses: actions/checkout@v4
@@ -189,6 +191,12 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
 
+# ======================================================
+
+# STAGE 4: Deploy to EC2
+
+# ======================================================
+
   deploy-ec2:
     name: Stage 4 - Deploy to EC2
     if: github.ref == 'refs/heads/main'
@@ -205,6 +213,20 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Configure SSH
+      - name: Create Deployment Directory
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+          "mkdir -p /home/ubuntu/trainersync"
+
+      - name: Copy Frontend Compose
+        run: |
+          scp docker-compose.yml \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trainersync/frontend-compose.yml
+
+      - name: Copy Backend Compose
+        run: |
+          scp microservices/docker-compose.yml \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trainersync/backend-compose.yml
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
@@ -217,32 +239,35 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           GH_USER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           ssh ${EC2_USER}@${EC2_HOST} << 'EOF'
           set -e
 
-          APP_DIR=/home/ubuntu/mailautomation
+          cd /home/ubuntu/trainersync
+          echo "$GHCR_TOKEN" | docker login ghcr.io \ 
+          -u "$GH_USER" \
+          --password-stdin
 
-          if [ ! -d "$APP_DIR/.git" ]; then
-            git clone https://github.com/${GH_USER}/${REPO}.git $APP_DIR
-          else
-            cd $APP_DIR
-            git fetch origin
-            git reset --hard origin/main
-          fi
+          echo "Deploy Backend"
 
-          cd $APP_DIR/microservices
+          docker compose -f backend-compose.yml pull
+          docker compose -f backend-compose.yml down --remove-orphans
+          docker compose -f backend-compose.yml up -d
 
-          echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GH_USER" --password-stdin
+          echo "Deploy Frontend"
 
-          docker compose pull
-          docker compose down --remove-orphans
-          docker compose up -d
+          docker compose -f frontend-compose.yml pull
+          docker compose -f frontend-compose.yml down --remove-orphans
+          docker compose -f frontend-compose.yml up -d
 
           docker image prune -af
 
-          docker compose ps
+          echo "Backend Containers"
+          docker compose -f backend-compose.yml ps
+
+          echo "Frontend Containers"
+          docker compose -f frontend-compose.yml ps
           EOF
 
       - name: Verify
