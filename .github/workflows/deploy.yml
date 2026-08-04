@@ -28,7 +28,6 @@ jobs:
           echo "Repository checked out"
           pwd
           ls -la
-
   build-test:
     name: Stage 2 - Backend Build & Test
     needs: source-code
@@ -61,7 +60,6 @@ jobs:
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
-
       - name: Validate Python
         working-directory: microservices/services/${{ matrix.service }}
         run: python -m compileall .
@@ -75,7 +73,6 @@ jobs:
           else
             echo "No tests found"
           fi
-
  
        
   frontend-build:
@@ -103,16 +100,12 @@ jobs:
           echo "Repository Root"
           pwd
           ls -la
-
           echo "Frontend"
           ls -la frontend
-
           echo "Frontend Source"
           ls -la frontend/src
-
           echo "Pages"
           ls -la frontend/src/pages
-
       - name: Install Frontend Dependencies
         working-directory: frontend
         run: npm ci --legacy-peer-deps
@@ -164,8 +157,6 @@ jobs:
 
           - image: gateway
             dockerfile: microservices/gateway/Dockerfile
-          - image: frontend
-            dockerfile: frontend/Dockerfile
 
     steps:
       - uses: actions/checkout@v4
@@ -174,7 +165,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.PAT_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: docker/metadata-action@v5
         id: meta
@@ -183,19 +174,12 @@ jobs:
           tags: |
             type=raw,value=latest
             type=sha
-
       - uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-
-# ======================================================
-
-# STAGE 4: Deploy to EC2
-
-# ======================================================
 
   deploy-ec2:
     name: Stage 4 - Deploy to EC2
@@ -213,63 +197,37 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Configure SSH
-      - name: Create Deployment Directory
-        run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-          "mkdir -p /home/ubuntu/trainersync"
-
-      - name: Copy Frontend Compose
-        run: |
-          scp docker-compose.yml \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trainersync/frontend-compose.yml
-
-      - name: Copy Backend Compose
-        run: |
-          scp microservices/docker-compose.yml \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trainersync/backend-compose.yml
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
       - name: Deploy
         env:
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           GH_USER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
-          GHCR_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ssh ${EC2_USER}@${EC2_HOST} << EOF
+          ssh ${EC2_USER}@${EC2_HOST} << 'EOF'
           set -e
-
-          cd /home/ubuntu/trainersync
-          echo "$GHCR_TOKEN" | docker login ghcr.io \ 
-            -u "$GH_USER" \
-            --password-stdin
-
-          echo "Deploy Backend"
-
-          docker compose -f backend-compose.yml pull
-          docker compose -f backend-compose.yml down --remove-orphans
-          docker compose -f backend-compose.yml up -d
-
-          echo "Deploy Frontend"
-
-          docker compose -f frontend-compose.yml pull
-          docker compose -f frontend-compose.yml down --remove-orphans
-          docker compose -f frontend-compose.yml up -d
-
+          APP_DIR=/home/ubuntu/mailautomation
+          if [ ! -d "$APP_DIR/.git" ]; then
+            git clone https://github.com/${GH_USER}/${REPO}.git $APP_DIR
+          else
+            cd $APP_DIR
+            git fetch origin
+            git reset --hard origin/main
+          fi
+          cd $APP_DIR/microservices
+          echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GH_USER" --password-stdin
+          docker compose pull
+          docker compose down --remove-orphans
+          docker compose up -d
           docker image prune -af
-
-          echo "Backend Containers"
-          docker compose -f backend-compose.yml ps
-
-          echo "Frontend Containers"
-          docker compose -f frontend-compose.yml ps
+          docker compose ps
           EOF
-
       - name: Verify
         run: |
           ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "docker ps"
