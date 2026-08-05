@@ -19,7 +19,7 @@ env:
 jobs:
   source-code:
     name: Stage 1 - Checkout
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v4
@@ -28,10 +28,17 @@ jobs:
           echo "Repository checked out"
           pwd
           ls -la
+
+# ======================================================
+
+#STAGE 2: BUILD & TEST
+
+# ======================================================
+
   build-test:
     name: Stage 2 - Backend Build & Test
     needs: source-code
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     strategy:
       fail-fast: false
@@ -81,7 +88,7 @@ jobs:
 
     needs: source-code
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
 
@@ -125,10 +132,11 @@ jobs:
     needs:
       - build-test
       - frontend-build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     strategy:
       fail-fast: false
+      max-parallel: 3   
       matrix:
         include:
           - image: auth-service
@@ -183,6 +191,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Free Disk Space
+        run: |
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/lib/android
+          docker system prune -af || true
+          docker builder prune -af || true
+          df -h
 
       - uses: docker/login-action@v3
         with:
@@ -204,6 +221,11 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
 
+      - name: Cleanup Build Cache
+        if: always()
+        run: |
+          docker builder prune -af || true
+
 # =========================================================
           
 # STAGE 4 : DEPLOY TO EC2
@@ -214,105 +236,52 @@ jobs:
     name: Stage 4 - Deploy to EC2
     if: github.ref == 'refs/heads/main'
     needs: docker-build-push
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Create Deployment Directory
-        run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-          "mkdir -p /home/ubuntu/trainersync"
-
-      - name: Copy Backend Compose
-        run: |
-          scp microservices/docker-compose.yml \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trainersync/backend-compose.yml
-
-      - name: Copy Frontend Compose
-        run: |
-          scp docker-compose.yml \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trainersync/frontend-compose.yml
-      
-      - name: Copy Backend Environment File
-        run: |
-          scp microservices/.env.example \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trainersync/.env
-
-      - name: Deploy
+      - name: Login to GHCR
         env:
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
           GH_USER: ${{ github.repository_owner }}
           GHCR_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          ssh ${EC2_USER}@${EC2_HOST} << EOF
-          set -e
-          echo "===== Debug Info ====="
-          whoami
-          pwd
-          echo "PATH=$PATH"
-
-          which docker || true
-          sudo apt update
-
-          sudo apt install -y docker.io
-
-          sudo systemctl enable docker
-
-          sudo systemctl start docker
-          sudo docker --version || true
-          sudo apt install -y docker-compose-v2
-          sudo docker compose version || true
-          cd /home/ubuntu/trainersync
-
           echo "$GHCR_TOKEN" | docker login ghcr.io \
             -u "$GH_USER" \
             --password-stdin
 
-          echo "Stopping old containers..."
-          sudo docker compose -f backend-compose.yml down --remove-orphans || true
-          sudo docker compose -f frontend-compose.yml down --remove-orphans || true
-
-          echo "Removing unused containers..."
-          sudo docker container prune -f
-
-          echo "Removing old images..."
-          sudo docker image prune -af
-
-          echo "Removing old volumes..."
-          sudo docker volume prune -f
-
-          echo "Pulling latest backend images..."
-          sudo docker compose -f backend-compose.yml pull
-
-          echo "Starting backend..."
-          sudo docker compose -f backend-compose.yml up -d
-
-          echo "Pulling latest frontend image..."
-          sudo docker compose -f frontend-compose.yml pull
-
-          echo "Starting frontend..."
-          sudo docker compose -f frontend-compose.yml up -d
-
-          echo "Current containers"
-          sudo docker ps
-
-          EOF
-      - name: Verify
+      - name: Stop Existing Containers
         run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-          "sudo docker ps"
+          cd /home/ubuntu/trainersync
+
+          docker compose -f backend-compose.yml down --remove-orphans || true
+          docker compose -f frontend-compose.yml down --remove-orphans || true
+
+      - name: Cleanup Docker
+        run: |
+          docker container prune -f
+          docker image prune -af
+          docker volume prune -f
+
+      - name: Pull Latest Images
+        run: |
+          cd /home/ubuntu/trainersync
+
+          docker compose -f backend-compose.yml pull
+          docker compose -f frontend-compose.yml pull
+
+      - name: Start Backend
+        run: |
+          cd /home/ubuntu/trainersync
+
+          docker compose -f backend-compose.yml up -d
+
+      - name: Start Frontend
+        run: |
+          cd /home/ubuntu/trainersync
+
+          docker compose -f frontend-compose.yml up -d
+
+      - name: Verify Deployment
+        run: |
+          docker ps
