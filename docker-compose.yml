@@ -47,5 +47,5 @@ volumes:
   sonarqube_logs:
 
 networks:
-  trainersync:
-    driver: bridge
+  microservices_trainersync:
+    external: true

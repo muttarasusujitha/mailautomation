@@ -166,6 +166,9 @@ jobs:
           - image: celery-beat-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
 
+          - image: frontend
+            dockerfile: frontend/Dockerfile
+
     steps:
       - uses: actions/checkout@v4
 
