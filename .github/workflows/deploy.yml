@@ -133,41 +133,53 @@ jobs:
         include:
           - image: auth-service
             dockerfile: microservices/services/auth-service/Dockerfile
+            context: .
 
           - image: core-api
             dockerfile: microservices/services/core-api/Dockerfile
+            context: .
 
           - image: email-service
             dockerfile: microservices/services/email-service/Dockerfile
+            context: .
 
           - image: notification-service
             dockerfile: microservices/services/notification-service/Dockerfile
+            context: .
 
           - image: trainer-service
             dockerfile: microservices/services/trainer-service/Dockerfile
+            context: .
 
           - image: intelligence-service
             dockerfile: microservices/services/intelligence-service/Dockerfile
+            context: .
 
           - image: document-service
             dockerfile: microservices/services/document-service/Dockerfile
+            context: .
 
           - image: scheduler-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
+            context: .
 
           - image: gateway-service
             dockerfile: microservices/gateway/Dockerfile
+            context: .
 
          
           - image: celery-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
+            context: .
 
      
           - image: celery-beat-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
+            context: .
 
           - image: frontend
             dockerfile: frontend/Dockerfile
+            context: frontend
 
     steps:
       - uses: actions/checkout@v4
@@ -187,7 +199,7 @@ jobs:
             type=sha
       - uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
