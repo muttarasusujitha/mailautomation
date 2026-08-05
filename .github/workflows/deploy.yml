@@ -231,6 +231,11 @@ jobs:
         run: |
           scp docker-compose.yml \
           ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trainersync/frontend-compose.yml
+      
+      - name: Copy Backend Environment File
+        run: |
+          scp microservices/.env.example \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/trainersync/.env
 
       - name: Deploy
         env:
