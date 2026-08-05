@@ -203,7 +203,7 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        
+
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -253,12 +253,17 @@ jobs:
             -u "$GH_USER" \
             --password-stdin
 
-      - name: Stop Existing Containers
+      - name: Create Backend .env
+        working-directory: ${{ github.workspace }}/microservices
         run: |
-          cd /home/ubuntu/trainersync
+          cp .env.example .env
+          
+      - name: Stop Existing Containers
+        working-directory: ${{ github.workspace }}
+        run: |
 
-          docker compose -f backend-compose.yml down --remove-orphans || true
-          docker compose -f frontend-compose.yml down --remove-orphans || true
+          docker compose -f microservices/docker-compose.yml down --remove-orphans || true
+          docker compose -f docker-compose.yml down --remove-orphans || true
 
       - name: Cleanup Docker
         run: |
@@ -267,23 +272,23 @@ jobs:
           docker volume prune -f
 
       - name: Pull Latest Images
+        working-directory: ${{ github.workspace }}
         run: |
-          cd /home/ubuntu/trainersync
 
-          docker compose -f backend-compose.yml pull
-          docker compose -f frontend-compose.yml pull
+          docker compose -f microservices/docker-compose.yml pull
+          docker compose -f docker-compose.yml pull
 
       - name: Start Backend
+        working-directory: ${{ github.workspace }}
         run: |
-          cd /home/ubuntu/trainersync
 
-          docker compose -f backend-compose.yml up -d
+          docker compose -f microservices/docker-compose.yml up -d
 
       - name: Start Frontend
+        working-directory: ${{ github.workspace }}
         run: |
-          cd /home/ubuntu/trainersync
 
-          docker compose -f frontend-compose.yml up -d
+          docker compose -f docker-compose.yml up -d
 
       - name: Verify Deployment
         run: |
