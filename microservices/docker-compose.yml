@@ -315,4 +315,5 @@ volumes:
 
 networks:
   trainersync:
+    name: trainersync
     driver: bridge

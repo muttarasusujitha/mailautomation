@@ -1,16 +1,15 @@
 services:
   frontend:
-    build:
-      context: ./frontend
+    image: ghcr.io/muttarasusujitha/trainersync/frontend:latest
     restart: unless-stopped
     environment:
       VITE_API_BASE_URL: /api
-      VITE_API_PROXY_TARGET: http://backend:8000
+      VITE_API_PROXY_TARGET: http://gateway:8000
       VITE_API_PROXY_REWRITE_TO_V1: "true"
     ports:
       - "5174:5174"
     networks:
-      - microservices_trainersync
+      - trainersync
 
   sonarqube:
     image: sonarqube:community
@@ -47,5 +46,5 @@ volumes:
   sonarqube_logs:
 
 networks:
-  microservices_trainersync:
+  trainersync:
     external: true
