@@ -283,26 +283,33 @@ jobs:
             -u "$GH_USER" \
             --password-stdin
 
-          echo "Deploying Backend..."
+          echo "Stopping old containers..."
+          sudo docker compose -f backend-compose.yml down --remove-orphans || true
+          sudo docker compose -f frontend-compose.yml down --remove-orphans || true
 
-          sudo docker compose -f backend-compose.yml pull
-          sudo docker compose -f backend-compose.yml down --remove-orphans
-          sudo docker compose -f backend-compose.yml up -d
+          echo "Removing unused containers..."
+          sudo docker container prune -f
 
-          echo "Deploying Frontend..."
-
-          sudo docker compose -f frontend-compose.yml pull
-          sudo docker compose -f frontend-compose.yml down --remove-orphans
-          sudo docker compose -f frontend-compose.yml up -d
-
-          echo "Cleaning old images..."
+          echo "Removing old images..."
           sudo docker image prune -af
 
-          echo "Backend Containers"
-          sudo docker compose -f backend-compose.yml ps
+          echo "Removing old volumes..."
+          sudo docker volume prune -f
 
-          echo "Frontend Containers"
-          sudo docker compose -f frontend-compose.yml ps
+          echo "Pulling latest backend images..."
+          sudo docker compose -f backend-compose.yml pull
+
+          echo "Starting backend..."
+          sudo docker compose -f backend-compose.yml up -d
+
+          echo "Pulling latest frontend image..."
+          sudo docker compose -f frontend-compose.yml pull
+
+          echo "Starting frontend..."
+          sudo docker compose -f frontend-compose.yml up -d
+
+          echo "Current containers"
+          sudo docker ps
 
           EOF
       - name: Verify
