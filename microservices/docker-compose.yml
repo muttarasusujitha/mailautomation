@@ -116,7 +116,7 @@ services:
     expose:
       - "8002"
     volumes:
-      - gmail_config:/app/config       # mounts token.json for OAuth
+      - ./gmail_config:/app/config     # persists Google OAuth token.json across container recreates
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
       interval: 30s
@@ -272,7 +272,7 @@ services:
   # ── API Gateway (nginx) ───────────────────────────────────────────────────────
   gateway:
     container_name: ts-gateway
-    image: ghcr.io/muttarasusujitha/trainersync/gateway-service:latest
+    image: ghcr.io/muttarasusujitha/trainersync/gateway:latest
     restart: unless-stopped
     networks:
       - trainersync
@@ -310,7 +310,6 @@ services:
 volumes:
   mongo_data:
   redis_data:
-  gmail_config:
   celery_beat_data:
 
 networks:

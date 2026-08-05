@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Loader2, Mail, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import api from '../utils/api'
-import { clearGmailOAuthPkce, consumeGmailOAuthPkce } from '../utils/gmailOAuth'
+import { clearGmailOAuthPkce, consumeGmailOAuthPkce, normalizeGmailStatus } from '../utils/gmailOAuth'
 
 export default function GmailCallback({ onLogin }) {
   const [params] = useSearchParams()
@@ -42,7 +42,15 @@ export default function GmailCallback({ onLogin }) {
 
         try {
           await api.post('/gmail/renew-watch')
-          setStatus({ type: 'success', message: 'Gmail and Google Calendar connected. Inbox watch renewed.' })
+          const statusRes = await api.get('/gmail/auth-status')
+          const normalized = normalizeGmailStatus(statusRes.data || {})
+          const calendarReady = Boolean(normalized.calendar_connected)
+          setStatus({
+            type: calendarReady ? 'success' : 'warning',
+            message: calendarReady
+              ? 'Gmail and Google Calendar connected. Inbox watch renewed.'
+              : 'Gmail connected. Google Calendar scope is still being confirmed.',
+          })
         } catch (watchError) {
           setStatus({
             type: 'warning',

@@ -2,10 +2,16 @@ import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import {
+  AlertTriangle,
   Building2,
   CalendarClock,
+  CheckCircle2,
   Clock3,
+  Copy,
+  DollarSign,
+  FileText,
   Filter,
+  ListChecks,
   Link2,
   Loader2,
   Mail,
@@ -15,6 +21,7 @@ import {
   Send,
   Sparkles,
   UserRound,
+  Wand2,
 } from 'lucide-react'
 import api from '../utils/api'
 
@@ -225,6 +232,271 @@ function messagesForTrainer(thread, trainer) {
     const msgKey = messageTrainerKey(message)
     return msgKey === key || ['client_inbox', 'calhan_reply'].includes(source)
   })
+}
+
+const AI_TOOLS = [
+  { key: 'requirement', label: 'Requirement Analyzer', icon: FileText },
+  { key: 'ranking', label: 'Trainer Ranking', icon: Sparkles },
+  { key: 'scheduler', label: 'Interview Scheduler', icon: CalendarClock },
+  { key: 'commercial', label: 'Commercial Negotiator', icon: DollarSign },
+  { key: 'agenda', label: 'Agenda Generator', icon: ListChecks },
+  { key: 'toc', label: 'TOC Generator', icon: FileText },
+  { key: 'proposal', label: 'Proposal & Quotation', icon: FileText },
+  { key: 'followup', label: 'Follow-up Agent', icon: Mail },
+  { key: 'rewrite', label: 'Email Rewrite', icon: Wand2 },
+  { key: 'risk', label: 'Risk Detection', icon: AlertTriangle },
+]
+
+function latestClientMessage(messages = []) {
+  return [...messages].reverse().find(message => message.direction === 'received') || messages[messages.length - 1] || {}
+}
+
+function compactConversation(messages = []) {
+  return messages
+    .slice(-6)
+    .map(message => `${message.direction === 'received' ? 'Client' : 'Clahan'}: ${cleanMailBody(message.body).slice(0, 500)}`)
+    .join('\n\n')
+}
+
+function detectBudget(text = '') {
+  const match = text.match(/(?:budget|commercial|rate|price|cost|fee|charges?).{0,40}?([0-9][0-9,]*(?:\.\d+)?)(?:\s*(?:inr|rs|₹|\/day|per day|per session|k|lakh|lakhs))?/i)
+  return match?.[0] || ''
+}
+
+function detectDuration(text = '') {
+  const match = text.match(/\b(\d+\s*(?:day|days|week|weeks|month|months|hour|hours)|full[-\s]?time|weekend|weekday)\b/i)
+  return match?.[0] || ''
+}
+
+function detectLocation(text = '') {
+  const match = text.match(/\b(?:location|city|onsite|offline|remote|online|hybrid)\b.{0,45}/i)
+  return match?.[0] || ''
+}
+
+function buildAiOutput(toolKey, thread = {}, trainer = {}, messages = [], tone = 'professional') {
+  const latest = latestClientMessage(messages)
+  const text = [thread.last_subject, thread.domain, cleanMailBody(latest.body), compactConversation(messages)].filter(Boolean).join('\n')
+  const domain = thread.domain || 'Training'
+  const client = thread.client_company || thread.client_name || thread.client_email || 'Client'
+  const trainerName = trainer.trainer_name || trainer.name || 'Selected trainer'
+  const budget = detectBudget(text) || 'Not confirmed'
+  const duration = detectDuration(text) || 'Not confirmed'
+  const location = detectLocation(text) || 'Not confirmed'
+  const missing = [
+    !domain && 'technology/domain',
+    budget === 'Not confirmed' && 'budget/commercial range',
+    duration === 'Not confirmed' && 'duration',
+    location === 'Not confirmed' && 'delivery mode or location',
+    !thread.client_email && 'client email',
+  ].filter(Boolean)
+
+  const outputs = {
+    requirement: [
+      `Structured requirement for ${client}`,
+      '',
+      `Technology: ${domain}`,
+      `Trainer: ${trainerName}`,
+      `Budget: ${budget}`,
+      `Duration: ${duration}`,
+      `Location / mode: ${location}`,
+      `Requirement ID: ${thread.requirement_id || 'Not linked'}`,
+      '',
+      'Next action: confirm missing fields, then shortlist trainers with matching skills, budget, and availability.',
+    ].join('\n'),
+    ranking: [
+      `AI trainer ranking note for ${domain}`,
+      '',
+      `1. ${trainerName}`,
+      'Score: 82/100',
+      `Why: selected in this communication thread, appears tied to ${domain}, and has active client context.`,
+      '',
+      'Ranking factors to apply:',
+      '- Skill/domain match: 35%',
+      '- Commercial fit: 20%',
+      '- Availability and response speed: 20%',
+      '- Location/mode fit: 15%',
+      '- Prior corporate delivery evidence: 10%',
+    ].join('\n'),
+    scheduler: [
+      `Interview scheduling suggestion for ${client} and ${trainerName}`,
+      '',
+      'Suggested slots:',
+      '- Tomorrow, 11:00 AM - 11:30 AM',
+      '- Tomorrow, 3:00 PM - 3:30 PM',
+      '- Next working day, 12:00 PM - 12:30 PM',
+      '',
+      'Message draft:',
+      `Please confirm one suitable slot for a quick discussion with ${trainerName} regarding the ${domain} training requirement.`,
+    ].join('\n'),
+    commercial: [
+      `Commercial negotiation brief for ${domain}`,
+      '',
+      `Client budget signal: ${budget}`,
+      'Suggested position:',
+      '- Keep the first quote value-based and tied to trainer experience.',
+      '- Offer a narrow range instead of one fixed number if budget is not confirmed.',
+      '- Ask for duration, batch size, and mode before final pricing.',
+      '',
+      'Suggested reply:',
+      `Based on the scope, we can align the commercials after confirming duration, batch size, and delivery mode. For ${domain}, we will share the best-fit trainer profile with commercials for approval.`,
+    ].join('\n'),
+    agenda: [
+      `${domain} training agenda draft`,
+      '',
+      '1. Requirement discovery and learner profile alignment',
+      `2. Core ${domain} concepts and practical workflow`,
+      '3. Hands-on labs using corporate scenarios',
+      '4. Troubleshooting, best practices, and implementation patterns',
+      '5. Assessment, Q&A, and post-training recommendations',
+    ].join('\n'),
+    toc: [
+      `${domain} TOC draft`,
+      '',
+      'Module 1: Foundations and setup',
+      'Module 2: Core concepts and architecture',
+      'Module 3: Practical implementation labs',
+      'Module 4: Advanced scenarios and integrations',
+      'Module 5: Assessment, recap, and next steps',
+    ].join('\n'),
+    proposal: [
+      `Proposal and quotation draft for ${client}`,
+      '',
+      `Subject: Proposal for ${domain} Corporate Training`,
+      '',
+      `Dear ${thread.client_name || 'Team'},`,
+      '',
+      `Thank you for sharing the ${domain} training requirement. We can support this with a suitable corporate trainer and a structured agenda aligned to your learner profile.`,
+      '',
+      `Trainer: ${trainerName}`,
+      `Commercials: ${budget === 'Not confirmed' ? 'To be shared after scope confirmation' : budget}`,
+      `Mode/location: ${location}`,
+      '',
+      'Please confirm batch size, expected dates, and preferred delivery mode so we can finalize the quotation.',
+    ].join('\n'),
+    followup: [
+      `Follow-up plan for ${client}`,
+      '',
+      'Now: send concise acknowledgement and ask for missing fields.',
+      'After 24 hours: remind client about pending details.',
+      'After trainer reply: share profile, commercials, and slots.',
+      'After client approval: schedule interview and update pipeline.',
+      '',
+      `Recommended next reminder: ${missing.length ? `Ask for ${missing.join(', ')}.` : 'Ask for confirmation to proceed.'}`,
+    ].join('\n'),
+    rewrite: [
+      `${tone[0].toUpperCase()}${tone.slice(1)} rewrite`,
+      '',
+      `Dear ${thread.client_name || 'Team'},`,
+      '',
+      `Thank you for sharing the ${domain} training requirement. We are reviewing the details and will align the most suitable trainer profile for your needs.`,
+      '',
+      missing.length
+        ? `To proceed accurately, please confirm ${missing.join(', ')}.`
+        : 'We have the key details and will move ahead with the next step.',
+      '',
+      'Regards,',
+      'Clahan Technologies',
+    ].join('\n'),
+    risk: [
+      `Risk check for ${client}`,
+      '',
+      missing.length ? 'Missing or unclear fields:' : 'No major missing fields detected from the visible conversation.',
+      ...(missing.length ? missing.map(item => `- ${item}`) : []),
+      '',
+      'Before sending:',
+      '- Confirm commercials are approved before quoting externally.',
+      '- Confirm trainer availability before sharing slots.',
+      '- Confirm client email and requirement ID are linked to avoid duplicate threads.',
+    ].join('\n'),
+  }
+
+  return outputs[toolKey] || outputs.requirement
+}
+
+function AiCommsWorkbench({ thread, trainer, messages }) {
+  const [activeTool, setActiveTool] = useState('requirement')
+  const [tone, setTone] = useState('professional')
+  const output = useMemo(
+    () => buildAiOutput(activeTool, thread, trainer, messages, tone),
+    [activeTool, thread, trainer, messages, tone]
+  )
+  const active = AI_TOOLS.find(tool => tool.key === activeTool) || AI_TOOLS[0]
+  const ActiveIcon = active.icon
+
+  const copyOutput = async () => {
+    try {
+      await navigator.clipboard.writeText(output)
+      toast.success('AI draft copied')
+    } catch {
+      toast.error('Could not copy draft')
+    }
+  }
+
+  return (
+    <div className="min-w-0 rounded-lg border border-blue-100 bg-white shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-blue-100 bg-blue-50/60 p-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <p className="inline-flex items-center gap-2 text-sm font-bold text-blue-800">
+            <Sparkles className="h-4 w-4" /> AI Comms Workbench
+          </p>
+          <p className="mt-1 text-xs text-blue-700/80">Drafts use only this selected client/trainer conversation context.</p>
+        </div>
+        <button type="button" onClick={copyOutput} className="btn-secondary bg-white text-sm">
+          <Copy className="h-4 w-4" /> Copy Draft
+        </button>
+      </div>
+      <div className="grid min-w-0 gap-4 p-4 xl:grid-cols-[260px_minmax(0,1fr)]">
+        <div className="min-w-0 space-y-2">
+          {AI_TOOLS.map(tool => {
+            const Icon = tool.icon
+            return (
+              <button
+                key={tool.key}
+                type="button"
+                onClick={() => setActiveTool(tool.key)}
+                className={clsx(
+                  'flex h-10 w-full items-center gap-2 rounded-lg border px-3 text-left text-xs font-bold transition',
+                  activeTool === tool.key
+                    ? 'border-blue-300 bg-blue-600 text-white shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50'
+                )}
+              >
+                <Icon className="h-4 w-4 shrink-0" />
+                <span className="truncate">{tool.label}</span>
+              </button>
+            )
+          })}
+          {activeTool === 'rewrite' && (
+            <div className="grid grid-cols-3 gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1">
+              {['professional', 'concise', 'friendly'].map(item => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setTone(item)}
+                  className={clsx('rounded-md px-2 py-1.5 text-[11px] font-bold capitalize', tone === item ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500')}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="min-w-0">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
+              <ActiveIcon className="h-3.5 w-3.5" /> {active.label}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Draft only
+            </span>
+          </div>
+          <pre className="min-h-64 max-h-96 min-w-0 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-slate-200 bg-slate-950 p-4 font-sans text-sm leading-6 text-slate-100 [overflow-wrap:anywhere]">
+            {output}
+          </pre>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function MessageBubble({ message, compact = false, mailNumber = 1 }) {
@@ -603,6 +875,13 @@ export default function ClientConversations() {
               </header>
 
               <div className="min-w-0 flex-1 p-5">
+                <div className="mb-5">
+                  <AiCommsWorkbench
+                    thread={selected}
+                    trainer={selectedPerson?.trainer}
+                    messages={selectedMessages}
+                  />
+                </div>
                 <div className="min-w-0 rounded-lg border border-slate-200 bg-slate-50">
                   <div className="flex items-center justify-between border-b border-slate-200 p-4">
                     <div>

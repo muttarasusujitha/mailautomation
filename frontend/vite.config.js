@@ -43,6 +43,7 @@ export default defineConfig(({ mode }) => {
         '/api/client-updates': apiProxyConfig(emailServiceTarget, rewriteApiToV1),
         '/api/toc': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
         '/api/trainers': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
+        '/api/voice-ai': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
         '/api/resume-data': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
         '/api/resume-uploads': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),
         '/api/shortlists': apiProxyConfig(trainerServiceTarget, rewriteApiToV1),

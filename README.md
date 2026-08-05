@@ -37,6 +37,7 @@ MONGODB_DB=trainersync
 GMAIL_USER=your@gmail.com
 GMAIL_APP_PASSWORD=your_app_password
 OPENAI_API_KEY=your_openai_key     # Optional: for AI ranking
+OPENAI_API_BASE=https://bedrock-mantle.ap-south-1.api.aws/v1  # Set when using AWS Bedrock Mantle
 SECRET_KEY=your_secret_key
 ```
 

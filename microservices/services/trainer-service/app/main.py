@@ -8,7 +8,7 @@ from app.routes import (
     trainers, matching, slots, toc,
     resume_data, resume_uploads, shortlists,
     interview_reminders, purchase_orders, invoices,
-    toc_extended, trainer_automation,
+    toc_extended, trainer_automation, voice_ai,
 )
 
 settings = get_settings()
@@ -60,6 +60,9 @@ app.include_router(toc_extended.router,       prefix="/api/v1/toc",             
 # Purchase orders + invoices
 app.include_router(purchase_orders.router,    prefix="/api/v1/purchase-orders",      tags=["purchase-orders"])
 app.include_router(invoices.router,           prefix="/api/v1/invoices",             tags=["invoices"])
+
+# Voice AI recruiter assistant
+app.include_router(voice_ai.router,           prefix="/api/v1/voice-ai",             tags=["voice-ai"])
 
 
 @app.get("/health")
