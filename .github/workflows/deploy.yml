@@ -155,8 +155,16 @@ jobs:
           - image: scheduler-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
 
-          - image: gateway
+          - image: gateway-service
             dockerfile: microservices/gateway/Dockerfile
+
+         
+          - image: celery-service
+            dockerfile: microservices/services/scheduler-service/Dockerfile
+
+     
+          - image: celery-beat-service
+            dockerfile: microservices/services/scheduler-service/Dockerfile
 
     steps:
       - uses: actions/checkout@v4
