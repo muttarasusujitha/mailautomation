@@ -28,7 +28,6 @@ jobs:
           echo "Repository checked out"
           pwd
           ls -la
-
 # ======================================================
 
 #STAGE 2: BUILD & TEST
@@ -200,7 +199,6 @@ jobs:
           docker system prune -af || true
           docker builder prune -af || true
           df -h
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -228,7 +226,6 @@ jobs:
         if: always()
         run: |
           docker builder prune -af || true
-
 # =========================================================
           
 # STAGE 4 : DEPLOY TO EC2
@@ -252,7 +249,6 @@ jobs:
           echo "$GHCR_TOKEN" | docker login ghcr.io \
             -u "$GH_USER" \
             --password-stdin
-
       - name: Create Backend .env
         working-directory: ${{ github.workspace }}/microservices
         run: |
@@ -261,35 +257,26 @@ jobs:
       - name: Stop Existing Containers
         working-directory: ${{ github.workspace }}
         run: |
-
           docker compose -f microservices/docker-compose.yml down --remove-orphans || true
           docker compose -f docker-compose.yml down --remove-orphans || true
-
       - name: Cleanup Docker
         run: |
           docker container prune -f
           docker image prune -af
           docker volume prune -f
-
       - name: Pull Latest Images
         working-directory: ${{ github.workspace }}
         run: |
-
           docker compose -f microservices/docker-compose.yml pull
           docker compose -f docker-compose.yml pull
-
       - name: Start Backend
         working-directory: ${{ github.workspace }}
         run: |
-
           docker compose -f microservices/docker-compose.yml up -d
-
       - name: Start Frontend
         working-directory: ${{ github.workspace }}
         run: |
-
           docker compose -f docker-compose.yml up -d
-
       - name: Verify Deployment
         run: |
           docker ps
