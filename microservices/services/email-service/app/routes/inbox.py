@@ -1805,6 +1805,23 @@ def _trainer_commercial_matches_requirement(amounts: List[int], requirement: Dic
     return bool(trainer_budget and min(amounts) <= trainer_budget)
 
 
+def _trainer_budget_amounts_from_requirement(requirement: Dict[str, Any]) -> List[int]:
+    trainer_budget = _safe_float(
+        requirement.get("trainer_visible_budget_per_session")
+        or requirement.get("trainer_requested_budget_per_session"),
+        0.0,
+    )
+    if not trainer_budget:
+        client_budget = _safe_float(
+            requirement.get("client_budget_per_day")
+            or requirement.get("budget_per_day")
+            or requirement.get("budget"),
+            0.0,
+        )
+        trainer_budget = _trainer_rate_from_client_budget(client_budget)
+    return [int(round(trainer_budget))] if trainer_budget >= 1000 else []
+
+
 def _find_shortlist_trainer(shortlist: Dict[str, Any], trainer_id: str) -> Dict[str, Any]:
     for trainer in shortlist.get("top_trainers") or []:
         if str(trainer.get("trainer_id") or "") == str(trainer_id or ""):
@@ -1971,6 +1988,28 @@ def _commercial_negotiation_reply_intent(text: Any, target_amount: int = 0) -> s
     if amounts:
         return "counter_offer"
     return "unknown"
+
+
+def _client_same_commercial_acceptance(text: Any) -> bool:
+    reply_text = _strip_quoted_email_history(text)
+    lower = reply_text.lower()
+    if not lower:
+        return False
+
+    rejection_patterns = (
+        r"\b(?:not|cannot|can't|cant|unable)\b.{0,40}\b(?:accept|approve|agree|proceed|work|ok|okay|fine)\b",
+        r"\b(?:not\s+approved|not\s+accepted|not\s+okay|not\s+ok|not\s+fine|too\s+high|reduce|negotiate)\b",
+    )
+    if any(re.search(pattern, lower, flags=re.IGNORECASE) for pattern in rejection_patterns):
+        return False
+
+    acceptance_patterns = (
+        r"\b(?:same|shared|quoted|mentioned|given|current)\s+(?:commercials?|rates?|charges?|fees?|cost|amount|quote)\b.{0,80}\b(?:accept(?:ed)?|approv(?:e|ed)|agree(?:d)?|confirm(?:ed)?|ok(?:ay)?|fine|work(?:s|able)?|proceed)\b",
+        r"\b(?:accept(?:ed)?|approv(?:e|ed)|agree(?:d)?|confirm(?:ed)?|ok(?:ay)?|fine|work(?:s|able)?|proceed)\b.{0,80}\b(?:same|shared|quoted|mentioned|given|current)\s+(?:commercials?|rates?|charges?|fees?|cost|amount|quote)\b",
+        r"\b(?:same\s+is\s+fine|same\s+works|same\s+accepted|same\s+approved|same\s+commercials?\s+(?:ok|okay|fine|accepted|approved|workable))\b",
+        r"\b(?:go\s+ahead|please\s+proceed|we\s+can\s+proceed|proceed\s+with\s+(?:this|the)\s+trainer)\b",
+    )
+    return any(re.search(pattern, lower, flags=re.IGNORECASE) for pattern in acceptance_patterns)
 
 
 def _trainer_initial_reply_intent(text: Any) -> str:
@@ -4000,7 +4039,7 @@ async def _handle_client_selection_reply(
         r"\btrainer selected\b",
         r"\bcongratulations\b",
     ]
-    if not any(re.search(p, text, flags=re.IGNORECASE) for p in patterns):
+    if not any(re.search(p, text, flags=re.IGNORECASE) for p in patterns) and not _client_same_commercial_acceptance(body):
         return {"attempted": False}
 
     requirement_id = email_doc.get("requirement_id") or ""
@@ -4117,7 +4156,20 @@ async def _handle_client_budget_reply(
     reply_text = email_doc.get("classification_body") or email_doc.get("clean_body") or email_doc.get("raw_body") or email_doc.get("body") or ""
     client_budget_amounts = _client_budget_amounts(reply_text)
     if not client_budget_amounts:
-        return {"attempted": True, "success": False, "reason": "missing_client_budget", "error": "No client budget amount found"}
+        if _client_same_commercial_acceptance(reply_text):
+            selection_result = await _handle_client_selection_reply(db, email_doc)
+            return {
+                **selection_result,
+                "attempted": True,
+                "reason": selection_result.get("reason") or "same_commercial_accepted",
+                "client_commercial_acceptance": True,
+            }
+        return {
+            "attempted": True,
+            "success": False,
+            "reason": "missing_client_budget_or_same_commercial_acceptance",
+            "error": "No commercial amount or same-commercial acceptance found.",
+        }
     client_budget = max(client_budget_amounts)
     unit = _commercial_unit(reply_text)
     target_amount = _trainer_rate_from_client_budget(client_budget)
@@ -4411,6 +4463,10 @@ async def _forward_trainer_commercials_to_client(
 
     if not amounts:
         fallback_amounts = _trainer_profile_commercial_amounts(trainer)
+        if fallback_amounts:
+            amounts = fallback_amounts
+    if not amounts:
+        fallback_amounts = _trainer_budget_amounts_from_requirement(requirement)
         if fallback_amounts:
             amounts = fallback_amounts
 
@@ -5385,6 +5441,9 @@ async def _process_client_requirement_email(
         if has_all_required_details:
             reply = _client_full_details_reply(extracted)
             selected_template_key = "client_full_details_received"
+        elif missing_details:
+            reply = _client_proceed_ack_reply(extracted, details_later=details_later)
+            selected_template_key = "client_missing_details"
         elif client_authorized_search or details_later or client_provided_details:
             reply = _client_proceed_ack_reply(extracted, details_later=details_later)
             selected_template_key = "client_proceed_ack"

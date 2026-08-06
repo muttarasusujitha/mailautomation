@@ -15,6 +15,8 @@ const Trainers = lazy(() => import('./pages/Trainers'))
 const Requirements = lazy(() => import('./pages/Requirements'))
 const Emails = lazy(() => import('./pages/Emails'))
 const ClientRequests = lazy(() => import('./pages/ClientRequests'))
+const ClientConversations = lazy(() => import('./pages/ClientConversations'))
+const VoiceAIAssistant = lazy(() => import('./pages/VoiceAIAssistant'))
 const LinkedInSearch = lazy(() => import('./pages/LinkedInSearch'))
 const LinkedInPipeline = lazy(() => import('./pages/LinkedInPipeline'))
 const LinkedInClientPipeline = lazy(() => import('./pages/LinkedInClientPipeline'))
@@ -105,6 +107,9 @@ export default function App() {
             <Route path="emails"       element={<Emails />} />
             <Route path="inbox"        element={<Navigate to="/client-requests" replace />} />
             <Route path="client-requests" element={<ClientRequests />} />
+            <Route path="client-comms" element={<ClientConversations />} />
+            <Route path="trainer-comms" element={<ClientConversations />} />
+            <Route path="voice-ai-assistant" element={<VoiceAIAssistant />} />
             <Route path="linkedin-search" element={<LinkedInSearch />} />
             <Route path="linkedin-pipeline" element={<LinkedInPipeline />} />
             <Route path="linkedin-client-pipeline" element={<LinkedInClientPipeline />} />

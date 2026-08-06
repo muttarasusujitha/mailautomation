@@ -4,18 +4,26 @@ import toast from 'react-hot-toast'
 import {
   CalendarCheck,
   Clock,
+  Copy,
   ExternalLink,
   CalendarDays,
+  FileText,
   Link2,
   Loader2,
   Mail,
+  Mic,
+  MicOff,
   RefreshCw,
+  Save,
   Search,
+  Sparkles,
   UserRound,
   Users,
   Video,
 } from 'lucide-react'
 import api from '../utils/api'
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 
 const SCHEDULE_ENDPOINTS = [
   '/interview-schedules',
@@ -29,6 +37,37 @@ function formatDate(value) {
   return date.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
 }
 
+function parseMeetingDateText(value) {
+  const text = String(value || '').trim()
+  if (!text) return 0
+  const normalized = text
+    .replace(/\*\*/g, '')
+    .replace(/\bInterview Date\s*&\s*Time\b\s*:?\s*/i, '')
+    .trim()
+  const match = normalized.match(
+    /\b(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})\b[^0-9]*(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?/i
+  )
+  if (!match) return 0
+  const day = Number(match[1])
+  const month = Number(match[2])
+  const year = Number(match[3].length === 2 ? `20${match[3]}` : match[3])
+  let hour = Number(match[4])
+  const minute = Number(match[5] || 0)
+  const meridiem = String(match[6] || '').toUpperCase()
+  if (meridiem === 'PM' && hour < 12) hour += 12
+  if (meridiem === 'AM' && hour === 12) hour = 0
+  const date = new Date(year, month - 1, day, hour, minute, 0, 0)
+  const time = date.getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+function meetingStartTime(item = {}) {
+  const raw = meetingTime(item)
+  const parsed = raw ? new Date(raw).getTime() : 0
+  if (parsed && !Number.isNaN(parsed)) return parsed
+  return parseMeetingDateText(item.date_time_text || item.interview_date || '')
+}
+
 function meetingTime(item = {}) {
   return item.start_iso || item.interview_at || item.sent_at || item.created_at || ''
 }
@@ -37,10 +76,8 @@ function meetingState(item = {}) {
   if (item.reschedule_requested || String(item.slot_status || '').includes('reschedule') || String(item.pipeline_status || '').includes('reschedule')) {
     return 'reschedule'
   }
-  const raw = meetingTime(item)
-  if (!raw) return 'pending'
-  const time = new Date(raw).getTime()
-  if (Number.isNaN(time)) return 'pending'
+  const time = meetingStartTime(item)
+  if (!time) return 'pending'
   const diff = time - Date.now()
   if (diff > 5 * 60 * 1000) return 'upcoming'
   if (diff > -90 * 60 * 1000) return 'starting'
@@ -77,6 +114,10 @@ function openMeeting(link) {
     return
   }
   window.open(link, '_blank', 'noopener,noreferrer')
+}
+
+function meetingKey(item = {}) {
+  return `${item.email_id || ''}-${item.calendar_event_id || ''}-${item.requirement_id || ''}-${item.trainer_id || ''}-${item.date_time_text || item.start_iso || ''}`
 }
 
 function defaultRescheduleNote(item = {}) {
@@ -245,6 +286,200 @@ function ReschedulePanel({ selected, onDone }) {
   )
 }
 
+function notesPayload(selected, transcript) {
+  const key = `${selected?.email_id || ''}-${selected?.calendar_event_id || ''}` || selected?.reminder_id || 'interview'
+  return {
+    schedule_key: key,
+    transcript,
+    trainer_name: selected?.trainer_name || '',
+    trainer_email: selected?.trainer_email || '',
+    client_name: selected?.client_name || selected?.client_company || '',
+    client_email: selected?.client_email || '',
+    domain: selected?.domain || '',
+    meeting_link: selected?.meet_link || '',
+    meeting_time: selected?.date_time_text || selected?.start_iso || '',
+  }
+}
+
+function MeetingNotesAssistant({ selected }) {
+  const [listening, setListening] = useState(false)
+  const [transcript, setTranscript] = useState('')
+  const [analysis, setAnalysis] = useState(null)
+  const [documentText, setDocumentText] = useState('')
+  const [savedDocument, setSavedDocument] = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const recognitionRef = useMemo(() => ({ current: null }), [])
+  const supported = Boolean(SpeechRecognition)
+
+  useEffect(() => {
+    setListening(false)
+    setTranscript('')
+    setAnalysis(null)
+    setDocumentText('')
+    setSavedDocument(null)
+    recognitionRef.current?.stop?.()
+  }, [selected?.email_id, selected?.calendar_event_id, recognitionRef])
+
+  const start = () => {
+    if (!supported) {
+      toast.error('Voice capture is not supported in this browser. Type notes manually.')
+      return
+    }
+    const recognition = new SpeechRecognition()
+    recognition.continuous = true
+    recognition.interimResults = true
+    recognition.lang = 'en-IN'
+    recognition.onresult = event => {
+      const text = Array.from(event.results).map(result => result[0]?.transcript || '').join(' ')
+      setTranscript(text.trim())
+    }
+    recognition.onerror = event => {
+      toast.error(event.error || 'Could not capture meeting audio')
+      setListening(false)
+    }
+    recognition.onend = () => setListening(false)
+    recognitionRef.current = recognition
+    setListening(true)
+    recognition.start()
+  }
+
+  const stop = () => {
+    recognitionRef.current?.stop?.()
+    setListening(false)
+  }
+
+  const analyze = async () => {
+    if (!transcript.trim()) {
+      toast.error('Add meeting notes or start voice capture first')
+      return null
+    }
+    setLoading(true)
+    try {
+      const res = await api.post('/interview-schedules/notes/analyze', notesPayload(selected, transcript))
+      setAnalysis(res.data.analysis)
+      setDocumentText(res.data.document_text || '')
+      return res.data
+    } catch (error) {
+      toast.error(error.message || 'Could not analyze meeting notes')
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const saveDocument = async () => {
+    if (!transcript.trim()) {
+      toast.error('Add meeting notes before saving')
+      return
+    }
+    setSaving(true)
+    try {
+      const res = await api.post('/interview-schedules/notes', notesPayload(selected, transcript))
+      setAnalysis(res.data.document?.analysis || null)
+      setDocumentText(res.data.document?.document_text || '')
+      setSavedDocument(res.data.document || null)
+      toast.success(`Meeting document saved: ${res.data.document?.document_id}`)
+    } catch (error) {
+      toast.error(error.message || 'Could not save meeting document')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const copyDocument = async () => {
+    const text = documentText || (await analyze())?.document_text
+    if (!text) return
+    await navigator.clipboard.writeText(text)
+    toast.success('Meeting document copied')
+  }
+
+  return (
+    <div className="rounded-lg border border-blue-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-bold text-slate-950">Meeting Notes Assistant</p>
+          <p className="mt-1 text-xs text-slate-500">Start this when the meeting begins. It captures transcript, key points, actions, and saves a document.</p>
+        </div>
+        <span className={clsx('rounded-full px-2.5 py-1 text-xs font-bold', listening ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-500')}>
+          {listening ? 'Listening' : 'Ready'}
+        </span>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" onClick={listening ? stop : start} className={clsx('btn-primary text-sm', listening && 'bg-red-600 hover:bg-red-700')}>
+          {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          {listening ? 'Stop Notes' : 'Start Meeting Notes'}
+        </button>
+        <button type="button" onClick={analyze} disabled={loading} className="btn-secondary text-sm disabled:opacity-60">
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          Analyze
+        </button>
+        <button type="button" onClick={saveDocument} disabled={saving} className="btn-secondary text-sm disabled:opacity-60">
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Save Document
+        </button>
+        <button type="button" onClick={copyDocument} className="btn-secondary text-sm">
+          <Copy className="h-4 w-4" />
+          Copy Document
+        </button>
+      </div>
+
+      <textarea
+        value={transcript}
+        onChange={e => { setTranscript(e.target.value); setAnalysis(null); setDocumentText(''); setSavedDocument(null) }}
+        rows={6}
+        placeholder="Meeting transcript or manual notes will appear here..."
+        className="mt-3 w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 outline-none focus:border-blue-400 focus:bg-white"
+      />
+
+      {analysis && (
+        <div className="mt-3 grid gap-3 lg:grid-cols-3">
+          {[
+            ['Key Points', analysis.key_points],
+            ['Decisions', analysis.decisions],
+            ['Action Items', analysis.action_items],
+          ].map(([title, items]) => (
+            <div key={title} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">{title}</p>
+              <ul className="space-y-1 text-xs text-slate-700">
+                {(items || []).map(item => <li key={item}>- {item}</li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {documentText && (
+        <details className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <summary className="cursor-pointer text-sm font-bold text-slate-800"><FileText className="mr-1 inline h-4 w-4" />Saved Document Preview</summary>
+          <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap font-sans text-xs leading-5 text-slate-700">{documentText}</pre>
+        </details>
+      )}
+
+      {savedDocument?.document_url && (
+        <div className="mt-3 flex flex-wrap gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+          <a href={savedDocument.document_url} target="_blank" rel="noreferrer" className="btn-primary text-sm">
+            <FileText className="h-4 w-4" />
+            Open Document
+          </a>
+          {savedDocument.download_url && (
+            <a href={savedDocument.download_url} className="btn-secondary bg-white text-sm">
+              Download Text
+            </a>
+          )}
+          {savedDocument.excel_url && (
+            <a href={savedDocument.excel_url} className="btn-secondary bg-white text-sm">
+              Download Excel
+            </a>
+          )}
+          <span className="self-center text-xs font-semibold text-emerald-700">{savedDocument.document_id}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ContactLine({ icon: Icon, label, value }) {
   return (
     <div className="flex min-w-0 items-center gap-2 text-sm">
@@ -294,6 +529,7 @@ export default function InterviewSchedules() {
   const [filter, setFilter] = useState('upcoming')
   const [selectedKey, setSelectedKey] = useState('')
   const [notified, setNotified] = useState({})
+  const [hostPrompt, setHostPrompt] = useState(null)
 
   const load = async () => {
     setLoading(true)
@@ -332,18 +568,35 @@ export default function InterviewSchedules() {
     const timer = setInterval(() => {
       const nextNotified = { ...notified }
       items.forEach(item => {
-        const raw = meetingTime(item)
-        const time = new Date(raw).getTime()
-        if (!raw || Number.isNaN(time)) return
-        const key = `${item.email_id || ''}-${item.calendar_event_id || ''}-${raw}`
+        const time = meetingStartTime(item)
+        if (!time) return
+        const key = meetingKey(item)
         const diff = time - Date.now()
-        if (diff > 0 && diff <= 5 * 60 * 1000 && !nextNotified[key]) {
-          nextNotified[key] = true
+        if (diff > 0 && diff <= 5 * 60 * 1000 && !nextNotified[`${key}:reminder`]) {
+          nextNotified[`${key}:reminder`] = true
           const title = 'Meeting starts in 5 minutes'
           const body = `${item.trainer_name || 'Trainer'} with ${item.client_name || item.client_email || 'client'}`
           toast.success(`${title}: ${body}`, { duration: 10000 })
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(title, { body })
+          }
+        }
+        if (diff <= 0 && diff > -2 * 60 * 1000 && !nextNotified[`${key}:start`]) {
+          nextNotified[`${key}:start`] = true
+          setSelectedKey(`${item.email_id || ''}-${item.calendar_event_id || ''}`)
+          setFilter('starting')
+          setHostPrompt(item)
+          const title = 'It is time to start meeting'
+          const body = `${item.trainer_name || 'Trainer'} interview is starting now`
+          toast.success(`${title}: ${body}`, { duration: 15000 })
+          if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, { body })
+          }
+          if (item.meet_link) {
+            const opened = window.open(item.meet_link, '_blank', 'noopener,noreferrer')
+            if (!opened) {
+              toast.error('Browser blocked auto-open. Click Start Hosting in the popup.')
+            }
           }
         }
       })
@@ -397,6 +650,67 @@ export default function InterviewSchedules() {
           Refresh
         </button>
       </div>
+
+      {hostPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4">
+          <div className="w-full max-w-[760px] rounded-lg border border-emerald-200 bg-white p-5 shadow-2xl">
+            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_300px]">
+              <div className="flex items-start gap-3">
+                <span className="rounded-lg bg-emerald-50 p-2 text-emerald-600">
+                  <Video className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">It is time to start meeting</p>
+                  <h2 className="mt-1 text-xl font-black text-slate-950">{hostPrompt.trainer_name || 'Trainer interview'}</h2>
+                  <p className="mt-1 text-sm text-slate-500">{hostPrompt.domain} · {hostPrompt.date_time_text || formatDate(hostPrompt.start_iso)}</p>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">
+                    Open the meeting as the Clahan Technologies host account in your browser, then admit the client and trainer from the waiting room.
+                  </p>
+                  {hostPrompt.meet_link ? (
+                    <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs font-semibold text-slate-600">
+                      <a href={hostPrompt.meet_link} target="_blank" rel="noreferrer" className="break-all underline">{hostPrompt.meet_link}</a>
+                    </div>
+                  ) : (
+                    <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-800">
+                      Meeting link is not available yet.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="h-[400px] w-[300px] overflow-hidden rounded-lg border border-slate-200 bg-slate-950 shadow-sm">
+                {hostPrompt.meet_link ? (
+                  <iframe
+                    title="Google Meet host tab"
+                    src={hostPrompt.meet_link}
+                    className="h-full w-full bg-white"
+                    allow="camera; microphone; fullscreen; display-capture; autoplay"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center p-4 text-center text-sm font-semibold text-white">
+                    Meeting link pending
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
+              <button type="button" onClick={() => setHostPrompt(null)} className="btn-secondary text-sm">
+                Dismiss
+              </button>
+              <button
+                type="button"
+                onClick={() => openMeeting(hostPrompt.meet_link)}
+                disabled={!hostPrompt.meet_link}
+                className="btn-primary text-sm disabled:opacity-50"
+              >
+                <Video className="h-4 w-4" />
+                Start Hosting
+                <ExternalLink className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-3 md:grid-cols-5">
         {[
@@ -536,6 +850,10 @@ export default function InterviewSchedules() {
                     <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600">
                       <p className="font-bold text-slate-950">Reminder</p>
                       <p className="mt-1">This page shows a browser/toast notification 5 minutes before the interview starts.</p>
+                    </div>
+
+                    <div className="mt-4">
+                      <MeetingNotesAssistant selected={selected} />
                     </div>
                   </div>
                 </div>

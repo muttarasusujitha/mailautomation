@@ -421,6 +421,19 @@ function experienceYears(t) {
   return match ? Number(match[1]) : 0
 }
 
+function trainerLocation(t) {
+  return displayText(
+    t.location ||
+    t.city ||
+    t.current_location ||
+    t.preferred_location ||
+    t.base_location ||
+    t.address ||
+    t.country,
+    ['city', 'state', 'country', 'name', 'value']
+  )
+}
+
 function inferredProfileScore(t) {
   const skills = allTrainerSkills(t)
   const certs = asArray(t.certifications)
@@ -432,7 +445,7 @@ function inferredProfileScore(t) {
   score += displayText(t.name) ? 6 : 0
   score += Math.min(12, [t.email, t.phone, t.linkedin].filter(item => displayText(item)).length * 4)
   score += Math.min(15, Math.round(years * 2.5))
-  score += displayText(t.location) ? 4 : 0
+  score += trainerLocation(t) ? 4 : 0
   score += displayText(t.summary || t.bio || t.resume) ? 7 : 0
   score += Math.min(7, certs.length * 3)
   score += Math.min(4, clients.length * 2)
@@ -502,6 +515,34 @@ function textValue(value, fallback = 'Not available') {
   return text || fallback
 }
 
+function trainerRank(t) {
+  const explicit = numericValue(t.rank || t.ranking || t.resume_rank || t.match_rank || t.shortlist_rank)
+  if (explicit) return Math.round(explicit)
+  const score = trainerProfileScore(t)
+  if (score >= 90) return 1
+  if (score >= 80) return 2
+  if (score >= 70) return 3
+  if (score >= 60) return 4
+  if (score >= 50) return 5
+  return 0
+}
+
+function TrainerRankPill({ trainer }) {
+  const rank = trainerRank(trainer)
+  const score = trainerProfileScore(trainer)
+  const label = rank ? `Rank #${rank}` : 'Rank pending'
+
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full border border-blue-100 bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700"
+      title={`${label} based on resume/profile score ${score}/100`}
+    >
+      <Award className="h-3.5 w-3.5" />
+      {label}
+    </span>
+  )
+}
+
 function trainerRecordId(trainer) {
   return displayText(trainer?.trainer_id || trainer?._id)
 }
@@ -521,7 +562,7 @@ function trainerBreakdown(t) {
     skills: { score: Math.min(25, skills.length * 4 + (displayText(t.technologies) ? 1 : 0)), max: 25 },
     experience: { score: Math.min(15, Math.round(years * 2.5)), max: 15 },
     certifications: { score: Math.min(10, certs.length * 5), max: 10 },
-    location: { score: displayText(t.location) ? 10 : 0, max: 10 },
+    location: { score: trainerLocation(t) ? 10 : 0, max: 10 },
   }
   const bestItem = (key) => {
     const current = existing[key] && typeof existing[key] === 'object' ? existing[key] : {}
@@ -839,15 +880,16 @@ function TrainerDetail({ t, onClose, onUpdate, onRequestResume, onStartAutomatio
   const displayName = trainerDisplayName(t)
   const summary = cleanSummary(t)
   const resumeUrl = /^https?:\/\//i.test(String(t.resume || '')) ? t.resume : ''
+  const locationText = trainerLocation(t)
   const [teamsEmail, setTeamsEmail] = useState(t.teams_email || t.microsoft_teams_email || t.teams_upn || '')
-  const [location, setLocation] = useState(displayText(t.location))
+  const [location, setLocation] = useState(locationText)
   const [savingTeams, setSavingTeams] = useState(false)
   const [savingLocation, setSavingLocation] = useState(false)
   const [showSingleShortlist, setShowSingleShortlist] = useState(false)
 
   useEffect(() => {
     setTeamsEmail(t.teams_email || t.microsoft_teams_email || t.teams_upn || '')
-    setLocation(displayText(t.location))
+    setLocation(trainerLocation(t))
   }, [t])
 
   const saveTeamsEmail = async () => {
@@ -1153,6 +1195,8 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
   const profileScore = trainerProfileScore(t)
   const years = experienceYears(t)
   const displayName = trainerDisplayName(t)
+  const locationText = trainerLocation(t)
+  const hasResume = Boolean(compactResumeText(t.resume || t.combined_text || t.extracted_text) || /^https?:\/\//i.test(String(t.resume || '')))
 
   return (
     <div
@@ -1190,6 +1234,7 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
 
           <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
             <TrainerRatingStars trainer={t} />
+            <TrainerRankPill trainer={t} />
             <span className={clsx('px-2.5 py-1 rounded-full border text-xs font-semibold', domainBadge(category))}>{category}</span>
             <div
               className={clsx(
@@ -1211,7 +1256,11 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
 
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
           {Boolean(displayText(t.experience_raw) || years) && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {displayText(t.experience_raw) || `${years} years`}</span>}
-          {displayText(t.location) && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {displayText(t.location)}</span>}
+          {locationText ? <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {locationText}</span> : <span className="flex items-center gap-1 text-amber-600"><MapPin className="w-3.5 h-3.5" /> Add location</span>}
+          <span className={clsx('flex items-center gap-1', hasResume ? 'text-emerald-600' : 'text-blue-600')}>
+            <FileText className="w-3.5 h-3.5" />
+            {hasResume ? 'Resume ready' : 'Click card for resume'}
+          </span>
           {displayText(t.email) && <span className="flex items-center gap-1 min-w-0"><Mail className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{displayText(t.email)}</span></span>}
           {Boolean(t.teams_email || t.microsoft_teams_email || t.teams_upn) && (
             <span className="flex items-center gap-1 min-w-0 text-indigo-600">

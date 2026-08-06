@@ -2,9 +2,9 @@ import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import {
-  BarChart3, Bell, BookOpen, BriefcaseBusiness, CalendarCheck,
+  BarChart3, Bell, BookOpen, Bot, BriefcaseBusiness, CalendarCheck,
   ChevronRight, FileSearch, Globe2, Home,
-  LayoutDashboard, LogOut, Mail, Menu,
+  LayoutDashboard, LogOut, Mail, Menu, MessageSquare,
   MapPin, ReceiptText, Search, Settings, Upload, UserCircle, Users, Zap, X,
 } from 'lucide-react'
 import BrandMark from './BrandMark'
@@ -18,6 +18,8 @@ const NAV_GROUPS = [
       { to: '/requirements',      label: 'Find Trainers',      icon: FileSearch,      keywords: ['find','requirement','match'] },
       { to: '/shortlist1',        label: 'AI Pipeline',        icon: Zap,             keywords: ['advanced','shortlist1','shortlist','pipeline'] },
       { to: '/shortlist',         label: 'Shortlist',          icon: Users,           keywords: ['shortlist','trainer shortlist'] },
+      { to: '/trainer-comms',     label: 'Trainer Comms',      icon: MessageSquare,   keywords: ['trainer comms','trainer conversations','trainer communications'] },
+      { to: '/voice-ai-assistant', label: 'Voice AI Assistant', icon: Bot,             keywords: ['voice ai','voice assistant','hr assistant','recruiter assistant','voice recruiter'] },
       { to: '/linkedin-search',   label: 'LinkedIn Search',    icon: Globe2,          keywords: ['linkedin','public search','client post search','trainer profile search'] },
       { to: '/linkedin-pipeline', label: 'LinkedIn Pipeline',  icon: Zap,             keywords: ['linkedin pipeline','linkedin automation','linkedin trainers','linkedin outreach'] },
       { to: '/naukri-search',     label: 'Naukri Search',      icon: BriefcaseBusiness, keywords: ['naukri','naukri search','naukri public','naukri trainer'] },
@@ -29,6 +31,7 @@ const NAV_GROUPS = [
     label: 'Client Work',
     items: [
       { to: '/client-requests',          label: 'Client Requests',         icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
+      { to: '/client-comms',             label: 'Client Comms',            icon: MessageSquare, keywords: ['client comms','client conversations','client communications','communications'] },
       { to: '/linkedin-client-pipeline', label: 'LinkedIn Client Pipeline', icon: Mail, keywords: ['linkedin client pipeline','client posts','client lead pipeline','mail 1'] },
       { to: '/interview-scheduled',      label: 'Interviews',              icon: CalendarCheck, keywords: ['interview','schedule','meeting','meet link'] },
       { to: '/client-mail-pipeline',     label: 'Client Pipeline',         icon: ReceiptText, keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
