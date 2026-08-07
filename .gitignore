@@ -11,6 +11,7 @@ config/token.json
 **/config/token*.bak
 **/config/*.secret.json
 microservices/services/email-service/config/token.json
+microservices/gmail_config/token.json
 
 # Databases and browser state
 *.db

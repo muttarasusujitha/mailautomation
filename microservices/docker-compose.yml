@@ -104,7 +104,10 @@ services:
 
   email-service:
     container_name: ts-email-service
-    image: ghcr.io/muttarasusujitha/trainersync/email-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/email-service/Dockerfile
+    image: trainersync/email-service:local
     <<: *service-defaults
     environment:
       <<: *common-env

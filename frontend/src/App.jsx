@@ -20,6 +20,8 @@ const LinkedInSearch = lazy(() => import('./pages/LinkedInSearch'))
 const LinkedInPipeline = lazy(() => import('./pages/LinkedInPipeline'))
 const LinkedInClientPipeline = lazy(() => import('./pages/LinkedInClientPipeline'))
 const NaukriSearch = lazy(() => import('./pages/NaukriSearch'))
+const TrainerLocations = lazy(() => import('./pages/TrainerLocations'))
+const VoiceAIAssistant = lazy(() => import('./pages/VoiceAIAssistant'))
 const ClientPipeline = lazy(() => import('./pages/ClientPipeline'))
 const InterviewSchedules = lazy(() => import('./pages/InterviewSchedules'))
 const Invoices = lazy(() => import('./pages/Invoices'))
@@ -112,6 +114,8 @@ export default function App() {
             <Route path="linkedin-pipeline" element={<LinkedInPipeline />} />
             <Route path="linkedin-client-pipeline" element={<LinkedInClientPipeline />} />
             <Route path="naukri-search" element={<NaukriSearch />} />
+            <Route path="trainer-locations" element={<TrainerLocations />} />
+            <Route path="voice-ai-assistant" element={<VoiceAIAssistant />} />
             <Route path="client-pipeline" element={<ClientPipeline />} />
             <Route path="client-mail-pipeline" element={<ClientPipeline />} />
             <Route path="interview-scheduled" element={<InterviewSchedules />} />

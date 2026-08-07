@@ -4788,7 +4788,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         "client_company": extracted.get("client_company"),
         "client_email": extracted.get("client_email"),
         "top_n": 5,
-        "send_emails": False,
+        "send_emails": True,
         "status": "active",
         "priority": "high" if extracted.get("urgency") == "urgent" else "medium",
         "customer_id": extracted.get("client_email") or "client-inbox",
@@ -4987,12 +4987,54 @@ async def _send_initial_trainer_mail(
         shortlist_result = response.json()
     shortlist = shortlist_result.get("shortlist") if isinstance(shortlist_result, dict) else {}
     trainers = (shortlist or {}).get("top_trainers") or []
+    pending_trainers = [
+        trainer for trainer in trainers
+        if _clean(trainer.get("pipeline_status")).lower() in {"", "shortlisted"}
+        and _clean(trainer.get("last_mail_type")).lower() not in {"mail1", "mail1_reminder"}
+        and not trainer.get("mail1_sent_at")
+    ]
+    if not trainers:
+        return {
+            "success": True,
+            "sent": 0,
+            "total": 0,
+            "message": "Shortlist prepared, but no eligible trainers were found.",
+            "requirement_id": requirement_id,
+        }
+    if not pending_trainers:
+        return {
+            "success": True,
+            "sent": 0,
+            "total": len(trainers),
+            "message": "Mail1 already sent or in progress for all shortlisted trainers.",
+            "requirement_id": requirement_id,
+        }
+
+    async with httpx.AsyncClient(timeout=180) as client:
+        send_response = await _post_with_local_fallback(
+            client,
+            f"{TRAINER_SERVICE_URL}/api/v1/shortlists/send-mail",
+            json={
+                "requirement_id": requirement_id,
+                "mail_type": "mail1",
+                "trainer_ids": [
+                    trainer.get("trainer_id") for trainer in pending_trainers
+                    if trainer.get("trainer_id")
+                ],
+            },
+        )
+        send_response.raise_for_status()
+        send_result = send_response.json()
+
+    if isinstance(send_result, dict):
+        send_result.setdefault("requirement_id", requirement_id)
+        send_result.setdefault("total", len(trainers))
+        return send_result
     return {
-        "success": True,
-        "handoff": "shortlist1",
+        "success": False,
         "sent": 0,
         "total": len(trainers),
-        "message": "Shortlist prepared. Mail1 and the remaining trainer outreach are handled in Shortlist1.",
+        "error": "Trainer send-mail returned an invalid response",
         "requirement_id": requirement_id,
     }
 
