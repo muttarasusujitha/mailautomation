@@ -253,6 +253,35 @@ jobs:
         working-directory: ${{ github.workspace }}/microservices
         run: |
           cp .env.example .env
+          set_env() {
+            key="$1"
+            value="$2"
+            if grep -q "^${key}=" .env; then
+              sed -i "s|^${key}=.*|${key}=${value}|" .env
+            else
+              printf '\n%s=%s\n' "$key" "$value" >> .env
+            fi
+          }
+
+          set_env GMAIL_USER "${{ secrets.GMAIL_USER }}"
+          set_env GMAIL_FALLBACK_USER "${{ secrets.GMAIL_FALLBACK_USER }}"
+          set_env GMAIL_FALLBACK_FROM_EMAIL "${{ secrets.GMAIL_FALLBACK_FROM_EMAIL }}"
+          set_env FROM_EMAIL "${{ secrets.FROM_EMAIL }}"
+          set_env FROM_NAME "${{ secrets.FROM_NAME }}"
+          set_env GOOGLE_TOKEN_FILE "config/token.json"
+          set_env GOOGLE_CLIENT_ID "${{ secrets.GOOGLE_CLIENT_ID }}"
+          set_env GOOGLE_CLIENT_SECRET "${{ secrets.GOOGLE_CLIENT_SECRET }}"
+          set_env GOOGLE_REDIRECT_URI "${{ secrets.GOOGLE_REDIRECT_URI }}"
+          set_env GOOGLE_CALENDAR_ID "${{ secrets.GOOGLE_CALENDAR_ID }}"
+          set_env GOOGLE_CALENDAR_TIMEZONE "${{ secrets.GOOGLE_CALENDAR_TIMEZONE }}"
+          set_env FRONTEND_URL "${{ secrets.FRONTEND_URL }}"
+
+      - name: Create Frontend .env
+        working-directory: ${{ github.workspace }}
+        run: |
+          cat > .env <<EOF
+          VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          EOF
           
       - name: Stop Existing Containers
         working-directory: ${{ github.workspace }}
