@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 import httpx
+import re
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -35,6 +36,73 @@ def _trainer_lookup(identifier: str) -> Dict[str, Any]:
 
 def _public_trainer_id(trainer: Dict[str, Any], fallback: str) -> str:
     return _clean_text(trainer.get("trainer_id")) or _clean_text(trainer.get("_id")) or fallback
+
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    if value in (None, ""):
+        return default
+    try:
+        return float(str(value).replace(",", ""))
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_int(value: Any, default: int = 0) -> int:
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return default
+
+
+def _clean_duration_text(value: Any) -> str:
+    text = _clean_text(value)
+    text = re.sub(r"(?i)^to\s+be\s*:?\s*(?=\d)", "", text).strip()
+    return text
+
+
+def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
+    amount = None
+    if requirement.get("budget_total") not in (None, "", []) and requirement.get("commercial_working_days") not in (None, "", [], 0):
+        try:
+            amount = (float(requirement.get("budget_total")) / float(requirement.get("commercial_working_days"))) * 0.70
+        except (TypeError, ValueError, ZeroDivisionError):
+            amount = None
+    if amount in (None, "", []):
+        amount = requirement.get("trainer_visible_budget_per_session") or requirement.get("trainer_requested_budget_per_session")
+    if amount in (None, "", []):
+        client_amount = (
+            requirement.get("client_budget_per_day")
+            or requirement.get("budget_per_day")
+            or requirement.get("budget")
+        )
+        if client_amount in (None, "", []) and requirement.get("budget_total") not in (None, "", []):
+            days = _safe_int(requirement.get("commercial_working_days"), 0)
+            try:
+                client_amount = float(requirement.get("budget_total")) / days if days else requirement.get("budget_total")
+            except (TypeError, ValueError):
+                client_amount = requirement.get("budget_total")
+        try:
+            amount = _safe_float(client_amount) * 0.70
+        except (TypeError, ValueError):
+            amount = None
+    try:
+        numeric = float(amount)
+    except (TypeError, ValueError):
+        return ""
+    if numeric <= 0:
+        return ""
+    return f"INR {int(round(numeric)):,} per day/session, inclusive of TDS"
+
+
+def _client_requirement_text(requirement: Dict[str, Any]) -> str:
+    metadata = requirement.get("metadata") or {}
+    return _clean_text(
+        requirement.get("client_requirement_text")
+        or metadata.get("original_body")
+        or requirement.get("original_body")
+        or requirement.get("requirement_text")
+        or requirement.get("description")
+    )
 
 
 class SendAutomationMailRequest(BaseModel):
@@ -115,10 +183,20 @@ async def send_automation_mail(
     if not email:
         raise HTTPException(400, "No email address found for trainer")
 
+    requirement: Dict[str, Any] = {}
+    if payload.requirement_id:
+        requirement = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
+
     # Compose body via email-service templates if no explicit body
     body = payload.body
     subject = payload.subject
-    technology = payload.technology or payload.domain or "Training"
+    technology = (
+        payload.technology
+        or payload.domain
+        or requirement.get("technology_needed")
+        or requirement.get("domain")
+        or "Training"
+    )
     if not body:
         try:
             async with httpx.AsyncClient(timeout=15) as client:
@@ -130,14 +208,32 @@ async def send_automation_mail(
                     "client_name": payload.client_name or "",
                 }
                 if payload.mail_type in ("mail1", "first"):
+                    duration = _clean_duration_text(
+                        payload.duration
+                        or requirement.get("duration_text")
+                        or (f"{requirement.get('duration_days')} days" if requirement.get("duration_days") else "")
+                        or (f"{requirement.get('duration_hours')} hours" if requirement.get("duration_hours") else "")
+                    )
+                    dates = _clean_text(
+                        requirement.get("training_dates")
+                        or requirement.get("preferred_dates")
+                        or requirement.get("dates")
+                        or requirement.get("date_time_text")
+                    )
+                    mode = _clean_text(payload.mode or requirement.get("mode") or requirement.get("delivery_mode"))
+                    participants = _clean_text(payload.participants or requirement.get("participant_count"))
                     r = await client.post(
                         f"{EMAIL_SVC}/api/v1/email/templates/shortlist-first",
                         json={
                             "trainer_name": name,
                             "domain": technology,
-                            "duration": payload.duration or "",
-                            "mode": payload.mode or "",
-                            "participants": payload.participants or "",
+                            "duration": duration,
+                            "dates": dates,
+                            "mode": mode,
+                            "location": _clean_text(requirement.get("preferred_location") or requirement.get("location")),
+                            "participants": participants,
+                            "budget": _trainer_mail1_commercial_text(requirement),
+                            "client_request": _client_requirement_text(requirement),
                         },
                         headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                     )
@@ -217,7 +313,7 @@ async def send_automation_mail(
 
     if not body:
         from_name = getattr(settings, "FROM_NAME", None) or "Clahan Technologies"
-        from_email = getattr(settings, "FROM_EMAIL", None) or "sujithaofficial784@gmail.com"
+        from_email = getattr(settings, "FROM_EMAIL", None) or "sujithaofficial585@gmail.com"
         body = (
             f"Dear {name},\n\n"
             "We have a training requirement matching your profile. Please revert if interested.\n\n"
@@ -230,13 +326,16 @@ async def send_automation_mail(
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            r = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
+            send_payload = {
                 "to": email, "subject": subject, "body": body,
                 "mail_type": payload.mail_type, "trainer_id": public_trainer_id,
                 "trainer_name": name,
                 "requirement_id": payload.requirement_id,
                 "smtp_config": payload.smtp_config,
-            })
+            }
+            if payload.mail_type in ("mail1", "first") and payload.requirement_id:
+                send_payload["idempotency_key"] = f"trainer-mail1:{payload.requirement_id}:{public_trainer_id or email.lower()}"
+            r = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=send_payload)
         success = r.status_code < 400
         result = r.json() if r.content else {}
     except Exception as exc:
@@ -316,12 +415,12 @@ async def request_resume(
         f"Dear {name},\n\n"
         "We came across your profile and would like to consider you for a training assignment.\n\n"
         "Could you please share your updated trainer profile/resume at your earliest convenience?\n\n"
-        "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
+        "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
     )
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
-                "to": email, "subject": "Profile / Resume Request — TrainerSync",
+                "to": email, "subject": "Profile / Resume Request - Clahan Technologies",
                 "body": body, "mail_type": "resume_request",
                 "trainer_id": public_trainer_id, "requirement_id": requirement_id or "",
             })

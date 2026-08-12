@@ -1,4 +1,6 @@
 from contextlib import asynccontextmanager
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -19,11 +21,46 @@ from app.routes import (
 )
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
+
+
+async def _create_index(db, collection: str, keys, **kwargs) -> None:
+    try:
+        await db[collection].create_index(keys, background=True, **kwargs)
+    except Exception as exc:
+        logger.warning("Skipping index for %s %s: %s", collection, keys, exc)
+
+
+async def _ensure_indexes(db) -> None:
+    indexes = [
+        ("client_emails", [("email_id", 1)], {}),
+        ("client_emails", [("status", 1), ("received_at", -1), ("created_at", -1)], {}),
+        ("client_emails", [("requirement_id", 1), ("updated_at", -1)], {}),
+        ("client_emails", [("from_email", 1), ("created_at", -1)], {}),
+        ("client_emails", [("gmail_message_id", 1)], {"sparse": True}),
+        ("client_emails", [("latest_gmail_message_id", 1)], {"sparse": True}),
+        ("client_emails", [("source_outbound_email_id", 1)], {"sparse": True}),
+        ("client_emails", [("processed", 1), ("status", 1), ("created_at", 1)], {}),
+        ("email_logs", [("email_id", 1)], {}),
+        ("email_logs", [("requirement_id", 1), ("trainer_id", 1), ("mail_type", 1), ("created_at", -1)], {}),
+        ("email_logs", [("direction", 1), ("status", 1), ("mail_type", 1), ("created_at", -1)], {}),
+        ("email_logs", [("gmail_message_id", 1)], {"sparse": True}),
+        ("email_logs", [("message_id_header", 1)], {"sparse": True}),
+        ("email_logs", [("idempotency_key", 1)], {"unique": True, "sparse": True}),
+        ("email_logs", [("recipient", 1), ("created_at", -1)], {}),
+        ("email_logs", [("to_email", 1), ("created_at", -1)], {}),
+        ("requirements", [("requirement_id", 1)], {}),
+        ("requirements", [("metadata.source_email_id", 1)], {"sparse": True}),
+        ("requirements", [("client_email", 1), ("status", 1), ("created_at", -1)], {}),
+    ]
+    for collection, keys, options in indexes:
+        await _create_index(db, collection, keys, **options)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await connect_service_db(settings)
+    db = await connect_service_db(settings)
+    await _ensure_indexes(db)
     yield
     await shutdown_db()
 

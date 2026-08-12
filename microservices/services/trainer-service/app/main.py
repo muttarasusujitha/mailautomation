@@ -1,4 +1,6 @@
 from contextlib import asynccontextmanager
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,11 +14,46 @@ from app.routes import (
 )
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
+
+
+async def _create_index(db, collection: str, keys, **kwargs) -> None:
+    try:
+        await db[collection].create_index(keys, background=True, **kwargs)
+    except Exception as exc:
+        logger.warning("Skipping index for %s %s: %s", collection, keys, exc)
+
+
+async def _ensure_indexes(db) -> None:
+    indexes = [
+        ("trainers", [("trainer_id", 1)], {}),
+        ("trainers", [("email", 1)], {"sparse": True}),
+        ("trainers", [("domain", 1), ("status", 1)], {}),
+        ("trainers", [("category", 1), ("status", 1)], {}),
+        ("trainers", [("created_at", -1)], {}),
+        ("requirements", [("requirement_id", 1)], {}),
+        ("requirements", [("technology_needed", 1), ("status", 1)], {}),
+        ("requirements", [("domain", 1), ("status", 1)], {}),
+        ("shortlists", [("requirement_id", 1)], {}),
+        ("shortlists", [("top_trainers.trainer_id", 1)], {}),
+        ("shortlists", [("updated_at", -1)], {}),
+        ("email_logs", [("trainer_id", 1), ("created_at", -1)], {}),
+        ("email_logs", [("requirement_id", 1), ("trainer_id", 1), ("mail_type", 1), ("created_at", -1)], {}),
+        ("email_logs", [("direction", 1), ("status", 1), ("mail_type", 1), ("created_at", -1)], {}),
+        ("trainer_slots", [("trainer_id", 1), ("created_at", -1)], {}),
+        ("resume_uploads", [("trainer_id", 1), ("created_at", -1)], {}),
+        ("interview_meeting_notes", [("schedule_key", 1), ("created_at", -1)], {}),
+        ("purchase_orders", [("requirement_id", 1), ("created_at", -1)], {}),
+        ("invoices", [("requirement_id", 1), ("created_at", -1)], {}),
+    ]
+    for collection, keys, options in indexes:
+        await _create_index(db, collection, keys, **options)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await connect_service_db(settings)
+    db = await connect_service_db(settings)
+    await _ensure_indexes(db)
     yield
     await shutdown_db()
 
