@@ -91,18 +91,19 @@ function parseSearch(value, tocTerms = []) {
   if (!text) return { skill: '', location: '' }
   const words = text.split(/\s+/)
   const lowerWords = words.map(word => word.toLowerCase())
-  let location = ''
   for (let size = Math.min(3, words.length); size >= 1; size -= 1) {
     for (let index = 0; index <= words.length - size; index += 1) {
       const phrase = lowerWords.slice(index, index + size).join(' ')
       if (KNOWN_LOCATIONS.includes(phrase)) {
-        location = words.slice(index, index + size).join(' ')
-        if (['hyd', 'hyderbad', 'hyderabafd', 'hyderabd'].includes(phrase)) location = 'Hyderabad'
-        if (phrase === 'bangalore') location = 'Bengaluru'
-        if (phrase === 'gurgaon') location = 'Gurugram'
+        const rawLocation = words.slice(index, index + size).join(' ')
+        const normalisedLocation =
+          ['hyd', 'hyderbad', 'hyderabafd', 'hyderabd'].includes(phrase) ? 'Hyderabad'
+            : phrase === 'bangalore' ? 'Bengaluru'
+              : phrase === 'gurgaon' ? 'Gurugram'
+                : rawLocation
         let skill = words.filter((_, wordIndex) => wordIndex < index || wordIndex >= index + size).join(' ')
         skill = normaliseTechnology(skill, tocTerms)
-        return { skill, location: location.trim() }
+        return { skill, location: normalisedLocation.trim() }
       }
     }
   }

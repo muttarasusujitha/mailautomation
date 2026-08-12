@@ -701,12 +701,45 @@ async def delete_requirement(
     req_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    doc = await db.requirements.find_one(_requirement_query(req_id), {"_id": 0, "requirement_id": 1})
+    doc = await db.requirements.find_one(_requirement_query(req_id), {"_id": 0})
     result = await db.requirements.delete_one(_requirement_query(req_id))
-    if result.deleted_count == 0:
-        raise HTTPException(404, "Requirement not found")
     requirement_id = (doc or {}).get("requirement_id") or req_id
+    now = datetime.utcnow()
     await db["shortlists"].delete_many({"requirement_id": requirement_id})
+    await db["deleted_requirements"].update_one(
+        {"requirement_id": requirement_id},
+        {
+            "$set": {
+                "requirement_id": requirement_id,
+                "deleted_at": now,
+                "source_email_id": (doc or {}).get("metadata", {}).get("source_email_id", ""),
+                "client_email": (doc or {}).get("client_email", ""),
+                "client_name": (doc or {}).get("client_name", ""),
+                "client_company": (doc or {}).get("client_company", ""),
+                "technology_needed": (doc or {}).get("technology_needed", ""),
+                "domain": (doc or {}).get("domain", ""),
+            },
+            "$setOnInsert": {"created_at": now},
+        },
+        upsert=True,
+    )
+    await db["client_emails"].update_many(
+        {"requirement_id": requirement_id},
+        {
+            "$set": {
+                "status": "deleted",
+                "reply_status": "deleted",
+                "deleted": True,
+                "deleted_requirement_id": requirement_id,
+                "deleted_at": now,
+                "processed": True,
+                "pending_trainer_automation": False,
+                "client_authorized_trainer_search": False,
+                "updated_at": now,
+            },
+            "$unset": {"requirement_id": ""},
+        },
+    )
 
 
 

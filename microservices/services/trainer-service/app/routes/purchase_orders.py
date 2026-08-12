@@ -141,12 +141,12 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
     if not doc:
         raise HTTPException(404, "Purchase order not found")
 
-    subject = payload.subject or f"Purchase Order {doc.get('po_number', po_id)} — TrainerSync"
+    subject = payload.subject or f"Purchase Order {doc.get('po_number', po_id)} - Clahan Technologies"
     body = payload.body or (
         f"Dear {doc.get('client_name', 'Client')},\n\n"
         f"Please find attached Purchase Order {doc.get('po_number', po_id)} for your reference.\n\n"
         f"Kindly acknowledge receipt and let us know if you need any clarifications.\n\n"
-        f"Regards,\nTrainerSync Team"
+        f"Regards,\nClahan Technologies"
     )
 
     # generate purchase-order PDF and attach to email

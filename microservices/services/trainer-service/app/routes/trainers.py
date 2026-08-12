@@ -440,6 +440,116 @@ def _enrich_trainer_profile(doc: Dict[str, Any]) -> Dict[str, Any]:
     return trainer
 
 
+STOP_WORDS = {
+    "find", "show", "need", "want", "trainer", "trainers", "with", "for", "and", "or", "the",
+    "a", "an", "in", "on", "at", "to", "of", "who", "has", "have", "available", "availability",
+    "experience", "years", "year", "yrs", "yr", "next", "week", "this", "month",
+}
+
+
+def _semantic_query_intent(query: str) -> Dict[str, Any]:
+    text = _clean_text(query)
+    lower = text.lower()
+    skills = _detected_skills_from_text(lower)
+    for category, keywords in CATEGORY_RULES:
+        if any(keyword in lower for keyword in keywords):
+            skills.append(category)
+    exp_match = re.search(r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?)", lower)
+    min_experience = float(exp_match.group(1)) if exp_match and ("+" in exp_match.group(0) or "minimum" in lower or "at least" in lower) else 0.0
+    locations = []
+    loc_match = re.search(r"\b(?:in|from|near|around)\s+([a-zA-Z ]{2,40})(?:\s+with|\s+for|\s+available|$)", lower)
+    if loc_match:
+        locations = [loc_match.group(1).strip()]
+    availability_terms = []
+    if "next week" in lower:
+        availability_terms.append("next week")
+    if "weekend" in lower or "saturday" in lower or "sunday" in lower:
+        availability_terms.append("weekend")
+    if "online" in lower or "remote" in lower:
+        availability_terms.append("online")
+    if "offline" in lower or "classroom" in lower:
+        availability_terms.append("offline")
+    tokens = [
+        token for token in re.findall(r"[a-z0-9+#.]{2,}", lower)
+        if token not in STOP_WORDS and not token.isdigit()
+    ]
+    return {
+        "query": text,
+        "skills": _unique_list(skills),
+        "min_experience": min_experience,
+        "locations": _unique_list(locations),
+        "availability_terms": _unique_list(availability_terms),
+        "keywords": _unique_list(tokens),
+    }
+
+
+def _term_hits(text: str, terms: List[str]) -> List[str]:
+    return [term for term in terms if term and _has_skill_alias(text, term.lower())]
+
+
+def _semantic_score(trainer: Dict[str, Any], intent: Dict[str, Any]) -> Dict[str, Any]:
+    searchable = _searchable_text(trainer)
+    skills = intent.get("skills") or []
+    keywords = intent.get("keywords") or []
+    locations = intent.get("locations") or []
+    availability_terms = intent.get("availability_terms") or []
+    years = _experience_years(trainer)
+    profile_score = _profile_score(trainer, _infer_category(trainer))
+
+    matched_skills = _term_hits(searchable, skills)
+    keyword_hits = _term_hits(searchable, keywords)
+    location_hits = [loc for loc in locations if any(term.lower() in searchable for term in _location_terms(loc))]
+    availability_hits = [term for term in availability_terms if term in searchable]
+
+    score = min(45, len(matched_skills) * 18)
+    score += min(20, len(keyword_hits) * 3)
+    if intent.get("min_experience"):
+        if years >= intent["min_experience"]:
+            score += 20
+        elif years:
+            score += max(0, 12 - int((intent["min_experience"] - years) * 3))
+    elif years:
+        score += min(10, int(years))
+    if locations:
+        score += 12 if location_hits else 0
+    if availability_terms:
+        score += 10 if availability_hits else 3
+    score += min(15, round(profile_score * 0.15))
+
+    reasons = []
+    if matched_skills:
+        reasons.append(f"Matched skills: {', '.join(matched_skills[:5])}")
+    if years:
+        reasons.append(f"Experience found: {years:g}+ years")
+    if location_hits:
+        reasons.append(f"Location match: {', '.join(location_hits)}")
+    if availability_hits:
+        reasons.append(f"Availability signal: {', '.join(availability_hits)}")
+    if keyword_hits:
+        reasons.append(f"Profile keyword matches: {', '.join(keyword_hits[:6])}")
+    if not reasons:
+        reasons.append("Weak semantic match from profile text and existing trainer score.")
+
+    missing = []
+    missing_skills = [skill for skill in skills if skill not in matched_skills]
+    if missing_skills:
+        missing.append(f"Could not confirm: {', '.join(missing_skills[:4])}")
+    if intent.get("min_experience") and not years:
+        missing.append("Experience years not captured")
+    if availability_terms and not availability_hits:
+        missing.append("Availability is not confirmed in profile")
+    if locations and not location_hits:
+        missing.append("Location not confirmed")
+
+    return {
+        "semantic_score": max(0, min(100, round(score))),
+        "matched_skills": matched_skills,
+        "keyword_hits": keyword_hits[:8],
+        "reasons": reasons[:6],
+        "missing": missing[:5],
+    }
+
+
 async def _domain_rows(db: AsyncIOMotorDatabase) -> List[Dict[str, Any]]:
     counts: Dict[str, int] = {}
     fields = {
@@ -645,6 +755,51 @@ async def list_trainer_industries(db: AsyncIOMotorDatabase = Depends(get_db)):
     ]
     industries = [{"industry": r["_id"], "count": r["count"]} async for r in db.trainers.aggregate(pipeline)]
     return {"success": True, "industries": industries}
+
+
+@router.get("/semantic-search")
+async def semantic_trainer_search(
+    q: str = Query(..., min_length=2),
+    limit: int = Query(10, ge=1, le=50),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    intent = _semantic_query_intent(q)
+    candidate_query: Dict[str, Any] = {}
+    candidate_terms = intent["skills"] + intent["keywords"][:8] + intent["locations"]
+    if candidate_terms:
+        fields = [
+            "name", "email", "skills", "technology_category", "primary_category", "category", "domain",
+            "location", "summary", "bio", "resume", "combined_text", "extracted_text", "technologies",
+            "role_designation", "secondary_categories",
+        ]
+        candidate_query["$or"] = [
+            _regex_clause(field, term)
+            for field in fields
+            for term in candidate_terms
+            if term
+        ]
+
+    projection = {"combined_text": 0}
+    cursor = db.trainers.find(candidate_query, projection).sort([("profile_score", -1), ("resume_rank_score", -1), ("created_at", -1)]).limit(500)
+    ranked = []
+    async for doc in cursor:
+        trainer = _enrich_trainer_profile(_oid(doc))
+        match = _semantic_score(trainer, intent)
+        if match["semantic_score"] <= 0:
+            continue
+        trainer.update(match)
+        ranked.append(trainer)
+
+    ranked.sort(key=lambda item: (item.get("semantic_score", 0), item.get("profile_score", 0)), reverse=True)
+    top_items = ranked[:limit]
+    return {
+        "success": True,
+        "query": q,
+        "intent": intent,
+        "items": top_items,
+        "total": len(ranked),
+        "retrieval": "local_profile_rag",
+    }
 
 
 @router.get("/{trainer_id}")

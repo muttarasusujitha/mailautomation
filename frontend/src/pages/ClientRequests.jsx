@@ -435,7 +435,7 @@ export default function ClientRequests() {
     try {
       const [requestsRes, updatesRes] = await Promise.all([
         api.get('/inbox', {
-          params: { status: filter === 'all' ? '' : filter, include_hidden: false, limit: 200 },
+          params: { status: filter === 'all' ? '' : filter, include_hidden: false, limit: 80 },
         }),
         api.get('/client-updates', { params: { limit: 25 } }),
       ])
@@ -543,7 +543,18 @@ export default function ClientRequests() {
     if (!window.confirm(`Delete ${label} from Client Requests?`)) return
     setDeletingId(item.email_id)
     try {
-      await api.delete(`/inbox/${item.email_id}`)
+      if (item.requirement_id) {
+        try {
+          await api.delete(`/requirements/${item.requirement_id}`)
+        } catch (e) {
+          if (e.response?.status !== 404) throw e
+        }
+      }
+      try {
+        await api.delete(`/inbox/${item.email_id}`)
+      } catch (e) {
+        if (e.response?.status !== 404) throw e
+      }
       setRequests(prev => prev.filter(req => req.email_id !== item.email_id))
       setSelected(current => current?.email_id === item.email_id ? null : current)
       toast.success('Client request deleted')

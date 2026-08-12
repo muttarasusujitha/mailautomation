@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   getTrainers,
   getTrainer,
+  semanticTrainerSearch,
   deleteTrainer,
   getTrainerCategories,
   getTrainerDomains,
@@ -1278,6 +1279,22 @@ function TrainerRow({ t, onDelete, onView, onRecategorise, onRequestResume, onSt
           </div>
         )}
 
+        {t.semantic_score != null && (
+          <div className="mt-3 rounded-lg border border-sky-200 bg-sky-50 p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-bold text-sky-700 ring-1 ring-sky-200">
+                <Sparkles className="h-3.5 w-3.5" />
+                Semantic match {t.semantic_score}/100
+              </span>
+              {(t.matched_skills || []).slice(0, 4).map(skill => <span key={skill} className="badge-blue text-[11px]">{skill}</span>)}
+            </div>
+            <div className="mt-2 grid gap-2 text-xs text-slate-600 lg:grid-cols-2">
+              {(t.reasons || []).slice(0, 3).map(reason => <p key={reason}>- {reason}</p>)}
+              {(t.missing || []).slice(0, 2).map(item => <p key={item} className="text-amber-700">- {item}</p>)}
+            </div>
+          </div>
+        )}
+
         {levels.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {levels.map(([skill, level]) => (
@@ -1377,6 +1394,9 @@ export default function Trainers() {
   const [industries, setIndustries] = useState([])
   const [loading, setLoading] = useState(false)
   const [searchInput, setSearchInput] = useState('')
+  const [semanticQuery, setSemanticQuery] = useState('')
+  const [semanticIntent, setSemanticIntent] = useState(null)
+  const [semanticMode, setSemanticMode] = useState(false)
   const [selectedTrainer, setSelectedTrainer] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
   const [recategorisingId, setRecategorisingId] = useState('')
@@ -1518,13 +1538,42 @@ export default function Trainers() {
 
   const handleSearch = (e) => {
     e.preventDefault()
+    setSemanticMode(false)
+    setSemanticIntent(null)
     setSearch(searchInput.trim())
     setPage(1)
+  }
+
+  const handleSemanticSearch = async (e) => {
+    e.preventDefault()
+    const query = semanticQuery.trim()
+    if (!query) {
+      toast.error('Type a natural-language trainer search')
+      return
+    }
+    setLoading(true)
+    try {
+      const res = await semanticTrainerSearch({ q: query, limit: 15 })
+      setTrainers(res.data.items || [])
+      setTotal(res.data.total || 0)
+      setPages(1)
+      setPage(1)
+      setSemanticIntent(res.data.intent || null)
+      setSemanticMode(true)
+      toast.success(`${res.data.items?.length || 0} semantic matches found`)
+    } catch (error) {
+      toast.error(error.message || 'Semantic search failed')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleClearFilters = () => {
     setSearch('')
     setSearchInput('')
+    setSemanticQuery('')
+    setSemanticIntent(null)
+    setSemanticMode(false)
     setStatus('')
     setDomain('')
     setCategory('')
@@ -2092,6 +2141,44 @@ export default function Trainers() {
             {categorisingAll ? 'Categorising...' : 'Categorise All'}
           </button>
         </div>
+        </div>
+
+        <div className="rounded-lg border border-sky-200 bg-gradient-to-br from-white via-sky-50 to-blue-50 p-4 shadow-sm">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700 shadow-sm">
+                <Sparkles className="h-3.5 w-3.5" />
+                Semantic Trainer Search with RAG
+              </div>
+              <h2 className="mt-3 text-xl font-black text-slate-950">Ask for trainers in natural language</h2>
+              <p className="mt-1 text-sm text-slate-600">Search resumes, skills, domains, experience, location, and availability signals with ranked explanations.</p>
+            </div>
+            <form onSubmit={handleSemanticSearch} className="flex min-w-0 flex-1 gap-2 xl:max-w-3xl">
+              <div className="relative min-w-0 flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sky-500" />
+                <input
+                  className="input h-12 pl-9"
+                  value={semanticQuery}
+                  onChange={e => setSemanticQuery(e.target.value)}
+                  placeholder="Find a Python trainer with 5+ years experience available next week"
+                />
+              </div>
+              <button type="submit" disabled={loading} className="btn-primary h-12 px-4 disabled:opacity-60">
+                {loading && semanticMode ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                Search
+              </button>
+            </form>
+          </div>
+          {semanticMode && semanticIntent && (
+            <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-sky-100 pt-3 text-xs">
+              <span className="font-bold text-slate-600">AI understood:</span>
+              {(semanticIntent.skills || []).map(item => <span key={item} className="badge-blue text-[11px]">{item}</span>)}
+              {semanticIntent.min_experience > 0 && <span className="badge-green text-[11px]">{semanticIntent.min_experience}+ years</span>}
+              {(semanticIntent.locations || []).map(item => <span key={item} className="badge-slate text-[11px]">Location: {item}</span>)}
+              {(semanticIntent.availability_terms || []).map(item => <span key={item} className="badge-purple text-[11px]">{item}</span>)}
+              <span className="ml-auto font-semibold text-slate-500">{total} ranked match{total === 1 ? '' : 'es'}</span>
+            </div>
+          )}
         </div>
 
         <div className="card p-4 space-y-3">

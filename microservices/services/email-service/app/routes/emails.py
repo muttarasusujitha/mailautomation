@@ -224,7 +224,7 @@ async def schedule_interview(
         f"- Technology: {payload.technology}\n"
         f"- Duration: 30 minutes\n"
         + (f"- Join: {link}\n" if link else "")
-        + "\nPlease confirm your availability.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com"
+        + "\nPlease confirm your availability.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com"
     )
 
     message_id_header = generate_message_id()
@@ -278,12 +278,13 @@ async def send_client_slots(
         for i, s in enumerate(payload.trainer_slots)
     ) or "Trainer availability slots will be shared shortly."
 
-    subject = f"Trainer Availability Slots – {payload.requirement_id or 'Training'}"
+    subject = f"Interview Slots - {payload.requirement_id or 'Training'}"
     body = (
         f"Dear {client_name},\n\n"
-        "Please find below the trainer's available slots for your review:\n\n"
+        "We have coordinated suitable interview/discussion slots for the shortlisted trainer.\n\n"
+        "Available slots:\n"
         f"{slots_text}\n\n"
-        "Kindly confirm your preferred slot.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com"
+        "Kindly confirm the preferred slot, and we will proceed with the meeting coordination.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com"
     )
     message_id_header = generate_message_id()
     success, error = await send_email_async(

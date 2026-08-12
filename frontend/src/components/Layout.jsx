@@ -103,7 +103,7 @@ function Sidebar({ pendingInbox, onLogout, onNavigate }) {
         {/* Status pill */}
         <div className="mt-4 flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2">
           <span className="status-dot green animate-pulse-soft" />
-          <span className="text-[12px] font-semibold text-blue-700">Operations Hub · Live</span>
+          <span className="text-[12px] font-semibold text-blue-700">Operations Hub - Live</span>
         </div>
       </div>
 

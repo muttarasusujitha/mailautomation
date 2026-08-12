@@ -205,7 +205,7 @@ def _call_script(skills: List[str], location: str) -> str:
     return "\n".join([
         "Recruiter call script",
         "",
-        "Hi, this is from TrainerSync. Is this a good time for a quick trainer opportunity discussion?",
+        "Hi, this is from Clahan Technologies. Is this a good time for a quick trainer opportunity discussion?",
         f"We are checking availability for {skill_text}.{location_line}",
         "Could you confirm your current availability, delivery mode, commercials, and preferred interview slots?",
         "Do you have an updated resume or profile that we can share with the client?",

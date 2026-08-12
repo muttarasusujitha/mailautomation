@@ -86,7 +86,10 @@ services:
 
   core-api:
     container_name: ts-core-api
-    image: ghcr.io/muttarasusujitha/trainersync/core-api:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/core-api/Dockerfile
+    image: trainersync/core-api:local
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -144,7 +147,10 @@ services:
 
   trainer-service:
     container_name: ts-trainer-service
-    image: ghcr.io/muttarasusujitha/trainersync/trainer-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/trainer-service/Dockerfile
+    image: trainersync/trainer-service:local
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -272,7 +278,10 @@ services:
   # ── API Gateway (nginx) ───────────────────────────────────────────────────────
   gateway:
     container_name: ts-gateway
-    image: ghcr.io/muttarasusujitha/trainersync/gateway:latest
+    image: trainersync/gateway:local
+    build:
+      context: ..
+      dockerfile: microservices/gateway/Dockerfile
     restart: unless-stopped
     networks:
       - trainersync
@@ -293,8 +302,6 @@ services:
       intelligence-service:
         condition: service_healthy
       document-service:
-        condition: service_healthy
-      scheduler-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]

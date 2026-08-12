@@ -49,6 +49,19 @@ class InterviewNotesRequest(BaseModel):
     meeting_time: Optional[str] = ""
 
 
+class InterviewAssistantRequest(BaseModel):
+    schedule_key: Optional[str] = ""
+    transcript: Optional[str] = ""
+    trainer_name: Optional[str] = ""
+    trainer_email: Optional[str] = ""
+    trainer_profile: Optional[str] = ""
+    client_name: Optional[str] = ""
+    client_email: Optional[str] = ""
+    domain: Optional[str] = ""
+    requirement_id: Optional[str] = ""
+    meeting_time: Optional[str] = ""
+
+
 def _clean(value: Any) -> str:
     return str(value or "").strip()
 
@@ -143,6 +156,104 @@ def _meeting_analysis(transcript: str) -> Dict[str, Any]:
         "decisions": decisions,
         "action_items": actions,
         "risks": risks,
+    }
+
+
+def _domain_topics(domain: str, profile: str = "") -> List[str]:
+    text = f"{domain} {profile}".lower()
+    topics: List[str] = []
+    rules = [
+        (("python", "django", "flask", "fastapi"), ["Python fundamentals", "API design", "Testing and debugging", "Data handling"]),
+        (("java", "spring", "hibernate"), ["Core Java", "Spring Boot", "REST services", "Concurrency and performance"]),
+        (("react", "frontend", "javascript", "typescript"), ["Component design", "State management", "API integration", "Performance and accessibility"]),
+        (("devops", "aws", "azure", "cloud", "kubernetes", "docker"), ["CI/CD", "Cloud architecture", "Containers and orchestration", "Monitoring and incident handling"]),
+        (("data", "power bi", "tableau", "analytics", "sql"), ["Data modeling", "SQL and reporting", "Dashboard design", "Business insight communication"]),
+        (("ai", "ml", "machine learning", "genai", "prompt"), ["Model fundamentals", "Prompt design", "Evaluation", "Responsible AI practices"]),
+        (("cyber", "security", "soc"), ["Security fundamentals", "Threat modeling", "Incident response", "Tool-based investigation"]),
+        (("salesforce", "crm"), ["Salesforce platform", "Configuration vs customization", "Apex/LWC", "Deployment and governance"]),
+    ]
+    for keys, values in rules:
+        if any(key in text for key in keys):
+            topics.extend(values)
+    if not topics:
+        base = _clean(domain) or "required technology"
+        topics = [f"{base} fundamentals", "Hands-on delivery experience", "Troubleshooting approach", "Training delivery quality"]
+    return list(dict.fromkeys(topics))[:5]
+
+
+def _question_set(payload: InterviewAssistantRequest) -> Dict[str, Any]:
+    domain = _clean(payload.domain) or "the required technology"
+    trainer = _clean(payload.trainer_name) or "the trainer"
+    profile = _clean(payload.trainer_profile)
+    topics = _domain_topics(domain, profile)
+    technical = [
+        f"Walk us through one recent {domain} implementation or training program you delivered. What was your role and outcome?",
+        f"How would you explain the most important {topics[0]} concepts to mixed-experience learners?",
+        f"What common mistakes do learners make in {domain}, and how do you correct them during a session?",
+        f"Design a short hands-on lab for {domain}. What setup, task, and evaluation would you use?",
+        f"How do you troubleshoot when a participant cannot complete a {domain} lab during live training?",
+    ]
+    technical.extend([f"Please share a practical example where you used {topic} in a real client or classroom scenario." for topic in topics[1:4]])
+    profile_questions = [
+        f"{trainer}, which parts of your profile are strongest for this {domain} requirement?",
+        "Which client domains or learner audiences have you trained before?",
+        "What certifications, projects, or delivery artifacts can you share with the client?",
+        "Are there any topics in the client's requirement where you would need preparation time?",
+    ]
+    delivery = [
+        "How do you structure a session so learners stay engaged and complete hands-on work?",
+        "How do you measure learner understanding during the training?",
+        "How do you handle slow learners and advanced learners in the same batch?",
+        "What pre-training checklist do you need from the client?",
+    ]
+    client_fit = [
+        "Can you match the training duration, schedule, timezone, and delivery mode requested by the client?",
+        "What risks should we communicate to the client before confirming you?",
+        "What would be your recommended agenda for the first day?",
+    ]
+    scorecard = [
+        {"area": "Technical depth", "weight": 30, "signal": "Clear real examples, accurate explanations, confident troubleshooting."},
+        {"area": "Training delivery", "weight": 25, "signal": "Structured agenda, lab design, learner engagement methods."},
+        {"area": "Client fit", "weight": 20, "signal": "Relevant domain exposure, availability, commercial and timezone fit."},
+        {"area": "Communication", "weight": 15, "signal": "Concise answers, stakeholder-friendly language, clarity under follow-up."},
+        {"area": "Risk readiness", "weight": 10, "signal": "Honest gaps, mitigation plan, preparation needs."},
+    ]
+    return {
+        "summary": f"Interview kit prepared for {trainer} against the {domain} requirement.",
+        "focus_areas": topics,
+        "technical_questions": technical[:8],
+        "profile_questions": profile_questions,
+        "delivery_questions": delivery,
+        "client_fit_questions": client_fit,
+        "scorecard": scorecard,
+    }
+
+
+def _interview_summary(payload: InterviewAssistantRequest) -> Dict[str, Any]:
+    transcript = _clean(payload.transcript)
+    if not transcript:
+        return {
+            "summary": "",
+            "recommendation": "Add transcript or interview notes to generate a summary.",
+            "strengths": [],
+            "concerns": [],
+            "next_steps": [],
+        }
+    analysis = _meeting_analysis(transcript)
+    lower_points = [(item, item.lower()) for item in _sentences(transcript)]
+    strengths = [s for s, low in lower_points if any(word in low for word in ("strong", "good", "experienced", "delivered", "confident", "certified"))][:5]
+    concerns = analysis.get("risks") or [s for s, low in lower_points if any(word in low for word in ("gap", "concern", "weak", "not sure", "need preparation"))][:5]
+    next_steps = analysis.get("action_items") or ["Share interview feedback with the client.", "Confirm selection decision and next timeline."]
+    recommendation = "Proceed if commercial, availability, and client feedback are aligned."
+    if concerns and not strengths:
+        recommendation = "Hold for review before confirming; clarify concerns with trainer/client."
+    return {
+        "summary": analysis["summary"],
+        "key_points": analysis["key_points"],
+        "strengths": strengths or ["Relevant strengths were not explicitly captured in the notes."],
+        "concerns": concerns or ["No major concern captured in the notes."],
+        "next_steps": next_steps[:6],
+        "recommendation": recommendation,
     }
 
 
@@ -267,6 +378,17 @@ def _xlsx_bytes(rows: List[List[Any]]) -> bytes:
     return buffer.getvalue()
 
 
+async def _ensure_interview_indexes(db: AsyncIOMotorDatabase) -> None:
+    try:
+        await db["email_logs"].create_index([("interview_scheduled", 1), ("interview_at", 1)], background=True)
+        await db["email_logs"].create_index([("trainer_name", 1)], background=True)
+        await db["email_logs"].create_index([("client_email", 1)], background=True)
+        await db["email_logs"].create_index([("domain", 1)], background=True)
+        await db["interview_meeting_notes"].create_index([("schedule_key", 1), ("created_at", -1)], background=True)
+    except Exception:
+        logger.exception("Could not ensure interview indexes")
+
+
 @router.get("")
 async def list_reminders(
     status: Optional[str] = None,
@@ -283,6 +405,7 @@ async def list_reminders(
 @router.get("/interview-schedules")
 async def list_interview_schedules(db: AsyncIOMotorDatabase = Depends(get_db)):
     """Return email_logs where an interview is scheduled."""
+    await _ensure_interview_indexes(db)
     cursor = (
         db["email_logs"]
         .find({"interview_scheduled": True}, {"_id": 0})
@@ -303,6 +426,15 @@ async def list_interview_schedules_alias(db: AsyncIOMotorDatabase = Depends(get_
 async def analyze_interview_notes(payload: InterviewNotesRequest):
     analysis = _meeting_analysis(payload.transcript)
     return {"success": True, "analysis": analysis, "document_text": _document(payload, analysis)}
+
+
+@schedules_router.post("/assistant")
+async def interview_assistant(payload: InterviewAssistantRequest):
+    return {
+        "success": True,
+        "questions": _question_set(payload),
+        "interview_summary": _interview_summary(payload),
+    }
 
 
 @schedules_router.post("/notes")

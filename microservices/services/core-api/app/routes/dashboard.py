@@ -11,6 +11,13 @@ from shared.database.service import get_db
 router = APIRouter()
 logger = logging.getLogger(__name__)
 PENDING_CLIENT_STATUSES = ["pending_approval", "pending_review", "needs_manual_review"]
+HIDDEN_CLIENT_STATUSES = ["spam", "ignored", "deleted"]
+HIDDEN_CLIENT_CATEGORIES = ["bounce", "system", "newsletter", "marketing", "job_alert"]
+HIDDEN_CLIENT_SENDER_REGEX = (
+    r"noreply|no-reply|donotreply|do-not-reply|postmaster|mailer-daemon|mail delivery subsystem|"
+    r"newsletter|updates-noreply|recommendationnc|onlinecourses|@linkedin\.com$|@naukri\.com$|"
+    r"@googlemail\.com$|@alison\.com$|@reliancedigital\.in$|@nptel\.iitm\.ac\.in$"
+)
 OPEN_REQUIREMENT_STATUSES = ["active", "open", "pending", "in_progress"]
 CLOSED_REQUIREMENT_STATUSES = ["closed", "fulfilled", "completed", "cancelled"]
 PIPELINE_TRAINER_STAGES = [
@@ -119,6 +126,34 @@ def _client_status_query(statuses: List[str]) -> Dict[str, Any]:
     }
 
 
+def _visible_client_request_query(extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    clauses: List[Dict[str, Any]] = [
+        {"deleted": {"$ne": True}},
+        {"status": {"$nin": HIDDEN_CLIENT_STATUSES}},
+        {"reply_status": {"$nin": HIDDEN_CLIENT_STATUSES}},
+        {
+            "$or": [
+                {"extracted.is_training_request": True},
+                {"extracted.direct_request_language": True},
+                {"requirement_id": {"$exists": True, "$nin": ["", None]}},
+            ]
+        },
+        {
+            "$nor": [
+                {"from_email": {"$regex": HIDDEN_CLIENT_SENDER_REGEX, "$options": "i"}},
+                {"from_name": {"$regex": HIDDEN_CLIENT_SENDER_REGEX, "$options": "i"}},
+                {"office_mail_category": {"$in": HIDDEN_CLIENT_CATEGORIES}},
+                {"email_classification.scenario": {"$in": HIDDEN_CLIENT_CATEGORIES}},
+                {"email_classification.person_type": {"$in": ["bounce", "system"]}},
+                {"extracted.is_non_client_email": True},
+            ]
+        },
+    ]
+    if extra:
+        clauses.append(extra)
+    return {"$and": clauses}
+
+
 # ─── /dashboard/stats ─────────────────────────────────────────────────────────
 
 @router.get("/stats")
@@ -168,13 +203,19 @@ async def dashboard_stats(db: AsyncIOMotorDatabase = Depends(get_db)):
     )
 
     # Client inbox
-    total_client_requests = await db["client_emails"].count_documents({})
-    client_requests_today = await db["client_emails"].count_documents({"created_at": {"$gte": today_start}})
-    client_pending = await db["client_emails"].count_documents(_client_status_query(PENDING_CLIENT_STATUSES))
-    client_requirements_created = await db["client_emails"].count_documents({
-        "requirement_id": {"$exists": True, "$nin": ["", None]},
-    })
-    inbox_pending = await db["client_emails"].count_documents({"processed": {"$ne": True}})
+    total_client_requests = await db["client_emails"].count_documents(_visible_client_request_query())
+    client_requests_today = await db["client_emails"].count_documents(
+        _visible_client_request_query({"created_at": {"$gte": today_start}})
+    )
+    client_pending = await db["client_emails"].count_documents(
+        _visible_client_request_query(_client_status_query(PENDING_CLIENT_STATUSES))
+    )
+    client_requirements_created = await db["client_emails"].count_documents(
+        _visible_client_request_query({"requirement_id": {"$exists": True, "$nin": ["", None]}})
+    )
+    inbox_pending = await db["client_emails"].count_documents(
+        _visible_client_request_query({"processed": {"$ne": True}})
+    )
 
     # Shortlists
     total_shortlists = await db["shortlists"].count_documents({})

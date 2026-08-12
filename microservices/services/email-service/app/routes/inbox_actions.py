@@ -29,12 +29,20 @@ VISIBLE_DEFAULT_STATUSES = [
     "calendar_failed",
     "client_email_failed",
 ]
-HIDDEN_DEFAULT_STATUSES = ["spam", "ignored"]
+HIDDEN_DEFAULT_STATUSES = ["spam", "ignored", "deleted"]
 HIDDEN_DEFAULT_SENDER_REGEX = (
-    r"noreply|no-reply|donotreply|postmaster|newsletter|updates-noreply|"
+    r"noreply|no-reply|donotreply|do-not-reply|postmaster|mailer-daemon|mail delivery subsystem|newsletter|updates-noreply|"
     r"recommendationnc|onlinecourses|@linkedin\.com$|@naukri\.com$|"
-    r"@alison\.com$|@reliancedigital\.in$|@nptel\.iitm\.ac\.in$"
+    r"@googlemail\.com$|@alison\.com$|@reliancedigital\.in$|@nptel\.iitm\.ac\.in$"
 )
+HIDDEN_DEFAULT_CATEGORIES = ["bounce", "system", "newsletter", "marketing", "job_alert"]
+CLIENT_REQUEST_SIGNAL = {
+    "$or": [
+        {"extracted.is_training_request": True},
+        {"extracted.direct_request_language": True},
+        {"requirement_id": {"$exists": True, "$nin": ["", None]}},
+    ]
+}
 
 
 def _status_filter(status: Optional[str], include_hidden: bool = False) -> Dict[str, Any]:
@@ -43,6 +51,7 @@ def _status_filter(status: Optional[str], include_hidden: bool = False) -> Dict[
     if not status or status == "all":
         return {
             "$and": [
+                {"deleted": {"$ne": True}},
                 {"status": {"$nin": HIDDEN_DEFAULT_STATUSES}},
                 {"reply_status": {"$nin": HIDDEN_DEFAULT_STATUSES}},
                 {
@@ -53,14 +62,41 @@ def _status_filter(status: Optional[str], include_hidden: bool = False) -> Dict[
                         {"requirement_id": {"$exists": True, "$nin": ["", None]}},
                     ],
                 },
-                {"$nor": [{"from_email": {"$regex": HIDDEN_DEFAULT_SENDER_REGEX, "$options": "i"}}]},
+                CLIENT_REQUEST_SIGNAL,
+                {
+                    "$nor": [
+                        {"from_email": {"$regex": HIDDEN_DEFAULT_SENDER_REGEX, "$options": "i"}},
+                        {"from_name": {"$regex": HIDDEN_DEFAULT_SENDER_REGEX, "$options": "i"}},
+                        {"office_mail_category": {"$in": HIDDEN_DEFAULT_CATEGORIES}},
+                        {"email_classification.scenario": {"$in": HIDDEN_DEFAULT_CATEGORIES}},
+                        {"email_classification.person_type": {"$in": ["bounce", "system"]}},
+                        {"extracted.is_non_client_email": True},
+                    ]
+                },
             ],
         }
     statuses = PENDING_STATUSES if status == "pending_approval" else [status]
     return {
-        "$or": [
-            {"status": {"$in": statuses}},
-            {"reply_status": {"$in": statuses}},
+        "$and": [
+            {"deleted": {"$ne": True}},
+            {"status": {"$ne": "deleted"}},
+            {
+                "$or": [
+                    {"status": {"$in": statuses}},
+                    {"reply_status": {"$in": statuses}},
+                ],
+            },
+            CLIENT_REQUEST_SIGNAL,
+            {
+                "$nor": [
+                    {"from_email": {"$regex": HIDDEN_DEFAULT_SENDER_REGEX, "$options": "i"}},
+                    {"from_name": {"$regex": HIDDEN_DEFAULT_SENDER_REGEX, "$options": "i"}},
+                    {"office_mail_category": {"$in": HIDDEN_DEFAULT_CATEGORIES}},
+                    {"email_classification.scenario": {"$in": HIDDEN_DEFAULT_CATEGORIES}},
+                    {"email_classification.person_type": {"$in": ["bounce", "system"]}},
+                    {"extracted.is_non_client_email": True},
+                ]
+            },
         ],
     }
 
@@ -175,11 +211,21 @@ async def list_inbox_emails(
         {"$sort": {"_sort_received_at": -1, "created_at": -1, "updated_at": -1}},
         {"$skip": skip},
         {"$limit": limit},
-        {"$project": {"_id": 0, "raw_body": 0, "_sort_received_at": 0}},
+        {
+            "$project": {
+                "_id": 0,
+                "raw_body": 0,
+                "body": 0,
+                "clean_body": 0,
+                "_sort_received_at": 0,
+            }
+        },
     ]
     cursor = db["client_emails"].aggregate(pipeline)
     items = [_normalise_item_status(d) async for d in cursor]
     status_count = db["client_emails"].count_documents
+    visible_base_query = _status_filter(None, False)
+    visible_pending_query = _status_filter("pending_approval", False)
     return {
         "success": True,
         "total": total,
@@ -188,16 +234,16 @@ async def list_inbox_emails(
         "pages": max(1, (total + limit - 1) // limit),
         "emails": items,
         "stats": {
-            "today": await status_count(_today_query()),
-            "pending_approval": await status_count(_count_status_query(PENDING_STATUSES)),
-            "auto_sent": await status_count(_count_status_query(["auto_sent"])),
-            "sent": await status_count(_count_status_query(["sent"])),
-            "approved": await status_count(_count_status_query(["approved"])),
-            "rejected": await status_count(_count_status_query(["rejected"])),
+            "today": await status_count({"$and": [visible_base_query, _today_query()]}),
+            "pending_approval": await status_count(visible_pending_query),
+            "auto_sent": await status_count({"$and": [visible_base_query, _count_status_query(["auto_sent"])]}),
+            "sent": await status_count({"$and": [visible_base_query, _count_status_query(["sent"])]}),
+            "approved": await status_count({"$and": [visible_base_query, _count_status_query(["approved"])]}),
+            "rejected": await status_count({"$and": [visible_base_query, _count_status_query(["rejected"])]}),
             "spam": await status_count(_count_status_query(["spam"])),
             "office_replies": await status_count(_count_status_query(["office_reply", "routed_to_trainer_reply"])),
-            "requirements_created": await status_count({"requirement_id": {"$exists": True, "$nin": ["", None]}}),
-            "total": await status_count({}),
+            "requirements_created": await status_count({"$and": [visible_base_query, {"requirement_id": {"$exists": True, "$nin": ["", None]}}]}),
+            "total": await status_count(visible_base_query),
         },
     }
 
@@ -232,9 +278,34 @@ async def delete_inbox_email(
     email_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    result = await db["client_emails"].delete_one({"email_id": email_id})
-    if result.deleted_count == 0:
-        raise HTTPException(404, "Inbox email not found")
+    now = datetime.utcnow()
+    result = await db["client_emails"].update_one(
+        {"email_id": email_id},
+        {
+            "$set": {
+                "status": "deleted",
+                "reply_status": "deleted",
+                "deleted": True,
+                "deleted_at": now,
+                "updated_at": now,
+                "processed": True,
+            }
+        },
+    )
+    if result.matched_count == 0:
+        existing_deleted = await db["client_emails"].find_one(
+            {
+                "email_id": email_id,
+                "$or": [
+                    {"deleted": True},
+                    {"status": "deleted"},
+                    {"reply_status": "deleted"},
+                ],
+            },
+            {"_id": 1},
+        )
+        if not existing_deleted:
+            return
 
 
 @router.post("/{email_id}/approve")

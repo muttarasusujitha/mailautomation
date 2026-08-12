@@ -79,7 +79,7 @@ Strict output rules:
 - End with exactly:
 Regards,
 Clahan Technologies
-sujithaofficial784@gmail.com
+sujithaofficial585@gmail.com
 - Generate only subject and body.
 - Format exactly:
 SUBJECT: <subject>
@@ -551,7 +551,16 @@ function mail1RequirementDetails(req = {}, details = {}) {
     (req.duration_days ? `${req.duration_days} day(s)` : '') ||
     (req.duration_hours ? `${req.duration_hours} hour(s)` : '')
   )
-  const timing = cleanDetailValue(req.timing || req.schedule || req.training_timing || req.training_dates || req.timeline_start)
+  const timing = cleanDetailValue(
+    req.training_dates ||
+    req.preferred_dates ||
+    req.dates ||
+    req.date_time_text ||
+    req.timing ||
+    req.schedule ||
+    req.training_timing ||
+    [req.timeline_start, req.timeline_end].filter(Boolean).join(' to ')
+  )
   const mode = cleanDetailValue(details.mode || req.mode || req.training_mode || req.delivery_mode)
   const participants = cleanDetailValue(details.participants || req.participant_count || req.participants)
   const trainerBudget = trainerVisibleBudgetInfo(req)
@@ -561,7 +570,7 @@ function mail1RequirementDetails(req = {}, details = {}) {
     timing,
     mode,
     participants,
-    commercial: commercial ? (/^\d+(\.\d+)?$/.test(commercial) ? `INR ${Number(commercial).toLocaleString('en-IN')}` : commercial) : '',
+    commercial: commercial ? (/^\d+(\.\d+)?$/.test(commercial) ? `INR ${Number(commercial).toLocaleString('en-IN')} per day/session, inclusive of TDS` : commercial) : '',
   }
 }
 
@@ -573,8 +582,6 @@ function mail1MissingClientDetails(detailMap) {
     !detailMap.commercial ? 'commercials/budget' : '',
   ].filter(Boolean)
 }
-
-const TRAINER_SIGNATURE = 'Regards,\nClahan Technologies\nsujithaofficial784@gmail.com'
 
 // ─── Email template builders ──────────────────────────────────────────────────
 function mail1Template(trainer, req, hasDetails, details, isReminder = false, reminderNum = 0) {
@@ -594,7 +601,7 @@ function mail1Template(trainer, req, hasDetails, details, isReminder = false, re
   if (missingDetails.length) {
     body += `\n\nThe client has not provided the ${missingDetails.join(', ')} yet. We will share those details later once we receive them.`
   }
-  body += `\n\nPlease let us know if you are interested and available for this requirement. Kindly share your updated trainer profile along with relevant experience.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
+  body += `\n\nPlease let us know if you are interested and available for this requirement. Kindly share your updated trainer profile along with relevant experience.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   const subject = isReminder
     ? `[Reminder ${reminderNum}] Training Requirement – ${domain}`
     : `Training Requirement – ${domain}`
@@ -614,36 +621,17 @@ function isDeliveryBounce(text = '') {
   return /\b(address not found|message blocked|wasn'?t delivered|delivery incomplete|mail delivery subsystem|undeliverable)\b/.test(clean)
 }
 
-function mail1QuestionRedirectTemplate(trainer, req) {
-  const domain = req?.technology_needed || 'the training requirement'
-  const detailMap = mail1RequirementDetails(req)
-  const knownLines = [
-    detailMap.duration ? `Duration: ${detailMap.duration}` : '',
-    detailMap.timing ? `Timing/Schedule: ${detailMap.timing}` : '',
-    detailMap.mode ? `Mode: ${detailMap.mode}` : '',
-    detailMap.commercial ? `Commercials/Budget: ${detailMap.commercial}` : '',
-  ].filter(Boolean)
-  const missingDetails = mail1MissingClientDetails(detailMap)
-  const detailReply = knownLines.length
-    ? `Available details:\n${knownLines.join('\n')}\n\n${missingDetails.length ? `The client has not provided the ${missingDetails.join(', ')} yet. We will share those details later once we receive them.` : 'These are the details currently available from the client.'}`
-    : `The client has not provided the duration, timing/schedule, training mode, or commercials/budget yet. We will share those details later once we receive them.`
-  return {
-    subject: `Re: Training Requirement - ${domain}`,
-    body: `${greeting(trainer)}\n\nThank you for your question.\n\n${detailReply}\n\nFor now, could you please confirm if you are interested and available for the ${domain} requirement? If yes, kindly share your updated trainer profile and relevant experience.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`,
-  }
-}
-
 function mail2Template(trainer, req) {
   return {
     subject: `Training Requirement – ${req.technology_needed} | Additional Details Required`,
-    body: `${greeting(trainer)}\n\nThank you for your response.\n\nTo proceed further, kindly share the below details:\n\n* Total years of experience\n* Number of trainings conducted previously\n* Relevant certifications\n* Preferred training mode (Online / Offline)\n* Availability for Full-Day or Half-Day sessions\n* Expected commercial charges per day/session\n* Current location\n* Availability for the mentioned dates\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nThank you for your response.\n\nTo proceed further, kindly share the below details:\n\n* Total years of experience\n* Number of trainings conducted previously\n* Relevant certifications\n* Preferred training mode (Online / Offline)\n* Availability for Full-Day or Half-Day sessions\n* Expected commercial charges per day/session\n* Current location\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
 
 function mail2FollowupTemplate(trainer, req) {
   return {
     subject: `Re: Training Requirement – ${req.technology_needed} | Details Required`,
-    body: `${greeting(trainer)}\n\nThank you for confirming your interest.\n\nTo proceed further, kindly share the above requested details:\n\n* Total years of experience\n* Number of trainings conducted previously\n* Relevant certifications\n* Preferred training mode (Online / Offline)\n* Availability for Full-Day or Half-Day sessions\n* Expected commercial charges per day/session\n* Current location\n* Availability for the mentioned dates\n\nOnce we receive these details, we can move ahead with the next step.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nThank you for confirming your interest.\n\nTo proceed further, kindly share the above requested details:\n\n* Total years of experience\n* Number of trainings conducted previously\n* Relevant certifications\n* Preferred training mode (Online / Offline)\n* Availability for Full-Day or Half-Day sessions\n* Expected commercial charges per day/session\n* Current location\n\nOnce we receive these details, we can move ahead with the next step.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
 
@@ -656,7 +644,7 @@ function trainerCommercialNegotiationTemplate(trainer, req, quote, target) {
     : ''
   return {
     subject: `Re: Training Requirement - ${domain} | Commercial Discussion`,
-    body: `${greeting(trainer)}\n\nThank you for sharing your details and commercials for the ${domain} requirement.\n\n${clientBudgetLine}To align with this budget, kindly confirm if you can proceed at INR ${target.amount.toLocaleString('en-IN')} ${unitText}.\n\nPlease let us know if this revised commercial is workable.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nThank you for sharing your details and commercials for the ${domain} requirement.\n\n${clientBudgetLine}To align with this budget, kindly confirm if you can proceed at INR ${target.amount.toLocaleString('en-IN')} ${unitText}.\n\nPlease let us know if this revised commercial is workable.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
 
@@ -670,7 +658,7 @@ function mail3Template(trainer, req, trainerDates) {
   
   return {
     subject: `Interview Slot Booking - ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nThank you for sharing your details.\n\nWe would like to book an interview slot with you. Based on your availability, please confirm one of the following slots:\n\nexample\n${slotsText}\n\nKindly confirm your preferred slot at the earliest.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nThank you for sharing your details.\n\nWe would like to book an interview slot with you. Based on your availability, please confirm one of the following slots:\n\nexample\n${slotsText}\n\nKindly confirm your preferred slot at the earliest.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
 
@@ -691,21 +679,21 @@ function mail3TooManySlotsTemplate(trainer) {
 function mail4Template(trainer, req, interviewLink, platform, dateTime) {
   return {
     subject: `Interview Schedule Confirmation – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nYour interview has been scheduled. Please find the details below:\n\nDate & Time: ${dateTime || '[Date & Time]'}\nPlatform: ${platform || 'Google Meet'}\nMeeting Link: ${interviewLink || '[Google Meet Link]'}\n\nPlease join on time. Let us know if you need any assistance.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nYour interview has been scheduled. Please find the details below:\n\nDate & Time: ${dateTime || '[Date & Time]'}\nPlatform: ${platform || 'Google Meet'}\nMeeting Link: ${interviewLink || '[Google Meet Link]'}\n\nPlease join on time. Let us know if you need any assistance.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
 
 function mail5SelectedTemplate(trainer, req) {
   return {
     subject: `Congratulations! You have been Selected – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nCongratulations! We are pleased to inform you that you have been selected for the ${req.technology_needed} training requirement.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nCongratulations. The client has selected your profile for this assignment.\n\nWe will share the next steps and coordination details shortly.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
 
 function mail5RejectedTemplate(trainer, req) {
   return {
     subject: `Update on Training Requirement – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nThank you for your time and interest in the ${req.technology_needed} training requirement.\n\nAfter careful consideration, we regret to inform you that we have decided to proceed with another trainer at this time.\n\nWe will keep your profile on record and reach out for future opportunities.\n\nThank you once again for your cooperation.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nThank you for your time and interest in the ${req.technology_needed} training requirement.\n\nAfter careful consideration, we regret to inform you that we have decided to proceed with another trainer at this time.\n\nWe will keep your profile on record and reach out for future opportunities.\n\nThank you once again for your cooperation.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
 
@@ -713,7 +701,7 @@ function mail5RejectedTemplate(trainer, req) {
 function mailTocAutoTemplate(trainer, req) {
   return {
     subject: `Action Required: ToC / Course Agenda – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nCongratulations again on being selected for the ${req.technology_needed} training!\n\nTo initiate the onboarding process, kindly share the following at the earliest:\n\n* Detailed Table of Contents (ToC) / Course Agenda\n* Day-wise session breakdown\n* Tools, software, or prerequisites required by participants\n* Estimated preparation time needed\n\nPlease revert at the earliest so we can coordinate with the client on schedule.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nCongratulations again on being selected for the ${req.technology_needed} training!\n\nTo initiate the onboarding process, kindly share the following at the earliest:\n\n* Detailed Table of Contents (ToC) / Course Agenda\n* Day-wise session breakdown\n* Tools, software, or prerequisites required by participants\n* Estimated preparation time needed\n\nPlease revert at the earliest so we can coordinate with the client on schedule.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
 
@@ -721,7 +709,7 @@ function mailTocAutoTemplate(trainer, req) {
 function mailTrainingConfirmedTemplate(trainer, req, contactName, contactPhone, contactEmail, trainingDate, venue) {
   return {
     subject: `Training Schedule Confirmed – ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nWe are pleased to confirm your engagement for the ${req.technology_needed} training. Please find the final details below:\n\nTraining Date: ${trainingDate || '[Training Date]'}\nVenue / Platform: ${venue || '[Venue / Platform]'}\n\nAction Items Before Training:\n* Ensure all materials and slides are ready\n* Share soft copies of training content with us 2 days prior\n* Confirm your availability 24 hours before the training\n\nFor any questions or additional information, please contact:\n\n👤 ${contactName || '[Contact Name]'}\n📞 ${contactPhone || '[Phone Number]'}\n📧 ${contactEmail || '[Email]'}\n\nWe look forward to a successful training session!\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nWe are pleased to confirm your engagement for the ${req.technology_needed} training. Please find the final details below:\n\nTraining Date: ${trainingDate || '[Training Date]'}\nVenue / Platform: ${venue || '[Venue / Platform]'}\n\nAction Items Before Training:\n* Ensure all materials and slides are ready\n* Share soft copies of training content with us 2 days prior\n* Confirm your availability 24 hours before the training\n\nFor any questions or additional information, please contact:\n\n👤 ${contactName || '[Contact Name]'}\n📞 ${contactPhone || '[Phone Number]'}\n📧 ${contactEmail || '[Email]'}\n\nWe look forward to a successful training session!\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
 
@@ -2053,7 +2041,6 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
   const [invoice, setInvoice] = useState(null)
   const [generating, setGenerating] = useState(false)
   const [downloading, setDownloading] = useState(false)
-  const [sending, setSending] = useState(false)
   const [invoiceBusy, setInvoiceBusy] = useState('')
 
   const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
@@ -2325,22 +2312,22 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
             {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
             Generate PDF
           </button>
-          <button onClick={handleDownload} disabled={generating || downloading || sending}
+          <button onClick={handleDownload} disabled={generating || downloading}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm disabled:opacity-50">
             {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             Download
           </button>
-          <button onClick={handleGenerateInvoice} disabled={!!invoiceBusy || generating || sending}
+          <button onClick={handleGenerateInvoice} disabled={!!invoiceBusy || generating}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-cyan-700 text-white font-semibold text-sm disabled:opacity-50">
             {invoiceBusy === 'generate' ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
             {form.client_po_number.trim() ? 'Generate Invoice From Client PO' : 'Generate Invoice'}
           </button>
-          <button onClick={handleDownloadInvoice} disabled={!!invoiceBusy || generating || sending}
+          <button onClick={handleDownloadInvoice} disabled={!!invoiceBusy || generating}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-semibold text-sm disabled:opacity-50">
             {invoiceBusy === 'download' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             Download Invoice
           </button>
-          <button onClick={handleSendInvoice} disabled={!!invoiceBusy || generating || sending || !req.client_email}
+          <button onClick={handleSendInvoice} disabled={!!invoiceBusy || generating || !req.client_email}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm disabled:opacity-50">
             {invoiceBusy === 'send' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             Send Invoice to Client
@@ -2499,7 +2486,7 @@ function StepBar({ stage }) {
   const isDone     = ['training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(stage)
 
   return (
-    <div className="flex items-center gap-0 mt-2 flex-wrap">
+    <div className="mt-4 grid grid-cols-7 gap-1.5 rounded-xl border border-slate-200 bg-slate-50 p-2">
       {steps.map((s, i) => {
         const realStep   = i + 1
         const isActive   = realStep === stepIndex
@@ -2507,9 +2494,14 @@ function StepBar({ stage }) {
         const isRejStep  = realStep === 5 && isRejected
         const isFinalDone= realStep === 7 && isDone
         return (
-          <div key={i} className="flex items-center">
+          <div key={i} className={clsx(
+            'min-w-0 rounded-lg px-1.5 py-1.5 text-center transition-all',
+            isComplete || isFinalDone ? 'bg-white shadow-sm ring-1 ring-blue-100' :
+            isActive ? 'bg-white shadow-sm ring-1 ring-slate-200' :
+            'bg-transparent'
+          )}>
             <div className={clsx(
-              'w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold transition-all',
+              'mx-auto flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-bold transition-all',
               isComplete             ? 'bg-blue-500 text-white' :
               isRejStep              ? 'bg-red-500 text-white'  :
               isFinalDone            ? 'bg-green-500 text-white':
@@ -2519,10 +2511,10 @@ function StepBar({ stage }) {
             )}>
               {isComplete || isFinalDone ? '✓' : isRejStep ? '✕' : realStep}
             </div>
-            <div className="hidden sm:block mx-0.5 text-xs text-slate-400 whitespace-nowrap">{s}</div>
-            {i < steps.length - 1 && (
-              <div className={clsx('w-3 h-0.5 mx-0.5', isComplete ? 'bg-blue-400' : 'bg-slate-200')} />
-            )}
+            <div className={clsx(
+              'mt-1 truncate text-[10px] font-semibold',
+              isActive || isComplete || isFinalDone ? 'text-slate-700' : 'text-slate-400'
+            )}>{s}</div>
           </div>
         )
       })}
@@ -2580,23 +2572,26 @@ function PipelineProgressSummary({ stage, state, req }) {
   ]
 
   return (
-    <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50/80 p-3">
+    <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Pipeline progress</p>
-          <p className="text-sm font-semibold text-slate-900">{progressLabel}</p>
+          <p className="text-[11px] font-bold uppercase text-slate-400">Pipeline progress</p>
+          <p className="text-sm font-bold text-slate-900">{progressLabel}</p>
         </div>
-        <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-600 ring-1 ring-slate-200">{progressPct}%</span>
+        <span className="rounded-full bg-slate-900 px-2.5 py-1 text-xs font-bold text-white">{progressPct}%</span>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
-        <div className="h-full rounded-full bg-blue-500 transition-all" style={{ width: `${progressPct}%` }} />
+      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+        <div className={clsx(
+          'h-full rounded-full transition-all',
+          stage === 'rejected' ? 'bg-red-500' : progressPct === 100 ? 'bg-emerald-500' : 'bg-blue-500'
+        )} style={{ width: `${progressPct}%` }} />
       </div>
-      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {items.map(item => (
-          <div key={item.label} className="rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">{item.label}</p>
+          <div key={item.label} className="rounded-lg bg-slate-50 px-3 py-2 ring-1 ring-slate-100">
+            <p className="text-[10px] font-bold uppercase text-slate-400">{item.label}</p>
             <p className={clsx(
-              'mt-0.5 truncate text-xs font-semibold',
+              'mt-0.5 truncate text-xs font-bold',
               item.tone === 'good' ? 'text-emerald-700' :
               item.tone === 'warn' ? 'text-amber-700' :
               item.tone === 'bad' ? 'text-red-700' :
@@ -2683,8 +2678,8 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
               trainer_name: trainer.name,
               to_email: req.client_email,
               requirement_id: req.requirement_id,
-              subject: `Trainer Details Received - ${req.technology_needed} | ${trainer.name}`,
-              body: `Hi ${req.client_name || 'Team'},\n\nGood news! Trainer ${trainer.name} has confirmed their availability and shared the required details for the ${req.technology_needed} requirement.\n\nWe are sharing the commercials for your review in the next email.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+              subject: `Shortlisted Profile Details Received - ${req.technology_needed}`,
+              body: `Hi ${req.client_name || 'Team'},\n\nGood news. The shortlisted trainer has shared the required details for the ${req.technology_needed} requirement.\n\nWe are sharing the commercials for your review in the next email.\n\nRegards,\nClahan Technologies`,
               mail_type: 'commercial_details_notification',
             })
             showSendStatusToast({ trainerName: trainer.name, result: notificationRes.data, title: 'Client notification sent' })
@@ -2699,7 +2694,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
               to_email: req.client_email,
               requirement_id: req.requirement_id,
               subject: `Trainer Accepted Your Commercial - ${req.technology_needed} | ${trainer.name}`,
-              body: `Hi ${req.client_name || 'Team'},\n\nTrainer ${trainer.name} has confirmed availability and is okay to proceed with your commercial for the ${req.technology_needed} requirement.\n\nAccepted Commercial:\n- INR ${trainerOffer.amount.toLocaleString('en-IN')} ${unitText}\n\nWe will proceed with interview slot coordination next.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+              body: `Hi ${req.client_name || 'Team'},\n\nThe shortlisted trainer is okay to proceed with your commercial for the ${req.technology_needed} requirement.\n\nAccepted Commercial:\n- INR ${trainerOffer.amount.toLocaleString('en-IN')} ${unitText}\n\nWe will proceed with interview slot coordination next.\n\nRegards,\nClahan Technologies`,
               mail_type: 'client_budget_acknowledgment',
             })
             showSendStatusToast({ trainerName: trainer.name, result: acceptedRes.data, title: 'Client commercial acceptance sent' })
@@ -2724,8 +2719,8 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
             trainer_name: trainer.name,
             to_email: req.client_email,
             requirement_id: req.requirement_id,
-            subject: `Trainer Commercials for Approval - ${req.technology_needed} | ${trainer.name}`,
-            body: `Hi ${req.client_name || 'Team'},\n\nTrainer ${trainer.name} has shared the required details and commercials for the ${req.technology_needed} requirement.\n\nCommercial Rate for Client Review:\n- INR ${clientAmount.toLocaleString('en-IN')} ${unitText}\n\nPlease review and confirm if this rate is acceptable. Once approved, we will proceed with interview slot coordination.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+            subject: `Shortlisted Trainer Commercials for Approval - ${req.technology_needed}`,
+            body: `Hi ${req.client_name || 'Team'},\n\nThe shortlisted trainer has shared the required details and commercials for the ${req.technology_needed} requirement.\n\nCommercial Rate for Client Review:\n- INR ${clientAmount.toLocaleString('en-IN')} ${unitText}\n\nPlease review and confirm if this rate is acceptable. Once approved, we will proceed with interview slot coordination.\n\nRegards,\nClahan Technologies`,
             mail_type: 'trainer_commercials_to_client',
           })
           showSendStatusToast({ trainerName: trainer.name, result: commercialRes.data, title: 'Client commercials sent' })
@@ -3018,43 +3013,6 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           } else if (alreadySentClientCommercials) {
             toast(`Commercials were sent to ${req.client_name || 'client'} and Mail 3 is already sent.`, { icon: 'INR', duration: 4000 })
           }
-          runningRef.current = false
-          return
-           
-          // AUTO: Send trainer commercials to client after mail2 reply received
-          const clientCommercialsSent = messages.some(m => m.direction === 'sent' && m.mail_type === 'trainer_commercials_to_client')
-          
-          // ⚠️ IMPORTANT: Don't auto-send mail3 until commercials are approved
-          // Only proceed to mail3 if commercials are already sent
-          if (!clientCommercialsSent) {
-            // Commercials not sent yet - wait for manual approval
-            toast(`⏳ Waiting for commercials to be sent to ${req.client_name || 'client'} and approved. Use "Send Commercials to Client" button.`, { icon: '⏳', duration: 4000 })
-            runningRef.current = false
-            return
-          }
-
-          toast(`Commercials were sent to ${req.client_name || 'client'}. Wait for client approval before slot booking.`, { icon: 'INR', duration: 4000 })
-          runningRef.current = false
-          return
-
-          // Commercials sent - now proceed with slot booking
-          const legacyMail3AlreadySent = messages.some(m => m.direction === 'sent' && m.mail_type === 'mail3')
-          if (!legacyMail3AlreadySent) {
-            const { subject, body } = mail3Template(activeTrainer, req, '')
-            const res = await api.post('/shortlists/send-mail', {
-              trainer_id:     activeTrainer.trainer_id,
-              trainer_name:   activeTrainer.name,
-              to_email:       activeTrainer.email,
-              requirement_id: req.requirement_id,
-              subject, body,
-              mail_type: 'mail3',
-              client_email: req.client_email,
-              client_name: req.client_name || req.client_company,
-            })
-            showSendStatusToast({ trainerName: activeTrainer.name, result: res.data, title: 'Slot booking sent' })
-            toast(`✅ After commercial approval: Slot Booking mail sent to ${activeTrainer.name}. Next trainer will wait until this pipeline finishes.`, { icon: '📅', duration: 5000 })
-          }
-          setStage(activeTrainer, 'slot_booked')
           runningRef.current = false
           return
         }
@@ -3359,22 +3317,6 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           runningRef.current = false
           return
 
-          const { subject, body } = mail3Template(activeTrainer, req, '')
-          const res = await api.post('/shortlists/send-mail', {
-            trainer_id:     activeTrainer.trainer_id,
-            trainer_name:   activeTrainer.name,
-            to_email:       activeTrainer.email,
-            requirement_id: req.requirement_id,
-            subject, body,
-            mail_type: 'mail3',
-            client_email: req.client_email,
-            client_name: req.client_name || req.client_company,
-          })
-          showSendStatusToast({ trainerName: activeTrainer.name, result: res.data, title: 'Slot booking sent' })
-          toast(`🤖 Auto: Slot Booking mail sent to ${activeTrainer.name}`, { icon: '📅', duration: 5000 })
-          setStage(activeTrainer, 'slot_booked')
-          runningRef.current = false
-          return
         }
 
       } catch (e) {
@@ -3405,7 +3347,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   const [sendingCommercials, setSendingCommercials] = useState(false)
   const [sendingNegotiation, setSendingNegotiation] = useState(false)
   const [showNegotiationModal, setShowNegotiationModal] = useState(false)
-  const [showTemplates, setShowTemplates] = useState(true)
+  const [showTemplates, setShowTemplates] = useState(false)
   const [clientBudget, setClientBudget] = useState('')
   const [clientEmailRequest, setClientEmailRequest] = useState(null)
   const [threadMessages, setThreadMessages] = useState([])
@@ -3469,7 +3411,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             to_email: req.client_email,
             requirement_id: req.requirement_id,
             subject: `Trainer Found – Rate Negotiation in Progress | ${req.technology_needed}`,
-            body: `Hi ${req.client_name || 'Team'},\n\nGood news! We have found a suitable trainer (${trainer.name}) for your ${req.technology_needed} requirement.\n\nWe are currently negotiating the commercial rates with the trainer based on your budget of ₹${budgetAmount.toLocaleString('en-IN')}/day.\n\nIf the trainer agrees to match your budget, we will proceed with them immediately. We will update you within 24 hours with the confirmation.\n\nThank you for your patience!\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+            body: `Hi ${req.client_name || 'Team'},\n\nGood news. We have reviewed a suitable shortlisted trainer profile for your ${req.technology_needed} requirement.\n\nWe are currently aligning the commercial rates based on your budget of ₹${budgetAmount.toLocaleString('en-IN')}/day.\n\nWe will update you within 24 hours with the confirmation.\n\nThank you for your patience.\n\nRegards,\nClahan Technologies`,
             mail_type: 'trainer_negotiation_client_update',
           })
           
@@ -3512,7 +3454,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           to_email: trainer.email,
           requirement_id: req.requirement_id,
           subject: `RE: Commercial Details Confirmation – ${req.technology_needed}`,
-          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for sharing your commercial details and availability for the ${req.technology_needed} requirement.\n\nWe have received your information and are now sharing it with our client for review and approval.\n\nOnce the client approves, we will proceed with scheduling the interview.\n\nWe will keep you updated on the next steps.\n\nBest Regards,\nRecruitment Team\nClahan Technologies\nsujithaofficial784@gmail.com`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for sharing your commercial details for the ${req.technology_needed} requirement.\n\nWe have received your information and are coordinating the next step.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`,
           mail_type: 'trainer_acknowledgment',
         })
         
@@ -3549,7 +3491,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           trainer_name: trainer.name,
           to_email: req.client_email,
           requirement_id: req.requirement_id,
-          subject: `RE: Trainer Commercials for Approval – ${req.technology_needed} | ${trainer.name}`,
+          subject: `RE: Shortlisted Trainer Commercials for Approval – ${req.technology_needed}`,
           body: `Hi Team,\n\nThank you for sharing the commercial rates. Our budget for this ${req.technology_needed} requirement is ₹${budgetAmount.toLocaleString('en-IN')} per day.\n\nPlease confirm if the trainer can work within this budget.\n\nRegards,\n${req.client_name || 'Client Team'}`,
           mail_type: 'client_budget_reply',
           direction: 'received', // Mark as incoming
@@ -3609,7 +3551,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           to_email: req.client_email,
           requirement_id: req.requirement_id,
           subject: `RE: Budget Confirmation – ${req.technology_needed} | Negotiation in Progress`,
-          body: `Hi ${req.client_name || 'Team'},\n\nThank you for confirming your budget of ₹${budgetAmount.toLocaleString('en-IN')} per day for the ${req.technology_needed} requirement.\n\nWe have received your budget constraint and are now negotiating with Trainer ${trainer.name} to see if they can align with your budget. If the trainer agrees to work within your budget, we will proceed immediately.\n\nIf the trainer's rates cannot be adjusted to your budget, we will identify an alternative trainer according to your requirements and share their details with you shortly.\n\nWe will update you within 24 hours with the outcome.\n\nThank you for your patience!\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+          body: `Hi ${req.client_name || 'Team'},\n\nThank you for confirming your budget of ₹${budgetAmount.toLocaleString('en-IN')} per day for the ${req.technology_needed} requirement.\n\nWe have received your budget constraint and are aligning the shortlisted profile with your budget. If the commercial can be aligned, we will proceed immediately.\n\nIf not, we will identify an alternative trainer according to your requirements and share the details shortly.\n\nWe will update you within 24 hours with the outcome.\n\nThank you for your patience.\n\nRegards,\nClahan Technologies`,
           mail_type: 'client_budget_acknowledgment',
         })
         
@@ -3653,8 +3595,8 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           trainer_name: trainer.name,
           to_email: req.client_email,
           requirement_id: req.requirement_id,
-          subject: `Training Rate Discussion – ${req.technology_needed} | Trainer ${trainer.name}`,
-          body: `Dear ${req.client_name || 'Team'},\n\nThank you for confirming your budget for the ${req.technology_needed} requirement. We truly appreciate your quick response.\n\nWe have thoroughly reviewed Trainer ${trainer.name}'s profile, experience, and qualifications. We believe they are an excellent fit for your training needs.\n\n**Commercial Details:**\nTrainer's Rate: ₹${trainerAmount.toLocaleString('en-IN')} per day\nYour Budgeted Amount: ₹${clientAmount.toLocaleString('en-IN')} per day\nRate Difference: ₹${gap.toLocaleString('en-IN')} per day\n\n**We would like to present two options for your consideration:**\n\n**Option 1: Proceed with Trainer ${trainer.name}**\nTrainer ${trainer.name} brings extensive experience and a proven track record in ${req.technology_needed}. The additional investment of ₹${gap.toLocaleString('en-IN')} per day would ensure you receive high-quality training with excellent delivery and personalized attention.\n\n**Option 2: Identify an Alternative Trainer**\nWe can search for another qualified trainer who aligns with your budget of ₹${clientAmount.toLocaleString('en-IN')} per day while meeting your specific requirements.\n\nKindly let us know your preference at your earliest convenience. We are committed to finding the best solution that works for your organization.\n\nWe remain available for any questions or further discussion.\n\nWarm Regards,\nRecruitment Team\nClahan Technologies\nsujithaofficial784@gmail.com`,
+          subject: `Training Rate Discussion – ${req.technology_needed}`,
+          body: `Dear ${req.client_name || 'Team'},\n\nThank you for confirming your budget for the ${req.technology_needed} requirement. We truly appreciate your quick response.\n\nWe have reviewed a suitable shortlisted trainer profile and are sharing the commercial options for your review.\n\n**Commercial Details:**\nQuoted Rate: ₹${trainerAmount.toLocaleString('en-IN')} per day\nYour Budgeted Amount: ₹${clientAmount.toLocaleString('en-IN')} per day\nRate Difference: ₹${gap.toLocaleString('en-IN')} per day\n\n**We would like to present two options for your consideration:**\n\n**Option 1: Proceed with the shortlisted trainer**\nThis profile is aligned with the requirement based on the available skill match and delivery fit.\n\n**Option 2: Identify an Alternative Trainer**\nWe can search for another qualified trainer who aligns with your budget of ₹${clientAmount.toLocaleString('en-IN')} per day while meeting your specific requirements.\n\nKindly let us know your preference at your earliest convenience.\n\nRegards,\nClahan Technologies`,
           mail_type: 'rate_gap_resolution',
         })
         
@@ -3680,7 +3622,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           to_email: req.client_email,
           requirement_id: req.requirement_id,
           subject: `Training Preparation – ${req.technology_needed} | Please Confirm Session Details`,
-          body: `Dear ${req.client_name || 'Team'},\n\nThank you for confirming your preference to proceed with Trainer ${trainer.name} for your ${req.technology_needed} training requirement.\n\nWe truly appreciate your confidence in ${trainer.name}'s expertise and experience. We are excited to work with both parties to deliver excellent training outcomes.\n\nTo accelerate the scheduling and prepare the comprehensive Terms of Collaboration (ToC) document, we kindly request you to provide the following details:\n\n**1. Preferred Training Days & Time:**\nPlease confirm your preferred schedule:\n• Days: (e.g., Monday to Friday, or specific days)\n• Time: (e.g., 10:00 AM - 12:00 PM IST)\n• Total Duration: (Number of days/weeks for the training)\n\n**2. Session Format:**\nPlease specify your preferred training delivery format:\n• Online (Virtual via Zoom/Teams/Google Meet)\n• Offline (In-person at your location)\n• Hybrid (Mix of online and offline sessions)\n\n**3. Participant Details:**\n• Total number of participants attending\n• Technical requirements (software, tools, setup required for the training)\n• Any specific learning objectives or focus areas for the training\n\nOnce we receive these details, we will coordinate with Trainer ${trainer.name} to finalize the schedule and prepare the complete ToC document for your review and approval.\n\nPlease reply with the above information at your earliest convenience.\n\nWe look forward to a successful training engagement!\n\nWarm Regards,\nRecruitment Team,\nClahan Technologies\nsujithaofficial784@gmail.com`,
+          body: `Dear ${req.client_name || 'Team'},\n\nThank you for confirming your preference to proceed with the shortlisted trainer for your ${req.technology_needed} requirement.\n\nTo move ahead smoothly, kindly share any final session details or training agenda/ToC requirements you would like us to align before the next coordination step.\n\nRegards,\nClahan Technologies`,
           mail_type: 'client_toc_details_request',
         })
         
@@ -3706,7 +3648,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           to_email: req.client_email,
           requirement_id: req.requirement_id,
           subject: `Training Engagement – Exploring Alternative Options | ${req.technology_needed}`,
-          body: `Dear ${req.client_name || 'Team'},\n\nThank you for your prompt response regarding Trainer ${trainer.name}'s proposal for your ${req.technology_needed} training requirement.\n\nWe respect your decision to explore alternative trainers within your budget of ₹${parseInt(prompt('Enter client budget (e.g., 40000)') || 0).toLocaleString('en-IN')} per day.\n\nWe will now initiate our search for other qualified trainers who can deliver excellent training in ${req.technology_needed} within your specified budget and requirements.\n\n**Next Steps:**\n1. We will identify potential trainers matching your criteria\n2. We will conduct initial screening to ensure quality and experience\n3. We will present shortlisted options with their profiles and availability\n\nWe typically complete this process within 3-5 business days. We will keep you updated on our progress and reach out as soon as we have suitable alternatives for your review.\n\nIn the meantime, if you have any additional requirements or preferences for the alternative trainer, please do not hesitate to share them.\n\nThank you for your patience and understanding. We are committed to finding the best fit for your organization's training needs.\n\nBest Regards,\nRecruitment Team,\nClahan Technologies\nsujithaofficial784@gmail.com`,
+          body: `Dear ${req.client_name || 'Team'},\n\nThank you for your response regarding the shortlisted profile for your ${req.technology_needed} requirement.\n\nWe respect your decision to explore alternative trainers within your budget of ₹${parseInt(prompt('Enter client budget (e.g., 40000)') || 0).toLocaleString('en-IN')} per day.\n\nWe will identify another suitable profile aligned with your requirement and share the best-fit option for your review.\n\nRegards,\nClahan Technologies`,
           mail_type: 'client_rate_gap_option2',
         })
         
@@ -3758,7 +3700,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           to_email: trainer.email,
           requirement_id: req.requirement_id,
           subject: `Training Engagement Update – ${req.technology_needed} | Rate Discussion`,
-          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for sharing your details and commercials for the ${req.technology_needed} requirement.\n\nThe client has confirmed a budget of INR ${clientAmount.toLocaleString('en-IN')} per day. To align with this budget, kindly confirm if you can proceed at INR ${targetAmount.toLocaleString('en-IN')} per day.\n\nPlease let us know if this revised commercial is workable.\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for sharing your details and commercials for the ${req.technology_needed} requirement.\n\nThe client has confirmed a budget of INR ${clientAmount.toLocaleString('en-IN')} per day. To align with this budget, kindly confirm if you can proceed at INR ${targetAmount.toLocaleString('en-IN')} per day.\n\nPlease let us know if this revised commercial is workable.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`,
           mail_type: 'trainer_rate_discussion',
         })
         
@@ -3782,7 +3724,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           to_email: trainer.email,
           requirement_id: req.requirement_id,
           subject: `Engagement Confirmed – ${req.technology_needed} | Proceeding with Training`,
-          body: `Dear ${trainer.name || 'Trainer'},\n\nGreat news! The client has confirmed their acceptance of your quoted rate for the ${req.technology_needed} requirement.\n\nWe are pleased to inform you that you have been selected for this training engagement. The client is ready to move forward with scheduling the interview.\n\nWe will be sharing the slot booking details and next steps shortly.\n\nThank you for your commitment and we look forward to a successful training engagement.\n\nBest Regards,\nRecruitment Team\nClahan Technologies\nsujithaofficial784@gmail.com`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nCongratulations. The client has selected your profile for this assignment.\n\nWe will share the next steps and coordination details shortly.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`,
           mail_type: 'trainer_rate_accepted',
         })
         
@@ -3843,7 +3785,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           to_email: trainer.email,
           requirement_id: req.requirement_id,
           subject: `Update on ${req.technology_needed} Engagement – Client Decision`,
-          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for your time and effort in this ${req.technology_needed} training requirement.\n\nUnfortunately, the client has decided to explore an alternative trainer within their budget constraint of ₹${clientAmount.toLocaleString('en-IN')} per day. Your quoted rate of ₹${trainerAmount.toLocaleString('en-IN')} per day was slightly above their budget by ₹${gap.toLocaleString('en-IN')} per day, and they have chosen to proceed with another trainer at this time.\n\nWe truly appreciate your interest and professionalism. Your profile stands out and we will definitely approach you for future requirements that match your budget and expertise.\n\nIf you have any similar or related requirements in the future, please feel free to reach out to us.\n\nThank you for your understanding and continued partnership.\n\nBest Regards,\nRecruitment Team\nClahan Technologies\nsujithaofficial784@gmail.com`,
+          body: `Dear ${trainer.name || 'Trainer'},\n\nThank you for your time and interest in the ${req.technology_needed} requirement.\n\nAt this stage, the client has decided to proceed with another option.\n\nWe appreciate your cooperation and will reach out for future suitable requirements.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`,
           mail_type: 'trainer_rate_rejected',
         })
         
@@ -3871,7 +3813,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             to_email: trainer.email,
             requirement_id: req.requirement_id,
             subject: `Terms of Collaboration (ToC) – ${req.technology_needed} Training | ${req.client_name || 'Client'}`,
-            body: `Dear ${trainer.name},\n\nWe are pleased to share the Terms of Collaboration (ToC) document for your upcoming training engagement.\n\n**Training Engagement Details:**\nClient: ${req.client_name || 'TBD'}\nTechnology: ${req.technology_needed}\nTraining Rate: ₹${parseInt(prompt('Enter trainer rate (e.g., 45000)') || 0).toLocaleString('en-IN')} per day\n\n**Client's Preferred Session Details:**\n${prompt('Paste client-provided session details (days, time, format, participants):') || 'Details to be confirmed'}\n\n**Next Steps:**\n1. Please review and confirm your availability for the proposed schedule\n2. Provide any special requirements or prerequisites for the training setup\n3. Confirm the training delivery approach (online/offline/hybrid as specified)\n\nOnce we receive your confirmation, we will finalize the ToC document with both parties and proceed with scheduling.\n\nPlease respond with your confirmation and any clarifications needed at your earliest convenience.\n\nWe look forward to a successful training engagement!\n\nBest Regards,\nRecruitment Team,\nClahan Technologies\nsujithaofficial784@gmail.com`,
+            body: `Dear ${trainer.name},\n\nPlease find the ToC / Course Agenda details for the ${req.technology_needed} requirement below.\n\nTraining Details:\nTechnology: ${req.technology_needed}\nTraining Rate: ₹${parseInt(prompt('Enter trainer rate (e.g., 45000)') || 0).toLocaleString('en-IN')} per day\n\nClient Session Details:\n${prompt('Paste client-provided session details (days, time, format, participants):') || 'Details to be confirmed'}\n\nPlease review and let us know if any clarification is required.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`,
             mail_type: 'mail6_toc',
           })
           
@@ -3893,7 +3835,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             to_email: req.client_email,
             requirement_id: req.requirement_id,
             subject: `Follow-up: Training Session Details Required – ${req.technology_needed}`,
-            body: `Dear ${req.client_name || 'Team'},\n\nWe hope you are doing well.\n\nWe recently shared a request for training session details (preferred days, time, session format, and participant information) for your ${req.technology_needed} training engagement with Trainer ${trainer.name}.\n\nWe have not yet received your response. To proceed with finalizing the training schedule and preparing the comprehensive Terms of Collaboration (ToC) document, we urgently need the following information from you:\n\n**1. Preferred Training Days & Time:**\n• Days: (e.g., Monday to Friday, or specific days)\n• Time: (e.g., 10:00 AM - 12:00 PM IST)\n• Total Duration: (Number of days/weeks for the training)\n\n**2. Session Format:**\n• Online (Virtual via Zoom/Teams/Google Meet)\n• Offline (In-person at your location)\n• Hybrid (Mix of online and offline sessions)\n\n**3. Participant Details:**\n• Total number of participants\n• Technical requirements and setup needed\n• Specific learning objectives or focus areas\n\nOnce we receive these details, we will immediately coordinate with Trainer ${trainer.name} to finalize the schedule and prepare the ToC document for your review.\n\nKindly provide this information at your earliest convenience so we can proceed without further delay.\n\nIf you have any questions or need clarification on any points, please feel free to reach out.\n\nThank you for your prompt attention to this matter.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+            body: `Dear ${req.client_name || 'Team'},\n\nWe hope you are doing well.\n\nWe are following up on the final training session details for your ${req.technology_needed} requirement.\n\nKindly share any pending session details, participant information, or agenda/ToC expectations so we can proceed without delay.\n\nRegards,\nClahan Technologies`,
             mail_type: 'client_toc_details_followup',
           })
           
@@ -3959,8 +3901,8 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             trainer_name: trainer.name,
             to_email: req.client_email,
             requirement_id: req.requirement_id,
-            subject: `Trainer Details Received – ${req.technology_needed} | ${trainer.name}`,
-            body: `Hi ${req.client_name || 'Team'},\n\nGood news! Trainer ${trainer.name} has confirmed their availability and shared the required details for the ${req.technology_needed} requirement.\n\nWe are now preparing the final commercials for your review. Please expect another email with the commercial rates shortly.\n\nThank you for your patience!\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+            subject: `Shortlisted Profile Details Received – ${req.technology_needed}`,
+            body: `Hi ${req.client_name || 'Team'},\n\nGood news. The shortlisted trainer has shared the required details for the ${req.technology_needed} requirement.\n\nWe are now preparing the final commercials for your review. Please expect another email with the commercial rates shortly.\n\nThank you for your patience.\n\nRegards,\nClahan Technologies`,
             mail_type: 'commercial_details_notification',
           })
         } catch (e) {
@@ -3974,8 +3916,8 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           trainer_name: trainer.name,
           to_email: req.client_email,
           requirement_id: req.requirement_id,
-          subject: `Trainer Commercials for Approval – ${req.technology_needed} | ${trainer.name}`,
-          body: `Hi ${req.client_name || 'Team'},\n\nTrainer ${trainer.name} has shared their commercial rates for the ${req.technology_needed} requirement.\n\n${commercialDetails}\n\nPlease review and confirm if these rates are acceptable. Once you approve, we will proceed with interview scheduling.\n\nRegards,\nRecruitment Team,\nClahan Technologies`,
+          subject: `Shortlisted Trainer Commercials for Approval – ${req.technology_needed}`,
+          body: `Hi ${req.client_name || 'Team'},\n\nThe shortlisted trainer has shared the commercial details for the ${req.technology_needed} requirement.\n\n${commercialDetails}\n\nPlease review and confirm if these rates are acceptable. Once you approve, we will proceed with interview scheduling.\n\nRegards,\nClahan Technologies`,
           mail_type: 'trainer_commercials_to_client',
         })
         
@@ -3985,28 +3927,6 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           setSendingCommercials(false)
           return
 
-          // Now send mail3 (slot booking) after commercials are approved
-          try {
-            const { subject: mail3Subject, body: mail3Body } = mail3Template(trainer, req, '')
-            const mail3Res = await api.post('/shortlists/send-mail', {
-              trainer_id: trainer.trainer_id,
-              trainer_name: trainer.name,
-              to_email: trainer.email,
-              requirement_id: req.requirement_id,
-              subject: mail3Subject,
-              body: mail3Body,
-              mail_type: 'mail3',
-              client_email: req.client_email,
-              client_name: req.client_name || req.client_company,
-            })
-            if (isSendMailDelivered(mail3Res?.data)) {
-              toast.success(`📅 Slot booking mail sent to ${trainer.name}`)
-              onStatusUpdate(trainer.trainer_id, 'slot_booked')
-            }
-          } catch (e) {
-            toast.error('Failed to send slot booking after commercials')
-            console.error('Slot booking error:', e)
-          }
         } else {
           toast.error(commercialRes?.data?.error || 'Failed to send commercials')
         }
@@ -4022,7 +3942,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   }
 
   const renderManualPipelineSelector = () => (
-    <div className="mt-3 flex flex-col gap-2">
+    <div className="mt-3 flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
       <button
         type="button"
         onClick={() => setShowTemplates(prev => !prev)}
@@ -4039,7 +3959,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         💰 Negotiate Rate
       </button>
       {showTemplates && (
-        <div className="mt-2 flex flex-col gap-2 rounded-xl border border-blue-100 bg-blue-50/60 p-3 sm:flex-row sm:items-center">
+        <div className="mt-2 flex flex-col gap-2 rounded-lg border border-blue-100 bg-white p-3 sm:flex-row sm:items-center">
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold uppercase tracking-wide text-blue-700">Manual mail templates</p>
             <p className="mt-0.5 text-xs text-blue-600">Use only when you need to override the automation.</p>
@@ -4086,7 +4006,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       const modeLine = modeText ? `- **Mode/Location:** ${modeText}\n` : ''
       const participantText = req.participant_count || req.participants || ''
       const participantLine = participantText ? `- **Participants:** ${participantText}\n` : ''
-      const body = `Dear ${req.client_name || 'Client'},\n\nThank you for confirming the **${req.technology_needed || 'DevOps'}** training requirement.\n\nWe have identified a suitable trainer for this engagement.\n\n**Training Details:**\n\n- **Domain:** ${req.technology_needed || 'DevOps'}\n- **Duration:** ${duration}\n${trainingDateLine}${modeLine}${participantLine}- **Commercials:** ${dayRate}\n\nKindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements.\n\nPlease let us know if you require any additional information.\n\nRegards,\nRecruitment Team\nClahan Technologies`
+      const body = `Dear ${req.client_name || 'Client'},\n\nThank you for confirming the **${req.technology_needed || 'DevOps'}** training requirement.\n\nWe have identified a suitable trainer for this engagement.\n\n**Training Details:**\n\n- **Domain:** ${req.technology_needed || 'DevOps'}\n- **Duration:** ${duration}\n${trainingDateLine}${modeLine}${participantLine}- **Commercials:** ${dayRate}\n\nKindly share the Purchase Order (PO) at your earliest convenience so that we can proceed with trainer confirmation and the remaining training arrangements.\n\nPlease let us know if you require any additional information.\n\nRegards,\nClahan Technologies`
 
       const res = await api.post(`/requirements/${req.requirement_id}/request-client-po`, {
         trainer_id: trainer.trainer_id,
@@ -4625,7 +4545,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         />
       )}
 
-      <div className={clsx('bg-white rounded-2xl border p-4 transition-all hover:shadow-md',
+      <div className={clsx('bg-white rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:shadow-lg',
         stage === 'training_confirmed'   ? 'border-green-300 bg-green-50/30'   :
         stage === 'toc_received_pending' ? 'border-teal-300 bg-teal-50/20'     :
         stage === 'toc_requested'        ? 'border-teal-200 bg-teal-50/10'     :
@@ -4636,7 +4556,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         'border-slate-200'
       )}>
         <div className="flex items-start gap-3">
-          <div className={clsx('w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-sm',
+          <div className={clsx('flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-sm font-black shadow-sm',
             rank === 1 ? 'bg-amber-100 text-amber-700' :
             rank === 2 ? 'bg-slate-200 text-slate-600' :
             rank === 3 ? 'bg-orange-100 text-orange-600' : 'bg-slate-100 text-slate-500'
@@ -4645,7 +4565,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           <div className="flex-1 min-w-0">
             <div className="flex items-center flex-wrap gap-2">
               <div>
-                <span className="font-semibold text-slate-900">{trainer.name}</span>
+                <span className="text-base font-bold text-slate-950">{trainer.name}</span>
                 {trainer.title && <div className="text-xs text-slate-500 mt-0.5">{trainer.title}</div>}
               </div>
               {trainer.match_score != null && (
@@ -4655,7 +4575,6 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
                 )}>{trainer.match_score} pts</span>
               )}
               <span className={clsx('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold', stageInfo.color)}>
-                <span className="font-bold uppercase opacity-70">Trainer Status:</span>
                 {stageInfo.label}
               </span>
               {autoMode && isActive && !['selected','rejected','toc_requested','toc_received_pending','training_confirmed','slot_booked','interview_scheduled','po_requested','client_po_received','invoice_generated','invoice_sent'].includes(stage) && (
@@ -4665,12 +4584,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
               )}
             </div>
 
-            <div className={clsx('mt-2 flex w-fit items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-semibold', stageInfo.color)}>
-              <span className="font-bold uppercase opacity-70">Trainer Status</span>
-              <span>{stageInfo.label}</span>
-            </div>
-
-            <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-slate-500">
+            <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-600">
               {trainer.email    && <span className="flex items-center gap-1"><Mail  className="w-3 h-3" />{trainer.email}</span>}
               {trainer.phone    && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{trainer.phone}</span>}
               {trainer.location && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{trainer.location}</span>}
@@ -4684,10 +4598,10 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             {trainer.skills?.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1">
                 {trainer.skills.slice(0, 5).map((s, i) => (
-                  <span key={i} className="px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700 border border-blue-100">{s}</span>
+                  <span key={i} className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">{s}</span>
                 ))}
                 {trainer.skills.length > 5 && (
-                  <span className="px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-500">+{trainer.skills.length - 5}</span>
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">+{trainer.skills.length - 5}</span>
                 )}
               </div>
             )}
@@ -4699,7 +4613,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           </div>
 
           <button onClick={() => setShowThread(true)}
-            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all">
+            className="flex h-9 flex-shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition-all hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700">
             <Eye className="w-3.5 h-3.5" /> Thread
           </button>
         </div>
@@ -4996,7 +4910,7 @@ export default function Shortlist1() {
     { step: '03', label: 'Details request', note: 'Incomplete replies get a smart follow-up', color: 'bg-indigo-600' },
     { step: '04', label: 'Slot booking', note: 'AI asks for interview availability', color: 'bg-amber-500' },
     { step: '05', label: 'Selection', note: 'Selection or rejection mail is generated', color: 'bg-emerald-600' },
-    { step: '06', label: 'ToC request', note: 'Selected trainer gets course agenda request', color: 'bg-teal-600' },
+    { step: '06', label: 'ToC / Agenda', note: 'ToC is shared only when specifically requested or received', color: 'bg-teal-600' },
     { step: '07', label: 'Confirmation', note: 'Final schedule mail is generated', color: 'bg-green-600' },
   ]
 
@@ -5041,14 +4955,14 @@ export default function Shortlist1() {
           onSubmit={saveClientContact}
         />
       )}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="flex flex-col gap-5 p-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-700">
               <Bot className="h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Shortlist1 AI Pipeline</h1>
+              <h1 className="text-2xl font-bold text-slate-900">Shortlist AI Pipeline</h1>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
                 AI generates every trainer mail from your 7-stage rules. Replies are checked every 10 seconds and trainer cards move through the pipeline automatically.
               </p>
@@ -5061,7 +4975,7 @@ export default function Shortlist1() {
               ['Replied', pipelineStats.replied],
               ['Done', pipelineStats.completed],
             ].map(([label, value]) => (
-              <div key={label} className="min-w-[88px] rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+              <div key={label} className="min-w-[88px] rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
                 <p className="text-xs font-semibold text-slate-400">{label}</p>
                 <p className="text-lg font-bold text-slate-900">{value}</p>
               </div>
@@ -5077,13 +4991,13 @@ export default function Shortlist1() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 p-4">
+      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
           <Info className="w-3.5 h-3.5" /> AI Mail Flow
         </p>
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-7">
           {aiFlowSteps.map(s => (
-            <div key={s.step} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <div key={s.step} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
               <div className="flex items-center gap-2">
                 <span className={clsx('flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold text-white', s.color)}>{s.step}</span>
                 <span className="text-sm font-bold text-slate-800">{s.label}</span>
@@ -5096,12 +5010,12 @@ export default function Shortlist1() {
 
       {/* Requirement selector */}
       {!selectedReq ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-4">
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-sm font-semibold text-slate-700 mb-3">Select Requirement</p>
           {loadingReqs ? (
             <div className="flex items-center gap-2 text-sm text-slate-400"><Loader2 className="w-4 h-4 animate-spin" /> Loading...</div>
           ) : missingRequirement ? (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
               <p className="font-semibold">Requirement not found</p>
               <p className="mt-2 text-sm text-slate-600">The requested requirement ID was not found. Please check the URL or select a different request.</p>
             </div>
@@ -5113,7 +5027,7 @@ export default function Shortlist1() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {reqs.map(r => (
                 <div key={r.requirement_id}
-                  className="flex items-center gap-2 rounded-xl border bg-white border-slate-200 p-2 transition-all hover:border-blue-300 hover:bg-blue-50 group">
+                  className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-2 transition-all hover:border-blue-300 hover:bg-blue-50 group">
                   <button onClick={() => setSelectedReq(r)}
                     className="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 text-left">
                   <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
@@ -5125,13 +5039,13 @@ export default function Shortlist1() {
                       <Mail className="h-3 w-3" />
                       {r.client_email ? 'Client email saved' : 'Client email missing'}
                     </p>
-                    {r.client_name && <p className="text-xs text-slate-600">👤 {r.client_name}</p>}
+                    {r.client_name && <p className="text-xs text-slate-600">Client: {r.client_name}</p>}
                     {(() => {
                       const schedule = formatRequirementSchedule(r)
                       const tone = schedule === 'TBD' ? 'text-slate-400' : 'text-amber-600'
-                      return <p className={clsx('text-xs', tone)}>📅 {schedule}</p>
+                      return <p className={clsx('text-xs', tone)}>Schedule: {schedule}</p>
                     })()}
-                    <p className="text-xs text-slate-400">{r.requirement_id} · Top {r.top_n}</p>
+                    <p className="text-xs text-slate-400">{r.requirement_id} - Top {r.top_n}</p>
                   </div>
                   <ChevronRight className="w-4 h-4 opacity-30 group-hover:opacity-70 flex-shrink-0" />
                   </button>
@@ -5164,7 +5078,7 @@ export default function Shortlist1() {
                   {selectedReq.client_email ? 'Edit' : 'Add'}
                 </button>
               </div>
-              <p className="text-xs text-slate-400">{selectedReq.requirement_id} · Top {selectedReq.top_n}</p>
+              <p className="text-xs text-slate-400">{selectedReq.requirement_id} - Top {selectedReq.top_n}</p>
             </div>
             <div className="flex gap-2">
               <button onClick={() => setSelectedReq(null)}
@@ -5178,23 +5092,23 @@ export default function Shortlist1() {
             </div>
           </div>
 
-          <div className="grid gap-2 rounded-2xl border border-slate-200 bg-white p-3 text-xs sm:grid-cols-3">
-            <div className="rounded-xl bg-blue-50 px-3 py-2 text-blue-700">
+          <div className="grid gap-2 rounded-xl border border-slate-200 bg-white p-3 text-xs shadow-sm sm:grid-cols-3">
+            <div className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700">
               <p className="font-bold">Trainer pipeline</p>
               <p className="mt-0.5 text-blue-600">7 mails from outreach to confirmation</p>
             </div>
-            <div className="rounded-xl bg-emerald-50 px-3 py-2 text-emerald-700">
+            <div className="rounded-lg bg-emerald-50 px-3 py-2 text-emerald-700">
               <p className="font-bold">Client handoff</p>
               <p className="mt-0.5 text-emerald-600">Slots, interview, selection, ToC</p>
             </div>
-            <div className="rounded-xl bg-blue-50 px-3 py-2 text-blue-700">
+            <div className="rounded-lg bg-blue-50 px-3 py-2 text-blue-700">
               <p className="font-bold">Commercial closure</p>
               <p className="mt-0.5 text-blue-600">PO request, invoice generation, invoice sent</p>
             </div>
           </div>
 
           {!selectedReq.client_email && (
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-700">
                 <AlertCircle className="h-4 w-4" />
                 Add client email to start AI pipeline and auto-send trainer slots to the client.
@@ -5245,3 +5159,4 @@ export default function Shortlist1() {
     </div>
   )
 }
+

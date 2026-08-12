@@ -94,20 +94,22 @@ function StatCard({ icon: Icon, label, value, sub, tone = 'blue', loading, linkT
         linkTo ? 'cursor-pointer' : 'cursor-default'
       )}
     >
-      <div className={clsx('stat-icon border', t.bg, t.border)}>
-        <Icon className={clsx('h-5 w-5', t.icon)} />
-      </div>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1">{label}</p>
+        <div className="mb-3 flex items-start justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
+          <div className={clsx('stat-icon border', t.bg, t.border)}>
+            <Icon className={clsx('h-5 w-5', t.icon)} />
+          </div>
+        </div>
         {loading
-          ? <div className="skeleton h-8 w-20 mb-1" />
+          ? <div className="skeleton h-9 w-24 mb-1" />
           : <p className="text-3xl font-extrabold text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
               <AnimatedNumber value={value} />
             </p>
         }
-        {sub && <p className="text-xs text-slate-400 mt-1">{sub}</p>}
+        {sub && <p className="mt-2 min-h-[18px] truncate text-xs font-medium text-slate-500">{sub}</p>}
         {linkTo && (
-          <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+          <p className="mt-3 flex items-center gap-1 text-xs font-semibold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
             View details <ArrowUpRight className="h-3 w-3" />
           </p>
         )}
@@ -253,6 +255,7 @@ export default function Dashboard() {
   const interestRate   = normaliseRate(stats?.interest_rate || (totalTrainers ? (interested / totalTrainers) * 100 : 0))
   const deliveryRate   = totalEmails + failedEmails ? (totalEmails / (totalEmails + failedEmails)) * 100 : 100
   const reviewLoad     = totalTrainers ? (pendingReview / totalTrainers) * 100 : 0
+  const automationScore = Math.round((deliveryRate + replyRate + interestRate + Math.max(0, 100 - reviewLoad)) / 4)
 
   const statusData = stats ? [
     { name: 'Interested', value: stats.interested_count, color: '#10b981' },
@@ -290,35 +293,35 @@ export default function Dashboard() {
 
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="dashboard-shell space-y-6 animate-fade-in">
 
       {/* ── Hero strip ─────────────────────────────────────── */}
-      <div className="panel overflow-hidden">
-        <div className="p-5 border-b border-slate-100" style={{ background: 'linear-gradient(135deg,#f0f7ff 0%,#ffffff 60%)' }}>
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="status-dot green animate-pulse-soft" />
-                <span className="text-xs font-semibold text-emerald-700">Live operational overview</span>
+      <div className="dashboard-hero overflow-hidden">
+        <div className="p-5 md:p-7">
+          <div className="grid gap-6 lg:grid-cols-[1fr_280px] lg:items-start">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="h-2 w-2 rounded-full bg-blue-600 shadow-[0_0_16px_rgba(37,99,235,.45)] animate-pulse-soft" />
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Live command view</span>
               </div>
-              <h1 className="page-title">Dashboard</h1>
-              <p className="page-sub max-w-xl">Track trainer inventory, outreach movement, reply quality, and work that needs recruiter attention.</p>
-              <div className="flex flex-wrap gap-2 mt-3">
+              <h1 className="text-4xl font-extrabold tracking-normal text-slate-950 md:text-5xl">Dashboard</h1>
+              <p className="mt-3 max-w-3xl text-sm font-medium leading-6 text-slate-600 md:text-base">Track trainer inventory, outreach movement, reply quality, and recruiter action in one clean view.</p>
+              <div className="flex flex-wrap gap-2.5 mt-5">
                 {['Trainer intelligence','Client inbox','Mail automation','PO to invoice'].map(item => (
-                  <span key={item} className="chip chip-blue text-xs">{item}</span>
+                  <span key={item} className="dashboard-hero-chip px-3 py-1.5 text-xs font-bold">{item}</span>
                 ))}
               </div>
             </div>
 
             {/* Ops signals */}
-            <div className="flex flex-col gap-2 min-w-[200px]">
+            <div className="grid gap-2.5">
               {[
                 ['AI matching', 'Live', 'badge-blue'],
                 ['Mail automation', gmailConnected ? 'Ready' : 'Setup needed', gmailConnected ? 'badge-green' : 'badge-amber'],
                 ['Pipeline sync', refreshing ? 'Refreshing…' : 'Normal', refreshing ? 'badge-blue' : 'badge-slate'],
               ].map(([label, val, cls]) => (
-                <div key={label} className={clsx('rounded-lg border px-3 py-2 flex items-center justify-between gap-4', cls.replace('badge-','border-').replace('blue','blue-100').replace('green','green-100').replace('amber','amber-100').replace('slate','slate-200'))}>
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</span>
+                <div key={label} className="dashboard-signal px-4 py-3 flex items-center justify-between gap-4">
+                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">{label}</span>
                   <span className={clsx('badge text-[11px]', cls)}>{val}</span>
                 </div>
               ))}
@@ -327,16 +330,16 @@ export default function Dashboard() {
         </div>
 
         {/* Action bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 bg-slate-50 border-t border-slate-100">
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <Database className="h-4 w-4 text-slate-400" />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/80 px-5 py-4 md:px-7">
+          <div className="dashboard-hero-chip flex items-center gap-2 px-3 py-2 text-xs font-bold">
+            <Database className="h-4 w-4 text-blue-600" />
             {loading ? 'Loading…' : `${totalTrainers.toLocaleString('en-IN')} trainer profiles synced`}
           </div>
           <div className="flex gap-2">
-            <button onClick={() => setShowClear(true)} className="btn-secondary text-sm text-red-500 border-red-100 hover:border-red-200">
+            <button onClick={() => setShowClear(true)} className="inline-flex items-center gap-2 rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50">
               <Trash2 className="h-4 w-4" /> Clear DB
             </button>
-            <button onClick={() => load(true)} disabled={refreshing} className="btn-secondary text-sm">
+            <button onClick={() => load(true)} disabled={refreshing} className="dashboard-hero-action inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold text-blue-700 transition disabled:opacity-60">
               <RefreshCw className={clsx('h-4 w-4', refreshing && 'animate-spin')} /> Refresh
             </button>
           </div>
@@ -344,6 +347,23 @@ export default function Dashboard() {
       </div>
 
       {/* ── Clear DB warning ───────────────────────────────── */}
+      <div className="grid gap-3 md:grid-cols-4">
+        {[
+          ['Automation score', `${automationScore}%`, automationScore >= 80 ? 'Strong' : automationScore >= 55 ? 'Watch' : 'Needs action', automationScore >= 80 ? 'badge-green' : automationScore >= 55 ? 'badge-amber' : 'badge-red'],
+          ['Client queue', clientPending.toLocaleString('en-IN'), clientPending ? 'Pending review' : 'Clear', clientPending ? 'badge-amber' : 'badge-green'],
+          ['Reply engine', formatPercent(replyRate), `${totalReplies.toLocaleString('en-IN')} replies`, 'badge-blue'],
+          ['Delivery', formatPercent(deliveryRate), failedEmails ? `${failedEmails} failed` : 'Clean', failedEmails ? 'badge-red' : 'badge-green'],
+        ].map(([label, value, status, badge]) => (
+          <div key={label} className="dashboard-mini-card flex items-center justify-between gap-3 p-3">
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">{label}</p>
+              <p className="mt-1 truncate text-xl font-extrabold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif" }}>{value}</p>
+            </div>
+            <span className={clsx('badge text-[11px]', badge)}>{status}</span>
+          </div>
+        ))}
+      </div>
+
       {showClear && (
         <div className="panel border-red-200 bg-red-50 animate-slide-up">
           <div className="panel-body flex items-start gap-3">
@@ -376,7 +396,7 @@ export default function Dashboard() {
 
           {latestClientTrainerRequest && (
             <button type="button" onClick={() => navigate('/client-requests')}
-              className="mb-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-blue-200 hover:bg-blue-50">
+              className="dashboard-list-row mb-4 w-full px-4 py-3 text-left">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="eyebrow mb-1">New client notification</p>
@@ -393,7 +413,7 @@ export default function Dashboard() {
             </button>
           )}
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4 mb-4">
+          <div className="dashboard-mini-card p-4 mb-4">
             <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
               <div>
                 <p className="font-semibold text-slate-900 text-sm">Client inbox status</p>
@@ -419,7 +439,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4">
+          <div className="dashboard-mini-card p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="font-semibold text-slate-900 text-sm">Latest requests</p>
               <button onClick={() => navigate('/client-requests')} className="text-xs font-bold text-blue-600 hover:text-blue-800">View all</button>
@@ -430,7 +450,7 @@ export default function Dashboard() {
               <div className="space-y-2">
                 {recentClientEmails.slice(0, 4).map(item => (
                   <button key={item.email_id} onClick={() => navigate('/client-requests')}
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left transition hover:border-blue-200 hover:bg-blue-50">
+                    className="dashboard-list-row w-full px-3 py-2.5 text-left">
                     <div className="flex items-center justify-between gap-2">
                       <p className="truncate text-sm font-semibold text-slate-800">{clientRequestTitle(item)}</p>
                       <span className={clsx('badge text-[11px]', clientStatusClass(item.status))}>{clientStatusLabel(item.status)}</span>
@@ -461,7 +481,7 @@ export default function Dashboard() {
               { label: 'AI pipeline', sub: 'Run AI trainer outreach and pipeline automation', to: '/shortlist1' },
             ].map(a => (
               <button key={a.to} onClick={() => navigate(a.to)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-blue-200 hover:bg-blue-50">
+                className="dashboard-action-card w-full px-4 py-3 text-left">
                 <span className="flex items-center justify-between gap-3">
                   <span>
                     <span className="block text-sm font-semibold text-slate-800">{a.label}</span>
@@ -473,7 +493,7 @@ export default function Dashboard() {
             ))}
             <p className="eyebrow pt-2">Client Work</p>
             <button onClick={() => navigate('/client-requests')}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-blue-200 hover:bg-blue-50">
+              className="dashboard-action-card w-full px-4 py-3 text-left">
               <span className="flex items-center justify-between gap-3">
                 <span>
                   <span className="block text-sm font-semibold text-slate-800">Review client updates</span>
@@ -585,7 +605,7 @@ export default function Dashboard() {
           <div className="space-y-1">
             {stats.recent_emails.map((email) => (
               <button key={email.email_id || email.to_email} onClick={() => navigate('/emails')}
-                className="group/row flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-left transition hover:bg-blue-50">
+                className="dashboard-list-row group/row flex w-full items-center gap-4 px-3 py-2.5 text-left">
                 <div className="avatar avatar-sm bg-blue-50 text-blue-600 flex-shrink-0">
                   <Mail className="h-3.5 w-3.5" />
                 </div>
@@ -610,7 +630,7 @@ export default function Dashboard() {
             {stats.recent_whatsapp.map((msg) => {
               const ctx = msg.context || {}
               return (
-                <div key={msg.whatsapp_id || msg.to_number} className="flex items-start gap-4 rounded-xl border border-slate-100 bg-slate-50 px-3 py-3">
+                <div key={msg.whatsapp_id || msg.to_number} className="dashboard-list-row flex items-start gap-4 px-3 py-3">
                   <div className="avatar avatar-sm bg-emerald-50 text-emerald-600 flex-shrink-0">
                     <Send className="h-3.5 w-3.5" />
                   </div>

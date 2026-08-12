@@ -4,7 +4,7 @@ import { forgotPassword } from '../utils/api'
 import {
   Mail, Lock, User, Eye, EyeOff,
   CheckCircle, Briefcase, Users, GraduationCap,
-  Building2, Phone, Sparkles, Chrome, Linkedin,
+  Building2, Phone, Sparkles, Linkedin,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'

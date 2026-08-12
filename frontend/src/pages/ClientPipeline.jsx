@@ -238,7 +238,7 @@ function StageRail({ item }) {
             : 'Waiting'
 
           return (
-            <div key={step.key} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div key={step.key} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <span className={clsx('flex h-9 w-9 items-center justify-center rounded-full border text-sm font-black', stepTone(step.status))}>
@@ -299,8 +299,8 @@ function RequestCard({ item, active, onClick }) {
       type="button"
       onClick={onClick}
       className={clsx(
-        'w-full rounded-xl border p-3 text-left transition hover:border-blue-200 hover:bg-white hover:shadow-sm',
-        active ? 'border-blue-300 bg-white shadow-md ring-2 ring-blue-500/10' : 'border-slate-200 bg-white/80'
+        'w-full rounded-lg border p-3 text-left transition hover:border-blue-200 hover:bg-white hover:shadow-sm',
+        active ? 'border-blue-300 bg-white shadow-sm ring-1 ring-blue-200' : 'border-slate-200 bg-white/80'
       )}
     >
       <div className="flex items-start justify-between gap-3">
@@ -335,7 +335,7 @@ function Conversation({ item }) {
   const messages = item.messages || []
   const initialBody = item.clean_body || item.body || item.body_snippet || ''
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50">
+    <div className="rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-200 bg-white p-4">
         <div>
           <p className="text-sm font-bold text-slate-950">Client Conversation</p>
@@ -345,14 +345,14 @@ function Conversation({ item }) {
       </div>
       <div className="max-h-[440px] space-y-3 overflow-y-auto p-4">
         {initialBody && (
-          <div className="mr-auto max-w-[86%] rounded-2xl rounded-bl-sm border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="mr-auto max-w-[86%] rounded-lg rounded-bl-sm border border-slate-200 bg-white p-4 shadow-sm">
             <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Original Client Request</p>
             <p className="mt-1 break-words text-sm font-semibold text-slate-900">{item.subject}</p>
             <pre className="mt-2 whitespace-pre-wrap break-words font-sans text-sm leading-6 text-slate-600">{initialBody}</pre>
           </div>
         )}
         {(item.ai_reply || item.draft_reply || item.generated_reply?.body) && (
-          <div className="ml-auto max-w-[86%] rounded-2xl rounded-br-sm border border-blue-200 bg-blue-600 p-4 text-white shadow-sm">
+          <div className="ml-auto max-w-[86%] rounded-lg rounded-br-sm border border-blue-200 bg-blue-600 p-4 text-white shadow-sm">
             <p className="text-xs font-bold uppercase tracking-wide text-blue-100">Clahan Reply Template</p>
             <pre className="mt-2 whitespace-pre-wrap break-words font-sans text-sm leading-6 text-blue-50">{item.ai_reply || item.draft_reply || item.generated_reply?.body}</pre>
           </div>
@@ -361,7 +361,7 @@ function Conversation({ item }) {
           <div
             key={`${message.email_id || index}-${message.type}`}
             className={clsx(
-              'max-w-[86%] rounded-2xl border p-4 shadow-sm',
+              'max-w-[86%] rounded-lg border p-4 shadow-sm',
               message.direction === 'received' ? 'mr-auto rounded-bl-sm border-slate-200 bg-white' : 'ml-auto rounded-br-sm border-blue-200 bg-blue-600 text-white'
             )}
           >

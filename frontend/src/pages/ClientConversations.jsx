@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import {
@@ -121,6 +122,27 @@ function orderedThreadMessages(messages = []) {
   })
 }
 
+function workflowStatus(messages = []) {
+  const ordered = orderedThreadMessages(messages)
+  const latest = ordered[ordered.length - 1] || {}
+  const hasPending = ordered.some(message =>
+    ['pending_approval', 'needs_manual_review', 'calendar_failed'].includes(message.status)
+  )
+  if (hasPending) {
+    return { key: 'needs_action', label: 'Needs Action', className: 'border-amber-200 bg-amber-50 text-amber-700' }
+  }
+  if (latest.direction === 'received') {
+    return { key: 'needs_action', label: 'Needs Action', className: 'border-amber-200 bg-amber-50 text-amber-700' }
+  }
+  if (ordered.some(message => ['client_interview_schedule', 'google_calendar'].includes(message.source))) {
+    return { key: 'scheduled', label: 'Scheduled', className: 'border-emerald-200 bg-emerald-50 text-emerald-700' }
+  }
+  if (latest.direction === 'sent' || latest.direction === 'draft') {
+    return { key: 'waiting_client', label: 'Waiting Client', className: 'border-blue-200 bg-blue-50 text-blue-700' }
+  }
+  return { key: 'new', label: 'New', className: 'border-slate-200 bg-slate-50 text-slate-600' }
+}
+
 function initials(name = '', email = '') {
   const source = name || email || 'Client'
   return source
@@ -206,9 +228,11 @@ function buildTrainerItems(threads = []) {
           message_count: relatedMessages.length,
           latest_at: latest?.sent_at || thread.latest_at,
           preview: latest?.body || thread.last_preview || thread.last_subject || '',
+          workflow: workflowStatus(relatedMessages),
         })
       })
     if (!trainers.length) {
+      const messages = thread.messages || []
       rows.push({
         key: `${thread.thread_key}::general`,
         thread,
@@ -217,6 +241,7 @@ function buildTrainerItems(threads = []) {
         message_count: thread.message_count || 0,
         latest_at: thread.latest_at,
         preview: thread.last_preview || thread.last_subject || '',
+        workflow: workflowStatus(messages),
       })
     }
   })
@@ -232,6 +257,64 @@ function messagesForTrainer(thread, trainer) {
     const msgKey = messageTrainerKey(message)
     return msgKey === key || ['client_inbox', 'calhan_reply'].includes(source)
   })
+}
+
+function buildTrainerThreadsFromEmails(emails = []) {
+  const groups = new Map()
+  emails
+    .filter(email => email.trainer_id || email.trainer_email || email.trainer_name || email.recipient || email.to_email)
+    .forEach(email => {
+      const trainerId = email.trainer_id || email.trainer_email || email.recipient || email.to_email || 'trainer'
+      const trainerName = email.trainer_name || email.trainer_email || email.recipient || email.to_email || 'Trainer Thread'
+      const key = `${email.requirement_id || 'general'}::${trainerId}`
+      if (!groups.has(key)) {
+        groups.set(key, {
+          thread_key: key,
+          client_email: email.trainer_email || email.recipient || email.to_email || '',
+          client_name: trainerName,
+          client_company: 'Trainer',
+          domain: email.domain || email.technology || email.technology_needed || 'Training',
+          requirement_id: email.requirement_id || '',
+          latest_at: email.sent_at || email.created_at || email.updated_at,
+          last_preview: email.body_snippet || email.body || email.subject || '',
+          last_subject: email.subject || '',
+          trainers: [{ trainer_id: trainerId, trainer_name: trainerName }],
+          messages: [],
+        })
+      }
+      const thread = groups.get(key)
+      thread.latest_at = [thread.latest_at, email.replied_at, email.sent_at, email.created_at, email.updated_at]
+        .filter(Boolean)
+        .sort((a, b) => messageTime(b) - messageTime(a))[0] || thread.latest_at
+      thread.last_preview = email.reply_text || email.body_snippet || email.body || email.subject || thread.last_preview
+      if (email.body || email.subject) {
+        thread.messages.push({
+          message_id: `${email.email_id || key}-sent`,
+          direction: 'sent',
+          source: email.mail_type || 'trainer_outreach',
+          status: email.status || 'sent',
+          subject: email.subject || '',
+          body: email.body || email.body_snippet || '',
+          sent_at: email.sent_at || email.created_at,
+          sort_at: email.sent_at || email.created_at,
+          meta: { trainer_id: trainerId, trainer_name: trainerName },
+        })
+      }
+      if (email.reply_received && email.reply_text) {
+        thread.messages.push({
+          message_id: `${email.email_id || key}-reply`,
+          direction: 'received',
+          source: 'trainer_reply',
+          status: email.reply_sentiment || 'received',
+          subject: `Re: ${email.subject || thread.last_subject || 'Trainer reply'}`,
+          body: email.reply_text,
+          sent_at: email.replied_at || email.updated_at || email.created_at,
+          sort_at: email.replied_at || email.updated_at || email.created_at,
+          meta: { trainer_id: trainerId, trainer_name: trainerName },
+        })
+      }
+    })
+  return [...groups.values()].sort((a, b) => messageTime(b.latest_at) - messageTime(a.latest_at))
 }
 
 const AI_TOOLS = [
@@ -413,13 +496,84 @@ function buildAiOutput(toolKey, thread = {}, trainer = {}, messages = [], tone =
   return outputs[toolKey] || outputs.requirement
 }
 
-function AiCommsWorkbench({ thread, trainer, messages }) {
+function buildNextClientMail(thread = {}, trainer = {}, messages = [], isTrainerMode = false) {
+  const latest = latestClientMessage(messages)
+  const latestBody = cleanMailBody(latest.body || '')
+  const conversationText = [latestBody, compactConversation(messages)].filter(Boolean).join('\n\n')
+  const domain = thread.domain || 'training'
+  const clientName = thread.client_name || 'Team'
+  const trainerName = trainer.trainer_name || trainer.name || ''
+  const budget = detectBudget(conversationText)
+  const duration = detectDuration(conversationText)
+  const location = detectLocation(conversationText)
+  const lower = conversationText.toLowerCase()
+
+  const asksSlots = /\b(slot|schedule|availability|available|time|interview|meeting|call)\b/.test(lower)
+  const asksBudget = /\b(budget|commercial|price|cost|rate|charges|quotation|quote)\b/.test(lower)
+  const asksToc = /\b(toc|agenda|curriculum|syllabus|outline|topics?)\b/.test(lower)
+
+  let intent = 'acknowledgement'
+  if (asksSlots) intent = 'slots'
+  else if (asksBudget) intent = 'commercials'
+  else if (asksToc) intent = 'toc'
+
+  const subjectMap = {
+    slots: `Re: ${domain} Training - ${isTrainerMode ? 'Availability' : 'Slot Confirmation'}`,
+    commercials: `Re: ${domain} Training - Commercial Details`,
+    toc: `Re: ${domain} Training - Agenda / TOC`,
+    acknowledgement: `Re: ${domain} Training Requirement`,
+  }
+
+  const nextStep = {
+    slots: 'share suitable trainer discussion slots or ask the trainer for exact availability',
+    commercials: 'confirm scope and share commercials after trainer availability is aligned',
+    toc: 'share the agenda/TOC after confirming duration, audience level, and delivery mode',
+    acknowledgement: 'acknowledge the reply and ask only for missing requirement details',
+  }[intent]
+
+  const missing = [
+    !duration && 'duration',
+    !location && 'mode/location',
+    !budget && asksBudget && 'commercial range',
+  ].filter(Boolean)
+
+  const body = [
+    `Dear ${clientName},`,
+    '',
+    `Thank you for your reply regarding the ${domain} training requirement.`,
+    isTrainerMode
+      ? 'We have reviewed your response and will coordinate the next step with the client requirement.'
+      : trainerName ? `We are coordinating with ${trainerName} and will align the next step accordingly.` : 'We are reviewing the requirement details and will align the right trainer support accordingly.',
+    '',
+    intent === 'slots'
+      ? isTrainerMode ? 'Please share 2-3 available discussion slots with date, time, and timezone.' : 'Please share 2-3 preferred discussion slots, or confirm if you would like us to propose available trainer slots.'
+      : intent === 'commercials'
+        ? isTrainerMode ? 'Please confirm your commercials per day/session along with delivery mode and availability.' : 'We will share the commercial details once the duration, batch size, and delivery mode are confirmed.'
+        : intent === 'toc'
+          ? isTrainerMode ? 'Please share the agenda/TOC or topic outline you recommend for this requirement.' : 'We can share a structured agenda/TOC aligned to your learner profile and expected duration.'
+          : 'We will proceed with the next step once the remaining details are confirmed.',
+    missing.length ? `To proceed accurately, please confirm ${missing.join(', ')}.` : '',
+    '',
+    `Next action from our side: ${nextStep}.`,
+    '',
+    'Regards,',
+    'Clahan Technologies',
+  ].filter(line => line !== '').join('\n')
+
+  return { subject: subjectMap[intent], body, intent }
+}
+
+function AiCommsWorkbench({ thread, trainer, messages, isTrainerMode = false }) {
   const [activeTool, setActiveTool] = useState('requirement')
   const [tone, setTone] = useState('professional')
+  const [mailSubject, setMailSubject] = useState('')
+  const [mailBody, setMailBody] = useState('')
+  const [sendingMail, setSendingMail] = useState(false)
   const output = useMemo(
     () => buildAiOutput(activeTool, thread, trainer, messages, tone),
     [activeTool, thread, trainer, messages, tone]
   )
+  const latestReply = useMemo(() => latestClientMessage(messages), [messages])
   const active = AI_TOOLS.find(tool => tool.key === activeTool) || AI_TOOLS[0]
   const ActiveIcon = active.icon
 
@@ -429,6 +583,35 @@ function AiCommsWorkbench({ thread, trainer, messages }) {
       toast.success('AI draft copied')
     } catch {
       toast.error('Could not copy draft')
+    }
+  }
+
+  const generateNextMail = () => {
+    const draft = buildNextClientMail(thread, trainer, messages, isTrainerMode)
+    setMailSubject(draft.subject)
+    setMailBody(draft.body)
+    toast.success('Next client mail generated from latest reply')
+  }
+
+  const sendNextMail = async () => {
+    if (!thread.client_email) return toast.error('Client email missing')
+    if (!mailSubject.trim() || !mailBody.trim()) return toast.error('Generate or write a subject and body first')
+    setSendingMail(true)
+    try {
+      await api.post('/email/send', {
+        to: thread.client_email,
+        subject: mailSubject.trim(),
+        body: mailBody.trim(),
+        requirement_id: thread.requirement_id || '',
+        mail_type: isTrainerMode ? 'trainer_next_reply' : 'client_next_reply',
+        trainer_id: trainer?.trainer_id || '',
+        trainer_name: trainer?.trainer_name || trainer?.name || '',
+      })
+      toast.success('Next mail sent to client')
+    } catch (e) {
+      toast.error(e.message || 'Could not send next mail')
+    } finally {
+      setSendingMail(false)
     }
   }
 
@@ -444,6 +627,39 @@ function AiCommsWorkbench({ thread, trainer, messages }) {
         <button type="button" onClick={copyOutput} className="btn-secondary bg-white text-sm">
           <Copy className="h-4 w-4" /> Copy Draft
         </button>
+      </div>
+      <div className="border-b border-blue-100 bg-white p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-slate-950">Reply Reader - Next Mail</p>
+            <p className="mt-1 line-clamp-2 text-xs text-slate-500">
+              Latest {isTrainerMode ? 'trainer' : 'client'} reply: {cleanMailBody(latestReply?.body || '').slice(0, 160) || `No ${isTrainerMode ? 'trainer' : 'client'} reply found yet.`}
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <button type="button" onClick={generateNextMail} className="btn-secondary text-sm">
+              <Sparkles className="h-4 w-4" /> Generate Next Mail
+            </button>
+            <button type="button" onClick={sendNextMail} disabled={sendingMail || !thread.client_email} className="btn-primary text-sm">
+              {sendingMail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              Send
+            </button>
+          </div>
+        </div>
+        <div className="mt-3 grid gap-3">
+          <input
+            value={mailSubject}
+            onChange={e => setMailSubject(e.target.value)}
+            placeholder="Generated subject will appear here"
+            className="input"
+          />
+          <textarea
+            value={mailBody}
+            onChange={e => setMailBody(e.target.value)}
+            placeholder="Generated next mail body will appear here. Review before sending."
+            className="min-h-40 w-full resize-y rounded-lg border border-slate-200 bg-white p-3 text-sm leading-6 text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          />
+        </div>
       </div>
       <div className="grid min-w-0 gap-4 p-4 xl:grid-cols-[260px_minmax(0,1fr)]">
         <div className="min-w-0 space-y-2">
@@ -663,6 +879,9 @@ function TrainerListItem({ item, active, onClick }) {
             {thread.requirement_id}
           </span>
         )}
+        <span className={clsx('rounded-full border px-2 py-1 text-[11px] font-bold', item.workflow?.className)}>
+          {item.workflow?.label || 'New'}
+        </span>
         <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700">
           {item.message_count} msg
         </span>
@@ -673,20 +892,57 @@ function TrainerListItem({ item, active, onClick }) {
 }
 
 export default function ClientConversations() {
+  const location = useLocation()
+  const isTrainerMode = location.pathname.includes('trainer-comms')
   const [threads, setThreads] = useState([])
   const [clients, setClients] = useState([])
   const [domains, setDomains] = useState([])
   const [selectedPersonKey, setSelectedPersonKey] = useState('')
+  const [threadType, setThreadType] = useState('')
   const [q, setQ] = useState('')
   const [client, setClient] = useState('')
   const [domain, setDomain] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
-  const trainerItems = useMemo(() => buildTrainerItems(threads), [threads])
+  const scopedThreads = useMemo(() => {
+    if (!isTrainerMode) return threads
+    const query = q.trim().toLowerCase()
+    return threads.filter(thread => {
+      const matchesDomain = !domain || (thread.domain || 'Training') === domain
+      const text = [
+        thread.client_name,
+        thread.client_email,
+        thread.domain,
+        thread.requirement_id,
+        thread.last_subject,
+        thread.last_preview,
+      ].filter(Boolean).join(' ').toLowerCase()
+      return matchesDomain && (!query || text.includes(query))
+    })
+  }, [threads, isTrainerMode, q, domain])
+  const trainerItems = useMemo(() => buildTrainerItems(scopedThreads), [scopedThreads])
+  const typeItems = useMemo(() => {
+    if (!threadType) return []
+    if (threadType === 'needs_action') return trainerItems.filter(item => item.workflow?.key === 'needs_action')
+    if (threadType === 'general') return trainerItems.filter(item => item.key.endsWith('::general'))
+    if (threadType === 'domain') return trainerItems.filter(item => !item.key.endsWith('::general'))
+    return trainerItems
+  }, [trainerItems, threadType])
+  const visibleItems = useMemo(() => {
+    if (!statusFilter) return typeItems
+    return typeItems.filter(item => item.workflow?.key === statusFilter)
+  }, [typeItems, statusFilter])
+  const threadCounts = useMemo(() => ({
+    all: trainerItems.length,
+    needs_action: trainerItems.filter(item => item.workflow?.key === 'needs_action').length,
+    general: trainerItems.filter(item => item.key.endsWith('::general')).length,
+    domain: trainerItems.filter(item => !item.key.endsWith('::general')).length,
+  }), [trainerItems])
   const selectedPerson = useMemo(
-    () => trainerItems.find(item => item.key === selectedPersonKey) || trainerItems[0] || null,
-    [trainerItems, selectedPersonKey]
+    () => visibleItems.find(item => item.key === selectedPersonKey) || visibleItems[0] || null,
+    [visibleItems, selectedPersonKey]
   )
   const selected = useMemo(
     () => selectedPerson?.thread || null,
@@ -702,18 +958,20 @@ export default function ClientConversations() {
     if (silent) setRefreshing(true)
     else setLoading(true)
     try {
-      const res = await api.get('/client-conversations', {
-        params: {
-          q: q || undefined,
-          client: client || undefined,
-          domain: domain || undefined,
-          limit: 100,
-        },
-      })
-      const nextThreads = res.data.conversations || []
+      const res = isTrainerMode
+        ? await api.get('/emails', { params: { page: 1, page_size: 100 } })
+        : await api.get('/client-conversations', {
+          params: {
+            q: q || undefined,
+            client: client || undefined,
+            domain: domain || undefined,
+            limit: 100,
+          },
+        })
+      const nextThreads = isTrainerMode ? buildTrainerThreadsFromEmails(res.data.emails || []) : (res.data.conversations || [])
       setThreads(nextThreads)
-      setClients(res.data.clients || [])
-      setDomains(res.data.domains || [])
+      setClients(isTrainerMode ? [] : (res.data.clients || []))
+      setDomains(isTrainerMode ? [...new Set(nextThreads.map(item => item.domain || 'Training'))] : (res.data.domains || []))
       const nextTrainerItems = buildTrainerItems(nextThreads)
       if (!selectedPersonKey || !nextTrainerItems.some(item => item.key === selectedPersonKey)) {
         setSelectedPersonKey(nextTrainerItems[0]?.key || '')
@@ -730,18 +988,30 @@ export default function ClientConversations() {
   useEffect(() => {
     const timer = setTimeout(() => loadThreads(false), 250)
     return () => clearTimeout(timer)
-  }, [q, client, domain])
+  }, [q, client, domain, isTrainerMode])
+
+  useEffect(() => {
+    if (!visibleItems.length) {
+      setSelectedPersonKey('')
+      return
+    }
+    if (!visibleItems.some(item => item.key === selectedPersonKey)) {
+      setSelectedPersonKey(visibleItems[0].key)
+    }
+  }, [visibleItems, selectedPersonKey])
 
   return (
     <div className="min-w-0 space-y-5 overflow-x-hidden animate-fade-in">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700 shadow-sm">
-            <MessageSquare className="h-3.5 w-3.5" /> Client Threads
+            <MessageSquare className="h-3.5 w-3.5" /> {isTrainerMode ? 'Trainer Threads' : 'Client Threads'}
           </div>
-          <h1 className="mt-3 page-title">Client Conversation Threads</h1>
+          <h1 className="mt-3 page-title">{isTrainerMode ? 'Trainer Conversation Threads' : 'Client Conversation Threads'}</h1>
           <p className="mt-1 text-sm text-slate-500">
-            Select a domain, click a person, and view that person-specific client and Clahan conversation.
+            {isTrainerMode
+              ? 'Select a domain, click a trainer, and view trainer outreach and replies.'
+              : 'Select a domain, click a person, and view that person-specific client and Clahan conversation.'}
           </p>
         </div>
         <button onClick={() => loadThreads(true)} className="btn-secondary text-sm" disabled={refreshing}>
@@ -751,7 +1021,7 @@ export default function ClientConversations() {
 
       <div className="grid min-w-0 gap-4 xl:grid-cols-[220px_290px_minmax(0,1fr)]">
         <aside className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Hiring Domains</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">{isTrainerMode ? 'Trainer Domains' : 'Hiring Domains'}</p>
           <button
             onClick={() => setDomain('')}
             className={clsx('mt-3 flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm font-bold', !domain ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50')}
@@ -788,8 +1058,9 @@ export default function ClientConversations() {
                 value={client}
                 onChange={e => setClient(e.target.value)}
                 className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-400"
+                disabled={isTrainerMode}
               >
-                <option value="">All clients</option>
+                <option value="">{isTrainerMode ? 'All trainers' : 'All clients'}</option>
                 {clients.map(item => (
                   <option key={item.email || item.name} value={item.email || item.name}>
                     {item.name || item.email} {item.company ? `- ${item.company}` : ''}
@@ -798,16 +1069,55 @@ export default function ClientConversations() {
               </select>
               <button
                 type="button"
-                onClick={() => { setQ(''); setClient(''); setDomain('') }}
+                onClick={() => { setQ(''); setClient(''); setDomain(''); setStatusFilter(''); setThreadType('') }}
                 className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50"
               >
                 <Filter className="h-4 w-4" />
               </button>
             </div>
+            <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
+              {[
+                { key: 'all', label: 'All', count: threadCounts.all },
+                { key: 'needs_action', label: 'Action', count: threadCounts.needs_action },
+                { key: 'general', label: 'General', count: threadCounts.general },
+                { key: 'domain', label: 'Domains', count: threadCounts.domain },
+              ].map(item => (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setThreadType(item.key)}
+                  className={clsx(
+                    'min-h-10 rounded-lg px-2 text-center text-xs font-bold transition',
+                    threadType === item.key
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'text-slate-600 hover:bg-white'
+                  )}
+                >
+                  <span className="block truncate">{item.label}</span>
+                  <span className={clsx('block text-[10px]', threadType === item.key ? 'text-blue-100' : 'text-slate-400')}>
+                    {item.count}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <select
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              disabled={!threadType}
+              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 outline-none focus:border-blue-400 disabled:bg-slate-50 disabled:text-slate-400"
+            >
+              <option value="">All statuses</option>
+              <option value="needs_action">Needs Action</option>
+              <option value="waiting_client">Waiting Client</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="new">New</option>
+            </select>
           </div>
 
           <div className="mt-4 flex items-center justify-between">
-            <p className="text-sm font-bold text-slate-950">{trainerItems.length} trainer{trainerItems.length === 1 ? '' : 's'}</p>
+            <p className="text-sm font-bold text-slate-950">
+              {threadType ? `${visibleItems.length} thread${visibleItems.length === 1 ? '' : 's'}` : 'Choose a view'}
+            </p>
             {loading && <Loader2 className="h-4 w-4 animate-spin text-blue-500" />}
           </div>
           <div className="mt-3 max-h-[72vh] space-y-3 overflow-y-auto pr-1 [scrollbar-gutter:stable]">
@@ -815,12 +1125,16 @@ export default function ClientConversations() {
               Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="h-32 animate-pulse rounded-lg border border-slate-200 bg-slate-100" />
               ))
-            ) : trainerItems.length === 0 ? (
+            ) : !threadType ? (
+              <div className="rounded-lg border border-dashed border-blue-200 bg-blue-50 p-6 text-center text-sm font-semibold text-blue-700">
+                Click All, Action, General, or Domains to view conversations.
+              </div>
+            ) : visibleItems.length === 0 ? (
               <div className="rounded-lg border border-dashed border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
-                No trainer conversations found for this domain.
+                No conversations found for this filter.
               </div>
             ) : (
-              trainerItems.map(item => (
+              visibleItems.map(item => (
                 <TrainerListItem
                   key={item.key}
                   item={item}
@@ -835,7 +1149,7 @@ export default function ClientConversations() {
         <section className="min-w-0 rounded-xl border border-slate-200 bg-white shadow-sm">
           {!selected ? (
             <div className="flex h-full min-h-[620px] items-center justify-center p-8 text-center text-slate-500">
-              Select a domain and trainer name.
+              Click a conversation view, then select a thread.
             </div>
           ) : (
             <div className="flex h-full min-h-[720px] flex-col">
@@ -848,12 +1162,12 @@ export default function ClientConversations() {
                       </span>
                       <div>
                         <h2 className="text-lg font-bold text-slate-950">{selectedPerson?.trainer_name || 'Trainer'}</h2>
-                        <p className="text-sm text-slate-500">{selected.client_name || selected.client_email || 'Client'}</p>
+                        <p className="text-sm text-slate-500">{selected.client_name || selected.client_email || (isTrainerMode ? 'Trainer' : 'Client')}</p>
                       </div>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <span className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">
-                        <Building2 className="h-3.5 w-3.5" /> {selected.client_company || 'Client'}
+                        <Building2 className="h-3.5 w-3.5" /> {selected.client_company || (isTrainerMode ? 'Trainer' : 'Client')}
                       </span>
                       <span className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
                         <UserRound className="h-3.5 w-3.5" /> {selected.domain || 'Training'}
@@ -880,13 +1194,14 @@ export default function ClientConversations() {
                     thread={selected}
                     trainer={selectedPerson?.trainer}
                     messages={selectedMessages}
+                    isTrainerMode={isTrainerMode}
                   />
                 </div>
                 <div className="min-w-0 rounded-lg border border-slate-200 bg-slate-50">
                   <div className="flex items-center justify-between border-b border-slate-200 p-4">
                     <div>
-                      <p className="text-sm font-bold text-slate-950">Client and Clahan Conversation</p>
-                      <p className="mt-0.5 text-xs text-slate-500">Client and Clahan messages shown in parallel.</p>
+                      <p className="text-sm font-bold text-slate-950">{isTrainerMode ? 'Trainer and Clahan Conversation' : 'Client and Clahan Conversation'}</p>
+                      <p className="mt-0.5 text-xs text-slate-500">{isTrainerMode ? 'Trainer and Clahan messages shown in parallel.' : 'Client and Clahan messages shown in parallel.'}</p>
                     </div>
                     <MessageSquare className="h-5 w-5 text-slate-400" />
                   </div>

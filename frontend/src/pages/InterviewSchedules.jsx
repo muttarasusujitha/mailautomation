@@ -287,7 +287,8 @@ function ReschedulePanel({ selected, onDone }) {
 }
 
 function notesPayload(selected, transcript) {
-  const key = `${selected?.email_id || ''}-${selected?.calendar_event_id || ''}` || selected?.reminder_id || 'interview'
+  const emailKey = [selected?.email_id, selected?.calendar_event_id].filter(Boolean).join('-')
+  const key = emailKey || selected?.reminder_id || 'interview'
   return {
     schedule_key: key,
     transcript,
@@ -301,7 +302,260 @@ function notesPayload(selected, transcript) {
   }
 }
 
+function scheduleDraftKey(selected, suffix) {
+  const key = notesPayload(selected, '').schedule_key || 'interview'
+  return `trainersync:${suffix}:${key}`
+}
+
+function assistantPayload(selected, transcript, profileText) {
+  const base = notesPayload(selected, transcript)
+  return {
+    ...base,
+    requirement_id: selected?.requirement_id || '',
+    trainer_profile: profileText || [
+      selected?.trainer_name,
+      selected?.trainer_email,
+      selected?.domain,
+      selected?.summary,
+      selected?.bio,
+      selected?.resume,
+      selected?.extracted_text,
+      selected?.combined_text,
+    ].filter(Boolean).join('\n'),
+  }
+}
+
+function AIInterviewAssistant({ selected }) {
+  const [open, setOpen] = useState(false)
+  const [profileText, setProfileText] = useState('')
+  const [notes, setNotes] = useState('')
+  const [result, setResult] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setProfileText([
+      selected?.trainer_name,
+      selected?.trainer_email,
+      selected?.domain,
+      selected?.summary,
+      selected?.bio,
+      selected?.resume,
+      selected?.extracted_text,
+      selected?.combined_text,
+    ].filter(Boolean).join('\n'))
+    try {
+      setNotes(localStorage.getItem(scheduleDraftKey(selected, 'ai_interview_notes')) || '')
+    } catch {
+      setNotes('')
+    }
+    setResult(null)
+  }, [selected?.email_id, selected?.calendar_event_id, selected?.trainer_id])
+
+  useEffect(() => {
+    if (!selected) return
+    try {
+      localStorage.setItem(scheduleDraftKey(selected, 'ai_interview_notes'), notes)
+    } catch {
+      // Draft autosave is best-effort.
+    }
+  }, [notes, selected])
+
+  const runAssistant = async () => {
+    if (!selected) return
+    setLoading(true)
+    try {
+      const res = await api.post('/interview-schedules/assistant', assistantPayload(selected, notes, profileText))
+      setResult(res.data)
+      toast.success('AI interview assistant prepared')
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not generate interview assistant')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const copyQuestions = async () => {
+    const q = result?.questions
+    if (!q) {
+      await runAssistant()
+      return
+    }
+    const lines = [
+      q.summary,
+      '',
+      'Focus Areas',
+      ...(q.focus_areas || []).map(item => `- ${item}`),
+      '',
+      'Technical Questions',
+      ...(q.technical_questions || []).map((item, index) => `${index + 1}. ${item}`),
+      '',
+      'Trainer Profile Questions',
+      ...(q.profile_questions || []).map((item, index) => `${index + 1}. ${item}`),
+      '',
+      'Delivery Questions',
+      ...(q.delivery_questions || []).map((item, index) => `${index + 1}. ${item}`),
+      '',
+      'Client Fit Questions',
+      ...(q.client_fit_questions || []).map((item, index) => `${index + 1}. ${item}`),
+    ]
+    await navigator.clipboard.writeText(lines.join('\n'))
+    toast.success('Interview questions copied')
+  }
+
+  const copySummary = async () => {
+    const summary = result?.interview_summary
+    if (!summary?.summary && notes.trim()) {
+      await runAssistant()
+      return
+    }
+    if (!summary?.summary) {
+      toast.error('Add interview notes first')
+      return
+    }
+    const lines = [
+      `Summary: ${summary.summary}`,
+      `Recommendation: ${summary.recommendation}`,
+      '',
+      'Strengths',
+      ...(summary.strengths || []).map(item => `- ${item}`),
+      '',
+      'Concerns',
+      ...(summary.concerns || []).map(item => `- ${item}`),
+      '',
+      'Next Steps',
+      ...(summary.next_steps || []).map(item => `- ${item}`),
+    ]
+    await navigator.clipboard.writeText(lines.join('\n'))
+    toast.success('Interview summary copied')
+  }
+
+  const questions = result?.questions
+  const summary = result?.interview_summary
+
+  return (
+    <div className="rounded-lg border border-sky-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-bold text-slate-950">AI Interview Assistant</p>
+          <p className="mt-1 text-xs text-slate-500">Generate client-specific interview questions and summarize interview notes for selection feedback.</p>
+        </div>
+        <button type="button" onClick={() => setOpen(value => !value)} className="rounded-full bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-700">
+          {open ? 'Hide' : 'Open'} AI
+        </button>
+      </div>
+
+      {!open && (
+        <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
+          <span className="rounded-lg bg-slate-50 px-2.5 py-1 font-semibold">Questions</span>
+          <span className="rounded-lg bg-slate-50 px-2.5 py-1 font-semibold">Scorecard</span>
+          <span className="rounded-lg bg-slate-50 px-2.5 py-1 font-semibold">Summary</span>
+        </div>
+      )}
+
+      {open && (
+      <>
+      <div className="mt-3 grid gap-3 lg:grid-cols-2">
+        <div>
+          <label className="text-xs font-bold uppercase tracking-wide text-slate-400">Trainer profile / context</label>
+          <textarea
+            value={profileText}
+            onChange={e => setProfileText(e.target.value)}
+            rows={5}
+            placeholder="Paste trainer resume/profile highlights if not already captured..."
+            className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 outline-none focus:border-blue-400 focus:bg-white"
+          />
+        </div>
+        <div>
+          <label className="text-xs font-bold uppercase tracking-wide text-slate-400">Interview notes / transcript</label>
+          <textarea
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+            rows={5}
+            placeholder="Paste interview notes here to summarize after the call..."
+            className="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-6 outline-none focus:border-blue-400 focus:bg-white"
+          />
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" onClick={runAssistant} disabled={loading} className="btn-primary text-sm disabled:opacity-60">
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          Generate Questions & Summary
+        </button>
+        <button type="button" onClick={copyQuestions} className="btn-secondary text-sm">
+          <Copy className="h-4 w-4" />
+          Copy Questions
+        </button>
+        <button type="button" onClick={copySummary} className="btn-secondary text-sm">
+          <FileText className="h-4 w-4" />
+          Copy Summary
+        </button>
+      </div>
+
+      {questions && (
+        <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_280px]">
+          <div className="rounded-lg border border-blue-100 bg-blue-50 p-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-blue-700">Technical Questions</p>
+            <ol className="mt-2 space-y-2 text-sm leading-6 text-slate-700">
+              {(questions.technical_questions || []).map((item, index) => <li key={item}>{index + 1}. {item}</li>)}
+            </ol>
+          </div>
+          <div className="space-y-3">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Focus Areas</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {(questions.focus_areas || []).map(item => <span key={item} className="badge-blue text-[11px]">{item}</span>)}
+              </div>
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-white p-3">
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Scorecard</p>
+              <div className="mt-2 space-y-2">
+                {(questions.scorecard || []).map(item => (
+                  <div key={item.area} className="rounded-lg bg-slate-50 px-3 py-2 text-xs">
+                    <div className="flex justify-between gap-2 font-bold text-slate-800">
+                      <span>{item.area}</span>
+                      <span>{item.weight}%</span>
+                    </div>
+                    <p className="mt-1 text-slate-500">{item.signal}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {summary?.summary && (
+        <div className="mt-3 grid gap-3 lg:grid-cols-3">
+          {[
+            ['Strengths', summary.strengths, 'emerald'],
+            ['Concerns', summary.concerns, 'amber'],
+            ['Next Steps', summary.next_steps, 'blue'],
+          ].map(([title, items, tone]) => (
+            <div key={title} className={clsx(
+              'rounded-lg border p-3',
+              tone === 'emerald' ? 'border-emerald-200 bg-emerald-50' : tone === 'amber' ? 'border-amber-200 bg-amber-50' : 'border-blue-200 bg-blue-50'
+            )}>
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-600">{title}</p>
+              <ul className="space-y-1 text-xs leading-5 text-slate-700">
+                {(items || []).map(item => <li key={item}>- {item}</li>)}
+              </ul>
+            </div>
+          ))}
+          <div className="rounded-lg border border-slate-200 bg-white p-3 lg:col-span-3">
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Recommendation</p>
+            <p className="mt-2 text-sm font-semibold text-slate-800">{summary.recommendation}</p>
+          </div>
+        </div>
+      )}
+      </>
+      )}
+    </div>
+  )
+}
+
 function MeetingNotesAssistant({ selected }) {
+  const [open, setOpen] = useState(false)
   const [listening, setListening] = useState(false)
   const [transcript, setTranscript] = useState('')
   const [analysis, setAnalysis] = useState(null)
@@ -314,12 +568,25 @@ function MeetingNotesAssistant({ selected }) {
 
   useEffect(() => {
     setListening(false)
-    setTranscript('')
+    try {
+      setTranscript(localStorage.getItem(scheduleDraftKey(selected, 'meeting_notes')) || '')
+    } catch {
+      setTranscript('')
+    }
     setAnalysis(null)
     setDocumentText('')
     setSavedDocument(null)
     recognitionRef.current?.stop?.()
   }, [selected?.email_id, selected?.calendar_event_id, recognitionRef])
+
+  useEffect(() => {
+    if (!selected) return
+    try {
+      localStorage.setItem(scheduleDraftKey(selected, 'meeting_notes'), transcript)
+    } catch {
+      // Draft autosave is best-effort.
+    }
+  }, [transcript, selected])
 
   const start = () => {
     if (!supported) {
@@ -401,11 +668,26 @@ function MeetingNotesAssistant({ selected }) {
           <p className="text-sm font-bold text-slate-950">Meeting Notes Assistant</p>
           <p className="mt-1 text-xs text-slate-500">Start this when the meeting begins. It captures transcript, key points, actions, and saves a document.</p>
         </div>
-        <span className={clsx('rounded-full px-2.5 py-1 text-xs font-bold', listening ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-500')}>
-          {listening ? 'Listening' : 'Ready'}
-        </span>
+        <div className="flex gap-2">
+          <span className={clsx('rounded-full px-2.5 py-1 text-xs font-bold', listening ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-500')}>
+            {listening ? 'Listening' : transcript ? 'Draft saved' : 'Ready'}
+          </span>
+          <button type="button" onClick={() => setOpen(value => !value)} className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
+            {open ? 'Hide' : 'Open'} Notes
+          </button>
+        </div>
       </div>
 
+      {!open && (
+        <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
+          <span className="rounded-lg bg-slate-50 px-2.5 py-1 font-semibold">{transcript ? 'Draft autosaved' : 'No notes yet'}</span>
+          <span className="rounded-lg bg-slate-50 px-2.5 py-1 font-semibold">Analyze</span>
+          <span className="rounded-lg bg-slate-50 px-2.5 py-1 font-semibold">Save document</span>
+        </div>
+      )}
+
+      {open && (
+      <>
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" onClick={listening ? stop : start} className={clsx('btn-primary text-sm', listening && 'bg-red-600 hover:bg-red-700')}>
           {listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
@@ -476,6 +758,8 @@ function MeetingNotesAssistant({ selected }) {
           <span className="self-center text-xs font-semibold text-emerald-700">{savedDocument.document_id}</span>
         </div>
       )}
+      </>
+      )}
     </div>
   )
 }
@@ -486,6 +770,16 @@ function ContactLine({ icon: Icon, label, value }) {
       <Icon className="h-4 w-4 shrink-0 text-slate-400" />
       <span className="shrink-0 font-semibold text-slate-500">{label}</span>
       <span className="min-w-0 truncate text-slate-950">{value || '-'}</span>
+    </div>
+  )
+}
+
+function StepLabel({ step, title, icon: Icon }) {
+  return (
+    <div className="mb-3 flex items-center gap-2">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-[11px] font-black text-white">{step}</span>
+      <Icon className="h-4 w-4 text-blue-600" />
+      <p className="text-xs font-black uppercase tracking-wide text-slate-600">{title}</p>
     </div>
   )
 }
@@ -530,6 +824,7 @@ export default function InterviewSchedules() {
   const [selectedKey, setSelectedKey] = useState('')
   const [notified, setNotified] = useState({})
   const [hostPrompt, setHostPrompt] = useState(null)
+  const [showMeetPreview, setShowMeetPreview] = useState(false)
 
   const load = async () => {
     setLoading(true)
@@ -586,6 +881,7 @@ export default function InterviewSchedules() {
           setSelectedKey(`${item.email_id || ''}-${item.calendar_event_id || ''}`)
           setFilter('starting')
           setHostPrompt(item)
+          setShowMeetPreview(false)
           const title = 'It is time to start meeting'
           const body = `${item.trainer_name || 'Trainer'} interview is starting now`
           toast.success(`${title}: ${body}`, { duration: 15000 })
@@ -679,13 +975,21 @@ export default function InterviewSchedules() {
               </div>
 
               <div className="h-[400px] w-[300px] overflow-hidden rounded-lg border border-slate-200 bg-slate-950 shadow-sm">
-                {hostPrompt.meet_link ? (
+                {hostPrompt.meet_link && showMeetPreview ? (
                   <iframe
                     title="Google Meet host tab"
                     src={hostPrompt.meet_link}
                     className="h-full w-full bg-white"
                     allow="camera; microphone; fullscreen; display-capture; autoplay"
                   />
+                ) : hostPrompt.meet_link ? (
+                  <div className="flex h-full flex-col items-center justify-center gap-3 p-4 text-center text-sm font-semibold text-white">
+                    <Video className="h-8 w-8 text-blue-200" />
+                    <p>Preview is paused for faster page performance.</p>
+                    <button type="button" onClick={() => setShowMeetPreview(true)} className="rounded-lg bg-white px-3 py-2 text-xs font-bold text-slate-900">
+                      Load Preview
+                    </button>
+                  </div>
                 ) : (
                   <div className="flex h-full items-center justify-center p-4 text-center text-sm font-semibold text-white">
                     Meeting link pending
@@ -694,7 +998,7 @@ export default function InterviewSchedules() {
               </div>
             </div>
             <div className="mt-5 flex flex-wrap justify-end gap-2">
-              <button type="button" onClick={() => setHostPrompt(null)} className="btn-secondary text-sm">
+              <button type="button" onClick={() => { setHostPrompt(null); setShowMeetPreview(false) }} className="btn-secondary text-sm">
                 Dismiss
               </button>
               <button
@@ -798,28 +1102,59 @@ export default function InterviewSchedules() {
                   </div>
                 </div>
 
-                <div className="mt-5 grid gap-4 lg:grid-cols-[360px_minmax(0,1fr)]">
-                  <div className="space-y-4">
-                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-xs font-bold uppercase tracking-wide text-blue-700">Interview Date & Time</p>
-                        <Clock className="h-4 w-4 text-blue-600" />
+                <div className="mt-5 space-y-4">
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                    <StepLabel step="1" title="Meeting Details" icon={Video} />
+                    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
+                      <div className="rounded-lg border border-blue-200 bg-white p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-xs font-bold uppercase tracking-wide text-blue-700">Interview Date & Time</p>
+                          <Clock className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <p className="mt-3 text-xl font-black text-slate-950">{selected.date_time_text || formatDate(selected.start_iso)}</p>
+                        <p className="mt-1 text-xs font-semibold text-slate-500">{selected.timezone || 'Timezone not captured'}</p>
                       </div>
-                      <p className="mt-3 text-lg font-black text-blue-950">{selected.date_time_text || formatDate(selected.start_iso)}</p>
-                      <p className="mt-1 text-xs font-semibold text-blue-700">{selected.timezone || 'Timezone not captured'}</p>
+                      <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm">
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Host Action</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-700">Open meeting as host, then admit client and trainer.</p>
+                        <button onClick={() => openMeeting(selected.meet_link)} disabled={!selected.meet_link} className="btn-primary mt-3 w-full justify-center text-sm disabled:opacity-50">
+                          <Video className="h-4 w-4" />
+                          Start Meeting
+                        </button>
+                      </div>
                     </div>
+                    {selected.meet_link ? (
+                      <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">
+                        <Link2 className="mr-1 inline h-4 w-4" />
+                        <a className="break-all underline" href={selected.meet_link} target="_blank" rel="noreferrer">{selected.meet_link}</a>
+                      </div>
+                    ) : (
+                      <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-800">
+                        <Link2 className="mr-1 inline h-4 w-4" />
+                        Meeting link is pending.
+                      </div>
+                    )}
+                    <p className="mt-3 rounded-lg border border-slate-200 bg-white p-3 text-xs font-semibold text-slate-500">
+                      Reminder notification appears 5 minutes before the interview starts.
+                    </p>
+                  </div>
 
-                    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                      <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Client & Trainer</p>
-                      <div className="mt-3 space-y-2">
-                        <ContactLine icon={UserRound} label="Client" value={selected.client_name || selected.client_company} />
-                        <ContactLine icon={Mail} label="Client Mail" value={selected.client_email} />
-                        <ContactLine icon={Users} label="Trainer" value={selected.trainer_name} />
-                        <ContactLine icon={Mail} label="Trainer Mail" value={selected.trainer_email} />
+                  <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                    <StepLabel step="2" title="Client & Trainer" icon={Users} />
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Client</p>
+                        <ContactLine icon={UserRound} label="Name" value={selected.client_name || selected.client_company} />
+                        <div className="mt-2"><ContactLine icon={Mail} label="Email" value={selected.client_email} /></div>
+                      </div>
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Trainer</p>
+                        <ContactLine icon={Users} label="Name" value={selected.trainer_name} />
+                        <div className="mt-2"><ContactLine icon={Mail} label="Email" value={selected.trainer_email} /></div>
                       </div>
                     </div>
                     {selected.reschedule_requested && (
-                      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                      <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
                         <p className="font-bold">Reschedule requested by {selected.reschedule_requested_by || 'participant'}</p>
                         {selected.reschedule_request_text && (
                           <p className="mt-2 whitespace-pre-wrap text-xs font-semibold">{selected.reschedule_request_text}</p>
@@ -828,38 +1163,20 @@ export default function InterviewSchedules() {
                     )}
                   </div>
 
-                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-bold text-slate-950">Google Meet</p>
-                        <p className="mt-0.5 text-xs text-slate-500">Open as host, then admit client and trainer from the Google Meet waiting room.</p>
-                      </div>
-                      <Video className="h-5 w-5 text-slate-400" />
-                    </div>
-                    {selected.meet_link ? (
-                      <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
-                        <p className="mb-2">Meeting link ready</p>
-                        <a className="break-all underline" href={selected.meet_link} target="_blank" rel="noreferrer">{selected.meet_link}</a>
-                      </div>
-                    ) : (
-                      <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800">
-                        <Link2 className="mr-1 inline h-4 w-4" />
-                        Meeting link is pending.
-                      </div>
-                    )}
-                    <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600">
-                      <p className="font-bold text-slate-950">Reminder</p>
-                      <p className="mt-1">This page shows a browser/toast notification 5 minutes before the interview starts.</p>
-                    </div>
-
-                    <div className="mt-4">
-                      <MeetingNotesAssistant selected={selected} />
-                    </div>
+                  <div>
+                    <StepLabel step="3" title="AI Interview Prep" icon={Sparkles} />
+                    <AIInterviewAssistant selected={selected} />
                   </div>
-                </div>
 
-                <div className="mt-4">
+                  <div>
+                    <StepLabel step="4" title="Meeting Notes & Summary" icon={FileText} />
+                    <MeetingNotesAssistant selected={selected} />
+                  </div>
+
+                  <div>
+                    <StepLabel step="5" title="Reschedule Workflow" icon={CalendarDays} />
                   <ReschedulePanel selected={selected} onDone={load} />
+                  </div>
                 </div>
               </div>
             )}

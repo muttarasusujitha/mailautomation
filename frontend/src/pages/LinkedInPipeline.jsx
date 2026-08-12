@@ -3,7 +3,7 @@ import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import {
   CheckCircle2, ExternalLink, Globe2, Mail, Phone, RefreshCw,
-  Search, Send, ShieldCheck, Sparkles, Users, Clock, Star, ChevronRight, ChevronLeft, Trash2,
+  Search, Send, ShieldCheck, Sparkles, Users, Star, ChevronRight, ChevronLeft, Trash2,
 } from 'lucide-react'
 import api from '../utils/api'
 import { VerificationBadge } from '../components/VerificationBadge'
@@ -96,11 +96,6 @@ function leadText(lead) {
 
 function hasContact(lead) {
   return Boolean(leadEmail(lead) || leadPhone(lead))
-}
-
-function initials(value) {
-  const words = clean(value, 'LI').replace(/[^a-zA-Z0-9\s]/g, ' ').split(/\s+/).filter(Boolean)
-  return `${words[0]?.[0] || 'L'}${words[1]?.[0] || 'I'}`
 }
 
 function statusTone(status) {

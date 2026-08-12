@@ -317,6 +317,45 @@ function cleanDetailValue(value) {
   return value == null ? '' : String(value).trim()
 }
 
+function parseMoneyAmount(value) {
+  if (value == null || value === '') return 0
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0
+  const text = String(value).replace(/,/g, '').trim().toLowerCase()
+  const match = text.match(/(\d+(?:\.\d+)?)/)
+  if (!match) return 0
+  const amount = Number(match[1])
+  if (!Number.isFinite(amount)) return 0
+  if (/\b(lakh|lakhs)\b/.test(text)) return amount * 100000
+  if (/\b(k|thousand)\b/.test(text)) return amount * 1000
+  return amount
+}
+
+function trainerRateFromClientBudget(amount) {
+  const numeric = Number(amount || 0)
+  if (!Number.isFinite(numeric) || numeric <= 0) return 0
+  return Math.round(numeric * 0.7)
+}
+
+function trainerBudgetFromClientAmount(amount, unit = 'day') {
+  const numeric = parseMoneyAmount(amount)
+  if (!numeric || numeric <= 0) return null
+  const trainerAmount = trainerRateFromClientBudget(numeric)
+  if (trainerAmount <= 0) return null
+  return { amount: trainerAmount, unit, clientAmount: numeric, marginPercent: 30 }
+}
+
+function trainerVisibleBudgetInfo(req = {}) {
+  const explicit = parseMoneyAmount(req.trainer_visible_budget_per_session || req.trainer_requested_budget_per_session)
+  if (explicit > 0) return { amount: explicit, unit: 'day' }
+  const hourly = trainerBudgetFromClientAmount(req.budget_per_hour || req.hourly_rate || req.client_budget_per_hour, 'hour')
+  if (hourly) return hourly
+  const day = trainerBudgetFromClientAmount(req.budget_per_day || req.day_rate || req.client_budget_per_day, 'day')
+  if (day) return day
+  const total = trainerBudgetFromClientAmount(req.budget_total || req.total_budget || req.budget || req.commercials?.total_amount, 'day')
+  if (total) return total
+  return null
+}
+
 function mail1RequirementDetails(req = {}, details = {}) {
   const duration = cleanDetailValue(
     details.duration ||
@@ -324,25 +363,26 @@ function mail1RequirementDetails(req = {}, details = {}) {
     (req.duration_days ? `${req.duration_days} day(s)` : '') ||
     (req.duration_hours ? `${req.duration_hours} hour(s)` : '')
   )
-  const timing = cleanDetailValue(req.timing || req.schedule || req.training_timing || req.training_dates || req.timeline_start)
+  const timing = cleanDetailValue(
+    req.training_dates ||
+    req.preferred_dates ||
+    req.dates ||
+    req.date_time_text ||
+    req.timing ||
+    req.schedule ||
+    req.training_timing ||
+    [req.timeline_start, req.timeline_end].filter(Boolean).join(' to ')
+  )
   const mode = cleanDetailValue(details.mode || req.mode || req.training_mode || req.delivery_mode)
   const participants = cleanDetailValue(details.participants || req.participant_count || req.participants)
-  const commercial = cleanDetailValue(
-    req.trainer_visible_budget_per_session ||
-    req.trainer_requested_budget_per_session ||
-    req.budget_per_day ||
-    req.client_budget_per_day ||
-    req.budget_per_hour ||
-    req.budget_total ||
-    req.budget ||
-    req.commercials?.total_amount
-  )
+  const trainerBudget = trainerVisibleBudgetInfo(req)
+  const commercial = cleanDetailValue(trainerBudget?.amount || '')
   return {
     duration,
     timing,
     mode,
     participants,
-    commercial: commercial ? (/^\d+(\.\d+)?$/.test(commercial) ? `INR ${Number(commercial).toLocaleString('en-IN')}` : commercial) : '',
+    commercial: commercial ? (/^\d+(\.\d+)?$/.test(commercial) ? `INR ${Number(commercial).toLocaleString('en-IN')} per day/session, inclusive of TDS` : commercial) : '',
   }
 }
 
@@ -1071,7 +1111,6 @@ function TocModal({ trainer, req, onClose }) {
   const [tocData, setTocData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [downloading, setDownloading] = useState(false)
-  const [sending, setSending] = useState(false)
   const tocAccuracy = getTocAccuracy(tocData, form, req)
 
   const update = (key, value) => {
@@ -1130,19 +1169,6 @@ function TocModal({ trainer, req, onClose }) {
       toast.error(e.response?.data?.detail || e.message || 'PDF download failed')
     } finally {
       setDownloading(false)
-    }
-  }
-
-  const handleSend = async () => {
-    if (!tocId) return
-    setSending(true)
-    try {
-      await api.post('/toc/send-email', { toc_id: tocId })
-      toast.success(`TOC sent to ${trainer.name}`)
-    } catch (e) {
-      toast.error(e.response?.data?.detail || e.message || 'TOC email failed')
-    } finally {
-      setSending(false)
     }
   }
 
@@ -1396,7 +1422,6 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
   const [invoice, setInvoice] = useState(null)
   const [generating, setGenerating] = useState(false)
   const [downloading, setDownloading] = useState(false)
-  const [sending, setSending] = useState(false)
   const [invoiceBusy, setInvoiceBusy] = useState('')
 
   const update = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
@@ -1668,22 +1693,22 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
             {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
             Generate PDF
           </button>
-          <button onClick={handleDownload} disabled={generating || downloading || sending}
+          <button onClick={handleDownload} disabled={generating || downloading}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm disabled:opacity-50">
             {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             Download
           </button>
-          <button onClick={handleGenerateInvoice} disabled={!!invoiceBusy || generating || sending}
+          <button onClick={handleGenerateInvoice} disabled={!!invoiceBusy || generating}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-cyan-700 text-white font-semibold text-sm disabled:opacity-50">
             {invoiceBusy === 'generate' ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
             {form.client_po_number.trim() ? 'Generate Invoice From Client PO' : 'Generate Invoice'}
           </button>
-          <button onClick={handleDownloadInvoice} disabled={!!invoiceBusy || generating || sending}
+          <button onClick={handleDownloadInvoice} disabled={!!invoiceBusy || generating}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-semibold text-sm disabled:opacity-50">
             {invoiceBusy === 'download' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             Download Invoice
           </button>
-          <button onClick={handleSendInvoice} disabled={!!invoiceBusy || generating || sending || !req.client_email}
+          <button onClick={handleSendInvoice} disabled={!!invoiceBusy || generating || !req.client_email}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm disabled:opacity-50">
             {invoiceBusy === 'send' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             Send Invoice to Client

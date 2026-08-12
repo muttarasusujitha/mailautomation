@@ -128,7 +128,7 @@ def _resolve_sender_email(from_email: str = "") -> str:
     normalized = _normalize_email_address(from_email or "")
     if normalized:
         return normalized
-    return _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "") or "sujithaofficial784@gmail.com"
+    return _normalize_email_address(settings.FROM_EMAIL or settings.GMAIL_USER or "") or "sujithaofficial585@gmail.com"
 
 
 def generate_message_id() -> str:
@@ -143,7 +143,7 @@ def _build_sender_candidates(
     cfg = smtp_config or {}
     primary_user = (cfg.get("smtpUser") or settings.GMAIL_USER or "").strip()
     primary_pass = (cfg.get("smtpPass") or settings.effective_gmail_pass or "").strip()
-    primary_name = (cfg.get("fromName") or from_name or settings.FROM_NAME or "TrainerSync").strip()
+    primary_name = (cfg.get("fromName") or from_name or settings.FROM_NAME or "Clahan Technologies").strip()
     primary_email = _normalize_email_address(
         cfg.get("fromEmail") or from_email or settings.FROM_EMAIL or primary_user or ""
     )
@@ -231,7 +231,7 @@ def _html_template(body: str, from_name: str, from_email: str, tracking_url: str
     body = _normalize_trainer_reply_body(body)
     from_email = _normalize_email_address(from_email) or _resolve_sender_email("")
     display_name = "Clahan Technologies" if _is_trainer_reply(body) else (from_name or "Clahan Technologies")
-    tagline = "Trainer Coordination Platform" if _is_trainer_reply(body) else "Trainer Matching Platform"
+    tagline = "Clahan Technologies"
     html_body = body.replace("\n", "<br>")
     pixel = (
         f'<img src="{tracking_url}" width="1" height="1" alt="" style="display:none;" />'

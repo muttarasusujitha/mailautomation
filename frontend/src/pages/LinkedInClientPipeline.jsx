@@ -61,11 +61,6 @@ function leadSearchText(lead) {
     .toLowerCase()
 }
 
-function initials(value) {
-  const words = String(value || '').replace(/[^a-zA-Z0-9\s]/g, ' ').split(/\s+/).filter(Boolean)
-  return (words[0]?.[0] || 'L') + (words[1]?.[0] || '')
-}
-
 export default function LinkedInClientPipeline() {
   const [leads, setLeads] = useState([])
   const [filter, setFilter] = useState('all')

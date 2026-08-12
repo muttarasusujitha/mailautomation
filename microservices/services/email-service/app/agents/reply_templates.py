@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 
 SIGNATURE = "Best Regards,\nRecruitment Team\nClahan Technologies"
-TRAINER_SIGNATURE = "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
+TRAINER_SIGNATURE = "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
 
 
 def _clean(value: Any, default: str = "") -> str:
@@ -687,8 +687,7 @@ def build_auto_reply(
             "* Preferred training mode (Online / Offline)\n"
             "* Availability for Full-Day or Half-Day sessions\n"
             "* Expected commercial charges per day/session\n"
-            "* Current location\n"
-            "* Availability for the mentioned dates\n\n"
+            "* Current location\n\n"
             f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_interested_ack")

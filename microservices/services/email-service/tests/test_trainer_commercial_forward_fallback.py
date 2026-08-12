@@ -1,4 +1,5 @@
 from app.routes.inbox import (
+    _client_rate_for_trainer_quote,
     _client_same_commercial_acceptance,
     _trainer_budget_amounts_from_requirement,
     _trainer_profile_commercial_amounts,
@@ -31,3 +32,21 @@ def test_trainer_budget_amounts_from_requirement_uses_client_budget_split():
     requirement = {"budget_per_day": 40000}
 
     assert _trainer_budget_amounts_from_requirement(requirement) == [28000]
+
+
+def test_client_rate_uses_original_budget_when_trainer_accepts_mail1_rate():
+    requirement = {
+        "budget_per_day": 200000,
+        "trainer_visible_budget_per_session": 140000,
+    }
+
+    assert _client_rate_for_trainer_quote(140000, requirement) == 200000
+
+
+def test_client_rate_adds_thirty_percent_when_trainer_asks_more():
+    requirement = {
+        "budget_per_day": 200000,
+        "trainer_visible_budget_per_session": 140000,
+    }
+
+    assert _client_rate_for_trainer_quote(196000, requirement) == 254800

@@ -216,7 +216,7 @@ def _legacy_build_rich_toc_html(toc: Dict[str, Any]) -> str:
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="company">Clahan Technologies | TrainerSync</div>
+        <div class="company">Clahan Technologies</div>
         <h1>{title}</h1>
         <div class="subtitle">{subtitle}</div>
         {f'<div class="metadata">{metadata_text}</div>' if metadata_text else ''}
@@ -638,7 +638,7 @@ async def send_toc_email(payload: TocEmailRequest, db: AsyncIOMotorDatabase = De
     body = payload.body or (
         f"Dear {trainer_name},\n\n"
         f"Please find below the Table of Contents for {title}.\n\n"
-        "We look forward to your confirmation.\n\nRegards,\nTrainerSync Team"
+        "We look forward to your confirmation.\n\nRegards,\nClahan Technologies"
     )
     try:
         # Attempt to generate a PDF attachment for the TOC and include it in the email

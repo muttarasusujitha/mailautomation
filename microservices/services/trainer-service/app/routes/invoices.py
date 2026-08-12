@@ -106,11 +106,11 @@ async def send_invoice(
         raise HTTPException(400, "to_email is required")
 
     invoice_number = doc.get("invoice_number") or invoice_id
-    subject = payload.subject or f"Invoice {invoice_number} - TrainerSync"
+    subject = payload.subject or f"Invoice {invoice_number} - Clahan Technologies"
     body = payload.body or (
         f"Dear Client,\n\n"
         f"Please find your invoice {invoice_number} attached.\n\n"
-        "Regards,\nTrainerSync Team"
+        "Regards,\nClahan Technologies"
     )
 
     try:

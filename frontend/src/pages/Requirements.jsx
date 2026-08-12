@@ -491,8 +491,8 @@ export default function Requirements() {
 
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="panel">
+    <div className="-m-4 min-h-full space-y-6 bg-gradient-to-br from-blue-500 via-blue-400 to-blue-300 p-4 animate-fade-in sm:-m-6 sm:p-6">
+      <div className="panel border-white/50 bg-white/90 shadow-lg">
         <div className="pointer-events-none absolute right-[-3rem] top-0 hidden h-full w-80 skew-x-[-18deg] bg-[linear-gradient(180deg,rgba(6,182,212,0.18),rgba(16,185,129,0.10),transparent)] md:block" />
         <div className="pointer-events-none absolute right-20 top-0 hidden h-full w-px bg-cyan-200/80 md:block" />
         <div className="relative grid gap-5 border-b border-blue-100 px-5 py-5 lg:grid-cols-[1fr_360px]">
@@ -537,7 +537,7 @@ export default function Requirements() {
             </div>
           </div>
         </div>
-        <div className="relative grid gap-3 bg-slate-50 px-5 py-4 text-sm sm:grid-cols-3">
+        <div className="relative grid gap-3 bg-blue-50/70 px-5 py-4 text-sm sm:grid-cols-3">
           <div className="signal-card border-blue-100">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -571,7 +571,7 @@ export default function Requirements() {
         </div>
       </div>
 
-      <div className="process-ribbon">
+      <div className="process-ribbon border-white/50 bg-white/90 shadow-lg">
         <div className="grid gap-2 sm:grid-cols-4">
           {[
             ['01', 'Capture requirement'],
@@ -592,7 +592,7 @@ export default function Requirements() {
 
       {/* Search Form */}
       {showForm && (
-        <div className="panel animate-slide-up overflow-hidden">
+        <div className="panel animate-slide-up overflow-hidden border-white/50 bg-white/95 shadow-lg">
           <div className="mb-5 flex items-center justify-between border-b border-slate-100 bg-white px-6 py-5">
             <div>
               <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-blue-700">
@@ -852,7 +852,7 @@ export default function Requirements() {
               ))}
             </div>
           </div>
-          <h2 className="section-title">Top Matched Trainers</h2>
+          <h2 className="section-title text-white">Top Matched Trainers</h2>
           <div className="space-y-3">
             {(result.top_trainers_list || []).map((t, i) => (
               <TrainerCard
@@ -879,7 +879,7 @@ export default function Requirements() {
       {/* Past Requirements */}
       {reqs.length > 0 && !result && (
         <div>
-          <h2 className="section-title mb-4">Past Searches</h2>
+          <h2 className="section-title mb-4 text-white">Past Searches</h2>
           <div className="space-y-3">
             {reqs.map(r => (
               <div key={r.requirement_id} className="card-hover p-4 flex items-center gap-4 group">
