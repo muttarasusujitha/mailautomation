@@ -3,6 +3,21 @@ import axios from 'axios'
 const apiBaseURL = import.meta.env.VITE_API_BASE_URL || '/api'
 
 const api = axios.create({ baseURL: apiBaseURL, timeout: 300000 })
+const RETRYABLE_METHODS = new Set(['get', 'head', 'options'])
+const RETRYABLE_STATUSES = new Set([408, 429, 500, 502, 503, 504])
+
+function wait(ms) {
+  return new Promise(resolve => window.setTimeout(resolve, ms))
+}
+
+function shouldRetryRequest(err) {
+  const config = err.config || {}
+  const method = String(config.method || 'get').toLowerCase()
+  const status = err.response?.status
+  if (!RETRYABLE_METHODS.has(method)) return false
+  if (config.__retryCount >= 1) return false
+  return !status || RETRYABLE_STATUSES.has(status)
+}
 
 function stringifyApiError(value) {
   try {
@@ -36,12 +51,29 @@ function formatApiError(value) {
 
 api.interceptors.response.use(
   res => res,
-  err => {
+  async err => {
+    if (shouldRetryRequest(err)) {
+      err.config.__retryCount = (err.config.__retryCount || 0) + 1
+      await wait(400 * err.config.__retryCount)
+      return api(err.config)
+    }
+
+    if (err.response?.status === 401) {
+      try {
+        sessionStorage.removeItem('ts_auth')
+      } catch {
+        /* ignore */
+      }
+    }
+
     const data = err.response?.data
     const message = formatApiError(data?.detail || data?.message || data?.error || data) || err.message || 'Error'
     const apiError = new Error(message)
     apiError.response = err.response
     apiError.status = err.response?.status
+    apiError.code = err.code
+    apiError.details = data
+    apiError.isNetworkError = !err.response
     return Promise.reject(apiError)
   }
 )
@@ -67,6 +99,7 @@ export const getResumeDomainSummary = () =>
   api.get('/resume-data/domain-summary')
 export const getTrainers       = (params) => api.get('/trainers', { params })
 export const getTrainer        = (id)     => api.get(`/trainers/${id}`)
+export const semanticTrainerSearch = (params) => api.get('/trainers/semantic-search', { params })
 export const getTrainerCategories = ()    => api.get('/trainers/categories')
 export const getTrainerDomains    = ()    => api.get('/trainers/domains')
 export const getTrainerIndustries = ()    => api.get('/trainers/industries')

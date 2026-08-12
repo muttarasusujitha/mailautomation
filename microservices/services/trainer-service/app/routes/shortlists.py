@@ -4,7 +4,7 @@ import base64
 import logging
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -19,11 +19,24 @@ from app.toc_pdf_template import build_toc_html
 router = APIRouter()
 logger = logging.getLogger(__name__)
 settings = get_settings()
+LOCAL_TZ = timezone(timedelta(hours=5, minutes=30))
 
 EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 DOC_SVC = settings.DOCUMENT_SERVICE_URL.rstrip("/")
 NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
 CORE_API_SVC = settings.CORE_API_URL.rstrip("/")
+
+
+def _client_time_greeting(name: str) -> str:
+    clean_name = _clean(name) or "Client"
+    hour = datetime.now(LOCAL_TZ).hour
+    if hour < 12:
+        greeting = "Good morning"
+    elif hour < 17:
+        greeting = "Good afternoon"
+    else:
+        greeting = "Good evening"
+    return f"{greeting} {clean_name}"
 LOCAL_SERVICE_FALLBACKS = {
     "https://email-service:8002": "http://email-service:8002",
     "http://127.0.0.1:8002": "http://email-service:8002",
@@ -138,17 +151,18 @@ def _client_interview_message(
 ) -> Dict[str, str]:
     subject = f"Interview Schedule Confirmation - {technology} | Ref: {requirement_id}"
     date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
+    link = _clean(interview_link)
     body = (
         f"Dear {client_name or 'Team'},\n\n"
-        f"The interview/discussion with Trainer {trainer_name or 'the trainer'} for the {technology} requirement is confirmed.\n\n"
+        f"The interview/discussion for the shortlisted {technology} trainer is confirmed.\n\n"
         "Interview Details:\n"
         f"{date_line}"
         f"Platform: {platform or 'Google Meet'}\n"
-        f"Meeting Link: {interview_link}\n\n"
+        f"Meeting Link: {link}\n\n"
         "Kindly join on time and let us know if any change is required.\n\n"
         "Regards,\n"
         "Clahan Technologies\n"
-        "sujithaofficial784@gmail.com"
+        "sujithaofficial585@gmail.com"
     )
     return {"subject": subject, "body": body}
 
@@ -236,6 +250,80 @@ def _commercial_amounts_from_text(text: Any) -> List[int]:
     return amounts
 
 
+def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
+    amount = None
+    if requirement.get("budget_total") not in (None, "", []) and requirement.get("commercial_working_days") not in (None, "", [], 0):
+        try:
+            amount = (float(requirement.get("budget_total")) / float(requirement.get("commercial_working_days"))) * 0.70
+        except (TypeError, ValueError, ZeroDivisionError):
+            amount = None
+    if amount in (None, "", []):
+        amount = requirement.get("trainer_visible_budget_per_session") or requirement.get("trainer_requested_budget_per_session")
+    if amount in (None, "", []):
+        client_amount = (
+            requirement.get("client_budget_per_day")
+            or requirement.get("budget_per_day")
+            or requirement.get("budget")
+        )
+        if client_amount in (None, "", []) and requirement.get("budget_total") not in (None, "", []):
+            days = _safe_int(requirement.get("commercial_working_days"), 0)
+            try:
+                client_amount = float(requirement.get("budget_total")) / days if days else requirement.get("budget_total")
+            except (TypeError, ValueError):
+                client_amount = requirement.get("budget_total")
+        try:
+            amount = float(client_amount) * 0.70
+        except (TypeError, ValueError):
+            amount = None
+    try:
+        numeric = float(amount)
+    except (TypeError, ValueError):
+        return ""
+    if numeric <= 0:
+        return ""
+    suffix = " per day/session, inclusive of TDS"
+    return f"INR {int(round(numeric)):,}{suffix}"
+
+
+def _client_requirement_text(requirement: Dict[str, Any]) -> str:
+    metadata = requirement.get("metadata") or {}
+    return _clean(
+        requirement.get("client_requirement_text")
+        or metadata.get("original_body")
+        or requirement.get("original_body")
+        or requirement.get("requirement_text")
+        or requirement.get("description")
+    )
+
+
+def _trainer_slot_mail_toc_text(requirement: Dict[str, Any], trainer: Dict[str, Any], technology: str) -> str:
+    toc_text = _clean(
+        trainer.get("toc_reply_text")
+        or trainer.get("toc_text")
+        or trainer.get("toc")
+        or trainer.get("course_agenda")
+        or trainer.get("agenda")
+    )
+    if toc_text:
+        return toc_text[:1200].strip()
+    source_topics = (
+        requirement.get("topics")
+        or requirement.get("scope")
+        or requirement.get("requested_topics")
+        or (requirement.get("extracted") or {}).get("topics")
+        or trainer.get("skills")
+        or []
+    )
+    if isinstance(source_topics, str):
+        topics = [part.strip(" -") for part in re.split(r"[,;\n]+", source_topics) if part.strip(" -")]
+    elif isinstance(source_topics, list):
+        topics = [_clean(item) for item in source_topics if _clean(item)]
+    else:
+        topics = []
+    topics = topics[:8] or [technology]
+    return "\n".join(f"- {item}" for item in topics)
+
+
 def _trainer_commercial_amounts(trainer: Dict[str, Any]) -> List[int]:
     amounts: List[int] = []
     for key in (
@@ -300,15 +388,18 @@ def _client_commercial_message(
         or "training"
     )
     client_name = _clean(requirement.get("client_name") or requirement.get("client_company") or shortlist.get("client_name")) or "Client"
-    trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
     rate_lines = "\n".join(f"- INR {amount:,.0f} per day/session" for amount in sorted(amounts))
-    subject = f"Trainer Commercials for Approval - {technology} | {trainer_name}"
+    subject = f"Shortlisted Trainer Commercials for Approval - {technology}"
     body = (
-        f"Dear {client_name},\n\n"
-        f"Please find the commercials shared by {trainer_name} for the {technology} requirement.\n\n"
+        f"{_client_time_greeting(client_name)},\n\n"
+        f"Please find a shortlisted trainer option for the {technology} requirement.\n\n"
+        "Profile Summary:\n"
+        f"- Trainer: Shortlisted trainer\n"
+        f"- Technology: {technology}\n\n"
+        "Commercials for Approval:\n"
         f"{rate_lines}\n\n"
-        "Please confirm if we can proceed with this trainer. Once approved, we will coordinate the next steps.\n\n"
-        "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
+        "Kindly confirm if we can proceed with this profile. Once approved, we will coordinate the next step.\n\n"
+        "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
     )
     return {"subject": subject, "body": body}
 
@@ -859,15 +950,10 @@ async def get_shortlist_thread(
         .to_list(500)
     )
     if trainer_id:
-        specific_logs = [
-            log for log in logs
-            if _log_matches_trainer_thread(log, trainer_id, trainer_name)
-        ]
-        if specific_logs:
-            logs = specific_logs
-        elif trainer_email:
+        email_logs: List[Dict[str, Any]] = []
+        if trainer_email:
             email_regex = {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}
-            logs = await (
+            email_logs = await (
                 db["email_logs"]
                 .find(
                     {
@@ -884,6 +970,27 @@ async def get_shortlist_thread(
                 .sort("created_at", -1)
                 .to_list(200)
             )
+        specific_logs = [
+            log for log in logs
+            if _log_matches_trainer_thread(log, trainer_id, trainer_name)
+        ]
+        if specific_logs:
+            seen_keys = set()
+            merged_logs = []
+            for log in [*specific_logs, *email_logs]:
+                key = (
+                    _clean(log.get("email_id"))
+                    or _clean(log.get("gmail_message_id"))
+                    or _clean(log.get("message_id_header"))
+                    or f"{_clean(log.get('direction'))}:{_clean(log.get('subject'))}:{_clean(log.get('created_at'))}"
+                )
+                if key in seen_keys:
+                    continue
+                seen_keys.add(key)
+                merged_logs.append(log)
+            logs = merged_logs
+        elif email_logs:
+            logs = email_logs
     messages = []
     for log in logs:
         item = _thread_log_response(log)
@@ -1135,7 +1242,60 @@ async def send_shortlist_mail(
             })
             continue
 
+        trainer_id = _clean(t.get("trainer_id") or payload.trainer_id)
+        if mail_type in {"mail1", "first"}:
+            duplicate_terms: List[Dict[str, Any]] = [
+                {
+                    "direction": "outbound",
+                    "status": "sent",
+                    "mail_type": {"$in": ["mail1", "first"]},
+                    "requirement_id": payload.requirement_id,
+                    "recipient": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"},
+                }
+            ]
+            if trainer_id:
+                duplicate_terms.append({
+                    "direction": "outbound",
+                    "status": "sent",
+                    "mail_type": {"$in": ["mail1", "first"]},
+                    "requirement_id": payload.requirement_id,
+                    "trainer_id": trainer_id,
+                })
+            existing_mail1 = await db["email_logs"].find_one(
+                {"$or": duplicate_terms},
+                {"_id": 0, "email_id": 1, "sent_at": 1},
+            )
+            if existing_mail1:
+                results.append({
+                    "trainer_id": trainer_id,
+                    "email": trainer_email,
+                    "status": "skipped_already_sent",
+                    "email_id": existing_mail1.get("email_id", ""),
+                    "sent_at": existing_mail1.get("sent_at"),
+                })
+                continue
+
         attempted_recipients.add(recipient_key)
+
+        guarded_mail_type = (payload.mail_type or "").strip()
+        trainer_selected = bool(t.get("selected") or t.get("selection_status") == "selected")
+        if guarded_mail_type in {"mail5", "mail5_ok", "mail5_selection"}:
+            results.append({
+                "trainer_id": trainer_id,
+                "email": trainer_email,
+                "status": "skipped_template_removed",
+                "error": "Trainer selection/onboarding email template has been removed.",
+            })
+            continue
+        if guarded_mail_type in {"mail7", "mail7_confirm", "training_confirmation"}:
+            if not trainer_selected:
+                results.append({
+                    "trainer_id": trainer_id,
+                    "email": trainer_email,
+                    "status": "skipped_not_selected_by_client",
+                    "error": "Mail 7 confirmation can be sent only after explicit client selection.",
+                })
+                continue
 
         error_message = ""
         sent_email_id = ""
@@ -1154,16 +1314,18 @@ async def send_shortlist_mail(
                     or (f"{requirement.get('duration_hours')} hour(s)" if requirement.get("duration_hours") else "")
                 )
                 dates = _clean(
-                    requirement.get("preferred_dates")
-                    or requirement.get("training_dates")
+                    requirement.get("training_dates")
+                    or requirement.get("preferred_dates")
                     or requirement.get("dates")
                     or requirement.get("date_time_text")
+                    or " to ".join(part for part in [requirement.get("timeline_start"), requirement.get("timeline_end")] if part)
                 )
+                location = _clean(requirement.get("preferred_location") or requirement.get("location"))
                 subject = payload.subject or f"Training Opportunity - {payload.requirement_id}"
                 body = payload.body or (
                     f"Dear {trainer_name},\n\n"
                     "We have a training requirement matching your profile. Please revert if interested.\n\n"
-                    "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
+                    f"Regards,\nClahan Technologies\n{getattr(settings, 'FROM_EMAIL', None) or 'sujithaofficial585@gmail.com'}"
                 )
                 if not payload.body and mail_type in CLIENT_COMMERCIAL_MAIL_TYPES:
                     commercial_message = _client_commercial_message(
@@ -1194,7 +1356,13 @@ async def send_shortlist_mail(
                                 "duration": duration,
                                 "dates": dates,
                                 "mode": _clean(requirement.get("mode")),
+                                "location": location,
                                 "participants": _clean(requirement.get("participant_count")),
+                                "audience_level": "",
+                                "budget": _trainer_mail1_commercial_text(requirement),
+                                "client_request": _client_requirement_text(requirement),
+                                "client_name": "",
+                                "topics": "",
                             },
                             headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                         )
@@ -1252,9 +1420,17 @@ async def send_shortlist_mail(
                         tmpl = tmpl_response.json()
                         subject = payload.subject or tmpl.get("subject") or subject
                         body = tmpl.get("body") or body
+                if payload.mail_type in ("mail3", "mail3_slot_booking"):
+                    toc_text = _trainer_slot_mail_toc_text(requirement, t, domain)
+                    if toc_text and "ToC / Course Agenda" not in body:
+                        body = (
+                            f"{body.rstrip()}\n\n"
+                            "ToC / Course Agenda:\n"
+                            f"{toc_text}"
+                        )
                 if trainer_ref not in body:
                     body = f"{body.rstrip()}\n\n{trainer_ref}"
-                r = await _post_with_local_fallback(client, f"{EMAIL_SVC}/api/v1/email/send", json={
+                send_payload = {
                     "to": trainer_email,
                     "subject": subject,
                     "body": body,
@@ -1263,7 +1439,10 @@ async def send_shortlist_mail(
                     "trainer_name": trainer_name,
                     "requirement_id": payload.requirement_id,
                     "smtp_config": payload.smtp_config,
-                })
+                }
+                if payload.mail_type in ("mail1", "first") and payload.requirement_id:
+                    send_payload["idempotency_key"] = f"trainer-mail1:{payload.requirement_id}:{trainer_id or trainer_email.lower()}"
+                r = await _post_with_local_fallback(client, f"{EMAIL_SVC}/api/v1/email/send", json=send_payload)
                 ok = r.status_code < 400
                 if not ok:
                     error_message = f"{r.status_code}: {r.text[:300]}"
@@ -1272,85 +1451,24 @@ async def send_shortlist_mail(
                         sent_email_id = (r.json() or {}).get("email_id", "")
                     except Exception:
                         sent_email_id = ""
+                    if not sent_email_id:
+                        sent_log = await db["email_logs"].find_one(
+                            {
+                                "direction": "outbound",
+                                "status": "sent",
+                                "requirement_id": payload.requirement_id,
+                                "trainer_id": t.get("trainer_id"),
+                                "mail_type": payload.mail_type,
+                                "$or": [
+                                    {"recipient": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
+                                    {"to_email": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"}},
+                                ],
+                            },
+                            {"_id": 0, "email_id": 1},
+                            sort=[("created_at", -1)],
+                        )
+                        sent_email_id = (sent_log or {}).get("email_id", "")
                     await asyncio.sleep(1.5)
-                    # If this was a trainer selection (mail5 family), automatically request/send TOC
-                    try:
-                        if payload.mail_type in ("mail5", "mail5_ok", "mail5_selection"):
-                            # Only send TOC when requirement has a domain/technology configured
-                            domain_field = _clean(
-                                requirement.get("technology_needed")
-                                or requirement.get("domain")
-                                or shortlist.get("technology_needed")
-                            )
-                            if domain_field:
-                                # avoid duplicate TOC sends
-                                prior_toc = await db["email_logs"].find_one(
-                                    {
-                                        "requirement_id": payload.requirement_id,
-                                        "mail_type": "mail6_toc",
-                                        "recipient": {"$regex": f"^{re.escape(trainer_email)}$", "$options": "i"},
-                                        "status": "sent",
-                                    },
-                                    {"_id": 0, "email_id": 1},
-                                )
-                                if not prior_toc:
-                                    logger.info("Auto-TOC: preparing template for %s %s", payload.requirement_id, trainer_email)
-                                    tmpl_resp = await client.post(
-                                        f"{EMAIL_SVC}/api/v1/email/templates/mail6-toc-request",
-                                        json={
-                                            "trainer_name": trainer_name,
-                                            "technology": domain_field,
-                                            "requirement_id": payload.requirement_id,
-                                            "client_name": _clean(requirement.get("client_name") or requirement.get("client_company")),
-                                        },
-                                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                                    )
-                                    logger.info("Auto-TOC: template response %s for %s", getattr(tmpl_resp, "status_code", None), trainer_email)
-                                    if tmpl_resp.status_code < 400:
-                                        tmpl = tmpl_resp.json()
-                                        toc_subject = tmpl.get("subject") or f"ToC / Agenda - {payload.requirement_id}"
-                                        toc_body = tmpl.get("body") or "Please find the proposed ToC / agenda."
-                                    else:
-                                        toc_subject = f"ToC / Agenda - {payload.requirement_id}"
-                                        toc_body = "Please find the proposed ToC / agenda."
-                                    logger.info("Auto-TOC: sending TOC to %s for %s", trainer_email, payload.requirement_id)
-                                    pdf_bytes = None
-                                    toc_data = await _build_toc(requirement, t, db)
-                                    if toc_data:
-                                        pdf_bytes = await _generate_toc_pdf(toc_data)
-                                    attachments = []
-                                    if pdf_bytes:
-                                        attachments = [{
-                                            "filename": f"TOC-{payload.requirement_id}.pdf",
-                                            "content_base64": base64.b64encode(pdf_bytes).decode("utf-8"),
-                                            "subtype": "pdf",
-                                        }]
-                                    send_toc = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
-                                        "to": trainer_email,
-                                        "subject": toc_subject,
-                                        "body": toc_body,
-                                        "mail_type": "mail6_toc",
-                                        "trainer_id": t.get("trainer_id"),
-                                        "trainer_name": trainer_name,
-                                        "requirement_id": payload.requirement_id,
-                                        "smtp_config": payload.smtp_config,
-                                        "attachments": attachments,
-                                    })
-                                    logger.info("Auto-TOC: send response %s for %s", getattr(send_toc, "status_code", None), trainer_email)
-                                    if send_toc.status_code < 400:
-                                        auto_toc_sent = True
-                                        # update pipeline stage to reflect TOC requested
-                                        await db["shortlists"].update_one(
-                                            {"requirement_id": payload.requirement_id, "top_trainers.trainer_id": t.get("trainer_id")},
-                                            {"$set": {
-                                                "top_trainers.$.pipeline_status": "toc_requested",
-                                                "top_trainers.$.toc_status": "requested",
-                                                "top_trainers.$.last_mail_type": "mail6_toc",
-                                                "top_trainers.$.last_mailed_at": datetime.utcnow(),
-                                            }},
-                                        )
-                    except Exception:
-                        logger.exception("Failed to auto-send TOC for %s", trainer_email)
         except Exception as exc:
             logger.error("Email send failed for %s: %s", trainer_email, exc)
             ok = False
@@ -1470,6 +1588,23 @@ async def send_interview_link(
         raise HTTPException(400, "Trainer email not found")
     if not client_email:
         raise HTTPException(400, "Client email not found; cannot send the meeting link to the client")
+    if not _clean(payload.interview_link):
+        now = datetime.utcnow()
+        await db["shortlists"].update_one(
+            {"requirement_id": payload.requirement_id, "top_trainers.trainer_id": payload.trainer_id},
+            {"$set": {
+                "top_trainers.$.pipeline_status": "calendar_failed_manual_review",
+                "top_trainers.$.slot_status": "calendar_failed_no_mail_sent",
+                "top_trainers.$.interview_link": "",
+                "top_trainers.$.meet_link": "",
+                "top_trainers.$.last_mail_type_attempted": "mail4",
+                "top_trainers.$.last_mail_attempted_at": now,
+                "top_trainers.$.last_mail_error": "Meeting link missing; interview schedule mail was not sent.",
+                "top_trainers.$.updated_at": now,
+                "updated_at": now,
+            }},
+        )
+        raise HTTPException(400, "Meeting link missing; interview schedule mail was not sent. Please create/fix the Meet link and try again.")
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
@@ -1678,24 +1813,24 @@ async def send_client_slots(
             )
             if tmpl_resp is not None and tmpl_resp.status_code < 400:
                 tmpl = tmpl_resp.json()
-                subject = tmpl.get("subject") or f"Trainer Interview Slots - {technology} | {trainer_name}"
+                subject = tmpl.get("subject") or f"Interview Slots - {technology}"
                 body = tmpl.get("body") or (
-                    f"Dear {client_name},\n\n"
-                    f"Trainer {trainer_name} has shared the available interview slots for the {technology} requirement.\n\n"
+                    f"{_client_time_greeting(client_name)},\n\n"
+                    f"We have coordinated suitable interview/discussion slots for the shortlisted {technology} trainer.\n\n"
                     "Available slots:\n"
                     f"{slots_text}\n\n"
-                    "Kindly confirm your preferred slot at the earliest.\n\n"
-                    "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
+                    "Kindly confirm the preferred slot, and we will proceed with the meeting coordination.\n\n"
+                    "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
                 )
             else:
-                subject = f"Trainer Interview Slots - {technology} | {trainer_name}"
+                subject = f"Interview Slots - {technology}"
                 body = (
-                    f"Dear {client_name},\n\n"
-                    f"Trainer {trainer_name} has shared the available interview slots for the {technology} requirement.\n\n"
+                    f"{_client_time_greeting(client_name)},\n\n"
+                    f"We have coordinated suitable interview/discussion slots for the shortlisted {technology} trainer.\n\n"
                     "Available slots:\n"
                     f"{slots_text}\n\n"
-                    "Kindly confirm your preferred slot at the earliest.\n\n"
-                    "Regards,\nClahan Technologies\nsujithaofficial784@gmail.com"
+                    "Kindly confirm the preferred slot, and we will proceed with the meeting coordination.\n\n"
+                    "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
                 )
 
             response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={

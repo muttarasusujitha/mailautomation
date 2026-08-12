@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, EmailStr
+from pymongo.errors import DuplicateKeyError
 
 from shared.database.service import get_db
 from app.gmail_client import generate_message_id, is_send_quota_error, send_email_async, _normalize_trainer_reply_body
@@ -33,6 +34,7 @@ class SendEmailRequest(BaseModel):
     mail_type: Optional[str] = None
     trainer_id: Optional[str] = None
     trainer_name: Optional[str] = None
+    idempotency_key: Optional[str] = None
     attachments: Optional[List[EmailAttachment]] = None
 
 
@@ -47,6 +49,22 @@ async def send_single_email(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     body = _normalize_trainer_reply_body(payload.body)
+    idempotency_key = str(payload.idempotency_key or "").strip()
+    existing_log = None
+    if idempotency_key:
+        existing_log = await db.email_logs.find_one(
+            {"idempotency_key": idempotency_key},
+            {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1, "error_message": 1},
+        )
+        if existing_log and existing_log.get("status") in {"sent", "sending"}:
+            return {
+                "success": True,
+                "email_id": existing_log.get("email_id"),
+                "sent_at": existing_log.get("sent_at"),
+                "already_sent": existing_log.get("status") == "sent",
+                "already_in_progress": existing_log.get("status") == "sending",
+            }
+
     attachments = []
     if payload.attachments:
         for att in payload.attachments:
@@ -69,6 +87,54 @@ async def send_single_email(
             logger.exception("Failed to log attachment filenames")
 
     message_id_header = generate_message_id()
+    now = datetime.utcnow()
+    email_id = (existing_log or {}).get("email_id") or f"EML-{uuid.uuid4().hex[:10].upper()}"
+    log = {
+        "email_id": email_id,
+        "direction": "outbound",
+        "recipient": payload.to,
+        "to_email": payload.to,
+        "subject": payload.subject,
+        "gmail_message_id": message_id_header,
+        "message_id_header": message_id_header,
+        "body": body,
+        "body_snippet": body[:300],
+        "status": "sending" if idempotency_key else "pending_send",
+        "error_message": "",
+        "customer_id": payload.customer_id,
+        "requirement_id": payload.requirement_id,
+        "mail_type": payload.mail_type,
+        "trainer_id": payload.trainer_id,
+        "trainer_name": payload.trainer_name,
+        "idempotency_key": idempotency_key or None,
+        "sent_at": None,
+        "created_at": now,
+        "updated_at": now,
+    }
+    preinserted = False
+    if idempotency_key:
+        if existing_log:
+            log_for_retry = dict(log)
+            log_for_retry.pop("created_at", None)
+            await db.email_logs.update_one({"idempotency_key": idempotency_key}, {"$set": log_for_retry})
+            preinserted = True
+        else:
+            try:
+                await db.email_logs.insert_one(dict(log))
+                preinserted = True
+            except DuplicateKeyError:
+                existing_log = await db.email_logs.find_one(
+                    {"idempotency_key": idempotency_key},
+                    {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1},
+                ) or {}
+                return {
+                    "success": True,
+                    "email_id": existing_log.get("email_id"),
+                    "sent_at": existing_log.get("sent_at"),
+                    "already_sent": existing_log.get("status") == "sent",
+                    "already_in_progress": existing_log.get("status") != "sent",
+                }
+
     success, error = await send_email_async(
         to=payload.to,
         subject=payload.subject,
@@ -79,27 +145,17 @@ async def send_single_email(
         message_id_header=message_id_header,
     )
     now = datetime.utcnow()
-    log = {
-        "email_id": f"EML-{uuid.uuid4().hex[:10].upper()}",
-        "direction": "outbound",
-        "recipient": payload.to,
-        "subject": payload.subject,
-        "gmail_message_id": message_id_header,
-        "message_id_header": message_id_header,
-        "body": body,
-        "body_snippet": body[:300],
+    final_update = {
         "status": "sent" if success else "failed",
         "error_message": error if not success else "",
-        "customer_id": payload.customer_id,
-        "requirement_id": payload.requirement_id,
-        "mail_type": payload.mail_type,
-        "trainer_id": payload.trainer_id,
-        "trainer_name": payload.trainer_name,
         "sent_at": now if success else None,
-        "created_at": now,
         "updated_at": now,
     }
-    await db.email_logs.insert_one(log)
+    log.update(final_update)
+    if preinserted:
+        await db.email_logs.update_one({"email_id": email_id}, {"$set": final_update})
+    else:
+        await db.email_logs.insert_one(log)
     log.pop("_id", None)
 
     if not success:
@@ -143,6 +199,7 @@ async def send_bulk_emails(
             "email_id": f"EML-{uuid.uuid4().hex[:10].upper()}",
             "direction": "outbound",
             "recipient": item.to,
+            "to_email": item.to,
             "subject": item.subject,
             "gmail_message_id": message_id_header,
             "message_id_header": message_id_header,

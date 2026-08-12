@@ -1,4 +1,6 @@
 from contextlib import asynccontextmanager
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -17,11 +19,45 @@ from app.routes import (
 )
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
+
+
+async def _create_index(db, collection: str, keys, **kwargs) -> None:
+    try:
+        await db[collection].create_index(keys, background=True, **kwargs)
+    except Exception as exc:
+        logger.warning("Skipping index for %s %s: %s", collection, keys, exc)
+
+
+async def _ensure_indexes(db) -> None:
+    indexes = [
+        ("requirements", [("requirement_id", 1)], {}),
+        ("requirements", [("status", 1), ("created_at", -1)], {}),
+        ("requirements", [("customer_id", 1), ("status", 1), ("created_at", -1)], {}),
+        ("requirements", [("client_email", 1), ("status", 1), ("created_at", -1)], {}),
+        ("requirements", [("technology_needed", 1), ("status", 1)], {}),
+        ("requirements", [("domain", 1), ("status", 1)], {}),
+        ("requirements", [("metadata.source_email_id", 1)], {"sparse": True}),
+        ("shortlists", [("requirement_id", 1)], {}),
+        ("shortlists", [("updated_at", -1)], {}),
+        ("email_logs", [("requirement_id", 1), ("created_at", -1)], {}),
+        ("email_logs", [("direction", 1), ("status", 1), ("created_at", -1)], {}),
+        ("client_emails", [("status", 1), ("created_at", -1)], {}),
+        ("client_emails", [("requirement_id", 1), ("updated_at", -1)], {}),
+        ("trainers", [("trainer_id", 1)], {}),
+        ("trainers", [("created_at", -1)], {}),
+        ("purchase_orders", [("requirement_id", 1), ("created_at", -1)], {}),
+        ("invoices", [("requirement_id", 1), ("created_at", -1)], {}),
+        ("whatsapp_logs", [("status", 1), ("created_at", -1)], {}),
+    ]
+    for collection, keys, options in indexes:
+        await _create_index(db, collection, keys, **options)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await connect_service_db(settings)
+    db = await connect_service_db(settings)
+    await _ensure_indexes(db)
     yield
     await shutdown_db()
 
