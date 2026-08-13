@@ -2,7 +2,7 @@ import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import {
-  BarChart3, Bell, BookOpen, Bot, BriefcaseBusiness, CalendarCheck,
+  BadgeIndianRupee, BarChart3, Bell, BookOpen, Bot, BriefcaseBusiness, CalendarCheck,
   ChevronRight, FileSearch, Globe2, Home,
   LayoutDashboard, LogOut, Mail, Menu, MessageSquare,
   MapPin, ReceiptText, Search, Settings, Upload, UserCircle, Users, Zap, X,
@@ -33,6 +33,7 @@ const NAV_GROUPS = [
       { to: '/client-requests',          label: 'Client Requests',         icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
       { to: '/client-comms',             label: 'Client Comms',            icon: MessageSquare, keywords: ['client comms','client conversations','client communications','communications'] },
       { to: '/linkedin-client-pipeline', label: 'LinkedIn Client Pipeline', icon: Mail, keywords: ['linkedin client pipeline','client posts','client lead pipeline','mail 1'] },
+      { to: '/commercial-analysis',       label: 'Commercial Analysis',     icon: BadgeIndianRupee, keywords: ['commercial','profit','margin','payment','budget','qtr'] },
       { to: '/interview-scheduled',      label: 'Interviews',              icon: CalendarCheck, keywords: ['interview','schedule','meeting','meet link'] },
       { to: '/client-mail-pipeline',     label: 'Client Pipeline',         icon: ReceiptText, keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
       { to: '/invoices',                 label: 'Invoices',                icon: ReceiptText, keywords: ['invoice','manual invoice','generate invoice','billing'] },

@@ -107,7 +107,10 @@ services:
 
   email-service:
     container_name: ts-email-service
-    image: ghcr.io/muttarasusujitha/trainersync/email-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/email-service/Dockerfile
+    image: trainersync/email-service:local
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -211,7 +214,10 @@ services:
   # ── Scheduler: FastAPI management API ────────────────────────────────────────
   scheduler-service:
     container_name: ts-scheduler-api
-    image: ghcr.io/muttarasusujitha/trainersync/scheduler-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/scheduler-service/Dockerfile
+    image: trainersync/scheduler-service:local
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -234,7 +240,10 @@ services:
   # ── Celery worker ─────────────────────────────────────────────────────────────
   celery-worker:
     container_name: ts-celery-worker
-    image: ghcr.io/muttarasusujitha/trainersync/celery-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/scheduler-service/Dockerfile
+    image: trainersync/scheduler-service:local
     command: celery -A app.celery_app worker --loglevel=info --concurrency=4
     <<: *service-defaults
     environment:
@@ -259,7 +268,10 @@ services:
   # ── Celery beat (periodic task scheduler) ─────────────────────────────────────
   celery-beat:
     container_name: ts-celery-beat
-    image: ghcr.io/muttarasusujitha/trainersync/celery-beat-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/scheduler-service/Dockerfile
+    image: trainersync/scheduler-service:local
     command: celery -A app.celery_app beat --loglevel=info --scheduler celery.beat.PersistentScheduler --schedule=/app/celerybeat-schedule/celerybeat-schedule
     <<: *service-defaults
     environment:

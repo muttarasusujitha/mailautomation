@@ -80,6 +80,10 @@ function valueOrDash(value) {
   return value === undefined || value === null || value === '' ? '-' : value
 }
 
+function firstText(...values) {
+  return values.find(value => typeof value === 'string' && value.trim())?.trim() || ''
+}
+
 function Stat({ icon: Icon, label, value, tone = 'blue' }) {
   const tones = {
     blue: 'text-blue-600 bg-blue-50',
@@ -251,6 +255,33 @@ function DetailModal({ request, onClose, onCreateRequirement, processingId = '' 
   const extracted = request.extracted || {}
   const reply = request.generated_reply || {}
   const status = STATUS_META[request.status] || { label: request.status || 'Unknown', tone: 'slate' }
+  const originalBody = firstText(
+    request.clean_body,
+    request.raw_body,
+    request.body,
+    request.body_text,
+    request.text_body,
+    request.html_body,
+    request.body_snippet,
+    request.email_body,
+    request.classification_body,
+    request.email_summary,
+    extracted.original_email,
+    extracted.email_body,
+    extracted.email_summary,
+    request.reply_text,
+    request.message,
+  )
+  const capturedSummary = [
+    extracted.technology_needed && `Technology: ${extracted.technology_needed}`,
+    extracted.duration_days && `Duration: ${extracted.duration_days} days`,
+    extracted.duration_hours && `Duration: ${extracted.duration_hours} hours`,
+    extracted.mode && `Mode: ${extracted.mode}`,
+    extracted.participant_count && `Participants: ${extracted.participant_count}`,
+    extracted.location && `Location: ${extracted.location}`,
+    extracted.preferred_dates && `Dates: ${extracted.preferred_dates}`,
+    (extracted.budget_total || extracted.budget_per_day) && `Budget: ${extracted.budget_total || extracted.budget_per_day}`,
+  ].filter(Boolean).join('\n')
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
@@ -289,7 +320,7 @@ function DetailModal({ request, onClose, onCreateRequirement, processingId = '' 
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Original Email</p>
               <p className="mt-2 text-sm font-semibold text-slate-900">{request.subject}</p>
               <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-white p-3 text-sm leading-6 text-slate-700">
-                {request.clean_body || request.raw_body || 'No email body captured.'}
+                {originalBody || capturedSummary || 'No email body captured in this stored email record.'}
               </pre>
             </div>
           </div>

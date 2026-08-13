@@ -16,6 +16,7 @@ from app.routes import (
     dashboard,
     client_pipeline,
     database,
+    agent_orchestrator,
 )
 
 settings = get_settings()
@@ -49,6 +50,10 @@ async def _ensure_indexes(db) -> None:
         ("purchase_orders", [("requirement_id", 1), ("created_at", -1)], {}),
         ("invoices", [("requirement_id", 1), ("created_at", -1)], {}),
         ("whatsapp_logs", [("status", 1), ("created_at", -1)], {}),
+        ("agent_decisions", [("created_at", -1)], {}),
+        ("agent_decisions", [("agent_role", 1), ("created_at", -1)], {}),
+        ("agent_decisions", [("entity_type", 1), ("entity_id", 1)], {}),
+        ("agent_decisions", [("requires_human", 1), ("created_at", -1)], {}),
     ]
     for collection, keys, options in indexes:
         await _create_index(db, collection, keys, **options)
@@ -86,6 +91,7 @@ app.include_router(logs.router,            prefix="/api/v1/logs",            tag
 app.include_router(dashboard.router,       prefix="/api/v1/dashboard",       tags=["dashboard"])
 app.include_router(client_pipeline.router, prefix="/api/v1/client-pipeline", tags=["client-pipeline"])
 app.include_router(database.router,        prefix="/api/v1/database",        tags=["database"])
+app.include_router(agent_orchestrator.router, prefix="/api/v1/agent-orchestrator", tags=["agent-orchestrator"])
 
 
 @app.get("/health")

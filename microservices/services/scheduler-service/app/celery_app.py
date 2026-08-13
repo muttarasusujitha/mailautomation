@@ -14,6 +14,7 @@ celery_app = Celery(
         "app.tasks.reminders",
         "app.tasks.inbox_poll",
         "app.tasks.interview_reminders",
+        "app.tasks.meet_start_notices",
     ],
 )
 
@@ -40,6 +41,12 @@ celery_app.conf.beat_schedule = {
     "interview-reminders-every-10-min": {
         "task": "app.tasks.interview_reminders.send_due_reminders",
         "schedule": crontab(minute="*/10"),
+        "args": [],
+    },
+    # Send exact start-time Google Meet join notices every minute.
+    "meet-start-notices-every-minute": {
+        "task": "app.tasks.meet_start_notices.send_due_start_notices",
+        "schedule": crontab(minute="*"),
         "args": [],
     },
     # Daily cleanup of old processed logs (2 AM UTC)

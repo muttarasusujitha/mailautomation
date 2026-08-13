@@ -50,6 +50,7 @@ const NaukriSearch = lazyWithRetry(() => import('./pages/NaukriSearch'))
 const TrainerLocations = lazyWithRetry(() => import('./pages/TrainerLocations'))
 const VoiceAIAssistant = lazyWithRetry(() => import('./pages/VoiceAIAssistant'))
 const ClientPipeline = lazyWithRetry(() => import('./pages/ClientPipeline'))
+const CommercialAnalysis = lazyWithRetry(() => import('./pages/CommercialAnalysis'))
 const InterviewSchedules = lazyWithRetry(() => import('./pages/InterviewSchedules'))
 const Invoices = lazyWithRetry(() => import('./pages/Invoices'))
 const ResumeUpload = lazyWithRetry(() => import('./pages/ResumeUpload'))
@@ -169,6 +170,7 @@ export default function App() {
             <Route path="voice-ai-assistant" element={<VoiceAIAssistant />} />
             <Route path="client-pipeline" element={<ClientPipeline />} />
             <Route path="client-mail-pipeline" element={<ClientPipeline />} />
+            <Route path="commercial-analysis" element={<CommercialAnalysis />} />
             <Route path="interview-scheduled" element={<InterviewSchedules />} />
             <Route path="interview" element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="interview-page" element={<Navigate to="/interview-scheduled" replace />} />
