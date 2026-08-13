@@ -104,7 +104,7 @@ def _create_google_meet_event_sync(
                 calendarId=getattr(settings, "GOOGLE_CALENDAR_ID", "primary") or "primary",
                 body=body,
                 conferenceDataVersion=1,
-                sendUpdates="none",
+                sendUpdates="all",
             )
             .execute()
         )

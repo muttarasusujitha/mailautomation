@@ -163,6 +163,258 @@ def _safe_int(value: Any, default: int = 0) -> int:
         return default
 
 
+def _money_from_fields(source: Dict[str, Any], keys: List[str], default: float = 0.0) -> float:
+    for key in keys:
+        value = source.get(key)
+        if isinstance(value, (int, float)) and value > 0:
+            return float(value)
+        amounts = _amounts_from_text(value)
+        if amounts:
+            return float(max(amounts))
+    return default
+
+
+def _parse_month_date(value: Any) -> Optional[datetime]:
+    text = _clean(value).replace(",", " ")
+    match = re.search(r"\b(\d{1,2})(?:st|nd|rd|th)?\s+([a-zA-Z]+)(?:\s+(\d{4}))?\b", text)
+    if not match:
+        return None
+    months = {
+        "jan": 1, "january": 1, "feb": 2, "february": 2, "mar": 3, "march": 3,
+        "apr": 4, "april": 4, "may": 5, "jun": 6, "june": 6, "jul": 7,
+        "july": 7, "aug": 8, "august": 8, "sep": 9, "sept": 9, "september": 9,
+        "oct": 10, "october": 10, "nov": 11, "november": 11, "dec": 12, "december": 12,
+    }
+    month = months.get(match.group(2).lower())
+    if not month:
+        return None
+    year = int(match.group(3) or datetime.utcnow().year)
+    try:
+        return datetime(year, month, int(match.group(1)))
+    except ValueError:
+        return None
+
+
+def _date_range_days(requirement: Dict[str, Any]) -> float:
+    for key in ("training_dates", "preferred_dates", "dates"):
+        text = _clean(requirement.get(key))
+        if not text:
+            continue
+        parts = re.split(r"\s+(?:to|-|through|till|until)\s+", text, maxsplit=1, flags=re.I)
+        if len(parts) != 2:
+            continue
+        start = _parse_month_date(parts[0])
+        end = _parse_month_date(parts[1])
+        if start and end and end >= start:
+            return float((end - start).days + 1)
+    start = _parse_month_date(requirement.get("timeline_start") or requirement.get("start_date"))
+    end = _parse_month_date(requirement.get("timeline_end") or requirement.get("end_date"))
+    if start and end and end >= start:
+        return float((end - start).days + 1)
+    return 0.0
+
+
+def _duration_days(requirement: Dict[str, Any]) -> float:
+    date_days = _date_range_days(requirement)
+    if date_days > 0:
+        return date_days
+    direct = _safe_float(requirement.get("duration_days"), 0.0)
+    if direct > 0:
+        return direct
+    for key in ("training_duration", "duration", "duration_text"):
+        text = _clean(requirement.get(key)).lower()
+        match = re.search(r"(\d+(?:\.\d+)?)\s*(?:days?|day)", text)
+        if match:
+            return _safe_float(match.group(1), 0.0)
+        match = re.search(r"(\d+(?:\.\d+)?)\s*(?:hours?|hrs?)", text)
+        if match:
+            return max(1.0, round(_safe_float(match.group(1), 0.0) / 7, 2))
+    return 1.0
+
+
+def _client_budget(requirement: Dict[str, Any]) -> float:
+    return _money_from_fields(
+        requirement,
+        [
+            "client_budget",
+            "budget",
+            "approved_client_budget",
+            "commercial_amount",
+            "total_amount",
+            "client_commercial",
+        ],
+    )
+
+
+def _trainer_day_rate(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> float:
+    mode = _clean(requirement.get("mode") or requirement.get("delivery_mode")).lower()
+    keys = [
+        "trainer_day_rate",
+        "day_rate",
+        "rate_per_day",
+        "per_day_rate",
+        "commercial_rate",
+        "commercial",
+        "commercials",
+        "rate",
+    ]
+    if "offline" in mode:
+        keys = ["offline_rate", "offline_day_rate", *keys]
+    elif "online" in mode:
+        keys = ["online_rate", "online_day_rate", *keys]
+    return _money_from_fields(trainer, keys)
+
+
+def _build_commercial_option(
+    model: str,
+    client_revenue: float,
+    trainer_cost: float,
+    days: float,
+    tds_rate: float,
+    preferred: bool,
+    reason: str,
+    other_costs: float = 0.0,
+    tds_base: Optional[float] = None,
+    missing_trainer_commercial: bool = False,
+) -> Optional[Dict[str, Any]]:
+    if client_revenue <= 0:
+        return None
+    gross_profit = client_revenue - trainer_cost - other_costs
+    margin = (gross_profit / client_revenue * 100) if client_revenue else 0.0
+    taxable_amount = client_revenue if tds_base is None else tds_base
+    tds = taxable_amount * (tds_rate / 100.0)
+    return {
+        "model": model,
+        "client_revenue": round(client_revenue, 2),
+        "trainer_cost": round(trainer_cost, 2),
+        "other_applicable_costs": round(other_costs, 2),
+        "tds_base_amount": round(taxable_amount, 2),
+        "tds_rate_percent": round(tds_rate, 2),
+        "tds": round(tds, 2),
+        "net_amount_after_tds": round(taxable_amount - tds, 2),
+        "clahan_gross_profit": round(gross_profit, 2),
+        "profit_margin_percent": round(margin, 2),
+        "duration_days": days,
+        "preferred_by_duration": preferred,
+        "valid": gross_profit >= 0 and not missing_trainer_commercial,
+        "missing_trainer_commercial": missing_trainer_commercial,
+        "reason": reason,
+    }
+
+
+def _commercial_options_for_trainer(requirement: Dict[str, Any], trainer: Dict[str, Any]) -> List[Dict[str, Any]]:
+    days = _duration_days(requirement)
+    budget = _client_budget(requirement)
+    trainer_day_rate = _trainer_day_rate(trainer, requirement)
+    missing_trainer_commercial = trainer_day_rate <= 0
+    assumed_trainer_day_rate = (budget * 0.70 / days) if missing_trainer_commercial and budget and days else trainer_day_rate
+    assumed_trainer_total = budget * 0.70 if missing_trainer_commercial and budget else 0.0
+    trainer_total = _money_from_fields(
+        trainer,
+        ["trainer_total_commercial", "total_commercial", "batch_cost", "lumpsum_cost"],
+        assumed_trainer_total or trainer_day_rate * days,
+    )
+    client_day_rate = _money_from_fields(
+        requirement,
+        ["client_day_rate", "approved_client_rate", "day_rate", "client_rate", "per_day_rate"],
+        (budget / days) if budget and days else 0.0,
+    )
+    client_lumpsum = _money_from_fields(
+        requirement,
+        ["client_lumpsum", "lumpsum_amount", "fixed_amount", "client_fixed_amount", "client_batch_amount"],
+        budget,
+    )
+    tds_rate = _safe_float(requirement.get("tds_rate") or requirement.get("tds_percent"), 10.0)
+    other_costs = _money_from_fields(requirement, ["other_costs", "applicable_costs", "travel_cost", "hospitality_cost"])
+    one_time_total = budget if budget else 0.0
+    one_time_trainer_share = one_time_total * 0.70
+    one_time_clahan_share = one_time_total * 0.30
+
+    candidates = [
+        _build_commercial_option(
+            "ONE_TIME_30",
+            one_time_total,
+            one_time_trainer_share,
+            days,
+            tds_rate,
+            days <= 7,
+            "Client total is split as 30% Clahan share and 70% trainer share; TDS is calculated on the 70% trainer amount.",
+            other_costs,
+            tds_base=one_time_trainer_share,
+        ),
+        _build_commercial_option(
+            "PER_DAY",
+            client_day_rate * days,
+            assumed_trainer_day_rate * days,
+            days,
+            tds_rate,
+            days > 7,
+            "Per-day budget split: 30% Clahan share and 70% trainer share; TDS is calculated on trainer share.",
+            other_costs,
+            tds_base=assumed_trainer_day_rate * days,
+            missing_trainer_commercial=False,
+        ),
+        _build_commercial_option(
+            "LUMPSUM",
+            client_lumpsum,
+            trainer_total,
+            days,
+            tds_rate,
+            bool(client_lumpsum),
+            "Fixed client amount split as 30% Clahan share and 70% trainer share when trainer commercial is not separately confirmed.",
+            other_costs,
+            tds_base=trainer_total,
+            missing_trainer_commercial=False,
+        ),
+        _build_commercial_option(
+            "PER_BATCH",
+            _money_from_fields(requirement, ["per_batch_amount", "client_batch_commercial"], 0.0),
+            trainer_total,
+            days,
+            tds_rate,
+            False,
+            "Batch commercial is used only when a batch amount is available.",
+            other_costs,
+            tds_base=trainer_total,
+            missing_trainer_commercial=missing_trainer_commercial,
+        ),
+    ]
+    valid_budget = []
+    for option in [item for item in candidates if item]:
+        option["within_client_budget"] = not budget or option["client_revenue"] <= budget
+        option["valid"] = option["valid"] and option["within_client_budget"]
+        valid_budget.append(option)
+    return valid_budget
+
+
+def _recommend_option(options: List[Dict[str, Any]], target_margin: float) -> Dict[str, Any]:
+    viable = [option for option in options if option.get("valid")]
+    if not viable:
+        return {}
+    selected = max(
+        viable,
+        key=lambda option: (
+            option.get("clahan_gross_profit", 0),
+            option.get("profit_margin_percent", 0),
+            1 if option.get("preferred_by_duration") else 0,
+        ),
+    )
+    selected = dict(selected)
+    selected["negotiation_required"] = selected.get("profit_margin_percent", 0) < target_margin
+    selected["minimum_margin_percent"] = target_margin
+    alternatives = [option for option in viable if option.get("model") != selected.get("model")]
+    if alternatives:
+        next_best = max(alternatives, key=lambda option: option.get("clahan_gross_profit", 0))
+        selected["why_selected"] = (
+            f"{selected.get('model')} is selected because its expected profit "
+            f"INR {selected.get('clahan_gross_profit', 0):,.0f} is higher than "
+            f"{next_best.get('model')} at INR {next_best.get('clahan_gross_profit', 0):,.0f}."
+        )
+    else:
+        selected["why_selected"] = f"{selected.get('model')} is the only valid commercial option."
+    return selected
+
+
 def _norm(value: Any) -> str:
     if isinstance(value, list):
         value = " ".join(_clean(item) for item in value)
@@ -671,6 +923,130 @@ async def get_requirement(
     if not doc:
         raise HTTPException(404, "Requirement not found")
     return _public_doc(doc)
+
+
+async def _requirement_analysis(db: AsyncIOMotorDatabase, requirement: Dict[str, Any]) -> Dict[str, Any]:
+    req_id = requirement.get("requirement_id")
+    shortlist = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0}) or {}
+    trainers = list(shortlist.get("top_trainers") or [])[:4]
+    target_margin = _safe_float(requirement.get("minimum_margin_percent") or requirement.get("target_margin_percent"), 20.0)
+    required_fields = {
+        "training_requirement": requirement.get("technology_needed") or requirement.get("domain") or requirement.get("title"),
+        "dates": requirement.get("training_dates") or requirement.get("timeline_start") or requirement.get("timeline_end"),
+        "timing": requirement.get("timing"),
+        "duration": _duration_days(requirement),
+        "participants": requirement.get("participant_count") or requirement.get("participants"),
+        "location": requirement.get("preferred_location") or requirement.get("location"),
+        "mode": requirement.get("mode") or requirement.get("delivery_mode"),
+        "client_budget": _client_budget(requirement),
+    }
+    missing = [label for label, value in required_fields.items() if value in (None, "", 0, 0.0)]
+    confirmed = not missing or _clean(requirement.get("status")).lower() in {"confirmed", "active", "training_confirmed"}
+
+    qtr_trainers: List[Dict[str, Any]] = []
+    best_summary: Dict[str, Any] = {}
+    for index, trainer in enumerate(trainers, start=1):
+        options = _commercial_options_for_trainer(requirement, trainer)
+        recommended = _recommend_option(options, target_margin)
+        qtr = {
+            "qtr": f"Qtr{index}",
+            "trainer_id": trainer.get("trainer_id"),
+            "trainer_name": trainer.get("name") or trainer.get("trainer_name") or "Trainer",
+            "title": trainer.get("title") or trainer.get("role_designation") or "",
+            "email": trainer.get("email") or trainer.get("trainer_email") or "",
+            "phone": trainer.get("phone") or trainer.get("mobile") or trainer.get("contact_number") or "",
+            "linkedin": trainer.get("linkedin") or trainer.get("linkedin_url") or "",
+            "teams": trainer.get("teams") or trainer.get("teams_email") or "",
+            "profile_description": trainer.get("profile_description") or trainer.get("description") or trainer.get("summary") or "",
+            "resume_summary": trainer.get("resume_summary") or trainer.get("summary") or "",
+            "resume_excerpt": _clean(trainer.get("resume") or trainer.get("combined_text"))[:2500],
+            "skills": _as_list(trainer.get("skills") or trainer.get("technologies") or trainer.get("specialisation_tags")),
+            "certifications": _as_list(trainer.get("certifications")),
+            "past_clients": _as_list(trainer.get("past_clients")),
+            "training_count": trainer.get("training_count") or "",
+            "status": trainer.get("status") or trainer.get("pipeline_status") or "",
+            "match_quality": trainer.get("match_quality") or "",
+            "score_breakdown": trainer.get("score_breakdown") or {},
+            "skill_match": trainer.get("match_score") or trainer.get("_match_score") or 0,
+            "experience_years": trainer.get("experience_years") or 0,
+            "availability": "Available" if trainer.get("pipeline_status") not in {"declined", "rejected"} else "Unavailable",
+            "location": trainer.get("location") or "",
+            "mode": requirement.get("mode") or requirement.get("delivery_mode") or "",
+            "trainer_day_rate": _trainer_day_rate(trainer, requirement),
+            "commercial_options": options,
+            "recommended_option": recommended,
+        }
+        qtr_trainers.append(qtr)
+        if recommended and (
+            not best_summary
+            or recommended.get("clahan_gross_profit", 0) > best_summary.get("recommended_option", {}).get("clahan_gross_profit", 0)
+        ):
+            best_summary = qtr
+
+    selected = best_summary.get("recommended_option", {})
+    explanation = "Requirement is pending confirmation. Complete the missing fields before commercial selection."
+    if selected:
+        trainer_name = best_summary.get("trainer_name", "the recommended trainer")
+        explanation = (
+            f"This is a {_duration_days(requirement):g}-day "
+            f"{required_fields.get('mode') or 'training'} requirement. "
+            f"{trainer_name} is the strongest commercial recommendation, and "
+            f"{selected.get('model')} gives an expected Clahan profit of "
+            f"INR {selected.get('clahan_gross_profit', 0):,.0f} at "
+            f"{selected.get('profit_margin_percent', 0):.1f}% margin while staying within the client budget. "
+            f"{selected.get('why_selected', '')}"
+        )
+    elif qtr_trainers and any(option.get("missing_trainer_commercial") for trainer in qtr_trainers for option in trainer.get("commercial_options", [])):
+        explanation = (
+            "Trainer commercial is missing for the shortlisted trainers, so PER_DAY, LUMPSUM, and PER_BATCH cannot be "
+            "trusted yet. Confirm trainer day-wise or total commercial first; otherwise the margin will look like 100% "
+            "because trainer cost is zero."
+        )
+
+    return {
+        "requirement": _public_doc(requirement),
+        "requirement_confirmed": confirmed,
+        "missing_fields": missing,
+        "matching_trainers": len(trainers),
+        "qtr_trainers": qtr_trainers,
+        "recommended_trainer": best_summary,
+        "recommended_commercial": selected,
+        "negotiation_required": bool(selected.get("negotiation_required")),
+        "negotiation": {
+            "required": bool(selected.get("negotiation_required")),
+            "current_client_budget": _client_budget(requirement),
+            "trainer_expected_rate": best_summary.get("trainer_day_rate", 0),
+            "expected_margin_percent": selected.get("profit_margin_percent", 0),
+            "minimum_margin_percent": target_margin,
+            "negotiation_gap_percent": round(max(0.0, target_margin - selected.get("profit_margin_percent", 0)), 2) if selected else 0,
+        },
+        "explanation": explanation,
+    }
+
+
+@router.get("/analysis/commercial")
+async def list_commercial_analysis(
+    status: Optional[str] = None,
+    limit: int = Query(50, ge=1, le=200),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    query: dict = {}
+    if status and status != "all":
+        query["status"] = status
+    cursor = db.requirements.find(query, {"_id": 0}).sort("created_at", -1).limit(limit)
+    items = [await _requirement_analysis(db, requirement) async for requirement in cursor]
+    return {"items": items, "total": len(items)}
+
+
+@router.get("/{req_id}/commercial-analysis")
+async def get_commercial_analysis(
+    req_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    doc = await db.requirements.find_one(_requirement_query(req_id), {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Requirement not found")
+    return await _requirement_analysis(db, doc)
 
 
 @router.patch("/{req_id}")

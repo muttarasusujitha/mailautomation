@@ -214,9 +214,6 @@ async def list_inbox_emails(
         {
             "$project": {
                 "_id": 0,
-                "raw_body": 0,
-                "body": 0,
-                "clean_body": 0,
                 "_sort_received_at": 0,
             }
         },
