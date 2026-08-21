@@ -1,6 +1,7 @@
 """Gmail OAuth2 + SMTP/IMAP helpers for the email-service."""
 import asyncio
 import base64
+import html
 import imaplib
 import logging
 import os
@@ -19,6 +20,35 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+
+def _html_to_text(value: str) -> str:
+    text = re.sub(r"(?i)<\s*br\s*/?\s*>", "\n", value or "")
+    text = re.sub(r"(?i)</\s*(?:p|div|tr|table|h[1-6]|li)\s*>", "\n", text)
+    text = re.sub(r"(?i)</\s*t[dh]\s*>", "\t", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = html.unescape(text)
+    text = re.sub(r"[ \t\r\f\v]+", " ", text)
+    return re.sub(r"\n\s*\n+", "\n", text).strip()
+
+
+def _fix_mojibake(value: str) -> str:
+    text = str(value or "")
+    if not any(marker in text for marker in ("â", "ð", "Ã")):
+        return text
+    try:
+        repaired = text.encode("cp1252", errors="ignore").decode("utf-8", errors="ignore")
+        return repaired or text
+    except Exception:
+        return text
+
+
+def _decode_message_part(part: Any) -> str:
+    payload = part.get_payload(decode=True)
+    if not payload:
+        return ""
+    charset = part.get_content_charset() or "utf-8"
+    return _fix_mojibake(payload.decode(charset, errors="ignore"))
 
 GMAIL_SCOPES = [
     "https://www.googleapis.com/auth/gmail.modify",
@@ -257,6 +287,23 @@ def _html_template(body: str, from_name: str, from_email: str, tracking_url: str
 </body></html>"""
 
 
+def _attachment_part(att: Dict[str, Any]) -> Any:
+    filename = att.get("filename") or "attachment"
+    content = att.get("content") or b""
+    content_type = str(att.get("content_type") or "").lower()
+    subtype = str(att.get("subtype") or "octet-stream").lower()
+    if content_type == "text/calendar" or filename.lower().endswith(".ics") or subtype == "calendar":
+        text = content.decode("utf-8", errors="ignore") if isinstance(content, (bytes, bytearray)) else str(content or "")
+        part = MIMEText(text, "calendar", "utf-8")
+        part.replace_header("Content-Type", 'text/calendar; charset="UTF-8"; method=REQUEST')
+        part.add_header("Content-Class", "urn:content-classes:calendarmessage")
+        part.add_header("Content-Disposition", "attachment", filename=filename)
+        return part
+    part = MIMEApplication(content, _subtype=att.get("subtype") or "octet-stream")
+    part.add_header("Content-Disposition", "attachment", filename=filename)
+    return part
+
+
 def send_gmail_oauth(
     to: str,
     subject: str,
@@ -291,9 +338,7 @@ def send_gmail_oauth(
         alt.attach(MIMEText(_html_template(body, sender_name, sender_email, tracking_url), "html", "utf-8"))
 
         for att in attachments or []:
-            part = MIMEApplication(att.get("content") or b"", _subtype=att.get("subtype") or "octet-stream")
-            part.add_header("Content-Disposition", "attachment", filename=att.get("filename") or "attachment")
-            msg.attach(part)
+            msg.attach(_attachment_part(att))
 
         raw = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
         service.users().messages().send(userId="me", body={"raw": raw}).execute()
@@ -391,9 +436,7 @@ def send_smtp(
             alternative.attach(MIMEText(_html_template(body, from_name, from_email, tracking_url), "html"))
 
             for att in attachments or []:
-                part = MIMEApplication(att.get("content") or b"", _subtype=att.get("subtype") or "octet-stream")
-                part.add_header("Content-Disposition", "attachment", filename=att.get("filename") or "attachment")
-                msg.attach(part)
+                msg.attach(_attachment_part(att))
 
             try:
                 with smtplib.SMTP_SSL(host, 465 if port == 587 else port, timeout=15) as s:
@@ -447,6 +490,27 @@ async def send_email_async(
     attachments: Optional[List[Dict[str, Any]]] = None,
     message_id_header: str = "",
 ) -> Tuple[bool, str]:
+    # Prefer the connected Gmail OAuth account for the application's default
+    # sender. SMTP remains available for explicit SMTP configurations and as a
+    # fallback when OAuth cannot send.
+    if not smtp_config:
+        loop = asyncio.get_event_loop()
+        oauth_success, oauth_error = await loop.run_in_executor(
+            None,
+            send_gmail_oauth,
+            to,
+            subject,
+            body,
+            settings.FROM_NAME,
+            settings.FROM_EMAIL,
+            tracking_url,
+            attachments,
+            message_id_header,
+        )
+        if oauth_success:
+            return True, ""
+        logger.warning("Gmail OAuth send failed; falling back to SMTP: %s", oauth_error)
+
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(None, send_smtp, to, subject, body, smtp_config, tracking_url, attachments, message_id_header)
 
@@ -527,13 +591,32 @@ def check_imap_replies(
                     from_email = parseaddr(from_addr)[1] or from_addr
                     subject = _decode_header(msg.get("Subject", ""))
                     body_text = ""
+                    html_text = ""
+                    attachments: List[Dict[str, str]] = []
                     if msg.is_multipart():
                         for part in msg.walk():
-                            if part.get_content_type() == "text/plain":
-                                body_text = part.get_payload(decode=True).decode("utf-8", errors="ignore")
-                                break
+                            disposition = (part.get_content_disposition() or "").lower()
+                            filename = part.get_filename()
+                            if filename:
+                                attachments.append({
+                                    "filename": _decode_header(filename),
+                                    "content_type": part.get_content_type(),
+                                    "disposition": disposition or "attachment",
+                                })
+                            if disposition == "attachment":
+                                continue
+                            if part.get_content_type() == "text/plain" and not body_text:
+                                body_text = _decode_message_part(part)
+                            elif part.get_content_type() == "text/html" and not html_text:
+                                html_text = _html_to_text(_decode_message_part(part))
                     else:
-                        body_text = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+                        if msg.get_content_type() == "text/html":
+                            html_text = _html_to_text(_decode_message_part(msg))
+                        else:
+                            body_text = _decode_message_part(msg)
+                    body_text = body_text or html_text
+                    if body_text and html_text and html_text not in body_text:
+                        body_text = f"{body_text}\n\n{html_text}"
 
                     try:
                         date_hdr = msg.get("Date", "")
@@ -564,6 +647,9 @@ def check_imap_replies(
                         "from_raw": from_addr,
                         "subject": subject,
                         "body": body_text[:2000],
+                        "full_body": body_text,
+                        "attachments": attachments,
+                        "attachment_names": [item.get("filename", "") for item in attachments if item.get("filename")],
                         "sentiment": sentiment,
                         "action": action,
                         "received_at": received_at.isoformat(),

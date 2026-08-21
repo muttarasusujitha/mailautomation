@@ -689,6 +689,16 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
     data["top_n"] = max(1, min(_safe_int(data.get("top_n"), 5), 20))
     data["min_experience_years"] = _safe_int(data.get("min_experience_years"), 0)
     data["send_emails"] = bool(data.get("send_emails", False))
+    batch_raw = _clean(
+        data.get("batch_flow")
+        or data.get("batch_type")
+        or data.get("requirement_type")
+        or data.get("training_status")
+    ).lower()
+    batch_flow = "proposal" if "proposal" in batch_raw else "confirmed"
+    data["batch_flow"] = batch_flow
+    data["batch_type"] = batch_flow
+    data["requirement_type"] = "proposal_batch" if batch_flow == "proposal" else "confirmed_batch"
     data.setdefault("status", "active")
     data.setdefault("priority", "medium")
     data.setdefault("customer_id", data.get("client_email") or "manual")

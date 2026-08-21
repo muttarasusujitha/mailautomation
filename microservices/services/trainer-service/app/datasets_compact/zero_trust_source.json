@@ -1,0 +1,375 @@
+{
+    "domain":  "Zero Trust",
+    "name":  "Zero Trust â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Zero Trust Architecture",
+                    "ZTA"
+                ],
+    "tools":  [
+                  "IAM",
+                  "MFA",
+                  "ZTNA",
+                  "SIEM"
+              ],
+    "certifications":  [
+                           "Zero Trust official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "Zero Trust terminology and feature mapping for this topic",
+                                       "Zero Trust configuration and implementation considerations",
+                                       "Zero Trust best practices and common mistakes for this topic",
+                                       "verify explicitly",
+                                       "least privilege",
+                                       "assume breach",
+                                       "identity",
+                                       "device posture",
+                                       "microsegmentation",
+                                       "continuous evaluation",
+                                       "ZTNA",
+                                       "MFA",
+                                       "policy engine",
+                                       "telemetry",
+                                       "risk-based access"
+                                   ],
+                     "tools":  [
+                                   "IAM",
+                                   "MFA",
+                                   "ZTNA"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate Zero Trust fundamentals.",
+                     "technology":  "Zero Trust",
+                     "technology_id":  "zero-trust",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of Zero Trust.",
+                                                 "Configure or implement the key Zero Trust features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using Zero Trust.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "Zero Trust terminology and feature mapping for this topic",
+                                       "Zero Trust configuration and implementation considerations",
+                                       "Zero Trust best practices and common mistakes for this topic",
+                                       "verify explicitly",
+                                       "least privilege",
+                                       "assume breach",
+                                       "identity",
+                                       "device posture",
+                                       "microsegmentation",
+                                       "continuous evaluation",
+                                       "ZTNA",
+                                       "MFA",
+                                       "policy engine",
+                                       "telemetry",
+                                       "risk-based access"
+                                   ],
+                     "tools":  [
+                                   "IAM",
+                                   "MFA",
+                                   "ZTNA"
+                               ],
+                     "lab_task":  "Inspect and configure core Zero Trust components.",
+                     "technology":  "Zero Trust",
+                     "technology_id":  "zero-trust",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of Zero Trust.",
+                                                 "Configure or implement the key Zero Trust features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using Zero Trust.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "Zero Trust terminology and feature mapping for this topic",
+                                       "Zero Trust configuration and implementation considerations",
+                                       "Zero Trust best practices and common mistakes for this topic",
+                                       "verify explicitly",
+                                       "least privilege",
+                                       "assume breach",
+                                       "identity",
+                                       "device posture",
+                                       "microsegmentation",
+                                       "continuous evaluation",
+                                       "ZTNA",
+                                       "MFA",
+                                       "policy engine",
+                                       "telemetry",
+                                       "risk-based access"
+                                   ],
+                     "tools":  [
+                                   "IAM",
+                                   "MFA",
+                                   "ZTNA"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for Zero Trust.",
+                     "technology":  "Zero Trust",
+                     "technology_id":  "zero-trust",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of Zero Trust.",
+                                                 "Configure or implement the key Zero Trust features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using Zero Trust.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "Zero Trust terminology and feature mapping for this topic",
+                                       "Zero Trust configuration and implementation considerations",
+                                       "Zero Trust best practices and common mistakes for this topic",
+                                       "verify explicitly",
+                                       "assume breach",
+                                       "identity",
+                                       "device posture",
+                                       "microsegmentation",
+                                       "continuous evaluation",
+                                       "ZTNA",
+                                       "MFA",
+                                       "policy engine",
+                                       "telemetry",
+                                       "risk-based access"
+                                   ],
+                     "tools":  [
+                                   "IAM",
+                                   "MFA",
+                                   "ZTNA"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "Zero Trust",
+                     "technology_id":  "zero-trust",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of Zero Trust.",
+                                                 "Configure or implement the key Zero Trust features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using Zero Trust.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "Zero Trust terminology and feature mapping for this topic",
+                                       "Zero Trust configuration and implementation considerations",
+                                       "Zero Trust best practices and common mistakes for this topic",
+                                       "verify explicitly",
+                                       "least privilege",
+                                       "assume breach",
+                                       "identity",
+                                       "device posture",
+                                       "microsegmentation",
+                                       "continuous evaluation",
+                                       "ZTNA",
+                                       "MFA",
+                                       "policy engine",
+                                       "telemetry",
+                                       "risk-based access"
+                                   ],
+                     "tools":  [
+                                   "IAM",
+                                   "MFA",
+                                   "ZTNA",
+                                   "SIEM"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated Zero Trust issue.",
+                     "technology":  "Zero Trust",
+                     "technology_id":  "zero-trust",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of Zero Trust.",
+                                                 "Configure or implement the key Zero Trust features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using Zero Trust.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "Zero Trust terminology and feature mapping for this topic",
+                                       "Zero Trust configuration and implementation considerations",
+                                       "Zero Trust best practices and common mistakes for this topic",
+                                       "verify explicitly",
+                                       "least privilege",
+                                       "assume breach",
+                                       "identity",
+                                       "device posture",
+                                       "microsegmentation",
+                                       "continuous evaluation",
+                                       "ZTNA",
+                                       "MFA",
+                                       "policy engine",
+                                       "telemetry",
+                                       "risk-based access"
+                                   ],
+                     "tools":  [
+                                   "IAM",
+                                   "MFA",
+                                   "ZTNA"
+                               ],
+                     "lab_task":  "Automate a repeatable Zero Trust configuration task.",
+                     "technology":  "Zero Trust",
+                     "technology_id":  "zero-trust",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of Zero Trust.",
+                                                 "Configure or implement the key Zero Trust features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using Zero Trust.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "Zero Trust terminology and feature mapping for this topic",
+                                       "Zero Trust configuration and implementation considerations",
+                                       "Zero Trust best practices and common mistakes for this topic",
+                                       "verify explicitly",
+                                       "least privilege",
+                                       "assume breach",
+                                       "identity",
+                                       "device posture",
+                                       "microsegmentation",
+                                       "continuous evaluation",
+                                       "ZTNA",
+                                       "MFA",
+                                       "policy engine",
+                                       "telemetry",
+                                       "risk-based access"
+                                   ],
+                     "tools":  [
+                                   "IAM",
+                                   "MFA",
+                                   "ZTNA",
+                                   "SIEM"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "Zero Trust",
+                     "technology_id":  "zero-trust",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of Zero Trust.",
+                                                 "Configure or implement the key Zero Trust features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using Zero Trust.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "Zero Trust terminology and feature mapping for this topic",
+                                       "Zero Trust configuration and implementation considerations",
+                                       "Zero Trust best practices and common mistakes for this topic",
+                                       "verify explicitly",
+                                       "least privilege",
+                                       "assume breach",
+                                       "identity",
+                                       "device posture",
+                                       "microsegmentation",
+                                       "continuous evaluation",
+                                       "ZTNA",
+                                       "MFA",
+                                       "policy engine",
+                                       "telemetry",
+                                       "risk-based access"
+                                   ],
+                     "tools":  [
+                                   "IAM",
+                                   "MFA",
+                                   "ZTNA",
+                                   "SIEM"
+                               ],
+                     "lab_task":  "Build and document an end-to-end Zero Trust solution.",
+                     "technology":  "Zero Trust",
+                     "technology_id":  "zero-trust",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of Zero Trust.",
+                                                 "Configure or implement the key Zero Trust features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using Zero Trust.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "zero-trust"
+}

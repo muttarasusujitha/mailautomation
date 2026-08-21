@@ -97,6 +97,9 @@ class RequirementBase(BaseModel):
     num_participants: Optional[int] = None
     location: Optional[str] = None
     delivery_mode: Optional[str] = None
+    batch_flow: Optional[str] = "confirmed"
+    batch_type: Optional[str] = "confirmed"
+    requirement_type: Optional[str] = "confirmed_batch"
     status: StatusEnum = StatusEnum.pending
     priority: PriorityEnum = PriorityEnum.medium
     metadata: Dict[str, Any] = {}
@@ -116,6 +119,9 @@ class RequirementUpdate(BaseModel):
     num_participants: Optional[int] = None
     location: Optional[str] = None
     delivery_mode: Optional[str] = None
+    batch_flow: Optional[str] = None
+    batch_type: Optional[str] = None
+    requirement_type: Optional[str] = None
     status: Optional[StatusEnum] = None
     priority: Optional[PriorityEnum] = None
     metadata: Optional[Dict[str, Any]] = None

@@ -1,0 +1,936 @@
+{
+  "domain": "AWS AI",
+  "name": "AWS AI Datasets",
+  "icon": "aws",
+  "program_title": "AWS AI Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "AWS AI Datasets Expert",
+  "certifications": [
+    "AWS Certified Machine Learning - Specialty",
+    "AWS Certified AI Practitioner",
+    "AWS Solutions Architect - Professional",
+    "AWS Certified Data Analytics - Specialty"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "AWS Fundamentals",
+      "subtopics": [
+        "Services",
+        "Regions",
+        "IAM",
+        "Console"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "AWS basics"
+    },
+    {
+      "day": 2,
+      "topic": "AWS Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Services",
+        "Part 2: Regions",
+        "Part 2: IAM",
+        "Part 2: Console"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: AWS basics"
+    },
+    {
+      "day": 3,
+      "topic": "AWS AI Services Overview",
+      "subtopics": [
+        "SageMaker",
+        "Lex",
+        "Polly",
+        "Rekognition"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "AWS AI overview"
+    },
+    {
+      "day": 4,
+      "topic": "AWS AI Services Overview - Part 2",
+      "subtopics": [
+        "Part 2: SageMaker",
+        "Part 2: Lex",
+        "Part 2: Polly",
+        "Part 2: Rekognition"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: AWS AI overview"
+    },
+    {
+      "day": 5,
+      "topic": "Amazon SageMaker Basics",
+      "subtopics": [
+        "Notebooks",
+        "Datasets",
+        "Instances"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Sprint planning; review progress for Amazon SageMaker Basics",
+      "lab_task": "SageMaker setup"
+    },
+    {
+      "day": 6,
+      "topic": "Amazon SageMaker Basics - Part 2",
+      "subtopics": [
+        "Part 2: Notebooks",
+        "Part 2: Datasets",
+        "Part 2: Instances"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: SageMaker setup"
+    },
+    {
+      "day": 7,
+      "topic": "SageMaker Model Development",
+      "subtopics": [
+        "Training",
+        "Hyperparameter Tuning",
+        "Evaluation"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Model development"
+    },
+    {
+      "day": 8,
+      "topic": "SageMaker Model Development - Part 2",
+      "subtopics": [
+        "Part 2: Training",
+        "Part 2: Hyperparameter Tuning",
+        "Part 2: Evaluation"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Model development"
+    },
+    {
+      "day": 9,
+      "topic": "SageMaker Deployment",
+      "subtopics": [
+        "Endpoints",
+        "Batch Transform",
+        "Auto Scaling"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Model deployment"
+    },
+    {
+      "day": 10,
+      "topic": "SageMaker Deployment - Part 2",
+      "subtopics": [
+        "Part 2: Endpoints",
+        "Part 2: Batch Transform",
+        "Part 2: Auto Scaling"
+      ],
+      "tools": [
+        "SageMaker"
+      ],
+      "jira_focus": "Sprint planning; review progress for SageMaker Deployment",
+      "lab_task": "Part 2 hands-on: Model deployment"
+    },
+    {
+      "day": 11,
+      "topic": "Amazon Rekognition",
+      "subtopics": [
+        "Image Analysis",
+        "Video Analysis",
+        "Face Detection"
+      ],
+      "tools": [
+        "Rekognition"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Computer vision"
+    },
+    {
+      "day": 12,
+      "topic": "Amazon Rekognition - Part 2",
+      "subtopics": [
+        "Part 2: Image Analysis",
+        "Part 2: Video Analysis",
+        "Part 2: Face Detection"
+      ],
+      "tools": [
+        "Rekognition"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Computer vision"
+    },
+    {
+      "day": 13,
+      "topic": "Amazon Textract",
+      "subtopics": [
+        "Document Analysis",
+        "OCR",
+        "Form Recognition"
+      ],
+      "tools": [
+        "Textract"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Document processing"
+    },
+    {
+      "day": 14,
+      "topic": "Amazon Textract - Part 2",
+      "subtopics": [
+        "Part 2: Document Analysis",
+        "Part 2: OCR",
+        "Part 2: Form Recognition"
+      ],
+      "tools": [
+        "Textract"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Document processing"
+    },
+    {
+      "day": 15,
+      "topic": "Amazon Lex",
+      "subtopics": [
+        "Chatbots",
+        "Intents",
+        "Slots",
+        "Integration"
+      ],
+      "tools": [
+        "Lex"
+      ],
+      "jira_focus": "Sprint planning; review progress for Amazon Lex",
+      "lab_task": "Chatbot building"
+    },
+    {
+      "day": 16,
+      "topic": "Amazon Lex - Part 2",
+      "subtopics": [
+        "Part 2: Chatbots",
+        "Part 2: Intents",
+        "Part 2: Slots",
+        "Part 2: Integration"
+      ],
+      "tools": [
+        "Lex"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Chatbot building"
+    },
+    {
+      "day": 17,
+      "topic": "Amazon Polly",
+      "subtopics": [
+        "Text-to-Speech",
+        "Neural Voices",
+        "SSML"
+      ],
+      "tools": [
+        "Polly"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Text-to-speech"
+    },
+    {
+      "day": 18,
+      "topic": "Amazon Polly - Part 2",
+      "subtopics": [
+        "Part 2: Text-to-Speech",
+        "Part 2: Neural Voices",
+        "Part 2: SSML"
+      ],
+      "tools": [
+        "Polly"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Text-to-speech"
+    },
+    {
+      "day": 19,
+      "topic": "Amazon Comprehend",
+      "subtopics": [
+        "NLP",
+        "Sentiment",
+        "Entities",
+        "Key Phrases"
+      ],
+      "tools": [
+        "Comprehend"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "NLP services"
+    },
+    {
+      "day": 20,
+      "topic": "Amazon Comprehend - Part 2",
+      "subtopics": [
+        "Part 2: NLP",
+        "Part 2: Sentiment",
+        "Part 2: Entities",
+        "Part 2: Key Phrases"
+      ],
+      "tools": [
+        "Comprehend"
+      ],
+      "jira_focus": "Sprint planning; review progress for Amazon Comprehend",
+      "lab_task": "Part 2 hands-on: NLP services"
+    },
+    {
+      "day": 21,
+      "topic": "Amazon Forecast",
+      "subtopics": [
+        "Time Series",
+        "Predictions",
+        "Accuracy Metrics"
+      ],
+      "tools": [
+        "Forecast"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Forecasting"
+    },
+    {
+      "day": 22,
+      "topic": "Amazon Forecast - Part 2",
+      "subtopics": [
+        "Part 2: Time Series",
+        "Part 2: Predictions",
+        "Part 2: Accuracy Metrics"
+      ],
+      "tools": [
+        "Forecast"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Forecasting"
+    },
+    {
+      "day": 23,
+      "topic": "Amazon Lookout",
+      "subtopics": [
+        "Anomaly Detection",
+        "Equipment Monitoring"
+      ],
+      "tools": [
+        "Lookout"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Anomaly detection"
+    },
+    {
+      "day": 24,
+      "topic": "Amazon Lookout - Part 2",
+      "subtopics": [
+        "Part 2: Anomaly Detection",
+        "Part 2: Equipment Monitoring"
+      ],
+      "tools": [
+        "Lookout"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Anomaly detection"
+    },
+    {
+      "day": 25,
+      "topic": "Data Preparation",
+      "subtopics": [
+        "Data Pipeline",
+        "ETL",
+        "Feature Engineering"
+      ],
+      "tools": [
+        "Data Wrangler"
+      ],
+      "jira_focus": "Sprint planning; review progress for Data Preparation",
+      "lab_task": "Data preparation"
+    },
+    {
+      "day": 26,
+      "topic": "Data Preparation - Part 2",
+      "subtopics": [
+        "Part 2: Data Pipeline",
+        "Part 2: ETL",
+        "Part 2: Feature Engineering"
+      ],
+      "tools": [
+        "Data Wrangler"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Data preparation"
+    },
+    {
+      "day": 27,
+      "topic": "MLOps on AWS",
+      "subtopics": [
+        "CI/CD",
+        "Monitoring",
+        "Automation"
+      ],
+      "tools": [
+        "AWS MLOps"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "MLOps practices"
+    },
+    {
+      "day": 28,
+      "topic": "MLOps on AWS - Part 2",
+      "subtopics": [
+        "Part 2: CI/CD",
+        "Part 2: Monitoring",
+        "Part 2: Automation"
+      ],
+      "tools": [
+        "AWS MLOps"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: MLOps practices"
+    },
+    {
+      "day": 29,
+      "topic": "Production Deployment",
+      "subtopics": [
+        "Scalability",
+        "Cost Optimization",
+        "Monitoring"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Production workflows"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Scalability",
+        "Cost Optimization",
+        "Monitoring"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Sprint planning; review progress for Production Deployment",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    },
+    {
+      "day": 31,
+      "topic": "AWS AI Services Overview - Part 3",
+      "subtopics": [
+        "Part 3: AWS AI Services Overview concepts",
+        "Part 3: AWS AI Services Overview configuration",
+        "Part 3: AWS AI Services Overview hands-on workflow",
+        "Part 3: AWS AI Services Overview troubleshooting",
+        "Part 3: AWS AI Services Overview best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Part 3 hands-on: Hands-on lab: AWS AI Services Overview"
+    },
+    {
+      "day": 32,
+      "topic": "Amazon Bedrock Deep Dive",
+      "subtopics": [
+        "Amazon Bedrock Deep Dive concepts",
+        "Amazon Bedrock Deep Dive configuration",
+        "Amazon Bedrock Deep Dive hands-on workflow",
+        "Amazon Bedrock Deep Dive troubleshooting",
+        "Amazon Bedrock Deep Dive best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Amazon Bedrock Deep Dive"
+    },
+    {
+      "day": 33,
+      "topic": "Foundation Models on AWS",
+      "subtopics": [
+        "Foundation Models on AWS concepts",
+        "Foundation Models on AWS configuration",
+        "Foundation Models on AWS hands-on workflow",
+        "Foundation Models on AWS troubleshooting",
+        "Foundation Models on AWS best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Foundation Models on AWS"
+    },
+    {
+      "day": 34,
+      "topic": "Prompt Engineering on Bedrock",
+      "subtopics": [
+        "Prompt Engineering on Bedrock concepts",
+        "Prompt Engineering on Bedrock configuration",
+        "Prompt Engineering on Bedrock hands-on workflow",
+        "Prompt Engineering on Bedrock troubleshooting",
+        "Prompt Engineering on Bedrock best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Prompt Engineering on Bedrock"
+    },
+    {
+      "day": 35,
+      "topic": "Knowledge Bases for Bedrock",
+      "subtopics": [
+        "Knowledge Bases for Bedrock concepts",
+        "Knowledge Bases for Bedrock configuration",
+        "Knowledge Bases for Bedrock hands-on workflow",
+        "Knowledge Bases for Bedrock troubleshooting",
+        "Knowledge Bases for Bedrock best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Knowledge Bases for Bedrock"
+    },
+    {
+      "day": 36,
+      "topic": "Agents for Bedrock",
+      "subtopics": [
+        "Agents for Bedrock concepts",
+        "Agents for Bedrock configuration",
+        "Agents for Bedrock hands-on workflow",
+        "Agents for Bedrock troubleshooting",
+        "Agents for Bedrock best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Agents for Bedrock"
+    },
+    {
+      "day": 37,
+      "topic": "SageMaker Fundamentals",
+      "subtopics": [
+        "SageMaker Fundamentals concepts",
+        "SageMaker Fundamentals configuration",
+        "SageMaker Fundamentals hands-on workflow",
+        "SageMaker Fundamentals troubleshooting",
+        "SageMaker Fundamentals best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: SageMaker Fundamentals"
+    },
+    {
+      "day": 38,
+      "topic": "SageMaker Pipelines",
+      "subtopics": [
+        "SageMaker Pipelines concepts",
+        "SageMaker Pipelines configuration",
+        "SageMaker Pipelines hands-on workflow",
+        "SageMaker Pipelines troubleshooting",
+        "SageMaker Pipelines best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: SageMaker Pipelines"
+    },
+    {
+      "day": 39,
+      "topic": "AWS Data Prep for AI",
+      "subtopics": [
+        "AWS Data Prep for AI concepts",
+        "AWS Data Prep for AI configuration",
+        "AWS Data Prep for AI hands-on workflow",
+        "AWS Data Prep for AI troubleshooting",
+        "AWS Data Prep for AI best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: AWS Data Prep for AI"
+    },
+    {
+      "day": 40,
+      "topic": "Vector Search on AWS",
+      "subtopics": [
+        "Vector Search on AWS concepts",
+        "Vector Search on AWS configuration",
+        "Vector Search on AWS hands-on workflow",
+        "Vector Search on AWS troubleshooting",
+        "Vector Search on AWS best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Vector Search on AWS"
+    },
+    {
+      "day": 41,
+      "topic": "OpenSearch Vector DB",
+      "subtopics": [
+        "OpenSearch Vector DB concepts",
+        "OpenSearch Vector DB configuration",
+        "OpenSearch Vector DB hands-on workflow",
+        "OpenSearch Vector DB troubleshooting",
+        "OpenSearch Vector DB best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: OpenSearch Vector DB"
+    },
+    {
+      "day": 42,
+      "topic": "Lambda AI Workflows",
+      "subtopics": [
+        "Lambda AI Workflows concepts",
+        "Lambda AI Workflows configuration",
+        "Lambda AI Workflows hands-on workflow",
+        "Lambda AI Workflows troubleshooting",
+        "Lambda AI Workflows best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Lambda AI Workflows"
+    },
+    {
+      "day": 43,
+      "topic": "Step Functions for AI",
+      "subtopics": [
+        "Step Functions for AI concepts",
+        "Step Functions for AI configuration",
+        "Step Functions for AI hands-on workflow",
+        "Step Functions for AI troubleshooting",
+        "Step Functions for AI best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Step Functions for AI"
+    },
+    {
+      "day": 44,
+      "topic": "AI Security on AWS",
+      "subtopics": [
+        "AI Security on AWS concepts",
+        "AI Security on AWS configuration",
+        "AI Security on AWS hands-on workflow",
+        "AI Security on AWS troubleshooting",
+        "AI Security on AWS best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: AI Security on AWS"
+    },
+    {
+      "day": 45,
+      "topic": "IAM for AI Workloads",
+      "subtopics": [
+        "IAM for AI Workloads concepts",
+        "IAM for AI Workloads configuration",
+        "IAM for AI Workloads hands-on workflow",
+        "IAM for AI Workloads troubleshooting",
+        "IAM for AI Workloads best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: IAM for AI Workloads"
+    },
+    {
+      "day": 46,
+      "topic": "Cost Optimization for Bedrock",
+      "subtopics": [
+        "Cost Optimization for Bedrock concepts",
+        "Cost Optimization for Bedrock configuration",
+        "Cost Optimization for Bedrock hands-on workflow",
+        "Cost Optimization for Bedrock troubleshooting",
+        "Cost Optimization for Bedrock best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Cost Optimization for Bedrock"
+    },
+    {
+      "day": 47,
+      "topic": "Monitoring AI Apps on AWS",
+      "subtopics": [
+        "Monitoring AI Apps on AWS concepts",
+        "Monitoring AI Apps on AWS configuration",
+        "Monitoring AI Apps on AWS hands-on workflow",
+        "Monitoring AI Apps on AWS troubleshooting",
+        "Monitoring AI Apps on AWS best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Monitoring AI Apps on AWS"
+    },
+    {
+      "day": 48,
+      "topic": "RAG on AWS",
+      "subtopics": [
+        "RAG on AWS concepts",
+        "RAG on AWS configuration",
+        "RAG on AWS hands-on workflow",
+        "RAG on AWS troubleshooting",
+        "RAG on AWS best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: RAG on AWS"
+    },
+    {
+      "day": 49,
+      "topic": "AWS AI Capstone Planning",
+      "subtopics": [
+        "AWS AI Capstone Planning concepts",
+        "AWS AI Capstone Planning configuration",
+        "AWS AI Capstone Planning hands-on workflow",
+        "AWS AI Capstone Planning troubleshooting",
+        "AWS AI Capstone Planning best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: AWS AI Capstone Planning"
+    },
+    {
+      "day": 50,
+      "topic": "AWS AI Capstone Build",
+      "subtopics": [
+        "AWS AI Capstone Build concepts",
+        "AWS AI Capstone Build configuration",
+        "AWS AI Capstone Build hands-on workflow",
+        "AWS AI Capstone Build troubleshooting",
+        "AWS AI Capstone Build best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: AWS AI Capstone Build"
+    },
+    {
+      "day": 51,
+      "topic": "AWS AI Evaluation",
+      "subtopics": [
+        "AWS AI Evaluation concepts",
+        "AWS AI Evaluation configuration",
+        "AWS AI Evaluation hands-on workflow",
+        "AWS AI Evaluation troubleshooting",
+        "AWS AI Evaluation best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: AWS AI Evaluation"
+    },
+    {
+      "day": 52,
+      "topic": "AWS AI Final Demo",
+      "subtopics": [
+        "AWS AI Final Demo concepts",
+        "AWS AI Final Demo configuration",
+        "AWS AI Final Demo hands-on workflow",
+        "AWS AI Final Demo troubleshooting",
+        "AWS AI Final Demo best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: AWS AI Final Demo"
+    },
+    {
+      "day": 53,
+      "topic": "AWS AI Capstone Architecture",
+      "subtopics": [
+        "AWS AI Capstone Architecture concepts",
+        "AWS AI Capstone Architecture hands-on workflow",
+        "AWS AI Capstone Architecture validation",
+        "AWS AI Capstone Architecture troubleshooting",
+        "AWS AI Capstone Architecture best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: AWS AI Capstone Architecture"
+    },
+    {
+      "day": 54,
+      "topic": "AWS AI Data and Knowledge Base Setup",
+      "subtopics": [
+        "AWS AI Data and Knowledge Base Setup concepts",
+        "AWS AI Data and Knowledge Base Setup hands-on workflow",
+        "AWS AI Data and Knowledge Base Setup validation",
+        "AWS AI Data and Knowledge Base Setup troubleshooting",
+        "AWS AI Data and Knowledge Base Setup best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: AWS AI Data and Knowledge Base Setup"
+    },
+    {
+      "day": 55,
+      "topic": "AWS AI Agent/RAG Implementation",
+      "subtopics": [
+        "AWS AI Agent/RAG Implementation concepts",
+        "AWS AI Agent/RAG Implementation hands-on workflow",
+        "AWS AI Agent/RAG Implementation validation",
+        "AWS AI Agent/RAG Implementation troubleshooting",
+        "AWS AI Agent/RAG Implementation best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: AWS AI Agent/RAG Implementation"
+    },
+    {
+      "day": 56,
+      "topic": "AWS AI Security and IAM Review",
+      "subtopics": [
+        "AWS AI Security and IAM Review concepts",
+        "AWS AI Security and IAM Review hands-on workflow",
+        "AWS AI Security and IAM Review validation",
+        "AWS AI Security and IAM Review troubleshooting",
+        "AWS AI Security and IAM Review best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: AWS AI Security and IAM Review"
+    },
+    {
+      "day": 57,
+      "topic": "AWS AI Evaluation and Cost Review",
+      "subtopics": [
+        "AWS AI Evaluation and Cost Review concepts",
+        "AWS AI Evaluation and Cost Review hands-on workflow",
+        "AWS AI Evaluation and Cost Review validation",
+        "AWS AI Evaluation and Cost Review troubleshooting",
+        "AWS AI Evaluation and Cost Review best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: AWS AI Evaluation and Cost Review"
+    },
+    {
+      "day": 58,
+      "topic": "AWS AI Final Demo and Roadmap",
+      "subtopics": [
+        "AWS AI Final Demo and Roadmap concepts",
+        "AWS AI Final Demo and Roadmap hands-on workflow",
+        "AWS AI Final Demo and Roadmap validation",
+        "AWS AI Final Demo and Roadmap troubleshooting",
+        "AWS AI Final Demo and Roadmap best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: AWS AI Final Demo and Roadmap"
+    },
+    {
+      "day": 59,
+      "topic": "Bedrock Production Deployment",
+      "subtopics": [
+        "Bedrock Production Deployment concepts",
+        "Bedrock Production Deployment hands-on workflow",
+        "Bedrock Production Deployment validation",
+        "Bedrock Production Deployment troubleshooting",
+        "Bedrock Production Deployment best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Bedrock Production Deployment"
+    },
+    {
+      "day": 60,
+      "topic": "SageMaker MLOps Review",
+      "subtopics": [
+        "SageMaker MLOps Review concepts",
+        "SageMaker MLOps Review hands-on workflow",
+        "SageMaker MLOps Review validation",
+        "SageMaker MLOps Review troubleshooting",
+        "SageMaker MLOps Review best practices"
+      ],
+      "tools": [
+        "AWS AI Datasets"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: SageMaker MLOps Review"
+    }
+  ],
+  "aliases": [
+    "AWS AI",
+    "AWS GenAI",
+    "AWS Bedrock",
+    "Amazon Bedrock",
+    "AWS AI Datasets",
+    "AWS Machine Learning",
+    "SageMaker"
+  ],
+  "official_sources": [
+    "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

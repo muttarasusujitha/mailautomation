@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import {
@@ -588,9 +588,28 @@ function MeetingNotesAssistant({ selected }) {
     }
   }, [transcript, selected])
 
-  const start = () => {
+  const start = async () => {
     if (!supported) {
       toast.error('Voice capture is not supported in this browser. Type notes manually.')
+      return
+    }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast.error('This browser cannot request microphone access. Open the app in Chrome on localhost, or type notes manually.')
+      return
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      stream.getTracks().forEach(track => track.stop())
+    } catch (error) {
+      const blocked = error?.name === 'NotAllowedError' || error?.name === 'SecurityError'
+      const missing = error?.name === 'NotFoundError' || error?.name === 'DevicesNotFoundError'
+      toast.error(
+        blocked
+          ? 'Microphone is blocked by Chrome. Click the lock/tune icon in the address bar, set Microphone to Allow, reload, then start notes again.'
+          : missing
+            ? 'No microphone was found. Connect/enable a microphone, or type notes manually.'
+            : error?.message || 'Could not access microphone. You can type/paste notes manually.'
+      )
       return
     }
     const recognition = new SpeechRecognition()
@@ -602,7 +621,15 @@ function MeetingNotesAssistant({ selected }) {
       setTranscript(text.trim())
     }
     recognition.onerror = event => {
-      toast.error(event.error || 'Could not capture meeting audio')
+      const message =
+        event.error === 'not-allowed'
+          ? 'Microphone access is blocked. Allow microphone permission for this site, or type/paste meeting notes manually.'
+          : event.error === 'audio-capture'
+            ? 'No microphone was found. Connect/enable a microphone, or type notes manually.'
+            : event.error === 'network'
+              ? 'Voice capture network error. You can type/paste notes and still analyze/save them.'
+              : event.error || 'Could not capture meeting audio'
+      toast.error(message)
       setListening(false)
     }
     recognition.onend = () => setListening(false)
@@ -825,6 +852,9 @@ export default function InterviewSchedules() {
   const [notified, setNotified] = useState({})
   const [hostPrompt, setHostPrompt] = useState(null)
   const [showMeetPreview, setShowMeetPreview] = useState(false)
+  const [screenCaptureActive, setScreenCaptureActive] = useState(false)
+  const meetingPreviewRef = useRef(null)
+  const meetingStreamRef = useRef(null)
 
   const load = async () => {
     setLoading(true)
@@ -922,6 +952,49 @@ export default function InterviewSchedules() {
     () => filtered.find(item => `${item.email_id || ''}-${item.calendar_event_id || ''}` === selectedKey) || filtered[0] || null,
     [filtered, selectedKey]
   )
+
+  useEffect(() => {
+    if (meetingStreamRef.current) {
+      meetingStreamRef.current.getTracks().forEach(track => track.stop())
+      meetingStreamRef.current = null
+    }
+    setScreenCaptureActive(false)
+  }, [selected?.email_id, selected?.calendar_event_id])
+
+  const stopMeetingCapture = () => {
+    if (meetingStreamRef.current) {
+      meetingStreamRef.current.getTracks().forEach(track => track.stop())
+      meetingStreamRef.current = null
+    }
+    if (meetingPreviewRef.current) {
+      meetingPreviewRef.current.srcObject = null
+    }
+    setScreenCaptureActive(false)
+  }
+
+  const startMeetingCapture = async () => {
+    if (!navigator.mediaDevices?.getDisplayMedia) {
+      toast.error('Screen capture is not supported in this browser. Open Meet in a new tab and keep this page open for notes.')
+      return
+    }
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true,
+      })
+      stopMeetingCapture()
+      meetingStreamRef.current = stream
+      stream.getVideoTracks()[0]?.addEventListener('ended', stopMeetingCapture)
+      if (meetingPreviewRef.current) {
+        meetingPreviewRef.current.srcObject = stream
+        await meetingPreviewRef.current.play().catch(() => {})
+      }
+      setScreenCaptureActive(true)
+      toast.success('Meeting tab is visible in the interview page')
+    } catch (error) {
+      toast.error(error?.name === 'NotAllowedError' ? 'Screen capture was cancelled or blocked.' : error?.message || 'Could not show meeting in the page')
+    }
+  }
 
   const counts = {
     all: items.length,
@@ -1140,7 +1213,62 @@ export default function InterviewSchedules() {
                   </div>
 
                   <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                    <StepLabel step="2" title="Client & Trainer" icon={Users} />
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <StepLabel step="2" title="Meeting Window" icon={Video} />
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={startMeetingCapture}
+                          disabled={!selected.meet_link}
+                          className="btn-primary text-sm disabled:opacity-50"
+                        >
+                          <Video className="h-4 w-4" />
+                          {screenCaptureActive ? 'Change Meet Tab' : 'Share Meet Tab Here'}
+                        </button>
+                        {screenCaptureActive && (
+                          <button type="button" onClick={stopMeetingCapture} className="btn-secondary text-sm">
+                            Hide Preview
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => openMeeting(selected.meet_link)}
+                          disabled={!selected.meet_link}
+                          className="btn-secondary text-sm disabled:opacity-50"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Open in New Tab
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-slate-950">
+                      <video
+                        ref={meetingPreviewRef}
+                        className={clsx('h-[520px] w-full bg-slate-950 object-contain', !screenCaptureActive && 'hidden')}
+                        autoPlay
+                        muted
+                        playsInline
+                      />
+                      {!screenCaptureActive && (
+                        <div className="flex min-h-[360px] flex-col items-center justify-center gap-3 p-6 text-center text-sm font-semibold text-white">
+                          <Video className="h-10 w-10 text-blue-200" />
+                          <p>{selected.meet_link ? 'Open the Meet tab, then share that tab here to view the live meeting inside this interview page.' : 'Meeting link is pending.'}</p>
+                          {selected.meet_link && (
+                            <button type="button" onClick={startMeetingCapture} className="rounded-lg bg-white px-4 py-2 text-xs font-bold text-slate-900">
+                              Share Meet Tab Here
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <p className="mt-2 text-xs font-semibold text-slate-500">
+                      Chrome will ask what to share. Choose the Google Meet tab/window to make the live meeting visible here.
+                    </p>
+                  </div>
+
+                  <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                    <StepLabel step="3" title="Client & Trainer" icon={Users} />
                     <div className="grid gap-3 md:grid-cols-2">
                       <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
                         <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Client</p>
@@ -1164,17 +1292,17 @@ export default function InterviewSchedules() {
                   </div>
 
                   <div>
-                    <StepLabel step="3" title="AI Interview Prep" icon={Sparkles} />
+                    <StepLabel step="4" title="AI Interview Prep" icon={Sparkles} />
                     <AIInterviewAssistant selected={selected} />
                   </div>
 
                   <div>
-                    <StepLabel step="4" title="Meeting Notes & Summary" icon={FileText} />
+                    <StepLabel step="5" title="Meeting Notes & Summary" icon={FileText} />
                     <MeetingNotesAssistant selected={selected} />
                   </div>
 
                   <div>
-                    <StepLabel step="5" title="Reschedule Workflow" icon={CalendarDays} />
+                    <StepLabel step="6" title="Reschedule Workflow" icon={CalendarDays} />
                   <ReschedulePanel selected={selected} onDone={load} />
                   </div>
                 </div>

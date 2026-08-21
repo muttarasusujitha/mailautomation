@@ -1,0 +1,945 @@
+{
+  "domain": "Salesforce",
+  "name": "Salesforce",
+  "icon": "cloud",
+  "program_title": "Salesforce Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Salesforce Expert",
+  "certifications": [
+    "Salesforce Certified Associate",
+    "Salesforce Certified Administrator",
+    "Salesforce Certified Developer",
+    "Salesforce Certified Platform App Builder"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Salesforce Fundamentals",
+      "subtopics": [
+        "Platform Overview",
+        "Orgs",
+        "Setup",
+        "Navigation"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Salesforce basics"
+    },
+    {
+      "day": 2,
+      "topic": "Salesforce Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Platform Overview",
+        "Part 2: Orgs",
+        "Part 2: Setup",
+        "Part 2: Navigation"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Salesforce basics"
+    },
+    {
+      "day": 3,
+      "topic": "Core Objects & Records",
+      "subtopics": [
+        "Accounts",
+        "Contacts",
+        "Opportunities",
+        "Leads"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Core objects"
+    },
+    {
+      "day": 4,
+      "topic": "Core Objects & Records - Part 2",
+      "subtopics": [
+        "Part 2: Accounts",
+        "Part 2: Contacts",
+        "Part 2: Opportunities",
+        "Part 2: Leads"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Core objects"
+    },
+    {
+      "day": 5,
+      "topic": "Customization Basics",
+      "subtopics": [
+        "Custom Fields",
+        "Record Types",
+        "Page Layouts"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Sprint planning; review progress for Customization Basics",
+      "lab_task": "Basic customization"
+    },
+    {
+      "day": 6,
+      "topic": "Customization Basics - Part 2",
+      "subtopics": [
+        "Part 2: Custom Fields",
+        "Part 2: Record Types",
+        "Part 2: Page Layouts"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Basic customization"
+    },
+    {
+      "day": 7,
+      "topic": "Automation - Workflow",
+      "subtopics": [
+        "Workflow Rules",
+        "Actions",
+        "Time-Dependent"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Workflow automation"
+    },
+    {
+      "day": 8,
+      "topic": "Automation - Workflow - Part 2",
+      "subtopics": [
+        "Part 2: Workflow Rules",
+        "Part 2: Actions",
+        "Part 2: Time-Dependent"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Workflow automation"
+    },
+    {
+      "day": 9,
+      "topic": "Automation - Process Builder",
+      "subtopics": [
+        "Process Builder",
+        "Actions",
+        "Logic"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Process builder"
+    },
+    {
+      "day": 10,
+      "topic": "Automation - Process Builder - Part 2",
+      "subtopics": [
+        "Part 2: Process Builder",
+        "Part 2: Actions",
+        "Part 2: Logic"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Sprint planning; review progress for Automation - Process Builder",
+      "lab_task": "Part 2 hands-on: Process builder"
+    },
+    {
+      "day": 11,
+      "topic": "Automation - Flow Builder",
+      "subtopics": [
+        "Flows",
+        "Screens",
+        "Actions",
+        "Complex Logic"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Flow automation"
+    },
+    {
+      "day": 12,
+      "topic": "Automation - Flow Builder - Part 2",
+      "subtopics": [
+        "Part 2: Flows",
+        "Part 2: Screens",
+        "Part 2: Actions",
+        "Part 2: Complex Logic"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Flow automation"
+    },
+    {
+      "day": 13,
+      "topic": "Data Management",
+      "subtopics": [
+        "Data Import",
+        "Export",
+        "Duplicate Management"
+      ],
+      "tools": [
+        "Data Loader"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Data management"
+    },
+    {
+      "day": 14,
+      "topic": "Data Management - Part 2",
+      "subtopics": [
+        "Part 2: Data Import",
+        "Part 2: Export",
+        "Part 2: Duplicate Management"
+      ],
+      "tools": [
+        "Data Loader"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Data management"
+    },
+    {
+      "day": 15,
+      "topic": "Reports & Dashboards",
+      "subtopics": [
+        "Report Types",
+        "Formulas",
+        "Dashboards"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Sprint planning; review progress for Reports & Dashboards",
+      "lab_task": "Reports and dashboards"
+    },
+    {
+      "day": 16,
+      "topic": "Reports & Dashboards - Part 2",
+      "subtopics": [
+        "Part 2: Report Types",
+        "Part 2: Formulas",
+        "Part 2: Dashboards"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Reports and dashboards"
+    },
+    {
+      "day": 17,
+      "topic": "Apex Basics",
+      "subtopics": [
+        "Classes",
+        "Methods",
+        "Variables",
+        "Syntax"
+      ],
+      "tools": [
+        "Apex"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Apex programming"
+    },
+    {
+      "day": 18,
+      "topic": "Apex Basics - Part 2",
+      "subtopics": [
+        "Part 2: Classes",
+        "Part 2: Methods",
+        "Part 2: Variables",
+        "Part 2: Syntax"
+      ],
+      "tools": [
+        "Apex"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Apex programming"
+    },
+    {
+      "day": 19,
+      "topic": "Apex Advanced",
+      "subtopics": [
+        "Triggers",
+        "Collections",
+        "Exception Handling"
+      ],
+      "tools": [
+        "Apex"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Advanced Apex"
+    },
+    {
+      "day": 20,
+      "topic": "Apex Advanced - Part 2",
+      "subtopics": [
+        "Part 2: Triggers",
+        "Part 2: Collections",
+        "Part 2: Exception Handling"
+      ],
+      "tools": [
+        "Apex"
+      ],
+      "jira_focus": "Sprint planning; review progress for Apex Advanced",
+      "lab_task": "Part 2 hands-on: Advanced Apex"
+    },
+    {
+      "day": 21,
+      "topic": "Visualforce Pages",
+      "subtopics": [
+        "VF Syntax",
+        "Components",
+        "Controller"
+      ],
+      "tools": [
+        "Visualforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Visualforce development"
+    },
+    {
+      "day": 22,
+      "topic": "Visualforce Pages - Part 2",
+      "subtopics": [
+        "Part 2: VF Syntax",
+        "Part 2: Components",
+        "Part 2: Controller"
+      ],
+      "tools": [
+        "Visualforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Visualforce development"
+    },
+    {
+      "day": 23,
+      "topic": "Lightning Components",
+      "subtopics": [
+        "LWC",
+        "Components",
+        "Data Binding",
+        "Events"
+      ],
+      "tools": [
+        "Lightning"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Lightning development"
+    },
+    {
+      "day": 24,
+      "topic": "Lightning Components - Part 2",
+      "subtopics": [
+        "Part 2: LWC",
+        "Part 2: Components",
+        "Part 2: Data Binding",
+        "Part 2: Events"
+      ],
+      "tools": [
+        "Lightning"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Lightning development"
+    },
+    {
+      "day": 25,
+      "topic": "Integration",
+      "subtopics": [
+        "REST API",
+        "SOAP",
+        "Webhooks"
+      ],
+      "tools": [
+        "Salesforce API"
+      ],
+      "jira_focus": "Sprint planning; review progress for Integration",
+      "lab_task": "Integration basics"
+    },
+    {
+      "day": 26,
+      "topic": "Integration - Part 2",
+      "subtopics": [
+        "Part 2: REST API",
+        "Part 2: SOAP",
+        "Part 2: Webhooks"
+      ],
+      "tools": [
+        "Salesforce API"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Integration basics"
+    },
+    {
+      "day": 27,
+      "topic": "Data Security",
+      "subtopics": [
+        "Profiles",
+        "Permission Sets",
+        "Sharing Rules"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Security and access"
+    },
+    {
+      "day": 28,
+      "topic": "Data Security - Part 2",
+      "subtopics": [
+        "Part 2: Profiles",
+        "Part 2: Permission Sets",
+        "Part 2: Sharing Rules"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Security and access"
+    },
+    {
+      "day": 29,
+      "topic": "Deployment & Testing",
+      "subtopics": [
+        "Change Sets",
+        "Sandboxes",
+        "Testing",
+        "Metadata"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Deployment & testing"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Change Sets",
+        "Sandboxes",
+        "Testing",
+        "Metadata"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Sprint planning; review progress for Deployment & Testing",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    },
+    {
+      "day": 31,
+      "topic": "Salesforce Platform Deep Dive",
+      "subtopics": [
+        "Salesforce Platform Deep Dive concepts",
+        "Salesforce Platform Deep Dive configuration",
+        "Salesforce Platform Deep Dive hands-on workflow",
+        "Salesforce Platform Deep Dive troubleshooting",
+        "Salesforce Platform Deep Dive best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Salesforce Platform Deep Dive"
+    },
+    {
+      "day": 32,
+      "topic": "Data Model Advanced",
+      "subtopics": [
+        "Data Model Advanced concepts",
+        "Data Model Advanced configuration",
+        "Data Model Advanced hands-on workflow",
+        "Data Model Advanced troubleshooting",
+        "Data Model Advanced best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Data Model Advanced"
+    },
+    {
+      "day": 33,
+      "topic": "Security Model",
+      "subtopics": [
+        "Security Model concepts",
+        "Security Model configuration",
+        "Security Model hands-on workflow",
+        "Security Model troubleshooting",
+        "Security Model best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Security Model"
+    },
+    {
+      "day": 34,
+      "topic": "Automation with Flow",
+      "subtopics": [
+        "Automation with Flow concepts",
+        "Automation with Flow configuration",
+        "Automation with Flow hands-on workflow",
+        "Automation with Flow troubleshooting",
+        "Automation with Flow best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Automation with Flow"
+    },
+    {
+      "day": 35,
+      "topic": "Approval Processes",
+      "subtopics": [
+        "Approval Processes concepts",
+        "Approval Processes configuration",
+        "Approval Processes hands-on workflow",
+        "Approval Processes troubleshooting",
+        "Approval Processes best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Approval Processes"
+    },
+    {
+      "day": 36,
+      "topic": "Reports and Dashboards",
+      "subtopics": [
+        "Reports and Dashboards concepts",
+        "Reports and Dashboards configuration",
+        "Reports and Dashboards hands-on workflow",
+        "Reports and Dashboards troubleshooting",
+        "Reports and Dashboards best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Reports and Dashboards"
+    },
+    {
+      "day": 37,
+      "topic": "Sales Cloud Configuration",
+      "subtopics": [
+        "Sales Cloud Configuration concepts",
+        "Sales Cloud Configuration configuration",
+        "Sales Cloud Configuration hands-on workflow",
+        "Sales Cloud Configuration troubleshooting",
+        "Sales Cloud Configuration best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Sales Cloud Configuration"
+    },
+    {
+      "day": 38,
+      "topic": "Service Cloud Configuration",
+      "subtopics": [
+        "Service Cloud Configuration concepts",
+        "Service Cloud Configuration configuration",
+        "Service Cloud Configuration hands-on workflow",
+        "Service Cloud Configuration troubleshooting",
+        "Service Cloud Configuration best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Service Cloud Configuration"
+    },
+    {
+      "day": 39,
+      "topic": "Experience Cloud Basics",
+      "subtopics": [
+        "Experience Cloud Basics concepts",
+        "Experience Cloud Basics configuration",
+        "Experience Cloud Basics hands-on workflow",
+        "Experience Cloud Basics troubleshooting",
+        "Experience Cloud Basics best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Experience Cloud Basics"
+    },
+    {
+      "day": 40,
+      "topic": "Apex Fundamentals",
+      "subtopics": [
+        "Apex Fundamentals concepts",
+        "Apex Fundamentals configuration",
+        "Apex Fundamentals hands-on workflow",
+        "Apex Fundamentals troubleshooting",
+        "Apex Fundamentals best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Apex Fundamentals"
+    },
+    {
+      "day": 41,
+      "topic": "Apex Triggers",
+      "subtopics": [
+        "Apex Triggers concepts",
+        "Apex Triggers configuration",
+        "Apex Triggers hands-on workflow",
+        "Apex Triggers troubleshooting",
+        "Apex Triggers best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Apex Triggers"
+    },
+    {
+      "day": 42,
+      "topic": "SOQL and SOSL",
+      "subtopics": [
+        "SOQL and SOSL concepts",
+        "SOQL and SOSL configuration",
+        "SOQL and SOSL hands-on workflow",
+        "SOQL and SOSL troubleshooting",
+        "SOQL and SOSL best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: SOQL and SOSL"
+    },
+    {
+      "day": 43,
+      "topic": "Asynchronous Apex",
+      "subtopics": [
+        "Asynchronous Apex concepts",
+        "Asynchronous Apex configuration",
+        "Asynchronous Apex hands-on workflow",
+        "Asynchronous Apex troubleshooting",
+        "Asynchronous Apex best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Asynchronous Apex"
+    },
+    {
+      "day": 44,
+      "topic": "Apex Testing",
+      "subtopics": [
+        "Apex Testing concepts",
+        "Apex Testing configuration",
+        "Apex Testing hands-on workflow",
+        "Apex Testing troubleshooting",
+        "Apex Testing best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Apex Testing"
+    },
+    {
+      "day": 45,
+      "topic": "LWC Fundamentals",
+      "subtopics": [
+        "LWC Fundamentals concepts",
+        "LWC Fundamentals configuration",
+        "LWC Fundamentals hands-on workflow",
+        "LWC Fundamentals troubleshooting",
+        "LWC Fundamentals best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: LWC Fundamentals"
+    },
+    {
+      "day": 46,
+      "topic": "LWC Data and Events",
+      "subtopics": [
+        "LWC Data and Events concepts",
+        "LWC Data and Events configuration",
+        "LWC Data and Events hands-on workflow",
+        "LWC Data and Events troubleshooting",
+        "LWC Data and Events best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: LWC Data and Events"
+    },
+    {
+      "day": 47,
+      "topic": "Integration REST APIs",
+      "subtopics": [
+        "Integration REST APIs concepts",
+        "Integration REST APIs configuration",
+        "Integration REST APIs hands-on workflow",
+        "Integration REST APIs troubleshooting",
+        "Integration REST APIs best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Integration REST APIs"
+    },
+    {
+      "day": 48,
+      "topic": "Deployment and Change Sets",
+      "subtopics": [
+        "Deployment and Change Sets concepts",
+        "Deployment and Change Sets configuration",
+        "Deployment and Change Sets hands-on workflow",
+        "Deployment and Change Sets troubleshooting",
+        "Deployment and Change Sets best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Deployment and Change Sets"
+    },
+    {
+      "day": 49,
+      "topic": "Salesforce DevOps",
+      "subtopics": [
+        "Salesforce DevOps concepts",
+        "Salesforce DevOps configuration",
+        "Salesforce DevOps hands-on workflow",
+        "Salesforce DevOps troubleshooting",
+        "Salesforce DevOps best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Salesforce DevOps"
+    },
+    {
+      "day": 50,
+      "topic": "Governor Limits",
+      "subtopics": [
+        "Governor Limits concepts",
+        "Governor Limits configuration",
+        "Governor Limits hands-on workflow",
+        "Governor Limits troubleshooting",
+        "Governor Limits best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Governor Limits"
+    },
+    {
+      "day": 51,
+      "topic": "Salesforce Capstone Planning",
+      "subtopics": [
+        "Salesforce Capstone Planning concepts",
+        "Salesforce Capstone Planning configuration",
+        "Salesforce Capstone Planning hands-on workflow",
+        "Salesforce Capstone Planning troubleshooting",
+        "Salesforce Capstone Planning best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Salesforce Capstone Planning"
+    },
+    {
+      "day": 52,
+      "topic": "Salesforce Capstone Build",
+      "subtopics": [
+        "Salesforce Capstone Build concepts",
+        "Salesforce Capstone Build configuration",
+        "Salesforce Capstone Build hands-on workflow",
+        "Salesforce Capstone Build troubleshooting",
+        "Salesforce Capstone Build best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Salesforce Capstone Build"
+    },
+    {
+      "day": 53,
+      "topic": "Salesforce Capstone Testing",
+      "subtopics": [
+        "Salesforce Capstone Testing concepts",
+        "Salesforce Capstone Testing configuration",
+        "Salesforce Capstone Testing hands-on workflow",
+        "Salesforce Capstone Testing troubleshooting",
+        "Salesforce Capstone Testing best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Salesforce Capstone Testing"
+    },
+    {
+      "day": 54,
+      "topic": "Salesforce Final Demo",
+      "subtopics": [
+        "Salesforce Final Demo concepts",
+        "Salesforce Final Demo configuration",
+        "Salesforce Final Demo hands-on workflow",
+        "Salesforce Final Demo troubleshooting",
+        "Salesforce Final Demo best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Salesforce Final Demo"
+    },
+    {
+      "day": 55,
+      "topic": "Salesforce Capstone Design",
+      "subtopics": [
+        "Salesforce Capstone Design concepts",
+        "Salesforce Capstone Design hands-on workflow",
+        "Salesforce Capstone Design validation",
+        "Salesforce Capstone Design troubleshooting",
+        "Salesforce Capstone Design best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Salesforce Capstone Design"
+    },
+    {
+      "day": 56,
+      "topic": "Data Model and Security Sprint",
+      "subtopics": [
+        "Data Model and Security Sprint concepts",
+        "Data Model and Security Sprint hands-on workflow",
+        "Data Model and Security Sprint validation",
+        "Data Model and Security Sprint troubleshooting",
+        "Data Model and Security Sprint best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Data Model and Security Sprint"
+    },
+    {
+      "day": 57,
+      "topic": "Flow Automation Sprint",
+      "subtopics": [
+        "Flow Automation Sprint concepts",
+        "Flow Automation Sprint hands-on workflow",
+        "Flow Automation Sprint validation",
+        "Flow Automation Sprint troubleshooting",
+        "Flow Automation Sprint best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Flow Automation Sprint"
+    },
+    {
+      "day": 58,
+      "topic": "Apex and LWC Sprint",
+      "subtopics": [
+        "Apex and LWC Sprint concepts",
+        "Apex and LWC Sprint hands-on workflow",
+        "Apex and LWC Sprint validation",
+        "Apex and LWC Sprint troubleshooting",
+        "Apex and LWC Sprint best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Apex and LWC Sprint"
+    },
+    {
+      "day": 59,
+      "topic": "Integration and Testing Sprint",
+      "subtopics": [
+        "Integration and Testing Sprint concepts",
+        "Integration and Testing Sprint hands-on workflow",
+        "Integration and Testing Sprint validation",
+        "Integration and Testing Sprint troubleshooting",
+        "Integration and Testing Sprint best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Integration and Testing Sprint"
+    },
+    {
+      "day": 60,
+      "topic": "Salesforce Final Demo - Part 2",
+      "subtopics": [
+        "Part 2: Salesforce Final Demo concepts",
+        "Part 2: Salesforce Final Demo hands-on workflow",
+        "Part 2: Salesforce Final Demo validation",
+        "Part 2: Salesforce Final Demo troubleshooting",
+        "Part 2: Salesforce Final Demo best practices"
+      ],
+      "tools": [
+        "Salesforce"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Part 2 hands-on: Hands-on lab: Salesforce Final Demo"
+    }
+  ],
+  "aliases": [
+    "Salesforce",
+    "SFDC",
+    "Salesforce Admin",
+    "Salesforce Developer",
+    "Apex",
+    "LWC",
+    "Sales Cloud",
+    "Service Cloud"
+  ],
+  "official_sources": [
+    "https://trailhead.salesforce.com/content/learn/modules/lightning-web-components-and-salesforce-data/use-apex-to-work-with-data",
+    "https://developer.salesforce.com/docs/platform/lwc/guide/apex-security",
+    "https://developer.salesforce.com/docs/platform/lightning-components-security/guide/lws-enable.html"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

@@ -1,0 +1,372 @@
+{
+    "domain":  "AppDynamics",
+    "name":  "AppDynamics â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Cisco AppDynamics",
+                    "Application Performance Monitoring"
+                ],
+    "tools":  [
+                  "AppDynamics Controller",
+                  "Agents",
+                  "Dashboards"
+              ],
+    "certifications":  [
+                           "AppDynamics official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "AppDynamics terminology and feature mapping for this topic",
+                                       "AppDynamics configuration and implementation considerations",
+                                       "AppDynamics best practices and common mistakes for this topic",
+                                       "application agents",
+                                       "business transactions",
+                                       "tiers",
+                                       "nodes",
+                                       "health rules",
+                                       "policies",
+                                       "dashboards",
+                                       "snapshots",
+                                       "database monitoring",
+                                       "end-user monitoring concepts",
+                                       "alerts",
+                                       "baselines"
+                                   ],
+                     "tools":  [
+                                   "AppDynamics Controller",
+                                   "Agents",
+                                   "Dashboards"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate AppDynamics fundamentals.",
+                     "technology":  "AppDynamics",
+                     "technology_id":  "appdynamics",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of AppDynamics.",
+                                                 "Configure or implement the key AppDynamics features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using AppDynamics.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "AppDynamics terminology and feature mapping for this topic",
+                                       "AppDynamics configuration and implementation considerations",
+                                       "AppDynamics best practices and common mistakes for this topic",
+                                       "application agents",
+                                       "business transactions",
+                                       "tiers",
+                                       "nodes",
+                                       "health rules",
+                                       "policies",
+                                       "dashboards",
+                                       "snapshots",
+                                       "database monitoring",
+                                       "end-user monitoring concepts",
+                                       "alerts",
+                                       "baselines"
+                                   ],
+                     "tools":  [
+                                   "AppDynamics Controller",
+                                   "Agents",
+                                   "Dashboards"
+                               ],
+                     "lab_task":  "Inspect and configure core AppDynamics components.",
+                     "technology":  "AppDynamics",
+                     "technology_id":  "appdynamics",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of AppDynamics.",
+                                                 "Configure or implement the key AppDynamics features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using AppDynamics.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "AppDynamics terminology and feature mapping for this topic",
+                                       "AppDynamics configuration and implementation considerations",
+                                       "AppDynamics best practices and common mistakes for this topic",
+                                       "application agents",
+                                       "business transactions",
+                                       "tiers",
+                                       "nodes",
+                                       "health rules",
+                                       "policies",
+                                       "dashboards",
+                                       "snapshots",
+                                       "database monitoring",
+                                       "end-user monitoring concepts",
+                                       "alerts",
+                                       "baselines"
+                                   ],
+                     "tools":  [
+                                   "AppDynamics Controller",
+                                   "Agents",
+                                   "Dashboards"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for AppDynamics.",
+                     "technology":  "AppDynamics",
+                     "technology_id":  "appdynamics",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of AppDynamics.",
+                                                 "Configure or implement the key AppDynamics features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using AppDynamics.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "AppDynamics terminology and feature mapping for this topic",
+                                       "AppDynamics configuration and implementation considerations",
+                                       "AppDynamics best practices and common mistakes for this topic",
+                                       "application agents",
+                                       "business transactions",
+                                       "tiers",
+                                       "nodes",
+                                       "health rules",
+                                       "policies",
+                                       "dashboards",
+                                       "snapshots",
+                                       "database monitoring",
+                                       "end-user monitoring concepts",
+                                       "alerts",
+                                       "baselines"
+                                   ],
+                     "tools":  [
+                                   "AppDynamics Controller",
+                                   "Agents",
+                                   "Dashboards"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "AppDynamics",
+                     "technology_id":  "appdynamics",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of AppDynamics.",
+                                                 "Configure or implement the key AppDynamics features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using AppDynamics.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "AppDynamics terminology and feature mapping for this topic",
+                                       "AppDynamics configuration and implementation considerations",
+                                       "AppDynamics best practices and common mistakes for this topic",
+                                       "application agents",
+                                       "business transactions",
+                                       "tiers",
+                                       "nodes",
+                                       "health rules",
+                                       "policies",
+                                       "dashboards",
+                                       "snapshots",
+                                       "database monitoring",
+                                       "end-user monitoring concepts",
+                                       "alerts",
+                                       "baselines"
+                                   ],
+                     "tools":  [
+                                   "AppDynamics Controller",
+                                   "Agents",
+                                   "Dashboards"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated AppDynamics issue.",
+                     "technology":  "AppDynamics",
+                     "technology_id":  "appdynamics",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of AppDynamics.",
+                                                 "Configure or implement the key AppDynamics features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using AppDynamics.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "AppDynamics terminology and feature mapping for this topic",
+                                       "AppDynamics configuration and implementation considerations",
+                                       "AppDynamics best practices and common mistakes for this topic",
+                                       "application agents",
+                                       "business transactions",
+                                       "tiers",
+                                       "nodes",
+                                       "health rules",
+                                       "policies",
+                                       "dashboards",
+                                       "snapshots",
+                                       "database monitoring",
+                                       "end-user monitoring concepts",
+                                       "alerts",
+                                       "baselines"
+                                   ],
+                     "tools":  [
+                                   "AppDynamics Controller",
+                                   "Agents",
+                                   "Dashboards"
+                               ],
+                     "lab_task":  "Automate a repeatable AppDynamics configuration task.",
+                     "technology":  "AppDynamics",
+                     "technology_id":  "appdynamics",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of AppDynamics.",
+                                                 "Configure or implement the key AppDynamics features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using AppDynamics.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "AppDynamics terminology and feature mapping for this topic",
+                                       "AppDynamics configuration and implementation considerations",
+                                       "AppDynamics best practices and common mistakes for this topic",
+                                       "application agents",
+                                       "business transactions",
+                                       "tiers",
+                                       "nodes",
+                                       "health rules",
+                                       "policies",
+                                       "dashboards",
+                                       "snapshots",
+                                       "database monitoring",
+                                       "end-user monitoring concepts",
+                                       "alerts",
+                                       "baselines"
+                                   ],
+                     "tools":  [
+                                   "AppDynamics Controller",
+                                   "Agents",
+                                   "Dashboards"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "AppDynamics",
+                     "technology_id":  "appdynamics",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of AppDynamics.",
+                                                 "Configure or implement the key AppDynamics features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using AppDynamics.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "AppDynamics terminology and feature mapping for this topic",
+                                       "AppDynamics configuration and implementation considerations",
+                                       "AppDynamics best practices and common mistakes for this topic",
+                                       "application agents",
+                                       "business transactions",
+                                       "tiers",
+                                       "nodes",
+                                       "health rules",
+                                       "policies",
+                                       "dashboards",
+                                       "snapshots",
+                                       "database monitoring",
+                                       "end-user monitoring concepts",
+                                       "alerts",
+                                       "baselines"
+                                   ],
+                     "tools":  [
+                                   "AppDynamics Controller",
+                                   "Agents",
+                                   "Dashboards"
+                               ],
+                     "lab_task":  "Build and document an end-to-end AppDynamics solution.",
+                     "technology":  "AppDynamics",
+                     "technology_id":  "appdynamics",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of AppDynamics.",
+                                                 "Configure or implement the key AppDynamics features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using AppDynamics.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "appdynamics"
+}

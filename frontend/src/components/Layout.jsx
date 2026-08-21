@@ -45,6 +45,7 @@ const NAV_GROUPS = [
       { to: '/admin-dashboard', label: 'Analytics',     icon: BarChart3,  keywords: ['admin dashboard','analytics'] },
       { to: '/emails',          label: 'Email Logs',    icon: Mail,       keywords: ['email','logs','mail'] },
       { to: '/toc-knowledge',   label: 'ToC Knowledge', icon: BookOpen,   keywords: ['toc','curriculum','knowledge','course agenda'] },
+      { to: '/lab-cost',        label: 'Lab Cost',      icon: BadgeIndianRupee, keywords: ['lab cost','lab support','lab setup','cloud lab'] },
       { to: '/admin',           label: 'Settings',      icon: Settings,   keywords: ['admin','settings','gmail','whatsapp'] },
     ],
   },

@@ -1,0 +1,377 @@
+{
+    "domain":  "Splunk",
+    "name":  "Splunk â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Splunk Enterprise",
+                    "Splunk Observability/SIEM"
+                ],
+    "tools":  [
+                  "Splunk Enterprise",
+                  "SPL",
+                  "Universal Forwarder",
+                  "Splunk Cloud"
+              ],
+    "certifications":  [
+                           "Splunk Core Certified Power User",
+                           "Splunk Enterprise Certified Admin"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "Splunk terminology and feature mapping for this topic",
+                                       "Splunk configuration and implementation considerations",
+                                       "Splunk best practices and common mistakes for this topic",
+                                       "indexes",
+                                       "sourcetypes",
+                                       "forwarders",
+                                       "indexers",
+                                       "search heads",
+                                       "SPL",
+                                       "fields",
+                                       "lookups",
+                                       "dashboards",
+                                       "alerts",
+                                       "data models",
+                                       "accelerations"
+                                   ],
+                     "tools":  [
+                                   "Splunk Enterprise",
+                                   "SPL",
+                                   "Universal Forwarder"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate Splunk fundamentals.",
+                     "technology":  "Splunk",
+                     "technology_id":  "splunk",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of Splunk.",
+                                                 "Configure or implement the key Splunk features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using Splunk.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "Splunk terminology and feature mapping for this topic",
+                                       "Splunk configuration and implementation considerations",
+                                       "Splunk best practices and common mistakes for this topic",
+                                       "indexes",
+                                       "sourcetypes",
+                                       "forwarders",
+                                       "indexers",
+                                       "search heads",
+                                       "SPL",
+                                       "fields",
+                                       "lookups",
+                                       "dashboards",
+                                       "alerts",
+                                       "data models",
+                                       "accelerations"
+                                   ],
+                     "tools":  [
+                                   "Splunk Enterprise",
+                                   "SPL",
+                                   "Universal Forwarder"
+                               ],
+                     "lab_task":  "Inspect and configure core Splunk components.",
+                     "technology":  "Splunk",
+                     "technology_id":  "splunk",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of Splunk.",
+                                                 "Configure or implement the key Splunk features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using Splunk.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "Splunk terminology and feature mapping for this topic",
+                                       "Splunk configuration and implementation considerations",
+                                       "Splunk best practices and common mistakes for this topic",
+                                       "indexes",
+                                       "sourcetypes",
+                                       "forwarders",
+                                       "indexers",
+                                       "search heads",
+                                       "SPL",
+                                       "fields",
+                                       "lookups",
+                                       "dashboards",
+                                       "alerts",
+                                       "data models",
+                                       "accelerations"
+                                   ],
+                     "tools":  [
+                                   "Splunk Enterprise",
+                                   "SPL",
+                                   "Universal Forwarder"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for Splunk.",
+                     "technology":  "Splunk",
+                     "technology_id":  "splunk",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of Splunk.",
+                                                 "Configure or implement the key Splunk features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using Splunk.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "Splunk terminology and feature mapping for this topic",
+                                       "Splunk configuration and implementation considerations",
+                                       "Splunk best practices and common mistakes for this topic",
+                                       "indexes",
+                                       "sourcetypes",
+                                       "forwarders",
+                                       "indexers",
+                                       "search heads",
+                                       "SPL",
+                                       "fields",
+                                       "lookups",
+                                       "dashboards",
+                                       "alerts",
+                                       "data models",
+                                       "accelerations"
+                                   ],
+                     "tools":  [
+                                   "Splunk Enterprise",
+                                   "SPL",
+                                   "Universal Forwarder"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "Splunk",
+                     "technology_id":  "splunk",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of Splunk.",
+                                                 "Configure or implement the key Splunk features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using Splunk.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "Splunk terminology and feature mapping for this topic",
+                                       "Splunk configuration and implementation considerations",
+                                       "Splunk best practices and common mistakes for this topic",
+                                       "indexes",
+                                       "sourcetypes",
+                                       "forwarders",
+                                       "indexers",
+                                       "search heads",
+                                       "SPL",
+                                       "fields",
+                                       "lookups",
+                                       "dashboards",
+                                       "alerts",
+                                       "data models",
+                                       "accelerations"
+                                   ],
+                     "tools":  [
+                                   "Splunk Enterprise",
+                                   "SPL",
+                                   "Universal Forwarder",
+                                   "Splunk Cloud"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated Splunk issue.",
+                     "technology":  "Splunk",
+                     "technology_id":  "splunk",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of Splunk.",
+                                                 "Configure or implement the key Splunk features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using Splunk.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "Splunk terminology and feature mapping for this topic",
+                                       "Splunk configuration and implementation considerations",
+                                       "Splunk best practices and common mistakes for this topic",
+                                       "indexes",
+                                       "sourcetypes",
+                                       "forwarders",
+                                       "indexers",
+                                       "search heads",
+                                       "SPL",
+                                       "fields",
+                                       "lookups",
+                                       "dashboards",
+                                       "alerts",
+                                       "data models",
+                                       "accelerations"
+                                   ],
+                     "tools":  [
+                                   "Splunk Enterprise",
+                                   "SPL",
+                                   "Universal Forwarder"
+                               ],
+                     "lab_task":  "Automate a repeatable Splunk configuration task.",
+                     "technology":  "Splunk",
+                     "technology_id":  "splunk",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of Splunk.",
+                                                 "Configure or implement the key Splunk features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using Splunk.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "Splunk terminology and feature mapping for this topic",
+                                       "Splunk configuration and implementation considerations",
+                                       "Splunk best practices and common mistakes for this topic",
+                                       "indexes",
+                                       "sourcetypes",
+                                       "forwarders",
+                                       "indexers",
+                                       "search heads",
+                                       "SPL",
+                                       "fields",
+                                       "lookups",
+                                       "dashboards",
+                                       "alerts",
+                                       "data models",
+                                       "accelerations"
+                                   ],
+                     "tools":  [
+                                   "Splunk Enterprise",
+                                   "SPL",
+                                   "Universal Forwarder",
+                                   "Splunk Cloud"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "Splunk",
+                     "technology_id":  "splunk",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of Splunk.",
+                                                 "Configure or implement the key Splunk features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using Splunk.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "Splunk terminology and feature mapping for this topic",
+                                       "Splunk configuration and implementation considerations",
+                                       "Splunk best practices and common mistakes for this topic",
+                                       "indexes",
+                                       "sourcetypes",
+                                       "forwarders",
+                                       "indexers",
+                                       "search heads",
+                                       "SPL",
+                                       "fields",
+                                       "lookups",
+                                       "dashboards",
+                                       "alerts",
+                                       "data models",
+                                       "accelerations"
+                                   ],
+                     "tools":  [
+                                   "Splunk Enterprise",
+                                   "SPL",
+                                   "Universal Forwarder",
+                                   "Splunk Cloud"
+                               ],
+                     "lab_task":  "Build and document an end-to-end Splunk solution.",
+                     "technology":  "Splunk",
+                     "technology_id":  "splunk",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of Splunk.",
+                                                 "Configure or implement the key Splunk features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using Splunk.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "splunk"
+}

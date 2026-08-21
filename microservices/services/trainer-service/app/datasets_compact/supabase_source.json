@@ -1,0 +1,456 @@
+{
+    "domain":  "Supabase",
+    "name":  "Supabase â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Supabase Backend",
+                    "Open-Source Firebase Alternative"
+                ],
+    "tools":  [
+                  "Supabase Studio",
+                  "PostgreSQL",
+                  "Supabase CLI",
+                  "Edge Functions",
+                  "Auth"
+              ],
+    "certifications":  [
+                           "Supabase official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Architecture",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Primary use cases",
+                                       "Architecture components",
+                                       "Deployment models",
+                                       "Installation or managed setup",
+                                       "Client tools",
+                                       "Basic administration",
+                                       "Supabase terminology and feature mapping for this topic",
+                                       "Supabase configuration and implementation considerations",
+                                       "Supabase best practices and common mistakes for this topic",
+                                       "PostgreSQL",
+                                       "Row Level Security",
+                                       "Supabase Auth",
+                                       "Storage",
+                                       "Realtime",
+                                       "Edge Functions",
+                                       "PostgREST",
+                                       "Database Functions",
+                                       "Triggers",
+                                       "Policies",
+                                       "Supabase CLI"
+                                   ],
+                     "tools":  [
+                                   "Supabase Studio",
+                                   "PostgreSQL",
+                                   "Supabase CLI"
+                               ],
+                     "lab_task":  "Set up Supabase and create the first working environment.",
+                     "technology":  "Supabase",
+                     "technology_id":  "supabase",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Architecture concepts in the context of Supabase.",
+                                                 "Configure or implement the key Supabase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Architecture practically using Supabase.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Data Model and Schema Design",
+                     "subtopics":  [
+                                       "Data model",
+                                       "Keys and identifiers",
+                                       "Data types",
+                                       "Relationships or document structure",
+                                       "Schema design patterns",
+                                       "Normalization/denormalization considerations",
+                                       "Naming conventions",
+                                       "Supabase terminology and feature mapping for this topic",
+                                       "Supabase configuration and implementation considerations",
+                                       "Supabase best practices and common mistakes for this topic",
+                                       "PostgreSQL",
+                                       "Row Level Security",
+                                       "Supabase Auth",
+                                       "Storage",
+                                       "Realtime",
+                                       "Edge Functions",
+                                       "PostgREST",
+                                       "Database Functions",
+                                       "Triggers",
+                                       "Policies",
+                                       "Supabase CLI"
+                                   ],
+                     "tools":  [
+                                   "Supabase Studio",
+                                   "PostgreSQL"
+                               ],
+                     "lab_task":  "Design a production-style Supabase schema for a sample application.",
+                     "technology":  "Supabase",
+                     "technology_id":  "supabase",
+                     "learning_objectives":  [
+                                                 "Explain the Data Model and Schema Design concepts in the context of Supabase.",
+                                                 "Configure or implement the key Supabase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Data Model and Schema Design practically using Supabase.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "CRUD and Query Fundamentals",
+                     "subtopics":  [
+                                       "Create/insert operations",
+                                       "Read/query operations",
+                                       "Update operations",
+                                       "Delete operations",
+                                       "Filtering",
+                                       "Sorting",
+                                       "Pagination",
+                                       "Parameterization",
+                                       "Supabase terminology and feature mapping for this topic",
+                                       "Supabase configuration and implementation considerations",
+                                       "Supabase best practices and common mistakes for this topic",
+                                       "PostgreSQL",
+                                       "Row Level Security",
+                                       "Supabase Auth",
+                                       "Storage",
+                                       "Realtime",
+                                       "Edge Functions",
+                                       "PostgREST",
+                                       "Database Functions",
+                                       "Triggers",
+                                       "Policies",
+                                       "Supabase CLI"
+                                   ],
+                     "tools":  [
+                                   "Supabase Studio",
+                                   "PostgreSQL"
+                               ],
+                     "lab_task":  "Implement complete CRUD and common queries in Supabase.",
+                     "technology":  "Supabase",
+                     "technology_id":  "supabase",
+                     "learning_objectives":  [
+                                                 "Explain the CRUD and Query Fundamentals concepts in the context of Supabase.",
+                                                 "Configure or implement the key Supabase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CRUD and Query Fundamentals practically using Supabase.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Advanced Querying",
+                     "subtopics":  [
+                                       "Aggregations",
+                                       "Joins or graph/document alternatives",
+                                       "Subqueries or nested queries",
+                                       "Indexes",
+                                       "Query planning",
+                                       "Query optimization",
+                                       "Common anti-patterns",
+                                       "Supabase terminology and feature mapping for this topic",
+                                       "Supabase configuration and implementation considerations",
+                                       "Supabase best practices and common mistakes for this topic",
+                                       "PostgreSQL",
+                                       "Row Level Security",
+                                       "Supabase Auth",
+                                       "Storage",
+                                       "Realtime",
+                                       "Edge Functions",
+                                       "PostgREST",
+                                       "Database Functions",
+                                       "Triggers",
+                                       "Policies",
+                                       "Supabase CLI"
+                                   ],
+                     "tools":  [
+                                   "Supabase Studio",
+                                   "PostgreSQL",
+                                   "Supabase CLI"
+                               ],
+                     "lab_task":  "Build and optimize analytical and application queries.",
+                     "technology":  "Supabase",
+                     "technology_id":  "supabase",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Querying concepts in the context of Supabase.",
+                                                 "Configure or implement the key Supabase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Querying practically using Supabase.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Transactions, Consistency and Concurrency",
+                     "subtopics":  [
+                                       "ACID or consistency model",
+                                       "Transactions",
+                                       "Isolation or consistency levels",
+                                       "Locking/conflict behavior",
+                                       "Retries",
+                                       "Idempotency",
+                                       "Concurrency patterns",
+                                       "Supabase terminology and feature mapping for this topic",
+                                       "Supabase configuration and implementation considerations",
+                                       "Supabase best practices and common mistakes for this topic",
+                                       "PostgreSQL",
+                                       "Row Level Security",
+                                       "Supabase Auth",
+                                       "Storage",
+                                       "Realtime",
+                                       "Edge Functions",
+                                       "PostgREST",
+                                       "Database Functions",
+                                       "Triggers",
+                                       "Policies",
+                                       "Supabase CLI"
+                                   ],
+                     "tools":  [
+                                   "Supabase Studio",
+                                   "PostgreSQL"
+                               ],
+                     "lab_task":  "Test concurrent updates and consistency behavior.",
+                     "technology":  "Supabase",
+                     "technology_id":  "supabase",
+                     "learning_objectives":  [
+                                                 "Explain the Transactions, Consistency and Concurrency concepts in the context of Supabase.",
+                                                 "Configure or implement the key Supabase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Transactions, Consistency and Concurrency practically using Supabase.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Security and Access Control",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Roles and privileges",
+                                       "Encryption in transit",
+                                       "Encryption at rest",
+                                       "Secrets handling",
+                                       "Least privilege",
+                                       "Auditing",
+                                       "Supabase terminology and feature mapping for this topic",
+                                       "Supabase configuration and implementation considerations",
+                                       "Supabase best practices and common mistakes for this topic",
+                                       "PostgreSQL",
+                                       "Row Level Security",
+                                       "Supabase Auth",
+                                       "Storage",
+                                       "Realtime",
+                                       "Edge Functions",
+                                       "PostgREST",
+                                       "Database Functions",
+                                       "Triggers",
+                                       "Policies",
+                                       "Supabase CLI"
+                                   ],
+                     "tools":  [
+                                   "Supabase Studio",
+                                   "PostgreSQL",
+                                   "Supabase CLI"
+                               ],
+                     "lab_task":  "Configure secure least-privilege access.",
+                     "technology":  "Supabase",
+                     "technology_id":  "supabase",
+                     "learning_objectives":  [
+                                                 "Explain the Security and Access Control concepts in the context of Supabase.",
+                                                 "Configure or implement the key Supabase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security and Access Control practically using Supabase.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Backup, Recovery and High Availability",
+                     "subtopics":  [
+                                       "Backup methods",
+                                       "Restore",
+                                       "Replication",
+                                       "Failover",
+                                       "Disaster recovery",
+                                       "RPO/RTO",
+                                       "Operational runbooks",
+                                       "Supabase terminology and feature mapping for this topic",
+                                       "Supabase configuration and implementation considerations",
+                                       "Supabase best practices and common mistakes for this topic",
+                                       "PostgreSQL",
+                                       "Row Level Security",
+                                       "Supabase Auth",
+                                       "Storage",
+                                       "Realtime",
+                                       "Edge Functions",
+                                       "PostgREST",
+                                       "Database Functions",
+                                       "Triggers",
+                                       "Policies",
+                                       "Supabase CLI"
+                                   ],
+                     "tools":  [
+                                   "Supabase Studio",
+                                   "PostgreSQL",
+                                   "Supabase CLI"
+                               ],
+                     "lab_task":  "Create and test a backup and recovery procedure.",
+                     "technology":  "Supabase",
+                     "technology_id":  "supabase",
+                     "learning_objectives":  [
+                                                 "Explain the Backup, Recovery and High Availability concepts in the context of Supabase.",
+                                                 "Configure or implement the key Supabase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Backup, Recovery and High Availability practically using Supabase.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Monitoring and Performance",
+                     "subtopics":  [
+                                       "Metrics",
+                                       "Logs",
+                                       "Slow query analysis",
+                                       "Capacity planning",
+                                       "Memory/storage tuning",
+                                       "Index tuning",
+                                       "Scaling",
+                                       "Troubleshooting",
+                                       "Supabase terminology and feature mapping for this topic",
+                                       "Supabase configuration and implementation considerations",
+                                       "Supabase best practices and common mistakes for this topic",
+                                       "PostgreSQL",
+                                       "Row Level Security",
+                                       "Supabase Auth",
+                                       "Storage",
+                                       "Realtime",
+                                       "Edge Functions",
+                                       "PostgREST",
+                                       "Database Functions",
+                                       "Triggers",
+                                       "Policies",
+                                       "Supabase CLI"
+                                   ],
+                     "tools":  [
+                                   "Supabase Studio",
+                                   "PostgreSQL",
+                                   "Supabase CLI"
+                               ],
+                     "lab_task":  "Diagnose and tune a performance issue.",
+                     "technology":  "Supabase",
+                     "technology_id":  "supabase",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Performance concepts in the context of Supabase.",
+                                                 "Configure or implement the key Supabase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Performance practically using Supabase.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "Application Integration",
+                     "subtopics":  [
+                                       "Drivers and SDKs",
+                                       "Connection management",
+                                       "Pooling",
+                                       "Prepared statements",
+                                       "Error handling",
+                                       "Retries",
+                                       "Testing",
+                                       "CI integration",
+                                       "Supabase terminology and feature mapping for this topic",
+                                       "Supabase configuration and implementation considerations",
+                                       "Supabase best practices and common mistakes for this topic",
+                                       "PostgreSQL",
+                                       "Row Level Security",
+                                       "Supabase Auth",
+                                       "Storage",
+                                       "Realtime",
+                                       "Edge Functions",
+                                       "PostgREST",
+                                       "Database Functions",
+                                       "Triggers",
+                                       "Policies",
+                                       "Supabase CLI"
+                                   ],
+                     "tools":  [
+                                   "Supabase Studio",
+                                   "PostgreSQL",
+                                   "Supabase CLI"
+                               ],
+                     "lab_task":  "Connect a sample application to Supabase.",
+                     "technology":  "Supabase",
+                     "technology_id":  "supabase",
+                     "learning_objectives":  [
+                                                 "Explain the Application Integration concepts in the context of Supabase.",
+                                                 "Configure or implement the key Supabase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Application Integration practically using Supabase.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  10,
+                     "topic":  "Capstone Project",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Schema design",
+                                       "Data loading",
+                                       "Queries",
+                                       "Security",
+                                       "Performance",
+                                       "Monitoring",
+                                       "Backup",
+                                       "Documentation",
+                                       "Supabase terminology and feature mapping for this topic",
+                                       "Supabase configuration and implementation considerations",
+                                       "Supabase best practices and common mistakes for this topic",
+                                       "PostgreSQL",
+                                       "Row Level Security",
+                                       "Supabase Auth",
+                                       "Storage",
+                                       "Realtime",
+                                       "Edge Functions",
+                                       "PostgREST",
+                                       "Database Functions",
+                                       "Triggers",
+                                       "Policies",
+                                       "Supabase CLI"
+                                   ],
+                     "tools":  [
+                                   "Supabase Studio",
+                                   "PostgreSQL",
+                                   "Supabase CLI",
+                                   "Edge Functions"
+                               ],
+                     "lab_task":  "Build an end-to-end production-style Supabase solution.",
+                     "technology":  "Supabase",
+                     "technology_id":  "supabase",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone Project concepts in the context of Supabase.",
+                                                 "Configure or implement the key Supabase features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone Project practically using Supabase.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "supabase"
+}

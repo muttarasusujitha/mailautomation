@@ -30,18 +30,18 @@
     },
     {
       "day": 2,
-      "topic": "Salesforce Fundamentals",
+      "topic": "Salesforce Fundamentals - Part 2",
       "subtopics": [
-        "Platform Overview",
-        "Orgs",
-        "Setup",
-        "Navigation"
+        "Part 2: Platform Overview",
+        "Part 2: Orgs",
+        "Part 2: Setup",
+        "Part 2: Navigation"
       ],
       "tools": [
         "Salesforce"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Salesforce basics"
+      "lab_task": "Part 2 hands-on: Salesforce basics"
     },
     {
       "day": 3,
@@ -60,18 +60,18 @@
     },
     {
       "day": 4,
-      "topic": "Core Objects & Records",
+      "topic": "Core Objects & Records - Part 2",
       "subtopics": [
-        "Accounts",
-        "Contacts",
-        "Opportunities",
-        "Leads"
+        "Part 2: Accounts",
+        "Part 2: Contacts",
+        "Part 2: Opportunities",
+        "Part 2: Leads"
       ],
       "tools": [
         "Salesforce"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Core objects"
+      "lab_task": "Part 2 hands-on: Core objects"
     },
     {
       "day": 5,
@@ -89,17 +89,17 @@
     },
     {
       "day": 6,
-      "topic": "Customization Basics",
+      "topic": "Customization Basics - Part 2",
       "subtopics": [
-        "Custom Fields",
-        "Record Types",
-        "Page Layouts"
+        "Part 2: Custom Fields",
+        "Part 2: Record Types",
+        "Part 2: Page Layouts"
       ],
       "tools": [
         "Salesforce"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Basic customization"
+      "lab_task": "Part 2 hands-on: Basic customization"
     },
     {
       "day": 7,
@@ -117,17 +117,17 @@
     },
     {
       "day": 8,
-      "topic": "Automation - Workflow",
+      "topic": "Automation - Workflow - Part 2",
       "subtopics": [
-        "Workflow Rules",
-        "Actions",
-        "Time-Dependent"
+        "Part 2: Workflow Rules",
+        "Part 2: Actions",
+        "Part 2: Time-Dependent"
       ],
       "tools": [
         "Salesforce"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Workflow automation"
+      "lab_task": "Part 2 hands-on: Workflow automation"
     },
     {
       "day": 9,
@@ -145,17 +145,17 @@
     },
     {
       "day": 10,
-      "topic": "Automation - Process Builder",
+      "topic": "Automation - Process Builder - Part 2",
       "subtopics": [
-        "Process Builder",
-        "Actions",
-        "Logic"
+        "Part 2: Process Builder",
+        "Part 2: Actions",
+        "Part 2: Logic"
       ],
       "tools": [
         "Salesforce"
       ],
       "jira_focus": "Sprint planning; review progress for Automation - Process Builder",
-      "lab_task": "Process builder"
+      "lab_task": "Part 2 hands-on: Process builder"
     },
     {
       "day": 11,
@@ -174,18 +174,18 @@
     },
     {
       "day": 12,
-      "topic": "Automation - Flow Builder",
+      "topic": "Automation - Flow Builder - Part 2",
       "subtopics": [
-        "Flows",
-        "Screens",
-        "Actions",
-        "Complex Logic"
+        "Part 2: Flows",
+        "Part 2: Screens",
+        "Part 2: Actions",
+        "Part 2: Complex Logic"
       ],
       "tools": [
         "Salesforce"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Flow automation"
+      "lab_task": "Part 2 hands-on: Flow automation"
     },
     {
       "day": 13,
@@ -203,17 +203,17 @@
     },
     {
       "day": 14,
-      "topic": "Data Management",
+      "topic": "Data Management - Part 2",
       "subtopics": [
-        "Data Import",
-        "Export",
-        "Duplicate Management"
+        "Part 2: Data Import",
+        "Part 2: Export",
+        "Part 2: Duplicate Management"
       ],
       "tools": [
         "Data Loader"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Data management"
+      "lab_task": "Part 2 hands-on: Data management"
     },
     {
       "day": 15,
@@ -231,17 +231,17 @@
     },
     {
       "day": 16,
-      "topic": "Reports & Dashboards",
+      "topic": "Reports & Dashboards - Part 2",
       "subtopics": [
-        "Report Types",
-        "Formulas",
-        "Dashboards"
+        "Part 2: Report Types",
+        "Part 2: Formulas",
+        "Part 2: Dashboards"
       ],
       "tools": [
         "Salesforce"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Reports and dashboards"
+      "lab_task": "Part 2 hands-on: Reports and dashboards"
     },
     {
       "day": 17,
@@ -260,18 +260,18 @@
     },
     {
       "day": 18,
-      "topic": "Apex Basics",
+      "topic": "Apex Basics - Part 2",
       "subtopics": [
-        "Classes",
-        "Methods",
-        "Variables",
-        "Syntax"
+        "Part 2: Classes",
+        "Part 2: Methods",
+        "Part 2: Variables",
+        "Part 2: Syntax"
       ],
       "tools": [
         "Apex"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Apex programming"
+      "lab_task": "Part 2 hands-on: Apex programming"
     },
     {
       "day": 19,
@@ -289,17 +289,17 @@
     },
     {
       "day": 20,
-      "topic": "Apex Advanced",
+      "topic": "Apex Advanced - Part 2",
       "subtopics": [
-        "Triggers",
-        "Collections",
-        "Exception Handling"
+        "Part 2: Triggers",
+        "Part 2: Collections",
+        "Part 2: Exception Handling"
       ],
       "tools": [
         "Apex"
       ],
       "jira_focus": "Sprint planning; review progress for Apex Advanced",
-      "lab_task": "Advanced Apex"
+      "lab_task": "Part 2 hands-on: Advanced Apex"
     },
     {
       "day": 21,
@@ -317,17 +317,17 @@
     },
     {
       "day": 22,
-      "topic": "Visualforce Pages",
+      "topic": "Visualforce Pages - Part 2",
       "subtopics": [
-        "VF Syntax",
-        "Components",
-        "Controller"
+        "Part 2: VF Syntax",
+        "Part 2: Components",
+        "Part 2: Controller"
       ],
       "tools": [
         "Visualforce"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Visualforce development"
+      "lab_task": "Part 2 hands-on: Visualforce development"
     },
     {
       "day": 23,
@@ -346,18 +346,18 @@
     },
     {
       "day": 24,
-      "topic": "Lightning Components",
+      "topic": "Lightning Components - Part 2",
       "subtopics": [
-        "LWC",
-        "Components",
-        "Data Binding",
-        "Events"
+        "Part 2: LWC",
+        "Part 2: Components",
+        "Part 2: Data Binding",
+        "Part 2: Events"
       ],
       "tools": [
         "Lightning"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Lightning development"
+      "lab_task": "Part 2 hands-on: Lightning development"
     },
     {
       "day": 25,
@@ -375,17 +375,17 @@
     },
     {
       "day": 26,
-      "topic": "Integration",
+      "topic": "Integration - Part 2",
       "subtopics": [
-        "REST API",
-        "SOAP",
-        "Webhooks"
+        "Part 2: REST API",
+        "Part 2: SOAP",
+        "Part 2: Webhooks"
       ],
       "tools": [
         "Salesforce API"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Integration basics"
+      "lab_task": "Part 2 hands-on: Integration basics"
     },
     {
       "day": 27,
@@ -403,17 +403,17 @@
     },
     {
       "day": 28,
-      "topic": "Data Security",
+      "topic": "Data Security - Part 2",
       "subtopics": [
-        "Profiles",
-        "Permission Sets",
-        "Sharing Rules"
+        "Part 2: Profiles",
+        "Part 2: Permission Sets",
+        "Part 2: Sharing Rules"
       ],
       "tools": [
         "Salesforce"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Security and access"
+      "lab_task": "Part 2 hands-on: Security and access"
     },
     {
       "day": 29,
@@ -445,5 +445,21 @@
       "jira_focus": "Sprint planning; review progress for Deployment & Testing",
       "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
     }
-  ]
+  ],
+  "aliases": [
+    "Salesforce",
+    "SFDC",
+    "Salesforce Admin",
+    "Salesforce Developer",
+    "Apex",
+    "LWC",
+    "Sales Cloud",
+    "Service Cloud"
+  ],
+  "official_sources": [
+    "https://trailhead.salesforce.com/content/learn/modules/lightning-web-components-and-salesforce-data/use-apex-to-work-with-data",
+    "https://developer.salesforce.com/docs/platform/lwc/guide/apex-security",
+    "https://developer.salesforce.com/docs/platform/lightning-components-security/guide/lws-enable.html"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
 }

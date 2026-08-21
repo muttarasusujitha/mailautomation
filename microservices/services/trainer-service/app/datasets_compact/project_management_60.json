@@ -1,0 +1,935 @@
+{
+  "domain": "Project Management",
+  "name": "Project Management",
+  "icon": "tasks",
+  "program_title": "Project Management Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Project Management Expert",
+  "certifications": [
+    "PMP - Project Management Professional",
+    "CAPM - Certified Associate in Project Management",
+    "Agile Certified Practitioner (ACP)",
+    "Scrum Master Certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Project Management Fundamentals",
+      "subtopics": [
+        "Project vs Operations",
+        "Triple Constraint",
+        "Project Lifecycle"
+      ],
+      "tools": [
+        "Fundamentals"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "PM basics"
+    },
+    {
+      "day": 2,
+      "topic": "Project Management Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Project vs Operations",
+        "Part 2: Triple Constraint",
+        "Part 2: Project Lifecycle"
+      ],
+      "tools": [
+        "Fundamentals"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: PM basics"
+    },
+    {
+      "day": 3,
+      "topic": "Initiating Projects",
+      "subtopics": [
+        "Charter",
+        "Stakeholders",
+        "Scope",
+        "Objectives"
+      ],
+      "tools": [
+        "Project Charter"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Project initiation"
+    },
+    {
+      "day": 4,
+      "topic": "Initiating Projects - Part 2",
+      "subtopics": [
+        "Part 2: Charter",
+        "Part 2: Stakeholders",
+        "Part 2: Scope",
+        "Part 2: Objectives"
+      ],
+      "tools": [
+        "Project Charter"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Project initiation"
+    },
+    {
+      "day": 5,
+      "topic": "Planning - Scope",
+      "subtopics": [
+        "Scope Statement",
+        "WBS",
+        "Scope Baseline"
+      ],
+      "tools": [
+        "WBS"
+      ],
+      "jira_focus": "Sprint planning; review progress for Planning - Scope",
+      "lab_task": "Scope planning"
+    },
+    {
+      "day": 6,
+      "topic": "Planning - Scope - Part 2",
+      "subtopics": [
+        "Part 2: Scope Statement",
+        "Part 2: WBS",
+        "Part 2: Scope Baseline"
+      ],
+      "tools": [
+        "WBS"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Scope planning"
+    },
+    {
+      "day": 7,
+      "topic": "Planning - Schedule",
+      "subtopics": [
+        "Activity Definition",
+        "Duration Estimation",
+        "Gantt Charts"
+      ],
+      "tools": [
+        "Gantt"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Schedule planning"
+    },
+    {
+      "day": 8,
+      "topic": "Planning - Schedule - Part 2",
+      "subtopics": [
+        "Part 2: Activity Definition",
+        "Part 2: Duration Estimation",
+        "Part 2: Gantt Charts"
+      ],
+      "tools": [
+        "Gantt"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Schedule planning"
+    },
+    {
+      "day": 9,
+      "topic": "Planning - Budget",
+      "subtopics": [
+        "Cost Estimation",
+        "Budget Development",
+        "Cost Baseline"
+      ],
+      "tools": [
+        "Budget Planning"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Budget planning"
+    },
+    {
+      "day": 10,
+      "topic": "Planning - Budget - Part 2",
+      "subtopics": [
+        "Part 2: Cost Estimation",
+        "Part 2: Budget Development",
+        "Part 2: Cost Baseline"
+      ],
+      "tools": [
+        "Budget Planning"
+      ],
+      "jira_focus": "Sprint planning; review progress for Planning - Budget",
+      "lab_task": "Part 2 hands-on: Budget planning"
+    },
+    {
+      "day": 11,
+      "topic": "Planning - Risk",
+      "subtopics": [
+        "Risk Identification",
+        "Analysis",
+        "Mitigation"
+      ],
+      "tools": [
+        "Risk Register"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Risk planning"
+    },
+    {
+      "day": 12,
+      "topic": "Planning - Risk - Part 2",
+      "subtopics": [
+        "Part 2: Risk Identification",
+        "Part 2: Analysis",
+        "Part 2: Mitigation"
+      ],
+      "tools": [
+        "Risk Register"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Risk planning"
+    },
+    {
+      "day": 13,
+      "topic": "Planning - Quality & Procurement",
+      "subtopics": [
+        "Quality Planning",
+        "Vendor Selection",
+        "Contracts"
+      ],
+      "tools": [
+        "Quality"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Quality & procurement"
+    },
+    {
+      "day": 14,
+      "topic": "Planning - Quality & Procurement - Part 2",
+      "subtopics": [
+        "Part 2: Quality Planning",
+        "Part 2: Vendor Selection",
+        "Part 2: Contracts"
+      ],
+      "tools": [
+        "Quality"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Quality & procurement"
+    },
+    {
+      "day": 15,
+      "topic": "Agile Project Management",
+      "subtopics": [
+        "Agile Principles",
+        "Scrum Framework",
+        "Sprints"
+      ],
+      "tools": [
+        "Agile"
+      ],
+      "jira_focus": "Sprint planning; review progress for Agile Project Management",
+      "lab_task": "Agile methodology"
+    },
+    {
+      "day": 16,
+      "topic": "Agile Project Management - Part 2",
+      "subtopics": [
+        "Part 2: Agile Principles",
+        "Part 2: Scrum Framework",
+        "Part 2: Sprints"
+      ],
+      "tools": [
+        "Agile"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Agile methodology"
+    },
+    {
+      "day": 17,
+      "topic": "Kanban & Lean",
+      "subtopics": [
+        "Kanban Board",
+        "Lean Principles",
+        "Continuous Flow"
+      ],
+      "tools": [
+        "Kanban"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Kanban approach"
+    },
+    {
+      "day": 18,
+      "topic": "Kanban & Lean - Part 2",
+      "subtopics": [
+        "Part 2: Kanban Board",
+        "Part 2: Lean Principles",
+        "Part 2: Continuous Flow"
+      ],
+      "tools": [
+        "Kanban"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Kanban approach"
+    },
+    {
+      "day": 19,
+      "topic": "Execution & Monitoring",
+      "subtopics": [
+        "Work Performance",
+        "Status Reporting",
+        "Change Control"
+      ],
+      "tools": [
+        "Execution"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Execution phase"
+    },
+    {
+      "day": 20,
+      "topic": "Execution & Monitoring - Part 2",
+      "subtopics": [
+        "Part 2: Work Performance",
+        "Part 2: Status Reporting",
+        "Part 2: Change Control"
+      ],
+      "tools": [
+        "Execution"
+      ],
+      "jira_focus": "Sprint planning; review progress for Execution & Monitoring",
+      "lab_task": "Part 2 hands-on: Execution phase"
+    },
+    {
+      "day": 21,
+      "topic": "Controlling Quality",
+      "subtopics": [
+        "Inspections",
+        "Process Analysis",
+        "Quality Assurance"
+      ],
+      "tools": [
+        "QA"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Quality control"
+    },
+    {
+      "day": 22,
+      "topic": "Controlling Quality - Part 2",
+      "subtopics": [
+        "Part 2: Inspections",
+        "Part 2: Process Analysis",
+        "Part 2: Quality Assurance"
+      ],
+      "tools": [
+        "QA"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Quality control"
+    },
+    {
+      "day": 23,
+      "topic": "Stakeholder Management",
+      "subtopics": [
+        "Communication Plans",
+        "Engagement",
+        "Conflict Resolution"
+      ],
+      "tools": [
+        "Stakeholder Management"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Stakeholder engagement"
+    },
+    {
+      "day": 24,
+      "topic": "Stakeholder Management - Part 2",
+      "subtopics": [
+        "Part 2: Communication Plans",
+        "Part 2: Engagement",
+        "Part 2: Conflict Resolution"
+      ],
+      "tools": [
+        "Stakeholder Management"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Stakeholder engagement"
+    },
+    {
+      "day": 25,
+      "topic": "Team Management",
+      "subtopics": [
+        "Team Building",
+        "Leadership",
+        "Motivation",
+        "Conflict"
+      ],
+      "tools": [
+        "Team Management"
+      ],
+      "jira_focus": "Sprint planning; review progress for Team Management",
+      "lab_task": "Team dynamics"
+    },
+    {
+      "day": 26,
+      "topic": "Team Management - Part 2",
+      "subtopics": [
+        "Part 2: Team Building",
+        "Part 2: Leadership",
+        "Part 2: Motivation",
+        "Part 2: Conflict"
+      ],
+      "tools": [
+        "Team Management"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Team dynamics"
+    },
+    {
+      "day": 27,
+      "topic": "Closing Projects",
+      "subtopics": [
+        "Deliverables",
+        "Lessons Learned",
+        "Documentation"
+      ],
+      "tools": [
+        "Project Closure"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Project closure"
+    },
+    {
+      "day": 28,
+      "topic": "Closing Projects - Part 2",
+      "subtopics": [
+        "Part 2: Deliverables",
+        "Part 2: Lessons Learned",
+        "Part 2: Documentation"
+      ],
+      "tools": [
+        "Project Closure"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Project closure"
+    },
+    {
+      "day": 29,
+      "topic": "Real-World Project Scenarios",
+      "subtopics": [
+        "Case Studies",
+        "Complex Projects",
+        "Leadership Challenges"
+      ],
+      "tools": [
+        "Case Studies"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Advanced scenarios"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Case Studies",
+        "Complex Projects",
+        "Leadership Challenges"
+      ],
+      "tools": [
+        "Case Studies"
+      ],
+      "jira_focus": "Sprint planning; review progress for Real-World Project Scenarios",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    },
+    {
+      "day": 31,
+      "topic": "Project Charter Deep Dive",
+      "subtopics": [
+        "Project Charter Deep Dive concepts",
+        "Project Charter Deep Dive configuration",
+        "Project Charter Deep Dive hands-on workflow",
+        "Project Charter Deep Dive troubleshooting",
+        "Project Charter Deep Dive best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Project Charter Deep Dive"
+    },
+    {
+      "day": 32,
+      "topic": "Stakeholder Management - Part 3",
+      "subtopics": [
+        "Part 3: Stakeholder Management concepts",
+        "Part 3: Stakeholder Management configuration",
+        "Part 3: Stakeholder Management hands-on workflow",
+        "Part 3: Stakeholder Management troubleshooting",
+        "Part 3: Stakeholder Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Part 3 hands-on: Hands-on lab: Stakeholder Management"
+    },
+    {
+      "day": 33,
+      "topic": "Scope Management",
+      "subtopics": [
+        "Scope Management concepts",
+        "Scope Management configuration",
+        "Scope Management hands-on workflow",
+        "Scope Management troubleshooting",
+        "Scope Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Scope Management"
+    },
+    {
+      "day": 34,
+      "topic": "Schedule Management",
+      "subtopics": [
+        "Schedule Management concepts",
+        "Schedule Management configuration",
+        "Schedule Management hands-on workflow",
+        "Schedule Management troubleshooting",
+        "Schedule Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Schedule Management"
+    },
+    {
+      "day": 35,
+      "topic": "Cost Management",
+      "subtopics": [
+        "Cost Management concepts",
+        "Cost Management configuration",
+        "Cost Management hands-on workflow",
+        "Cost Management troubleshooting",
+        "Cost Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Cost Management"
+    },
+    {
+      "day": 36,
+      "topic": "Risk Management",
+      "subtopics": [
+        "Risk Management concepts",
+        "Risk Management configuration",
+        "Risk Management hands-on workflow",
+        "Risk Management troubleshooting",
+        "Risk Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Risk Management"
+    },
+    {
+      "day": 37,
+      "topic": "Quality Management",
+      "subtopics": [
+        "Quality Management concepts",
+        "Quality Management configuration",
+        "Quality Management hands-on workflow",
+        "Quality Management troubleshooting",
+        "Quality Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Quality Management"
+    },
+    {
+      "day": 38,
+      "topic": "Communication Management",
+      "subtopics": [
+        "Communication Management concepts",
+        "Communication Management configuration",
+        "Communication Management hands-on workflow",
+        "Communication Management troubleshooting",
+        "Communication Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Communication Management"
+    },
+    {
+      "day": 39,
+      "topic": "Procurement Management",
+      "subtopics": [
+        "Procurement Management concepts",
+        "Procurement Management configuration",
+        "Procurement Management hands-on workflow",
+        "Procurement Management troubleshooting",
+        "Procurement Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Procurement Management"
+    },
+    {
+      "day": 40,
+      "topic": "Agile Scrum Foundations",
+      "subtopics": [
+        "Agile Scrum Foundations concepts",
+        "Agile Scrum Foundations configuration",
+        "Agile Scrum Foundations hands-on workflow",
+        "Agile Scrum Foundations troubleshooting",
+        "Agile Scrum Foundations best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Agile Scrum Foundations"
+    },
+    {
+      "day": 41,
+      "topic": "Sprint Planning",
+      "subtopics": [
+        "Sprint Planning concepts",
+        "Sprint Planning configuration",
+        "Sprint Planning hands-on workflow",
+        "Sprint Planning troubleshooting",
+        "Sprint Planning best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Sprint Planning"
+    },
+    {
+      "day": 42,
+      "topic": "Backlog Management",
+      "subtopics": [
+        "Backlog Management concepts",
+        "Backlog Management configuration",
+        "Backlog Management hands-on workflow",
+        "Backlog Management troubleshooting",
+        "Backlog Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Backlog Management"
+    },
+    {
+      "day": 43,
+      "topic": "Jira for PM",
+      "subtopics": [
+        "Jira for PM concepts",
+        "Jira for PM configuration",
+        "Jira for PM hands-on workflow",
+        "Jira for PM troubleshooting",
+        "Jira for PM best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Jira for PM"
+    },
+    {
+      "day": 44,
+      "topic": "Kanban and Flow Metrics",
+      "subtopics": [
+        "Kanban and Flow Metrics concepts",
+        "Kanban and Flow Metrics configuration",
+        "Kanban and Flow Metrics hands-on workflow",
+        "Kanban and Flow Metrics troubleshooting",
+        "Kanban and Flow Metrics best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Kanban and Flow Metrics"
+    },
+    {
+      "day": 45,
+      "topic": "Project Reporting",
+      "subtopics": [
+        "Project Reporting concepts",
+        "Project Reporting configuration",
+        "Project Reporting hands-on workflow",
+        "Project Reporting troubleshooting",
+        "Project Reporting best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Project Reporting"
+    },
+    {
+      "day": 46,
+      "topic": "Governance and PMO",
+      "subtopics": [
+        "Governance and PMO concepts",
+        "Governance and PMO configuration",
+        "Governance and PMO hands-on workflow",
+        "Governance and PMO troubleshooting",
+        "Governance and PMO best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Governance and PMO"
+    },
+    {
+      "day": 47,
+      "topic": "Change Management",
+      "subtopics": [
+        "Change Management concepts",
+        "Change Management configuration",
+        "Change Management hands-on workflow",
+        "Change Management troubleshooting",
+        "Change Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Change Management"
+    },
+    {
+      "day": 48,
+      "topic": "Conflict Management",
+      "subtopics": [
+        "Conflict Management concepts",
+        "Conflict Management configuration",
+        "Conflict Management hands-on workflow",
+        "Conflict Management troubleshooting",
+        "Conflict Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Conflict Management"
+    },
+    {
+      "day": 49,
+      "topic": "Vendor Management",
+      "subtopics": [
+        "Vendor Management concepts",
+        "Vendor Management configuration",
+        "Vendor Management hands-on workflow",
+        "Vendor Management troubleshooting",
+        "Vendor Management best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Vendor Management"
+    },
+    {
+      "day": 50,
+      "topic": "Portfolio Basics",
+      "subtopics": [
+        "Portfolio Basics concepts",
+        "Portfolio Basics configuration",
+        "Portfolio Basics hands-on workflow",
+        "Portfolio Basics troubleshooting",
+        "Portfolio Basics best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Portfolio Basics"
+    },
+    {
+      "day": 51,
+      "topic": "PM Capstone Planning",
+      "subtopics": [
+        "PM Capstone Planning concepts",
+        "PM Capstone Planning configuration",
+        "PM Capstone Planning hands-on workflow",
+        "PM Capstone Planning troubleshooting",
+        "PM Capstone Planning best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: PM Capstone Planning"
+    },
+    {
+      "day": 52,
+      "topic": "PM Capstone Execution",
+      "subtopics": [
+        "PM Capstone Execution concepts",
+        "PM Capstone Execution configuration",
+        "PM Capstone Execution hands-on workflow",
+        "PM Capstone Execution troubleshooting",
+        "PM Capstone Execution best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: PM Capstone Execution"
+    },
+    {
+      "day": 53,
+      "topic": "PM Capstone Reporting",
+      "subtopics": [
+        "PM Capstone Reporting concepts",
+        "PM Capstone Reporting configuration",
+        "PM Capstone Reporting hands-on workflow",
+        "PM Capstone Reporting troubleshooting",
+        "PM Capstone Reporting best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: PM Capstone Reporting"
+    },
+    {
+      "day": 54,
+      "topic": "PM Final Presentation",
+      "subtopics": [
+        "PM Final Presentation concepts",
+        "PM Final Presentation configuration",
+        "PM Final Presentation hands-on workflow",
+        "PM Final Presentation troubleshooting",
+        "PM Final Presentation best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: PM Final Presentation"
+    },
+    {
+      "day": 55,
+      "topic": "PM Capstone Charter",
+      "subtopics": [
+        "PM Capstone Charter concepts",
+        "PM Capstone Charter hands-on workflow",
+        "PM Capstone Charter validation",
+        "PM Capstone Charter troubleshooting",
+        "PM Capstone Charter best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: PM Capstone Charter"
+    },
+    {
+      "day": 56,
+      "topic": "PM Schedule and Cost Baseline",
+      "subtopics": [
+        "PM Schedule and Cost Baseline concepts",
+        "PM Schedule and Cost Baseline hands-on workflow",
+        "PM Schedule and Cost Baseline validation",
+        "PM Schedule and Cost Baseline troubleshooting",
+        "PM Schedule and Cost Baseline best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: PM Schedule and Cost Baseline"
+    },
+    {
+      "day": 57,
+      "topic": "Risk and Stakeholder Sprint",
+      "subtopics": [
+        "Risk and Stakeholder Sprint concepts",
+        "Risk and Stakeholder Sprint hands-on workflow",
+        "Risk and Stakeholder Sprint validation",
+        "Risk and Stakeholder Sprint troubleshooting",
+        "Risk and Stakeholder Sprint best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Risk and Stakeholder Sprint"
+    },
+    {
+      "day": 58,
+      "topic": "Agile Execution Simulation",
+      "subtopics": [
+        "Agile Execution Simulation concepts",
+        "Agile Execution Simulation hands-on workflow",
+        "Agile Execution Simulation validation",
+        "Agile Execution Simulation troubleshooting",
+        "Agile Execution Simulation best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Agile Execution Simulation"
+    },
+    {
+      "day": 59,
+      "topic": "Governance Reporting Sprint",
+      "subtopics": [
+        "Governance Reporting Sprint concepts",
+        "Governance Reporting Sprint hands-on workflow",
+        "Governance Reporting Sprint validation",
+        "Governance Reporting Sprint troubleshooting",
+        "Governance Reporting Sprint best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Governance Reporting Sprint"
+    },
+    {
+      "day": 60,
+      "topic": "PM Final Presentation - Part 2",
+      "subtopics": [
+        "Part 2: PM Final Presentation concepts",
+        "Part 2: PM Final Presentation hands-on workflow",
+        "Part 2: PM Final Presentation validation",
+        "Part 2: PM Final Presentation troubleshooting",
+        "Part 2: PM Final Presentation best practices"
+      ],
+      "tools": [
+        "Project Management"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Part 2 hands-on: Hands-on lab: PM Final Presentation"
+    }
+  ],
+  "aliases": [
+    "Project Management",
+    "PMP",
+    "Agile",
+    "Scrum",
+    "Project Manager",
+    "Program Management",
+    "PMO",
+    "Jira Project Management"
+  ],
+  "official_sources": [
+    "https://www.pmi.org/certifications/project-management-pmp"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

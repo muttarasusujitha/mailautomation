@@ -29,18 +29,18 @@
     },
     {
       "day": 2,
-      "topic": "Power BI Fundamentals",
+      "topic": "Power BI Fundamentals - Part 2",
       "subtopics": [
-        "Workspace",
-        "Apps",
-        "Navigation",
-        "Licensing"
+        "Part 2: Workspace",
+        "Part 2: Apps",
+        "Part 2: Navigation",
+        "Part 2: Licensing"
       ],
       "tools": [
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Power BI basics"
+      "lab_task": "Part 2 hands-on: Power BI basics"
     },
     {
       "day": 3,
@@ -59,18 +59,18 @@
     },
     {
       "day": 4,
-      "topic": "Data Sources & Connections",
+      "topic": "Data Sources & Connections - Part 2",
       "subtopics": [
-        "Excel",
-        "SQL",
-        "APIs",
-        "Data Gateway"
+        "Part 2: Excel",
+        "Part 2: SQL",
+        "Part 2: APIs",
+        "Part 2: Data Gateway"
       ],
       "tools": [
         "Power Query"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Data connections"
+      "lab_task": "Part 2 hands-on: Data connections"
     },
     {
       "day": 5,
@@ -89,18 +89,18 @@
     },
     {
       "day": 6,
-      "topic": "Data Modeling",
+      "topic": "Data Modeling - Part 2",
       "subtopics": [
-        "Tables",
-        "Relationships",
-        "Cardinality",
-        "Star Schema"
+        "Part 2: Tables",
+        "Part 2: Relationships",
+        "Part 2: Cardinality",
+        "Part 2: Star Schema"
       ],
       "tools": [
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Data modeling"
+      "lab_task": "Part 2 hands-on: Data modeling"
     },
     {
       "day": 7,
@@ -119,18 +119,18 @@
     },
     {
       "day": 8,
-      "topic": "Power Query",
+      "topic": "Power Query - Part 2",
       "subtopics": [
-        "Queries",
-        "Transformations",
-        "M Language",
-        "Merge/Append"
+        "Part 2: Queries",
+        "Part 2: Transformations",
+        "Part 2: M Language",
+        "Part 2: Merge/Append"
       ],
       "tools": [
         "Power Query"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Power Query editor"
+      "lab_task": "Part 2 hands-on: Power Query editor"
     },
     {
       "day": 9,
@@ -148,17 +148,17 @@
     },
     {
       "day": 10,
-      "topic": "DAX Fundamentals",
+      "topic": "DAX Fundamentals - Part 2",
       "subtopics": [
-        "Syntax",
-        "Functions",
-        "Context"
+        "Part 2: Syntax",
+        "Part 2: Functions",
+        "Part 2: Context"
       ],
       "tools": [
         "DAX"
       ],
       "jira_focus": "Sprint planning; review progress for DAX Fundamentals",
-      "lab_task": "DAX basics"
+      "lab_task": "Part 2 hands-on: DAX basics"
     },
     {
       "day": 11,
@@ -177,18 +177,18 @@
     },
     {
       "day": 12,
-      "topic": "DAX Advanced",
+      "topic": "DAX Advanced - Part 2",
       "subtopics": [
-        "CALCULATE",
-        "FILTER",
-        "SUMX",
-        "Complex Formulas"
+        "Part 2: CALCULATE",
+        "Part 2: FILTER",
+        "Part 2: SUMX",
+        "Part 2: Complex Formulas"
       ],
       "tools": [
         "DAX"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Advanced DAX"
+      "lab_task": "Part 2 hands-on: Advanced DAX"
     },
     {
       "day": 13,
@@ -207,18 +207,18 @@
     },
     {
       "day": 14,
-      "topic": "Visualizations",
+      "topic": "Visualizations - Part 2",
       "subtopics": [
-        "Charts",
-        "Tables",
-        "Maps",
-        "Custom Visuals"
+        "Part 2: Charts",
+        "Part 2: Tables",
+        "Part 2: Maps",
+        "Part 2: Custom Visuals"
       ],
       "tools": [
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Creating visualizations"
+      "lab_task": "Part 2 hands-on: Creating visualizations"
     },
     {
       "day": 15,
@@ -237,18 +237,18 @@
     },
     {
       "day": 16,
-      "topic": "Dashboards",
+      "topic": "Dashboards - Part 2",
       "subtopics": [
-        "Dashboard Design",
-        "Interactivity",
-        "Filters",
-        "Sync"
+        "Part 2: Dashboard Design",
+        "Part 2: Interactivity",
+        "Part 2: Filters",
+        "Part 2: Sync"
       ],
       "tools": [
         "Power BI"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Dashboard creation"
+      "lab_task": "Part 2 hands-on: Dashboard creation"
     },
     {
       "day": 17,
@@ -267,18 +267,18 @@
     },
     {
       "day": 18,
-      "topic": "Reports",
+      "topic": "Reports - Part 2",
       "subtopics": [
-        "Report Pages",
-        "Drillthrough",
-        "Bookmarks",
-        "Themes"
+        "Part 2: Report Pages",
+        "Part 2: Drillthrough",
+        "Part 2: Bookmarks",
+        "Part 2: Themes"
       ],
       "tools": [
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Report development"
+      "lab_task": "Part 2 hands-on: Report development"
     },
     {
       "day": 19,
@@ -296,17 +296,17 @@
     },
     {
       "day": 20,
-      "topic": "Performance Optimization",
+      "topic": "Performance Optimization - Part 2",
       "subtopics": [
-        "Query Optimization",
-        "Compression",
-        "Aggregations"
+        "Part 2: Query Optimization",
+        "Part 2: Compression",
+        "Part 2: Aggregations"
       ],
       "tools": [
         "Power BI"
       ],
       "jira_focus": "Sprint planning; review progress for Performance Optimization",
-      "lab_task": "Performance tuning"
+      "lab_task": "Part 2 hands-on: Performance tuning"
     },
     {
       "day": 21,
@@ -324,17 +324,17 @@
     },
     {
       "day": 22,
-      "topic": "Row-Level Security",
+      "topic": "Row-Level Security - Part 2",
       "subtopics": [
-        "RLS",
-        "Dynamic Security",
-        "Configuration"
+        "Part 2: RLS",
+        "Part 2: Dynamic Security",
+        "Part 2: Configuration"
       ],
       "tools": [
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Security implementation"
+      "lab_task": "Part 2 hands-on: Security implementation"
     },
     {
       "day": 23,
@@ -352,17 +352,17 @@
     },
     {
       "day": 24,
-      "topic": "Advanced Analytics",
+      "topic": "Advanced Analytics - Part 2",
       "subtopics": [
-        "R/Python Visuals",
-        "ML Models",
-        "Forecasting"
+        "Part 2: R/Python Visuals",
+        "Part 2: ML Models",
+        "Part 2: Forecasting"
       ],
       "tools": [
         "Power BI"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Advanced analytics"
+      "lab_task": "Part 2 hands-on: Advanced analytics"
     },
     {
       "day": 25,
@@ -380,17 +380,17 @@
     },
     {
       "day": 26,
-      "topic": "Sharing & Collaboration",
+      "topic": "Sharing & Collaboration - Part 2",
       "subtopics": [
-        "Sharing Reports",
-        "Apps",
-        "Workspaces"
+        "Part 2: Sharing Reports",
+        "Part 2: Apps",
+        "Part 2: Workspaces"
       ],
       "tools": [
         "Power BI"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Sharing and collaboration"
+      "lab_task": "Part 2 hands-on: Sharing and collaboration"
     },
     {
       "day": 27,
@@ -408,17 +408,17 @@
     },
     {
       "day": 28,
-      "topic": "Deployment",
+      "topic": "Deployment - Part 2",
       "subtopics": [
-        "Premium Capacity",
-        "Refresh Schedules",
-        "Monitoring"
+        "Part 2: Premium Capacity",
+        "Part 2: Refresh Schedules",
+        "Part 2: Monitoring"
       ],
       "tools": [
         "Power BI"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Deployment strategies"
+      "lab_task": "Part 2 hands-on: Deployment strategies"
     },
     {
       "day": 29,
@@ -448,5 +448,19 @@
       "jira_focus": "Sprint planning; review progress for Real-World Projects",
       "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
     }
-  ]
+  ],
+  "aliases": [
+    "Power BI",
+    "PowerBI",
+    "BI",
+    "Business Intelligence",
+    "DAX",
+    "Power Query",
+    "Power BI Dashboard",
+    "Power BI Developer"
+  ],
+  "official_sources": [
+    "https://learn.microsoft.com/en-us/power-bi/transform-model/"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
 }

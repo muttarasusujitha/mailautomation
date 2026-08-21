@@ -21,6 +21,8 @@ const emptyDomain = () => ({
   name: '',
   icon: 'book',
   aliasesText: '',
+  officialSourcesText: '',
+  officialAlignmentNote: '',
   active: true,
   level_map: Object.fromEntries(LEVELS.map(level => [level, []])),
   jiraDailyText: 'Update sprint board\nLog time\nMove cards',
@@ -46,6 +48,8 @@ function toForm(doc) {
     name: source.name || doc.name || doc.domain || '',
     level_map: levelMap,
     aliasesText: (source.aliases || []).join(', '),
+    officialSourcesText: (source.official_sources || []).join('\n'),
+    officialAlignmentNote: source.official_alignment_note || '',
     jiraDailyText: ((source.jira_practice || {}).daily || []).join('\n'),
     jiraWeeklyText: ((source.jira_practice || {}).weekly || []).join('\n'),
     certificationsText: (source.certifications || []).join('\n'),
@@ -59,6 +63,8 @@ function toPayload(form) {
     key,
     icon: form.icon || 'book',
     aliases: csv(form.aliasesText),
+    official_sources: lines(form.officialSourcesText),
+    official_alignment_note: form.officialAlignmentNote,
     active: form.active,
     level_map: form.level_map,
     jira_practice: {
@@ -320,6 +326,22 @@ export default function TocKnowledge() {
               </Field>
               <Field label="Certifications">
                 <Textarea value={form.certificationsText} onChange={event => updateForm({ certificationsText: event.target.value })} placeholder="One certification per line" />
+              </Field>
+            </div>
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <Field label="Official Sources">
+                <Textarea
+                  value={form.officialSourcesText}
+                  onChange={event => updateForm({ officialSourcesText: event.target.value })}
+                  placeholder="One official documentation URL per line"
+                />
+              </Field>
+              <Field label="Alignment Note">
+                <Textarea
+                  value={form.officialAlignmentNote}
+                  onChange={event => updateForm({ officialAlignmentNote: event.target.value })}
+                  placeholder="Short note about how this curriculum was aligned"
+                />
               </Field>
             </div>
           </div>

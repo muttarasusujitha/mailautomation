@@ -1,0 +1,944 @@
+{
+  "domain": "Cloud",
+  "name": "Cloud",
+  "icon": "cloud",
+  "program_title": "Cloud Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Cloud Expert",
+  "certifications": [
+    "AWS Solutions Architect - Associate",
+    "Google Cloud Associate Cloud Engineer",
+    "Azure Fundamentals",
+    "Cloud Security Knowledge"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Cloud Fundamentals",
+      "subtopics": [
+        "IaaS/PaaS/SaaS",
+        "Deployment Models",
+        "Benefits",
+        "Risks"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Cloud basics"
+    },
+    {
+      "day": 2,
+      "topic": "Cloud Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: IaaS/PaaS/SaaS",
+        "Part 2: Deployment Models",
+        "Part 2: Benefits",
+        "Part 2: Risks"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Cloud basics"
+    },
+    {
+      "day": 3,
+      "topic": "AWS Fundamentals",
+      "subtopics": [
+        "Services",
+        "EC2",
+        "S3",
+        "VPC"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "AWS core services"
+    },
+    {
+      "day": 4,
+      "topic": "AWS Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Services",
+        "Part 2: EC2",
+        "Part 2: S3",
+        "Part 2: VPC"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: AWS core services"
+    },
+    {
+      "day": 5,
+      "topic": "AWS Advanced",
+      "subtopics": [
+        "Auto Scaling",
+        "Load Balancers",
+        "RDS",
+        "Lambda"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Sprint planning; review progress for AWS Advanced",
+      "lab_task": "AWS advanced services"
+    },
+    {
+      "day": 6,
+      "topic": "AWS Advanced - Part 2",
+      "subtopics": [
+        "Part 2: Auto Scaling",
+        "Part 2: Load Balancers",
+        "Part 2: RDS",
+        "Part 2: Lambda"
+      ],
+      "tools": [
+        "AWS"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: AWS advanced services"
+    },
+    {
+      "day": 7,
+      "topic": "Google Cloud Fundamentals",
+      "subtopics": [
+        "Compute",
+        "Storage",
+        "Networking"
+      ],
+      "tools": [
+        "GCP"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "GCP services"
+    },
+    {
+      "day": 8,
+      "topic": "Google Cloud Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Compute",
+        "Part 2: Storage",
+        "Part 2: Networking"
+      ],
+      "tools": [
+        "GCP"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: GCP services"
+    },
+    {
+      "day": 9,
+      "topic": "Google Cloud Advanced",
+      "subtopics": [
+        "BigQuery",
+        "Dataflow",
+        "Cloud Run"
+      ],
+      "tools": [
+        "GCP"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "GCP advanced services"
+    },
+    {
+      "day": 10,
+      "topic": "Google Cloud Advanced - Part 2",
+      "subtopics": [
+        "Part 2: BigQuery",
+        "Part 2: Dataflow",
+        "Part 2: Cloud Run"
+      ],
+      "tools": [
+        "GCP"
+      ],
+      "jira_focus": "Sprint planning; review progress for Google Cloud Advanced",
+      "lab_task": "Part 2 hands-on: GCP advanced services"
+    },
+    {
+      "day": 11,
+      "topic": "Azure Fundamentals",
+      "subtopics": [
+        "Virtual Machines",
+        "Storage",
+        "Networking"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Azure services"
+    },
+    {
+      "day": 12,
+      "topic": "Azure Fundamentals - Part 2",
+      "subtopics": [
+        "Part 2: Virtual Machines",
+        "Part 2: Storage",
+        "Part 2: Networking"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Azure services"
+    },
+    {
+      "day": 13,
+      "topic": "Azure Advanced",
+      "subtopics": [
+        "App Service",
+        "Functions",
+        "Containers"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Azure advanced services"
+    },
+    {
+      "day": 14,
+      "topic": "Azure Advanced - Part 2",
+      "subtopics": [
+        "Part 2: App Service",
+        "Part 2: Functions",
+        "Part 2: Containers"
+      ],
+      "tools": [
+        "Azure"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Azure advanced services"
+    },
+    {
+      "day": 15,
+      "topic": "Networking in Cloud",
+      "subtopics": [
+        "VPC/Virtual Networks",
+        "Subnets",
+        "Routing",
+        "Security Groups"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Sprint planning; review progress for Networking in Cloud",
+      "lab_task": "Cloud networking"
+    },
+    {
+      "day": 16,
+      "topic": "Networking in Cloud - Part 2",
+      "subtopics": [
+        "Part 2: VPC/Virtual Networks",
+        "Part 2: Subnets",
+        "Part 2: Routing",
+        "Part 2: Security Groups"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Cloud networking"
+    },
+    {
+      "day": 17,
+      "topic": "Storage Solutions",
+      "subtopics": [
+        "Object Storage",
+        "Block Storage",
+        "File Storage"
+      ],
+      "tools": [
+        "Cloud Storage"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Storage options"
+    },
+    {
+      "day": 18,
+      "topic": "Storage Solutions - Part 2",
+      "subtopics": [
+        "Part 2: Object Storage",
+        "Part 2: Block Storage",
+        "Part 2: File Storage"
+      ],
+      "tools": [
+        "Cloud Storage"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Storage options"
+    },
+    {
+      "day": 19,
+      "topic": "Databases in Cloud",
+      "subtopics": [
+        "SQL/NoSQL",
+        "Managed Services",
+        "Replication"
+      ],
+      "tools": [
+        "Cloud Databases"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Database services"
+    },
+    {
+      "day": 20,
+      "topic": "Databases in Cloud - Part 2",
+      "subtopics": [
+        "Part 2: SQL/NoSQL",
+        "Part 2: Managed Services",
+        "Part 2: Replication"
+      ],
+      "tools": [
+        "Cloud Databases"
+      ],
+      "jira_focus": "Sprint planning; review progress for Databases in Cloud",
+      "lab_task": "Part 2 hands-on: Database services"
+    },
+    {
+      "day": 21,
+      "topic": "Container Orchestration",
+      "subtopics": [
+        "Kubernetes",
+        "Container Services",
+        "Cluster Management"
+      ],
+      "tools": [
+        "K8s"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Container orchestration"
+    },
+    {
+      "day": 22,
+      "topic": "Container Orchestration - Part 2",
+      "subtopics": [
+        "Part 2: Kubernetes",
+        "Part 2: Container Services",
+        "Part 2: Cluster Management"
+      ],
+      "tools": [
+        "K8s"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Container orchestration"
+    },
+    {
+      "day": 23,
+      "topic": "Serverless Computing",
+      "subtopics": [
+        "Functions",
+        "Event-driven",
+        "Scaling"
+      ],
+      "tools": [
+        "Serverless"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Serverless platforms"
+    },
+    {
+      "day": 24,
+      "topic": "Serverless Computing - Part 2",
+      "subtopics": [
+        "Part 2: Functions",
+        "Part 2: Event-driven",
+        "Part 2: Scaling"
+      ],
+      "tools": [
+        "Serverless"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Serverless platforms"
+    },
+    {
+      "day": 25,
+      "topic": "Infrastructure as Code",
+      "subtopics": [
+        "Terraform",
+        "CloudFormation",
+        "Ansible"
+      ],
+      "tools": [
+        "IaC Tools"
+      ],
+      "jira_focus": "Sprint planning; review progress for Infrastructure as Code",
+      "lab_task": "Infrastructure automation"
+    },
+    {
+      "day": 26,
+      "topic": "Infrastructure as Code - Part 2",
+      "subtopics": [
+        "Part 2: Terraform",
+        "Part 2: CloudFormation",
+        "Part 2: Ansible"
+      ],
+      "tools": [
+        "IaC Tools"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Part 2 hands-on: Infrastructure automation"
+    },
+    {
+      "day": 27,
+      "topic": "Cloud Security",
+      "subtopics": [
+        "IAM",
+        "Encryption",
+        "Compliance",
+        "Best Practices"
+      ],
+      "tools": [
+        "Cloud Security"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Cloud security"
+    },
+    {
+      "day": 28,
+      "topic": "Cloud Security - Part 2",
+      "subtopics": [
+        "Part 2: IAM",
+        "Part 2: Encryption",
+        "Part 2: Compliance",
+        "Part 2: Best Practices"
+      ],
+      "tools": [
+        "Cloud Security"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Part 2 hands-on: Cloud security"
+    },
+    {
+      "day": 29,
+      "topic": "Cost Optimization & Governance",
+      "subtopics": [
+        "Cost Analysis",
+        "Resource Optimization",
+        "Governance"
+      ],
+      "tools": [
+        "Cost Management"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Cost and governance"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Cost Analysis",
+        "Resource Optimization",
+        "Governance"
+      ],
+      "tools": [
+        "Cost Management"
+      ],
+      "jira_focus": "Sprint planning; review progress for Cost Optimization & Governance",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    },
+    {
+      "day": 31,
+      "topic": "Cloud Strategy and Architecture",
+      "subtopics": [
+        "Cloud Strategy and Architecture concepts",
+        "Cloud Strategy and Architecture configuration",
+        "Cloud Strategy and Architecture hands-on workflow",
+        "Cloud Strategy and Architecture troubleshooting",
+        "Cloud Strategy and Architecture best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Cloud Strategy and Architecture"
+    },
+    {
+      "day": 32,
+      "topic": "AWS IAM and Networking",
+      "subtopics": [
+        "AWS IAM and Networking concepts",
+        "AWS IAM and Networking configuration",
+        "AWS IAM and Networking hands-on workflow",
+        "AWS IAM and Networking troubleshooting",
+        "AWS IAM and Networking best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: AWS IAM and Networking"
+    },
+    {
+      "day": 33,
+      "topic": "AWS Compute and Storage",
+      "subtopics": [
+        "AWS Compute and Storage concepts",
+        "AWS Compute and Storage configuration",
+        "AWS Compute and Storage hands-on workflow",
+        "AWS Compute and Storage troubleshooting",
+        "AWS Compute and Storage best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: AWS Compute and Storage"
+    },
+    {
+      "day": 34,
+      "topic": "AWS Databases and Serverless",
+      "subtopics": [
+        "AWS Databases and Serverless concepts",
+        "AWS Databases and Serverless configuration",
+        "AWS Databases and Serverless hands-on workflow",
+        "AWS Databases and Serverless troubleshooting",
+        "AWS Databases and Serverless best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: AWS Databases and Serverless"
+    },
+    {
+      "day": 35,
+      "topic": "Azure Identity and Networking",
+      "subtopics": [
+        "Azure Identity and Networking concepts",
+        "Azure Identity and Networking configuration",
+        "Azure Identity and Networking hands-on workflow",
+        "Azure Identity and Networking troubleshooting",
+        "Azure Identity and Networking best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Azure Identity and Networking"
+    },
+    {
+      "day": 36,
+      "topic": "Azure Compute and App Services",
+      "subtopics": [
+        "Azure Compute and App Services concepts",
+        "Azure Compute and App Services configuration",
+        "Azure Compute and App Services hands-on workflow",
+        "Azure Compute and App Services troubleshooting",
+        "Azure Compute and App Services best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Azure Compute and App Services"
+    },
+    {
+      "day": 37,
+      "topic": "Azure Containers and AKS",
+      "subtopics": [
+        "Azure Containers and AKS concepts",
+        "Azure Containers and AKS configuration",
+        "Azure Containers and AKS hands-on workflow",
+        "Azure Containers and AKS troubleshooting",
+        "Azure Containers and AKS best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Azure Containers and AKS"
+    },
+    {
+      "day": 38,
+      "topic": "GCP Compute and Storage",
+      "subtopics": [
+        "GCP Compute and Storage concepts",
+        "GCP Compute and Storage configuration",
+        "GCP Compute and Storage hands-on workflow",
+        "GCP Compute and Storage troubleshooting",
+        "GCP Compute and Storage best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: GCP Compute and Storage"
+    },
+    {
+      "day": 39,
+      "topic": "GCP Kubernetes and Cloud Run",
+      "subtopics": [
+        "GCP Kubernetes and Cloud Run concepts",
+        "GCP Kubernetes and Cloud Run configuration",
+        "GCP Kubernetes and Cloud Run hands-on workflow",
+        "GCP Kubernetes and Cloud Run troubleshooting",
+        "GCP Kubernetes and Cloud Run best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: GCP Kubernetes and Cloud Run"
+    },
+    {
+      "day": 40,
+      "topic": "Cloud Security and IAM",
+      "subtopics": [
+        "Cloud Security and IAM concepts",
+        "Cloud Security and IAM configuration",
+        "Cloud Security and IAM hands-on workflow",
+        "Cloud Security and IAM troubleshooting",
+        "Cloud Security and IAM best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Cloud Security and IAM"
+    },
+    {
+      "day": 41,
+      "topic": "Cloud Cost Optimization",
+      "subtopics": [
+        "Cloud Cost Optimization concepts",
+        "Cloud Cost Optimization configuration",
+        "Cloud Cost Optimization hands-on workflow",
+        "Cloud Cost Optimization troubleshooting",
+        "Cloud Cost Optimization best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Cloud Cost Optimization"
+    },
+    {
+      "day": 42,
+      "topic": "Cloud Migration Planning",
+      "subtopics": [
+        "Cloud Migration Planning concepts",
+        "Cloud Migration Planning configuration",
+        "Cloud Migration Planning hands-on workflow",
+        "Cloud Migration Planning troubleshooting",
+        "Cloud Migration Planning best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Cloud Migration Planning"
+    },
+    {
+      "day": 43,
+      "topic": "Hybrid and Multi-Cloud",
+      "subtopics": [
+        "Hybrid and Multi-Cloud concepts",
+        "Hybrid and Multi-Cloud configuration",
+        "Hybrid and Multi-Cloud hands-on workflow",
+        "Hybrid and Multi-Cloud troubleshooting",
+        "Hybrid and Multi-Cloud best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Hybrid and Multi-Cloud"
+    },
+    {
+      "day": 44,
+      "topic": "Cloud Monitoring and Logging",
+      "subtopics": [
+        "Cloud Monitoring and Logging concepts",
+        "Cloud Monitoring and Logging configuration",
+        "Cloud Monitoring and Logging hands-on workflow",
+        "Cloud Monitoring and Logging troubleshooting",
+        "Cloud Monitoring and Logging best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Cloud Monitoring and Logging"
+    },
+    {
+      "day": 45,
+      "topic": "Cloud Backup and Disaster Recovery",
+      "subtopics": [
+        "Cloud Backup and Disaster Recovery concepts",
+        "Cloud Backup and Disaster Recovery configuration",
+        "Cloud Backup and Disaster Recovery hands-on workflow",
+        "Cloud Backup and Disaster Recovery troubleshooting",
+        "Cloud Backup and Disaster Recovery best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Cloud Backup and Disaster Recovery"
+    },
+    {
+      "day": 46,
+      "topic": "Infrastructure as Code with Terraform",
+      "subtopics": [
+        "Infrastructure as Code with Terraform concepts",
+        "Infrastructure as Code with Terraform configuration",
+        "Infrastructure as Code with Terraform hands-on workflow",
+        "Infrastructure as Code with Terraform troubleshooting",
+        "Infrastructure as Code with Terraform best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Infrastructure as Code with Terraform"
+    },
+    {
+      "day": 47,
+      "topic": "Cloud Landing Zone Design",
+      "subtopics": [
+        "Cloud Landing Zone Design concepts",
+        "Cloud Landing Zone Design configuration",
+        "Cloud Landing Zone Design hands-on workflow",
+        "Cloud Landing Zone Design troubleshooting",
+        "Cloud Landing Zone Design best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Cloud Landing Zone Design"
+    },
+    {
+      "day": 48,
+      "topic": "Cloud Governance and Compliance",
+      "subtopics": [
+        "Cloud Governance and Compliance concepts",
+        "Cloud Governance and Compliance configuration",
+        "Cloud Governance and Compliance hands-on workflow",
+        "Cloud Governance and Compliance troubleshooting",
+        "Cloud Governance and Compliance best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Cloud Governance and Compliance"
+    },
+    {
+      "day": 49,
+      "topic": "Cloud Performance Optimization",
+      "subtopics": [
+        "Cloud Performance Optimization concepts",
+        "Cloud Performance Optimization configuration",
+        "Cloud Performance Optimization hands-on workflow",
+        "Cloud Performance Optimization troubleshooting",
+        "Cloud Performance Optimization best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Cloud Performance Optimization"
+    },
+    {
+      "day": 50,
+      "topic": "Cloud Capstone Architecture",
+      "subtopics": [
+        "Cloud Capstone Architecture concepts",
+        "Cloud Capstone Architecture configuration",
+        "Cloud Capstone Architecture hands-on workflow",
+        "Cloud Capstone Architecture troubleshooting",
+        "Cloud Capstone Architecture best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Cloud Capstone Architecture"
+    },
+    {
+      "day": 51,
+      "topic": "Cloud Capstone Implementation",
+      "subtopics": [
+        "Cloud Capstone Implementation concepts",
+        "Cloud Capstone Implementation configuration",
+        "Cloud Capstone Implementation hands-on workflow",
+        "Cloud Capstone Implementation troubleshooting",
+        "Cloud Capstone Implementation best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Cloud Capstone Implementation"
+    },
+    {
+      "day": 52,
+      "topic": "Cloud Capstone Security",
+      "subtopics": [
+        "Cloud Capstone Security concepts",
+        "Cloud Capstone Security configuration",
+        "Cloud Capstone Security hands-on workflow",
+        "Cloud Capstone Security troubleshooting",
+        "Cloud Capstone Security best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Cloud Capstone Security"
+    },
+    {
+      "day": 53,
+      "topic": "Cloud Capstone Monitoring",
+      "subtopics": [
+        "Cloud Capstone Monitoring concepts",
+        "Cloud Capstone Monitoring configuration",
+        "Cloud Capstone Monitoring hands-on workflow",
+        "Cloud Capstone Monitoring troubleshooting",
+        "Cloud Capstone Monitoring best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Cloud Capstone Monitoring"
+    },
+    {
+      "day": 54,
+      "topic": "Cloud Final Demo",
+      "subtopics": [
+        "Cloud Final Demo concepts",
+        "Cloud Final Demo configuration",
+        "Cloud Final Demo hands-on workflow",
+        "Cloud Final Demo troubleshooting",
+        "Cloud Final Demo best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Cloud Final Demo"
+    },
+    {
+      "day": 55,
+      "topic": "Cloud Capstone Architecture - Part 2",
+      "subtopics": [
+        "Part 2: Cloud Capstone Architecture concepts",
+        "Part 2: Cloud Capstone Architecture hands-on workflow",
+        "Part 2: Cloud Capstone Architecture validation",
+        "Part 2: Cloud Capstone Architecture troubleshooting",
+        "Part 2: Cloud Capstone Architecture best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Part 2 hands-on: Hands-on lab: Cloud Capstone Architecture"
+    },
+    {
+      "day": 56,
+      "topic": "Cloud Landing Zone Build",
+      "subtopics": [
+        "Cloud Landing Zone Build concepts",
+        "Cloud Landing Zone Build hands-on workflow",
+        "Cloud Landing Zone Build validation",
+        "Cloud Landing Zone Build troubleshooting",
+        "Cloud Landing Zone Build best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Hands-on lab: Cloud Landing Zone Build"
+    },
+    {
+      "day": 57,
+      "topic": "Cloud IaC Implementation",
+      "subtopics": [
+        "Cloud IaC Implementation concepts",
+        "Cloud IaC Implementation hands-on workflow",
+        "Cloud IaC Implementation validation",
+        "Cloud IaC Implementation troubleshooting",
+        "Cloud IaC Implementation best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Hands-on lab: Cloud IaC Implementation"
+    },
+    {
+      "day": 58,
+      "topic": "Cloud Security Review",
+      "subtopics": [
+        "Cloud Security Review concepts",
+        "Cloud Security Review hands-on workflow",
+        "Cloud Security Review validation",
+        "Cloud Security Review troubleshooting",
+        "Cloud Security Review best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Hands-on lab: Cloud Security Review"
+    },
+    {
+      "day": 59,
+      "topic": "Cloud Monitoring and Cost Review",
+      "subtopics": [
+        "Cloud Monitoring and Cost Review concepts",
+        "Cloud Monitoring and Cost Review hands-on workflow",
+        "Cloud Monitoring and Cost Review validation",
+        "Cloud Monitoring and Cost Review troubleshooting",
+        "Cloud Monitoring and Cost Review best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Hands-on lab: Cloud Monitoring and Cost Review"
+    },
+    {
+      "day": 60,
+      "topic": "Cloud Final Demo - Part 2",
+      "subtopics": [
+        "Part 2: Cloud Final Demo concepts",
+        "Part 2: Cloud Final Demo hands-on workflow",
+        "Part 2: Cloud Final Demo validation",
+        "Part 2: Cloud Final Demo troubleshooting",
+        "Part 2: Cloud Final Demo best practices"
+      ],
+      "tools": [
+        "Cloud"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Part 2 hands-on: Hands-on lab: Cloud Final Demo"
+    }
+  ],
+  "aliases": [
+    "Cloud",
+    "Cloud Computing",
+    "AWS",
+    "Azure",
+    "GCP",
+    "Multi Cloud",
+    "Cloud Infrastructure",
+    "Cloud Architecture",
+    "Cloud DevOps"
+  ],
+  "official_sources": [
+    "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html",
+    "https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/",
+    "https://developer.hashicorp.com/terraform/language/block/provider"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

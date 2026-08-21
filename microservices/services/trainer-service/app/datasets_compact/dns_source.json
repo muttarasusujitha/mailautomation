@@ -1,0 +1,376 @@
+{
+    "domain":  "DNS",
+    "name":  "DNS â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Domain Name System",
+                    "DNS Administration"
+                ],
+    "tools":  [
+                  "dig",
+                  "nslookup",
+                  "BIND",
+                  "Cloud DNS"
+              ],
+    "certifications":  [
+                           "DNS official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "DNS terminology and feature mapping for this topic",
+                                       "DNS configuration and implementation considerations",
+                                       "DNS best practices and common mistakes for this topic",
+                                       "zones",
+                                       "records",
+                                       "A",
+                                       "AAAA",
+                                       "CNAME",
+                                       "MX",
+                                       "TXT",
+                                       "NS",
+                                       "PTR",
+                                       "TTL",
+                                       "recursive resolver",
+                                       "authoritative server"
+                                   ],
+                     "tools":  [
+                                   "dig",
+                                   "nslookup",
+                                   "BIND"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate DNS fundamentals.",
+                     "technology":  "DNS",
+                     "technology_id":  "dns",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of DNS.",
+                                                 "Configure or implement the key DNS features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using DNS.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "DNS terminology and feature mapping for this topic",
+                                       "DNS configuration and implementation considerations",
+                                       "DNS best practices and common mistakes for this topic",
+                                       "zones",
+                                       "records",
+                                       "A",
+                                       "AAAA",
+                                       "CNAME",
+                                       "MX",
+                                       "TXT",
+                                       "NS",
+                                       "PTR",
+                                       "TTL",
+                                       "recursive resolver",
+                                       "authoritative server"
+                                   ],
+                     "tools":  [
+                                   "dig",
+                                   "nslookup",
+                                   "BIND"
+                               ],
+                     "lab_task":  "Inspect and configure core DNS components.",
+                     "technology":  "DNS",
+                     "technology_id":  "dns",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of DNS.",
+                                                 "Configure or implement the key DNS features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using DNS.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "DNS terminology and feature mapping for this topic",
+                                       "DNS configuration and implementation considerations",
+                                       "DNS best practices and common mistakes for this topic",
+                                       "zones",
+                                       "records",
+                                       "A",
+                                       "AAAA",
+                                       "CNAME",
+                                       "MX",
+                                       "TXT",
+                                       "NS",
+                                       "PTR",
+                                       "TTL",
+                                       "recursive resolver",
+                                       "authoritative server"
+                                   ],
+                     "tools":  [
+                                   "dig",
+                                   "nslookup",
+                                   "BIND"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for DNS.",
+                     "technology":  "DNS",
+                     "technology_id":  "dns",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of DNS.",
+                                                 "Configure or implement the key DNS features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using DNS.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "DNS terminology and feature mapping for this topic",
+                                       "DNS configuration and implementation considerations",
+                                       "DNS best practices and common mistakes for this topic",
+                                       "zones",
+                                       "records",
+                                       "A",
+                                       "AAAA",
+                                       "CNAME",
+                                       "MX",
+                                       "TXT",
+                                       "NS",
+                                       "PTR",
+                                       "TTL",
+                                       "recursive resolver",
+                                       "authoritative server"
+                                   ],
+                     "tools":  [
+                                   "dig",
+                                   "nslookup",
+                                   "BIND"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "DNS",
+                     "technology_id":  "dns",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of DNS.",
+                                                 "Configure or implement the key DNS features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using DNS.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "DNS terminology and feature mapping for this topic",
+                                       "DNS configuration and implementation considerations",
+                                       "DNS best practices and common mistakes for this topic",
+                                       "zones",
+                                       "records",
+                                       "A",
+                                       "AAAA",
+                                       "CNAME",
+                                       "MX",
+                                       "TXT",
+                                       "NS",
+                                       "PTR",
+                                       "TTL",
+                                       "recursive resolver",
+                                       "authoritative server"
+                                   ],
+                     "tools":  [
+                                   "dig",
+                                   "nslookup",
+                                   "BIND",
+                                   "Cloud DNS"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated DNS issue.",
+                     "technology":  "DNS",
+                     "technology_id":  "dns",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of DNS.",
+                                                 "Configure or implement the key DNS features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using DNS.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "DNS terminology and feature mapping for this topic",
+                                       "DNS configuration and implementation considerations",
+                                       "DNS best practices and common mistakes for this topic",
+                                       "zones",
+                                       "records",
+                                       "A",
+                                       "AAAA",
+                                       "CNAME",
+                                       "MX",
+                                       "TXT",
+                                       "NS",
+                                       "PTR",
+                                       "TTL",
+                                       "recursive resolver",
+                                       "authoritative server"
+                                   ],
+                     "tools":  [
+                                   "dig",
+                                   "nslookup",
+                                   "BIND"
+                               ],
+                     "lab_task":  "Automate a repeatable DNS configuration task.",
+                     "technology":  "DNS",
+                     "technology_id":  "dns",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of DNS.",
+                                                 "Configure or implement the key DNS features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using DNS.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "DNS terminology and feature mapping for this topic",
+                                       "DNS configuration and implementation considerations",
+                                       "DNS best practices and common mistakes for this topic",
+                                       "zones",
+                                       "records",
+                                       "A",
+                                       "AAAA",
+                                       "CNAME",
+                                       "MX",
+                                       "TXT",
+                                       "NS",
+                                       "PTR",
+                                       "TTL",
+                                       "recursive resolver",
+                                       "authoritative server"
+                                   ],
+                     "tools":  [
+                                   "dig",
+                                   "nslookup",
+                                   "BIND",
+                                   "Cloud DNS"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "DNS",
+                     "technology_id":  "dns",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of DNS.",
+                                                 "Configure or implement the key DNS features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using DNS.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "DNS terminology and feature mapping for this topic",
+                                       "DNS configuration and implementation considerations",
+                                       "DNS best practices and common mistakes for this topic",
+                                       "zones",
+                                       "records",
+                                       "A",
+                                       "AAAA",
+                                       "CNAME",
+                                       "MX",
+                                       "TXT",
+                                       "NS",
+                                       "PTR",
+                                       "TTL",
+                                       "recursive resolver",
+                                       "authoritative server"
+                                   ],
+                     "tools":  [
+                                   "dig",
+                                   "nslookup",
+                                   "BIND",
+                                   "Cloud DNS"
+                               ],
+                     "lab_task":  "Build and document an end-to-end DNS solution.",
+                     "technology":  "DNS",
+                     "technology_id":  "dns",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of DNS.",
+                                                 "Configure or implement the key DNS features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using DNS.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "dns"
+}

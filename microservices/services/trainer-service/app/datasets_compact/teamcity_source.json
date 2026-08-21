@@ -1,0 +1,412 @@
+{
+    "domain":  "TeamCity",
+    "name":  "TeamCity â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "JetBrains TeamCity",
+                    "TeamCity CI/CD"
+                ],
+    "tools":  [
+                  "TeamCity",
+                  "JetBrains Build Agents",
+                  "Git"
+              ],
+    "certifications":  [
+                           "TeamCity official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Setup",
+                     "subtopics":  [
+                                       "Core purpose",
+                                       "Architecture",
+                                       "Installation/setup",
+                                       "Configuration files",
+                                       "CLI/UI",
+                                       "Typical workflows",
+                                       "Terminology",
+                                       "TeamCity terminology and feature mapping for this topic",
+                                       "TeamCity configuration and implementation considerations",
+                                       "TeamCity best practices and common mistakes for this topic",
+                                       "build configurations",
+                                       "build steps",
+                                       "build agents",
+                                       "VCS roots",
+                                       "triggers",
+                                       "artifacts",
+                                       "parameters",
+                                       "templates",
+                                       "build chains",
+                                       "snapshot dependencies",
+                                       "agent pools",
+                                       "Kotlin DSL"
+                                   ],
+                     "tools":  [
+                                   "TeamCity",
+                                   "JetBrains Build Agents",
+                                   "Git"
+                               ],
+                     "lab_task":  "Set up TeamCity and run a basic workflow.",
+                     "technology":  "TeamCity",
+                     "technology_id":  "teamcity",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Setup concepts in the context of TeamCity.",
+                                                 "Configure or implement the key TeamCity features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Setup practically using TeamCity.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Configuration",
+                     "subtopics":  [
+                                       "Configuration syntax",
+                                       "Resources/components",
+                                       "Variables",
+                                       "Parameters",
+                                       "Secrets",
+                                       "Environment-specific configuration",
+                                       "Validation",
+                                       "TeamCity terminology and feature mapping for this topic",
+                                       "TeamCity configuration and implementation considerations",
+                                       "TeamCity best practices and common mistakes for this topic",
+                                       "build configurations",
+                                       "build steps",
+                                       "build agents",
+                                       "VCS roots",
+                                       "triggers",
+                                       "artifacts",
+                                       "templates",
+                                       "build chains",
+                                       "snapshot dependencies",
+                                       "agent pools",
+                                       "Kotlin DSL"
+                                   ],
+                     "tools":  [
+                                   "TeamCity",
+                                   "JetBrains Build Agents",
+                                   "Git"
+                               ],
+                     "lab_task":  "Create reusable TeamCity configuration for development.",
+                     "technology":  "TeamCity",
+                     "technology_id":  "teamcity",
+                     "learning_objectives":  [
+                                                 "Explain the Core Configuration concepts in the context of TeamCity.",
+                                                 "Configure or implement the key TeamCity features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Configuration practically using TeamCity.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Automation Workflow",
+                     "subtopics":  [
+                                       "Triggers",
+                                       "Stages/steps",
+                                       "Dependencies",
+                                       "Artifacts",
+                                       "Caching",
+                                       "Retries",
+                                       "Failure handling",
+                                       "Notifications",
+                                       "TeamCity terminology and feature mapping for this topic",
+                                       "TeamCity configuration and implementation considerations",
+                                       "TeamCity best practices and common mistakes for this topic",
+                                       "build configurations",
+                                       "build steps",
+                                       "build agents",
+                                       "VCS roots",
+                                       "parameters",
+                                       "templates",
+                                       "build chains",
+                                       "snapshot dependencies",
+                                       "agent pools",
+                                       "Kotlin DSL"
+                                   ],
+                     "tools":  [
+                                   "TeamCity",
+                                   "JetBrains Build Agents",
+                                   "Git"
+                               ],
+                     "lab_task":  "Build an automated workflow using TeamCity.",
+                     "technology":  "TeamCity",
+                     "technology_id":  "teamcity",
+                     "learning_objectives":  [
+                                                 "Explain the Automation Workflow concepts in the context of TeamCity.",
+                                                 "Configure or implement the key TeamCity features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation Workflow practically using TeamCity.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "Git integration",
+                                       "Container integration",
+                                       "Cloud integration",
+                                       "API/webhook integration",
+                                       "Credential management",
+                                       "Third-party plugins",
+                                       "TeamCity terminology and feature mapping for this topic",
+                                       "TeamCity configuration and implementation considerations",
+                                       "TeamCity best practices and common mistakes for this topic",
+                                       "build configurations",
+                                       "build steps",
+                                       "build agents",
+                                       "VCS roots",
+                                       "triggers",
+                                       "artifacts",
+                                       "parameters",
+                                       "templates",
+                                       "build chains",
+                                       "snapshot dependencies",
+                                       "agent pools",
+                                       "Kotlin DSL"
+                                   ],
+                     "tools":  [
+                                   "TeamCity",
+                                   "JetBrains Build Agents",
+                                   "Git"
+                               ],
+                     "lab_task":  "Integrate TeamCity with source control and external services.",
+                     "technology":  "TeamCity",
+                     "technology_id":  "teamcity",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of TeamCity.",
+                                                 "Configure or implement the key TeamCity features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using TeamCity.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Security",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Secrets",
+                                       "Least privilege",
+                                       "Supply-chain concerns",
+                                       "Audit logs",
+                                       "Policy controls",
+                                       "TeamCity terminology and feature mapping for this topic",
+                                       "TeamCity configuration and implementation considerations",
+                                       "TeamCity best practices and common mistakes for this topic",
+                                       "build configurations",
+                                       "build steps",
+                                       "build agents",
+                                       "VCS roots",
+                                       "triggers",
+                                       "artifacts",
+                                       "parameters",
+                                       "templates",
+                                       "build chains",
+                                       "snapshot dependencies",
+                                       "agent pools",
+                                       "Kotlin DSL"
+                                   ],
+                     "tools":  [
+                                   "TeamCity",
+                                   "JetBrains Build Agents",
+                                   "Git"
+                               ],
+                     "lab_task":  "Harden a TeamCity setup.",
+                     "technology":  "TeamCity",
+                     "technology_id":  "teamcity",
+                     "learning_objectives":  [
+                                                 "Explain the Security concepts in the context of TeamCity.",
+                                                 "Configure or implement the key TeamCity features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security practically using TeamCity.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Scaling and Reliability",
+                     "subtopics":  [
+                                       "Agents/runners/nodes",
+                                       "Parallel execution",
+                                       "High availability",
+                                       "State management",
+                                       "Backups",
+                                       "Failure recovery",
+                                       "Capacity planning",
+                                       "TeamCity terminology and feature mapping for this topic",
+                                       "TeamCity configuration and implementation considerations",
+                                       "TeamCity best practices and common mistakes for this topic",
+                                       "build configurations",
+                                       "build steps",
+                                       "build agents",
+                                       "VCS roots",
+                                       "triggers",
+                                       "artifacts",
+                                       "parameters",
+                                       "templates",
+                                       "build chains",
+                                       "snapshot dependencies",
+                                       "agent pools",
+                                       "Kotlin DSL"
+                                   ],
+                     "tools":  [
+                                   "TeamCity",
+                                   "JetBrains Build Agents",
+                                   "Git"
+                               ],
+                     "lab_task":  "Design a scalable and resilient TeamCity setup.",
+                     "technology":  "TeamCity",
+                     "technology_id":  "teamcity",
+                     "learning_objectives":  [
+                                                 "Explain the Scaling and Reliability concepts in the context of TeamCity.",
+                                                 "Configure or implement the key TeamCity features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using TeamCity.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Observability and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Debugging",
+                                       "Failure diagnosis",
+                                       "Performance bottlenecks",
+                                       "Alerting",
+                                       "Operational runbooks",
+                                       "TeamCity terminology and feature mapping for this topic",
+                                       "TeamCity configuration and implementation considerations",
+                                       "TeamCity best practices and common mistakes for this topic",
+                                       "build configurations",
+                                       "build steps",
+                                       "build agents",
+                                       "VCS roots",
+                                       "triggers",
+                                       "artifacts",
+                                       "parameters",
+                                       "templates",
+                                       "build chains",
+                                       "snapshot dependencies",
+                                       "agent pools",
+                                       "Kotlin DSL"
+                                   ],
+                     "tools":  [
+                                   "TeamCity",
+                                   "JetBrains Build Agents",
+                                   "Git"
+                               ],
+                     "lab_task":  "Troubleshoot an intentionally failing TeamCity workflow.",
+                     "technology":  "TeamCity",
+                     "technology_id":  "teamcity",
+                     "learning_objectives":  [
+                                                 "Explain the Observability and Troubleshooting concepts in the context of TeamCity.",
+                                                 "Configure or implement the key TeamCity features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using TeamCity.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Advanced Patterns",
+                     "subtopics":  [
+                                       "Reusable modules/templates",
+                                       "Multi-environment strategy",
+                                       "Promotion strategy",
+                                       "Policy as code concepts",
+                                       "GitOps/IaC patterns",
+                                       "Best practices",
+                                       "TeamCity terminology and feature mapping for this topic",
+                                       "TeamCity configuration and implementation considerations",
+                                       "TeamCity best practices and common mistakes for this topic",
+                                       "build configurations",
+                                       "build steps",
+                                       "build agents",
+                                       "VCS roots",
+                                       "triggers",
+                                       "artifacts",
+                                       "parameters",
+                                       "templates",
+                                       "build chains",
+                                       "snapshot dependencies",
+                                       "agent pools",
+                                       "Kotlin DSL"
+                                   ],
+                     "tools":  [
+                                   "TeamCity",
+                                   "JetBrains Build Agents",
+                                   "Git"
+                               ],
+                     "lab_task":  "Create reusable production-grade patterns.",
+                     "technology":  "TeamCity",
+                     "technology_id":  "teamcity",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Patterns concepts in the context of TeamCity.",
+                                                 "Configure or implement the key TeamCity features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Patterns practically using TeamCity.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "CI/CD or Deployment Project",
+                     "subtopics":  [
+                                       "Source control",
+                                       "Build",
+                                       "Test",
+                                       "Artifact",
+                                       "Deploy",
+                                       "Rollback",
+                                       "Approval gates",
+                                       "Documentation",
+                                       "TeamCity terminology and feature mapping for this topic",
+                                       "TeamCity configuration and implementation considerations",
+                                       "TeamCity best practices and common mistakes for this topic",
+                                       "build configurations",
+                                       "build steps",
+                                       "build agents",
+                                       "VCS roots",
+                                       "triggers",
+                                       "artifacts",
+                                       "parameters",
+                                       "templates",
+                                       "build chains",
+                                       "snapshot dependencies",
+                                       "agent pools",
+                                       "Kotlin DSL"
+                                   ],
+                     "tools":  [
+                                   "TeamCity",
+                                   "JetBrains Build Agents",
+                                   "Git"
+                               ],
+                     "lab_task":  "Implement a complete delivery workflow with TeamCity.",
+                     "technology":  "TeamCity",
+                     "technology_id":  "teamcity",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD or Deployment Project concepts in the context of TeamCity.",
+                                                 "Configure or implement the key TeamCity features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using TeamCity.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "teamcity"
+}

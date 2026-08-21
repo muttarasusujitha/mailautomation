@@ -17,10 +17,103 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
+def _ics_escape(value: Any) -> str:
+    text = str(value or "")
+    return (
+        text.replace("\\", "\\\\")
+        .replace(";", "\\;")
+        .replace(",", "\\,")
+        .replace("\r\n", "\\n")
+        .replace("\n", "\\n")
+    )
+
+
+def _parse_ics_datetime(value: str) -> datetime:
+    raw = str(value or "").strip()
+    if not raw:
+        raise ValueError("calendar start/end is required")
+    parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=None)
+    return parsed.astimezone().replace(tzinfo=None)
+
+
+def _format_ics_datetime(value: str) -> str:
+    return _parse_ics_datetime(value).strftime("%Y%m%dT%H%M%S")
+
+
+def _fold_ics_line(line: str) -> str:
+    if len(line) <= 74:
+        return line
+    chunks = [line[:74]]
+    rest = line[74:]
+    while rest:
+        chunks.append(" " + rest[:73])
+        rest = rest[73:]
+    return "\r\n".join(chunks)
+
+
+def _build_calendar_invite_ics(invite: "CalendarInvite", fallback_attendee_email: str) -> str:
+    attendee_email = str(invite.attendee_email or fallback_attendee_email or "").strip()
+    organizer_email = str(invite.organizer_email or "").strip()
+    meeting_url = str(invite.meeting_url or "").strip()
+    location = str(invite.location or ("Online Meeting" if meeting_url else "")).strip()
+    description = str(invite.description or "").strip()
+    if meeting_url and meeting_url not in description:
+        description = f"{description}\n\nJoin meeting: {meeting_url}".strip()
+
+    uid = f"{uuid.uuid4().hex}@trainersync.local"
+    now = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    timezone_name = invite.timezone or "Asia/Kolkata"
+    lines = [
+        "BEGIN:VCALENDAR",
+        "PRODID:-//Clahan Technologies//Trainer Interview//EN",
+        "VERSION:2.0",
+        "CALSCALE:GREGORIAN",
+        "METHOD:REQUEST",
+        "BEGIN:VEVENT",
+        f"UID:{uid}",
+        f"DTSTAMP:{now}",
+        f"DTSTART;TZID={timezone_name}:{_format_ics_datetime(invite.start)}",
+        f"DTEND;TZID={timezone_name}:{_format_ics_datetime(invite.end)}",
+        f"SUMMARY:{_ics_escape(invite.summary)}",
+        f"LOCATION:{_ics_escape(location)}",
+        f"DESCRIPTION:{_ics_escape(description)}",
+        "STATUS:CONFIRMED",
+        "SEQUENCE:0",
+    ]
+    if organizer_email:
+        organizer_name = _ics_escape(invite.organizer_name or "Clahan Technologies")
+        lines.append(f"ORGANIZER;CN={organizer_name}:mailto:{organizer_email}")
+    if attendee_email:
+        attendee_name = _ics_escape(invite.attendee_name or attendee_email)
+        lines.append(
+            f"ATTENDEE;CN={attendee_name};ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:mailto:{attendee_email}"
+        )
+    if meeting_url:
+        lines.append(f"URL:{_ics_escape(meeting_url)}")
+    lines.extend(["END:VEVENT", "END:VCALENDAR"])
+    return "\r\n".join(_fold_ics_line(line) for line in lines) + "\r\n"
+
+
 class EmailAttachment(BaseModel):
     filename: str
     content_base64: str
     subtype: Optional[str] = "pdf"
+
+
+class CalendarInvite(BaseModel):
+    summary: str
+    start: str
+    end: str
+    timezone: Optional[str] = "Asia/Kolkata"
+    location: Optional[str] = ""
+    description: Optional[str] = ""
+    organizer_name: Optional[str] = "Clahan Technologies"
+    organizer_email: Optional[str] = ""
+    attendee_name: Optional[str] = ""
+    attendee_email: Optional[str] = ""
+    meeting_url: Optional[str] = ""
 
 
 class SendEmailRequest(BaseModel):
@@ -36,6 +129,7 @@ class SendEmailRequest(BaseModel):
     trainer_name: Optional[str] = None
     idempotency_key: Optional[str] = None
     attachments: Optional[List[EmailAttachment]] = None
+    calendar_invite: Optional[CalendarInvite] = None
 
 
 class BulkEmailRequest(BaseModel):
@@ -76,6 +170,18 @@ async def send_single_email(
                 })
             except Exception as exc:
                 raise HTTPException(400, detail={"message": "Invalid attachment encoding", "error": str(exc)})
+    if payload.calendar_invite:
+        try:
+            invite = payload.calendar_invite
+            ics = _build_calendar_invite_ics(invite, payload.to)
+            attachments.append({
+                "filename": "interview-invite.ics",
+                "content": ics.encode("utf-8"),
+                "subtype": "calendar",
+                "content_type": "text/calendar",
+            })
+        except Exception as exc:
+            raise HTTPException(400, detail={"message": "Invalid calendar invite", "error": str(exc)})
     # Log attachment filenames for debugging
     if attachments:
         try:
@@ -106,11 +212,12 @@ async def send_single_email(
         "mail_type": payload.mail_type,
         "trainer_id": payload.trainer_id,
         "trainer_name": payload.trainer_name,
-        "idempotency_key": idempotency_key or None,
         "sent_at": None,
         "created_at": now,
         "updated_at": now,
     }
+    if idempotency_key:
+        log["idempotency_key"] = idempotency_key
     preinserted = False
     if idempotency_key:
         if existing_log:
@@ -184,6 +291,17 @@ async def send_bulk_emails(
                     })
                 except Exception as exc:
                     return HTTPException(400, detail={"message": "Invalid attachment encoding", "error": str(exc)})
+        if item.calendar_invite:
+            try:
+                ics = _build_calendar_invite_ics(item.calendar_invite, item.to)
+                attachments.append({
+                    "filename": "interview-invite.ics",
+                    "content": ics.encode("utf-8"),
+                    "subtype": "calendar",
+                    "content_type": "text/calendar",
+                })
+            except Exception as exc:
+                return HTTPException(400, detail={"message": "Invalid calendar invite", "error": str(exc)})
         message_id_header = generate_message_id()
         success, error = await send_email_async(
             to=item.to,

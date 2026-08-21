@@ -1,5 +1,6 @@
 """Trainer automation pipeline — tick, send single mail, status."""
 import logging
+import math
 from datetime import datetime
 from typing import Any, Dict, Optional
 
@@ -21,6 +22,10 @@ EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
 
 PIPELINE_STAGES = ["mail1", "mail1_reminder", "mail2", "mail3", "mail4", "mail5_ok", "mail5_no", "mail6_toc", "mail7_confirm"]
+MIN_TRAINER_DAY_RATE_VISIBLE = 10000
+SHORT_DURATION_DAYS = 7
+SHORT_DURATION_TRAINER_SHARE = 0.78
+DEFAULT_TRAINER_SHARE = 0.70
 
 
 def _clean_text(value: Any) -> str:
@@ -54,6 +59,13 @@ def _safe_int(value: Any, default: int = 0) -> int:
         return default
 
 
+def _round_commercial_amount(value: Any) -> int:
+    numeric = _safe_float(value, 0)
+    if numeric <= 0:
+        return 0
+    return int(math.ceil(numeric / 1000.0) * 1000)
+
+
 def _clean_duration_text(value: Any) -> str:
     text = _clean_text(value)
     text = re.sub(r"(?i)^to\s+be\s*:?\s*(?=\d)", "", text).strip()
@@ -62,9 +74,15 @@ def _clean_duration_text(value: Any) -> str:
 
 def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
     amount = None
-    if requirement.get("budget_total") not in (None, "", []) and requirement.get("commercial_working_days") not in (None, "", [], 0):
+    total_amount = None
+    days = _safe_int(requirement.get("duration_days"), 0) or _safe_int(requirement.get("commercial_working_days"), 0)
+    trainer_share = SHORT_DURATION_TRAINER_SHARE if days and days <= SHORT_DURATION_DAYS else DEFAULT_TRAINER_SHARE
+    share_label = f"{int(round(trainer_share * 100))}%"
+    if requirement.get("budget_total") not in (None, "", []) and days:
         try:
-            amount = (float(requirement.get("budget_total")) / float(requirement.get("commercial_working_days"))) * 0.70
+            client_total = _safe_float(requirement.get("budget_total"))
+            amount = (client_total / float(days)) * trainer_share
+            total_amount = client_total * trainer_share
         except (TypeError, ValueError, ZeroDivisionError):
             amount = None
     if amount in (None, "", []):
@@ -76,13 +94,14 @@ def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
             or requirement.get("budget")
         )
         if client_amount in (None, "", []) and requirement.get("budget_total") not in (None, "", []):
-            days = _safe_int(requirement.get("commercial_working_days"), 0)
             try:
                 client_amount = float(requirement.get("budget_total")) / days if days else requirement.get("budget_total")
             except (TypeError, ValueError):
                 client_amount = requirement.get("budget_total")
         try:
-            amount = _safe_float(client_amount) * 0.70
+            amount = _safe_float(client_amount) * trainer_share
+            if days:
+                total_amount = amount * days
         except (TypeError, ValueError):
             amount = None
     try:
@@ -91,7 +110,79 @@ def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
         return ""
     if numeric <= 0:
         return ""
-    return f"INR {int(round(numeric)):,} per day/session, inclusive of TDS"
+    if days and numeric < MIN_TRAINER_DAY_RATE_VISIBLE and total_amount:
+        return (
+            f"INR {int(round(total_amount)):,} total trainer commercial, inclusive of TDS "
+            f"({share_label} of client commercial; day-wise share is below INR {MIN_TRAINER_DAY_RATE_VISIBLE:,}/day)"
+        )
+    return f"INR {_round_commercial_amount(numeric):,} per day/session, inclusive of TDS"
+
+
+def _replace_trainer_mail1_commercial(body: str, requirement: Dict[str, Any]) -> str:
+    commercial_text = _trainer_mail1_commercial_text(requirement)
+    if not commercial_text:
+        return body
+    line = f"Commercials/Budget: {commercial_text}"
+    if re.search(r"(?im)^Commercials/Budget:\s*.*$", body or ""):
+        return re.sub(r"(?im)^Commercials/Budget:\s*.*$", line, body or "")
+    return body
+
+
+def _has_raw_client_mail_leak(body: str) -> bool:
+    text = _clean_text(body).lower()
+    return any(marker in text for marker in (
+        "requirement snapshot",
+        "client requirement details",
+        "appears aligned with your profile",
+        "dear team,\nwe have",
+    ))
+
+
+def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], technology: str) -> str:
+    dates = _clean_text(
+        requirement.get("training_dates")
+        or requirement.get("preferred_dates")
+        or requirement.get("dates")
+        or requirement.get("date_time_text")
+        or requirement.get("timeline")
+        or requirement.get("schedule")
+        or requirement.get("training_schedule")
+        or requirement.get("timing")
+        or requirement.get("session_timing")
+    )
+    duration = _clean_text(
+        requirement.get("duration_text")
+        or requirement.get("duration")
+        or (f"{requirement.get('duration_days')} Days" if requirement.get("duration_days") else "")
+        or (f"{requirement.get('duration_hours')} Hours" if requirement.get("duration_hours") else "")
+    )
+    mode = _clean_text(requirement.get("mode") or requirement.get("training_mode") or requirement.get("delivery_mode"))
+    participants = _clean_text(requirement.get("participant_count") or requirement.get("participants") or requirement.get("audience_level"))
+    commercial = _trainer_mail1_commercial_text(requirement)
+    details = [f"Domain/Technology: {technology}"]
+    if dates:
+        details.append(f"Training dates: {dates}")
+    if duration:
+        details.append(f"Duration: {duration}")
+    if mode:
+        details.append(f"Mode: {mode}")
+    if participants:
+        details.append(f"Participants: {participants}")
+    if commercial:
+        details.append(f"Commercials/Budget: {commercial}")
+    return (
+        f"Dear {trainer_name or 'Trainer'},\n\n"
+        f"We have received a training requirement for {technology} and are looking for a trainer with relevant experience.\n\n"
+        "Training Details:\n\n"
+        f"{chr(10).join(details)}\n\n"
+        "Please let us know if you are interested and available for this requirement. Kindly share the details below:\n\n"
+        "- Updated trainer profile/CV\n"
+        "- LinkedIn profile\n"
+        "- Availability\n\n"
+        "Regards,\n"
+        "Clahan Technologies\n"
+        f"{getattr(settings, 'FROM_EMAIL', None) or 'sujithaofficial585@gmail.com'}"
+    )
 
 
 def _client_requirement_text(requirement: Dict[str, Any]) -> str:
@@ -197,6 +288,7 @@ async def send_automation_mail(
         or requirement.get("domain")
         or "Training"
     )
+    calendar_invite = None
     if not body:
         try:
             async with httpx.AsyncClient(timeout=15) as client:
@@ -219,9 +311,27 @@ async def send_automation_mail(
                         or requirement.get("preferred_dates")
                         or requirement.get("dates")
                         or requirement.get("date_time_text")
+                        or requirement.get("timeline")
+                        or requirement.get("schedule")
+                        or requirement.get("training_schedule")
+                        or requirement.get("timing")
+                        or requirement.get("session_timing")
                     )
+                    if not dates:
+                        date_match = re.search(
+                            r"(?im)^\s*(?:training\s*)?(?:dates?|schedule|timings?)\s*[:\-]\s*(.+)$",
+                            _client_requirement_text(requirement) or "",
+                        )
+                        if date_match:
+                            dates = _clean_text(date_match.group(1))
                     mode = _clean_text(payload.mode or requirement.get("mode") or requirement.get("delivery_mode"))
                     participants = _clean_text(payload.participants or requirement.get("participant_count"))
+                    flow_value = _clean_text(
+                        requirement.get("batch_flow")
+                        or requirement.get("batch_type")
+                        or requirement.get("requirement_type")
+                    ).lower()
+                    is_proposal_flow = "proposal" in flow_value
                     r = await client.post(
                         f"{EMAIL_SVC}/api/v1/email/templates/shortlist-first",
                         json={
@@ -232,8 +342,11 @@ async def send_automation_mail(
                             "mode": mode,
                             "location": _clean_text(requirement.get("preferred_location") or requirement.get("location")),
                             "participants": participants,
-                            "budget": _trainer_mail1_commercial_text(requirement),
+                            "budget": "" if is_proposal_flow else _trainer_mail1_commercial_text(requirement),
                             "client_request": _client_requirement_text(requirement),
+                            "requirement_kind": "proposal_requirement" if is_proposal_flow else "confirmed_batch",
+                            "toc_action": requirement.get("toc_action") or (requirement.get("extracted") or {}).get("toc_action") or "",
+                            "scope_attached": bool(requirement.get("scope_attached") or (requirement.get("extracted") or {}).get("scope_attached")),
                         },
                         headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                     )
@@ -271,6 +384,8 @@ async def send_automation_mail(
                             "req_id": payload.requirement_id or "",
                             "interview_date": payload.date_time or "",
                             "interview_link": payload.interview_link or "",
+                            "slot_start": payload.date_time or "",
+                            "slot_end": "",
                         },
                         headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                     )
@@ -308,6 +423,7 @@ async def send_automation_mail(
                 tmpl = r.json()
                 body = tmpl.get("body", "")
                 subject = subject or tmpl.get("subject", "")
+                calendar_invite = tmpl.get("calendar_invite")
         except Exception as exc:
             logger.warning("Template fetch failed, using fallback: %s", exc)
 
@@ -319,10 +435,16 @@ async def send_automation_mail(
             "We have a training requirement matching your profile. Please revert if interested.\n\n"
             f"Regards,\n{from_name}\n{from_email}"
         )
-    if payload.message and payload.message.strip():
+    if payload.mail_type not in ("mail1", "first") and payload.message and payload.message.strip():
         body = f"{payload.message.strip()}\n\n{body}"
     if not subject:
         subject = f"Training Requirement - {technology or payload.requirement_id or 'Opportunity'}"
+    if payload.mail_type in ("mail1", "first") and "proposal" not in _clean_text(
+        requirement.get("batch_flow") or requirement.get("batch_type") or requirement.get("requirement_type")
+    ).lower():
+        if _has_raw_client_mail_leak(body):
+            body = _clean_confirmed_mail1_body(name, requirement, technology)
+        body = _replace_trainer_mail1_commercial(body, requirement)
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
@@ -333,6 +455,8 @@ async def send_automation_mail(
                 "requirement_id": payload.requirement_id,
                 "smtp_config": payload.smtp_config,
             }
+            if calendar_invite:
+                send_payload["calendar_invite"] = calendar_invite
             if payload.mail_type in ("mail1", "first") and payload.requirement_id:
                 send_payload["idempotency_key"] = f"trainer-mail1:{payload.requirement_id}:{public_trainer_id or email.lower()}"
             r = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=send_payload)

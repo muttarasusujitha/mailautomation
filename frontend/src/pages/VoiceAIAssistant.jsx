@@ -133,9 +133,28 @@ export default function VoiceAIAssistant() {
     }
   }
 
-  const startListening = () => {
+  const startListening = async () => {
     if (!supported) {
       setError('Voice capture is not supported in this browser. You can still type the instruction.')
+      return
+    }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError('This browser cannot request microphone access. Open the app in Chrome on localhost, or type the instruction manually.')
+      return
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      stream.getTracks().forEach(track => track.stop())
+    } catch (error) {
+      const blocked = error?.name === 'NotAllowedError' || error?.name === 'SecurityError'
+      const missing = error?.name === 'NotFoundError' || error?.name === 'DevicesNotFoundError'
+      setError(
+        blocked
+          ? 'Microphone is blocked by Chrome. Click the lock/tune icon in the address bar, set Microphone to Allow, reload, then start voice again.'
+          : missing
+            ? 'No microphone was found. Connect/enable a microphone, or type the instruction manually.'
+            : error?.message || 'Could not access microphone. You can type/paste the instruction manually.'
+      )
       return
     }
     const recognition = new SpeechRecognition()
@@ -147,7 +166,15 @@ export default function VoiceAIAssistant() {
       setTranscript(text.trim())
     }
     recognition.onerror = event => {
-      setError(event.error || 'Could not capture voice')
+      const message =
+        event.error === 'not-allowed'
+          ? 'Microphone access is blocked. Allow microphone permission for this site, or type/paste the instruction manually.'
+          : event.error === 'audio-capture'
+            ? 'No microphone was found. Connect/enable a microphone, or type the instruction manually.'
+            : event.error === 'network'
+              ? 'Voice capture network error. You can type/paste the instruction and continue.'
+              : event.error || 'Could not capture voice'
+      setError(message)
       setListening(false)
     }
     recognition.onend = () => setListening(false)
@@ -242,6 +269,7 @@ export default function VoiceAIAssistant() {
     setOutputMode('script')
     toast.success('Call script ready')
   }
+
 
   return (
     <div className="space-y-5 animate-fade-in">

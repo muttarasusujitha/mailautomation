@@ -29,18 +29,18 @@
     },
     {
       "day": 2,
-      "topic": "Fundamentals of Prompting",
+      "topic": "Fundamentals of Prompting - Part 2",
       "subtopics": [
-        "Language Models",
-        "Tokens",
-        "Probability",
-        "Basic Prompts"
+        "Part 2: Language Models",
+        "Part 2: Tokens",
+        "Part 2: Probability",
+        "Part 2: Basic Prompts"
       ],
       "tools": [
         "GPT-4"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Prompt basics"
+      "lab_task": "Part 2 hands-on: Prompt basics"
     },
     {
       "day": 3,
@@ -58,17 +58,17 @@
     },
     {
       "day": 4,
-      "topic": "Prompt Techniques",
+      "topic": "Prompt Techniques - Part 2",
       "subtopics": [
-        "Zero-shot",
-        "Few-shot",
-        "Chain of Thought"
+        "Part 2: Zero-shot",
+        "Part 2: Few-shot",
+        "Part 2: Chain of Thought"
       ],
       "tools": [
         "ChatGPT"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Prompting techniques"
+      "lab_task": "Part 2 hands-on: Prompting techniques"
     },
     {
       "day": 5,
@@ -87,18 +87,18 @@
     },
     {
       "day": 6,
-      "topic": "Writing Effective Prompts",
+      "topic": "Writing Effective Prompts - Part 2",
       "subtopics": [
-        "Clarity",
-        "Specificity",
-        "Context",
-        "Instructions"
+        "Part 2: Clarity",
+        "Part 2: Specificity",
+        "Part 2: Context",
+        "Part 2: Instructions"
       ],
       "tools": [
         "Claude"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Effective prompts"
+      "lab_task": "Part 2 hands-on: Effective prompts"
     },
     {
       "day": 7,
@@ -116,17 +116,17 @@
     },
     {
       "day": 8,
-      "topic": "Chain of Thought Prompting",
+      "topic": "Chain of Thought Prompting - Part 2",
       "subtopics": [
-        "Step-by-step",
-        "Reasoning",
-        "Complex Problems"
+        "Part 2: Step-by-step",
+        "Part 2: Reasoning",
+        "Part 2: Complex Problems"
       ],
       "tools": [
         "GPT-4"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "CoT reasoning"
+      "lab_task": "Part 2 hands-on: CoT reasoning"
     },
     {
       "day": 9,
@@ -144,17 +144,17 @@
     },
     {
       "day": 10,
-      "topic": "Role-Based Prompting",
+      "topic": "Role-Based Prompting - Part 2",
       "subtopics": [
-        "Personas",
-        "Expert Roles",
-        "Character Consistency"
+        "Part 2: Personas",
+        "Part 2: Expert Roles",
+        "Part 2: Character Consistency"
       ],
       "tools": [
         "LLMs"
       ],
       "jira_focus": "Sprint planning; review progress for Role-Based Prompting",
-      "lab_task": "Persona prompting"
+      "lab_task": "Part 2 hands-on: Persona prompting"
     },
     {
       "day": 11,
@@ -173,18 +173,18 @@
     },
     {
       "day": 12,
-      "topic": "Temperature & Parameters",
+      "topic": "Temperature & Parameters - Part 2",
       "subtopics": [
-        "Sampling",
-        "Top-k",
-        "Top-p",
-        "Frequency Penalty"
+        "Part 2: Sampling",
+        "Part 2: Top-k",
+        "Part 2: Top-p",
+        "Part 2: Frequency Penalty"
       ],
       "tools": [
         "API Parameters"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Parameter tuning"
+      "lab_task": "Part 2 hands-on: Parameter tuning"
     },
     {
       "day": 13,
@@ -202,17 +202,17 @@
     },
     {
       "day": 14,
-      "topic": "Function Calling",
+      "topic": "Function Calling - Part 2",
       "subtopics": [
-        "Tool Use",
-        "Structured Output",
-        "API Integration"
+        "Part 2: Tool Use",
+        "Part 2: Structured Output",
+        "Part 2: API Integration"
       ],
       "tools": [
         "Function Calling"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Tool integration"
+      "lab_task": "Part 2 hands-on: Tool integration"
     },
     {
       "day": 15,
@@ -231,18 +231,18 @@
     },
     {
       "day": 16,
-      "topic": "Working with Structured Data",
+      "topic": "Working with Structured Data - Part 2",
       "subtopics": [
-        "JSON",
-        "Parsing",
-        "Validation",
-        "Schema"
+        "Part 2: JSON",
+        "Part 2: Parsing",
+        "Part 2: Validation",
+        "Part 2: Schema"
       ],
       "tools": [
         "Structured Output"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Structured prompts"
+      "lab_task": "Part 2 hands-on: Structured prompts"
     },
     {
       "day": 17,
@@ -260,17 +260,17 @@
     },
     {
       "day": 18,
-      "topic": "Retrieval-Augmented Generation",
+      "topic": "Retrieval-Augmented Generation - Part 2",
       "subtopics": [
-        "Context Injection",
-        "Document Retrieval",
-        "Dynamic Context"
+        "Part 2: Context Injection",
+        "Part 2: Document Retrieval",
+        "Part 2: Dynamic Context"
       ],
       "tools": [
         "RAG"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "RAG prompting"
+      "lab_task": "Part 2 hands-on: RAG prompting"
     },
     {
       "day": 19,
@@ -288,17 +288,17 @@
     },
     {
       "day": 20,
-      "topic": "Multi-turn Conversations",
+      "topic": "Multi-turn Conversations - Part 2",
       "subtopics": [
-        "Context Management",
-        "Memory",
-        "Continuity"
+        "Part 2: Context Management",
+        "Part 2: Memory",
+        "Part 2: Continuity"
       ],
       "tools": [
         "Conversation"
       ],
       "jira_focus": "Sprint planning; review progress for Multi-turn Conversations",
-      "lab_task": "Conversation design"
+      "lab_task": "Part 2 hands-on: Conversation design"
     },
     {
       "day": 21,
@@ -316,17 +316,17 @@
     },
     {
       "day": 22,
-      "topic": "Prompt Optimization",
+      "topic": "Prompt Optimization - Part 2",
       "subtopics": [
-        "Iterative Refinement",
-        "Testing",
-        "Evaluation"
+        "Part 2: Iterative Refinement",
+        "Part 2: Testing",
+        "Part 2: Evaluation"
       ],
       "tools": [
         "Prompt Testing"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Optimization techniques"
+      "lab_task": "Part 2 hands-on: Optimization techniques"
     },
     {
       "day": 23,
@@ -344,17 +344,17 @@
     },
     {
       "day": 24,
-      "topic": "Error Handling & Robustness",
+      "topic": "Error Handling & Robustness - Part 2",
       "subtopics": [
-        "Fallbacks",
-        "Validation",
-        "Recovery"
+        "Part 2: Fallbacks",
+        "Part 2: Validation",
+        "Part 2: Recovery"
       ],
       "tools": [
         "Error Handling"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Robust prompts"
+      "lab_task": "Part 2 hands-on: Robust prompts"
     },
     {
       "day": 25,
@@ -372,17 +372,17 @@
     },
     {
       "day": 26,
-      "topic": "Cost Optimization",
+      "topic": "Cost Optimization - Part 2",
       "subtopics": [
-        "Token Counting",
-        "Model Selection",
-        "Efficiency"
+        "Part 2: Token Counting",
+        "Part 2: Model Selection",
+        "Part 2: Efficiency"
       ],
       "tools": [
         "Cost Analysis"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Cost optimization"
+      "lab_task": "Part 2 hands-on: Cost optimization"
     },
     {
       "day": 27,
@@ -400,17 +400,17 @@
     },
     {
       "day": 28,
-      "topic": "Creative Prompting",
+      "topic": "Creative Prompting - Part 2",
       "subtopics": [
-        "Storytelling",
-        "Code Generation",
-        "Content Creation"
+        "Part 2: Storytelling",
+        "Part 2: Code Generation",
+        "Part 2: Content Creation"
       ],
       "tools": [
         "Creative Uses"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Creative applications"
+      "lab_task": "Part 2 hands-on: Creative applications"
     },
     {
       "day": 29,
@@ -440,5 +440,22 @@
       "jira_focus": "Sprint planning; review progress for Advanced Patterns",
       "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
     }
-  ]
+  ],
+  "aliases": [
+    "Prompt Engineering",
+    "LLM",
+    "Large Language Models",
+    "Generative AI",
+    "Gen AI",
+    "GenAI",
+    "ChatGPT",
+    "OpenAI",
+    "LLM Training",
+    "Generative AI Training"
+  ],
+  "official_sources": [
+    "https://openai.github.io/openai-agents-python/",
+    "https://openai.github.io/openai-agents-python/agents/"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
 }

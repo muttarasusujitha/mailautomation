@@ -1,0 +1,414 @@
+{
+    "domain":  "Nginx",
+    "name":  "Nginx â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "NGINX",
+                    "Web Server and Reverse Proxy"
+                ],
+    "tools":  [
+                  "NGINX",
+                  "OpenSSL",
+                  "curl"
+              ],
+    "certifications":  [
+                           "Nginx official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Setup",
+                     "subtopics":  [
+                                       "Core purpose",
+                                       "Architecture",
+                                       "Installation/setup",
+                                       "Configuration files",
+                                       "CLI/UI",
+                                       "Typical workflows",
+                                       "Terminology",
+                                       "Nginx terminology and feature mapping for this topic",
+                                       "Nginx configuration and implementation considerations",
+                                       "Nginx best practices and common mistakes for this topic",
+                                       "server blocks",
+                                       "location blocks",
+                                       "reverse proxy",
+                                       "load balancing",
+                                       "TLS termination",
+                                       "static files",
+                                       "caching",
+                                       "compression",
+                                       "rewrites",
+                                       "rate limiting",
+                                       "access logs",
+                                       "error logs"
+                                   ],
+                     "tools":  [
+                                   "NGINX",
+                                   "OpenSSL",
+                                   "curl"
+                               ],
+                     "lab_task":  "Set up Nginx and run a basic workflow.",
+                     "technology":  "Nginx",
+                     "technology_id":  "nginx",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Setup concepts in the context of Nginx.",
+                                                 "Configure or implement the key Nginx features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Nginx.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Configuration",
+                     "subtopics":  [
+                                       "Configuration syntax",
+                                       "Resources/components",
+                                       "Variables",
+                                       "Parameters",
+                                       "Secrets",
+                                       "Environment-specific configuration",
+                                       "Validation",
+                                       "Nginx terminology and feature mapping for this topic",
+                                       "Nginx configuration and implementation considerations",
+                                       "Nginx best practices and common mistakes for this topic",
+                                       "server blocks",
+                                       "location blocks",
+                                       "reverse proxy",
+                                       "load balancing",
+                                       "TLS termination",
+                                       "static files",
+                                       "caching",
+                                       "compression",
+                                       "rewrites",
+                                       "rate limiting",
+                                       "access logs",
+                                       "error logs"
+                                   ],
+                     "tools":  [
+                                   "NGINX",
+                                   "OpenSSL",
+                                   "curl"
+                               ],
+                     "lab_task":  "Create reusable Nginx configuration for development.",
+                     "technology":  "Nginx",
+                     "technology_id":  "nginx",
+                     "learning_objectives":  [
+                                                 "Explain the Core Configuration concepts in the context of Nginx.",
+                                                 "Configure or implement the key Nginx features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Configuration practically using Nginx.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Automation Workflow",
+                     "subtopics":  [
+                                       "Triggers",
+                                       "Stages/steps",
+                                       "Dependencies",
+                                       "Artifacts",
+                                       "Caching",
+                                       "Retries",
+                                       "Failure handling",
+                                       "Notifications",
+                                       "Nginx terminology and feature mapping for this topic",
+                                       "Nginx configuration and implementation considerations",
+                                       "Nginx best practices and common mistakes for this topic",
+                                       "server blocks",
+                                       "location blocks",
+                                       "reverse proxy",
+                                       "load balancing",
+                                       "TLS termination",
+                                       "static files",
+                                       "compression",
+                                       "rewrites",
+                                       "rate limiting",
+                                       "access logs",
+                                       "error logs"
+                                   ],
+                     "tools":  [
+                                   "NGINX",
+                                   "OpenSSL",
+                                   "curl"
+                               ],
+                     "lab_task":  "Build an automated workflow using Nginx.",
+                     "technology":  "Nginx",
+                     "technology_id":  "nginx",
+                     "learning_objectives":  [
+                                                 "Explain the Automation Workflow concepts in the context of Nginx.",
+                                                 "Configure or implement the key Nginx features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation Workflow practically using Nginx.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "Git integration",
+                                       "Container integration",
+                                       "Cloud integration",
+                                       "API/webhook integration",
+                                       "Credential management",
+                                       "Third-party plugins",
+                                       "Nginx terminology and feature mapping for this topic",
+                                       "Nginx configuration and implementation considerations",
+                                       "Nginx best practices and common mistakes for this topic",
+                                       "server blocks",
+                                       "location blocks",
+                                       "reverse proxy",
+                                       "load balancing",
+                                       "TLS termination",
+                                       "static files",
+                                       "caching",
+                                       "compression",
+                                       "rewrites",
+                                       "rate limiting",
+                                       "access logs",
+                                       "error logs"
+                                   ],
+                     "tools":  [
+                                   "NGINX",
+                                   "OpenSSL",
+                                   "curl"
+                               ],
+                     "lab_task":  "Integrate Nginx with source control and external services.",
+                     "technology":  "Nginx",
+                     "technology_id":  "nginx",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Nginx.",
+                                                 "Configure or implement the key Nginx features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Nginx.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Security",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Secrets",
+                                       "Least privilege",
+                                       "Supply-chain concerns",
+                                       "Audit logs",
+                                       "Policy controls",
+                                       "Nginx terminology and feature mapping for this topic",
+                                       "Nginx configuration and implementation considerations",
+                                       "Nginx best practices and common mistakes for this topic",
+                                       "server blocks",
+                                       "location blocks",
+                                       "reverse proxy",
+                                       "load balancing",
+                                       "TLS termination",
+                                       "static files",
+                                       "caching",
+                                       "compression",
+                                       "rewrites",
+                                       "rate limiting",
+                                       "access logs",
+                                       "error logs"
+                                   ],
+                     "tools":  [
+                                   "NGINX",
+                                   "OpenSSL",
+                                   "curl"
+                               ],
+                     "lab_task":  "Harden a Nginx setup.",
+                     "technology":  "Nginx",
+                     "technology_id":  "nginx",
+                     "learning_objectives":  [
+                                                 "Explain the Security concepts in the context of Nginx.",
+                                                 "Configure or implement the key Nginx features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security practically using Nginx.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Scaling and Reliability",
+                     "subtopics":  [
+                                       "Agents/runners/nodes",
+                                       "Parallel execution",
+                                       "High availability",
+                                       "State management",
+                                       "Backups",
+                                       "Failure recovery",
+                                       "Capacity planning",
+                                       "Nginx terminology and feature mapping for this topic",
+                                       "Nginx configuration and implementation considerations",
+                                       "Nginx best practices and common mistakes for this topic",
+                                       "server blocks",
+                                       "location blocks",
+                                       "reverse proxy",
+                                       "load balancing",
+                                       "TLS termination",
+                                       "static files",
+                                       "caching",
+                                       "compression",
+                                       "rewrites",
+                                       "rate limiting",
+                                       "access logs",
+                                       "error logs"
+                                   ],
+                     "tools":  [
+                                   "NGINX",
+                                   "OpenSSL",
+                                   "curl"
+                               ],
+                     "lab_task":  "Design a scalable and resilient Nginx setup.",
+                     "technology":  "Nginx",
+                     "technology_id":  "nginx",
+                     "learning_objectives":  [
+                                                 "Explain the Scaling and Reliability concepts in the context of Nginx.",
+                                                 "Configure or implement the key Nginx features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Nginx.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Observability and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Debugging",
+                                       "Failure diagnosis",
+                                       "Performance bottlenecks",
+                                       "Alerting",
+                                       "Operational runbooks",
+                                       "Nginx terminology and feature mapping for this topic",
+                                       "Nginx configuration and implementation considerations",
+                                       "Nginx best practices and common mistakes for this topic",
+                                       "server blocks",
+                                       "location blocks",
+                                       "reverse proxy",
+                                       "load balancing",
+                                       "TLS termination",
+                                       "static files",
+                                       "caching",
+                                       "compression",
+                                       "rewrites",
+                                       "rate limiting",
+                                       "access logs",
+                                       "error logs"
+                                   ],
+                     "tools":  [
+                                   "NGINX",
+                                   "OpenSSL",
+                                   "curl"
+                               ],
+                     "lab_task":  "Troubleshoot an intentionally failing Nginx workflow.",
+                     "technology":  "Nginx",
+                     "technology_id":  "nginx",
+                     "learning_objectives":  [
+                                                 "Explain the Observability and Troubleshooting concepts in the context of Nginx.",
+                                                 "Configure or implement the key Nginx features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Nginx.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Advanced Patterns",
+                     "subtopics":  [
+                                       "Reusable modules/templates",
+                                       "Multi-environment strategy",
+                                       "Promotion strategy",
+                                       "Policy as code concepts",
+                                       "GitOps/IaC patterns",
+                                       "Best practices",
+                                       "Nginx terminology and feature mapping for this topic",
+                                       "Nginx configuration and implementation considerations",
+                                       "Nginx best practices and common mistakes for this topic",
+                                       "server blocks",
+                                       "location blocks",
+                                       "reverse proxy",
+                                       "load balancing",
+                                       "TLS termination",
+                                       "static files",
+                                       "caching",
+                                       "compression",
+                                       "rewrites",
+                                       "rate limiting",
+                                       "access logs",
+                                       "error logs"
+                                   ],
+                     "tools":  [
+                                   "NGINX",
+                                   "OpenSSL",
+                                   "curl"
+                               ],
+                     "lab_task":  "Create reusable production-grade patterns.",
+                     "technology":  "Nginx",
+                     "technology_id":  "nginx",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Patterns concepts in the context of Nginx.",
+                                                 "Configure or implement the key Nginx features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Nginx.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "CI/CD or Deployment Project",
+                     "subtopics":  [
+                                       "Source control",
+                                       "Build",
+                                       "Test",
+                                       "Artifact",
+                                       "Deploy",
+                                       "Rollback",
+                                       "Approval gates",
+                                       "Documentation",
+                                       "Nginx terminology and feature mapping for this topic",
+                                       "Nginx configuration and implementation considerations",
+                                       "Nginx best practices and common mistakes for this topic",
+                                       "server blocks",
+                                       "location blocks",
+                                       "reverse proxy",
+                                       "load balancing",
+                                       "TLS termination",
+                                       "static files",
+                                       "caching",
+                                       "compression",
+                                       "rewrites",
+                                       "rate limiting",
+                                       "access logs",
+                                       "error logs"
+                                   ],
+                     "tools":  [
+                                   "NGINX",
+                                   "OpenSSL",
+                                   "curl"
+                               ],
+                     "lab_task":  "Implement a complete delivery workflow with Nginx.",
+                     "technology":  "Nginx",
+                     "technology_id":  "nginx",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD or Deployment Project concepts in the context of Nginx.",
+                                                 "Configure or implement the key Nginx features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Nginx.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "nginx"
+}

@@ -398,7 +398,7 @@ export default function Admin() {
         return
       }
       if (!gmailStatus.connected || !gmailStatus.calendar_connected) {
-        const redirectUri = `${window.location.protocol}//${window.location.hostname}:8000/api/gmail/oauth-callback`
+        const redirectUri = `${window.location.protocol}//${window.location.hostname}:8002/api/v1/gmail/oauth-callback`
         const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
         const oauthData = await oauthRes.json().catch(() => ({}))
         if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')
@@ -426,7 +426,7 @@ export default function Admin() {
         toast.success('SMTP/IMAP mode is active. Google OAuth skipped.')
         return
       }
-      const redirectUri = `${window.location.protocol}//${window.location.hostname}:8000/api/gmail/oauth-callback`
+      const redirectUri = `${window.location.protocol}//${window.location.hostname}:8002/api/v1/gmail/oauth-callback`
       const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
       const oauthData = await oauthRes.json().catch(() => ({}))
       if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')

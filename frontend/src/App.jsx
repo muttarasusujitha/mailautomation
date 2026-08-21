@@ -58,6 +58,7 @@ const GmailCallback = lazyWithRetry(() => import('./pages/GmailCallback'))
 const LinkedInCallback = lazyWithRetry(() => import('./pages/LinkedInCallback'))
 const Admin = lazyWithRetry(() => import('./pages/Admin'))
 const TocKnowledge = lazyWithRetry(() => import('./pages/TocKnowledge'))
+const LabCost = lazyWithRetry(() => import('./pages/LabCost'))
 const Shortlist = lazyWithRetry(() => import('./pages/Shortlist'))
 const Shortlist1 = lazyWithRetry(() => import('./pages/Shortlist1'))
 const Profile = lazyWithRetry(() => import('./pages/Profile'))
@@ -182,6 +183,7 @@ export default function App() {
             <Route path="resume-upload" element={<ResumeUpload />} />
             <Route path="admin"        element={<Admin />} />
             <Route path="toc-knowledge" element={<TocKnowledge />} />
+            <Route path="lab-cost" element={<LabCost />} />
             <Route path="interviews"   element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="shortlist"    element={<Shortlist />} />
             <Route path="ai-pipeline"  element={<Shortlist1 />} />

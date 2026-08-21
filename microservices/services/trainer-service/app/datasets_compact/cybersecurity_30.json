@@ -30,18 +30,18 @@
     },
     {
       "day": 2,
-      "topic": "Security Fundamentals",
+      "topic": "Security Fundamentals - Part 2",
       "subtopics": [
-        "CIA Triad",
-        "Threats",
-        "Vulnerabilities",
-        "Risk Management"
+        "Part 2: CIA Triad",
+        "Part 2: Threats",
+        "Part 2: Vulnerabilities",
+        "Part 2: Risk Management"
       ],
       "tools": [
         "OWASP"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Security basics"
+      "lab_task": "Part 2 hands-on: Security basics"
     },
     {
       "day": 3,
@@ -60,18 +60,18 @@
     },
     {
       "day": 4,
-      "topic": "Network Security",
+      "topic": "Network Security - Part 2",
       "subtopics": [
-        "Firewalls",
-        "VPN",
-        "Intrusion Detection",
-        "Network Analysis"
+        "Part 2: Firewalls",
+        "Part 2: VPN",
+        "Part 2: Intrusion Detection",
+        "Part 2: Network Analysis"
       ],
       "tools": [
         "Wireshark"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Network security"
+      "lab_task": "Part 2 hands-on: Network security"
     },
     {
       "day": 5,
@@ -89,17 +89,17 @@
     },
     {
       "day": 6,
-      "topic": "Cryptography",
+      "topic": "Cryptography - Part 2",
       "subtopics": [
-        "Symmetric Encryption",
-        "Asymmetric Encryption",
-        "Hashing"
+        "Part 2: Symmetric Encryption",
+        "Part 2: Asymmetric Encryption",
+        "Part 2: Hashing"
       ],
       "tools": [
         "OpenSSL"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Cryptographic concepts"
+      "lab_task": "Part 2 hands-on: Cryptographic concepts"
     },
     {
       "day": 7,
@@ -118,18 +118,18 @@
     },
     {
       "day": 8,
-      "topic": "Access Control",
+      "topic": "Access Control - Part 2",
       "subtopics": [
-        "Authentication",
-        "Authorization",
-        "RBAC",
-        "Privilege Management"
+        "Part 2: Authentication",
+        "Part 2: Authorization",
+        "Part 2: RBAC",
+        "Part 2: Privilege Management"
       ],
       "tools": [
         "LDAP"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Access control"
+      "lab_task": "Part 2 hands-on: Access control"
     },
     {
       "day": 9,
@@ -148,18 +148,18 @@
     },
     {
       "day": 10,
-      "topic": "Web Application Security",
+      "topic": "Web Application Security - Part 2",
       "subtopics": [
-        "OWASP Top 10",
-        "SQL Injection",
-        "XSS",
-        "CSRF"
+        "Part 2: OWASP Top 10",
+        "Part 2: SQL Injection",
+        "Part 2: XSS",
+        "Part 2: CSRF"
       ],
       "tools": [
         "Burp Suite"
       ],
       "jira_focus": "Sprint planning; review progress for Web Application Security",
-      "lab_task": "Web app security"
+      "lab_task": "Part 2 hands-on: Web app security"
     },
     {
       "day": 11,
@@ -179,19 +179,19 @@
     },
     {
       "day": 12,
-      "topic": "Vulnerability Assessment",
+      "topic": "Vulnerability Assessment - Part 2",
       "subtopics": [
-        "Scanning",
-        "Reporting",
-        "Remediation",
-        "Validation"
+        "Part 2: Scanning",
+        "Part 2: Reporting",
+        "Part 2: Remediation",
+        "Part 2: Validation"
       ],
       "tools": [
         "Nessus",
         "OpenVAS"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Vulnerability scanning"
+      "lab_task": "Part 2 hands-on: Vulnerability scanning"
     },
     {
       "day": 13,
@@ -209,17 +209,17 @@
     },
     {
       "day": 14,
-      "topic": "Penetration Testing",
+      "topic": "Penetration Testing - Part 2",
       "subtopics": [
-        "Reconnaissance",
-        "Exploitation",
-        "Post-Exploitation"
+        "Part 2: Reconnaissance",
+        "Part 2: Exploitation",
+        "Part 2: Post-Exploitation"
       ],
       "tools": [
         "Metasploit"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Penetration testing"
+      "lab_task": "Part 2 hands-on: Penetration testing"
     },
     {
       "day": 15,
@@ -237,17 +237,17 @@
     },
     {
       "day": 16,
-      "topic": "Malware Analysis",
+      "topic": "Malware Analysis - Part 2",
       "subtopics": [
-        "Static Analysis",
-        "Dynamic Analysis",
-        "Behavior"
+        "Part 2: Static Analysis",
+        "Part 2: Dynamic Analysis",
+        "Part 2: Behavior"
       ],
       "tools": [
         "IDA Pro"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Malware analysis"
+      "lab_task": "Part 2 hands-on: Malware analysis"
     },
     {
       "day": 17,
@@ -266,18 +266,18 @@
     },
     {
       "day": 18,
-      "topic": "Incident Response",
+      "topic": "Incident Response - Part 2",
       "subtopics": [
-        "Detection",
-        "Analysis",
-        "Containment",
-        "Recovery"
+        "Part 2: Detection",
+        "Part 2: Analysis",
+        "Part 2: Containment",
+        "Part 2: Recovery"
       ],
       "tools": [
         "SIEM"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Incident response"
+      "lab_task": "Part 2 hands-on: Incident response"
     },
     {
       "day": 19,
@@ -295,17 +295,17 @@
     },
     {
       "day": 20,
-      "topic": "Forensics",
+      "topic": "Forensics - Part 2",
       "subtopics": [
-        "Evidence Collection",
-        "Analysis",
-        "Chain of Custody"
+        "Part 2: Evidence Collection",
+        "Part 2: Analysis",
+        "Part 2: Chain of Custody"
       ],
       "tools": [
         "EnCase"
       ],
       "jira_focus": "Sprint planning; review progress for Forensics",
-      "lab_task": "Digital forensics"
+      "lab_task": "Part 2 hands-on: Digital forensics"
     },
     {
       "day": 21,
@@ -323,17 +323,17 @@
     },
     {
       "day": 22,
-      "topic": "Cloud Security",
+      "topic": "Cloud Security - Part 2",
       "subtopics": [
-        "AWS Security",
-        "Azure Security",
-        "IAM"
+        "Part 2: AWS Security",
+        "Part 2: Azure Security",
+        "Part 2: IAM"
       ],
       "tools": [
         "AWS"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Cloud security"
+      "lab_task": "Part 2 hands-on: Cloud security"
     },
     {
       "day": 23,
@@ -351,17 +351,17 @@
     },
     {
       "day": 24,
-      "topic": "Container Security",
+      "topic": "Container Security - Part 2",
       "subtopics": [
-        "Docker Security",
-        "Kubernetes Security"
+        "Part 2: Docker Security",
+        "Part 2: Kubernetes Security"
       ],
       "tools": [
         "Trivy",
         "Falco"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Container security"
+      "lab_task": "Part 2 hands-on: Container security"
     },
     {
       "day": 25,
@@ -379,17 +379,17 @@
     },
     {
       "day": 26,
-      "topic": "DevSecOps",
+      "topic": "DevSecOps - Part 2",
       "subtopics": [
-        "Security in CI/CD",
-        "SAST/DAST",
-        "Dependency Scanning"
+        "Part 2: Security in CI/CD",
+        "Part 2: SAST/DAST",
+        "Part 2: Dependency Scanning"
       ],
       "tools": [
         "SonarQube"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "DevSecOps practices"
+      "lab_task": "Part 2 hands-on: DevSecOps practices"
     },
     {
       "day": 27,
@@ -408,18 +408,18 @@
     },
     {
       "day": 28,
-      "topic": "Compliance & Standards",
+      "topic": "Compliance & Standards - Part 2",
       "subtopics": [
-        "ISO 27001",
-        "SOC2",
-        "GDPR",
-        "HIPAA"
+        "Part 2: ISO 27001",
+        "Part 2: SOC2",
+        "Part 2: GDPR",
+        "Part 2: HIPAA"
       ],
       "tools": [
         "Compliance"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Security standards"
+      "lab_task": "Part 2 hands-on: Security standards"
     },
     {
       "day": 29,
@@ -449,5 +449,21 @@
       "jira_focus": "Sprint planning; review progress for Advanced Topics",
       "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
     }
-  ]
+  ],
+  "aliases": [
+    "Cybersecurity",
+    "Cyber Security",
+    "Information Security",
+    "SOC",
+    "Ethical Hacking",
+    "VAPT",
+    "Network Security",
+    "Application Security",
+    "Security Analyst"
+  ],
+  "official_sources": [
+    "https://kubernetes.io/docs/concepts/workloads/",
+    "https://developer.salesforce.com/docs/platform/lwc/guide/apex-security"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
 }

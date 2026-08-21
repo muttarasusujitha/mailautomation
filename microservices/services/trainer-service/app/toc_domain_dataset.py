@@ -10,11 +10,33 @@ import re
 
 
 COMPACT_DOMAINS = {}
+COMPACT_DOMAIN_VARIANTS = {}
 _COMPACT_DATASET_PATH = os.path.join(os.path.dirname(__file__), "datasets_compact")
 
 
+def _dataset_duration(filename_key: str, data: dict) -> int:
+    match = re.search(r"_(\d+)$", filename_key or "")
+    if match:
+        return int(match.group(1))
+    days = data.get("days") or []
+    if isinstance(days, list) and days:
+        return len(days)
+    return int(data.get("duration_days") or 0)
+
+
+def _register_compact_domain(key: str, data: dict, duration: int):
+    key = _normalise_key(key)
+    if not key:
+        return
+    COMPACT_DOMAIN_VARIANTS.setdefault(key, []).append((duration, data))
+    current = COMPACT_DOMAINS.get(key)
+    current_duration = _dataset_duration("", current or {}) if current else -1
+    if not current or duration >= current_duration:
+        COMPACT_DOMAINS[key] = data
+
+
 def _load_compact_domains():
-    global COMPACT_DOMAINS
+    global COMPACT_DOMAINS, COMPACT_DOMAIN_VARIANTS
     if COMPACT_DOMAINS:
         return
     if not os.path.isdir(_COMPACT_DATASET_PATH):
@@ -31,14 +53,16 @@ def _load_compact_domains():
         base_name = filename.rsplit(".", 1)[0]
         file_key = _normalise_key(base_name)
         key = _normalise_key(data.get("domain") or data.get("name") or file_key)
+        duration = _dataset_duration(file_key, data)
         if key:
-            COMPACT_DOMAINS[key] = data
+            _register_compact_domain(key, data, duration)
+        for alias in data.get("aliases") or []:
+            alias_key = _normalise_key(alias)
+            _register_compact_domain(alias_key, data, duration)
         if file_key and file_key != key:
             trimmed = re.sub(r"_[0-9]+$", "", file_key)
-            if trimmed and trimmed not in COMPACT_DOMAINS:
-                COMPACT_DOMAINS[trimmed] = data
-            if file_key not in COMPACT_DOMAINS:
-                COMPACT_DOMAINS[file_key] = data
+            _register_compact_domain(trimmed, data, duration)
+            _register_compact_domain(file_key, data, duration)
 
 
 def _compact_domain_to_standard(domain: dict) -> dict:
@@ -578,6 +602,94 @@ ALIASES = {
     "jira": "project_management",
 }
 
+# Prefer dedicated curricula over broad aliases when both are available.
+SPECIALIZED_COMPACT_KEYS = {
+    "apache_cassandra": "Apache Cassandra NoSQL",
+    "cassandra": "Apache Cassandra NoSQL",
+    "cassandra_nosql": "Apache Cassandra NoSQL",
+    "mariadb": "MariaDB Database Administration",
+    "mariadb_server": "MariaDB Database Administration",
+    "mariadb_database": "MariaDB Database Administration",
+    "mariadb_sql": "MariaDB Database Administration",
+    "pl_sql": "PL/SQL Oracle Development",
+    "procedural_language_sql": "PL/SQL Oracle Development",
+    "oracle_pl_sql": "PL/SQL Oracle Development",
+    "plsql": "PL/SQL Oracle Development",
+    "r": "R Programming Data Analysis",
+    "r_programming": "R Programming Data Analysis",
+    "r_language": "R Programming Data Analysis",
+    "r_statistical_programming": "R Programming Data Analysis",
+    "powershell": "PowerShell Infrastructure Automation",
+    "microsoft_powershell": "PowerShell Infrastructure Automation",
+    "powershell_core": "PowerShell Infrastructure Automation",
+    "windows_powershell": "PowerShell Infrastructure Automation",
+    "matlab": "MATLAB Scientific Computing",
+    "matlab_programming": "MATLAB Scientific Computing",
+    "matrix_laboratory": "MATLAB Scientific Computing",
+    "matlab_scientific_computing": "MATLAB Scientific Computing",
+    "scala": "Scala Programming",
+    "scala_programming": "Scala Programming",
+    "scala_language": "Scala Programming",
+    "scala_jvm": "Scala Programming",
+    "advanced_scala": "Scala Programming",
+    "ruby_on_rails": "Ruby on Rails Full Stack",
+    "rails": "Ruby on Rails Full Stack",
+    "ror": "Ruby on Rails Full Stack",
+    "ruby_on_rails_framework": "Ruby on Rails Full Stack",
+    "rails_full_stack": "Ruby on Rails Full Stack",
+    "ruby": "Ruby Programming",
+    "ruby_programming": "Ruby Programming",
+    "ruby_language": "Ruby Programming",
+    "advanced_ruby": "Ruby Programming",
+    "react_native": "React Native Application Development",
+    "react_native_development": "React Native Application Development",
+    "rn": "React Native Application Development",
+    "react_native_mobile_development": "React Native Application Development",
+    "react_native_app_development": "React Native Application Development",
+    "flutter": "Flutter Application Development",
+    "flutter_development": "Flutter Application Development",
+    "flutter_sdk": "Flutter Application Development",
+    "cross_platform_app_development": "Flutter Application Development",
+    "flutter_app_development": "Flutter Application Development",
+    "dart": "Dart Programming",
+    "dart_programming": "Dart Programming",
+    "dart_language": "Dart Programming",
+    "advanced_dart": "Dart Programming",
+    "swift": "Swift Programming",
+    "swift_programming": "Swift Programming",
+    "apple_swift": "Swift Programming",
+    "swift_language": "Swift Programming",
+    "kotlin": "Kotlin Programming",
+    "kotlin_programming": "Kotlin Programming",
+    "kotlin_jvm": "Kotlin Programming",
+    "advanced_kotlin": "Kotlin Programming",
+    "dsa": "DSA & Algorithms Mastery",
+    "data_structures_and_algorithms": "DSA & Algorithms Mastery",
+    "dsa_and_algorithms": "DSA & Algorithms Mastery",
+    "algorithms": "DSA & Algorithms Mastery",
+    "coding_interview_preparation": "DSA & Algorithms Mastery",
+    "problem_solving": "DSA & Algorithms Mastery",
+    "java": "Java Mastery",
+    "core_java": "Java Mastery",
+    "advanced_java": "Java Mastery",
+    "java_programming": "Java Mastery",
+    "java_dsa": "Java Mastery",
+    "java_data_structures_and_algorithms": "Java Mastery",
+    "python": "Python Mastery",
+    "core_python": "Python Mastery",
+    "advanced_python": "Python Mastery",
+    "python_programming": "Python Mastery",
+    "python_dsa": "Python Mastery",
+    "python_data_structures_and_algorithms": "Python Mastery",
+    "java_full_stack": "Java Full Stack",
+    "java_fullstack": "Java Full Stack",
+    "spring_boot_full_stack": "Java Full Stack",
+    "python_full_stack": "Python Full Stack",
+    "python_fullstack": "Python Full Stack",
+    "django_full_stack": "Python Full Stack",
+    "fastapi_full_stack": "Python Full Stack",
+}
+
 
 def _normalise_key(name: str) -> str:
     text = str(name or "").lower().strip()
@@ -631,13 +743,40 @@ def _compact_key_alternatives(key: str) -> list:
     return candidates
 
 
-def get_domain(name: str):
+def _compact_variant_for(key: str, duration_days: int | None = None):
+    variants = COMPACT_DOMAIN_VARIANTS.get(key) or []
+    if not variants:
+        return None
+    requested = int(duration_days or 0)
+    variants = sorted(variants, key=lambda item: item[0] or 0)
+    if requested:
+        for duration, data in variants:
+            if duration >= requested:
+                return data
+    return variants[-1][1]
+
+
+def get_domain(name: str, duration_days: int | None = None):
     _load_compact_domains()
     normalised = _normalise_key(name)
+    specialised_name = SPECIALIZED_COMPACT_KEYS.get(normalised)
+    if specialised_name:
+        preferred_variants = [
+            (duration, data)
+            for variants in COMPACT_DOMAIN_VARIANTS.values()
+            for duration, data in variants
+            if str(data.get("name") or data.get("domain") or "").lower() == specialised_name.lower()
+        ]
+        if preferred_variants:
+            requested = int(duration_days or 0)
+            preferred_variants.sort(key=lambda item: item[0] or 0)
+            compact = next((data for duration, data in preferred_variants if not requested or duration >= requested), preferred_variants[-1][1])
+            return _compact_domain_to_standard(compact)
     key = ALIASES.get(normalised, normalised)
     for candidate in _compact_key_alternatives(key):
-        if candidate in COMPACT_DOMAINS:
-            return _compact_domain_to_standard(COMPACT_DOMAINS[candidate])
+        compact = _compact_variant_for(candidate, duration_days)
+        if compact:
+            return _compact_domain_to_standard(compact)
     if key not in DOMAINS:
         if "full_stack" in normalised or "fullstack" in normalised or "mern" in normalised or "mean_stack" in normalised:
             key = "full_stack"
@@ -652,8 +791,9 @@ def get_domain(name: str):
         else:
             key = _best_fuzzy_domain_key(normalised) or key
     for candidate in _compact_key_alternatives(key):
-        if candidate in COMPACT_DOMAINS:
-            return _compact_domain_to_standard(COMPACT_DOMAINS[candidate])
+        compact = _compact_variant_for(candidate, duration_days)
+        if compact:
+            return _compact_domain_to_standard(compact)
     return DOMAINS.get(key)
 
 

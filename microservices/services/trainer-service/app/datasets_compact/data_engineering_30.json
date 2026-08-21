@@ -33,20 +33,20 @@
     },
     {
       "day": 2,
-      "topic": "SQL & Databases",
+      "topic": "SQL & Databases - Part 2",
       "subtopics": [
-        "Database Design",
-        "SQL Basics",
-        "Indexing",
-        "Query Optimization",
-        "Transactions"
+        "Part 2: Database Design",
+        "Part 2: SQL Basics",
+        "Part 2: Indexing",
+        "Part 2: Query Optimization",
+        "Part 2: Transactions"
       ],
       "tools": [
         "PostgreSQL",
         "MySQL"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Build complex queries"
+      "lab_task": "Part 2 hands-on: Build complex queries"
     },
     {
       "day": 3,
@@ -66,19 +66,19 @@
     },
     {
       "day": 4,
-      "topic": "Data Warehousing",
+      "topic": "Data Warehousing - Part 2",
       "subtopics": [
-        "Schema Design",
-        "ETL",
-        "Fact/Dimension Tables",
-        "Slowly Changing Dimensions"
+        "Part 2: Schema Design",
+        "Part 2: ETL",
+        "Part 2: Fact/Dimension Tables",
+        "Part 2: Slowly Changing Dimensions"
       ],
       "tools": [
         "Redshift",
         "BigQuery"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Design data warehouse"
+      "lab_task": "Part 2 hands-on: Design data warehouse"
     },
     {
       "day": 5,
@@ -99,20 +99,20 @@
     },
     {
       "day": 6,
-      "topic": "ETL Fundamentals",
+      "topic": "ETL Fundamentals - Part 2",
       "subtopics": [
-        "Extract",
-        "Transform",
-        "Load",
-        "Validation",
-        "Error Handling"
+        "Part 2: Extract",
+        "Part 2: Transform",
+        "Part 2: Load",
+        "Part 2: Validation",
+        "Part 2: Error Handling"
       ],
       "tools": [
         "Apache Airflow",
         "Talend"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Build ETL pipeline"
+      "lab_task": "Part 2 hands-on: Build ETL pipeline"
     },
     {
       "day": 7,
@@ -133,20 +133,20 @@
     },
     {
       "day": 8,
-      "topic": "Python for Data",
+      "topic": "Python for Data - Part 2",
       "subtopics": [
-        "NumPy",
-        "Pandas",
-        "Polars",
-        "Data Cleaning",
-        "Processing"
+        "Part 2: NumPy",
+        "Part 2: Pandas",
+        "Part 2: Polars",
+        "Part 2: Data Cleaning",
+        "Part 2: Processing"
       ],
       "tools": [
         "Python",
         "Jupyter"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Data processing with pandas"
+      "lab_task": "Part 2 hands-on: Data processing with pandas"
     },
     {
       "day": 9,
@@ -166,19 +166,19 @@
     },
     {
       "day": 10,
-      "topic": "Apache Spark",
+      "topic": "Apache Spark - Part 2",
       "subtopics": [
-        "RDD",
-        "DataFrames",
-        "SQL",
-        "Streaming",
-        "Optimization"
+        "Part 2: RDD",
+        "Part 2: DataFrames",
+        "Part 2: SQL",
+        "Part 2: Streaming",
+        "Part 2: Optimization"
       ],
       "tools": [
         "Apache Spark"
       ],
       "jira_focus": "Sprint planning; review progress for Apache Spark",
-      "lab_task": "Distributed data processing"
+      "lab_task": "Part 2 hands-on: Distributed data processing"
     },
     {
       "day": 11,
@@ -199,20 +199,20 @@
     },
     {
       "day": 12,
-      "topic": "Kafka & Streaming",
+      "topic": "Kafka & Streaming - Part 2",
       "subtopics": [
-        "Topics",
-        "Producers",
-        "Consumers",
-        "Streams",
-        "Real-time"
+        "Part 2: Topics",
+        "Part 2: Producers",
+        "Part 2: Consumers",
+        "Part 2: Streams",
+        "Part 2: Real-time"
       ],
       "tools": [
         "Kafka",
         "Spark Streaming"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Build streaming pipeline"
+      "lab_task": "Part 2 hands-on: Build streaming pipeline"
     },
     {
       "day": 13,
@@ -233,20 +233,20 @@
     },
     {
       "day": 14,
-      "topic": "Data Lakes",
+      "topic": "Data Lakes - Part 2",
       "subtopics": [
-        "Architecture",
-        "Delta Lake",
-        "Partition",
-        "Versioning",
-        "Optimization"
+        "Part 2: Architecture",
+        "Part 2: Delta Lake",
+        "Part 2: Partition",
+        "Part 2: Versioning",
+        "Part 2: Optimization"
       ],
       "tools": [
         "S3",
         "Delta Lake"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Design data lake"
+      "lab_task": "Part 2 hands-on: Design data lake"
     },
     {
       "day": 15,
@@ -266,19 +266,19 @@
     },
     {
       "day": 16,
-      "topic": "Cloud Platforms - AWS",
+      "topic": "Cloud Platforms - AWS - Part 2",
       "subtopics": [
-        "S3",
-        "Glue",
-        "EMR",
-        "Lambda",
-        "Data Pipeline"
+        "Part 2: S3",
+        "Part 2: Glue",
+        "Part 2: EMR",
+        "Part 2: Lambda",
+        "Part 2: Data Pipeline"
       ],
       "tools": [
         "AWS"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "AWS data engineering"
+      "lab_task": "Part 2 hands-on: AWS data engineering"
     },
     {
       "day": 17,
@@ -297,18 +297,18 @@
     },
     {
       "day": 18,
-      "topic": "Cloud Platforms - GCP",
+      "topic": "Cloud Platforms - GCP - Part 2",
       "subtopics": [
-        "BigQuery",
-        "Dataflow",
-        "Pub/Sub",
-        "Cloud Storage"
+        "Part 2: BigQuery",
+        "Part 2: Dataflow",
+        "Part 2: Pub/Sub",
+        "Part 2: Cloud Storage"
       ],
       "tools": [
         "GCP"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "GCP data engineering"
+      "lab_task": "Part 2 hands-on: GCP data engineering"
     },
     {
       "day": 19,
@@ -327,18 +327,18 @@
     },
     {
       "day": 20,
-      "topic": "Orchestration",
+      "topic": "Orchestration - Part 2",
       "subtopics": [
-        "Airflow DAGs",
-        "Scheduling",
-        "Monitoring",
-        "Error Recovery"
+        "Part 2: Airflow DAGs",
+        "Part 2: Scheduling",
+        "Part 2: Monitoring",
+        "Part 2: Error Recovery"
       ],
       "tools": [
         "Apache Airflow"
       ],
       "jira_focus": "Sprint planning; review progress for Orchestration",
-      "lab_task": "Production orchestration"
+      "lab_task": "Part 2 hands-on: Production orchestration"
     },
     {
       "day": 21,
@@ -358,19 +358,19 @@
     },
     {
       "day": 22,
-      "topic": "Data Quality",
+      "topic": "Data Quality - Part 2",
       "subtopics": [
-        "Validation",
-        "Testing",
-        "Monitoring",
-        "Profiling",
-        "Alerting"
+        "Part 2: Validation",
+        "Part 2: Testing",
+        "Part 2: Monitoring",
+        "Part 2: Profiling",
+        "Part 2: Alerting"
       ],
       "tools": [
         "Great Expectations"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Implement data quality"
+      "lab_task": "Part 2 hands-on: Implement data quality"
     },
     {
       "day": 23,
@@ -389,18 +389,18 @@
     },
     {
       "day": 24,
-      "topic": "Advanced Spark",
+      "topic": "Advanced Spark - Part 2",
       "subtopics": [
-        "Tuning",
-        "Partitioning",
-        "Caching",
-        "Optimization"
+        "Part 2: Tuning",
+        "Part 2: Partitioning",
+        "Part 2: Caching",
+        "Part 2: Optimization"
       ],
       "tools": [
         "Spark"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Performance optimization"
+      "lab_task": "Part 2 hands-on: Performance optimization"
     },
     {
       "day": 25,
@@ -419,18 +419,18 @@
     },
     {
       "day": 26,
-      "topic": "Iceberg & Delta",
+      "topic": "Iceberg & Delta - Part 2",
       "subtopics": [
-        "Table Format",
-        "ACID Compliance",
-        "Time Travel",
-        "Schema Evolution"
+        "Part 2: Table Format",
+        "Part 2: ACID Compliance",
+        "Part 2: Time Travel",
+        "Part 2: Schema Evolution"
       ],
       "tools": [
         "Apache Iceberg"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Modern table formats"
+      "lab_task": "Part 2 hands-on: Modern table formats"
     },
     {
       "day": 27,
@@ -449,18 +449,18 @@
     },
     {
       "day": 28,
-      "topic": "dbt (Data Build Tool)",
+      "topic": "dbt (Data Build Tool) - Part 2",
       "subtopics": [
-        "Models",
-        "Tests",
-        "Documentation",
-        "Deployment"
+        "Part 2: Models",
+        "Part 2: Tests",
+        "Part 2: Documentation",
+        "Part 2: Deployment"
       ],
       "tools": [
         "dbt"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "dbt workflow"
+      "lab_task": "Part 2 hands-on: dbt workflow"
     },
     {
       "day": 29,
@@ -494,5 +494,28 @@
       "jira_focus": "Sprint planning; review progress for Monitoring & Logging",
       "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
     }
-  ]
+  ],
+  "aliases": [
+    "Data Engineering",
+    "Data Engineer",
+    "ETL",
+    "ELT",
+    "Big Data",
+    "PySpark",
+    "Spark",
+    "Airflow",
+    "Databricks",
+    "Snowflake",
+    "Data Pipeline"
+  ],
+  "official_sources": [
+    "https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html",
+    "https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/scheduler.html",
+    "https://spark.apache.org/docs/latest/sql-programming-guide.html",
+    "https://spark.apache.org/docs/latest/streaming/index.html",
+    "https://docs.snowflake.com/en/en/user-guide/data-load-overview",
+    "https://docs.snowflake.com/en/user-guide/data-pipelines-intro",
+    "https://pandas.pydata.org/docs/user_guide/"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
 }

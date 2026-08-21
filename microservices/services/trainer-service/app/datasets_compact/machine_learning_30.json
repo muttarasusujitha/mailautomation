@@ -30,18 +30,18 @@
     },
     {
       "day": 2,
-      "topic": "ML Fundamentals",
+      "topic": "ML Fundamentals - Part 2",
       "subtopics": [
-        "Supervised Learning",
-        "Unsupervised Learning",
-        "Reinforcement Learning",
-        "Model Types"
+        "Part 2: Supervised Learning",
+        "Part 2: Unsupervised Learning",
+        "Part 2: Reinforcement Learning",
+        "Part 2: Model Types"
       ],
       "tools": [
         "Scikit-learn"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "ML basics"
+      "lab_task": "Part 2 hands-on: ML basics"
     },
     {
       "day": 3,
@@ -61,19 +61,19 @@
     },
     {
       "day": 4,
-      "topic": "Data Preprocessing",
+      "topic": "Data Preprocessing - Part 2",
       "subtopics": [
-        "Cleaning",
-        "Normalization",
-        "Feature Scaling",
-        "Handling Missing Values"
+        "Part 2: Cleaning",
+        "Part 2: Normalization",
+        "Part 2: Feature Scaling",
+        "Part 2: Handling Missing Values"
       ],
       "tools": [
         "Pandas",
         "NumPy"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Data preparation"
+      "lab_task": "Part 2 hands-on: Data preparation"
     },
     {
       "day": 5,
@@ -92,18 +92,18 @@
     },
     {
       "day": 6,
-      "topic": "Feature Engineering",
+      "topic": "Feature Engineering - Part 2",
       "subtopics": [
-        "Feature Selection",
-        "Feature Creation",
-        "Encoding",
-        "Scaling"
+        "Part 2: Feature Selection",
+        "Part 2: Feature Creation",
+        "Part 2: Encoding",
+        "Part 2: Scaling"
       ],
       "tools": [
         "Scikit-learn"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Build features"
+      "lab_task": "Part 2 hands-on: Build features"
     },
     {
       "day": 7,
@@ -121,17 +121,17 @@
     },
     {
       "day": 8,
-      "topic": "Linear Regression",
+      "topic": "Linear Regression - Part 2",
       "subtopics": [
-        "Simple/Multiple Regression",
-        "Regularization",
-        "Evaluation"
+        "Part 2: Simple/Multiple Regression",
+        "Part 2: Regularization",
+        "Part 2: Evaluation"
       ],
       "tools": [
         "Scikit-learn"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Regression models"
+      "lab_task": "Part 2 hands-on: Regression models"
     },
     {
       "day": 9,
@@ -149,17 +149,17 @@
     },
     {
       "day": 10,
-      "topic": "Logistic Regression",
+      "topic": "Logistic Regression - Part 2",
       "subtopics": [
-        "Classification",
-        "Decision Boundary",
-        "Probability"
+        "Part 2: Classification",
+        "Part 2: Decision Boundary",
+        "Part 2: Probability"
       ],
       "tools": [
         "Scikit-learn"
       ],
       "jira_focus": "Sprint planning; review progress for Logistic Regression",
-      "lab_task": "Binary classification"
+      "lab_task": "Part 2 hands-on: Binary classification"
     },
     {
       "day": 11,
@@ -178,18 +178,18 @@
     },
     {
       "day": 12,
-      "topic": "Decision Trees & Ensemble",
+      "topic": "Decision Trees & Ensemble - Part 2",
       "subtopics": [
-        "Decision Trees",
-        "Random Forest",
-        "Gradient Boosting"
+        "Part 2: Decision Trees",
+        "Part 2: Random Forest",
+        "Part 2: Gradient Boosting"
       ],
       "tools": [
         "XGBoost",
         "LightGBM"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Ensemble methods"
+      "lab_task": "Part 2 hands-on: Ensemble methods"
     },
     {
       "day": 13,
@@ -207,17 +207,17 @@
     },
     {
       "day": 14,
-      "topic": "SVM & KNN",
+      "topic": "SVM & KNN - Part 2",
       "subtopics": [
-        "Support Vector Machines",
-        "K-Nearest Neighbors",
-        "Kernel Tricks"
+        "Part 2: Support Vector Machines",
+        "Part 2: K-Nearest Neighbors",
+        "Part 2: Kernel Tricks"
       ],
       "tools": [
         "Scikit-learn"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "SVM and KNN"
+      "lab_task": "Part 2 hands-on: SVM and KNN"
     },
     {
       "day": 15,
@@ -236,18 +236,18 @@
     },
     {
       "day": 16,
-      "topic": "Clustering",
+      "topic": "Clustering - Part 2",
       "subtopics": [
-        "K-Means",
-        "Hierarchical",
-        "DBSCAN",
-        "Evaluation"
+        "Part 2: K-Means",
+        "Part 2: Hierarchical",
+        "Part 2: DBSCAN",
+        "Part 2: Evaluation"
       ],
       "tools": [
         "Scikit-learn"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Unsupervised learning"
+      "lab_task": "Part 2 hands-on: Unsupervised learning"
     },
     {
       "day": 17,
@@ -266,18 +266,18 @@
     },
     {
       "day": 18,
-      "topic": "Dimensionality Reduction",
+      "topic": "Dimensionality Reduction - Part 2",
       "subtopics": [
-        "PCA",
-        "t-SNE",
-        "UMAP",
-        "Feature Selection"
+        "Part 2: PCA",
+        "Part 2: t-SNE",
+        "Part 2: UMAP",
+        "Part 2: Feature Selection"
       ],
       "tools": [
         "Scikit-learn"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Dimensionality reduction"
+      "lab_task": "Part 2 hands-on: Dimensionality reduction"
     },
     {
       "day": 19,
@@ -297,19 +297,19 @@
     },
     {
       "day": 20,
-      "topic": "Neural Networks",
+      "topic": "Neural Networks - Part 2",
       "subtopics": [
-        "Perceptrons",
-        "Backpropagation",
-        "Activation Functions",
-        "Layers"
+        "Part 2: Perceptrons",
+        "Part 2: Backpropagation",
+        "Part 2: Activation Functions",
+        "Part 2: Layers"
       ],
       "tools": [
         "TensorFlow",
         "Keras"
       ],
       "jira_focus": "Sprint planning; review progress for Neural Networks",
-      "lab_task": "Build neural networks"
+      "lab_task": "Part 2 hands-on: Build neural networks"
     },
     {
       "day": 21,
@@ -328,18 +328,18 @@
     },
     {
       "day": 22,
-      "topic": "CNN for Images",
+      "topic": "CNN for Images - Part 2",
       "subtopics": [
-        "Convolutional Layers",
-        "Pooling",
-        "Architecture"
+        "Part 2: Convolutional Layers",
+        "Part 2: Pooling",
+        "Part 2: Architecture"
       ],
       "tools": [
         "TensorFlow",
         "PyTorch"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Image classification"
+      "lab_task": "Part 2 hands-on: Image classification"
     },
     {
       "day": 23,
@@ -359,19 +359,19 @@
     },
     {
       "day": 24,
-      "topic": "RNN & NLP",
+      "topic": "RNN & NLP - Part 2",
       "subtopics": [
-        "RNN",
-        "LSTM",
-        "Transformers",
-        "Text Processing"
+        "Part 2: RNN",
+        "Part 2: LSTM",
+        "Part 2: Transformers",
+        "Part 2: Text Processing"
       ],
       "tools": [
         "TensorFlow",
         "NLTK"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Natural language processing"
+      "lab_task": "Part 2 hands-on: Natural language processing"
     },
     {
       "day": 25,
@@ -390,18 +390,18 @@
     },
     {
       "day": 26,
-      "topic": "Hyperparameter Tuning",
+      "topic": "Hyperparameter Tuning - Part 2",
       "subtopics": [
-        "Grid Search",
-        "Random Search",
-        "Bayesian Optimization"
+        "Part 2: Grid Search",
+        "Part 2: Random Search",
+        "Part 2: Bayesian Optimization"
       ],
       "tools": [
         "Optuna",
         "Ray"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Model optimization"
+      "lab_task": "Part 2 hands-on: Model optimization"
     },
     {
       "day": 27,
@@ -421,19 +421,19 @@
     },
     {
       "day": 28,
-      "topic": "Model Evaluation & Metrics",
+      "topic": "Model Evaluation & Metrics - Part 2",
       "subtopics": [
-        "Precision",
-        "Recall",
-        "F1",
-        "ROC-AUC",
-        "Cross-validation"
+        "Part 2: Precision",
+        "Part 2: Recall",
+        "Part 2: F1",
+        "Part 2: ROC-AUC",
+        "Part 2: Cross-validation"
       ],
       "tools": [
         "Scikit-learn"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Model evaluation"
+      "lab_task": "Part 2 hands-on: Model evaluation"
     },
     {
       "day": 29,
@@ -467,5 +467,20 @@
       "jira_focus": "Sprint planning; review progress for Deployment & MLOps",
       "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
     }
-  ]
+  ],
+  "aliases": [
+    "Machine Learning",
+    "ML",
+    "AI ML",
+    "Data Science",
+    "Predictive Modeling",
+    "Scikit Learn",
+    "MLOps",
+    "Deep Learning"
+  ],
+  "official_sources": [
+    "https://scikit-learn.org/stable/model_selection",
+    "https://pandas.pydata.org/docs/user_guide/"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
 }
