@@ -17,6 +17,21 @@ const SKILLS_PRESETS = {
   'DevOps': ['docker', 'kubernetes', 'jenkins', 'ci/cd', 'terraform', 'ansible'],
 }
 
+
+function batchFlowType(req = {}) {
+  const raw = String(req.batch_flow || req.batch_type || req.requirement_type || req.training_status || '').toLowerCase()
+  if (raw.includes('proposal')) return 'proposal'
+  return 'confirmed'
+}
+
+function batchFlowPath(req = {}) {
+  return batchFlowType(req) === 'proposal' ? '/shortlist' : '/shortlist1'
+}
+
+function batchFlowLabel(req = {}) {
+  return batchFlowType(req) === 'proposal' ? 'Proposal Batch' : 'Confirmed Batch'
+}
+
 const ScoreBadge = ({ score }) => {
   const color = score >= 80 ? 'bg-emerald-100 text-emerald-700'
               : score >= 60 ? 'bg-blue-100 text-blue-700'
@@ -257,11 +272,11 @@ function AutomationPipelinePreview({ trainer, requirement }) {
           <p className="mt-0.5 text-xs text-slate-500">For {trainer.name}: trainer mails, client slot mail, ToC, and final confirmation.</p>
         </div>
         <a
-          href="/shortlist1"
+          href={batchFlowPath(requirement)}
           onClick={e => e.stopPropagation()}
           className="inline-flex items-center gap-1.5 rounded-lg bg-blue-500 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-600"
         >
-          <TrendingUp className="h-3.5 w-3.5" /> Open AI Pipeline
+          <TrendingUp className="h-3.5 w-3.5" /> {batchFlowType(requirement) === 'proposal' ? 'Open Proposal Flow' : 'Open Confirmed Flow'}
         </a>
       </div>
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -403,6 +418,9 @@ export default function Requirements() {
     must_have_linkedin: false,
     must_have_resume: false,
     top_n: 5,
+    batch_flow: 'confirmed',
+    batch_type: 'confirmed',
+    requirement_type: 'confirmed_batch',
   })
 
   useEffect(() => {
@@ -454,9 +472,18 @@ export default function Requirements() {
       return toast.error('Training end date cannot be before start date')
     }
     const shortlistCount = Number(topN) || form.top_n
+    const flowType = batchFlowType(form)
+    const payload = {
+      ...form,
+      top_n: shortlistCount,
+      send_emails: false,
+      batch_flow: flowType,
+      batch_type: flowType,
+      requirement_type: flowType === 'proposal' ? 'proposal_batch' : 'confirmed_batch',
+    }
     setLoading(true); setLoadingMode(shortlistCount === 1 ? 'top1' : 'shortlist'); setResult(null)
     try {
-      const res = await createRequirement({ ...form, top_n: shortlistCount, send_emails: false })
+      const res = await createRequirement(payload)
       setResult(res.data)
       setShowForm(false)
       toast.success(`✅ Shortlisted ${res.data.top_trainers} trainers!`)
@@ -637,6 +664,35 @@ export default function Requirements() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 px-6 lg:grid-cols-2">
+            <div className="field-module lg:col-span-2">
+              <label className="label">Batch Flow</label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  { value: 'confirmed', title: 'Confirmed Batch', desc: 'Use Shortlist1 automated flow: Mail 1, missing details, slots, client handoff, interview link, selected.' },
+                  { value: 'proposal', title: 'Proposal Batch', desc: 'Use Shortlist proposal flow for non-confirmed/proposal training batches.' },
+                ].map(option => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setForm(f => ({
+                      ...f,
+                      batch_flow: option.value,
+                      batch_type: option.value,
+                      requirement_type: option.value === 'proposal' ? 'proposal_batch' : 'confirmed_batch',
+                    }))}
+                    className={clsx(
+                      'rounded-xl border p-4 text-left transition',
+                      batchFlowType(form) === option.value
+                        ? 'border-blue-500 bg-blue-50 text-blue-900 shadow-sm'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50/40'
+                    )}
+                  >
+                    <span className="text-sm font-bold">{option.title}</span>
+                    <span className="mt-1 block text-xs leading-5 text-slate-500">{option.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="field-module">
               <label className="label">Technology / Domain *</label>
               <input className="input" placeholder="e.g. Python, AWS, React"
@@ -841,6 +897,7 @@ export default function Requirements() {
                 { label: 'Matched',      value: result.total_matched },
                 { label: 'Shortlisted',  value: result.top_trainers },
                 { label: 'Client Mail',  value: result.client_email || form.client_email || 'Missing' },
+                { label: 'Batch Flow',   value: batchFlowLabel({ ...form, ...result }) },
               ].map(s => (
                 <div key={s.label} className="bg-white rounded-xl p-3 text-center border border-blue-100">
                   <p className={clsx(

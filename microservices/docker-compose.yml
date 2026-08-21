@@ -193,7 +193,10 @@ services:
 
   document-service:
     container_name: ts-document-service
-    image: ghcr.io/muttarasusujitha/trainersync/document-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/document-service/Dockerfile
+    image: trainersync/document-service:local
     <<: *service-defaults
     environment:
       <<: *common-env

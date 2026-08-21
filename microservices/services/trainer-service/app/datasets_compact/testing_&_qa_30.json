@@ -31,19 +31,19 @@
     },
     {
       "day": 2,
-      "topic": "QA Fundamentals",
+      "topic": "QA Fundamentals - Part 2",
       "subtopics": [
-        "Testing Types",
-        "Test Plan",
-        "Test Cases",
-        "Defect Management"
+        "Part 2: Testing Types",
+        "Part 2: Test Plan",
+        "Part 2: Test Cases",
+        "Part 2: Defect Management"
       ],
       "tools": [
         "TestRail",
         "Jira"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "QA basics"
+      "lab_task": "Part 2 hands-on: QA basics"
     },
     {
       "day": 3,
@@ -62,18 +62,18 @@
     },
     {
       "day": 4,
-      "topic": "Manual Testing",
+      "topic": "Manual Testing - Part 2",
       "subtopics": [
-        "Test Design",
-        "Test Execution",
-        "Bug Reporting",
-        "Regression Testing"
+        "Part 2: Test Design",
+        "Part 2: Test Execution",
+        "Part 2: Bug Reporting",
+        "Part 2: Regression Testing"
       ],
       "tools": [
         "TestLink"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Manual test execution"
+      "lab_task": "Part 2 hands-on: Manual test execution"
     },
     {
       "day": 5,
@@ -92,18 +92,18 @@
     },
     {
       "day": 6,
-      "topic": "Web Testing",
+      "topic": "Web Testing - Part 2",
       "subtopics": [
-        "Web Elements",
-        "Locators",
-        "Navigation",
-        "Form Testing"
+        "Part 2: Web Elements",
+        "Part 2: Locators",
+        "Part 2: Navigation",
+        "Part 2: Form Testing"
       ],
       "tools": [
         "Selenium"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Web app testing"
+      "lab_task": "Part 2 hands-on: Web app testing"
     },
     {
       "day": 7,
@@ -122,18 +122,18 @@
     },
     {
       "day": 8,
-      "topic": "Selenium Basics",
+      "topic": "Selenium Basics - Part 2",
       "subtopics": [
-        "WebDriver",
-        "Locators",
-        "Actions",
-        "Waits"
+        "Part 2: WebDriver",
+        "Part 2: Locators",
+        "Part 2: Actions",
+        "Part 2: Waits"
       ],
       "tools": [
         "Selenium"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Selenium fundamentals"
+      "lab_task": "Part 2 hands-on: Selenium fundamentals"
     },
     {
       "day": 9,
@@ -151,17 +151,17 @@
     },
     {
       "day": 10,
-      "topic": "Selenium Advanced",
+      "topic": "Selenium Advanced - Part 2",
       "subtopics": [
-        "Page Object Model",
-        "Data-Driven Testing",
-        "Framework"
+        "Part 2: Page Object Model",
+        "Part 2: Data-Driven Testing",
+        "Part 2: Framework"
       ],
       "tools": [
         "Selenium"
       ],
       "jira_focus": "Sprint planning; review progress for Selenium Advanced",
-      "lab_task": "Advanced Selenium"
+      "lab_task": "Part 2 hands-on: Advanced Selenium"
     },
     {
       "day": 11,
@@ -180,18 +180,18 @@
     },
     {
       "day": 12,
-      "topic": "API Testing with Postman",
+      "topic": "API Testing with Postman - Part 2",
       "subtopics": [
-        "REST API",
-        "Request/Response",
-        "Assertions",
-        "Collections"
+        "Part 2: REST API",
+        "Part 2: Request/Response",
+        "Part 2: Assertions",
+        "Part 2: Collections"
       ],
       "tools": [
         "Postman"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "API testing"
+      "lab_task": "Part 2 hands-on: API testing"
     },
     {
       "day": 13,
@@ -210,18 +210,18 @@
     },
     {
       "day": 14,
-      "topic": "API Testing with RestAssured",
+      "topic": "API Testing with RestAssured - Part 2",
       "subtopics": [
-        "Java REST Client",
-        "BDD",
-        "Assertions"
+        "Part 2: Java REST Client",
+        "Part 2: BDD",
+        "Part 2: Assertions"
       ],
       "tools": [
         "RestAssured",
         "Cucumber"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "API automation"
+      "lab_task": "Part 2 hands-on: API automation"
     },
     {
       "day": 15,
@@ -240,18 +240,18 @@
     },
     {
       "day": 16,
-      "topic": "Performance Testing",
+      "topic": "Performance Testing - Part 2",
       "subtopics": [
-        "Load Testing",
-        "Stress Testing",
-        "JMeter"
+        "Part 2: Load Testing",
+        "Part 2: Stress Testing",
+        "Part 2: JMeter"
       ],
       "tools": [
         "JMeter",
         "Gatling"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Performance testing"
+      "lab_task": "Part 2 hands-on: Performance testing"
     },
     {
       "day": 17,
@@ -269,17 +269,17 @@
     },
     {
       "day": 18,
-      "topic": "Mobile Testing",
+      "topic": "Mobile Testing - Part 2",
       "subtopics": [
-        "AppiumBasics",
-        "iOS/Android",
-        "Native/Hybrid"
+        "Part 2: AppiumBasics",
+        "Part 2: iOS/Android",
+        "Part 2: Native/Hybrid"
       ],
       "tools": [
         "Appium"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Mobile automation"
+      "lab_task": "Part 2 hands-on: Mobile automation"
     },
     {
       "day": 19,
@@ -297,17 +297,17 @@
     },
     {
       "day": 20,
-      "topic": "CI/CD Integration",
+      "topic": "CI/CD Integration - Part 2",
       "subtopics": [
-        "Jenkins",
-        "GitLab CI",
-        "GitHub Actions"
+        "Part 2: Jenkins",
+        "Part 2: GitLab CI",
+        "Part 2: GitHub Actions"
       ],
       "tools": [
         "GitHub Actions"
       ],
       "jira_focus": "Sprint planning; review progress for CI/CD Integration",
-      "lab_task": "Testing in CI/CD"
+      "lab_task": "Part 2 hands-on: Testing in CI/CD"
     },
     {
       "day": 21,
@@ -326,18 +326,18 @@
     },
     {
       "day": 22,
-      "topic": "BDD & Cucumber",
+      "topic": "BDD & Cucumber - Part 2",
       "subtopics": [
-        "Gherkin",
-        "Feature Files",
-        "Step Definitions"
+        "Part 2: Gherkin",
+        "Part 2: Feature Files",
+        "Part 2: Step Definitions"
       ],
       "tools": [
         "Cucumber",
         "Selenium"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Behavior-driven testing"
+      "lab_task": "Part 2 hands-on: Behavior-driven testing"
     },
     {
       "day": 23,
@@ -355,17 +355,17 @@
     },
     {
       "day": 24,
-      "topic": "Test Frameworks",
+      "topic": "Test Frameworks - Part 2",
       "subtopics": [
-        "TestNG",
-        "Junit",
-        "Fixture Management"
+        "Part 2: TestNG",
+        "Part 2: Junit",
+        "Part 2: Fixture Management"
       ],
       "tools": [
         "TestNG"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Java test frameworks"
+      "lab_task": "Part 2 hands-on: Java test frameworks"
     },
     {
       "day": 25,
@@ -384,18 +384,18 @@
     },
     {
       "day": 26,
-      "topic": "Debugging & Logging",
+      "topic": "Debugging & Logging - Part 2",
       "subtopics": [
-        "Logs Analysis",
-        "Screenshots",
-        "Video Capture"
+        "Part 2: Logs Analysis",
+        "Part 2: Screenshots",
+        "Part 2: Video Capture"
       ],
       "tools": [
         "Log4j",
         "SLF4J"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Debugging failures"
+      "lab_task": "Part 2 hands-on: Debugging failures"
     },
     {
       "day": 27,
@@ -414,18 +414,18 @@
     },
     {
       "day": 28,
-      "topic": "Database Testing",
+      "topic": "Database Testing - Part 2",
       "subtopics": [
-        "SQL Queries",
-        "Data Validation",
-        "JDBC"
+        "Part 2: SQL Queries",
+        "Part 2: Data Validation",
+        "Part 2: JDBC"
       ],
       "tools": [
         "SQL",
         "JDBC"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Database test automation"
+      "lab_task": "Part 2 hands-on: Database test automation"
     },
     {
       "day": 29,
@@ -455,5 +455,20 @@
       "jira_focus": "Sprint planning; review progress for Advanced Topics",
       "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
     }
-  ]
+  ],
+  "aliases": [
+    "Testing",
+    "QA",
+    "Quality Assurance",
+    "Manual Testing",
+    "Automation Testing",
+    "Selenium",
+    "API Testing",
+    "Test Automation",
+    "SDET"
+  ],
+  "official_sources": [
+    "https://www.istqb.org/certifications/certified-tester-foundation-level"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
 }

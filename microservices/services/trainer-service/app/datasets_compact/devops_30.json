@@ -1,0 +1,644 @@
+{
+  "domain": "DevOps",
+  "name": "DevOps",
+  "icon": "gear",
+  "program_title": "DevOps Mastery",
+  "level": "Intermediate",
+  "mode": "Online",
+  "aliases": [
+    "DevOps",
+    "Dev Ops",
+    "AWS DevOps",
+    "Azure DevOps",
+    "CI CD",
+    "CI/CD",
+    "Jenkins",
+    "Docker",
+    "Kubernetes",
+    "K8s",
+    "Terraform",
+    "Ansible",
+    "GitHub Actions",
+    "GitLab CI",
+    "Cloud DevOps",
+    "SRE",
+    "Site Reliability Engineering"
+  ],
+  "tools": [
+    "Linux",
+    "Git",
+    "GitHub",
+    "Jenkins",
+    "Docker",
+    "Kubernetes",
+    "Helm",
+    "Terraform",
+    "Ansible",
+    "AWS",
+    "Azure",
+    "Prometheus",
+    "Grafana",
+    "ELK",
+    "Trivy",
+    "SonarQube"
+  ],
+  "certifications": [
+    "AWS Certified DevOps Engineer - Professional",
+    "Microsoft Certified: DevOps Engineer Expert",
+    "Certified Kubernetes Administrator (CKA)",
+    "Certified Kubernetes Application Developer (CKAD)",
+    "HashiCorp Terraform Associate",
+    "Docker Certified Associate",
+    "GitHub Actions Certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "DevOps Orientation, SDLC and Agile Delivery",
+      "subtopics": [
+        "DevOps lifecycle",
+        "Agile vs DevOps",
+        "CI/CD overview",
+        "Jira workflow",
+        "delivery roles"
+      ],
+      "tools": [
+        "Jira",
+        "Git"
+      ],
+      "jira_focus": "Create epics, stories, tasks and move them on sprint board",
+      "lab_task": "Create a Jira sprint board and map a sample application delivery workflow"
+    },
+    {
+      "day": 2,
+      "topic": "Linux Fundamentals for DevOps",
+      "subtopics": [
+        "Linux filesystem",
+        "permissions",
+        "users and groups",
+        "package managers",
+        "services and logs"
+      ],
+      "tools": [
+        "Ubuntu",
+        "Bash",
+        "systemctl",
+        "journalctl"
+      ],
+      "jira_focus": "Log Linux setup task evidence and update task status",
+      "lab_task": "Create users, manage permissions, install packages and inspect service logs"
+    },
+    {
+      "day": 3,
+      "topic": "Shell Scripting and Automation",
+      "subtopics": [
+        "variables",
+        "conditions",
+        "loops",
+        "functions",
+        "cron jobs",
+        "exit codes"
+      ],
+      "tools": [
+        "Bash",
+        "Cron",
+        "VS Code"
+      ],
+      "jira_focus": "Attach script output to Jira task and mark acceptance criteria",
+      "lab_task": "Write backup, health-check and log-cleanup shell scripts"
+    },
+    {
+      "day": 4,
+      "topic": "Networking, SSH and Web Basics",
+      "subtopics": [
+        "TCP/IP",
+        "DNS",
+        "HTTP/HTTPS",
+        "ports",
+        "SSH",
+        "curl troubleshooting"
+      ],
+      "tools": [
+        "ssh",
+        "curl",
+        "netstat",
+        "nslookup"
+      ],
+      "jira_focus": "Create troubleshooting sub-tasks for network incidents",
+      "lab_task": "Troubleshoot service connectivity using curl, ports and SSH"
+    },
+    {
+      "day": 5,
+      "topic": "Git and GitHub Collaboration",
+      "subtopics": [
+        "clone",
+        "branching",
+        "merge",
+        "rebase",
+        "pull requests",
+        "merge conflicts"
+      ],
+      "tools": [
+        "Git",
+        "GitHub"
+      ],
+      "jira_focus": "Link commits and pull requests to Jira stories",
+      "lab_task": "Resolve merge conflict and complete pull-request review workflow"
+    },
+    {
+      "day": 6,
+      "topic": "Build Tools and Artifact Management",
+      "subtopics": [
+        "Maven/Gradle/npm basics",
+        "build lifecycle",
+        "versioning",
+        "artifact repositories",
+        "release packages"
+      ],
+      "tools": [
+        "Maven",
+        "npm",
+        "Nexus"
+      ],
+      "jira_focus": "Add build artifact links and release notes to Jira",
+      "lab_task": "Build a sample app and publish artifact to a repository"
+    },
+    {
+      "day": 7,
+      "topic": "Jenkins Fundamentals",
+      "subtopics": [
+        "installation",
+        "jobs",
+        "agents",
+        "credentials",
+        "plugins",
+        "build triggers"
+      ],
+      "tools": [
+        "Jenkins",
+        "Git",
+        "Maven"
+      ],
+      "jira_focus": "Create CI task and record Jenkins build URL",
+      "lab_task": "Create Jenkins freestyle and pipeline jobs from Git repository"
+    },
+    {
+      "day": 8,
+      "topic": "Jenkins Pipeline as Code",
+      "subtopics": [
+        "Jenkinsfile",
+        "declarative pipeline",
+        "stages",
+        "environment",
+        "post actions",
+        "shared libraries"
+      ],
+      "tools": [
+        "Jenkins",
+        "Groovy",
+        "SonarQube"
+      ],
+      "jira_focus": "Update task status based on pipeline stage results",
+      "lab_task": "Build multi-stage Jenkins pipeline with test, scan and artifact stage"
+    },
+    {
+      "day": 9,
+      "topic": "GitHub Actions and GitLab CI",
+      "subtopics": [
+        "workflow YAML",
+        "triggers",
+        "jobs",
+        "secrets",
+        "artifacts",
+        "matrix builds"
+      ],
+      "tools": [
+        "GitHub Actions",
+        "GitLab CI",
+        "YAML"
+      ],
+      "jira_focus": "Link CI workflow evidence to user story",
+      "lab_task": "Create CI workflow to build, test and publish artifacts"
+    },
+    {
+      "day": 10,
+      "topic": "Docker Fundamentals",
+      "subtopics": [
+        "images",
+        "containers",
+        "Dockerfile",
+        "layers",
+        "volumes",
+        "networks"
+      ],
+      "tools": [
+        "Docker",
+        "Docker Hub"
+      ],
+      "jira_focus": "Create containerization task and document image tag",
+      "lab_task": "Dockerize a Python or Node application and push image to registry"
+    },
+    {
+      "day": 11,
+      "topic": "Docker Compose and Multi-Container Apps",
+      "subtopics": [
+        "compose services",
+        "networks",
+        "volumes",
+        "environment variables",
+        "health checks"
+      ],
+      "tools": [
+        "Docker Compose"
+      ],
+      "jira_focus": "Track compose setup issues and resolution comments",
+      "lab_task": "Run app, database and cache using Docker Compose"
+    },
+    {
+      "day": 12,
+      "topic": "Container Registry and Image Security",
+      "subtopics": [
+        "tags",
+        "registry authentication",
+        "image scanning",
+        "base image hardening",
+        "SBOM basics"
+      ],
+      "tools": [
+        "Docker Hub",
+        "ECR",
+        "ACR",
+        "Trivy"
+      ],
+      "jira_focus": "Raise security findings as Jira defects",
+      "lab_task": "Scan Docker image, fix high-risk findings and republish image"
+    },
+    {
+      "day": 13,
+      "topic": "Kubernetes Architecture",
+      "subtopics": [
+        "control plane",
+        "worker nodes",
+        "pods",
+        "ReplicaSets",
+        "deployments",
+        "kubectl"
+      ],
+      "tools": [
+        "Kubernetes",
+        "kubectl",
+        "minikube"
+      ],
+      "jira_focus": "Create deployment checklist story for Kubernetes rollout",
+      "lab_task": "Create local Kubernetes cluster and deploy first workload"
+    },
+    {
+      "day": 14,
+      "topic": "Kubernetes Workloads and Services",
+      "subtopics": [
+        "deployments",
+        "services",
+        "ingress",
+        "configmaps",
+        "secrets",
+        "namespaces"
+      ],
+      "tools": [
+        "Kubernetes",
+        "kubectl",
+        "Ingress Controller"
+      ],
+      "jira_focus": "Track service exposure and verification evidence",
+      "lab_task": "Deploy app with service, ingress, configmap and secret"
+    },
+    {
+      "day": 15,
+      "topic": "Kubernetes Storage, RBAC and Troubleshooting",
+      "subtopics": [
+        "PV/PVC",
+        "storage classes",
+        "RBAC",
+        "logs",
+        "events",
+        "rollbacks"
+      ],
+      "tools": [
+        "Kubernetes",
+        "kubectl",
+        "k9s"
+      ],
+      "jira_focus": "Create incident tasks from pod and service failures",
+      "lab_task": "Troubleshoot failing pods and configure RBAC with persistent storage"
+    },
+    {
+      "day": 16,
+      "topic": "Helm Package Management",
+      "subtopics": [
+        "chart structure",
+        "values.yaml",
+        "templates",
+        "install",
+        "upgrade",
+        "rollback"
+      ],
+      "tools": [
+        "Helm",
+        "Kubernetes"
+      ],
+      "jira_focus": "Document release version and rollback plan",
+      "lab_task": "Package application as Helm chart and perform upgrade/rollback"
+    },
+    {
+      "day": 17,
+      "topic": "AWS DevOps Foundations",
+      "subtopics": [
+        "IAM",
+        "EC2",
+        "S3",
+        "VPC",
+        "security groups",
+        "CloudWatch"
+      ],
+      "tools": [
+        "AWS Console",
+        "AWS CLI",
+        "IAM",
+        "EC2",
+        "S3"
+      ],
+      "jira_focus": "Create cloud provisioning tasks and add AWS evidence",
+      "lab_task": "Create IAM user, EC2 instance, S3 bucket and CloudWatch log check"
+    },
+    {
+      "day": 18,
+      "topic": "AWS CI/CD and Container Services",
+      "subtopics": [
+        "ECR",
+        "ECS",
+        "EKS",
+        "CodeBuild",
+        "CodePipeline",
+        "ALB"
+      ],
+      "tools": [
+        "AWS ECR",
+        "ECS",
+        "EKS",
+        "CodePipeline"
+      ],
+      "jira_focus": "Track cloud deployment pipeline as release story",
+      "lab_task": "Push container image to ECR and deploy through AWS CI/CD flow"
+    },
+    {
+      "day": 19,
+      "topic": "Azure DevOps Foundations",
+      "subtopics": [
+        "Azure subscriptions",
+        "resource groups",
+        "VMs",
+        "VNets",
+        "storage",
+        "monitoring"
+      ],
+      "tools": [
+        "Azure Portal",
+        "Azure CLI"
+      ],
+      "jira_focus": "Document Azure resource setup and deployment evidence",
+      "lab_task": "Create resource group, VM, storage account and monitor resource health"
+    },
+    {
+      "day": 20,
+      "topic": "Azure Pipelines and AKS",
+      "subtopics": [
+        "Azure Repos",
+        "Azure Pipelines",
+        "service connections",
+        "ACR",
+        "AKS deployment"
+      ],
+      "tools": [
+        "Azure DevOps",
+        "Azure Pipelines",
+        "ACR",
+        "AKS"
+      ],
+      "jira_focus": "Map Azure pipeline run to release task",
+      "lab_task": "Build image in Azure Pipeline, push to ACR and deploy to AKS"
+    },
+    {
+      "day": 21,
+      "topic": "Terraform Infrastructure as Code",
+      "subtopics": [
+        "providers",
+        "resources",
+        "variables",
+        "outputs",
+        "state",
+        "remote backend"
+      ],
+      "tools": [
+        "Terraform",
+        "AWS",
+        "Azure"
+      ],
+      "jira_focus": "Attach terraform plan/apply output to infrastructure story",
+      "lab_task": "Provision compute, network and storage using Terraform modules"
+    },
+    {
+      "day": 22,
+      "topic": "Terraform Modules and Environments",
+      "subtopics": [
+        "modules",
+        "workspaces",
+        "tfvars",
+        "state locking",
+        "import",
+        "drift detection"
+      ],
+      "tools": [
+        "Terraform",
+        "S3 Backend",
+        "Azure Storage Backend"
+      ],
+      "jira_focus": "Create environment promotion tasks and review plan diffs",
+      "lab_task": "Build reusable Terraform module for dev and prod environments"
+    },
+    {
+      "day": 23,
+      "topic": "Ansible Configuration Management",
+      "subtopics": [
+        "inventory",
+        "playbooks",
+        "roles",
+        "variables",
+        "templates",
+        "handlers"
+      ],
+      "tools": [
+        "Ansible",
+        "YAML",
+        "Linux"
+      ],
+      "jira_focus": "Track configuration automation tasks and run evidence",
+      "lab_task": "Automate web server installation and configuration using Ansible roles"
+    },
+    {
+      "day": 24,
+      "topic": "DevSecOps and Quality Gates",
+      "subtopics": [
+        "SAST",
+        "dependency scanning",
+        "container scanning",
+        "secrets scanning",
+        "quality gates"
+      ],
+      "tools": [
+        "SonarQube",
+        "Trivy",
+        "Snyk",
+        "GitHub Advanced Security"
+      ],
+      "jira_focus": "Convert scan findings into prioritized remediation tickets",
+      "lab_task": "Add SonarQube and Trivy stages to CI/CD pipeline"
+    },
+    {
+      "day": 25,
+      "topic": "Monitoring with Prometheus and Grafana",
+      "subtopics": [
+        "metrics",
+        "exporters",
+        "PromQL",
+        "dashboards",
+        "alerts",
+        "SLI/SLO basics"
+      ],
+      "tools": [
+        "Prometheus",
+        "Grafana",
+        "Alertmanager"
+      ],
+      "jira_focus": "Create observability story and attach dashboard link",
+      "lab_task": "Monitor Kubernetes application and build Grafana dashboard"
+    },
+    {
+      "day": 26,
+      "topic": "Logging with ELK and Centralized Observability",
+      "subtopics": [
+        "Elasticsearch",
+        "Logstash",
+        "Kibana",
+        "Filebeat",
+        "log pipelines",
+        "search"
+      ],
+      "tools": [
+        "ELK Stack",
+        "Filebeat"
+      ],
+      "jira_focus": "Create incident evidence from application logs",
+      "lab_task": "Ship container logs to ELK and create Kibana visualization"
+    },
+    {
+      "day": 27,
+      "topic": "Release Management and Blue-Green Deployments",
+      "subtopics": [
+        "release strategy",
+        "blue-green",
+        "canary",
+        "rollback",
+        "feature flags",
+        "change control"
+      ],
+      "tools": [
+        "Kubernetes",
+        "Helm",
+        "Jenkins"
+      ],
+      "jira_focus": "Prepare release ticket, deployment checklist and rollback steps",
+      "lab_task": "Perform canary or blue-green deployment and rollback validation"
+    },
+    {
+      "day": 28,
+      "topic": "SRE Practices and Incident Management",
+      "subtopics": [
+        "SLA/SLO/SLI",
+        "error budgets",
+        "runbooks",
+        "postmortems",
+        "on-call workflow"
+      ],
+      "tools": [
+        "Grafana",
+        "Alertmanager",
+        "Jira"
+      ],
+      "jira_focus": "Create incident, RCA and postmortem action items",
+      "lab_task": "Simulate production incident and complete RCA/postmortem workflow"
+    },
+    {
+      "day": 29,
+      "topic": "End-to-End DevOps Project Sprint",
+      "subtopics": [
+        "architecture",
+        "IaC",
+        "CI/CD",
+        "containerization",
+        "Kubernetes deployment",
+        "monitoring"
+      ],
+      "tools": [
+        "Git",
+        "Jenkins",
+        "Docker",
+        "Kubernetes",
+        "Terraform",
+        "Prometheus"
+      ],
+      "jira_focus": "Plan capstone sprint and assign stories/subtasks",
+      "lab_task": "Build end-to-end DevOps pipeline for a sample application"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Demo and Certification Roadmap",
+      "subtopics": [
+        "final deployment",
+        "pipeline walkthrough",
+        "monitoring evidence",
+        "security report",
+        "demo",
+        "certification plan"
+      ],
+      "tools": [
+        "All DevOps Tools"
+      ],
+      "jira_focus": "Final sprint review, retrospective and release notes",
+      "lab_task": "Present capstone project, demo pipeline, review evidence and certification roadmap"
+    }
+  ],
+  "jira_practice": {
+    "daily": [
+      "Update sprint board",
+      "Log time on stories",
+      "Move cards to In Progress/Done",
+      "Add comments with build or deployment links"
+    ],
+    "weekly": [
+      "Sprint planning",
+      "Sprint review",
+      "Retrospective",
+      "Burndown and velocity review"
+    ]
+  },
+  "official_sources": [
+    "https://kubernetes.io/docs/concepts/workloads/",
+    "https://www.jenkins.io/doc/book/pipeline/",
+    "https://www.jenkins.io/doc/book/pipeline/jenkinsfile/",
+    "https://docs.docker.com/get-started/",
+    "https://docs.docker.com/get-started/introduction/whats-next/",
+    "https://developer.hashicorp.com/terraform/language/block/provider",
+    "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html",
+    "https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

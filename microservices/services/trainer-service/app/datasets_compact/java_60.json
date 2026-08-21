@@ -1,0 +1,1012 @@
+{
+  "domain": "Java",
+  "name": "Java",
+  "icon": "java",
+  "program_title": "Java Advanced Mastery",
+  "level": "Advanced",
+  "mode": "Online",
+  "trainer_name": "Java Expert",
+  "certifications": [
+    "Oracle Certified Associate Java Programmer (OCAJP)",
+    "Oracle Certified Professional Java Programmer (OCPJP)",
+    "AWS Certified Developer - Associate",
+    "Spring Professional Certification",
+    "Kafka Developer Certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Java Basics",
+      "subtopics": [
+        "Syntax",
+        "Data Types",
+        "Variables",
+        "Operators",
+        "Input/Output"
+      ],
+      "tools": [
+        "Java 11+",
+        "IntelliJ IDEA"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build calculator and input validation programs"
+    },
+    {
+      "day": 2,
+      "topic": "Control Flow & Methods",
+      "subtopics": [
+        "if/else",
+        "Loops",
+        "Methods",
+        "Recursion",
+        "Varargs"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Write pattern programs and recursive algorithms"
+    },
+    {
+      "day": 3,
+      "topic": "Arrays & Collections",
+      "subtopics": [
+        "Arrays",
+        "ArrayLists",
+        "Sets",
+        "Maps",
+        "Iterators"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build data structure operations and sorting programs"
+    },
+    {
+      "day": 4,
+      "topic": "Object-Oriented Programming",
+      "subtopics": [
+        "Classes",
+        "Objects",
+        "Encapsulation",
+        "Inheritance",
+        "Polymorphism"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Create employee and vehicle hierarchy OOP projects"
+    },
+    {
+      "day": 5,
+      "topic": "Interfaces & Abstract Classes",
+      "subtopics": [
+        "Abstract Classes",
+        "Interfaces",
+        "Multiple Inheritance",
+        "Default Methods",
+        "Functional Interfaces"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Sprint planning; review progress for Interfaces & Abstract Classes",
+      "lab_task": "Implement shape hierarchy with abstract classes and interfaces"
+    },
+    {
+      "day": 6,
+      "topic": "Exception Handling",
+      "subtopics": [
+        "Try-Catch-Finally",
+        "Custom Exceptions",
+        "Exception Hierarchy",
+        "Error Handling",
+        "Logging"
+      ],
+      "tools": [
+        "Java",
+        "Log4j"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build robust file parser with exception handling"
+    },
+    {
+      "day": 7,
+      "topic": "Generics",
+      "subtopics": [
+        "Generic Classes",
+        "Generic Methods",
+        "Bounded Types",
+        "Wildcards",
+        "Type Erasure"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Create generic container and utility classes"
+    },
+    {
+      "day": 8,
+      "topic": "File I/O & Serialization",
+      "subtopics": [
+        "File Operations",
+        "Streams",
+        "Serialization",
+        "JSON Parsing",
+        "CSV Handling"
+      ],
+      "tools": [
+        "Java",
+        "Jackson"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Build file processor with JSON/CSV serialization"
+    },
+    {
+      "day": 9,
+      "topic": "Multithreading & Concurrency",
+      "subtopics": [
+        "Threads",
+        "Synchronization",
+        "Thread Pools",
+        "Concurrent Collections",
+        "Lock Mechanisms"
+      ],
+      "tools": [
+        "Java",
+        "ExecutorService"
+      ],
+      "jira_focus": "Sprint planning; review progress for Multithreading & Concurrency",
+      "lab_task": "Build thread-safe banking system with locks"
+    },
+    {
+      "day": 10,
+      "topic": "Stream API & Functional Programming",
+      "subtopics": [
+        "Streams",
+        "Lambda Expressions",
+        "Functional Interfaces",
+        "Map/Filter/Reduce",
+        "Collectors"
+      ],
+      "tools": [
+        "Java 8+"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Process collections using functional streams"
+    },
+    {
+      "day": 11,
+      "topic": "Java Environment and Tooling",
+      "subtopics": [
+        "JDK",
+        "Maven",
+        "Gradle",
+        "IntelliJ",
+        "debugging"
+      ],
+      "tools": [
+        "Java",
+        "Maven"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Set up Java project and debug application"
+    },
+    {
+      "day": 12,
+      "topic": "Advanced OOP and SOLID",
+      "subtopics": [
+        "SOLID",
+        "composition",
+        "inheritance",
+        "immutability",
+        "records"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Refactor code using SOLID principles"
+    },
+    {
+      "day": 13,
+      "topic": "Collections and Generics Deep Dive",
+      "subtopics": [
+        "List",
+        "Set",
+        "Map",
+        "queues",
+        "generics",
+        "comparators"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Build collection-based inventory module"
+    },
+    {
+      "day": 14,
+      "topic": "Streams and Functional Java",
+      "subtopics": [
+        "streams",
+        "lambda",
+        "optional",
+        "collectors",
+        "method refs"
+      ],
+      "tools": [
+        "Java 17"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Process dataset using streams"
+    },
+    {
+      "day": 15,
+      "topic": "Exception Handling and Logging",
+      "subtopics": [
+        "custom exceptions",
+        "SLF4J",
+        "Logback",
+        "error design"
+      ],
+      "tools": [
+        "Java",
+        "SLF4J"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Add logging and custom exceptions"
+    },
+    {
+      "day": 16,
+      "topic": "JDBC and SQL",
+      "subtopics": [
+        "connections",
+        "prepared statements",
+        "transactions",
+        "pooling"
+      ],
+      "tools": [
+        "JDBC",
+        "PostgreSQL"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Build JDBC CRUD module"
+    },
+    {
+      "day": 17,
+      "topic": "Spring Core",
+      "subtopics": [
+        "IoC",
+        "DI",
+        "beans",
+        "configuration",
+        "profiles"
+      ],
+      "tools": [
+        "Spring"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Create Spring Core service"
+    },
+    {
+      "day": 18,
+      "topic": "Spring Boot REST APIs",
+      "subtopics": [
+        "controllers",
+        "services",
+        "DTOs",
+        "validation",
+        "OpenAPI"
+      ],
+      "tools": [
+        "Spring Boot"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build REST API"
+    },
+    {
+      "day": 19,
+      "topic": "Spring Data JPA",
+      "subtopics": [
+        "entities",
+        "repositories",
+        "relationships",
+        "pagination",
+        "transactions"
+      ],
+      "tools": [
+        "Spring Data JPA"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build database-backed API"
+    },
+    {
+      "day": 20,
+      "topic": "Spring Security",
+      "subtopics": [
+        "JWT",
+        "RBAC",
+        "filters",
+        "password encoding"
+      ],
+      "tools": [
+        "Spring Security"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Secure API with JWT"
+    },
+    {
+      "day": 21,
+      "topic": "Microservices Basics",
+      "subtopics": [
+        "service boundaries",
+        "config",
+        "discovery",
+        "gateway",
+        "resilience"
+      ],
+      "tools": [
+        "Spring Cloud"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Create two-service microservice demo"
+    },
+    {
+      "day": 22,
+      "topic": "Kafka Messaging",
+      "subtopics": [
+        "topics",
+        "producers",
+        "consumers",
+        "serialization",
+        "retry"
+      ],
+      "tools": [
+        "Kafka",
+        "Spring Kafka"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build event-driven workflow"
+    },
+    {
+      "day": 23,
+      "topic": "Testing Java Apps",
+      "subtopics": [
+        "JUnit",
+        "Mockito",
+        "integration tests",
+        "Testcontainers"
+      ],
+      "tools": [
+        "JUnit",
+        "Mockito"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Write unit and integration tests"
+    },
+    {
+      "day": 24,
+      "topic": "Docker and Java Deployment",
+      "subtopics": [
+        "Dockerfile",
+        "JAR packaging",
+        "env vars",
+        "health checks"
+      ],
+      "tools": [
+        "Docker",
+        "Java"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Containerize Spring Boot service"
+    },
+    {
+      "day": 25,
+      "topic": "Java Performance Basics",
+      "subtopics": [
+        "JVM",
+        "GC",
+        "profiling",
+        "thread dumps",
+        "metrics"
+      ],
+      "tools": [
+        "JDK tools"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Analyze JVM performance issue"
+    },
+    {
+      "day": 26,
+      "topic": "Capstone Planning",
+      "subtopics": [
+        "requirements",
+        "API design",
+        "database",
+        "microservices"
+      ],
+      "tools": [
+        "Jira"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Plan Java capstone"
+    },
+    {
+      "day": 27,
+      "topic": "Capstone Service Sprint",
+      "subtopics": [
+        "REST APIs",
+        "JPA",
+        "validation",
+        "logging"
+      ],
+      "tools": [
+        "Spring Boot"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build capstone services"
+    },
+    {
+      "day": 28,
+      "topic": "Capstone Security Sprint",
+      "subtopics": [
+        "auth",
+        "roles",
+        "API protection"
+      ],
+      "tools": [
+        "Spring Security"
+      ],
+      "jira_focus": "Add comments with build or demo links",
+      "lab_task": "Secure capstone app"
+    },
+    {
+      "day": 29,
+      "topic": "Capstone Messaging Sprint",
+      "subtopics": [
+        "events",
+        "Kafka",
+        "async workflow"
+      ],
+      "tools": [
+        "Kafka"
+      ],
+      "jira_focus": "Update sprint board",
+      "lab_task": "Add async messaging"
+    },
+    {
+      "day": 30,
+      "topic": "Capstone Testing and Deployment",
+      "subtopics": [
+        "tests",
+        "Docker",
+        "CI/CD",
+        "demo"
+      ],
+      "tools": [
+        "JUnit",
+        "Docker"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Test and deploy capstone"
+    },
+    {
+      "day": 31,
+      "topic": "SQL & JDBC",
+      "subtopics": [
+        "Database Basics",
+        "JDBC Connections",
+        "Prepared Statements",
+        "Result Sets",
+        "Transaction Management"
+      ],
+      "tools": [
+        "JDBC",
+        "MySQL",
+        "PostgreSQL"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build JDBC application with database CRUD operations"
+    },
+    {
+      "day": 32,
+      "topic": "Hibernate & JPA",
+      "subtopics": [
+        "JPA Annotations",
+        "Entity Mapping",
+        "Relationships",
+        "HQL Queries",
+        "Lazy Loading"
+      ],
+      "tools": [
+        "Hibernate",
+        "JPA"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Map entities with relationships and query database"
+    },
+    {
+      "day": 33,
+      "topic": "Spring Framework Basics",
+      "subtopics": [
+        "Dependency Injection",
+        "Beans",
+        "Application Context",
+        "Auto-wiring",
+        "Configuration Classes"
+      ],
+      "tools": [
+        "Spring Framework",
+        "Maven"
+      ],
+      "jira_focus": "Sprint planning; review progress for Spring Framework Basics",
+      "lab_task": "Build Spring application with dependency injection"
+    },
+    {
+      "day": 34,
+      "topic": "Spring MVC",
+      "subtopics": [
+        "Controllers",
+        "Request Mapping",
+        "View Resolution",
+        "Interceptors",
+        "Exception Handling"
+      ],
+      "tools": [
+        "Spring MVC"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build MVC web application with form validation"
+    },
+    {
+      "day": 35,
+      "topic": "Spring Data & Repositories",
+      "subtopics": [
+        "JpaRepository",
+        "Query Methods",
+        "Custom Queries",
+        "Paging",
+        "Sorting"
+      ],
+      "tools": [
+        "Spring Data",
+        "Hibernate"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Build repository layer with custom queries"
+    },
+    {
+      "day": 36,
+      "topic": "RESTful Web Services",
+      "subtopics": [
+        "REST Principles",
+        "RestController",
+        "Request Mapping",
+        "Content Negotiation",
+        "Response Entities"
+      ],
+      "tools": [
+        "Spring REST",
+        "Postman"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Build REST API endpoints with validation"
+    },
+    {
+      "day": 37,
+      "topic": "Spring Security - Part 2",
+      "subtopics": [
+        "Part 2: Authentication",
+        "Part 2: Authorization",
+        "Part 2: JWT",
+        "Part 2: OAuth2",
+        "Part 2: Role-Based Access"
+      ],
+      "tools": [
+        "Spring Security"
+      ],
+      "jira_focus": "Sprint planning; review progress for Spring Security",
+      "lab_task": "Part 2 hands-on: Implement JWT authentication and role-based endpoints"
+    },
+    {
+      "day": 38,
+      "topic": "Spring Boot Essentials",
+      "subtopics": [
+        "Auto-Configuration",
+        "Starters",
+        "Application Properties",
+        "Actuator",
+        "Profiles"
+      ],
+      "tools": [
+        "Spring Boot"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build production-ready Spring Boot application"
+    },
+    {
+      "day": 39,
+      "topic": "Microservices Architecture",
+      "subtopics": [
+        "Service Design",
+        "API Gateway",
+        "Service Discovery",
+        "Load Balancing",
+        "Configuration Management"
+      ],
+      "tools": [
+        "Spring Cloud"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Design microservices architecture with multiple services"
+    },
+    {
+      "day": 40,
+      "topic": "Spring Cloud & Service Communication",
+      "subtopics": [
+        "Eureka",
+        "Ribbon",
+        "Hystrix",
+        "Feign Client",
+        "Event Bus"
+      ],
+      "tools": [
+        "Spring Cloud",
+        "Eureka"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Build service registry and inter-service communication"
+    },
+    {
+      "day": 41,
+      "topic": "Testing & Unit Testing",
+      "subtopics": [
+        "JUnit",
+        "Mockito",
+        "Test Fixtures",
+        "Integration Testing",
+        "Coverage"
+      ],
+      "tools": [
+        "JUnit 5",
+        "Mockito"
+      ],
+      "jira_focus": "Sprint planning; review progress for Testing & Unit Testing",
+      "lab_task": "Write comprehensive unit and integration tests"
+    },
+    {
+      "day": 42,
+      "topic": "Message Queues & Async Processing",
+      "subtopics": [
+        "RabbitMQ",
+        "Apache Kafka",
+        "JMS",
+        "Async Methods",
+        "Event Handling"
+      ],
+      "tools": [
+        "RabbitMQ",
+        "Kafka"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Build event-driven system with message queue"
+    },
+    {
+      "day": 43,
+      "topic": "Caching Strategies",
+      "subtopics": [
+        "Redis",
+        "Memcached",
+        "Cache Annotations",
+        "Cache Invalidation",
+        "Distributed Caching"
+      ],
+      "tools": [
+        "Redis",
+        "Spring Cache"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Implement caching layer with Redis"
+    },
+    {
+      "day": 44,
+      "topic": "Docker & Containerization",
+      "subtopics": [
+        "Docker Basics",
+        "Dockerfile",
+        "Image Creation",
+        "Container Networking",
+        "Orchestration Basics"
+      ],
+      "tools": [
+        "Docker",
+        "Docker Compose"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Containerize Spring Boot application"
+    },
+    {
+      "day": 45,
+      "topic": "CI/CD Pipeline",
+      "subtopics": [
+        "GitHub Actions",
+        "Jenkins",
+        "Maven Build",
+        "Automated Tests",
+        "Deployment Automation"
+      ],
+      "tools": [
+        "GitHub Actions",
+        "Maven"
+      ],
+      "jira_focus": "Sprint planning; review progress for CI/CD Pipeline",
+      "lab_task": "Set up automated build and deployment pipeline"
+    },
+    {
+      "day": 46,
+      "topic": "Monitoring & Logging",
+      "subtopics": [
+        "ELK Stack",
+        "Log4j",
+        "SLF4J",
+        "Metrics",
+        "Application Monitoring"
+      ],
+      "tools": [
+        "ELK",
+        "Prometheus"
+      ],
+      "jira_focus": "Log time on stories",
+      "lab_task": "Set up centralized logging and monitoring"
+    },
+    {
+      "day": 47,
+      "topic": "Performance Tuning",
+      "subtopics": [
+        "JVM Tuning",
+        "Memory Management",
+        "Garbage Collection",
+        "Profiling",
+        "Optimization Techniques"
+      ],
+      "tools": [
+        "JProfiler",
+        "JVM"
+      ],
+      "jira_focus": "Move cards to In Progress/Done",
+      "lab_task": "Profile and optimize Java application"
+    },
+    {
+      "day": 48,
+      "topic": "Design Patterns",
+      "subtopics": [
+        "Creational Patterns",
+        "Structural Patterns",
+        "Behavioral Patterns",
+        "Enterprise Patterns"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Add comments with build links",
+      "lab_task": "Implement design patterns in real-world scenarios"
+    },
+    {
+      "day": 49,
+      "topic": "Capstone Project - Part 1",
+      "subtopics": [
+        "Requirements Analysis",
+        "Architecture Design",
+        "Database Modeling",
+        "API Planning",
+        "Setup"
+      ],
+      "tools": [
+        "Java",
+        "Spring Boot",
+        "PostgreSQL"
+      ],
+      "jira_focus": "Sprint planning; review progress for Capstone Part 1",
+      "lab_task": "Design and prototype full-stack Java application"
+    },
+    {
+      "day": 50,
+      "topic": "Capstone Project - Part 2 + Certification Roadmap",
+      "subtopics": [
+        "Implementation",
+        "Testing",
+        "Deployment",
+        "Documentation",
+        "Final Demo"
+      ],
+      "tools": [
+        "All Java Tools"
+      ],
+      "jira_focus": "Final sprint review, retrospective, release notes, and stakeholder demo",
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+    },
+    {
+      "day": 51,
+      "topic": "Java Capstone Architecture",
+      "subtopics": [
+        "Java Capstone Architecture concepts",
+        "Java Capstone Architecture hands-on workflow",
+        "Java Capstone Architecture validation",
+        "Java Capstone Architecture troubleshooting",
+        "Java Capstone Architecture best practices"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Java Capstone Architecture"
+    },
+    {
+      "day": 52,
+      "topic": "Spring Boot Service Sprint",
+      "subtopics": [
+        "Spring Boot Service Sprint concepts",
+        "Spring Boot Service Sprint hands-on workflow",
+        "Spring Boot Service Sprint validation",
+        "Spring Boot Service Sprint troubleshooting",
+        "Spring Boot Service Sprint best practices"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Spring Boot Service Sprint"
+    },
+    {
+      "day": 53,
+      "topic": "JPA and Database Sprint",
+      "subtopics": [
+        "JPA and Database Sprint concepts",
+        "JPA and Database Sprint hands-on workflow",
+        "JPA and Database Sprint validation",
+        "JPA and Database Sprint troubleshooting",
+        "JPA and Database Sprint best practices"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: JPA and Database Sprint"
+    },
+    {
+      "day": 54,
+      "topic": "Security and Messaging Sprint",
+      "subtopics": [
+        "Security and Messaging Sprint concepts",
+        "Security and Messaging Sprint hands-on workflow",
+        "Security and Messaging Sprint validation",
+        "Security and Messaging Sprint troubleshooting",
+        "Security and Messaging Sprint best practices"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Security and Messaging Sprint"
+    },
+    {
+      "day": 55,
+      "topic": "Testing and Observability Sprint",
+      "subtopics": [
+        "Testing and Observability Sprint concepts",
+        "Testing and Observability Sprint hands-on workflow",
+        "Testing and Observability Sprint validation",
+        "Testing and Observability Sprint troubleshooting",
+        "Testing and Observability Sprint best practices"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Testing and Observability Sprint"
+    },
+    {
+      "day": 56,
+      "topic": "Deployment Sprint",
+      "subtopics": [
+        "Deployment Sprint concepts",
+        "Deployment Sprint hands-on workflow",
+        "Deployment Sprint validation",
+        "Deployment Sprint troubleshooting",
+        "Deployment Sprint best practices"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Deployment Sprint"
+    },
+    {
+      "day": 57,
+      "topic": "Microservices Review",
+      "subtopics": [
+        "Microservices Review concepts",
+        "Microservices Review hands-on workflow",
+        "Microservices Review validation",
+        "Microservices Review troubleshooting",
+        "Microservices Review best practices"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Microservices Review"
+    },
+    {
+      "day": 58,
+      "topic": "Final Demo",
+      "subtopics": [
+        "Final Demo concepts",
+        "Final Demo hands-on workflow",
+        "Final Demo validation",
+        "Final Demo troubleshooting",
+        "Final Demo best practices"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Final Demo"
+    },
+    {
+      "day": 59,
+      "topic": "Java Production Readiness Review",
+      "subtopics": [
+        "Java Production Readiness Review concepts",
+        "Java Production Readiness Review hands-on workflow",
+        "Java Production Readiness Review validation",
+        "Java Production Readiness Review troubleshooting",
+        "Java Production Readiness Review best practices"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Java Production Readiness Review"
+    },
+    {
+      "day": 60,
+      "topic": "Java Final Demo and Interview Preparation",
+      "subtopics": [
+        "Java Final Demo and Interview Preparation concepts",
+        "Java Final Demo and Interview Preparation hands-on workflow",
+        "Java Final Demo and Interview Preparation validation",
+        "Java Final Demo and Interview Preparation troubleshooting",
+        "Java Final Demo and Interview Preparation best practices"
+      ],
+      "tools": [
+        "Java"
+      ],
+      "jira_focus": "Update sprint board and prepare demo evidence",
+      "lab_task": "Hands-on lab: Java Final Demo and Interview Preparation"
+    }
+  ],
+  "aliases": [
+    "Java",
+    "Core Java",
+    "Advanced Java",
+    "Java Backend",
+    "Java Developer",
+    "Spring Boot",
+    "Spring Framework",
+    "Java Microservices",
+    "Java Fullstack",
+    "Java Full Stack"
+  ],
+  "official_sources": [
+    "https://docs.oracle.com/javase/tutorial/",
+    "https://docs.oracle.com/javase/tutorial/essential/exceptions/index.html",
+    "https://docs.spring.io/spring-boot/reference/using/build-systems.html",
+    "https://docs.spring.io/spring-boot/reference/testing/index.html"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+}

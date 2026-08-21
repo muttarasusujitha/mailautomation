@@ -1,0 +1,461 @@
+{
+    "domain":  "LLMOps",
+    "name":  "LLMOps â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "LLM Operations",
+                    "GenAI Operations"
+                ],
+    "tools":  [
+                  "MLflow",
+                  "Weights \u0026 Biases concepts",
+                  "Prompt/version stores",
+                  "Observability"
+              ],
+    "certifications":  [
+                           "LLMOps official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Foundations and Setup",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Use cases",
+                                       "Terminology",
+                                       "Environment setup",
+                                       "SDK/runtime setup",
+                                       "First example",
+                                       "LLMOps terminology and feature mapping for this topic",
+                                       "LLMOps configuration and implementation considerations",
+                                       "LLMOps best practices and common mistakes for this topic",
+                                       "prompt/version management",
+                                       "model routing",
+                                       "evaluation",
+                                       "deployment",
+                                       "observability",
+                                       "tracing",
+                                       "cost tracking",
+                                       "feedback loops",
+                                       "guardrails",
+                                       "incident response",
+                                       "A/B testing",
+                                       "rollback"
+                                   ],
+                     "tools":  [
+                                   "MLflow",
+                                   "Weights \u0026 Biases concepts",
+                                   "Prompt/version stores"
+                               ],
+                     "lab_task":  "Set up LLMOps and run a first working example.",
+                     "technology":  "LLMOps",
+                     "technology_id":  "llmops",
+                     "learning_objectives":  [
+                                                 "Explain the Foundations and Setup concepts in the context of LLMOps.",
+                                                 "Configure or implement the key LLMOps features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Foundations and Setup practically using LLMOps.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Data and Representations",
+                     "subtopics":  [
+                                       "Inputs",
+                                       "Outputs",
+                                       "Token/embedding/model concepts as applicable",
+                                       "Data preparation",
+                                       "Schemas",
+                                       "Metadata",
+                                       "Validation",
+                                       "Preprocessing",
+                                       "LLMOps terminology and feature mapping for this topic",
+                                       "LLMOps configuration and implementation considerations",
+                                       "LLMOps best practices and common mistakes for this topic",
+                                       "prompt/version management",
+                                       "model routing",
+                                       "evaluation",
+                                       "deployment",
+                                       "observability",
+                                       "tracing",
+                                       "cost tracking",
+                                       "feedback loops",
+                                       "guardrails",
+                                       "incident response",
+                                       "A/B testing",
+                                       "rollback"
+                                   ],
+                     "tools":  [
+                                   "MLflow",
+                                   "Weights \u0026 Biases concepts",
+                                   "Prompt/version stores"
+                               ],
+                     "lab_task":  "Prepare representative data for LLMOps.",
+                     "technology":  "LLMOps",
+                     "technology_id":  "llmops",
+                     "learning_objectives":  [
+                                                 "Explain the Core Data and Representations concepts in the context of LLMOps.",
+                                                 "Configure or implement the key LLMOps features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Data and Representations practically using LLMOps.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Core APIs or Algorithms",
+                     "subtopics":  [
+                                       "Primary API/algorithm",
+                                       "Parameters",
+                                       "Configuration",
+                                       "Batching",
+                                       "Error handling",
+                                       "Reproducibility",
+                                       "Result interpretation",
+                                       "LLMOps terminology and feature mapping for this topic",
+                                       "LLMOps configuration and implementation considerations",
+                                       "LLMOps best practices and common mistakes for this topic",
+                                       "prompt/version management",
+                                       "model routing",
+                                       "evaluation",
+                                       "deployment",
+                                       "observability",
+                                       "tracing",
+                                       "cost tracking",
+                                       "feedback loops",
+                                       "guardrails",
+                                       "incident response",
+                                       "A/B testing",
+                                       "rollback"
+                                   ],
+                     "tools":  [
+                                   "MLflow",
+                                   "Weights \u0026 Biases concepts",
+                                   "Prompt/version stores"
+                               ],
+                     "lab_task":  "Implement the core workflow for LLMOps.",
+                     "technology":  "LLMOps",
+                     "technology_id":  "llmops",
+                     "learning_objectives":  [
+                                                 "Explain the Core APIs or Algorithms concepts in the context of LLMOps.",
+                                                 "Configure or implement the key LLMOps features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core APIs or Algorithms practically using LLMOps.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Advanced Techniques",
+                     "subtopics":  [
+                                       "Advanced features",
+                                       "Optimization",
+                                       "Caching",
+                                       "Streaming",
+                                       "Structured outputs",
+                                       "Hybrid techniques",
+                                       "Performance trade-offs",
+                                       "LLMOps terminology and feature mapping for this topic",
+                                       "LLMOps configuration and implementation considerations",
+                                       "LLMOps best practices and common mistakes for this topic",
+                                       "prompt/version management",
+                                       "model routing",
+                                       "evaluation",
+                                       "deployment",
+                                       "observability",
+                                       "tracing",
+                                       "cost tracking",
+                                       "feedback loops",
+                                       "guardrails",
+                                       "incident response",
+                                       "A/B testing",
+                                       "rollback"
+                                   ],
+                     "tools":  [
+                                   "MLflow",
+                                   "Weights \u0026 Biases concepts",
+                                   "Prompt/version stores",
+                                   "Observability"
+                               ],
+                     "lab_task":  "Implement an advanced LLMOps workflow.",
+                     "technology":  "LLMOps",
+                     "technology_id":  "llmops",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Techniques concepts in the context of LLMOps.",
+                                                 "Configure or implement the key LLMOps features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Techniques practically using LLMOps.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Evaluation",
+                     "subtopics":  [
+                                       "Quality metrics",
+                                       "Offline evaluation",
+                                       "Online evaluation concepts",
+                                       "Test sets",
+                                       "Failure analysis",
+                                       "Regression testing",
+                                       "Human review",
+                                       "LLMOps terminology and feature mapping for this topic",
+                                       "LLMOps configuration and implementation considerations",
+                                       "LLMOps best practices and common mistakes for this topic",
+                                       "prompt/version management",
+                                       "model routing",
+                                       "evaluation",
+                                       "deployment",
+                                       "observability",
+                                       "tracing",
+                                       "cost tracking",
+                                       "feedback loops",
+                                       "guardrails",
+                                       "incident response",
+                                       "A/B testing",
+                                       "rollback"
+                                   ],
+                     "tools":  [
+                                   "MLflow",
+                                   "Weights \u0026 Biases concepts",
+                                   "Prompt/version stores"
+                               ],
+                     "lab_task":  "Create an evaluation harness for LLMOps.",
+                     "technology":  "LLMOps",
+                     "technology_id":  "llmops",
+                     "learning_objectives":  [
+                                                 "Explain the Evaluation concepts in the context of LLMOps.",
+                                                 "Configure or implement the key LLMOps features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Evaluation practically using LLMOps.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Safety and Security",
+                     "subtopics":  [
+                                       "Prompt/input security where relevant",
+                                       "Data privacy",
+                                       "Secrets",
+                                       "Access control",
+                                       "Abuse prevention",
+                                       "Policy controls",
+                                       "Auditability",
+                                       "LLMOps terminology and feature mapping for this topic",
+                                       "LLMOps configuration and implementation considerations",
+                                       "LLMOps best practices and common mistakes for this topic",
+                                       "prompt/version management",
+                                       "model routing",
+                                       "evaluation",
+                                       "deployment",
+                                       "observability",
+                                       "tracing",
+                                       "cost tracking",
+                                       "feedback loops",
+                                       "guardrails",
+                                       "incident response",
+                                       "A/B testing",
+                                       "rollback"
+                                   ],
+                     "tools":  [
+                                   "MLflow",
+                                   "Weights \u0026 Biases concepts",
+                                   "Prompt/version stores"
+                               ],
+                     "lab_task":  "Add safety and security controls.",
+                     "technology":  "LLMOps",
+                     "technology_id":  "llmops",
+                     "learning_objectives":  [
+                                                 "Explain the Safety and Security concepts in the context of LLMOps.",
+                                                 "Configure or implement the key LLMOps features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Safety and Security practically using LLMOps.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Production Architecture",
+                     "subtopics":  [
+                                       "Service architecture",
+                                       "Scalability",
+                                       "Latency",
+                                       "Cost",
+                                       "Caching",
+                                       "Fallbacks",
+                                       "Observability",
+                                       "Reliability",
+                                       "LLMOps terminology and feature mapping for this topic",
+                                       "LLMOps configuration and implementation considerations",
+                                       "LLMOps best practices and common mistakes for this topic",
+                                       "prompt/version management",
+                                       "model routing",
+                                       "evaluation",
+                                       "deployment",
+                                       "tracing",
+                                       "cost tracking",
+                                       "feedback loops",
+                                       "guardrails",
+                                       "incident response",
+                                       "A/B testing",
+                                       "rollback"
+                                   ],
+                     "tools":  [
+                                   "MLflow",
+                                   "Weights \u0026 Biases concepts",
+                                   "Prompt/version stores",
+                                   "Observability"
+                               ],
+                     "lab_task":  "Design a production architecture.",
+                     "technology":  "LLMOps",
+                     "technology_id":  "llmops",
+                     "learning_objectives":  [
+                                                 "Explain the Production Architecture concepts in the context of LLMOps.",
+                                                 "Configure or implement the key LLMOps features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Production Architecture practically using LLMOps.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "APIs",
+                                       "Databases/vector stores",
+                                       "Tools/functions",
+                                       "Agents or workflows",
+                                       "Web/backend integration",
+                                       "Streaming",
+                                       "Testing",
+                                       "LLMOps terminology and feature mapping for this topic",
+                                       "LLMOps configuration and implementation considerations",
+                                       "LLMOps best practices and common mistakes for this topic",
+                                       "prompt/version management",
+                                       "model routing",
+                                       "evaluation",
+                                       "deployment",
+                                       "observability",
+                                       "tracing",
+                                       "cost tracking",
+                                       "feedback loops",
+                                       "guardrails",
+                                       "incident response",
+                                       "A/B testing",
+                                       "rollback"
+                                   ],
+                     "tools":  [
+                                   "MLflow",
+                                   "Weights \u0026 Biases concepts",
+                                   "Prompt/version stores",
+                                   "Observability"
+                               ],
+                     "lab_task":  "Integrate LLMOps into an application.",
+                     "technology":  "LLMOps",
+                     "technology_id":  "llmops",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of LLMOps.",
+                                                 "Configure or implement the key LLMOps features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using LLMOps.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "Operations and Optimization",
+                     "subtopics":  [
+                                       "Monitoring",
+                                       "Tracing",
+                                       "Cost tracking",
+                                       "Versioning",
+                                       "Rollbacks",
+                                       "Performance tuning",
+                                       "Incident handling",
+                                       "LLMOps terminology and feature mapping for this topic",
+                                       "LLMOps configuration and implementation considerations",
+                                       "LLMOps best practices and common mistakes for this topic",
+                                       "prompt/version management",
+                                       "model routing",
+                                       "evaluation",
+                                       "deployment",
+                                       "observability",
+                                       "feedback loops",
+                                       "guardrails",
+                                       "incident response",
+                                       "A/B testing",
+                                       "rollback"
+                                   ],
+                     "tools":  [
+                                   "MLflow",
+                                   "Weights \u0026 Biases concepts",
+                                   "Prompt/version stores"
+                               ],
+                     "lab_task":  "Monitor and optimize a production-style workload.",
+                     "technology":  "LLMOps",
+                     "technology_id":  "llmops",
+                     "learning_objectives":  [
+                                                 "Explain the Operations and Optimization concepts in the context of LLMOps.",
+                                                 "Configure or implement the key LLMOps features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Operations and Optimization practically using LLMOps.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  10,
+                     "topic":  "Capstone AI Project",
+                     "subtopics":  [
+                                       "Requirements",
+                                       "Data",
+                                       "Implementation",
+                                       "Evaluation",
+                                       "Safety",
+                                       "Observability",
+                                       "Deployment",
+                                       "Documentation",
+                                       "LLMOps terminology and feature mapping for this topic",
+                                       "LLMOps configuration and implementation considerations",
+                                       "LLMOps best practices and common mistakes for this topic",
+                                       "prompt/version management",
+                                       "model routing",
+                                       "tracing",
+                                       "cost tracking",
+                                       "feedback loops",
+                                       "guardrails",
+                                       "incident response",
+                                       "A/B testing",
+                                       "rollback"
+                                   ],
+                     "tools":  [
+                                   "MLflow",
+                                   "Weights \u0026 Biases concepts",
+                                   "Prompt/version stores",
+                                   "Observability"
+                               ],
+                     "lab_task":  "Build an end-to-end production-style project using LLMOps.",
+                     "technology":  "LLMOps",
+                     "technology_id":  "llmops",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone AI Project concepts in the context of LLMOps.",
+                                                 "Configure or implement the key LLMOps features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone AI Project practically using LLMOps.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "llmops"
+}

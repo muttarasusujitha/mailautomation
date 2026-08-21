@@ -1,0 +1,377 @@
+{
+    "domain":  "Linux Administration",
+    "name":  "Linux Administration â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Linux Admin",
+                    "Linux System Administration"
+                ],
+    "tools":  [
+                  "Linux",
+                  "systemd",
+                  "SSH",
+                  "journalctl",
+                  "cron"
+              ],
+    "certifications":  [
+                           "LFCS",
+                           "RHCSA"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "Linux Administration terminology and feature mapping for this topic",
+                                       "Linux Administration configuration and implementation considerations",
+                                       "Linux Administration best practices and common mistakes for this topic",
+                                       "filesystem",
+                                       "users",
+                                       "groups",
+                                       "permissions",
+                                       "systemd",
+                                       "processes",
+                                       "packages",
+                                       "SSH",
+                                       "networking",
+                                       "storage",
+                                       "LVM",
+                                       "logs"
+                                   ],
+                     "tools":  [
+                                   "Linux",
+                                   "systemd",
+                                   "SSH"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate Linux Administration fundamentals.",
+                     "technology":  "Linux Administration",
+                     "technology_id":  "linux-administration",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of Linux Administration.",
+                                                 "Configure or implement the key Linux Administration features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using Linux Administration.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "Linux Administration terminology and feature mapping for this topic",
+                                       "Linux Administration configuration and implementation considerations",
+                                       "Linux Administration best practices and common mistakes for this topic",
+                                       "filesystem",
+                                       "users",
+                                       "groups",
+                                       "permissions",
+                                       "systemd",
+                                       "processes",
+                                       "packages",
+                                       "SSH",
+                                       "networking",
+                                       "storage",
+                                       "LVM",
+                                       "logs"
+                                   ],
+                     "tools":  [
+                                   "Linux",
+                                   "systemd",
+                                   "SSH"
+                               ],
+                     "lab_task":  "Inspect and configure core Linux Administration components.",
+                     "technology":  "Linux Administration",
+                     "technology_id":  "linux-administration",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of Linux Administration.",
+                                                 "Configure or implement the key Linux Administration features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using Linux Administration.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "Linux Administration terminology and feature mapping for this topic",
+                                       "Linux Administration configuration and implementation considerations",
+                                       "Linux Administration best practices and common mistakes for this topic",
+                                       "filesystem",
+                                       "users",
+                                       "groups",
+                                       "permissions",
+                                       "systemd",
+                                       "processes",
+                                       "packages",
+                                       "SSH",
+                                       "networking",
+                                       "storage",
+                                       "LVM",
+                                       "logs"
+                                   ],
+                     "tools":  [
+                                   "Linux",
+                                   "systemd",
+                                   "SSH"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for Linux Administration.",
+                     "technology":  "Linux Administration",
+                     "technology_id":  "linux-administration",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of Linux Administration.",
+                                                 "Configure or implement the key Linux Administration features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using Linux Administration.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "Linux Administration terminology and feature mapping for this topic",
+                                       "Linux Administration configuration and implementation considerations",
+                                       "Linux Administration best practices and common mistakes for this topic",
+                                       "filesystem",
+                                       "users",
+                                       "groups",
+                                       "permissions",
+                                       "systemd",
+                                       "processes",
+                                       "packages",
+                                       "SSH",
+                                       "networking",
+                                       "storage",
+                                       "LVM",
+                                       "logs"
+                                   ],
+                     "tools":  [
+                                   "Linux",
+                                   "systemd",
+                                   "SSH"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "Linux Administration",
+                     "technology_id":  "linux-administration",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of Linux Administration.",
+                                                 "Configure or implement the key Linux Administration features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using Linux Administration.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "Linux Administration terminology and feature mapping for this topic",
+                                       "Linux Administration configuration and implementation considerations",
+                                       "Linux Administration best practices and common mistakes for this topic",
+                                       "filesystem",
+                                       "users",
+                                       "groups",
+                                       "permissions",
+                                       "systemd",
+                                       "processes",
+                                       "packages",
+                                       "SSH",
+                                       "networking",
+                                       "storage",
+                                       "LVM"
+                                   ],
+                     "tools":  [
+                                   "Linux",
+                                   "systemd",
+                                   "SSH",
+                                   "journalctl"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated Linux Administration issue.",
+                     "technology":  "Linux Administration",
+                     "technology_id":  "linux-administration",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of Linux Administration.",
+                                                 "Configure or implement the key Linux Administration features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using Linux Administration.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "Linux Administration terminology and feature mapping for this topic",
+                                       "Linux Administration configuration and implementation considerations",
+                                       "Linux Administration best practices and common mistakes for this topic",
+                                       "filesystem",
+                                       "users",
+                                       "groups",
+                                       "permissions",
+                                       "systemd",
+                                       "processes",
+                                       "packages",
+                                       "SSH",
+                                       "networking",
+                                       "storage",
+                                       "LVM",
+                                       "logs"
+                                   ],
+                     "tools":  [
+                                   "Linux",
+                                   "systemd",
+                                   "SSH"
+                               ],
+                     "lab_task":  "Automate a repeatable Linux Administration configuration task.",
+                     "technology":  "Linux Administration",
+                     "technology_id":  "linux-administration",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of Linux Administration.",
+                                                 "Configure or implement the key Linux Administration features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using Linux Administration.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "Linux Administration terminology and feature mapping for this topic",
+                                       "Linux Administration configuration and implementation considerations",
+                                       "Linux Administration best practices and common mistakes for this topic",
+                                       "filesystem",
+                                       "users",
+                                       "groups",
+                                       "permissions",
+                                       "systemd",
+                                       "processes",
+                                       "packages",
+                                       "SSH",
+                                       "networking",
+                                       "storage",
+                                       "LVM",
+                                       "logs"
+                                   ],
+                     "tools":  [
+                                   "Linux",
+                                   "systemd",
+                                   "SSH",
+                                   "journalctl"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "Linux Administration",
+                     "technology_id":  "linux-administration",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of Linux Administration.",
+                                                 "Configure or implement the key Linux Administration features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using Linux Administration.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "Linux Administration terminology and feature mapping for this topic",
+                                       "Linux Administration configuration and implementation considerations",
+                                       "Linux Administration best practices and common mistakes for this topic",
+                                       "filesystem",
+                                       "users",
+                                       "groups",
+                                       "permissions",
+                                       "systemd",
+                                       "processes",
+                                       "packages",
+                                       "SSH",
+                                       "networking",
+                                       "storage",
+                                       "LVM",
+                                       "logs"
+                                   ],
+                     "tools":  [
+                                   "Linux",
+                                   "systemd",
+                                   "SSH",
+                                   "journalctl"
+                               ],
+                     "lab_task":  "Build and document an end-to-end Linux Administration solution.",
+                     "technology":  "Linux Administration",
+                     "technology_id":  "linux-administration",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of Linux Administration.",
+                                                 "Configure or implement the key Linux Administration features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using Linux Administration.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "linux-administration"
+}

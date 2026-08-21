@@ -30,18 +30,18 @@
     },
     {
       "day": 2,
-      "topic": "Cloud Fundamentals",
+      "topic": "Cloud Fundamentals - Part 2",
       "subtopics": [
-        "IaaS/PaaS/SaaS",
-        "Deployment Models",
-        "Benefits",
-        "Risks"
+        "Part 2: IaaS/PaaS/SaaS",
+        "Part 2: Deployment Models",
+        "Part 2: Benefits",
+        "Part 2: Risks"
       ],
       "tools": [
         "Cloud"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Cloud basics"
+      "lab_task": "Part 2 hands-on: Cloud basics"
     },
     {
       "day": 3,
@@ -60,18 +60,18 @@
     },
     {
       "day": 4,
-      "topic": "AWS Fundamentals",
+      "topic": "AWS Fundamentals - Part 2",
       "subtopics": [
-        "Services",
-        "EC2",
-        "S3",
-        "VPC"
+        "Part 2: Services",
+        "Part 2: EC2",
+        "Part 2: S3",
+        "Part 2: VPC"
       ],
       "tools": [
         "AWS"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "AWS core services"
+      "lab_task": "Part 2 hands-on: AWS core services"
     },
     {
       "day": 5,
@@ -90,18 +90,18 @@
     },
     {
       "day": 6,
-      "topic": "AWS Advanced",
+      "topic": "AWS Advanced - Part 2",
       "subtopics": [
-        "Auto Scaling",
-        "Load Balancers",
-        "RDS",
-        "Lambda"
+        "Part 2: Auto Scaling",
+        "Part 2: Load Balancers",
+        "Part 2: RDS",
+        "Part 2: Lambda"
       ],
       "tools": [
         "AWS"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "AWS advanced services"
+      "lab_task": "Part 2 hands-on: AWS advanced services"
     },
     {
       "day": 7,
@@ -119,17 +119,17 @@
     },
     {
       "day": 8,
-      "topic": "Google Cloud Fundamentals",
+      "topic": "Google Cloud Fundamentals - Part 2",
       "subtopics": [
-        "Compute",
-        "Storage",
-        "Networking"
+        "Part 2: Compute",
+        "Part 2: Storage",
+        "Part 2: Networking"
       ],
       "tools": [
         "GCP"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "GCP services"
+      "lab_task": "Part 2 hands-on: GCP services"
     },
     {
       "day": 9,
@@ -147,17 +147,17 @@
     },
     {
       "day": 10,
-      "topic": "Google Cloud Advanced",
+      "topic": "Google Cloud Advanced - Part 2",
       "subtopics": [
-        "BigQuery",
-        "Dataflow",
-        "Cloud Run"
+        "Part 2: BigQuery",
+        "Part 2: Dataflow",
+        "Part 2: Cloud Run"
       ],
       "tools": [
         "GCP"
       ],
       "jira_focus": "Sprint planning; review progress for Google Cloud Advanced",
-      "lab_task": "GCP advanced services"
+      "lab_task": "Part 2 hands-on: GCP advanced services"
     },
     {
       "day": 11,
@@ -175,17 +175,17 @@
     },
     {
       "day": 12,
-      "topic": "Azure Fundamentals",
+      "topic": "Azure Fundamentals - Part 2",
       "subtopics": [
-        "Virtual Machines",
-        "Storage",
-        "Networking"
+        "Part 2: Virtual Machines",
+        "Part 2: Storage",
+        "Part 2: Networking"
       ],
       "tools": [
         "Azure"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Azure services"
+      "lab_task": "Part 2 hands-on: Azure services"
     },
     {
       "day": 13,
@@ -203,17 +203,17 @@
     },
     {
       "day": 14,
-      "topic": "Azure Advanced",
+      "topic": "Azure Advanced - Part 2",
       "subtopics": [
-        "App Service",
-        "Functions",
-        "Containers"
+        "Part 2: App Service",
+        "Part 2: Functions",
+        "Part 2: Containers"
       ],
       "tools": [
         "Azure"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Azure advanced services"
+      "lab_task": "Part 2 hands-on: Azure advanced services"
     },
     {
       "day": 15,
@@ -232,18 +232,18 @@
     },
     {
       "day": 16,
-      "topic": "Networking in Cloud",
+      "topic": "Networking in Cloud - Part 2",
       "subtopics": [
-        "VPC/Virtual Networks",
-        "Subnets",
-        "Routing",
-        "Security Groups"
+        "Part 2: VPC/Virtual Networks",
+        "Part 2: Subnets",
+        "Part 2: Routing",
+        "Part 2: Security Groups"
       ],
       "tools": [
         "Cloud"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Cloud networking"
+      "lab_task": "Part 2 hands-on: Cloud networking"
     },
     {
       "day": 17,
@@ -261,17 +261,17 @@
     },
     {
       "day": 18,
-      "topic": "Storage Solutions",
+      "topic": "Storage Solutions - Part 2",
       "subtopics": [
-        "Object Storage",
-        "Block Storage",
-        "File Storage"
+        "Part 2: Object Storage",
+        "Part 2: Block Storage",
+        "Part 2: File Storage"
       ],
       "tools": [
         "Cloud Storage"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Storage options"
+      "lab_task": "Part 2 hands-on: Storage options"
     },
     {
       "day": 19,
@@ -289,17 +289,17 @@
     },
     {
       "day": 20,
-      "topic": "Databases in Cloud",
+      "topic": "Databases in Cloud - Part 2",
       "subtopics": [
-        "SQL/NoSQL",
-        "Managed Services",
-        "Replication"
+        "Part 2: SQL/NoSQL",
+        "Part 2: Managed Services",
+        "Part 2: Replication"
       ],
       "tools": [
         "Cloud Databases"
       ],
       "jira_focus": "Sprint planning; review progress for Databases in Cloud",
-      "lab_task": "Database services"
+      "lab_task": "Part 2 hands-on: Database services"
     },
     {
       "day": 21,
@@ -317,17 +317,17 @@
     },
     {
       "day": 22,
-      "topic": "Container Orchestration",
+      "topic": "Container Orchestration - Part 2",
       "subtopics": [
-        "Kubernetes",
-        "Container Services",
-        "Cluster Management"
+        "Part 2: Kubernetes",
+        "Part 2: Container Services",
+        "Part 2: Cluster Management"
       ],
       "tools": [
         "K8s"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Container orchestration"
+      "lab_task": "Part 2 hands-on: Container orchestration"
     },
     {
       "day": 23,
@@ -345,17 +345,17 @@
     },
     {
       "day": 24,
-      "topic": "Serverless Computing",
+      "topic": "Serverless Computing - Part 2",
       "subtopics": [
-        "Functions",
-        "Event-driven",
-        "Scaling"
+        "Part 2: Functions",
+        "Part 2: Event-driven",
+        "Part 2: Scaling"
       ],
       "tools": [
         "Serverless"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Serverless platforms"
+      "lab_task": "Part 2 hands-on: Serverless platforms"
     },
     {
       "day": 25,
@@ -373,17 +373,17 @@
     },
     {
       "day": 26,
-      "topic": "Infrastructure as Code",
+      "topic": "Infrastructure as Code - Part 2",
       "subtopics": [
-        "Terraform",
-        "CloudFormation",
-        "Ansible"
+        "Part 2: Terraform",
+        "Part 2: CloudFormation",
+        "Part 2: Ansible"
       ],
       "tools": [
         "IaC Tools"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Infrastructure automation"
+      "lab_task": "Part 2 hands-on: Infrastructure automation"
     },
     {
       "day": 27,
@@ -402,18 +402,18 @@
     },
     {
       "day": 28,
-      "topic": "Cloud Security",
+      "topic": "Cloud Security - Part 2",
       "subtopics": [
-        "IAM",
-        "Encryption",
-        "Compliance",
-        "Best Practices"
+        "Part 2: IAM",
+        "Part 2: Encryption",
+        "Part 2: Compliance",
+        "Part 2: Best Practices"
       ],
       "tools": [
         "Cloud Security"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Cloud security"
+      "lab_task": "Part 2 hands-on: Cloud security"
     },
     {
       "day": 29,
@@ -443,5 +443,22 @@
       "jira_focus": "Sprint planning; review progress for Cost Optimization & Governance",
       "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
     }
-  ]
+  ],
+  "aliases": [
+    "Cloud",
+    "Cloud Computing",
+    "AWS",
+    "Azure",
+    "GCP",
+    "Multi Cloud",
+    "Cloud Infrastructure",
+    "Cloud Architecture",
+    "Cloud DevOps"
+  ],
+  "official_sources": [
+    "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html",
+    "https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/",
+    "https://developer.hashicorp.com/terraform/language/block/provider"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
 }

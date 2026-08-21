@@ -1,0 +1,419 @@
+{
+    "domain":  "Tomcat",
+    "name":  "Tomcat â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Apache Tomcat",
+                    "Java Servlet Container"
+                ],
+    "tools":  [
+                  "Apache Tomcat",
+                  "JDK",
+                  "Maven",
+                  "JMX"
+              ],
+    "certifications":  [
+                           "Tomcat official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Introduction and Setup",
+                     "subtopics":  [
+                                       "Core purpose",
+                                       "Architecture",
+                                       "Installation/setup",
+                                       "Configuration files",
+                                       "CLI/UI",
+                                       "Typical workflows",
+                                       "Terminology",
+                                       "Tomcat terminology and feature mapping for this topic",
+                                       "Tomcat configuration and implementation considerations",
+                                       "Tomcat best practices and common mistakes for this topic",
+                                       "Catalina",
+                                       "webapps",
+                                       "WAR files",
+                                       "server.xml",
+                                       "context.xml",
+                                       "connectors",
+                                       "JVM options",
+                                       "JMX",
+                                       "sessions",
+                                       "realms",
+                                       "thread pools",
+                                       "access logs"
+                                   ],
+                     "tools":  [
+                                   "Apache Tomcat",
+                                   "JDK",
+                                   "Maven"
+                               ],
+                     "lab_task":  "Set up Tomcat and run a basic workflow.",
+                     "technology":  "Tomcat",
+                     "technology_id":  "tomcat",
+                     "learning_objectives":  [
+                                                 "Explain the Introduction and Setup concepts in the context of Tomcat.",
+                                                 "Configure or implement the key Tomcat features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Tomcat.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Configuration",
+                     "subtopics":  [
+                                       "Configuration syntax",
+                                       "Resources/components",
+                                       "Variables",
+                                       "Parameters",
+                                       "Secrets",
+                                       "Environment-specific configuration",
+                                       "Validation",
+                                       "Tomcat terminology and feature mapping for this topic",
+                                       "Tomcat configuration and implementation considerations",
+                                       "Tomcat best practices and common mistakes for this topic",
+                                       "Catalina",
+                                       "webapps",
+                                       "WAR files",
+                                       "server.xml",
+                                       "context.xml",
+                                       "connectors",
+                                       "JVM options",
+                                       "JMX",
+                                       "sessions",
+                                       "realms",
+                                       "thread pools",
+                                       "access logs"
+                                   ],
+                     "tools":  [
+                                   "Apache Tomcat",
+                                   "JDK",
+                                   "Maven"
+                               ],
+                     "lab_task":  "Create reusable Tomcat configuration for development.",
+                     "technology":  "Tomcat",
+                     "technology_id":  "tomcat",
+                     "learning_objectives":  [
+                                                 "Explain the Core Configuration concepts in the context of Tomcat.",
+                                                 "Configure or implement the key Tomcat features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Configuration practically using Tomcat.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Automation Workflow",
+                     "subtopics":  [
+                                       "Triggers",
+                                       "Stages/steps",
+                                       "Dependencies",
+                                       "Artifacts",
+                                       "Caching",
+                                       "Retries",
+                                       "Failure handling",
+                                       "Notifications",
+                                       "Tomcat terminology and feature mapping for this topic",
+                                       "Tomcat configuration and implementation considerations",
+                                       "Tomcat best practices and common mistakes for this topic",
+                                       "Catalina",
+                                       "webapps",
+                                       "WAR files",
+                                       "server.xml",
+                                       "context.xml",
+                                       "connectors",
+                                       "JVM options",
+                                       "JMX",
+                                       "sessions",
+                                       "realms",
+                                       "thread pools",
+                                       "access logs"
+                                   ],
+                     "tools":  [
+                                   "Apache Tomcat",
+                                   "JDK",
+                                   "Maven"
+                               ],
+                     "lab_task":  "Build an automated workflow using Tomcat.",
+                     "technology":  "Tomcat",
+                     "technology_id":  "tomcat",
+                     "learning_objectives":  [
+                                                 "Explain the Automation Workflow concepts in the context of Tomcat.",
+                                                 "Configure or implement the key Tomcat features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation Workflow practically using Tomcat.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "Git integration",
+                                       "Container integration",
+                                       "Cloud integration",
+                                       "API/webhook integration",
+                                       "Credential management",
+                                       "Third-party plugins",
+                                       "Tomcat terminology and feature mapping for this topic",
+                                       "Tomcat configuration and implementation considerations",
+                                       "Tomcat best practices and common mistakes for this topic",
+                                       "Catalina",
+                                       "webapps",
+                                       "WAR files",
+                                       "server.xml",
+                                       "context.xml",
+                                       "connectors",
+                                       "JVM options",
+                                       "JMX",
+                                       "sessions",
+                                       "realms",
+                                       "thread pools",
+                                       "access logs"
+                                   ],
+                     "tools":  [
+                                   "Apache Tomcat",
+                                   "JDK",
+                                   "Maven",
+                                   "JMX"
+                               ],
+                     "lab_task":  "Integrate Tomcat with source control and external services.",
+                     "technology":  "Tomcat",
+                     "technology_id":  "tomcat",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Tomcat.",
+                                                 "Configure or implement the key Tomcat features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Tomcat.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Security",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Secrets",
+                                       "Least privilege",
+                                       "Supply-chain concerns",
+                                       "Audit logs",
+                                       "Policy controls",
+                                       "Tomcat terminology and feature mapping for this topic",
+                                       "Tomcat configuration and implementation considerations",
+                                       "Tomcat best practices and common mistakes for this topic",
+                                       "Catalina",
+                                       "webapps",
+                                       "WAR files",
+                                       "server.xml",
+                                       "context.xml",
+                                       "connectors",
+                                       "JVM options",
+                                       "JMX",
+                                       "sessions",
+                                       "realms",
+                                       "thread pools",
+                                       "access logs"
+                                   ],
+                     "tools":  [
+                                   "Apache Tomcat",
+                                   "JDK",
+                                   "Maven"
+                               ],
+                     "lab_task":  "Harden a Tomcat setup.",
+                     "technology":  "Tomcat",
+                     "technology_id":  "tomcat",
+                     "learning_objectives":  [
+                                                 "Explain the Security concepts in the context of Tomcat.",
+                                                 "Configure or implement the key Tomcat features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security practically using Tomcat.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Scaling and Reliability",
+                     "subtopics":  [
+                                       "Agents/runners/nodes",
+                                       "Parallel execution",
+                                       "High availability",
+                                       "State management",
+                                       "Backups",
+                                       "Failure recovery",
+                                       "Capacity planning",
+                                       "Tomcat terminology and feature mapping for this topic",
+                                       "Tomcat configuration and implementation considerations",
+                                       "Tomcat best practices and common mistakes for this topic",
+                                       "Catalina",
+                                       "webapps",
+                                       "WAR files",
+                                       "server.xml",
+                                       "context.xml",
+                                       "connectors",
+                                       "JVM options",
+                                       "JMX",
+                                       "sessions",
+                                       "realms",
+                                       "thread pools",
+                                       "access logs"
+                                   ],
+                     "tools":  [
+                                   "Apache Tomcat",
+                                   "JDK",
+                                   "Maven"
+                               ],
+                     "lab_task":  "Design a scalable and resilient Tomcat setup.",
+                     "technology":  "Tomcat",
+                     "technology_id":  "tomcat",
+                     "learning_objectives":  [
+                                                 "Explain the Scaling and Reliability concepts in the context of Tomcat.",
+                                                 "Configure or implement the key Tomcat features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Tomcat.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Observability and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Debugging",
+                                       "Failure diagnosis",
+                                       "Performance bottlenecks",
+                                       "Alerting",
+                                       "Operational runbooks",
+                                       "Tomcat terminology and feature mapping for this topic",
+                                       "Tomcat configuration and implementation considerations",
+                                       "Tomcat best practices and common mistakes for this topic",
+                                       "Catalina",
+                                       "webapps",
+                                       "WAR files",
+                                       "server.xml",
+                                       "context.xml",
+                                       "connectors",
+                                       "JVM options",
+                                       "JMX",
+                                       "sessions",
+                                       "realms",
+                                       "thread pools",
+                                       "access logs"
+                                   ],
+                     "tools":  [
+                                   "Apache Tomcat",
+                                   "JDK",
+                                   "Maven"
+                               ],
+                     "lab_task":  "Troubleshoot an intentionally failing Tomcat workflow.",
+                     "technology":  "Tomcat",
+                     "technology_id":  "tomcat",
+                     "learning_objectives":  [
+                                                 "Explain the Observability and Troubleshooting concepts in the context of Tomcat.",
+                                                 "Configure or implement the key Tomcat features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Tomcat.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Advanced Patterns",
+                     "subtopics":  [
+                                       "Reusable modules/templates",
+                                       "Multi-environment strategy",
+                                       "Promotion strategy",
+                                       "Policy as code concepts",
+                                       "GitOps/IaC patterns",
+                                       "Best practices",
+                                       "Tomcat terminology and feature mapping for this topic",
+                                       "Tomcat configuration and implementation considerations",
+                                       "Tomcat best practices and common mistakes for this topic",
+                                       "Catalina",
+                                       "webapps",
+                                       "WAR files",
+                                       "server.xml",
+                                       "context.xml",
+                                       "connectors",
+                                       "JVM options",
+                                       "JMX",
+                                       "sessions",
+                                       "realms",
+                                       "thread pools",
+                                       "access logs"
+                                   ],
+                     "tools":  [
+                                   "Apache Tomcat",
+                                   "JDK",
+                                   "Maven",
+                                   "JMX"
+                               ],
+                     "lab_task":  "Create reusable production-grade patterns.",
+                     "technology":  "Tomcat",
+                     "technology_id":  "tomcat",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Patterns concepts in the context of Tomcat.",
+                                                 "Configure or implement the key Tomcat features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Tomcat.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "CI/CD or Deployment Project",
+                     "subtopics":  [
+                                       "Source control",
+                                       "Build",
+                                       "Test",
+                                       "Artifact",
+                                       "Deploy",
+                                       "Rollback",
+                                       "Approval gates",
+                                       "Documentation",
+                                       "Tomcat terminology and feature mapping for this topic",
+                                       "Tomcat configuration and implementation considerations",
+                                       "Tomcat best practices and common mistakes for this topic",
+                                       "Catalina",
+                                       "webapps",
+                                       "WAR files",
+                                       "server.xml",
+                                       "context.xml",
+                                       "connectors",
+                                       "JVM options",
+                                       "JMX",
+                                       "sessions",
+                                       "realms",
+                                       "thread pools",
+                                       "access logs"
+                                   ],
+                     "tools":  [
+                                   "Apache Tomcat",
+                                   "JDK",
+                                   "Maven",
+                                   "JMX"
+                               ],
+                     "lab_task":  "Implement a complete delivery workflow with Tomcat.",
+                     "technology":  "Tomcat",
+                     "technology_id":  "tomcat",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD or Deployment Project concepts in the context of Tomcat.",
+                                                 "Configure or implement the key Tomcat features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Tomcat.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "tomcat"
+}

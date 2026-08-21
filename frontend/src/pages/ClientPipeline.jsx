@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import {
   AlertCircle,
+  ChevronRight,
   CheckCircle2,
   Clock3,
   Inbox,
@@ -117,68 +118,86 @@ function stepIcon(state) {
 }
 
 function buildClientSteps(item = {}) {
-  const missing = missingDetails(item)
+  const messages = item.messages || []
+  const types = new Set(messages.map(message => String(message.type || '').toLowerCase()))
   const trainers = shortlistTrainers(item)
-  const mailStats = trainerMailStats(item)
-  const replyStats = clientReplyStats(item)
-  const hasGeneratedReply = Boolean(item.ai_reply || item.draft_reply || item.generated_reply?.body || item.client_email_doc?.ai_reply)
-  const requirementDone = Boolean(item.requirement_id)
-  const domainDone = hasDomain(item)
-  const autoStatus = item.trainer_automation_status || item.client_email_doc?.trainer_automation_status || ''
-  const hasMailError = Boolean(mailStats.error)
-  const shortlistReady = trainers.length > 0
+  const trainerStages = trainers.map(trainer => String(trainer.pipeline_status || trainer.status || '').toLowerCase())
+  const selectionStatus = String(item.shortlist?.selection_status || item.selection_status || '').toLowerCase()
+  const selectedTrainer = item.selected_trainer || {}
+  const hasStage = (...stages) => trainerStages.some(stage => stages.includes(stage))
+  const detailsSent = types.has('trainer_commercials_to_client') || types.has('commercial_details_notification') || types.has('client_slots')
+  const slotsSent = types.has('client_slots') || hasStage('slot_booked', 'interview_scheduled', 'selected', 'toc_requested', 'toc_received_pending', 'training_confirmed')
+  const interviewScheduled = types.has('client_interview_schedule') || hasStage('interview_scheduled', 'selected', 'toc_requested', 'toc_received_pending', 'training_confirmed')
+  const selected = Boolean(selectedTrainer.trainer_id || selectedTrainer.name || item.shortlist?.selected_trainer_id) || ['selected', 'confirmed', 'approved'].includes(selectionStatus) || hasStage('selected', 'toc_requested', 'toc_received_pending', 'training_confirmed')
+  const tocSent = types.has('client_toc') || hasStage('toc_requested', 'toc_received_pending', 'training_confirmed')
+  const confirmed = ['training_confirmed', 'confirmed'].includes(String(item.status || '').toLowerCase()) || hasStage('training_confirmed')
+  const latestMessage = (...messageTypes) => [...messages].reverse().find(message => messageTypes.includes(String(message.type || '').toLowerCase())) || null
+  const originalMessage = {
+    label: 'Client Request',
+    direction: 'received',
+    subject: item.subject || 'Client training request',
+    body: item.clean_body || item.body || item.body_snippet || '',
+    at: item.received_at || item.created_at || item.client_email_doc?.received_at,
+    from_name: item.from_name || item.client?.name,
+    from_email: item.from_email || item.client?.email,
+  }
 
   return [
     {
-      key: 'client_received',
-      title: 'Client Mail Received',
+      key: 'client_request',
+      title: 'Client Request',
       status: stepState({ done: true }),
       detail: clean(item.from_email || item.client_email_doc?.from_email, 'Client email captured'),
       meta: fmtDate(item.received_at || item.created_at || item.client_email_doc?.received_at),
+      message: originalMessage,
     },
     {
-      key: 'details_filled',
-      title: 'Details Auto-Filled',
-      status: stepState({ done: domainDone, blocked: !domainDone }),
-      detail: domainDone ? `${pickTechnology(item)}${missing.length ? `, ${missing.length} field(s) still missing` : ', enough to proceed'}` : 'Domain / technology not detected',
-      meta: missing.length ? `Missing: ${missing.join(', ')}` : 'Ready for trainer search',
+      key: 'trainer_details',
+      title: 'Trainer Details',
+      status: stepState({ done: detailsSent, active: !detailsSent }),
+      detail: detailsSent ? 'Trainer profile and commercials shared with the client' : 'Waiting to share shortlisted trainer details',
+      meta: detailsSent ? 'Profile, CV, commercials, and requested attachments' : '',
+      message: latestMessage('trainer_commercials_to_client', 'commercial_details_notification', 'client_slots'),
     },
     {
-      key: 'reply_prepared',
-      title: 'Clahan Reply Prepared',
-      status: stepState({ done: hasGeneratedReply || replyStats.sent, active: domainDone && !hasGeneratedReply && !replyStats.sent }),
-      detail: hasGeneratedReply || replyStats.sent ? clean(item.reply_template_key || item.client_email_doc?.reply_template_key, 'Reply template selected') : 'Waiting for AI reply template',
-      meta: replyStats.subject,
+      key: 'slots',
+      title: 'Interview Slots',
+      status: stepState({ done: slotsSent, active: detailsSent && !slotsSent }),
+      detail: slotsSent ? 'Available trainer slots sent to the client' : 'Waiting for trainer slots',
+      meta: slotsSent ? 'Client confirms the preferred slot' : '',
+      message: latestMessage('client_slots'),
     },
     {
-      key: 'client_reply_sent',
-      title: 'Client Reply Sent',
-      status: stepState({ done: replyStats.sent, active: hasGeneratedReply && !replyStats.sent, blocked: Boolean(replyStats.error) }),
-      detail: replyStats.sent ? `Sent to ${clean(replyStats.to, 'client')}` : replyStats.error || 'Waiting to send client acknowledgement',
-      meta: fmtDate(replyStats.at),
+      key: 'interview',
+      title: 'Interview',
+      status: stepState({ done: interviewScheduled, active: slotsSent && !interviewScheduled }),
+      detail: interviewScheduled ? 'Interview date and meeting link sent' : 'Waiting for client slot confirmation',
+      meta: interviewScheduled ? 'Client and trainer notified' : '',
+      message: latestMessage('client_interview_schedule'),
     },
     {
-      key: 'requirement_created',
-      title: 'Requirement Created',
-      status: stepState({ done: requirementDone, active: replyStats.sent && !requirementDone }),
-      detail: requirementDone ? clean(item.requirement_id, 'Requirement ready') : 'Waiting for requirement record',
-      meta: requirementDone ? 'Used by Shortlist1' : '',
+      key: 'selected',
+      title: 'Selected',
+      status: stepState({ done: selected, active: interviewScheduled && !selected }),
+      detail: selected ? `Trainer selected: ${clean(selectedTrainer.name || item.shortlist?.selected_trainer_name, 'shortlisted trainer')}` : 'Waiting for client selection',
+      meta: selected ? 'Proceed with final agenda and confirmation' : '',
+      message: latestMessage('client_confirmation'),
     },
     {
-      key: 'resume_search',
-      title: 'Uploaded Resume Search',
-      status: stepState({ done: shortlistReady, active: requirementDone && !shortlistReady && !hasMailError, blocked: hasMailError }),
-      detail: trainers.length ? `${trainers.length} trainer(s) ranked from uploaded resumes` : hasMailError || 'Searching uploaded trainer resumes',
-      meta: `${mailStats.total || trainers.length || 0} candidate(s) available`,
+      key: 'toc',
+      title: 'TOC',
+      status: stepState({ done: tocSent, active: selected && !tocSent }),
+      detail: tocSent ? 'Approved TOC or course agenda sent to the client' : 'Generate TOC only when the client requests it',
+      meta: tocSent ? 'Lab cost remains separate and is sent only when requested' : '',
+      message: latestMessage('client_toc', 'client_toc_details_request'),
     },
     {
-      key: 'shortlist1_handoff',
-      title: 'Shortlist1 Takeover',
-      status: stepState({ done: shortlistReady, active: requirementDone && !shortlistReady && !hasMailError, blocked: !hasDomain(item) || hasMailError }),
-      detail: shortlistReady
-        ? 'Shortlist ready. Continue all trainer outreach from Shortlist1'
-        : 'Waiting for top 5 before Shortlist1 takeover',
-      meta: autoStatus ? `Status: ${autoStatus}` : 'Trainer mails are managed by Shortlist1',
+      key: 'confirmed',
+      title: 'Confirmed',
+      status: stepState({ done: confirmed, active: tocSent && !confirmed }),
+      detail: confirmed ? 'Training confirmed and ready for PO / delivery workflow' : 'Waiting for final client confirmation',
+      meta: confirmed ? 'Continue with PO and invoice' : '',
+      message: latestMessage('client_confirmation', 'client_po'),
     },
   ]
 }
@@ -213,21 +232,22 @@ function normalizePipelineItem(email = {}, pipelineItems = []) {
   }
 }
 
-function StageRail({ item }) {
+function StageRail({ item, onOpenMessage }) {
   const steps = buildClientSteps(item)
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-bold text-slate-950">Client Pipeline Steps</p>
-          <p className="mt-1 text-sm text-slate-500">Track the request from client mail receipt through requirement creation, trainer search, and Shortlist1 takeover. This finishes shortlist prep, then Shortlist1 handles trainer outreach.</p>
+          <p className="mt-1 text-sm text-slate-500">Track the real client delivery flow from the received request through trainer details, slots, interview, selection, TOC, and confirmation.</p>
         </div>
         <span className="inline-flex items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
           {steps.filter(step => step.status === 'done').length}/{steps.length} completed
         </span>
       </div>
 
-      <div className="grid gap-3 xl:grid-cols-2">
+      <div className="overflow-x-auto pb-2">
+        <div className="flex min-w-max items-stretch">
         {steps.map((step, index) => {
           const badgeText = step.status === 'done'
             ? 'Done'
@@ -238,31 +258,74 @@ function StageRail({ item }) {
             : 'Waiting'
 
           return (
-            <div key={step.key} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span className={clsx('flex h-9 w-9 items-center justify-center rounded-full border text-sm font-black', stepTone(step.status))}>
-                    {stepIcon(step.status)}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-slate-950">{`${index + 1}. ${step.title}`}</p>
-                    {step.meta ? <p className="mt-1 text-xs text-slate-500">{step.meta}</p> : null}
+            <div key={step.key} className="flex items-stretch">
+              <div
+                className={clsx(
+                  'w-48 rounded-lg border border-slate-200 bg-white p-3 shadow-sm',
+                  'cursor-pointer transition hover:border-blue-300 hover:bg-blue-50/40 hover:shadow-md'
+                )}
+                role="button"
+                tabIndex={0}
+                onClick={() => onOpenMessage(step)}
+                onKeyDown={event => {
+                  if (event.key === 'Enter' || event.key === ' ') onOpenMessage(step)
+                }}
+                title={`View ${step.title} message`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className={clsx('flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-black', stepTone(step.status))}>
+                      {stepIcon(step.status)}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold leading-5 text-slate-950">{`${index + 1}. ${step.title}`}</p>
+                    </div>
                   </div>
+                  <span className={clsx(
+                    'rounded-full px-2 py-1 text-[10px] font-semibold uppercase',
+                    step.status === 'done' ? 'bg-emerald-100 text-emerald-700' :
+                    step.status === 'active' ? 'bg-blue-100 text-blue-700' :
+                    step.status === 'blocked' ? 'bg-amber-100 text-amber-700' :
+                    'bg-slate-100 text-slate-500'
+                  )}>
+                    {badgeText}
+                  </span>
                 </div>
-                <span className={clsx(
-                  'rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase',
-                  step.status === 'done' ? 'bg-emerald-100 text-emerald-700' :
-                  step.status === 'active' ? 'bg-blue-100 text-blue-700' :
-                  step.status === 'blocked' ? 'bg-amber-100 text-amber-700' :
-                  'bg-slate-100 text-slate-500'
-                )}>
-                  {badgeText}
-                </span>
+                {step.meta ? <p className="mt-2 min-h-8 text-xs leading-4 text-slate-500">{step.meta}</p> : <div className="min-h-8" />}
+                <p className="mt-2 text-xs leading-5 text-slate-600">{step.detail}</p>
+                <p className="mt-2 text-xs font-semibold text-blue-700">{step.message ? 'View message' : 'View workflow status'}</p>
               </div>
-              <p className="mt-3 text-sm leading-6 text-slate-600">{step.detail}</p>
+              {index < steps.length - 1 && (
+                <div className="flex w-9 shrink-0 items-center justify-center" aria-hidden="true">
+                  <span className={clsx('h-0.5 w-4', step.status === 'done' ? 'bg-emerald-400' : 'bg-slate-300')} />
+                  <ChevronRight className={clsx('h-4 w-4 -ml-1', step.status === 'done' ? 'text-emerald-500' : 'text-slate-400')} />
+                </div>
+              )}
             </div>
           )
         })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function WorkflowMessagePreview({ step, onClose }) {
+  const message = step.message
+  const body = message?.body || `No email message has been sent for ${step.title} yet. ${step.detail}`
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4" role="dialog" aria-modal="true" aria-label="Client email message">
+      <div className="flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5">
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{step.title}</p>
+            <h3 className="mt-1 break-words text-lg font-bold text-slate-950">{message?.subject || `${step.title} message`}</h3>
+            {message && <p className="mt-2 break-words text-sm text-slate-600">{message.direction === 'received' ? 'From' : 'To'}: {clean(message.from_name || message.to_name, message.direction === 'received' ? 'Client' : 'Client')}</p>}
+            <p className="mt-1 text-xs text-slate-500">{message ? fmtDate(message.at) : step.status === 'waiting' ? 'Not sent yet' : 'Message record unavailable'}</p>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Close</button>
+        </div>
+        <pre className="overflow-y-auto whitespace-pre-wrap break-words p-5 font-sans text-sm leading-7 text-slate-700">{body}</pre>
       </div>
     </div>
   )
@@ -388,9 +451,10 @@ export default function ClientPipeline() {
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
   const [processing, setProcessing] = useState(false)
+  const [previewStep, setPreviewStep] = useState(null)
 
   const selected = useMemo(
-    () => items.find(item => item.email_id === selectedId) || items[0] || null,
+    () => items.find(item => item.email_id === selectedId) || null,
     [items, selectedId]
   )
 
@@ -420,7 +484,7 @@ export default function ClientPipeline() {
       const merged = inboxEmails.map(email => normalizePipelineItem(email, pipelineItems))
       setItems(merged)
       if (!merged.some(item => item.email_id === selectedId)) {
-        setSelectedId(merged[0]?.email_id || '')
+        setSelectedId('')
       }
     } catch (e) {
       toast.error(e.message || 'Could not load client pipeline')
@@ -519,8 +583,13 @@ export default function ClientPipeline() {
         </div>
       </div>
 
-      <div className="grid min-w-0 gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
-        <aside className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="min-w-0 space-y-4">
+        <section className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-base font-bold text-slate-950">Select Requirement</p>
+              <p className="mt-1 text-sm text-slate-500">Choose a client requirement to view its complete pipeline.</p>
+            </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
@@ -530,11 +599,12 @@ export default function ClientPipeline() {
               className="h-11 w-full rounded-full border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none focus:border-blue-400 focus:bg-white"
             />
           </div>
-          <div className="mt-4 flex items-center justify-between">
+          </div>
+          <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-slate-950">{filteredItems.length} request{filteredItems.length === 1 ? '' : 's'}</p>
             {loading && <Loader2 className="h-4 w-4 animate-spin text-blue-500" />}
           </div>
-          <div className="mt-3 max-h-[72vh] space-y-3 overflow-y-auto pr-1">
+          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {loading ? (
               Array.from({ length: 5 }).map((_, index) => <div key={index} className="h-32 animate-pulse rounded-lg bg-slate-100" />)
             ) : filteredItems.length ? (
@@ -552,7 +622,7 @@ export default function ClientPipeline() {
               </div>
             )}
           </div>
-        </aside>
+        </section>
 
         <section className="min-w-0 rounded-xl border border-slate-200 bg-white shadow-sm">
           {!selected ? (
@@ -571,10 +641,10 @@ export default function ClientPipeline() {
                   <h2 className="mt-3 break-words text-xl font-bold text-slate-950">{selected.subject || 'Client training request'}</h2>
                   <p className="mt-1 text-sm text-slate-500">{clean(selected.from_name || selected.client?.name, 'Client')} - {clean(selected.from_email || selected.client?.email, 'email missing')}</p>
                 </div>
-                <button onClick={createRequirement} disabled={processing || !selected.email_id} className="btn-primary text-sm">
+                {!selected.requirement_id && <button onClick={createRequirement} disabled={processing || !selected.email_id} className="btn-primary text-sm">
                   {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  Create Top 5
-                </button>
+                  Create Requirement
+                </button>}
                 {selected.requirement_id && (
                   <button
                     type="button"
@@ -587,7 +657,7 @@ export default function ClientPipeline() {
                 )}
               </div>
 
-              <StageRail item={selected} />
+              <StageRail item={selected} onOpenMessage={setPreviewStep} />
 
               <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
                 <div className="space-y-4">
@@ -653,6 +723,7 @@ export default function ClientPipeline() {
           )}
         </section>
       </div>
+      {previewStep && <WorkflowMessagePreview step={previewStep} onClose={() => setPreviewStep(null)} />}
     </div>
   )
 }

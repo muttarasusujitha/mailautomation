@@ -46,6 +46,7 @@ SCENARIO_KEYWORDS: List[Tuple[str, Iterable[str]]] = [
     ("system_notification", ("noreply", "no-reply", "do not reply", "donotreply", "notification", "alert")),
     ("cancellation", ("cancel", "cancelled", "canceled", "call off", "not going ahead", "drop this requirement")),
     ("reschedule", ("reschedule", "postpone", "prepone", "change the date", "change timing", "new schedule")),
+    ("client_shared_meeting_link_to_trainer", ("share it with trainer", "share it with the trainer", "forward it to trainer", "forward it to the trainer", "send it to trainer", "send it to the trainer")),
     ("client_confirms_trainer", ("confirm this trainer", "trainer is confirmed", "we confirm the trainer", "selected this trainer", "go ahead with this trainer", "proceed with this trainer", "profile approved", "trainer approved", "shortlist approved", "looks good proceed", "please onboard this trainer")),
     ("client_rejects_trainer", ("not suitable", "reject this trainer", "not moving ahead with this trainer", "profile is rejected", "not shortlisted", "not a fit", "not aligned", "does not match", "not relevant", "profile not suitable", "trainer not suitable")),
     ("client_requests_replacement", ("replacement trainer", "alternate trainer", "another trainer", "share another profile", "different trainer", "backup trainer", "alternate profile", "more relevant trainer", "replace the trainer", "new trainer option")),
@@ -342,6 +343,7 @@ def _scenario(text: str) -> Tuple[str, List[str]]:
         best = "client_sent_details"
     else:
         priority = (
+            "client_shared_meeting_link_to_trainer",
             "client_confirms_trainer",
             "client_requests_replacement",
             "client_rejects_trainer",
@@ -415,6 +417,11 @@ def classify_email(subject: str = "", body: str = "", sender_email: str = "", se
     text = _text(subject, body, sender_email, sender_name)
     person_type = _person_type(sender_email, text)
     scenario, matched = _scenario(text)
+    # A current instruction to forward a meeting link must outrank quoted
+    # history that may contain older trainer-slot language.
+    if "client_shared_meeting_link_to_trainer" in matched:
+        scenario = "client_shared_meeting_link_to_trainer"
+        person_type = "corporate_client"
     if scenario.startswith("trainer_") and person_type not in {"bounce", "system", "ooo", "internal_team"}:
         person_type = "trainer"
     if scenario.startswith("client_") and person_type not in {"bounce", "system", "ooo", "internal_team"}:

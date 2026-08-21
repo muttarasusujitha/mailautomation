@@ -42,6 +42,22 @@ class TocEmailRequest(BaseModel):
     body: Optional[str] = None
 
 
+class LabCostRequest(BaseModel):
+    toc: Optional[Dict[str, Any]] = None
+    toc_id: Optional[str] = None
+    cloud_provider: str = "aws"
+    hours_per_day: float = 8
+    participant_count: int = 1
+    fx_rate: float = 83
+    contingency_percent: float = 10
+    tax_percent: float = 0
+    lab_package: str = "standard"
+    lab_support_per_participant: float = 0
+    quote_validity_days: int = 7
+    include_internal_pricing: bool = False
+    clahan_margin_percent: float = 0
+
+
 class AutoGenerateRequest(BaseModel):
     requirement_id: str
     domain: Optional[str] = ""
@@ -64,6 +80,12 @@ LEVEL_KEYS = (
 def _slugify_domain(value: str) -> str:
     slug = "".join(ch.lower() if ch.isalnum() else "_" for ch in value.strip())
     return "_".join(part for part in slug.split("_") if part)
+
+
+def _safe_excel_filename(title: str) -> str:
+    stem = "".join(ch if ch.isalnum() or ch in (" ", "-", "_") else "_" for ch in title).strip()
+    stem = "_".join(stem.split())
+    return f"{stem or 'training_toc'}.xlsx"
 
 
 def _domain_filter(key: str) -> Dict[str, Any]:
@@ -508,6 +530,12 @@ async def auto_generate_toc(payload: AutoGenerateRequest, db: AsyncIOMotorDataba
     req = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
     domain = payload.domain or req.get("technology_needed") or req.get("job_title") or "Training"
     duration = payload.duration_days if payload.duration_days is not None else float(req.get("duration_days") or 3.0)
+    training_dates = (
+        req.get("training_dates")
+        or " to ".join(part for part in [req.get("timeline_start"), req.get("timeline_end")] if part)
+        or req.get("preferred_dates")
+        or ""
+    )
 
     # Delegate to existing /toc/generate
     from app.routes.toc import generate_toc, TocRequest
@@ -516,6 +544,10 @@ async def auto_generate_toc(payload: AutoGenerateRequest, db: AsyncIOMotorDataba
         duration_days=duration,
         level=payload.level or "intermediate",
         requirement_id=payload.requirement_id,
+        mode=req.get("mode") or "Online",
+        audience_level=req.get("audience_level") or req.get("participant_level") or "",
+        training_dates=training_dates,
+        timing=req.get("timing") or req.get("session_timing") or "",
     )
     result = await generate_toc(toc_req, db)
     return {"success": True, "requirement_id": payload.requirement_id, "domain": domain, **result}
@@ -596,6 +628,82 @@ async def generate_toc_pdf(payload: TocIdRequest, db: AsyncIOMotorDatabase = Dep
         raise HTTPException(502, str(exc)) from exc
 
 
+@router.post("/generate-lab-cost")
+async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Generate a formula-driven multi-cloud lab-cost workbook for a TOC."""
+    toc = payload.toc
+    if toc is None:
+        if not payload.toc_id:
+            raise HTTPException(422, "toc_id or toc is required")
+        doc = await db["toc_generations"].find_one(
+            {"toc_id": payload.toc_id},
+            {
+                "_id": 0,
+                "toc": 1,
+                "domain": 1,
+                "duration_days": 1,
+                "audience_level": 1,
+                "mode": 1,
+                "trainer_name": 1,
+                "training_dates": 1,
+                "timing": 1,
+            },
+        )
+        if not doc:
+            raise HTTPException(404, f"TOC not found: {payload.toc_id}")
+        toc = _with_toc_metadata(doc["toc"], doc)
+
+    provider = payload.cloud_provider.lower()
+    if provider not in {"aws", "azure", "gcp"}:
+        raise HTTPException(422, "cloud_provider must be aws, azure, or gcp")
+    if payload.hours_per_day <= 0 or payload.participant_count <= 0 or payload.fx_rate <= 0:
+        raise HTTPException(422, "hours_per_day, participant_count, and fx_rate must be positive")
+    if not 0 <= payload.contingency_percent <= 100 or not 0 <= payload.tax_percent <= 100:
+        raise HTTPException(422, "contingency_percent and tax_percent must be between 0 and 100")
+    if not 0 <= payload.clahan_margin_percent <= 100:
+        raise HTTPException(422, "clahan_margin_percent must be between 0 and 100")
+    if payload.lab_support_per_participant < 0 or payload.quote_validity_days < 1:
+        raise HTTPException(422, "lab_support_per_participant must be non-negative and quote_validity_days must be positive")
+    package = payload.lab_package.strip().lower()
+    if package not in {"basic", "standard", "advanced"}:
+        raise HTTPException(422, "lab_package must be basic, standard, or advanced")
+
+    try:
+        async with httpx.AsyncClient(timeout=60) as client:
+            response = await client.post(
+                f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost",
+                json={
+                    "toc": toc,
+                    "assumptions": {
+                        "cloud_provider": provider,
+                        "hours_per_day": payload.hours_per_day,
+                        "participant_count": payload.participant_count,
+                        "fx_rate": payload.fx_rate,
+                        "contingency_percent": payload.contingency_percent,
+                        "tax_percent": payload.tax_percent,
+                        "lab_package": package,
+                        "lab_support_per_participant": payload.lab_support_per_participant,
+                        "quote_validity_days": payload.quote_validity_days,
+                        "include_internal_pricing": payload.include_internal_pricing,
+                        "clahan_margin_percent": payload.clahan_margin_percent,
+                    },
+                },
+            )
+        if response.status_code >= 400:
+            raise HTTPException(502, f"Document service error: {response.text[:200]}")
+        domain = _slugify_domain(str(toc.get("domain") or toc.get("title") or "training"))
+        filename = f"{domain}_{provider}_lab_cost.xlsx"
+        return Response(
+            content=response.content,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(502, str(exc)) from exc
+
+
 @router.post("/send-email")
 async def send_toc_email(payload: TocEmailRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     """Email a TOC to a trainer."""
@@ -637,37 +745,33 @@ async def send_toc_email(payload: TocEmailRequest, db: AsyncIOMotorDatabase = De
     title = toc.get("title", "Training Programme TOC")
     body = payload.body or (
         f"Dear {trainer_name},\n\n"
-        f"Please find below the Table of Contents for {title}.\n\n"
+        f"Please find attached the Table of Contents workbook for {title}.\n\n"
         "We look forward to your confirmation.\n\nRegards,\nClahan Technologies"
     )
     try:
-        # Attempt to generate a PDF attachment for the TOC and include it in the email
+        # Generate the client-facing three-sheet Excel TOC workbook for the email.
         attachment_payload = None
         try:
-            html = build_toc_html(toc)
             async with httpx.AsyncClient(timeout=60) as client:
                 r = await client.post(
-                    f"{DOC_SVC}/api/v1/documents/pdf/html-to-pdf",
-                    params={"filename": f"{title}.pdf"},
-                    content=html,
-                    headers={"Content-Type": "text/html"},
+                    f"{DOC_SVC}/api/v1/documents/excel/toc",
+                    json={"toc": toc},
                     timeout=60,
                 )
             if r.status_code == 200 and r.content:
                 content_b64 = base64.b64encode(r.content).decode()
                 attachment_payload = [{
-                    "filename": "toc.pdf",
+                    "filename": _safe_excel_filename(title),
                     "content_base64": content_b64,
-                    "subtype": "pdf",
+                    "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 }]
         except Exception:
-            # if PDF generation fails, proceed without attachment but log
-            logger.exception("Failed to generate TOC PDF for email attachment")
+            logger.exception("Failed to generate TOC Excel workbook for email attachment")
 
         async with httpx.AsyncClient(timeout=30) as client:
             email_json = {
                 "to": to_email,
-                "subject": payload.subject or f"TOC — {title}",
+                "subject": payload.subject or f"TOC - {title}",
                 "body": body,
             }
             if attachment_payload:

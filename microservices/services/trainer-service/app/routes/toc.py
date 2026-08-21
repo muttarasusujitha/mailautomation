@@ -2,15 +2,20 @@
 import uuid
 from datetime import datetime
 from math import ceil
-from typing import Optional
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel, root_validator
 
 from shared.database.service import get_db
-from app.toc_generation_agent import generate_toc_from_dataset, validate_toc
+from app.toc_generation_agent import generate_combined_toc_from_datasets, generate_toc_from_dataset, validate_toc
 
 router = APIRouter()
+
+
+class TechnologyAllocation(BaseModel):
+    technology: str
+    days: int
 
 
 class TocRequest(BaseModel):
@@ -31,6 +36,7 @@ class TocRequest(BaseModel):
     custom_topics: Optional[str] = ""
     client_notes: Optional[str] = ""
     toc_id: Optional[str] = None
+    technology_allocations: List[TechnologyAllocation] = []
 
     @root_validator(skip_on_failure=True)
     def require_domain_or_technology(cls, values):
@@ -47,6 +53,13 @@ class TocRequest(BaseModel):
             raise ValueError("duration_days must be a positive number")
         return values
 
+    @root_validator(skip_on_failure=True)
+    def validate_technology_allocations(cls, values):
+        allocations = values.get("technology_allocations") or []
+        if allocations and sum(item.days for item in allocations) != int(values.get("duration_days") or 0):
+            raise ValueError("technology_allocations days must equal duration_days")
+        return values
+
 
 @router.post("/generate")
 async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
@@ -56,13 +69,17 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     """
     try:
         # Use the richer curriculum-aware TOC generator
-        toc = generate_toc_from_dataset(
-            domain_name=payload.domain,
-            duration_days=int(payload.duration_days),
-            level=payload.level,
-            mode=payload.mode,
-            notes=payload.notes or "",
-        )
+        if payload.technology_allocations:
+            toc = generate_combined_toc_from_datasets(
+                [item.dict() for item in payload.technology_allocations], payload.level, payload.mode,
+                payload.notes or "", payload.audience_level or "", payload.training_dates or "",
+            )
+        else:
+            toc = generate_toc_from_dataset(
+                domain_name=payload.domain, duration_days=int(payload.duration_days), level=payload.level,
+                mode=payload.mode, notes=payload.notes or "", audience_level=payload.audience_level or "",
+                training_dates=payload.training_dates or "",
+            )
         # Validate and ensure all day entries are complete
         toc = validate_toc(toc, int(payload.duration_days))
     except Exception as e:
@@ -75,6 +92,10 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         "level": payload.level,
         "mode": payload.mode,
     })
+    if payload.training_dates:
+        toc["training_dates"] = payload.training_dates
+    if payload.timing:
+        toc["timing"] = payload.timing
     if payload.trainer_name:
         toc["trainer_name"] = payload.trainer_name
 

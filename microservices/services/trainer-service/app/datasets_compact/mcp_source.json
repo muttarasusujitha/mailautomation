@@ -1,0 +1,462 @@
+{
+    "domain":  "MCP",
+    "name":  "MCP â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Model Context Protocol",
+                    "MCP"
+                ],
+    "tools":  [
+                  "MCP SDK",
+                  "JSON-RPC concepts",
+                  "Python/TypeScript"
+              ],
+    "certifications":  [
+                           "MCP official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Foundations and Setup",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Use cases",
+                                       "Terminology",
+                                       "Environment setup",
+                                       "SDK/runtime setup",
+                                       "First example",
+                                       "MCP terminology and feature mapping for this topic",
+                                       "MCP configuration and implementation considerations",
+                                       "MCP best practices and common mistakes for this topic",
+                                       "client",
+                                       "server",
+                                       "tools",
+                                       "resources",
+                                       "prompts",
+                                       "JSON-RPC",
+                                       "transport concepts",
+                                       "capabilities",
+                                       "discovery",
+                                       "tool invocation",
+                                       "security boundaries",
+                                       "authorization"
+                                   ],
+                     "tools":  [
+                                   "MCP SDK",
+                                   "JSON-RPC concepts",
+                                   "Python/TypeScript"
+                               ],
+                     "lab_task":  "Set up MCP and run a first working example.",
+                     "technology":  "MCP",
+                     "technology_id":  "mcp",
+                     "learning_objectives":  [
+                                                 "Explain the Foundations and Setup concepts in the context of MCP.",
+                                                 "Configure or implement the key MCP features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Foundations and Setup practically using MCP.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Data and Representations",
+                     "subtopics":  [
+                                       "Inputs",
+                                       "Outputs",
+                                       "Token/embedding/model concepts as applicable",
+                                       "Data preparation",
+                                       "Schemas",
+                                       "Metadata",
+                                       "Validation",
+                                       "Preprocessing",
+                                       "MCP terminology and feature mapping for this topic",
+                                       "MCP configuration and implementation considerations",
+                                       "MCP best practices and common mistakes for this topic",
+                                       "client",
+                                       "server",
+                                       "tools",
+                                       "resources",
+                                       "prompts",
+                                       "JSON-RPC",
+                                       "transport concepts",
+                                       "capabilities",
+                                       "discovery",
+                                       "tool invocation",
+                                       "security boundaries",
+                                       "authorization"
+                                   ],
+                     "tools":  [
+                                   "MCP SDK",
+                                   "JSON-RPC concepts",
+                                   "Python/TypeScript"
+                               ],
+                     "lab_task":  "Prepare representative data for MCP.",
+                     "technology":  "MCP",
+                     "technology_id":  "mcp",
+                     "learning_objectives":  [
+                                                 "Explain the Core Data and Representations concepts in the context of MCP.",
+                                                 "Configure or implement the key MCP features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Data and Representations practically using MCP.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Core APIs or Algorithms",
+                     "subtopics":  [
+                                       "Primary API/algorithm",
+                                       "Parameters",
+                                       "Configuration",
+                                       "Batching",
+                                       "Error handling",
+                                       "Reproducibility",
+                                       "Result interpretation",
+                                       "MCP terminology and feature mapping for this topic",
+                                       "MCP configuration and implementation considerations",
+                                       "MCP best practices and common mistakes for this topic",
+                                       "client",
+                                       "server",
+                                       "tools",
+                                       "resources",
+                                       "prompts",
+                                       "JSON-RPC",
+                                       "transport concepts",
+                                       "capabilities",
+                                       "discovery",
+                                       "tool invocation",
+                                       "security boundaries",
+                                       "authorization"
+                                   ],
+                     "tools":  [
+                                   "MCP SDK",
+                                   "JSON-RPC concepts",
+                                   "Python/TypeScript"
+                               ],
+                     "lab_task":  "Implement the core workflow for MCP.",
+                     "technology":  "MCP",
+                     "technology_id":  "mcp",
+                     "learning_objectives":  [
+                                                 "Explain the Core APIs or Algorithms concepts in the context of MCP.",
+                                                 "Configure or implement the key MCP features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core APIs or Algorithms practically using MCP.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Advanced Techniques",
+                     "subtopics":  [
+                                       "Advanced features",
+                                       "Optimization",
+                                       "Caching",
+                                       "Streaming",
+                                       "Structured outputs",
+                                       "Hybrid techniques",
+                                       "Performance trade-offs",
+                                       "MCP terminology and feature mapping for this topic",
+                                       "MCP configuration and implementation considerations",
+                                       "MCP best practices and common mistakes for this topic",
+                                       "client",
+                                       "server",
+                                       "tools",
+                                       "resources",
+                                       "prompts",
+                                       "JSON-RPC",
+                                       "transport concepts",
+                                       "capabilities",
+                                       "discovery",
+                                       "tool invocation",
+                                       "security boundaries",
+                                       "authorization"
+                                   ],
+                     "tools":  [
+                                   "MCP SDK",
+                                   "JSON-RPC concepts",
+                                   "Python/TypeScript"
+                               ],
+                     "lab_task":  "Implement an advanced MCP workflow.",
+                     "technology":  "MCP",
+                     "technology_id":  "mcp",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Techniques concepts in the context of MCP.",
+                                                 "Configure or implement the key MCP features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Techniques practically using MCP.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Evaluation",
+                     "subtopics":  [
+                                       "Quality metrics",
+                                       "Offline evaluation",
+                                       "Online evaluation concepts",
+                                       "Test sets",
+                                       "Failure analysis",
+                                       "Regression testing",
+                                       "Human review",
+                                       "MCP terminology and feature mapping for this topic",
+                                       "MCP configuration and implementation considerations",
+                                       "MCP best practices and common mistakes for this topic",
+                                       "client",
+                                       "server",
+                                       "tools",
+                                       "resources",
+                                       "prompts",
+                                       "JSON-RPC",
+                                       "transport concepts",
+                                       "capabilities",
+                                       "discovery",
+                                       "tool invocation",
+                                       "security boundaries",
+                                       "authorization"
+                                   ],
+                     "tools":  [
+                                   "MCP SDK",
+                                   "JSON-RPC concepts",
+                                   "Python/TypeScript"
+                               ],
+                     "lab_task":  "Create an evaluation harness for MCP.",
+                     "technology":  "MCP",
+                     "technology_id":  "mcp",
+                     "learning_objectives":  [
+                                                 "Explain the Evaluation concepts in the context of MCP.",
+                                                 "Configure or implement the key MCP features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Evaluation practically using MCP.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Safety and Security",
+                     "subtopics":  [
+                                       "Prompt/input security where relevant",
+                                       "Data privacy",
+                                       "Secrets",
+                                       "Access control",
+                                       "Abuse prevention",
+                                       "Policy controls",
+                                       "Auditability",
+                                       "MCP terminology and feature mapping for this topic",
+                                       "MCP configuration and implementation considerations",
+                                       "MCP best practices and common mistakes for this topic",
+                                       "client",
+                                       "server",
+                                       "tools",
+                                       "resources",
+                                       "prompts",
+                                       "JSON-RPC",
+                                       "transport concepts",
+                                       "capabilities",
+                                       "discovery",
+                                       "tool invocation",
+                                       "security boundaries",
+                                       "authorization"
+                                   ],
+                     "tools":  [
+                                   "MCP SDK",
+                                   "JSON-RPC concepts",
+                                   "Python/TypeScript"
+                               ],
+                     "lab_task":  "Add safety and security controls.",
+                     "technology":  "MCP",
+                     "technology_id":  "mcp",
+                     "learning_objectives":  [
+                                                 "Explain the Safety and Security concepts in the context of MCP.",
+                                                 "Configure or implement the key MCP features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Safety and Security practically using MCP.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Production Architecture",
+                     "subtopics":  [
+                                       "Service architecture",
+                                       "Scalability",
+                                       "Latency",
+                                       "Cost",
+                                       "Caching",
+                                       "Fallbacks",
+                                       "Observability",
+                                       "Reliability",
+                                       "MCP terminology and feature mapping for this topic",
+                                       "MCP configuration and implementation considerations",
+                                       "MCP best practices and common mistakes for this topic",
+                                       "client",
+                                       "server",
+                                       "tools",
+                                       "resources",
+                                       "prompts",
+                                       "JSON-RPC",
+                                       "transport concepts",
+                                       "capabilities",
+                                       "discovery",
+                                       "tool invocation",
+                                       "security boundaries",
+                                       "authorization"
+                                   ],
+                     "tools":  [
+                                   "MCP SDK",
+                                   "JSON-RPC concepts",
+                                   "Python/TypeScript"
+                               ],
+                     "lab_task":  "Design a production architecture.",
+                     "technology":  "MCP",
+                     "technology_id":  "mcp",
+                     "learning_objectives":  [
+                                                 "Explain the Production Architecture concepts in the context of MCP.",
+                                                 "Configure or implement the key MCP features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Production Architecture practically using MCP.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "APIs",
+                                       "Databases/vector stores",
+                                       "Tools/functions",
+                                       "Agents or workflows",
+                                       "Web/backend integration",
+                                       "Streaming",
+                                       "Testing",
+                                       "MCP terminology and feature mapping for this topic",
+                                       "MCP configuration and implementation considerations",
+                                       "MCP best practices and common mistakes for this topic",
+                                       "client",
+                                       "server",
+                                       "tools",
+                                       "resources",
+                                       "prompts",
+                                       "JSON-RPC",
+                                       "transport concepts",
+                                       "capabilities",
+                                       "discovery",
+                                       "tool invocation",
+                                       "security boundaries",
+                                       "authorization"
+                                   ],
+                     "tools":  [
+                                   "MCP SDK",
+                                   "JSON-RPC concepts",
+                                   "Python/TypeScript"
+                               ],
+                     "lab_task":  "Integrate MCP into an application.",
+                     "technology":  "MCP",
+                     "technology_id":  "mcp",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of MCP.",
+                                                 "Configure or implement the key MCP features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using MCP.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "Operations and Optimization",
+                     "subtopics":  [
+                                       "Monitoring",
+                                       "Tracing",
+                                       "Cost tracking",
+                                       "Versioning",
+                                       "Rollbacks",
+                                       "Performance tuning",
+                                       "Incident handling",
+                                       "MCP terminology and feature mapping for this topic",
+                                       "MCP configuration and implementation considerations",
+                                       "MCP best practices and common mistakes for this topic",
+                                       "client",
+                                       "server",
+                                       "tools",
+                                       "resources",
+                                       "prompts",
+                                       "JSON-RPC",
+                                       "transport concepts",
+                                       "capabilities",
+                                       "discovery",
+                                       "tool invocation",
+                                       "security boundaries",
+                                       "authorization"
+                                   ],
+                     "tools":  [
+                                   "MCP SDK",
+                                   "JSON-RPC concepts",
+                                   "Python/TypeScript"
+                               ],
+                     "lab_task":  "Monitor and optimize a production-style workload.",
+                     "technology":  "MCP",
+                     "technology_id":  "mcp",
+                     "learning_objectives":  [
+                                                 "Explain the Operations and Optimization concepts in the context of MCP.",
+                                                 "Configure or implement the key MCP features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Operations and Optimization practically using MCP.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  10,
+                     "topic":  "Capstone AI Project",
+                     "subtopics":  [
+                                       "Requirements",
+                                       "Data",
+                                       "Implementation",
+                                       "Evaluation",
+                                       "Safety",
+                                       "Observability",
+                                       "Deployment",
+                                       "Documentation",
+                                       "MCP terminology and feature mapping for this topic",
+                                       "MCP configuration and implementation considerations",
+                                       "MCP best practices and common mistakes for this topic",
+                                       "client",
+                                       "server",
+                                       "tools",
+                                       "resources",
+                                       "prompts",
+                                       "JSON-RPC",
+                                       "transport concepts",
+                                       "capabilities",
+                                       "discovery",
+                                       "tool invocation",
+                                       "security boundaries",
+                                       "authorization"
+                                   ],
+                     "tools":  [
+                                   "MCP SDK",
+                                   "JSON-RPC concepts",
+                                   "Python/TypeScript"
+                               ],
+                     "lab_task":  "Build an end-to-end production-style project using MCP.",
+                     "technology":  "MCP",
+                     "technology_id":  "mcp",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone AI Project concepts in the context of MCP.",
+                                                 "Configure or implement the key MCP features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone AI Project practically using MCP.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "mcp"
+}

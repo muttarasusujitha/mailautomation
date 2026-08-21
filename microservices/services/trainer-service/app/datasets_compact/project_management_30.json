@@ -29,17 +29,17 @@
     },
     {
       "day": 2,
-      "topic": "Project Management Fundamentals",
+      "topic": "Project Management Fundamentals - Part 2",
       "subtopics": [
-        "Project vs Operations",
-        "Triple Constraint",
-        "Project Lifecycle"
+        "Part 2: Project vs Operations",
+        "Part 2: Triple Constraint",
+        "Part 2: Project Lifecycle"
       ],
       "tools": [
         "Fundamentals"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "PM basics"
+      "lab_task": "Part 2 hands-on: PM basics"
     },
     {
       "day": 3,
@@ -58,18 +58,18 @@
     },
     {
       "day": 4,
-      "topic": "Initiating Projects",
+      "topic": "Initiating Projects - Part 2",
       "subtopics": [
-        "Charter",
-        "Stakeholders",
-        "Scope",
-        "Objectives"
+        "Part 2: Charter",
+        "Part 2: Stakeholders",
+        "Part 2: Scope",
+        "Part 2: Objectives"
       ],
       "tools": [
         "Project Charter"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Project initiation"
+      "lab_task": "Part 2 hands-on: Project initiation"
     },
     {
       "day": 5,
@@ -87,17 +87,17 @@
     },
     {
       "day": 6,
-      "topic": "Planning - Scope",
+      "topic": "Planning - Scope - Part 2",
       "subtopics": [
-        "Scope Statement",
-        "WBS",
-        "Scope Baseline"
+        "Part 2: Scope Statement",
+        "Part 2: WBS",
+        "Part 2: Scope Baseline"
       ],
       "tools": [
         "WBS"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Scope planning"
+      "lab_task": "Part 2 hands-on: Scope planning"
     },
     {
       "day": 7,
@@ -115,17 +115,17 @@
     },
     {
       "day": 8,
-      "topic": "Planning - Schedule",
+      "topic": "Planning - Schedule - Part 2",
       "subtopics": [
-        "Activity Definition",
-        "Duration Estimation",
-        "Gantt Charts"
+        "Part 2: Activity Definition",
+        "Part 2: Duration Estimation",
+        "Part 2: Gantt Charts"
       ],
       "tools": [
         "Gantt"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Schedule planning"
+      "lab_task": "Part 2 hands-on: Schedule planning"
     },
     {
       "day": 9,
@@ -143,17 +143,17 @@
     },
     {
       "day": 10,
-      "topic": "Planning - Budget",
+      "topic": "Planning - Budget - Part 2",
       "subtopics": [
-        "Cost Estimation",
-        "Budget Development",
-        "Cost Baseline"
+        "Part 2: Cost Estimation",
+        "Part 2: Budget Development",
+        "Part 2: Cost Baseline"
       ],
       "tools": [
         "Budget Planning"
       ],
       "jira_focus": "Sprint planning; review progress for Planning - Budget",
-      "lab_task": "Budget planning"
+      "lab_task": "Part 2 hands-on: Budget planning"
     },
     {
       "day": 11,
@@ -171,17 +171,17 @@
     },
     {
       "day": 12,
-      "topic": "Planning - Risk",
+      "topic": "Planning - Risk - Part 2",
       "subtopics": [
-        "Risk Identification",
-        "Analysis",
-        "Mitigation"
+        "Part 2: Risk Identification",
+        "Part 2: Analysis",
+        "Part 2: Mitigation"
       ],
       "tools": [
         "Risk Register"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Risk planning"
+      "lab_task": "Part 2 hands-on: Risk planning"
     },
     {
       "day": 13,
@@ -199,17 +199,17 @@
     },
     {
       "day": 14,
-      "topic": "Planning - Quality & Procurement",
+      "topic": "Planning - Quality & Procurement - Part 2",
       "subtopics": [
-        "Quality Planning",
-        "Vendor Selection",
-        "Contracts"
+        "Part 2: Quality Planning",
+        "Part 2: Vendor Selection",
+        "Part 2: Contracts"
       ],
       "tools": [
         "Quality"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Quality & procurement"
+      "lab_task": "Part 2 hands-on: Quality & procurement"
     },
     {
       "day": 15,
@@ -227,17 +227,17 @@
     },
     {
       "day": 16,
-      "topic": "Agile Project Management",
+      "topic": "Agile Project Management - Part 2",
       "subtopics": [
-        "Agile Principles",
-        "Scrum Framework",
-        "Sprints"
+        "Part 2: Agile Principles",
+        "Part 2: Scrum Framework",
+        "Part 2: Sprints"
       ],
       "tools": [
         "Agile"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Agile methodology"
+      "lab_task": "Part 2 hands-on: Agile methodology"
     },
     {
       "day": 17,
@@ -255,17 +255,17 @@
     },
     {
       "day": 18,
-      "topic": "Kanban & Lean",
+      "topic": "Kanban & Lean - Part 2",
       "subtopics": [
-        "Kanban Board",
-        "Lean Principles",
-        "Continuous Flow"
+        "Part 2: Kanban Board",
+        "Part 2: Lean Principles",
+        "Part 2: Continuous Flow"
       ],
       "tools": [
         "Kanban"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Kanban approach"
+      "lab_task": "Part 2 hands-on: Kanban approach"
     },
     {
       "day": 19,
@@ -283,17 +283,17 @@
     },
     {
       "day": 20,
-      "topic": "Execution & Monitoring",
+      "topic": "Execution & Monitoring - Part 2",
       "subtopics": [
-        "Work Performance",
-        "Status Reporting",
-        "Change Control"
+        "Part 2: Work Performance",
+        "Part 2: Status Reporting",
+        "Part 2: Change Control"
       ],
       "tools": [
         "Execution"
       ],
       "jira_focus": "Sprint planning; review progress for Execution & Monitoring",
-      "lab_task": "Execution phase"
+      "lab_task": "Part 2 hands-on: Execution phase"
     },
     {
       "day": 21,
@@ -311,17 +311,17 @@
     },
     {
       "day": 22,
-      "topic": "Controlling Quality",
+      "topic": "Controlling Quality - Part 2",
       "subtopics": [
-        "Inspections",
-        "Process Analysis",
-        "Quality Assurance"
+        "Part 2: Inspections",
+        "Part 2: Process Analysis",
+        "Part 2: Quality Assurance"
       ],
       "tools": [
         "QA"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Quality control"
+      "lab_task": "Part 2 hands-on: Quality control"
     },
     {
       "day": 23,
@@ -339,17 +339,17 @@
     },
     {
       "day": 24,
-      "topic": "Stakeholder Management",
+      "topic": "Stakeholder Management - Part 2",
       "subtopics": [
-        "Communication Plans",
-        "Engagement",
-        "Conflict Resolution"
+        "Part 2: Communication Plans",
+        "Part 2: Engagement",
+        "Part 2: Conflict Resolution"
       ],
       "tools": [
         "Stakeholder Management"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Stakeholder engagement"
+      "lab_task": "Part 2 hands-on: Stakeholder engagement"
     },
     {
       "day": 25,
@@ -368,18 +368,18 @@
     },
     {
       "day": 26,
-      "topic": "Team Management",
+      "topic": "Team Management - Part 2",
       "subtopics": [
-        "Team Building",
-        "Leadership",
-        "Motivation",
-        "Conflict"
+        "Part 2: Team Building",
+        "Part 2: Leadership",
+        "Part 2: Motivation",
+        "Part 2: Conflict"
       ],
       "tools": [
         "Team Management"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Team dynamics"
+      "lab_task": "Part 2 hands-on: Team dynamics"
     },
     {
       "day": 27,
@@ -397,17 +397,17 @@
     },
     {
       "day": 28,
-      "topic": "Closing Projects",
+      "topic": "Closing Projects - Part 2",
       "subtopics": [
-        "Deliverables",
-        "Lessons Learned",
-        "Documentation"
+        "Part 2: Deliverables",
+        "Part 2: Lessons Learned",
+        "Part 2: Documentation"
       ],
       "tools": [
         "Project Closure"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Project closure"
+      "lab_task": "Part 2 hands-on: Project closure"
     },
     {
       "day": 29,
@@ -437,5 +437,19 @@
       "jira_focus": "Sprint planning; review progress for Real-World Project Scenarios",
       "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
     }
-  ]
+  ],
+  "aliases": [
+    "Project Management",
+    "PMP",
+    "Agile",
+    "Scrum",
+    "Project Manager",
+    "Program Management",
+    "PMO",
+    "Jira Project Management"
+  ],
+  "official_sources": [
+    "https://www.pmi.org/certifications/project-management-pmp"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
 }

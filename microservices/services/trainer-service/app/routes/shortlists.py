@@ -1,7 +1,9 @@
 """Shortlist management — send mail, send interview link, send client slots."""
 import asyncio
 import base64
+from html import escape
 import logging
+import math
 import re
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -46,6 +48,13 @@ LOCAL_SERVICE_FALLBACKS = {
 }
 EXCLUDED_TRAINER_STATUSES = {"interested", "confirmed", "declined"}
 PIPELINE_VERSION = "trainer-match-microservice-v1"
+MIN_TRAINER_DAY_RATE_VISIBLE = 10000
+TRAINER_COMMERCIAL_MIN_VISIBLE = 12000
+TRAINER_COMMERCIAL_MAX_VISIBLE = 15000
+SHORT_DURATION_DAYS = 7
+SHORT_DURATION_TRAINER_SHARE = 0.78
+DEFAULT_TRAINER_SHARE = 0.70
+CLIENT_COMMERCIAL_MARKUP = 0.30
 ACTIVE_PIPELINE_STAGES = {
     "mail1",
     "waiting_reply1",
@@ -122,9 +131,11 @@ class SendClientSlotsRequest(BaseModel):
     trainer_id: str
     slots: List[Dict[str, Any]] = []
     slot_text: Optional[str] = ""
+    trainer_details_text: Optional[str] = ""
     trainer_name: Optional[str] = ""
     client_email: Optional[str] = ""
     client_name: Optional[str] = ""
+    mail_type: Optional[str] = "mail4"
     force: bool = False
     smtp_config: Optional[Dict[str, Any]] = None
 
@@ -216,6 +227,20 @@ def _safe_int(value: Any, default: int = 0) -> int:
         return default
 
 
+def _round_commercial_amount(value: Any) -> int:
+    numeric = _safe_float(value, 0)
+    if numeric <= 0:
+        return 0
+    return int(math.ceil(numeric / 1000.0) * 1000)
+
+
+def _trainer_visible_commercial_amount(value: Any) -> int:
+    rounded = _round_commercial_amount(value)
+    if rounded <= 0:
+        return 0
+    return max(TRAINER_COMMERCIAL_MIN_VISIBLE, min(TRAINER_COMMERCIAL_MAX_VISIBLE, rounded))
+
+
 def _money_to_int(raw_amount: Any, suffix: str = "") -> int:
     amount = _safe_float(str(raw_amount or "").replace(",", ""), 0)
     suffix = str(suffix or "").lower()
@@ -252,9 +277,15 @@ def _commercial_amounts_from_text(text: Any) -> List[int]:
 
 def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
     amount = None
-    if requirement.get("budget_total") not in (None, "", []) and requirement.get("commercial_working_days") not in (None, "", [], 0):
+    total_amount = None
+    days = _safe_int(requirement.get("duration_days"), 0) or _safe_int(requirement.get("commercial_working_days"), 0)
+    trainer_share = SHORT_DURATION_TRAINER_SHARE if days and days <= SHORT_DURATION_DAYS else DEFAULT_TRAINER_SHARE
+    share_label = f"{int(round(trainer_share * 100))}%"
+    if requirement.get("budget_total") not in (None, "", []) and days:
         try:
-            amount = (float(requirement.get("budget_total")) / float(requirement.get("commercial_working_days"))) * 0.70
+            client_total = _safe_float(requirement.get("budget_total"))
+            amount = (client_total / float(days)) * trainer_share
+            total_amount = client_total * trainer_share
         except (TypeError, ValueError, ZeroDivisionError):
             amount = None
     if amount in (None, "", []):
@@ -266,13 +297,14 @@ def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
             or requirement.get("budget")
         )
         if client_amount in (None, "", []) and requirement.get("budget_total") not in (None, "", []):
-            days = _safe_int(requirement.get("commercial_working_days"), 0)
             try:
                 client_amount = float(requirement.get("budget_total")) / days if days else requirement.get("budget_total")
             except (TypeError, ValueError):
                 client_amount = requirement.get("budget_total")
         try:
-            amount = float(client_amount) * 0.70
+            amount = float(client_amount) * trainer_share
+            if days:
+                total_amount = amount * days
         except (TypeError, ValueError):
             amount = None
     try:
@@ -281,8 +313,103 @@ def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
         return ""
     if numeric <= 0:
         return ""
-    suffix = " per day/session, inclusive of TDS"
-    return f"INR {int(round(numeric)):,}{suffix}"
+    visible_amount = _trainer_visible_commercial_amount(numeric)
+    if not visible_amount:
+        return ""
+    return f"INR {visible_amount:,} per day/session, inclusive of TDS"
+
+
+def _replace_trainer_mail1_commercial(body: str, requirement: Dict[str, Any]) -> str:
+    commercial_text = _trainer_mail1_commercial_text(requirement)
+    if not commercial_text:
+        return body
+    line = f"Commercials/Budget: {commercial_text}"
+    if re.search(r"(?im)^Commercials/Budget:\s*.*$", body or ""):
+        return re.sub(r"(?im)^Commercials/Budget:\s*.*$", line, body or "")
+    if "Training Details:" in (body or ""):
+        return (body or "").replace("Training Details:", f"Training Details:\n\n{line}", 1)
+    return f"{(body or '').rstrip()}\n\n{line}"
+
+
+def _mail1_requested_items(requirement: Dict[str, Any]) -> List[str]:
+    source = " ".join(
+        _clean(value).lower()
+        for value in (
+            requirement.get("client_requirement_text"),
+            requirement.get("requirement_text"),
+            requirement.get("description"),
+            (requirement.get("metadata") or {}).get("original_body"),
+        )
+        if _clean(value)
+    )
+    checks = [
+        ("Updated trainer profile/CV", ("cv", "resume", "profile")),
+        ("LinkedIn profile", ("linkedin",)),
+        ("Availability", ("availability", "available", "slots")),
+        ("Commercial expectation per hour/day", ("commercial", "budget", "rate", "charges", "cost")),
+        ("Lab support availability and cost, if applicable", ("lab",)),
+        ("Relevant certifications", ("certification", "certifications", "certified")),
+        ("ToC/course agenda", ("toc", "table of contents", "agenda", "course outline", "proposal")),
+    ]
+    items = [label for label, needles in checks if any(needle in source for needle in needles)]
+    return items or ["Updated trainer profile/CV", "LinkedIn profile", "Availability"]
+
+
+def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], domain: str) -> str:
+    duration = _clean_duration_text(
+        requirement.get("duration_text")
+        or requirement.get("duration")
+        or (f"{requirement.get('duration_days')} Days" if requirement.get("duration_days") else "")
+        or (f"{requirement.get('duration_hours')} Hours" if requirement.get("duration_hours") else "")
+    )
+    dates = _clean(
+        requirement.get("training_dates")
+        or requirement.get("preferred_dates")
+        or requirement.get("dates")
+        or requirement.get("date_time_text")
+        or requirement.get("timeline")
+        or requirement.get("schedule")
+        or requirement.get("training_schedule")
+        or requirement.get("timing")
+        or requirement.get("session_timing")
+        or " to ".join(part for part in [requirement.get("timeline_start"), requirement.get("timeline_end")] if part)
+    )
+    mode = _clean(requirement.get("mode") or requirement.get("training_mode") or requirement.get("delivery_mode"))
+    participants = _clean(requirement.get("participant_count") or requirement.get("participants") or requirement.get("audience_level"))
+    commercial = _trainer_mail1_commercial_text(requirement)
+    details = [f"Domain/Technology: {domain}"]
+    if dates:
+        details.append(f"Training dates: {dates}")
+    if duration:
+        details.append(f"Duration: {duration}")
+    if mode:
+        details.append(f"Mode: {mode}")
+    if participants:
+        details.append(f"Participants: {participants}")
+    if commercial:
+        details.append(f"Commercials/Budget: {commercial}")
+    requested = "\n".join(f"- {item}" for item in _mail1_requested_items(requirement))
+    return (
+        f"Dear {trainer_name or 'Trainer'},\n\n"
+        f"We have received a training requirement for {domain} and are looking for a trainer with relevant experience.\n\n"
+        "Training Details:\n\n"
+        f"{chr(10).join(details)}\n\n"
+        "Please let us know if you are interested and available for this requirement. Kindly share the details below:\n\n"
+        f"{requested}\n\n"
+        "Regards,\n"
+        "Clahan Technologies\n"
+        f"{getattr(settings, 'FROM_EMAIL', None) or 'sujithaofficial585@gmail.com'}"
+    )
+
+
+def _has_raw_client_mail_leak(body: str) -> bool:
+    text = _clean(body).lower()
+    return any(marker in text for marker in (
+        "requirement snapshot",
+        "client requirement details",
+        "appears aligned with your profile",
+        "dear team,\nwe have",
+    ))
 
 
 def _client_requirement_text(requirement: Dict[str, Any]) -> str:
@@ -324,7 +451,9 @@ def _trainer_slot_mail_toc_text(requirement: Dict[str, Any], trainer: Dict[str, 
     return "\n".join(f"- {item}" for item in topics)
 
 
-def _trainer_commercial_amounts(trainer: Dict[str, Any]) -> List[int]:
+def _trainer_commercial_amounts(trainer: Any) -> List[int]:
+    if not isinstance(trainer, dict):
+        return _commercial_amounts_from_text(trainer)
     amounts: List[int] = []
     for key in (
         "commercial_amount",
@@ -388,7 +517,8 @@ def _client_commercial_message(
         or "training"
     )
     client_name = _clean(requirement.get("client_name") or requirement.get("client_company") or shortlist.get("client_name")) or "Client"
-    rate_lines = "\n".join(f"- INR {amount:,.0f} per day/session" for amount in sorted(amounts))
+    client_amounts = sorted({round(amount * (1 + CLIENT_COMMERCIAL_MARKUP)) for amount in amounts})
+    rate_lines = "\n".join(f"- INR {amount:,.0f} per day/session" for amount in client_amounts)
     subject = f"Shortlisted Trainer Commercials for Approval - {technology}"
     body = (
         f"{_client_time_greeting(client_name)},\n\n"
@@ -402,6 +532,156 @@ def _client_commercial_message(
         "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
     )
     return {"subject": subject, "body": body}
+
+
+def _requested_client_attachments(requirement: Dict[str, Any]) -> tuple[bool, bool, bool]:
+    """Return whether the client requested a profile, TOC, and/or lab-cost workbook."""
+    requested = [
+        _clean(item).lower()
+        for item in (
+            requirement.get("requested_details")
+            or (requirement.get("extracted") or {}).get("requested_details")
+            or []
+        )
+        if _clean(item)
+    ]
+    request_text = "\n".join([*requested, _client_requirement_text(requirement).lower()])
+    wants_profile = any(term in request_text for term in ("trainer profile", "profile/cv", "profile / cv", "resume", "curriculum vitae", "cv"))
+    wants_toc = any(term in request_text for term in ("toc", "table of content", "table of contents", "course agenda", "curriculum"))
+    wants_lab_cost = any(
+        term in request_text for term in ("lab cost", "lab charges", "lab support", "lab availability", "lab setup")
+    )
+    return wants_profile, wants_toc, wants_lab_cost
+
+
+def _requested_trainer_details_for_client(
+    requirement: Dict[str, Any],
+    trainer: Dict[str, Any],
+    *,
+    profile_attached: bool = False,
+    toc_attached: bool = False,
+) -> str:
+    requested = {
+        _clean(item).lower()
+        for item in (
+            requirement.get("requested_details")
+            or (requirement.get("extracted") or {}).get("requested_details")
+            or []
+        )
+        if _clean(item)
+    }
+    if not requested:
+        requested = {"trainer profile", "cv", "resume", "linkedin profile", "availability", "commercials"}
+
+    def wanted(*needles: str) -> bool:
+        return any(any(needle in item for needle in needles) for item in requested)
+
+    def first_value(*keys: str) -> str:
+        for key in keys:
+            value = trainer.get(key)
+            if isinstance(value, list):
+                text = ", ".join(_clean(item) for item in value if _clean(item))
+            else:
+                text = _clean(value)
+            if text:
+                return text
+        return ""
+
+    def clean_reply_text(value: str) -> str:
+        text = _clean(value)
+        text = re.split(r"(?im)^\s*on .+ wrote:\s*$", text)[0]
+        text = re.split(r"(?im)^\s*from:\s*", text)[0]
+        lines = []
+        for line in text.splitlines():
+            stripped = _clean(line)
+            if not stripped or stripped.startswith(">"):
+                continue
+            if re.search(r"(?i)\b(dear|regards),?\s*(clahan|team|trainer|megha|mohit)?\b", stripped):
+                continue
+            lines.append(stripped)
+        return "\n".join(lines).strip()
+
+    reply_detail_text = clean_reply_text(first_value("details_reply_text", "trainer_details_text", "mail1_reply_text", "mail2_reply_text", "reply_text", "last_reply_snippet"))
+
+    def extract_links(text: str) -> List[str]:
+        links = re.findall(r"https?://[^\s<>)]+", text or "", flags=re.IGNORECASE)
+        cleaned: List[str] = []
+        for link in links:
+            clean_link = link.rstrip(".,;:")
+            if clean_link not in cleaned:
+                cleaned.append(clean_link)
+        return cleaned
+
+    def linkedin_link(text: str) -> str:
+        for link in extract_links(text):
+            if "linkedin.com" in link.lower():
+                return link
+        return ""
+
+    def reply_lines(*needles: str, limit: int = 3) -> str:
+        matches: List[str] = []
+        for line in reply_detail_text.splitlines():
+            text = _clean(line)
+            if not text:
+                continue
+            lower = text.lower()
+            if any(needle in lower for needle in needles):
+                matches.append(text)
+            if len(matches) >= limit:
+                break
+        return "; ".join(matches)
+
+    lines: List[str] = []
+    trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name"))
+    if trainer_name:
+        lines.append(f"- Trainer: {trainer_name}")
+    if wanted("trainer profile", "profile"):
+        resume = first_value("resume_url", "resume_link", "cv_url", "cv_link", "resume_filename", "source_file")
+        if profile_attached:
+            lines.append("- Trainer profile/CV: attached for review")
+        elif resume:
+            lines.append(f"- Trainer profile/CV: {resume}")
+    if wanted("cv", "resume"):
+        resume = first_value("resume_url", "resume_link", "cv_url", "cv_link", "resume_filename", "source_file")
+        if profile_attached:
+            resume_line = "- CV/resume: attached for review"
+            if resume_line not in lines:
+                lines.append(resume_line)
+        elif resume:
+            resume_line = f"- CV/resume: {resume}"
+            if resume_line not in lines:
+                lines.append(resume_line)
+    if wanted("linkedin", "linked in"):
+        linkedin = first_value("linkedin", "linkedin_url", "linkedin_profile") or linkedin_link(reply_detail_text)
+        if linkedin:
+            lines.append(f"- LinkedIn profile: {linkedin}")
+    if wanted("availability", "available", "slot"):
+        availability = first_value("availability", "available_dates", "availability_text")
+        if availability:
+            lines.append(f"- Availability: {clean_reply_text(availability)[:300]}")
+    if wanted("commercial", "rate"):
+        amounts = _trainer_commercial_amounts(trainer.get("commercials") or trainer.get("commercial_text") or trainer.get("commercial_details") or reply_detail_text)
+        if amounts:
+            lines.append("- Commercials: " + ", ".join(f"INR {amount:,.0f} per day/session" for amount in amounts))
+        else:
+            commercial_text = first_value("commercials", "commercial_text", "commercial_details") or reply_lines("commercial", "rate", "charges", "fee", "inr", "rs", "₹")
+            if commercial_text:
+                lines.append(f"- Commercials: {commercial_text[:400]}")
+    if wanted("toc", "agenda", "curriculum"):
+        toc = first_value("toc_reply_text", "toc_text", "toc", "course_agenda", "agenda")
+        if toc_attached:
+            lines.append("- ToC/course agenda: attached for review")
+        elif toc:
+            lines.append(f"- ToC/course agenda: {toc[:800]}")
+    if wanted("certification"):
+        certifications = first_value("certifications", "certification")
+        if certifications:
+            lines.append(f"- Certifications: {certifications}")
+    if wanted("lab"):
+        lab = first_value("lab_support", "lab_details", "lab_cost")
+        if lab:
+            lines.append(f"- Lab support: {lab}")
+    return "\n".join(lines)
 
 
 async def _post_with_local_fallback(
@@ -542,6 +822,19 @@ def _profile_text(trainer: Dict[str, Any]) -> str:
         trainer.get("resume", "")[:5000] if isinstance(trainer.get("resume"), str) else "",
     ]
     return _norm(parts)
+
+
+def _resume_confirms_domain_experience(trainer: Dict[str, Any], domain: str) -> bool:
+    resume_text = _norm([
+        trainer.get("combined_text", "")[:8000] if isinstance(trainer.get("combined_text"), str) else "",
+        trainer.get("resume", "")[:5000] if isinstance(trainer.get("resume"), str) else "",
+        trainer.get("summary"),
+        trainer.get("experience_raw"),
+    ])
+    domain_terms = [term.lower() for term in re.findall(r"[a-z0-9+#.]+", _clean(domain)) if len(term) > 1]
+    has_domain = bool(domain_terms) and all(term in resume_text for term in domain_terms)
+    has_experience = bool(re.search(r"\b(?:experience|implementation|implemented|training|trained|delivered|facilitat)\w*\b", resume_text))
+    return has_domain and has_experience
 
 
 def _category_text(trainer: Dict[str, Any]) -> str:
@@ -722,12 +1015,22 @@ async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: A
         from app.routes.toc import TocRequest, generate_toc
         domain = _clean(requirement.get("technology_needed") or requirement.get("domain") or requirement.get("title") or requirement.get("job_title") or "Training")
         duration = _safe_int(requirement.get("duration_days"), 3) or 3
+        training_dates = (
+            _clean(requirement.get("training_dates"))
+            or " to ".join(part for part in [requirement.get("timeline_start"), requirement.get("timeline_end")] if part)
+            or _clean(requirement.get("preferred_dates"))
+        )
         toc_req = TocRequest(
             domain=domain,
             duration_days=duration,
             level=_clean(requirement.get("level") or "intermediate") or "intermediate",
             requirement_id=_clean(requirement.get("requirement_id")),
             trainer_id=_clean(trainer.get("trainer_id")),
+            trainer_name=_clean(trainer.get("name") or trainer.get("trainer_name")),
+            mode=_clean(requirement.get("mode") or "Online") or "Online",
+            audience_level=_clean(requirement.get("audience_level") or requirement.get("participant_level")),
+            training_dates=training_dates,
+            timing=_clean(requirement.get("timing") or requirement.get("session_timing")),
         )
         response = await generate_toc(toc_req, db)
         toc_data = response.get("toc_data") or response.get("toc")
@@ -762,6 +1065,49 @@ async def _generate_toc_pdf(toc: Dict[str, Any]) -> Optional[bytes]:
     return r.content
 
 
+async def _generate_trainer_profile_pdf(trainer: Dict[str, Any], technology: str) -> Optional[bytes]:
+    """Create a client-ready profile attachment from the vetted trainer record."""
+    trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
+    fields = [
+        ("Technology", technology),
+        ("Experience", _clean(trainer.get("experience_years") or trainer.get("experience_raw"))),
+        ("Location", _clean(trainer.get("location") or trainer.get("current_location"))),
+        ("LinkedIn", _clean(trainer.get("linkedin") or trainer.get("linkedin_url") or trainer.get("linkedin_profile"))),
+        ("Skills", ", ".join(_clean(value) for value in _as_list(trainer.get("skills") or trainer.get("technologies")) if _clean(value))),
+        ("Summary", _clean(trainer.get("summary") or trainer.get("bio"))),
+    ]
+    rows = "".join(
+        f"<tr><th>{escape(label)}</th><td>{escape(value)}</td></tr>"
+        for label, value in fields
+        if value
+    )
+    if not rows:
+        return None
+    html = (
+        "<html><head><style>body{font-family:Arial,sans-serif;color:#1f2937;padding:32px;}"
+        "h1{font-size:24px;margin-bottom:6px;}table{border-collapse:collapse;width:100%;margin-top:24px;}"
+        "th,td{border:1px solid #d1d5db;padding:10px;text-align:left;vertical-align:top;}"
+        "th{width:160px;background:#f3f4f6;}</style></head><body>"
+        f"<h1>{escape(trainer_name)} - Trainer Profile</h1><p>{escape(technology)} training profile</p>"
+        f"<table>{rows}</table></body></html>"
+    )
+    try:
+        async with httpx.AsyncClient(timeout=60) as client:
+            response = await client.post(
+                f"{DOC_SVC}/api/v1/documents/pdf/html-to-pdf",
+                params={"filename": f"{trainer_name} Trainer Profile.pdf"},
+                content=html,
+                headers={"Content-Type": "text/html"},
+            )
+        if response.status_code >= 400 or not response.content:
+            logger.error("Trainer profile PDF generation failed: %s", response.text[:300])
+            return None
+        return response.content
+    except Exception:
+        logger.exception("Failed to generate trainer profile PDF")
+        return None
+
+
 async def _sync_shortlist_with_trainers(
     db: AsyncIOMotorDatabase,
     requirement: Dict[str, Any],
@@ -771,10 +1117,22 @@ async def _sync_shortlist_with_trainers(
     if not req_id:
         raise HTTPException(400, "Requirement id missing")
 
+    client_emails = {
+        _clean(value).lower()
+        for value in (
+            requirement.get("client_email"),
+            requirement.get("contact_email"),
+            requirement.get("email"),
+        )
+        if _clean(value)
+    }
     all_trainers = await db["trainers"].find({}, {"_id": 0}).to_list(10000)
     available_trainers = [
         trainer for trainer in all_trainers
-        if _clean(trainer.get("status")).lower() not in EXCLUDED_TRAINER_STATUSES
+        if (
+            _clean(trainer.get("status")).lower() not in EXCLUDED_TRAINER_STATUSES
+            and _clean(trainer.get("email") or trainer.get("trainer_email")).lower() not in client_emails
+        )
     ]
     scored = [
         scored_trainer
@@ -814,7 +1172,11 @@ async def _sync_shortlist_with_trainers(
 
     active_old_trainers = [
         trainer for trainer in old_trainers
-        if _clean(trainer.get("trainer_id")) not in new_ids and _is_active_pipeline_trainer(trainer)
+        if (
+            _clean(trainer.get("trainer_id")) not in new_ids
+            and _clean(trainer.get("email") or trainer.get("trainer_email")).lower() not in client_emails
+            and _is_active_pipeline_trainer(trainer)
+        )
     ]
     top_trainers.extend(active_old_trainers)
 
@@ -1118,7 +1480,7 @@ async def get_shortlist(requirement_id: str, db: AsyncIOMotorDatabase = Depends(
                     changed = True
                     continue
 
-        if stage not in {"mail1", "mail1_sent", "mail1_reminder"}:
+        if stage not in {"waiting_reply1", "mail1", "mail1_sent", "mail1_reminder"}:
             continue
 
         sent_query: Dict[str, Any] = {
@@ -1184,6 +1546,11 @@ async def send_shortlist_mail(
         targets = [t for t in top_trainers if t.get("pipeline_status") not in ("stopped_selected", "declined")]
 
     mail_type = _clean(payload.mail_type).lower()
+    if mail_type in {"trainer_acknowledgment", "trainer_ack", "trainer_rate_accepted"}:
+        raise HTTPException(
+            400,
+            "Trainer thank-you acknowledgements are disabled. Send Mail 3 slot booking or a missing-details request instead.",
+        )
     if mail_type in MAIL2_TYPES and not payload.to_email:
         targets = [
             t for t in targets
@@ -1318,9 +1685,28 @@ async def send_shortlist_mail(
                     or requirement.get("preferred_dates")
                     or requirement.get("dates")
                     or requirement.get("date_time_text")
+                    or requirement.get("timeline")
+                    or requirement.get("schedule")
+                    or requirement.get("training_schedule")
+                    or requirement.get("timing")
+                    or requirement.get("session_timing")
                     or " to ".join(part for part in [requirement.get("timeline_start"), requirement.get("timeline_end")] if part)
                 )
+                if not dates:
+                    raw_requirement_text = _client_requirement_text(requirement)
+                    date_match = re.search(
+                        r"(?im)^\s*(?:training\s*)?(?:dates?|schedule|timings?)\s*[:\-]\s*(.+)$",
+                        raw_requirement_text or "",
+                    )
+                    if date_match:
+                        dates = _clean(date_match.group(1))
                 location = _clean(requirement.get("preferred_location") or requirement.get("location"))
+                flow_value = _clean(
+                    requirement.get("batch_flow")
+                    or requirement.get("batch_type")
+                    or requirement.get("requirement_type")
+                ).lower()
+                is_proposal_flow = "proposal" in flow_value
                 subject = payload.subject or f"Training Opportunity - {payload.requirement_id}"
                 body = payload.body or (
                     f"Dear {trainer_name},\n\n"
@@ -1336,7 +1722,7 @@ async def send_shortlist_mail(
                     )
                     subject = payload.subject or commercial_message["subject"]
                     body = commercial_message["body"]
-                if not payload.body:
+                if not payload.body or payload.mail_type in ("mail1", "first"):
                     tmpl_response = None
                     base_template_payload = {
                         "name": trainer_name,
@@ -1358,9 +1744,13 @@ async def send_shortlist_mail(
                                 "mode": _clean(requirement.get("mode")),
                                 "location": location,
                                 "participants": _clean(requirement.get("participant_count")),
-                                "audience_level": "",
-                                "budget": _trainer_mail1_commercial_text(requirement),
+                                "audience_level": _clean(requirement.get("audience_level") or requirement.get("participant_level")),
+                                "budget": "" if is_proposal_flow else _trainer_mail1_commercial_text(requirement),
                                 "client_request": _client_requirement_text(requirement),
+                                "requirement_kind": "proposal_requirement" if is_proposal_flow else "confirmed_batch",
+                                "toc_action": requirement.get("toc_action") or (requirement.get("extracted") or {}).get("toc_action") or "",
+                                "scope_attached": bool(requirement.get("scope_attached") or (requirement.get("extracted") or {}).get("scope_attached")),
+                                "resume_verified_experience": _resume_confirms_domain_experience(t, domain),
                                 "client_name": "",
                                 "topics": "",
                             },
@@ -1370,7 +1760,6 @@ async def send_shortlist_mail(
                         template_map = {
                             "mail2": "mail2",
                             "mail2_followup": "mail2-followup",
-                            "trainer_acknowledgment": "trainer-ack",
                             "trainer_commercials_to_client": "send-commercials",
                             "client_budget_reply": "client-budget-reply",
                             "client_budget_acknowledgment": "client-budget-ack",
@@ -1386,7 +1775,6 @@ async def send_shortlist_mail(
                             "commercial_negotiation": "send-commercials",
                             "trainer_negotiation_client_update": "client/proceed-ack",
                             "commercial_details_notification": "send-commercials",
-                            "trainer_rate_accepted": "trainer-ack",
                             "trainer_rate_rejected": "mail5-rejection",
                             "mail3": "mail3-slot-booking",
                             "mail3_slot_booking": "mail3-slot-booking",
@@ -1409,6 +1797,12 @@ async def send_shortlist_mail(
                             "training_confirmation": "mail7-training-confirmation",
                         }
                         template_name = template_map.get(payload.mail_type)
+                        if payload.mail_type == "mail2" and is_proposal_flow:
+                            template_name = "mail3-slot-booking"
+                        if payload.mail_type == "mail3" and is_proposal_flow:
+                            template_name = "interview"
+                        if payload.mail_type == "mail4" and is_proposal_flow:
+                            template_name = "mail5-selection"
                         if template_name:
                             tmpl_response = await _post_with_local_fallback(
                                 client,
@@ -1420,7 +1814,7 @@ async def send_shortlist_mail(
                         tmpl = tmpl_response.json()
                         subject = payload.subject or tmpl.get("subject") or subject
                         body = tmpl.get("body") or body
-                if payload.mail_type in ("mail3", "mail3_slot_booking"):
+                if payload.mail_type in ("mail3", "mail3_slot_booking") and not (payload.mail_type == "mail3" and "proposal" in flow_value):
                     toc_text = _trainer_slot_mail_toc_text(requirement, t, domain)
                     if toc_text and "ToC / Course Agenda" not in body:
                         body = (
@@ -1430,6 +1824,10 @@ async def send_shortlist_mail(
                         )
                 if trainer_ref not in body:
                     body = f"{body.rstrip()}\n\n{trainer_ref}"
+                if payload.mail_type in ("mail1", "first") and not is_proposal_flow:
+                    if _has_raw_client_mail_leak(body):
+                        body = _clean_confirmed_mail1_body(trainer_name, requirement, domain)
+                    body = _replace_trainer_mail1_commercial(body, requirement)
                 send_payload = {
                     "to": trainer_email,
                     "subject": subject,
@@ -1500,6 +1898,17 @@ async def send_shortlist_mail(
                 "commercial_negotiation": "waiting_reply2",
                 "trainer_rate_discussion": "waiting_reply2",
             }
+            flow_value = _clean(
+                requirement.get("batch_flow")
+                or requirement.get("batch_type")
+                or requirement.get("requirement_type")
+            ).lower()
+            if payload.mail_type == "mail2" and "proposal" in flow_value:
+                waiting_stage_by_mail_type["mail2"] = "slot_booked"
+            if payload.mail_type == "mail3" and "proposal" in flow_value:
+                waiting_stage_by_mail_type["mail3"] = "interview_scheduled"
+            if payload.mail_type == "mail4" and "proposal" in flow_value:
+                waiting_stage_by_mail_type["mail4"] = "selected"
             final_pipeline_status = "toc_requested" if auto_toc_sent else waiting_stage_by_mail_type.get(payload.mail_type, payload.mail_type)
             current_status = _clean(t.get("pipeline_status")).lower()
             has_details = bool(t.get("trainer_details_received_at") or t.get("mail2_replied_at"))
@@ -1583,6 +1992,7 @@ async def send_interview_link(
         or req.get("client_company")
         or shortlist.get("client_name")
     ) or "Client"
+    link_mail_type = _clean(payload.mail_type) or "mail4"
 
     if not email:
         raise HTTPException(400, "Trainer email not found")
@@ -1597,7 +2007,7 @@ async def send_interview_link(
                 "top_trainers.$.slot_status": "calendar_failed_no_mail_sent",
                 "top_trainers.$.interview_link": "",
                 "top_trainers.$.meet_link": "",
-                "top_trainers.$.last_mail_type_attempted": "mail4",
+                "top_trainers.$.last_mail_type_attempted": link_mail_type,
                 "top_trainers.$.last_mail_attempted_at": now,
                 "top_trainers.$.last_mail_error": "Meeting link missing; interview schedule mail was not sent.",
                 "top_trainers.$.updated_at": now,
@@ -1616,6 +2026,9 @@ async def send_interview_link(
                     "req_id": payload.requirement_id,
                     "interview_date": interview_date,
                     "interview_link": payload.interview_link,
+                    "slot_start": payload.date_time or payload.interview_date or "",
+                    "slot_end": "",
+                    "client_name": client_name,
                 },
                 headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
             )
@@ -1625,11 +2038,12 @@ async def send_interview_link(
                 "to": email,
                 "subject": tmpl.get("subject", f"Interview – {technology}"),
                 "body": tmpl.get("body", ""),
-                "mail_type": "mail4",
+                "mail_type": link_mail_type,
                 "trainer_id": payload.trainer_id,
                 "trainer_name": name,
                 "requirement_id": payload.requirement_id,
                 "smtp_config": payload.smtp_config,
+                "calendar_invite": tmpl.get("calendar_invite"),
             })
             trainer_response.raise_for_status()
             trainer_sent = trainer_response.json()
@@ -1643,6 +2057,9 @@ async def send_interview_link(
                 platform=platform,
                 interview_link=payload.interview_link,
             )
+            client_calendar_invite = dict(tmpl.get("calendar_invite") or {})
+            if client_calendar_invite:
+                client_calendar_invite["attendee_name"] = client_name
             client_response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
                 "to": client_email,
                 "subject": client_message["subject"],
@@ -1652,6 +2069,7 @@ async def send_interview_link(
                 "trainer_name": name,
                 "requirement_id": payload.requirement_id,
                 "smtp_config": payload.smtp_config,
+                "calendar_invite": client_calendar_invite or None,
             })
             client_response.raise_for_status()
             client_sent = client_response.json()
@@ -1717,8 +2135,8 @@ async def send_interview_link(
             "top_trainers.$.meet_link": payload.interview_link,
             "top_trainers.$.client_email_sent": True,
             "top_trainers.$.trainer_email_sent": True,
-            "top_trainers.$.last_mail_type": "mail4",
-            "top_trainers.$.last_mail_type_attempted": "mail4",
+            "top_trainers.$.last_mail_type": link_mail_type,
+            "top_trainers.$.last_mail_type_attempted": link_mail_type,
             "top_trainers.$.last_mail_attempted_at": now,
             "top_trainers.$.last_mailed_at": now,
             "top_trainers.$.last_mail_error": "",
@@ -1795,45 +2213,129 @@ async def send_client_slots(
                 "slots_count": len(payload.slots),
             }
 
+    latest_detail_reply = await db["email_logs"].find_one(
+        {
+            "direction": {"$in": ["inbound", "received"]},
+            "requirement_id": payload.requirement_id,
+            "mail_type": {"$in": ["mail1", "mail2_followup", "trainer_auto_reply", "mail2"]},
+            "$or": [
+                {"trainer_id": payload.trainer_id},
+                {"from_email": {"$regex": f"^{re.escape(_clean(trainer.get('email') or trainer.get('trainer_email')))}$", "$options": "i"}},
+                {"sender": {"$regex": f"^{re.escape(_clean(trainer.get('email') or trainer.get('trainer_email')))}$", "$options": "i"}},
+            ],
+        },
+        {"_id": 0, "body": 1, "body_snippet": 1, "reply_text": 1, "mail_type": 1, "created_at": 1, "sent_at": 1},
+        sort=[("created_at", -1)],
+    )
+    if latest_detail_reply:
+        reply_text = _clean(latest_detail_reply.get("body") or latest_detail_reply.get("reply_text") or latest_detail_reply.get("body_snippet"))
+        if reply_text:
+            trainer = {
+                **trainer,
+                "reply_text": trainer.get("reply_text") or reply_text,
+                "last_reply_snippet": trainer.get("last_reply_snippet") or reply_text[:800],
+                "details_reply_text": trainer.get("details_reply_text") or reply_text,
+            }
+    provided_details_text = _clean(payload.trainer_details_text)
+    if provided_details_text:
+        trainer = {
+            **trainer,
+            "reply_text": provided_details_text,
+            "last_reply_snippet": provided_details_text[:800],
+            "details_reply_text": provided_details_text,
+            "trainer_details_text": provided_details_text,
+        }
+
     technology = _clean(req.get("technology_needed") or req.get("technology") or req.get("domain")) or "training"
     client_name = _clean(payload.client_name or req.get("client_name") or req.get("client_company")) or "Client"
+    attachments: List[Dict[str, str]] = []
+    wants_profile, wants_toc, wants_lab_cost = _requested_client_attachments(req)
+    profile_pdf = await _generate_trainer_profile_pdf(trainer, technology) if wants_profile else None
+    if profile_pdf:
+        attachments.append({
+            "filename": f"{trainer_name} - Trainer Profile.pdf",
+            "content_base64": base64.b64encode(profile_pdf).decode(),
+            "subtype": "pdf",
+        })
 
-    # Prefer using the email-service template for client slots when available
+    toc_workbook: Optional[bytes] = None
+    toc_data = await _build_toc(req, trainer, db) if (wants_toc or wants_lab_cost) else None
+    if wants_toc and toc_data:
+        try:
+            async with httpx.AsyncClient(timeout=60) as client:
+                toc_response = await _post_with_local_fallback(
+                    client,
+                    f"{DOC_SVC}/api/v1/documents/excel/toc",
+                    json={"toc": toc_data},
+                )
+            if toc_response.status_code == 200 and toc_response.content:
+                toc_workbook = toc_response.content
+            else:
+                logger.error("TOC workbook generation failed: %s", toc_response.text[:300])
+        except Exception:
+            logger.exception("Failed to generate TOC workbook attachment for client slots")
+    if toc_workbook:
+        attachments.append({
+            "filename": f"{technology} - TOC.xlsx",
+            "content_base64": base64.b64encode(toc_workbook).decode(),
+            "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        })
+
+    lab_cost_attached = False
+    if wants_lab_cost and toc_data:
+        try:
+            participant_count = int(req.get("participant_count") or 1)
+            participant_count = max(participant_count, 1)
+            async with httpx.AsyncClient(timeout=60) as client:
+                lab_response = await _post_with_local_fallback(
+                    client,
+                    f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost",
+                    json={
+                        "toc": toc_data,
+                        "assumptions": {
+                            "cloud_provider": "aws",
+                            "hours_per_day": 8,
+                            "participant_count": participant_count,
+                            "fx_rate": 83,
+                        },
+                    },
+                )
+            if lab_response.status_code == 200 and lab_response.content:
+                attachments.append({
+                    "filename": f"{technology} - Lab Cost.xlsx",
+                    "content_base64": base64.b64encode(lab_response.content).decode(),
+                    "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                })
+                lab_cost_attached = True
+            else:
+                logger.error("Lab-cost workbook generation failed: %s", lab_response.text[:300])
+        except Exception:
+            logger.exception("Failed to generate lab-cost attachment for client slots")
+
+    trainer_details = _requested_trainer_details_for_client(
+        req,
+        trainer,
+        profile_attached=bool(profile_pdf),
+        toc_attached=bool(toc_workbook),
+    )
+    trainer_details_section = f"Trainer details shared for your review:\n{trainer_details}\n\n" if trainer_details else ""
+    lab_cost_note = "The Clahan lab-cost workbook is attached for your review.\n\n" if lab_cost_attached else ""
+
     try:
         async with httpx.AsyncClient(timeout=30) as client:
-            tmpl_resp = await client.post(
-                f"{EMAIL_SVC}/api/v1/email/templates/client-slots",
-                json={
-                    "client_name": client_name,
-                    "trainer_name": trainer_name,
-                    "technology": technology,
-                    "slots_text": slots_text,
-                },
-                headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
+            subject = f"Interview Slots - {technology}"
+            body = (
+                f"{_client_time_greeting(client_name)},\n\n"
+                f"We have received the requested trainer details for the shortlisted {technology} trainer.\n\n"
+                f"{trainer_details_section}"
+                "Available slots:\n"
+                f"{slots_text}\n\n"
+                f"{lab_cost_note}"
+                "Kindly confirm the preferred slot, and we will proceed with the meeting coordination.\n\n"
+                "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
             )
-            if tmpl_resp is not None and tmpl_resp.status_code < 400:
-                tmpl = tmpl_resp.json()
-                subject = tmpl.get("subject") or f"Interview Slots - {technology}"
-                body = tmpl.get("body") or (
-                    f"{_client_time_greeting(client_name)},\n\n"
-                    f"We have coordinated suitable interview/discussion slots for the shortlisted {technology} trainer.\n\n"
-                    "Available slots:\n"
-                    f"{slots_text}\n\n"
-                    "Kindly confirm the preferred slot, and we will proceed with the meeting coordination.\n\n"
-                    "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
-                )
-            else:
-                subject = f"Interview Slots - {technology}"
-                body = (
-                    f"{_client_time_greeting(client_name)},\n\n"
-                    f"We have coordinated suitable interview/discussion slots for the shortlisted {technology} trainer.\n\n"
-                    "Available slots:\n"
-                    f"{slots_text}\n\n"
-                    "Kindly confirm the preferred slot, and we will proceed with the meeting coordination.\n\n"
-                    "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
-                )
 
-            response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json={
+            email_payload: Dict[str, Any] = {
                 "to": client_email,
                 "subject": subject,
                 "body": body,
@@ -1842,7 +2344,10 @@ async def send_client_slots(
                 "trainer_id": payload.trainer_id,
                 "trainer_name": trainer_name,
                 "smtp_config": payload.smtp_config,
-            })
+            }
+            if attachments:
+                email_payload["attachments"] = attachments
+            response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=email_payload)
             response.raise_for_status()
             sent_payload = response.json()
     except Exception as exc:

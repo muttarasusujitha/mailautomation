@@ -5,6 +5,8 @@ it should not decide topic order, day count, labs, or capstone placement.
 """
 
 from copy import deepcopy
+from datetime import datetime, timedelta
+import re
 
 from app.toc_domain_dataset import get_domain
 
@@ -155,7 +157,10 @@ def _select_topics(domain: dict, duration: int) -> list:
     duration = max(1, min(int(duration or 1), 100))
     compact_days = list(domain.get("days") or [])
     if compact_days:
-        selected = [_standardize_compact_day_item(day, domain.get("name", "Training")) for day in compact_days[:duration]]
+        compact_source = compact_days
+        if len(compact_days) > duration:
+            compact_source = _sample_progressive(compact_days, duration)
+        selected = [_standardize_compact_day_item(day, domain.get("name", "Training")) for day in compact_source[:duration]]
         if len(selected) >= duration:
             return selected[:duration]
         fallback_domain = deepcopy(domain)
@@ -206,7 +211,8 @@ def _jira_activity(domain: dict, day_number: int, topic_name: str, notes: str = 
 
 def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes: str) -> dict:
     topic_name = item.get("topic") or f"Day {day_number} Topic"
-    subtopics = list(item.get("subtopics") or [])
+    source_subtopics = list(item.get("subtopics") or [])
+    subtopics = list(source_subtopics)
     fallback_topics = [
         f"{topic_name} hands-on implementation",
         f"{topic_name} troubleshooting scenarios",
@@ -238,6 +244,7 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
         "day": day_number,
         "title": title,
         "focus_area": topic_name,
+        "subtopics": source_subtopics,
         "tools": " + ".join(tools),
         "jira_focus": jira_focus,
         "morning_session": {
@@ -339,9 +346,147 @@ def _clean_session_topics(session: dict, fallback_focus: str) -> dict:
     return session
 
 
-def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str = "intermediate", mode: str = "Online", notes: str = "", domain_override: dict = None) -> dict:
+def _programme_phase(week_number: int, total_weeks: int) -> str:
+    if week_number == total_weeks:
+        return "Capstone, readiness assessment, and presentation"
+    if week_number == 1:
+        return "Orientation, foundations, and professional delivery practices"
+    if week_number == 2:
+        return "Core concepts, tools, and guided troubleshooting"
+    if week_number < total_weeks - 1:
+        return "Applied implementation, scenarios, and operational practice"
+    return "Consolidation, simulation, and capstone preparation"
+
+
+def _training_start_date(value: str) -> datetime | None:
+    raw = str(value or "")
+    match = re.search(r"\b\d{4}-\d{2}-\d{2}\b", raw)
+    if match:
+        return datetime.strptime(match.group(0), "%Y-%m-%d")
+    for fmt in ("%d-%b-%Y", "%d/%m/%Y", "%d-%m-%Y"):
+        match = re.search(r"\b\d{1,2}[-/]?(?:[A-Za-z]{3}|\d{1,2})[-/]?\d{4}\b", raw)
+        if match:
+            try:
+                return datetime.strptime(match.group(0), fmt)
+            except ValueError:
+                continue
+    return None
+
+
+def _business_dates(start: datetime | None, count: int) -> list[str]:
+    if not start:
+        return ["" for _ in range(count)]
+    dates = []
+    current = start
+    while len(dates) < count:
+        if current.weekday() < 5:
+            dates.append(current.strftime("%d-%b-%Y"))
+        current += timedelta(days=1)
+    return dates
+
+
+def _meaningful_category(day: dict, is_final_day: bool = False) -> str:
+    """Derive a client-facing module name instead of the generic Core Learning label."""
+    topic = str(day.get("focus_area") or day.get("title") or day.get("topic") or "Training Module")
+    tools = str(day.get("tools") or "")
+    text = f"{topic} {tools}".lower()
+    if is_final_day or "capstone" in text or "final project" in text:
+        return "Final Capstone Project"
+    category_rules = (
+        (("devsecops", "sonarqube", "trivy", "snyk", "security gate"), "DevSecOps and Quality Gates"),
+        (("release", "blue-green", "blue green", "canary"), "Release Management and Deployment Strategies"),
+        (("agile", "sdlc", "devops orientation", "devops concept"), "DevOps Concepts and Agile Delivery"),
+        (("aws", "ec2", "s3", "iam"), "AWS Cloud and DevOps (hands-on)"),
+        (("azure", "acr"), "Azure Cloud and DevOps (hands-on)"),
+        (("gcp", "google cloud"), "GCP Cloud and DevOps (hands-on)"),
+        (("kubernetes", "kubectl", "helm", "aks", "eks", "gke"), "Kubernetes and Container Orchestration (hands-on)"),
+        (("docker", "container"), "Containerization Technologies (hands-on)"),
+        (("jenkins", "ci/cd", "ci-cd", "pipeline"), "CI/CD Pipeline (hands-on)"),
+        (("sre", "observability", "monitoring", "logging", "datadog"), "SRE and Observability"),
+        (("linux", "shell", "network", "ssh", "web basics"), "Linux and Infrastructure Foundations (hands-on)"),
+        (("git", "source code", "version control"), "Source Code Management"),
+        (("ai", "llm", "agent", "langchain", "langgraph"), "AI and DevOps Automation"),
+        (("python", "scripting", "automation"), "Programming and Automation Foundations"),
+        (("database", "sql"), "Database Technologies (hands-on)"),
+        (("frontend", "react", "angular", "javascript"), "Frontend Development (hands-on)"),
+        (("backend", "spring", "django", "fastapi", "api"), "Backend Development (hands-on)"),
+        (("testing", "selenium", "quality assurance"), "Testing and Quality Assurance (hands-on)"),
+    )
+    for keywords, category in category_rules:
+        if any(keyword in text for keyword in keywords):
+            return category
+    return topic
+
+
+def _enrich_programme_pack(toc: dict, audience_level: str = "", training_dates: str = "") -> dict:
+    """Add the programme and assessment reasoning used by delivery-ready TOCs."""
+    days = toc.get("days") or []
+    duration = len(days)
+    total_weeks = max(1, (duration + 4) // 5)
+    dates = _business_dates(_training_start_date(training_dates), duration)
+    audience = audience_level or f"{toc.get('level', 'Intermediate').title()} learners"
+    weekly_plan = []
+    assessments = []
+    for week_index in range(total_weeks):
+        start = week_index * 5
+        week_days = days[start:start + 5]
+        topics = [str(day.get("focus_area") or "Training") for day in week_days]
+        week_number = week_index + 1
+        outcome = (
+            "Demonstrate job readiness through an end-to-end simulation and presentation."
+            if week_number == total_weeks
+            else f"Apply {toc.get('domain')} concepts in guided scenarios and document outcomes clearly."
+        )
+        weekly_plan.append({
+            "week": week_number,
+            "theme": _programme_phase(week_number, total_weeks),
+            "key_topics": topics,
+            "days": len(week_days),
+            "assessment_activity": "Final capstone simulation and readiness assessment" if week_number == total_weeks else "Scenario role-play, weekly knowledge check, and facilitator feedback",
+            "outcome": outcome,
+        })
+        assessments.append({
+            "week": f"Week {week_number}",
+            "assessment_type": "Capstone Simulation + Final Assessment" if week_number == total_weeks else "Weekly Knowledge Check + Scenario Role-Play",
+            "topics_covered": ", ".join(topics),
+            "format": "Observed scenario, short knowledge check, and practical evidence" if week_number == total_weeks else "20-question knowledge check plus scenario-based team exercise",
+            "pass_threshold": "75% and facilitator rubric satisfactory" if week_number == total_weeks else "70% and facilitator rubric satisfactory",
+            "action_if_not_passed": "Individual coaching plan and reassessment" if week_number == total_weeks else "Trainer coaching, targeted practice, and one reassessment",
+        })
+    for index, day in enumerate(days):
+        day["week"] = index // 5 + 1
+        day["date"] = dates[index]
+        day["category"] = _meaningful_category(day, index == duration - 1)
+        if (index + 1) % 5 == 0 and index + 1 < duration:
+            day["assessment"] = "Weekly knowledge check and scenario role-play"
+        elif index == duration - 1:
+            day["assessment"] = "Final capstone simulation, presentation, and readiness assessment"
+        else:
+            day["assessment"] = "Daily knowledge check and lab evidence"
+    toc["programme_philosophy"] = {
+        "target_audience": audience,
+        "programme_goal": f"Build practical {toc.get('domain')} capability through progressive concepts, guided practice, scenarios, and a final capstone.",
+        "design_approach": "Each day pairs foundation concepts with applied work. Weekly scenario practice and evidence-based assessments confirm readiness before progressing.",
+        "assessment_strategy": "Daily checks, weekly role-plays, milestone feedback, and a final capstone simulation measure applied competence rather than memorisation.",
+    }
+    toc["weekly_programme"] = weekly_plan
+    toc["assessment_framework"] = assessments
+    toc["capstone_plan"] = {
+        "approach": "Incremental capstone: learners add one deliverable each week and receive facilitator feedback before the final demonstration.",
+        "checkpoints": [f"Week {week['week']}: capstone checkpoint and feedback" for week in weekly_plan[:-1:2]],
+        "finale": "Final week: end-to-end scenario, documented deliverable, demonstration, and retrospective.",
+    }
+    toc["reasoning"] = {
+        "curriculum_sequence": "Foundation before implementation; implementation before scenario simulation; simulation before capstone.",
+        "assessment_rule": "Every five delivery days end with evidence-based assessment and feedback.",
+        "day_design_rule": "Every day contains concept learning, guided demonstration, practical activity, and a measurable outcome.",
+    }
+    return toc
+
+
+def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str = "intermediate", mode: str = "Online", notes: str = "", domain_override: dict = None, audience_level: str = "", training_dates: str = "") -> dict:
     duration = max(1, min(int(duration_days or 1), 100))
-    domain = deepcopy(domain_override) if domain_override else (get_domain(domain_name) or _generic_domain(domain_name))
+    domain = deepcopy(domain_override) if domain_override else (get_domain(domain_name, duration) or _generic_domain(domain_name))
     topics = _select_topics(domain, duration)
     days = [_day_entry(domain, item, index + 1, duration, notes) for index, item in enumerate(topics)]
     tools = []
@@ -358,7 +503,7 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
         {"category": "Primary Tools", "items": [f"{tool} - used in hands-on labs and project delivery" for tool in tools[:12]]},
         {"category": "Project Management", "items": ["Jira - epics, stories, tasks, sprint board, reports", "Agile ceremonies - planning, review, retrospective"]},
     ]
-    return {
+    toc = {
         "title": f"{domain.get('name')} Mastery",
         "subtitle": f"{duration}-Day Intensive Training Program",
         "domain": domain.get("name"),
@@ -403,12 +548,102 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
         "trainer_notes": "Generated by the Training TOC Agent from the curriculum knowledge base. Gemini may be used only for optional wording polish.",
         "agent": {
             "source": "admin_knowledge_base" if domain_override else "domain_dataset",
-            "domain_found": bool(domain_override or get_domain(domain_name)),
+            "domain_found": bool(domain_override or get_domain(domain_name, duration)),
             "requested_days": duration,
             "mode": mode,
             "level": level,
         },
     }
+    return _enrich_programme_pack(toc, audience_level, training_dates)
+
+
+def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "intermediate", mode: str = "Online", notes: str = "", audience_level: str = "", training_dates: str = "") -> dict:
+    """Create one delivery-ready TOC from explicit per-technology day allocations."""
+    normalized = []
+    for allocation in allocations or []:
+        name = str(allocation.get("technology") or allocation.get("domain") or "").strip()
+        days = int(allocation.get("days") or 0)
+        if name and days > 0:
+            normalized.append({"technology": name, "days": days})
+    if not normalized:
+        raise ValueError("At least one technology allocation is required")
+
+    duration = sum(item["days"] for item in normalized)
+    domains = []
+    combined_days = []
+    allocation_reasoning = []
+    day_number = 1
+    for allocation in normalized:
+        domain = get_domain(allocation["technology"], allocation["days"]) or _generic_domain(allocation["technology"])
+        domains.append(domain)
+        source_days = list(domain.get("days") or [])
+        # In an allocated multi-technology program, teach each module from its
+        # beginning. Sampling across a full course can otherwise pull a capstone
+        # into a short two or three-day allocation.
+        if source_days and len(source_days) >= allocation["days"]:
+            selected_items = [_standardize_compact_day_item(item, domain.get("name", allocation["technology"])) for item in source_days[:allocation["days"]]]
+        else:
+            selected_items = _select_topics(domain, allocation["days"])
+        if allocation["technology"].lower() != str(domain.get("name") or "").lower():
+            for item in selected_items:
+                item["topic"] = f"{allocation['technology']}: {item.get('topic') or 'Core Concepts'}"
+        selected_topics = [str(item.get("topic") or "Training topic") for item in selected_items]
+        allocation_reasoning.append({
+            "technology": allocation["technology"],
+            "allocated_days": allocation["days"],
+            "selection_rule": "Selected in progressive curriculum order: foundations and setup before core implementation, then applied practice.",
+            "selected_topics": selected_topics,
+            "day_range": f"Day {day_number}-Day {day_number + allocation['days'] - 1}",
+        })
+        for item in selected_items:
+            combined_days.append(_day_entry(domain, item, day_number, duration, notes))
+            day_number += 1
+
+    if duration >= 5 and combined_days:
+        final_day = combined_days[-1]
+        final_day["title"] = f"Day {duration}: Integrated Capstone - {combined_name if 'combined_name' in locals() else 'Combined Technologies'}"
+        final_day["focus_area"] = "Integrated Cloud, DevOps, Python and Agentic AI Capstone"
+        final_day["subtopics"] = [
+            "Integrate cloud deployment, CI/CD automation, Python scripting and AI agent workflow",
+            "Validate logs, deployment status, alerts and remediation recommendations",
+            "Demonstrate the solution and explain operational decisions",
+        ]
+        final_day["morning_session"]["title"] = "Integrated Capstone - Design and Demonstration"
+        final_day["afternoon_session"]["title"] = "Integrated Capstone - Hands-on"
+        final_day["afternoon_session"]["topics"][2]["topic"] = "Lab: Build and demonstrate the integrated automation and AI-agent solution"
+
+    names = [item["technology"] for item in normalized]
+    combined_name = " + ".join(names)
+    tools = []
+    certs = []
+    for domain in domains:
+        for tool in domain.get("tools") or []:
+            if tool not in tools:
+                tools.append(tool)
+        for certification in domain.get("certifications") or []:
+            if certification not in certs:
+                certs.append(certification)
+
+    toc = generate_toc_from_dataset(combined_name, duration, level, mode, notes, audience_level=audience_level, training_dates=training_dates)
+    toc.update({
+        "title": f"{combined_name} Combined Training Programme",
+        "subtitle": f"{duration}-Day Integrated Training Program",
+        "domain": combined_name,
+        "duration_days": duration,
+        "days": combined_days,
+        "tools_software": tools,
+        "certification_roadmap": certs or toc.get("certification_roadmap", []),
+        "overview": f"A {duration}-day integrated programme with explicit allocations: " + ", ".join(f"{item['technology']} ({item['days']} days)" for item in normalized) + ". Each day combines explained concepts, guided demonstration, practical lab work, and a knowledge check.",
+        "technology_allocations": normalized,
+        "curriculum_decision_layer": {
+            "allocation_rule": "Use the exact day allocation provided for each requested technology; never borrow days from another technology.",
+            "sequence_rule": "Teach prerequisites and foundations before configuration, implementation, troubleshooting, and integrated practice.",
+            "day_design_rule": "Each day includes explanation, demonstration, guided hands-on work, lab evidence, and a knowledge check.",
+            "integration_rule": "Keep technology modules distinct while connecting them through the final integrated learning outcome.",
+            "technology_reasoning": allocation_reasoning,
+        },
+    })
+    return _enrich_programme_pack(toc, audience_level, training_dates)
 
 
 def validate_toc(toc_data: dict, duration_days: int) -> dict:

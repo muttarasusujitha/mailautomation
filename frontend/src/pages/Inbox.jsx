@@ -347,7 +347,7 @@ export default function Inbox() {
         return
       }
       if (!connected || !gmailStatus?.calendar_connected) {
-        const redirectUri = `${window.location.protocol}//${window.location.hostname}:8000/api/gmail/oauth-callback`
+        const redirectUri = `${window.location.protocol}//${window.location.hostname}:8002/api/v1/gmail/oauth-callback`
         const res = await api.get('/gmail/oauth-url', { params: { redirect_uri: redirectUri } })
         saveGmailOAuthPkce(res.data)
         window.location.href = res.data.auth_url || res.data.url

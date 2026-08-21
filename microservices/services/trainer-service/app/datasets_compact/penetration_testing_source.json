@@ -1,0 +1,376 @@
+{
+    "domain":  "Penetration Testing",
+    "name":  "Penetration Testing â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Pentesting",
+                    "Ethical Security Testing"
+                ],
+    "tools":  [
+                  "Nmap",
+                  "Burp Suite",
+                  "Metasploit",
+                  "Wireshark"
+              ],
+    "certifications":  [
+                           "Penetration Testing official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Fundamentals",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Terminology",
+                                       "Common protocols",
+                                       "Use cases",
+                                       "Threats or failure modes",
+                                       "Lab setup",
+                                       "Penetration Testing terminology and feature mapping for this topic",
+                                       "Penetration Testing configuration and implementation considerations",
+                                       "Penetration Testing best practices and common mistakes for this topic",
+                                       "scope",
+                                       "rules of engagement",
+                                       "reconnaissance",
+                                       "enumeration",
+                                       "vulnerability validation",
+                                       "web testing",
+                                       "network testing",
+                                       "privilege escalation concepts",
+                                       "reporting",
+                                       "remediation verification",
+                                       "Nmap",
+                                       "Burp Suite"
+                                   ],
+                     "tools":  [
+                                   "Nmap",
+                                   "Burp Suite",
+                                   "Metasploit"
+                               ],
+                     "lab_task":  "Set up a safe lab and demonstrate Penetration Testing fundamentals.",
+                     "technology":  "Penetration Testing",
+                     "technology_id":  "penetration-testing",
+                     "learning_objectives":  [
+                                                 "Explain the Fundamentals concepts in the context of Penetration Testing.",
+                                                 "Configure or implement the key Penetration Testing features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Fundamentals practically using Penetration Testing.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Protocols and Components",
+                     "subtopics":  [
+                                       "Core components",
+                                       "Packet/message flow",
+                                       "Ports and protocols",
+                                       "Addressing/identity concepts",
+                                       "State",
+                                       "Control plane/data plane",
+                                       "Common configurations",
+                                       "Penetration Testing terminology and feature mapping for this topic",
+                                       "Penetration Testing configuration and implementation considerations",
+                                       "Penetration Testing best practices and common mistakes for this topic",
+                                       "scope",
+                                       "rules of engagement",
+                                       "reconnaissance",
+                                       "enumeration",
+                                       "vulnerability validation",
+                                       "web testing",
+                                       "network testing",
+                                       "privilege escalation concepts",
+                                       "reporting",
+                                       "remediation verification",
+                                       "Nmap",
+                                       "Burp Suite"
+                                   ],
+                     "tools":  [
+                                   "Nmap",
+                                   "Burp Suite",
+                                   "Metasploit"
+                               ],
+                     "lab_task":  "Inspect and configure core Penetration Testing components.",
+                     "technology":  "Penetration Testing",
+                     "technology_id":  "penetration-testing",
+                     "learning_objectives":  [
+                                                 "Explain the Protocols and Components concepts in the context of Penetration Testing.",
+                                                 "Configure or implement the key Penetration Testing features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Protocols and Components practically using Penetration Testing.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Design and Architecture",
+                     "subtopics":  [
+                                       "Enterprise design patterns",
+                                       "Segmentation",
+                                       "Redundancy",
+                                       "Scalability",
+                                       "Trust boundaries",
+                                       "Failure domains",
+                                       "Cloud considerations",
+                                       "Penetration Testing terminology and feature mapping for this topic",
+                                       "Penetration Testing configuration and implementation considerations",
+                                       "Penetration Testing best practices and common mistakes for this topic",
+                                       "scope",
+                                       "rules of engagement",
+                                       "reconnaissance",
+                                       "enumeration",
+                                       "vulnerability validation",
+                                       "web testing",
+                                       "network testing",
+                                       "privilege escalation concepts",
+                                       "reporting",
+                                       "remediation verification",
+                                       "Nmap",
+                                       "Burp Suite"
+                                   ],
+                     "tools":  [
+                                   "Nmap",
+                                   "Burp Suite",
+                                   "Metasploit"
+                               ],
+                     "lab_task":  "Design an enterprise architecture for Penetration Testing.",
+                     "technology":  "Penetration Testing",
+                     "technology_id":  "penetration-testing",
+                     "learning_objectives":  [
+                                                 "Explain the Design and Architecture concepts in the context of Penetration Testing.",
+                                                 "Configure or implement the key Penetration Testing features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Design and Architecture practically using Penetration Testing.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Security Controls",
+                     "subtopics":  [
+                                       "Authentication",
+                                       "Authorization",
+                                       "Encryption",
+                                       "Certificates/keys",
+                                       "Hardening",
+                                       "Least privilege",
+                                       "Logging and auditing",
+                                       "Penetration Testing terminology and feature mapping for this topic",
+                                       "Penetration Testing configuration and implementation considerations",
+                                       "Penetration Testing best practices and common mistakes for this topic",
+                                       "scope",
+                                       "rules of engagement",
+                                       "reconnaissance",
+                                       "enumeration",
+                                       "vulnerability validation",
+                                       "web testing",
+                                       "network testing",
+                                       "privilege escalation concepts",
+                                       "reporting",
+                                       "remediation verification",
+                                       "Nmap",
+                                       "Burp Suite"
+                                   ],
+                     "tools":  [
+                                   "Nmap",
+                                   "Burp Suite",
+                                   "Metasploit"
+                               ],
+                     "lab_task":  "Apply secure configuration and hardening.",
+                     "technology":  "Penetration Testing",
+                     "technology_id":  "penetration-testing",
+                     "learning_objectives":  [
+                                                 "Explain the Security Controls concepts in the context of Penetration Testing.",
+                                                 "Configure or implement the key Penetration Testing features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Security Controls practically using Penetration Testing.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Monitoring and Troubleshooting",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Metrics",
+                                       "Packet or request inspection",
+                                       "Common faults",
+                                       "Diagnostic commands",
+                                       "Alerting",
+                                       "Incident workflow",
+                                       "Penetration Testing terminology and feature mapping for this topic",
+                                       "Penetration Testing configuration and implementation considerations",
+                                       "Penetration Testing best practices and common mistakes for this topic",
+                                       "scope",
+                                       "rules of engagement",
+                                       "reconnaissance",
+                                       "enumeration",
+                                       "vulnerability validation",
+                                       "web testing",
+                                       "network testing",
+                                       "privilege escalation concepts",
+                                       "reporting",
+                                       "remediation verification",
+                                       "Nmap",
+                                       "Burp Suite"
+                                   ],
+                     "tools":  [
+                                   "Nmap",
+                                   "Burp Suite",
+                                   "Metasploit",
+                                   "Wireshark"
+                               ],
+                     "lab_task":  "Diagnose and resolve a simulated Penetration Testing issue.",
+                     "technology":  "Penetration Testing",
+                     "technology_id":  "penetration-testing",
+                     "learning_objectives":  [
+                                                 "Explain the Monitoring and Troubleshooting concepts in the context of Penetration Testing.",
+                                                 "Configure or implement the key Penetration Testing features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using Penetration Testing.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Automation and Operations",
+                     "subtopics":  [
+                                       "Configuration automation",
+                                       "Policy management",
+                                       "Backups",
+                                       "Change control",
+                                       "Versioning",
+                                       "Testing",
+                                       "Operational runbooks",
+                                       "Penetration Testing terminology and feature mapping for this topic",
+                                       "Penetration Testing configuration and implementation considerations",
+                                       "Penetration Testing best practices and common mistakes for this topic",
+                                       "scope",
+                                       "rules of engagement",
+                                       "reconnaissance",
+                                       "enumeration",
+                                       "vulnerability validation",
+                                       "web testing",
+                                       "network testing",
+                                       "privilege escalation concepts",
+                                       "reporting",
+                                       "remediation verification",
+                                       "Nmap",
+                                       "Burp Suite"
+                                   ],
+                     "tools":  [
+                                   "Nmap",
+                                   "Burp Suite",
+                                   "Metasploit"
+                               ],
+                     "lab_task":  "Automate a repeatable Penetration Testing configuration task.",
+                     "technology":  "Penetration Testing",
+                     "technology_id":  "penetration-testing",
+                     "learning_objectives":  [
+                                                 "Explain the Automation and Operations concepts in the context of Penetration Testing.",
+                                                 "Configure or implement the key Penetration Testing features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Automation and Operations practically using Penetration Testing.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Advanced and Cloud Patterns",
+                     "subtopics":  [
+                                       "Cloud-native services",
+                                       "Hybrid connectivity",
+                                       "Zero-trust considerations",
+                                       "Performance",
+                                       "High availability",
+                                       "Disaster recovery",
+                                       "Cost considerations",
+                                       "Penetration Testing terminology and feature mapping for this topic",
+                                       "Penetration Testing configuration and implementation considerations",
+                                       "Penetration Testing best practices and common mistakes for this topic",
+                                       "scope",
+                                       "rules of engagement",
+                                       "reconnaissance",
+                                       "enumeration",
+                                       "vulnerability validation",
+                                       "web testing",
+                                       "network testing",
+                                       "privilege escalation concepts",
+                                       "reporting",
+                                       "remediation verification",
+                                       "Nmap",
+                                       "Burp Suite"
+                                   ],
+                     "tools":  [
+                                   "Nmap",
+                                   "Burp Suite",
+                                   "Metasploit",
+                                   "Wireshark"
+                               ],
+                     "lab_task":  "Design a cloud/hybrid implementation.",
+                     "technology":  "Penetration Testing",
+                     "technology_id":  "penetration-testing",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced and Cloud Patterns concepts in the context of Penetration Testing.",
+                                                 "Configure or implement the key Penetration Testing features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using Penetration Testing.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone",
+                     "subtopics":  [
+                                       "Requirement analysis",
+                                       "Architecture",
+                                       "Security",
+                                       "Configuration",
+                                       "Testing",
+                                       "Monitoring",
+                                       "Troubleshooting",
+                                       "Documentation",
+                                       "Penetration Testing terminology and feature mapping for this topic",
+                                       "Penetration Testing configuration and implementation considerations",
+                                       "Penetration Testing best practices and common mistakes for this topic",
+                                       "scope",
+                                       "rules of engagement",
+                                       "reconnaissance",
+                                       "enumeration",
+                                       "vulnerability validation",
+                                       "web testing",
+                                       "network testing",
+                                       "privilege escalation concepts",
+                                       "reporting",
+                                       "remediation verification",
+                                       "Nmap",
+                                       "Burp Suite"
+                                   ],
+                     "tools":  [
+                                   "Nmap",
+                                   "Burp Suite",
+                                   "Metasploit",
+                                   "Wireshark"
+                               ],
+                     "lab_task":  "Build and document an end-to-end Penetration Testing solution.",
+                     "technology":  "Penetration Testing",
+                     "technology_id":  "penetration-testing",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone concepts in the context of Penetration Testing.",
+                                                 "Configure or implement the key Penetration Testing features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone practically using Penetration Testing.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "penetration-testing"
+}
