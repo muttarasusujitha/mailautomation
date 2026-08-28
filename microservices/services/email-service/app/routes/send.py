@@ -2,7 +2,7 @@
 import base64
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -150,7 +150,15 @@ async def send_single_email(
             {"idempotency_key": idempotency_key},
             {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1, "error_message": 1},
         )
-        if existing_log and existing_log.get("status") in {"sent", "sending"}:
+        existing_status = (existing_log or {}).get("status")
+        existing_updated_at = (existing_log or {}).get("updated_at") or (existing_log or {}).get("created_at")
+        stale_sending = False
+        if existing_status == "sending":
+            try:
+                stale_sending = bool(existing_updated_at and existing_updated_at < datetime.utcnow() - timedelta(minutes=10))
+            except TypeError:
+                stale_sending = False
+        if existing_log and (existing_status == "sent" or (existing_status == "sending" and not stale_sending)):
             return {
                 "success": True,
                 "email_id": existing_log.get("email_id"),

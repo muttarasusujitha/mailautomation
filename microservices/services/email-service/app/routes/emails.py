@@ -159,7 +159,7 @@ async def retry_email(
     success, error = await send_email_async(
         to=doc.get("recipient", ""),
         subject=doc.get("subject", ""),
-        body=doc.get("body_snippet", ""),
+        body=doc.get("body") or doc.get("body_snippet", ""),
         message_id_header=message_id_header,
     )
     now = datetime.utcnow()
