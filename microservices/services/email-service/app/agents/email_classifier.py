@@ -83,6 +83,7 @@ SCENARIO_KEYWORDS: List[Tuple[str, Iterable[str]]] = [
     ("client_asks_batch_split", ("split batch", "multiple batches", "two batches", "batch wise", "separate batch", "parallel batch")),
     ("client_asks_rate_card", ("rate card", "standard rates", "pricing sheet", "commercial sheet", "rate list")),
     ("client_asks_availability", ("trainer availability", "availability check", "available dates", "available this week", "trainer free", "availability confirmation")),
+    ("client_asks_technology_catalogue", ("list of technologies", "technologies currently being taught", "technologies you teach", "courses you offer", "training courses available", "technology catalogue", "technology catalog", "training catalogue", "training catalog")),
     ("client_asks_shortlist_eta", ("when can you share profiles", "profile eta", "shortlist eta", "by when profiles", "how soon can you share", "timeline for profiles")),
     ("client_thanks", ("thank you", "thanks", "noted", "okay noted", "received", "acknowledged", "ok thanks", "fine", "great thanks")),
     ("client_updates_requirement", ("updated requirement", "revised requirement", "updated details", "revised details", "please update", "correction", "change in requirement")),
@@ -421,6 +422,15 @@ def classify_email(subject: str = "", body: str = "", sender_email: str = "", se
     # history that may contain older trainer-slot language.
     if "client_shared_meeting_link_to_trainer" in matched:
         scenario = "client_shared_meeting_link_to_trainer"
+        person_type = "corporate_client"
+    # Lab-only requests can contain generic words such as "requirement" and
+    # commercial language that otherwise outscore the more specific intent.
+    if "client_asks_lab_setup" in matched and re.search(
+        r"\b(?:lab\s+access\s+only|only\s+lab|without\s+(?:a\s+)?trainer)\b",
+        text,
+        flags=re.IGNORECASE,
+    ):
+        scenario = "client_asks_lab_setup"
         person_type = "corporate_client"
     if scenario.startswith("trainer_") and person_type not in {"bounce", "system", "ooo", "internal_team"}:
         person_type = "trainer"

@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from bson.binary import Binary
 
 from shared.database.service import get_db
 from app.config import get_settings
@@ -496,6 +497,10 @@ async def upload_resume(
         "upload_id": upload_id,
         "trainer_id": trainer_id,
         "filename": file.filename,
+        "content_type": file.content_type or "application/octet-stream",
+        "original_file": Binary(file_bytes),
+        "original_file_size": len(file_bytes),
+        "original_file_preserved": True,
         "processing_status": "completed",
         "extracted_data": profile,
         "extracted_text": raw_text[:50000],

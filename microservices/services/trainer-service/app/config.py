@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"
     ANTHROPIC_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-5.5"
 
     ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,https://localhost:3000"
 

@@ -3512,8 +3512,99 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   const [clientBudget, setClientBudget] = useState('')
   const [clientEmailRequest, setClientEmailRequest] = useState(null)
   const [threadMessages, setThreadMessages] = useState([])
+  const [profileEnhancement, setProfileEnhancement] = useState(null)
+  const [showProfileEnhancement, setShowProfileEnhancement] = useState(false)
+  const [profileEnhancementBusy, setProfileEnhancementBusy] = useState(false)
+  const [approvedProfileSuggestions, setApprovedProfileSuggestions] = useState([])
+  const [editedProfileBullets, setEditedProfileBullets] = useState({})
+  const [trainerConfirmations, setTrainerConfirmations] = useState({})
+  const [trainerConfirmationReference, setTrainerConfirmationReference] = useState('')
 
   const BTN = 'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white transition-all active:scale-95 shadow-sm'
+
+  const analyzeProfileAgainstRequirement = async () => {
+    setProfileEnhancementBusy(true)
+    try {
+      const res = await api.post('/profile-enhancements/analyze', {
+        requirement_id: req.requirement_id,
+        trainer_id: trainer.trainer_id,
+      })
+      const enhancement = res.data.enhancement
+      setProfileEnhancement(enhancement)
+      setApprovedProfileSuggestions(
+        (enhancement?.analysis?.suggestions || [])
+          .filter(item => !item.requires_trainer_confirmation && item.suggested_bullet)
+          .map(item => item.id)
+      )
+      setEditedProfileBullets(Object.fromEntries(
+        (enhancement?.analysis?.suggestions || []).map(item => [item.id, item.suggested_bullet || ''])
+      ))
+      setShowProfileEnhancement(true)
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Could not analyze trainer profile')
+    } finally {
+      setProfileEnhancementBusy(false)
+    }
+  }
+
+  const approveProfileEnhancement = async () => {
+    setProfileEnhancementBusy(true)
+    try {
+      const res = await api.post(
+        `/profile-enhancements/${req.requirement_id}/${trainer.trainer_id}/approve`,
+        {
+          approved_suggestion_ids: approvedProfileSuggestions,
+          edited_bullets: editedProfileBullets,
+          confirmed_by: 'shortlist_review',
+        }
+      )
+      setProfileEnhancement(res.data.enhancement)
+      setShowProfileEnhancement(false)
+      toast.success(`${res.data.approved_count || 0} verified profile addition(s) approved`)
+      onStatusUpdate(trainer.trainer_id, stage, {
+        profile_enhancement_status: 'approved',
+        approved_profile_bullets: res.data.enhancement?.approved_bullets || [],
+      })
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Could not approve profile enhancement')
+    } finally {
+      setProfileEnhancementBusy(false)
+    }
+  }
+
+  const recordTrainerProfileConfirmation = async () => {
+    if (!trainerConfirmationReference.trim()) {
+      toast.error('Enter the trainer name or email confirmation reference')
+      return
+    }
+    setProfileEnhancementBusy(true)
+    try {
+      const res = await api.post(
+        `/profile-enhancements/${req.requirement_id}/${trainer.trainer_id}/confirm`,
+        {
+          confirmed_bullets: trainerConfirmations,
+          confirmed_by: trainerConfirmationReference.trim(),
+          confirmation_source: 'trainer_email_or_call',
+        }
+      )
+      const enhancement = res.data.enhancement
+      setProfileEnhancement(enhancement)
+      setEditedProfileBullets(current => ({
+        ...current,
+        ...Object.fromEntries((enhancement.analysis?.suggestions || []).map(item => [item.id, item.suggested_bullet || ''])),
+      }))
+      setApprovedProfileSuggestions(current => [
+        ...new Set([...current, ...(enhancement.analysis?.suggestions || [])
+          .filter(item => !item.requires_trainer_confirmation && item.suggested_bullet)
+          .map(item => item.id)]),
+      ])
+      toast.success(`${res.data.confirmed_count} trainer confirmation(s) recorded`)
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Could not record trainer confirmation')
+    } finally {
+      setProfileEnhancementBusy(false)
+    }
+  }
 
   const getThread = async trainer => {
     const res = await api.get(
@@ -4669,6 +4760,111 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           }
         />
       )}
+      {showProfileEnhancement && profileEnhancement && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Requirement-Aligned Profile Review</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Original profile is preserved. Approve only additions supported by resume evidence.
+                </p>
+              </div>
+              <button onClick={() => setShowProfileEnhancement(false)} className="text-sm font-semibold text-slate-500">Close</button>
+            </div>
+            <div className="mt-5 space-y-3">
+              {(profileEnhancement.analysis?.suggestions || []).map(item => {
+                const selectable = !item.requires_trainer_confirmation && !!item.suggested_bullet
+                const checked = approvedProfileSuggestions.includes(item.id)
+                return (
+                  <label key={item.id} className={clsx(
+                    'block rounded-xl border p-4',
+                    selectable ? 'border-slate-200 bg-white' : 'border-amber-200 bg-amber-50'
+                  )}>
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={!selectable}
+                        onChange={e => setApprovedProfileSuggestions(current =>
+                          e.target.checked ? [...current, item.id] : current.filter(id => id !== item.id)
+                        )}
+                        className="mt-1"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-bold text-slate-900">{item.skill}</span>
+                          <span className={clsx(
+                            'rounded-full px-2 py-0.5 text-xs font-bold',
+                            item.evidence_status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' :
+                            item.evidence_status === 'related' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                          )}>{item.evidence_status}</span>
+                        </div>
+                        <p className="mt-2 text-xs text-slate-500"><strong>Original evidence:</strong> {item.resume_evidence}</p>
+                        <p className="mt-1 text-xs text-slate-500"><strong>Source:</strong> {item.source_section || 'Original profile'} · <strong>Strength:</strong> {(item.match_strength || item.evidence_status).replaceAll('_', ' ')}</p>
+                        {item.experience_depth && <p className="mt-1 text-xs text-slate-500"><strong>Depth:</strong> {item.experience_depth}</p>}
+                        {selectable && (
+                          <div className="mt-3 grid gap-1">
+                            <span className="text-xs font-semibold text-slate-600">Client-specific suggested sentence</span>
+                            <textarea
+                              value={editedProfileBullets[item.id] ?? item.suggested_bullet ?? ''}
+                              onChange={e => setEditedProfileBullets(current => ({ ...current, [item.id]: e.target.value }))}
+                              rows={2}
+                              className="w-full rounded-lg border border-slate-200 p-2 text-sm text-slate-800"
+                            />
+                          </div>
+                        )}
+                        {item.requires_trainer_confirmation && (
+                          <div className="mt-3">
+                            <p className="text-xs font-semibold text-amber-700">Trainer confirmation required before this can be added.</p>
+                            <textarea
+                              value={trainerConfirmations[item.id] || ''}
+                              onChange={e => setTrainerConfirmations(current => ({ ...current, [item.id]: e.target.value }))}
+                              placeholder={`Paste ${trainer.name || 'the trainer'}'s exact confirmation for ${item.skill}`}
+                              rows={2}
+                              className="mt-2 w-full rounded-lg border border-amber-300 bg-white p-2 text-sm"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </label>
+                )
+              })}
+            </div>
+            {(profileEnhancement.analysis?.suggestions || []).some(item => item.requires_trainer_confirmation) && (
+              <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                <p className="text-sm font-bold text-amber-900">Record trainer-provided evidence</p>
+                <p className="mt-1 text-xs text-amber-700">Paste only what the trainer confirmed by email or call. This action is saved in the audit history.</p>
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                  <input
+                    value={trainerConfirmationReference}
+                    onChange={e => setTrainerConfirmationReference(e.target.value)}
+                    placeholder="Trainer name or confirmation email reference"
+                    className="min-w-0 flex-1 rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm"
+                  />
+                  <button
+                    onClick={recordTrainerProfileConfirmation}
+                    disabled={profileEnhancementBusy || !Object.values(trainerConfirmations).some(value => value.trim())}
+                    className="btn-secondary text-sm disabled:opacity-50"
+                  >Record Confirmation</button>
+                </div>
+              </div>
+            )}
+            <div className="mt-6 flex justify-end gap-2">
+              <button onClick={() => setShowProfileEnhancement(false)} className="btn-secondary text-sm">Cancel</button>
+              <button
+                onClick={approveProfileEnhancement}
+                disabled={profileEnhancementBusy || !approvedProfileSuggestions.length}
+                className="btn-primary text-sm disabled:opacity-50"
+              >
+                {profileEnhancementBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                Approve Verified Additions
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className={clsx('bg-white rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:shadow-lg',
         stage === 'training_confirmed'   ? 'border-green-300 bg-green-50/30'   :
@@ -4727,6 +4923,21 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
                 ))}
                 {trainer.skills.length > 5 && (
                   <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500">+{trainer.skills.length - 5}</span>
+                )}
+              </div>
+            )}
+            {(trainer.resume || trainer.combined_text || trainer.raw_text || trainer.summary || trainer.bio || trainer.trainer_details_received) && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button
+                  onClick={analyzeProfileAgainstRequirement}
+                  disabled={profileEnhancementBusy}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2 text-xs font-bold text-violet-700 hover:bg-violet-100 disabled:opacity-50"
+                >
+                  {profileEnhancementBusy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bot className="h-3.5 w-3.5" />}
+                  Align Profile to Client Requirement
+                </button>
+                {trainer.profile_enhancement_status === 'approved' && (
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700">Verified enhancement approved</span>
                 )}
               </div>
             )}

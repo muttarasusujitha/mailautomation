@@ -87,6 +87,23 @@ def test_new_proposal_request_with_review_wording_is_not_a_toc_revision():
     assert extracted["latest_coordination_intent"] == ""
 
 
+def test_attached_client_scope_requests_trainer_aligned_daywise_toc():
+    extracted = _extract_requirement_from_email(
+        "Trainer Requirement for Azure Track",
+        (
+            "We have a confirmed corporate training requirement. Scope of the delivery attached. "
+            "Please share day wise content from your end, updated profile, commercials, similar batches, "
+            "lab charges per pax, lab setup, system requirements and software required."
+        ),
+        sender_email="client@example.com",
+        sender_name="Client Team",
+    )
+
+    assert extracted["toc_requested"] is True
+    assert extracted["scope_attached"] is True
+    assert extracted["toc_action"] == "trainer_validate_scope"
+
+
 def test_lab_cost_is_recorded_for_clahan_without_requesting_it_from_trainers():
     extracted = _extract_requirement_from_email(
         "DevOps training requirement",

@@ -2,7 +2,7 @@
 import logging
 import math
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import httpx
 import re
@@ -30,6 +30,30 @@ DEFAULT_TRAINER_SHARE = 0.70
 
 def _clean_text(value: Any) -> str:
     return str(value or "").strip()
+
+
+def _trainer_scope_attachments(requirement: Dict[str, Any]) -> List[Dict[str, str]]:
+    allowed = {
+        ".pdf": "pdf", ".doc": "msword", ".docx": "vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ".xls": "vnd.ms-excel", ".xlsx": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".csv": "csv", ".txt": "plain",
+    }
+    forwarded: List[Dict[str, str]] = []
+    total_bytes = 0
+    for item in requirement.get("source_attachments") or []:
+        if not isinstance(item, dict) or not item.get("safe_client_scope"):
+            continue
+        filename = re.sub(r"[\r\n\\/]+", "_", _clean_text(item.get("filename")))[:160]
+        extension = next((ext for ext in allowed if filename.lower().endswith(ext)), "")
+        content_base64 = _clean_text(item.get("content_base64"))
+        size_bytes = int(item.get("size_bytes") or 0)
+        if not filename or not extension or not content_base64 or size_bytes <= 0 or size_bytes > 4 * 1024 * 1024:
+            continue
+        if total_bytes + size_bytes > 6 * 1024 * 1024:
+            break
+        forwarded.append({"filename": filename, "content_base64": content_base64, "subtype": allowed[extension]})
+        total_bytes += size_bytes
+    return forwarded
 
 
 def _trainer_lookup(identifier: str) -> Dict[str, Any]:
@@ -138,7 +162,42 @@ def _has_raw_client_mail_leak(body: str) -> bool:
     ))
 
 
+def _mail1_requested_items(requirement: Dict[str, Any]) -> List[str]:
+    source = _client_requirement_text(requirement).lower()
+    technology = _clean_text(requirement.get("domain") or requirement.get("technology") or "technology")
+    toc_label = (
+        "Detailed day-wise ToC/course agenda"
+        if any(term in source for term in ("day-wise", "day wise", "detailed", "topics and subtopics"))
+        else "ToC/course agenda"
+    )
+    commercial_label = (
+        "Commercials for the complete training engagement"
+        if re.search(r"commercials?.{0,40}(?:complete|entire|total)|(?:complete|entire|total).{0,40}commercials?", source)
+        else "Commercial expectation per hour/day"
+    )
+    checks = [
+        ("Updated trainer profile/CV", ("cv", "resume", "profile")),
+        ("LinkedIn profile", ("linkedin",)),
+        (f"Relevant {technology} corporate training experience", ("training experience", "relevant experience", "corporate training experience")),
+        ("Availability for the specified dates and timings", ("availability", "available", "slots")),
+        (toc_label, ("toc", "table of contents", "agenda", "course outline", "proposal")),
+        ("Day-wise hands-on lab plan", ("lab plan", "hands-on lab", "hands on lab")),
+        (commercial_label, ("commercial", "budget", "rate", "charges", "cost")),
+        ("Relevant certifications", ("certification", "certifications", "certified")),
+    ]
+    items = [label for label, needles in checks if any(needle in source for needle in needles)]
+    return items or ["Updated trainer profile/CV", "LinkedIn profile", "Availability"]
+
+
+def _mail1_source_value(requirement: Dict[str, Any], label_pattern: str) -> str:
+    source = _client_requirement_text(requirement)
+    match = re.search(rf"(?im)^\s*(?:{label_pattern})\s*:\s*([^\r\n]+)", source)
+    return _clean_text(match.group(1)).strip("* ") if match else ""
+
+
 def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], technology: str) -> str:
+    if technology.lower() == "devops":
+        technology = "DevOps"
     dates = _clean_text(
         requirement.get("training_dates")
         or requirement.get("preferred_dates")
@@ -158,30 +217,47 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     )
     mode = _clean_text(requirement.get("mode") or requirement.get("training_mode") or requirement.get("delivery_mode"))
     participants = _clean_text(requirement.get("participant_count") or requirement.get("participants") or requirement.get("audience_level"))
+    training_time = _clean_text(requirement.get("training_time") or requirement.get("session_timing") or _mail1_source_value(requirement, r"training\s+time|timings?"))
+    hands_on_lab = _clean_text(requirement.get("hands_on_lab") or _mail1_source_value(requirement, r"hands[-\s]?on\s+lab|lab\s+duration"))
     commercial = _trainer_mail1_commercial_text(requirement)
     details = [f"Domain/Technology: {technology}"]
     if dates:
         details.append(f"Training dates: {dates}")
     if duration:
         details.append(f"Duration: {duration}")
+    if training_time:
+        details.append(f"Training time: {training_time}")
+    if hands_on_lab:
+        details.append(f"Hands-on lab: {hands_on_lab}")
     if mode:
         details.append(f"Mode: {mode}")
     if participants:
         details.append(f"Participants: {participants}")
     if commercial:
         details.append(f"Commercials/Budget: {commercial}")
+    requested_items = _mail1_requested_items(requirement)
+    selected = []
+    for label, needle in [
+        ("availability", "availability"),
+        ("updated profile", "profile"),
+        ("commercials", "commercial"),
+        (f"relevant {technology} experience", "experience"),
+        ("day-wise TOC", "toc"),
+    ]:
+        if any(needle in item.lower() for item in requested_items):
+            selected.append(label)
+    if not selected:
+        selected = ["availability", "updated profile", "commercials", f"relevant {technology} experience"]
+    ask = ", ".join(dict.fromkeys(selected))
     return (
-        f"Dear {trainer_name or 'Trainer'},\n\n"
-        f"We have received a training requirement for {technology} and are looking for a trainer with relevant experience.\n\n"
-        "Training Details:\n\n"
+        f"Hi {trainer_name or 'Trainer'},\n\n"
+        "Hope you are doing well.\n\n"
+        f"We have a corporate training requirement for {technology} and are checking trainer availability.\n\n"
+        "Training Details:\n"
         f"{chr(10).join(details)}\n\n"
-        "Please let us know if you are interested and available for this requirement. Kindly share the details below:\n\n"
-        "- Updated trainer profile/CV\n"
-        "- LinkedIn profile\n"
-        "- Availability\n\n"
+        f"Please confirm your availability for the above requirement. Also share your {ask}.\n\n"
         "Regards,\n"
-        "Clahan Technologies\n"
-        f"{getattr(settings, 'FROM_EMAIL', None) or 'sujithaofficial585@gmail.com'}"
+        "Clahan Technologies"
     )
 
 
@@ -339,6 +415,8 @@ async def send_automation_mail(
                             "domain": technology,
                             "duration": duration,
                             "dates": dates,
+                            "training_time": _clean_text(requirement.get("training_time") or requirement.get("session_timing") or _mail1_source_value(requirement, r"training\s+time|timings?")),
+                            "hands_on_lab": _clean_text(requirement.get("hands_on_lab") or _mail1_source_value(requirement, r"hands[-\s]?on\s+lab|lab\s+duration")),
                             "mode": mode,
                             "location": _clean_text(requirement.get("preferred_location") or requirement.get("location")),
                             "participants": participants,
@@ -455,6 +533,10 @@ async def send_automation_mail(
                 "requirement_id": payload.requirement_id,
                 "smtp_config": payload.smtp_config,
             }
+            if payload.mail_type in ("mail1", "first"):
+                scope_attachments = _trainer_scope_attachments(requirement)
+                if scope_attachments:
+                    send_payload["attachments"] = scope_attachments
             if calendar_invite:
                 send_payload["calendar_invite"] = calendar_invite
             if payload.mail_type in ("mail1", "first") and payload.requirement_id:

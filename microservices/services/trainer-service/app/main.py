@@ -10,7 +10,7 @@ from app.routes import (
     trainers, matching, slots, toc,
     resume_data, resume_uploads, shortlists,
     interview_reminders, purchase_orders, invoices,
-    toc_extended, trainer_automation, voice_ai,
+    toc_extended, trainer_automation, voice_ai, profile_enhancements,
 )
 
 settings = get_settings()
@@ -42,6 +42,7 @@ async def _ensure_indexes(db) -> None:
         ("email_logs", [("direction", 1), ("status", 1), ("mail_type", 1), ("created_at", -1)], {}),
         ("trainer_slots", [("trainer_id", 1), ("created_at", -1)], {}),
         ("resume_uploads", [("trainer_id", 1), ("created_at", -1)], {}),
+        ("profile_enhancements", [("requirement_id", 1), ("trainer_id", 1)], {"unique": True}),
         ("interview_meeting_notes", [("schedule_key", 1), ("created_at", -1)], {}),
         ("purchase_orders", [("requirement_id", 1), ("created_at", -1)], {}),
         ("invoices", [("requirement_id", 1), ("created_at", -1)], {}),
@@ -81,6 +82,7 @@ app.include_router(trainer_automation.router, prefix="/api/v1/trainers",        
 # Resume pipeline
 app.include_router(resume_uploads.router,     prefix="/api/v1/resume-uploads",       tags=["resume-uploads"])
 app.include_router(resume_data.router,        prefix="/api/v1/resume-data",          tags=["resume-data"])
+app.include_router(profile_enhancements.router, prefix="/api/v1/profile-enhancements", tags=["profile-enhancements"])
 
 # Slots + shortlists
 app.include_router(slots.router,              prefix="/api/v1/trainer-slots",        tags=["slots"])

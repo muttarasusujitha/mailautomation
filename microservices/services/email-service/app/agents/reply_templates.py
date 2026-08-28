@@ -1,4 +1,5 @@
 """Deterministic reply templates for classified emails."""
+import re
 from typing import Any, Dict
 
 
@@ -10,6 +11,18 @@ TRAINER_SIGNATURE = "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com
 def _clean(value: Any, default: str = "") -> str:
     text = str(value or "").strip()
     return text if text else default
+
+
+def _hostinger_style_body(body: str) -> str:
+    """Keep deterministic replies aligned to the usable Clahan sent-mail patterns."""
+    text = str(body or "")
+    text = re.sub(r"\bDevops\s+Devops\b", "DevOps", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bDevops\b", "DevOps", text)
+    text = text.replace("TrainerSync Team", "Clahan Technologies")
+    text = text.replace("Regards,\nRecruitment Team,\nClahan Technologies", "Regards,\nClahan Technologies")
+    text = text.replace("Best Regards,\nRecruitment Team\nClahan Technologies", "Best Regards,\nClahan Technologies")
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
 
 
 def _client_name(extracted: Dict[str, Any]) -> str:
@@ -171,9 +184,9 @@ def _client_short_requirement_ack(
     missing = "" if has_profile_request else (_missing_lines(extracted) or extra_text.strip())
     opening = _clean(
         intro,
-        "Thank you for sharing your training requirement."
+        "Thank you for the detailed brief."
         if missing
-        else f"Thank you for sharing the {tech} training requirement.",
+        else f"Thank you for outlining the {tech} requirement so clearly.",
     )
     if missing:
         body = (
@@ -186,8 +199,9 @@ def _client_short_requirement_ack(
     else:
         body = (
             f"Dear {greeting},\n\n"
-            f"{opening} "
-            f"We will review the details and share suitable trainer profiles along with their {items} for your consideration.\n\n"
+            f"{opening} We are reviewing suitable {tech} trainers for the engagement and will share the most relevant options shortly. "
+            f"Our response will include the requested {items}, together with a day-wise agenda and practical lab plan.\n\n"
+            "We will ensure that the recommendations are aligned to your schedule and delivery format before sending them across.\n\n"
             f"{CLIENT_SIGNATURE}"
         )
     return _reply(f"Re: {tech} Trainer Requirement", body, template_key)
@@ -211,7 +225,7 @@ def _safe_ack(sender_name: str, subject: str) -> Dict[str, Any]:
 def _reply(subject: str, body: str, template_key: str, auto_send_safe: bool = True) -> Dict[str, Any]:
     return {
         "subject": subject,
-        "body": body,
+        "body": _hostinger_style_body(body),
         "auto_send_safe": auto_send_safe,
         "template_key": template_key,
     }
@@ -296,7 +310,7 @@ CONSULTANCY_REPLY_LINES = {
         "client_trainer_docs_ack",
         [
             "Thank you for requesting trainer documents/profile details.",
-            "We will check the available trainer profile, credentials, and supporting details and share them shortly.",
+            "We will check the available trainer profile, credentials, and supporting details and share them for your review shortly.",
             "If you need a specific format, please share it in the same thread.",
         ],
     ),
@@ -344,7 +358,7 @@ CONSULTANCY_REPLY_LINES = {
         "client_lab_setup_ack",
         [
             "Thank you for sharing the lab/setup query.",
-            "We will check the required tools, access, and environment prerequisites with the trainer.",
+            "We will check the required tools, access, and environment prerequisites with the trainer/team.",
             "We will share the setup requirements before the session wherever applicable.",
         ],
     ),
@@ -392,7 +406,7 @@ CONSULTANCY_REPLY_LINES = {
         "client_rate_card_ack",
         [
             "Thank you for requesting rate/commercial details.",
-            "We will check the applicable trainer commercials for the requirement and share the most relevant pricing information.",
+            "We will check the applicable trainer commercials for the requirement and share the commercials for your review.",
             "Final commercials may vary based on trainer, duration, mode, and schedule.",
         ],
     ),
@@ -408,8 +422,8 @@ CONSULTANCY_REPLY_LINES = {
         "client_shortlist_eta_ack",
         [
             "Thank you for checking the profile sharing timeline.",
-            "We are working on the trainer shortlist and will share suitable profiles as soon as they are ready.",
-            "We will prioritize quality and relevance while keeping the turnaround quick.",
+            "We are working on the trainer shortlist and will share suitable profiles with commercials and availability shortly.",
+            "We will keep you updated on the next action.",
         ],
     ),
 }
@@ -484,7 +498,7 @@ TRAINER_REPLY_LINES = {
         "trainer_toc_shared_ack",
         [
             "Thank you for sharing the ToC/course agenda.",
-            "We will review it and share it with the client/team for confirmation.",
+            "We will review it and share it with the client for confirmation.",
             "If any changes are requested, we will get back to you.",
         ],
     ),
@@ -660,7 +674,7 @@ def build_auto_reply(
         return _client_simple_reply(client, tech, subject, [
             "Thank you for the update.",
             f"We have noted that the shared trainer profile is not suitable for the {tech} requirement.",
-            "We will review alternate trainer options and share more relevant profiles for your consideration.",
+            "We will review alternate trainer options and share more relevant profiles for your review.",
         ], "client_trainer_rejection_ack")
 
     if scenario == "client_requests_replacement":
@@ -709,7 +723,7 @@ def build_auto_reply(
         return _client_simple_reply(client, tech, subject, [
             "Thank you for sharing the purchase order.",
             "We have received it and will review the details for billing, training scope, and commercial alignment.",
-            "We will proceed with invoice/logistics coordination shortly.",
+            "We will proceed with invoice and logistics coordination shortly.",
         ], "client_po_received_ack")
 
     if scenario == "client_asks_invoice":
@@ -751,14 +765,14 @@ def build_auto_reply(
         return _client_simple_reply(client, tech, subject, [
             "Thank you for following up.",
             f"We are checking the current status for the {tech} requirement and will update you shortly.",
-            "We will share the next actionable update as soon as it is available.",
+            "We will share the next update as soon as it is available.",
         ], "client_status_update_ack")
 
     if scenario == "client_asks_more_profiles":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for the update.",
             f"We will look for additional trainer profiles for the {tech} requirement.",
-            "If there are specific skills, experience level, budget, or location preferences to prioritize, please share them.",
+            "If there are specific skills, experience level, budget, or location preferences to prioritize, kindly share them.",
         ], "client_more_profiles_ack")
 
     if scenario == "client_training_completed":
@@ -790,7 +804,7 @@ def build_auto_reply(
         body = (
             f"Dear {trainer_name},\n\n"
             "Thank you for your response.\n\n"
-            "Please share the remaining details required for client review, if not already shared:\n\n"
+            "To proceed further, kindly share the below details if not already shared:\n\n"
             "* Updated trainer profile/CV\n"
             "* Availability dates or discussion/interview slots\n"
             "* Commercial expectation per hour/day\n"
@@ -849,7 +863,7 @@ def build_auto_reply(
         body = (
             "Dear Trainer,\n\n"
             "Thank you for your response.\n\n"
-            "Please share any remaining client-requested details such as profile/CV, availability, commercials, LinkedIn, ToC, or certifications.\n\n"
+            "To proceed further, kindly share any remaining client-requested details such as profile/CV, availability, commercials, LinkedIn, ToC, or certifications.\n\n"
             f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_more_details")

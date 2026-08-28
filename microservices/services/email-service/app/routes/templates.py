@@ -78,6 +78,8 @@ class ShortlistEmailRequest(BaseModel):
     mode: Optional[str] = ""
     participants: Optional[str] = ""
     dates: Optional[str] = ""
+    training_time: Optional[str] = ""
+    hands_on_lab: Optional[str] = ""
     client_name: Optional[str] = ""
     audience_level: Optional[str] = ""
     location: Optional[str] = ""
@@ -167,18 +169,19 @@ def _trainer_detail_requests(client_request: str, has_budget: bool) -> list[str]
         (("trainer profile", "consultant profile", "updated profile"), "Updated CV / Trainer Profile"),
         (("resume", "cv"), "Updated CV / Trainer Profile"),
         (("linkedin", "linked in"), "LinkedIn Profile"),
-        (("implementation experience", "training experience", "hands-on implementation", "relevant experience"), "Relevant training and implementation experience"),
+        (("implementation experience", "training experience", "hands-on implementation", "relevant experience"), "Relevant corporate training and implementation experience"),
         (("current location", "location"), "Current Location"),
-        (("availability",), "Availability"),
+        (("availability",), "Availability for the specified dates and timings"),
         (("available dates for training", "training dates"), "Available dates for training"),
         (("available time slots", "technical call", "interview slots"), "Available time slots for technical call"),
-        (("commercial", "commercials", "per hour", "per day", "rate"), "Commercials (per hour/day)"),
+        (("commercial", "commercials", "per hour", "per day", "rate", "cost"), "Commercials for the requested training engagement"),
         (("certification cost",), "Certification cost, if applicable"),
+        (("lab plan", "hands-on lab", "hands on lab"), "Day-wise hands-on lab plan"),
         (("system requirement", "hardware"), "System requirements / hardware"),
         (("software required", "required software"), "Software required for training"),
         (("availability of required software",), "Availability of required software from trainer side"),
         (("certification", "certifications"), "Relevant certifications"),
-        (("toc", "table of content", "table of contents", "course agenda", "agenda", "curriculum"), "ToC/course agenda"),
+        (("toc", "table of content", "table of contents", "course agenda", "agenda", "curriculum"), "Detailed day-wise ToC/course agenda"),
         (("day wise content", "day-wise content", "scope of the delivery"), "Day-wise ToC / course content"),
         (("batches delivered", "similar technology"), "Number of similar batches delivered"),
         (("client names", "similar trainings were delivered"), "Client names where similar trainings were delivered"),
@@ -198,6 +201,8 @@ def _requirement_snapshot(payload: ShortlistEmailRequest) -> str:
         ("Domain/Technology", payload.domain or "Training"),
         ("Training dates", payload.dates),
         ("Duration", payload.duration),
+        ("Training time", payload.training_time),
+        ("Hands-on lab", payload.hands_on_lab),
         ("Mode", payload.mode),
         ("Location", payload.location),
         ("Audience/Participants", payload.audience_level or payload.participants),
@@ -220,6 +225,53 @@ def _proposal_requirement_snapshot(payload: ShortlistEmailRequest) -> str:
         ("Commercials", PROPOSAL_COMMERCIAL_RANGE),
     ]
     return "\n".join(f"* {label}: {str(value).strip()}" for label, value in rows if str(value or "").strip())
+
+
+def _clean_trainer_detail_label(item: str) -> str:
+    text = str(item or "").strip()
+    replacements = {
+        "Updated CV / Trainer Profile": "updated profile",
+        "Commercials (per hour/day)": "commercials",
+        "Commercials for the requested training engagement": "commercials",
+        "Detailed day-wise ToC/course agenda": "day-wise TOC",
+        "Day-wise ToC / course content": "day-wise TOC",
+        "ToC/course agenda": "TOC",
+    }
+    return replacements.get(text, text)
+
+
+def _simple_trainer_mail1_body(payload: ShortlistEmailRequest, domain: str, requested_items: list[str]) -> str:
+    details = [
+        ("Technology", domain),
+        ("Duration", payload.duration),
+        ("Dates", payload.dates),
+        ("Time", payload.training_time),
+        ("Mode", payload.mode),
+        ("Participants", payload.participants or payload.audience_level),
+        ("Location", payload.location),
+    ]
+    detail_text = "\n".join(f"{label}: {str(value).strip()}" for label, value in details if _has_value(str(value or "")))
+    cleaned_items = [_clean_trainer_detail_label(item) for item in requested_items]
+    preferred_order = ["availability", "updated profile", "commercials", "relevant experience", "day-wise TOC", "TOC"]
+    selected = []
+    for preferred in preferred_order:
+        if any(preferred.lower() in item.lower() for item in cleaned_items):
+            selected.append(preferred)
+    if "day-wise TOC" in selected and "TOC" in selected:
+        selected = [item for item in selected if item != "TOC"]
+    if not selected:
+        selected = ["availability", "updated profile", "commercials", "relevant experience"]
+    ask = ", ".join(dict.fromkeys(selected))
+    return (
+        f"Hi {payload.trainer_name or 'Trainer'},\n\n"
+        "Hope you are doing well.\n\n"
+        f"We have a corporate training requirement for {domain} and are checking trainer availability.\n\n"
+        "Training Details:\n"
+        f"{detail_text}\n\n"
+        f"Please confirm your availability for the above requirement. Also share your {ask}.\n\n"
+        "Regards,\n"
+        "Clahan Technologies"
+    )
 
 
 class InterviewEmailRequest(BaseModel):
@@ -313,6 +365,9 @@ class RetryEmailRequest(BaseModel):
 @router.post("/shortlist-first")
 async def compose_shortlist_first(payload: ShortlistEmailRequest):
     domain = payload.domain or "Training"
+    if domain.strip().lower() == "devops":
+        domain = "DevOps"
+        payload.domain = domain
     client_request = _clean_client_request_for_trainer(payload.client_request or "")
     requirement_kind = _requirement_kind(payload, client_request)
     detail_text = _requirement_snapshot(payload)
@@ -331,17 +386,18 @@ This helps us process your availability automatically and move forward quickly.
     slot_guide = ""
     if requirement_kind == "confirmed_batch":
         intro = (
-            f"We have received a training requirement for {domain} and are looking for a trainer with relevant experience."
+            f"We are coordinating a {domain} corporate training requirement and your profile appears relevant "
+            "for this engagement."
         )
         action_line = (
-            "Please let us know if you are interested and available for this requirement. Kindly share the details below:"
+            "Please confirm your availability and share the details below so we can proceed with the client shortlist:"
         )
     else:
         intro = (
             f"We have an upcoming corporate training requirement for an experienced {domain} Trainer."
         )
         action_line = (
-            "If you are interested and available for this requirement, please share the following details:"
+            "If you are interested and available for this requirement, kindly share the below details:"
         )
         detail_text = _proposal_requirement_snapshot(payload)
     requested_items = _trainer_detail_requests(client_request, bool(payload.budget))
@@ -353,15 +409,31 @@ This helps us process your availability automatically and move forward quickly.
             and "relevant experience" not in item.lower()
         ]
     if requirement_kind == "confirmed_batch":
+        experience_item = f"Relevant {domain} corporate training and implementation experience"
+        toc_item = (
+            "Review the attached client scope, confirm full/partial module coverage and share an aligned day-wise TOC"
+            if payload.scope_attached or payload.toc_action == "trainer_validate_scope"
+            else "Detailed day-wise ToC/course agenda"
+        )
         confirmed_order = [
-            "Updated CV / Trainer Profile",
-            "LinkedIn Profile",
-            "Relevant training and implementation experience",
-            "Relevant certifications",
-            "Availability",
-            "ToC/course agenda",
+            "Updated CV / Trainer Profile", "LinkedIn Profile", experience_item,
+            "Relevant certifications", "Current Location", "Availability",
+            "Availability for the specified dates and timings", "Available dates for training", "Available time slots for technical call",
+            toc_item, "Day-wise hands-on lab plan", "Commercials for the requested training engagement", "Certification cost, if applicable",
+            "Number of similar batches delivered", "Client names where similar trainings were delivered",
+            "System requirements / hardware", "Software required for training",
+            "Availability of required software from trainer side",
         ]
         requested_set = set(requested_items)
+        if "Relevant corporate training and implementation experience" in requested_set:
+            requested_set.remove("Relevant corporate training and implementation experience")
+            requested_set.add(experience_item)
+        if "Detailed day-wise ToC/course agenda" in requested_set and toc_item != "Detailed day-wise ToC/course agenda":
+            requested_set.remove("Detailed day-wise ToC/course agenda")
+            requested_set.add(toc_item)
+        if "Day-wise ToC / course content" in requested_set:
+            requested_set.remove("Day-wise ToC / course content")
+            requested_set.add(toc_item)
         requested_items = [item for item in confirmed_order if item in requested_set]
         if not requested_items:
             requested_items = [
@@ -412,22 +484,13 @@ This helps us process your availability automatically and move forward quickly.
             requested_items.append("Day-wise ToC / course content")
     request_bullet = "*" if requirement_kind != "confirmed_batch" else "-"
     request_text = "\n".join(f"{request_bullet} {item}" for item in requested_items)
-    signature = "Clahan Team" if requirement_kind != "confirmed_batch" else f"Clahan Technologies\n{_from_email()}"
+    signature = "Clahan Team" if requirement_kind != "confirmed_batch" else "Clahan Technologies"
     urgent_line = (
         "Please share the details at the earliest as this is an urgent requirement.\n\n"
         if requirement_kind != "confirmed_batch"
         else ""
     )
-    body = (
-        f"Dear {payload.trainer_name or 'Trainer'},\n\n"
-        f"{intro}\n\n"
-        f"{'Training Details' if requirement_kind == 'confirmed_batch' else 'Requirement Details'}:\n\n{detail_text}{missing_note}\n\n"
-        f"{action_line}\n\n"
-        f"{request_text}\n\n"
-        f"{urgent_line}"
-        f"{slot_guide}"
-        f"Regards,\n{signature}"
-    )
+    body = _simple_trainer_mail1_body(payload, domain, requested_items)
     return {
         "subject": f"Training Requirement - {domain}",
         "body": body,
@@ -583,10 +646,9 @@ async def compose_mail2(payload: GenericSimpleRequest):
     ref_text = f" (Ref: {payload.requirement_id})" if payload.requirement_id else ""
     polished_body = (
         f"Dear {payload.name or 'Trainer'},\n\n"
-        f"Thank you for your interest in the {tech} requirement{ref_text}.\n\n"
-        "Please find the current training details below:\n\n"
+        f"Thank you for confirming your interest in the {tech} requirement{ref_text}.\n\n"
+        "To proceed further, kindly share the below details:\n\n"
         f"- Technology: {tech}\n\n"
-        "Please share the requested details below so we can proceed with profile submission:\n\n"
         "- Trainer profile\n"
         "- CV/resume\n"
         "- LinkedIn profile\n\n"
@@ -601,8 +663,8 @@ async def compose_mail2_followup(payload: GenericSimpleRequest):
     subject = f"Reminder: Details Request - {tech} Requirement"
     body = (
         f"Dear {payload.name or 'Trainer'},\n\n"
-        f"Following up on the details requested for the {tech} requirement.\n\n"
-        "Please share your trainer profile, CV/resume, and LinkedIn profile so we can proceed with profile submission.\n\n"
+        "Thank you for confirming your interest.\n\n"
+        f"To proceed further for the {tech} requirement, kindly share the above requested details.\n\n"
         "Regards,\nClahan Technologies"
     )
     return {"subject": subject, "body": body}
@@ -636,7 +698,8 @@ async def compose_client_budget_reply(payload: GenericSimpleRequest, x_internal_
     subject = "Budget Received â€” Thank you"
     body = (
         f"{_client_time_greeting(payload.client_name or 'Client')},\n\n"
-        "Thank you for sharing the budget. We will align trainer options accordingly and revert shortly.\n\n"
+        "Thank you for sharing the budget/commercial feedback.\n\n"
+        "We will review the commercials and revert with the feasible option shortly.\n\n"
         "Regards,\n" + _from_name()
     )
     return {"subject": subject, "body": body}
@@ -648,7 +711,8 @@ async def compose_client_budget_ack(payload: GenericSimpleRequest, x_internal_to
     subject = "Budget Acknowledgement"
     body = (
         f"{_client_time_greeting(payload.client_name or 'Client')},\n\n"
-        "Acknowledging receipt of the budget and next steps.\n\n"
+        "Thank you for confirming the budget.\n\n"
+        "We will align the trainer option accordingly and proceed with the next coordination step.\n\n"
         "Regards,\n" + _from_name()
     )
     return {"subject": subject, "body": body}
@@ -659,7 +723,8 @@ async def compose_rate_gap_resolution(payload: GenericSimpleRequest):
     subject = "Rate Gap â€” Proposed Resolution"
     body = (
         f"{_client_time_greeting(payload.client_name or 'Client')},\n\n"
-        "We have reviewed the rate expectations and propose the following resolution/options to bridge the gap.\n\n"
+        "We have reviewed the rate expectation for this requirement.\n\n"
+        "We will share the feasible commercial option for your review shortly.\n\n"
         "Regards,\n" + _from_name()
     )
     return {"subject": subject, "body": body}
@@ -688,7 +753,8 @@ async def compose_client_toc_request(payload: GenericSimpleRequest, x_internal_t
     subject = "TOC / Course Agenda Request"
     body = (
         f"{_client_time_greeting(payload.client_name or 'Client')},\n\n"
-        "Kindly share the Table of Contents (ToC) / Course Agenda so we can align the trainer profile and delivery.\n\n"
+        "We have requested the trainer to share the Table of Contents (ToC) / Course Agenda.\n\n"
+        "We will share it with you once received.\n\n"
         "Regards,\n" + _from_name()
     )
     return {"subject": subject, "body": body}
@@ -714,9 +780,9 @@ async def compose_mail3_slot_booking(payload: GenericSimpleRequest):
         f"Dear {payload.name or 'Trainer'},\n\n"
         "Please share three convenient interview/discussion slots with date, time, and time zone so we can coordinate with the client.\n\n"
         "Preferred format:\n"
-        "- 15 January 2026, 10:00 AM - 10:30 AM IST\n"
-        "- 16 January 2026, 02:00 PM - 02:30 PM IST\n"
-        "- 17 January 2026, 04:00 PM - 04:30 PM IST\n\n"
+        "- Date: 1 September 2026, Time: 10:00 AM - 10:30 AM IST\n"
+        "- Date: 2 September 2026, Time: 2:00 PM - 2:30 PM IST\n"
+        "- Date: 3 September 2026, Time: 4:00 PM - 4:30 PM IST\n\n"
         "Regards,\n"
         "Clahan Technologies"
     )
@@ -814,7 +880,8 @@ async def compose_mail7_confirmation(payload: GenericSimpleRequest):
     polished_subject = "Training Confirmation - Next Steps"
     polished_body = (
         f"Dear {payload.name or 'Trainer'},\n\n"
-        "This confirms the training engagement. We will share the final logistics and coordination details shortly.\n\n"
+        f"We are pleased to confirm your engagement for the {payload.technology or 'training'} requirement.\n\n"
+        "We will share the final logistics and coordination details shortly.\n\n"
         "Regards,\nClahan Technologies"
     )
     return {"subject": polished_subject, "body": polished_body}

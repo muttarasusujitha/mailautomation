@@ -87,9 +87,18 @@ class Settings(BaseSettings):
     SMTP_PORT: int = 587
     IMAP_HOST: str = "imap.gmail.com"
     IMAP_PORT: int = 993
+    STYLE_IMAP_HOST: str = ""
+    STYLE_IMAP_PORT: int = 993
+    STYLE_IMAP_USER: str = ""
+    STYLE_IMAP_PASSWORD: str = ""
+    STYLE_IMAP_FOLDER: str = "INBOX.Sent"
 
     ANTHROPIC_API_KEY: str = ""
     ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-5.5"
+    USE_OPENAI_FOR_EMAILS: bool = False
+    USE_LLM_FOR_EMAILS: bool = False
     ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,https://localhost:3000"
 
     @property
