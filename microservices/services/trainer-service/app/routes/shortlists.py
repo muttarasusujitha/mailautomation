@@ -342,20 +342,39 @@ def _mail1_requested_items(requirement: Dict[str, Any]) -> List[str]:
         )
         if _clean(value)
     )
+    toc_label = (
+        "Detailed day-wise ToC/course agenda"
+        if any(term in source for term in ("day-wise", "day wise", "detailed", "topics and subtopics"))
+        else "ToC/course agenda"
+    )
+    commercial_label = (
+        "Commercials for the complete training engagement"
+        if re.search(r"commercials?.{0,40}(?:complete|entire|total)|(?:complete|entire|total).{0,40}commercials?", source)
+        else "Commercial expectation per hour/day"
+    )
     checks = [
         ("Updated trainer profile/CV", ("cv", "resume", "profile")),
         ("LinkedIn profile", ("linkedin",)),
-        ("Availability", ("availability", "available", "slots")),
-        ("Commercial expectation per hour/day", ("commercial", "budget", "rate", "charges", "cost")),
-        ("Lab support availability and cost, if applicable", ("lab",)),
+        (f"Relevant {(_clean(requirement.get('domain')) or _clean(requirement.get('technology')) or 'technology')} corporate training experience", ("training experience", "relevant experience", "corporate training experience")),
+        ("Availability for the specified dates and timings", ("availability", "available", "slots")),
+        (toc_label, ("toc", "table of contents", "agenda", "course outline", "proposal")),
+        ("Day-wise hands-on lab plan", ("lab plan", "hands-on lab", "hands on lab")),
+        (commercial_label, ("commercial", "budget", "rate", "charges", "cost")),
         ("Relevant certifications", ("certification", "certifications", "certified")),
-        ("ToC/course agenda", ("toc", "table of contents", "agenda", "course outline", "proposal")),
     ]
     items = [label for label, needles in checks if any(needle in source for needle in needles)]
     return items or ["Updated trainer profile/CV", "LinkedIn profile", "Availability"]
 
 
+def _mail1_source_value(requirement: Dict[str, Any], label_pattern: str) -> str:
+    source = _client_requirement_text(requirement)
+    match = re.search(rf"(?im)^\s*(?:{label_pattern})\s*:\s*([^\r\n]+)", source)
+    return _clean(match.group(1)).strip("* ") if match else ""
+
+
 def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], domain: str) -> str:
+    if domain.lower() == "devops":
+        domain = "DevOps"
     duration = _clean_duration_text(
         requirement.get("duration_text")
         or requirement.get("duration")
@@ -376,29 +395,49 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     )
     mode = _clean(requirement.get("mode") or requirement.get("training_mode") or requirement.get("delivery_mode"))
     participants = _clean(requirement.get("participant_count") or requirement.get("participants") or requirement.get("audience_level"))
+    training_time = _clean(requirement.get("training_time") or requirement.get("session_timing") or _mail1_source_value(requirement, r"training\s+time|timings?"))
+    hands_on_lab = _clean(requirement.get("hands_on_lab") or _mail1_source_value(requirement, r"hands[-\s]?on\s+lab|lab\s+duration"))
     commercial = _trainer_mail1_commercial_text(requirement)
     details = [f"Domain/Technology: {domain}"]
     if dates:
         details.append(f"Training dates: {dates}")
     if duration:
         details.append(f"Duration: {duration}")
+    if training_time:
+        details.append(f"Training time: {training_time}")
+    if hands_on_lab:
+        details.append(f"Hands-on lab: {hands_on_lab}")
     if mode:
         details.append(f"Mode: {mode}")
     if participants:
         details.append(f"Participants: {participants}")
     if commercial:
         details.append(f"Commercials/Budget: {commercial}")
-    requested = "\n".join(f"- {item}" for item in _mail1_requested_items(requirement))
+    requested_items = _mail1_requested_items(requirement)
+    selected = []
+    for label, needle in [
+        ("availability", "availability"),
+        ("updated profile", "profile"),
+        ("commercials", "commercial"),
+        (f"relevant {domain} experience", "experience"),
+        ("day-wise TOC", "toc"),
+    ]:
+        if any(needle in item.lower() for item in requested_items):
+            selected.append(label)
+    if "day-wise TOC" in selected:
+        selected = [item for item in selected if item.lower() != "toc"]
+    if not selected:
+        selected = ["availability", "updated profile", "commercials", f"relevant {domain} experience"]
+    ask = ", ".join(dict.fromkeys(selected))
     return (
-        f"Dear {trainer_name or 'Trainer'},\n\n"
-        f"We have received a training requirement for {domain} and are looking for a trainer with relevant experience.\n\n"
-        "Training Details:\n\n"
+        f"Hi {trainer_name or 'Trainer'},\n\n"
+        "Hope you are doing well.\n\n"
+        f"We have a corporate training requirement for {domain} and are checking trainer availability.\n\n"
+        "Training Details:\n"
         f"{chr(10).join(details)}\n\n"
-        "Please let us know if you are interested and available for this requirement. Kindly share the details below:\n\n"
-        f"{requested}\n\n"
+        f"Please confirm your availability for the above requirement. Also share your {ask}.\n\n"
         "Regards,\n"
-        "Clahan Technologies\n"
-        f"{getattr(settings, 'FROM_EMAIL', None) or 'sujithaofficial585@gmail.com'}"
+        "Clahan Technologies"
     )
 
 
@@ -517,18 +556,19 @@ def _client_commercial_message(
         or "training"
     )
     client_name = _clean(requirement.get("client_name") or requirement.get("client_company") or shortlist.get("client_name")) or "Client"
+    trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
     client_amounts = sorted({round(amount * (1 + CLIENT_COMMERCIAL_MARKUP)) for amount in amounts})
     rate_lines = "\n".join(f"- INR {amount:,.0f} per day/session" for amount in client_amounts)
-    subject = f"Shortlisted Trainer Commercials for Approval - {technology}"
+    subject = f"Shortlisted Trainer Profile - {technology}"
     body = (
         f"{_client_time_greeting(client_name)},\n\n"
-        f"Please find a shortlisted trainer option for the {technology} requirement.\n\n"
-        "Profile Summary:\n"
-        f"- Trainer: Shortlisted trainer\n"
+        f"Trainer {trainer_name} has shared the required details and commercials for the {technology} requirement.\n\n"
+        "Trainer Summary:\n"
+        f"- Trainer: {trainer_name}\n"
         f"- Technology: {technology}\n\n"
-        "Commercials for Approval:\n"
+        "Commercials for your review:\n"
         f"{rate_lines}\n\n"
-        "Kindly confirm if we can proceed with this profile. Once approved, we will coordinate the next step.\n\n"
+        "Please review and confirm if we can proceed with this trainer. Once approved, we will move ahead with interview/slot coordination.\n\n"
         "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
     )
     return {"subject": subject, "body": body}
@@ -552,6 +592,81 @@ def _requested_client_attachments(requirement: Dict[str, Any]) -> tuple[bool, bo
         term in request_text for term in ("lab cost", "lab charges", "lab support", "lab availability", "lab setup")
     )
     return wants_profile, wants_toc, wants_lab_cost
+
+
+def _client_training_summary(requirement: Dict[str, Any]) -> str:
+    rows: List[str] = []
+    for label, keys in (
+        ("Technology", ("technology_needed", "technology", "domain")),
+        ("Training dates", ("training_dates", "date_range", "training_date", "dates")),
+        ("Duration", ("duration", "duration_days", "number_of_days")),
+        ("Timings", ("timing", "timings", "training_timing", "time")),
+    ):
+        value = ""
+        for key in keys:
+            value = _clean(requirement.get(key))
+            if value:
+                break
+        if value:
+            rows.append(f"- {label}: {value}")
+    return "\n".join(rows)
+
+
+def _trainer_scope_attachments(requirement: Dict[str, Any]) -> List[Dict[str, str]]:
+    """Forward only bounded, explicitly captured client scope documents to trainers."""
+    allowed_extensions = (".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".txt")
+    subtype_by_extension = {
+        ".pdf": "pdf", ".doc": "msword", ".docx": "vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ".xls": "vnd.ms-excel", ".xlsx": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".csv": "csv", ".txt": "plain",
+    }
+    forwarded: List[Dict[str, str]] = []
+    total_bytes = 0
+    for item in requirement.get("source_attachments") or []:
+        if not isinstance(item, dict) or not item.get("safe_client_scope"):
+            continue
+        filename = re.sub(r"[\r\n\\/]+", "_", _clean(item.get("filename")))[:160]
+        content_base64 = _clean(item.get("content_base64"))
+        extension = next((ext for ext in allowed_extensions if filename.lower().endswith(ext)), "")
+        size_bytes = int(item.get("size_bytes") or 0)
+        if not filename or not content_base64 or not extension or size_bytes <= 0 or size_bytes > 4 * 1024 * 1024:
+            continue
+        if total_bytes + size_bytes > 6 * 1024 * 1024:
+            break
+        forwarded.append({
+            "filename": filename,
+            "content_base64": content_base64,
+            "subtype": subtype_by_extension[extension],
+        })
+        total_bytes += size_bytes
+    return forwarded
+
+
+def _requested_toc_output_format(requirement: Dict[str, Any]) -> str:
+    """Match the client/reference format; default to the detailed client-ready PDF."""
+    attachment_names = list(
+        requirement.get("attachment_names")
+        or (requirement.get("extracted") or {}).get("attachment_names")
+        or []
+    )
+    source_attachments = requirement.get("source_attachments") or (requirement.get("extracted") or {}).get("source_attachments") or []
+    for item in source_attachments:
+        if isinstance(item, dict) and item.get("filename"):
+            attachment_names.append(item.get("filename"))
+    request_text = "\n".join([
+        _client_requirement_text(requirement),
+        *[_clean(item) for item in (requirement.get("requested_details") or [])],
+        *[_clean(item) for item in attachment_names],
+    ]).lower()
+    if re.search(r"\b(?:xlsx|xls|excel|spreadsheet)\b", request_text) or any(
+        _clean(name).lower().endswith((".xlsx", ".xls")) for name in attachment_names
+    ):
+        return "xlsx"
+    if re.search(r"\b(?:pdf|docx|doc|word document)\b", request_text) or any(
+        _clean(name).lower().endswith((".pdf", ".docx", ".doc")) for name in attachment_names
+    ):
+        return "pdf"
+    return "pdf"
 
 
 def _requested_trainer_details_for_client(
@@ -747,6 +862,15 @@ def _tokens(value: Any) -> set[str]:
     return {token for token in _norm(value).split() if len(token) > 1}
 
 
+def _technology_tokens(value: Any) -> List[str]:
+    stopwords = {"and", "with", "the", "for", "training", "trainer", "requirement"}
+    tokens: List[str] = []
+    for token in re.findall(r"[a-z0-9+#.]+", _clean(value).lower()):
+        if len(token) > 1 and token not in stopwords and token not in tokens:
+            tokens.append(token)
+    return tokens
+
+
 def _date_tokens(value: Any) -> set[str]:
     text = _clean(value).lower()
     tokens: set[str] = set()
@@ -822,6 +946,52 @@ def _profile_text(trainer: Dict[str, Any]) -> str:
         trainer.get("resume", "")[:5000] if isinstance(trainer.get("resume"), str) else "",
     ]
     return _norm(parts)
+
+
+def _profile_evidence_text(trainer: Dict[str, Any]) -> str:
+    return _norm([
+        _profile_text(trainer),
+        trainer.get("details_reply_text"),
+        trainer.get("trainer_details_text"),
+        trainer.get("mail1_reply_text"),
+        trainer.get("mail2_reply_text"),
+        trainer.get("reply_text"),
+        trainer.get("last_reply_snippet"),
+    ])
+
+
+def _client_profile_evidence_items(trainer: Dict[str, Any], technology: str) -> List[str]:
+    evidence_text = _profile_evidence_text(trainer)
+    items: List[str] = []
+    missing: List[str] = []
+    technology_tokens = _technology_tokens(technology)
+    matched_tokens = [token for token in technology_tokens if token in evidence_text]
+    if technology_tokens and len(matched_tokens) == len(technology_tokens):
+        items.append(f"Confirmed technology alignment: {_clean(technology)}")
+    elif matched_tokens:
+        items.append(f"Partial technology evidence found: {', '.join(matched_tokens)}")
+        missing.append(f"Additional {_clean(technology)} evidence should be confirmed with trainer")
+    elif technology:
+        missing.append(f"{_clean(technology)} evidence not found in available trainer data")
+
+    if re.search(r"\b(?:training|trained|trainer|workshop|bootcamp|session|facilitat|delivered)\w*\b", evidence_text):
+        items.append("Training delivery experience: confirmed from trainer profile or reply")
+    else:
+        missing.append("Training delivery experience proof not found")
+
+    if re.search(r"\b(?:implementation|implemented|deploy(?:ed|ment)?|project|migration|pipeline|production|devops|automation|iac|infrastructure)\w*\b", evidence_text):
+        items.append("Implementation/project exposure: confirmed from trainer profile or reply")
+    else:
+        missing.append("Implementation/project proof not found")
+
+    approved_bullets = [
+        _clean(value) for value in _as_list(trainer.get("approved_profile_bullets")) if _clean(value)
+    ] if trainer.get("profile_enhancement_status") == "approved" else []
+    if approved_bullets:
+        items.extend(f"Approved client-fit point: {value}" for value in approved_bullets[:4])
+
+    items.extend(f"Needs confirmation: {value}" for value in missing[:3])
+    return items
 
 
 def _resume_confirms_domain_experience(trainer: Dict[str, Any], domain: str) -> bool:
@@ -1068,28 +1238,93 @@ async def _generate_toc_pdf(toc: Dict[str, Any]) -> Optional[bytes]:
 async def _generate_trainer_profile_pdf(trainer: Dict[str, Any], technology: str) -> Optional[bytes]:
     """Create a client-ready profile attachment from the vetted trainer record."""
     trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
-    fields = [
-        ("Technology", technology),
-        ("Experience", _clean(trainer.get("experience_years") or trainer.get("experience_raw"))),
-        ("Location", _clean(trainer.get("location") or trainer.get("current_location"))),
-        ("LinkedIn", _clean(trainer.get("linkedin") or trainer.get("linkedin_url") or trainer.get("linkedin_profile"))),
-        ("Skills", ", ".join(_clean(value) for value in _as_list(trainer.get("skills") or trainer.get("technologies")) if _clean(value))),
-        ("Summary", _clean(trainer.get("summary") or trainer.get("bio"))),
-    ]
-    rows = "".join(
-        f"<tr><th>{escape(label)}</th><td>{escape(value)}</td></tr>"
-        for label, value in fields
-        if value
+    def value_text(value: Any) -> str:
+        if isinstance(value, dict):
+            return " - ".join(_clean(part) for part in value.values() if _clean(part))
+        return _clean(value)
+
+    def section(title: str, value: Any, fallback: str = "") -> str:
+        items = [value_text(item) for item in _as_list(value) if value_text(item)]
+        if not items and fallback:
+            items = [fallback]
+        if not items:
+            return f'<section><div class="label">{escape(title)}</div><div class="value muted">Not available in verified trainer data.</div></section>'
+        content = "".join(f"<li>{escape(item)}</li>" for item in items)
+        return f'<section><div class="label">{escape(title)}</div><div class="value"><ul class="detail-list">{content}</ul></div></section>'
+
+    email = _clean(trainer.get("email") or trainer.get("trainer_email"))
+    phone = _clean(trainer.get("phone") or trainer.get("mobile") or trainer.get("contact_number"))
+    location = _clean(trainer.get("location") or trainer.get("current_location"))
+    linkedin = _clean(trainer.get("linkedin") or trainer.get("linkedin_url") or trainer.get("linkedin_profile"))
+    experience_years = _clean(trainer.get("experience_years") or trainer.get("experience_raw"))
+    summary = _clean(trainer.get("summary") or trainer.get("bio") or trainer.get("professional_summary"))
+    skills = [_clean(value) for value in _as_list(trainer.get("skills") or trainer.get("technologies")) if _clean(value)]
+    primary_role = _clean(trainer.get("title") or trainer.get("role_designation") or f"{technology} Trainer")
+    contact_items = [value for value in (email, location, phone, linkedin) if value]
+    contact_html = "".join(f"<span>{escape(value)}</span>" for value in contact_items)
+    skill_html = "".join(f'<span class="skill">{escape(skill)}</span>' for skill in skills)
+    approved_bullets = [
+        _clean(value) for value in _as_list(trainer.get("approved_profile_bullets")) if _clean(value)
+    ] if trainer.get("profile_enhancement_status") == "approved" else []
+    evidence_items = _client_profile_evidence_items(trainer, technology)
+    evidence_html = section("Verified Requirement Fit", evidence_items)
+    enhancement_html = ""
+    if approved_bullets:
+        bullet_items = "".join(f"<li>{escape(value)}</li>" for value in approved_bullets)
+        enhancement_html = (
+            '<section><div class="label">Requirement-Aligned Highlights</div><div class="value">'
+            '<p class="note">Reviewed for this client requirement and supported by profile or trainer-confirmed evidence.</p>'
+            f'<ul class="detail-list">{bullet_items}</ul></div></section>'
+        )
+    experience_html = section("Employment / Training History", trainer.get("experience") or trainer.get("work_experience") or trainer.get("employment_history") or trainer.get("training_experience"))
+    projects_html = section("Relevant Projects / Implementation Experience", trainer.get("projects") or trainer.get("implementation_experience") or trainer.get("project_experience"))
+    certifications_html = section("Certifications", trainer.get("certifications"))
+    education_html = section("Education", trainer.get("education") or trainer.get("qualifications"))
+    experience_meta_html = f'<div class="meta">Experience: {escape(experience_years)}</div>' if experience_years else ""
+    summary_html = (
+        f'<section><div class="label">Profile</div><div class="value"><p class="summary">{escape(summary)}</p></div></section>'
+        if summary
+        else '<section><div class="label">Profile</div><div class="value muted">Not available in verified trainer data.</div></section>'
     )
-    if not rows:
+    skills_html = (
+        f'<section><div class="label">Skills</div><div class="value"><div class="skills">{skill_html}</div></div></section>'
+        if skill_html
+        else '<section><div class="label">Skills</div><div class="value muted">Not available in verified trainer data.</div></section>'
+    )
+    availability = _clean(trainer.get("availability") or trainer.get("available_dates") or trainer.get("availability_text") or trainer.get("slot_reply_text"))
+    availability_html = (
+        f'<section><div class="label">Availability / Interview Slots</div><div class="value"><p class="summary">{escape(availability)}</p></div></section>'
+        if availability
+        else '<section><div class="label">Availability / Interview Slots</div><div class="value muted">Pending trainer-confirmed slots.</div></section>'
+    )
+    if not any((summary, skills, experience_html, projects_html, certifications_html, education_html, approved_bullets)):
         return None
     html = (
-        "<html><head><style>body{font-family:Arial,sans-serif;color:#1f2937;padding:32px;}"
-        "h1{font-size:24px;margin-bottom:6px;}table{border-collapse:collapse;width:100%;margin-top:24px;}"
-        "th,td{border:1px solid #d1d5db;padding:10px;text-align:left;vertical-align:top;}"
-        "th{width:160px;background:#f3f4f6;}</style></head><body>"
-        f"<h1>{escape(trainer_name)} - Trainer Profile</h1><p>{escape(technology)} training profile</p>"
-        f"<table>{rows}</table></body></html>"
+        "<html><head><meta charset='utf-8'><style>"
+        "@page{size:Letter;margin:12mm 14mm;}*{box-sizing:border-box;}"
+        "body{font-family:Arial,Helvetica,sans-serif;color:#252525;font-size:9.5pt;line-height:1.42;margin:0;background:#fff;}"
+        ".masthead{border-bottom:3px solid #2e2e2e;padding-bottom:5mm;margin-bottom:3mm;}"
+        "h1{font-size:24pt;font-weight:700;letter-spacing:0;margin:0 0 2mm;color:#111;}"
+        ".role{font-size:11pt;color:#555;margin:0 0 3mm;}"
+        ".contact{font-size:8.7pt;color:#333;border-top:1px solid #d8d8d8;padding-top:2mm;}"
+        ".contact span:not(:last-child):after{content:' | ';color:#888;margin:0 2mm;}"
+        ".document-label{text-align:right;font-size:8pt;letter-spacing:1.5px;color:#777;text-transform:uppercase;margin-bottom:5mm;}"
+        "section{display:grid;grid-template-columns:22% 78%;gap:5mm;border-bottom:1px solid #e2e2e2;"
+        "padding:4mm 0;break-inside:avoid;}"
+        ".label{font-size:8.4pt;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;color:#111;}"
+        ".value{min-width:0;}.summary{margin:0;white-space:pre-line;}.meta{color:#555;font-size:9pt;margin:0 0 1mm;}"
+        ".skills{display:flex;flex-wrap:wrap;gap:5px;}.skill{border:1px solid #cfc8bb;"
+        "display:inline-block;font-size:8.5pt;padding:2px 7px;color:#333;background:#fff;}"
+        ".detail-list{margin:0;padding-left:18px;}.detail-list li{margin:0 0 3mm;white-space:pre-line;}"
+        ".note,.muted{color:#666;font-size:8.2pt;margin:0 0 3mm;}.footer-note{color:#666;font-size:7.6pt;margin-top:5mm;}"
+        "</style></head><body>"
+        f'<header class="masthead"><h1>{escape(trainer_name)}</h1><p class="role">{escape(primary_role)}</p>'
+        f'{experience_meta_html}<div class="contact">{contact_html}</div></header>'
+        '<div class="document-label">Client Aligned Trainer Profile</div><main>'
+        f"{summary_html}{evidence_html}{experience_html}{projects_html}{skills_html}{enhancement_html}{certifications_html}{education_html}{availability_html}"
+        '<p class="footer-note">Client-specific presentation copy. Generated only from stored trainer data, CV extraction, or trainer-confirmed details.</p>'
+        "</main>"
+        "</body></html>"
     )
     try:
         async with httpx.AsyncClient(timeout=60) as client:
@@ -1105,6 +1340,100 @@ async def _generate_trainer_profile_pdf(trainer: Dict[str, Any], technology: str
         return response.content
     except Exception:
         logger.exception("Failed to generate trainer profile PDF")
+        return None
+
+
+def _submitted_resume_suits_requirement(
+    submitted_resume: Optional[Dict[str, Any]],
+    trainer: Dict[str, Any],
+    technology: str,
+) -> bool:
+    if not submitted_resume:
+        return False
+    approved_bullets = [
+        _clean(value) for value in _as_list(trainer.get("approved_profile_bullets")) if _clean(value)
+    ] if trainer.get("profile_enhancement_status") == "approved" else []
+    if approved_bullets:
+        return True
+    technology_tokens = _technology_tokens(technology)
+    if not technology_tokens:
+        return True
+    evidence_text = _norm([
+        submitted_resume.get("extracted_text"),
+        submitted_resume.get("parsed_text"),
+        submitted_resume.get("resume_text"),
+        submitted_resume.get("text"),
+    ])
+    if not evidence_text:
+        evidence_text = _profile_text(trainer)
+    return all(token in evidence_text for token in technology_tokens)
+
+
+def _edit_submitted_trainer_pdf(
+    original_pdf: bytes,
+    trainer: Dict[str, Any],
+    technology: str,
+) -> Optional[bytes]:
+    """Return a client-specific copy of the submitted PDF; original pages remain byte-content intact."""
+    approved_bullets = [
+        _clean(value) for value in _as_list(trainer.get("approved_profile_bullets")) if _clean(value)
+    ] if trainer.get("profile_enhancement_status") == "approved" else []
+    if not original_pdf or not approved_bullets:
+        return original_pdf or None
+    try:
+        import fitz
+
+        document = fitz.open(stream=original_pdf, filetype="pdf")
+        if document.page_count < 1:
+            return None
+        source_page = document[document.page_count - 1]
+        width, height = source_page.rect.width, source_page.rect.height
+        trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
+        chunks = [approved_bullets[index:index + 7] for index in range(0, len(approved_bullets), 7)]
+        for page_number, chunk in enumerate(chunks, 1):
+            page = document.new_page(width=width, height=height)
+            continuation = " (continued)" if page_number > 1 else ""
+            margin = 48
+            page.insert_textbox(
+                fitz.Rect(margin, margin, width - margin, 92),
+                f"Requirement-Aligned Profile Addendum{continuation}",
+                fontsize=19, fontname="hebo", color=(0.09, 0.15, 0.33),
+            )
+            page.draw_line((margin, 98), (width - margin, 98), color=(0.15, 0.39, 0.92), width=2)
+            page.insert_textbox(
+                fitz.Rect(margin, 112, width - margin, 150),
+                f"{trainer_name}\n{technology} requirement",
+                fontsize=11, fontname="hebo", color=(0.14, 0.2, 0.3), lineheight=1.35,
+            )
+            notice_rect = fitz.Rect(margin, 166, width - margin, 228)
+            page.draw_rect(notice_rect, color=(0.8, 0.84, 0.9), fill=(0.97, 0.98, 0.99), width=0.7)
+            page.insert_textbox(
+                fitz.Rect(margin + 10, 176, width - margin - 10, 220),
+                "This client-specific addendum contains only reviewed additions supported by the submitted "
+                "profile or explicit trainer confirmation. The original resume pages preceding this addendum "
+                "have not been rewritten.",
+                fontsize=9, fontname="helv", color=(0.3, 0.37, 0.48), lineheight=1.35,
+            )
+            page.insert_text((margin, 258), "APPROVED HIGHLIGHTS", fontsize=12, fontname="hebo", color=(0.09, 0.15, 0.33))
+            page.draw_line((margin, 268), (width - margin, 268), color=(0.8, 0.84, 0.9), width=0.7)
+            y = 286
+            for bullet in chunk:
+                page.insert_text((margin + 2, y + 9), chr(8226), fontsize=11, fontname="symb", color=(0.15, 0.39, 0.92))
+                page.insert_textbox(
+                    fitz.Rect(margin + 18, y, width - margin, y + 58),
+                    bullet, fontsize=10.5, fontname="helv", color=(0.14, 0.2, 0.3), lineheight=1.4,
+                )
+                y += 66
+            page.insert_text(
+                (margin, height - 36),
+                "Client-specific copy - trainer master resume preserved unchanged",
+                fontsize=7.5, fontname="helv", color=(0.4, 0.47, 0.58),
+            )
+        output = document.tobytes(garbage=4, deflate=True)
+        document.close()
+        return output
+    except Exception:
+        logger.exception("Failed to edit submitted trainer PDF")
         return None
 
 
@@ -1195,7 +1524,13 @@ async def _sync_shortlist_with_trainers(
         "category_match_count": len(scored),
         "pipeline_summary": {
             "pipeline_version": PIPELINE_VERSION,
-            "status": "completed",
+            # Matching is only the first workflow phase.  Do not report the
+            # end-to-end workflow as complete before the client handoff and
+            # downstream selection/training stages have actually happened.
+            "status": "in_progress",
+            "matching_status": "completed",
+            "current_stage": "contacting_trainers",
+            "client_handoff_completed": False,
             "total_candidates": len(available_trainers),
             "ranked_count": len(scored),
             "top_count": len(top_trainers),
@@ -1245,12 +1580,53 @@ async def _sync_shortlist_with_trainers(
     return doc
 
 
+def _workflow_summary(doc: Dict[str, Any]) -> Dict[str, Any]:
+    trainers = doc.get("top_trainers", []) or []
+    stages = {
+        _clean(trainer.get("pipeline_status") or trainer.get("status")).lower()
+        for trainer in trainers
+    }
+    mail_types = {
+        _clean(trainer.get("last_mail_type") or trainer.get("last_mail_type_attempted")).lower()
+        for trainer in trainers
+    }
+    delivered = [
+        trainer for trainer in trainers
+        if trainer.get("client_slots_sent") is True
+        and _clean(trainer.get("client_slots_email_id"))
+        and _clean(trainer.get("slot_status")).lower() == "sent_to_client"
+    ]
+    if "training_confirmed" in stages:
+        status, current_stage = "completed", "training_confirmed"
+    elif "interview_scheduled" in stages:
+        status, current_stage = "in_progress", "interview_link_sent"
+    elif "selected" in stages:
+        status, current_stage = "in_progress", "trainer_selected"
+    elif delivered:
+        status, current_stage = "in_progress", "client_handoff_sent"
+    elif stages & {"slot_booked", "waiting_reply3"} or mail_types & {"mail3", "mail3_slot_booking"}:
+        status, current_stage = "in_progress", "awaiting_trainer_slots"
+    elif stages & {"details_received", "waiting_reply2", "mail1_replied"}:
+        status, current_stage = "in_progress", "collecting_trainer_details"
+    else:
+        status, current_stage = "in_progress", "contacting_trainers"
+    return {
+        **(doc.get("pipeline_summary") or {}),
+        "status": status,
+        "matching_status": "completed",
+        "current_stage": current_stage,
+        "client_handoff_completed": bool(delivered),
+        "client_handoff_count": len(delivered),
+    }
+
+
 def _shortlist_response(doc: Dict[str, Any]) -> Dict[str, Any]:
     trainers = doc.get("top_trainers", []) or []
+    response_doc = {**doc, "pipeline_summary": _workflow_summary(doc)}
     return {
         "success": True,
-        **doc,
-        "shortlist": doc,
+        **response_doc,
+        "shortlist": response_doc,
         "top_trainers": trainers,
         "trainers": trainers,
     }
@@ -1741,6 +2117,8 @@ async def send_shortlist_mail(
                                 "domain": domain,
                                 "duration": duration,
                                 "dates": dates,
+                                "training_time": _clean(requirement.get("training_time") or requirement.get("session_timing") or _mail1_source_value(requirement, r"training\s+time|timings?")),
+                                "hands_on_lab": _clean(requirement.get("hands_on_lab") or _mail1_source_value(requirement, r"hands[-\s]?on\s+lab|lab\s+duration")),
                                 "mode": _clean(requirement.get("mode")),
                                 "location": location,
                                 "participants": _clean(requirement.get("participant_count")),
@@ -1838,6 +2216,10 @@ async def send_shortlist_mail(
                     "requirement_id": payload.requirement_id,
                     "smtp_config": payload.smtp_config,
                 }
+                if payload.mail_type in ("mail1", "first"):
+                    scope_attachments = _trainer_scope_attachments(requirement)
+                    if scope_attachments:
+                        send_payload["attachments"] = scope_attachments
                 if payload.mail_type in ("mail1", "first") and payload.requirement_id:
                     send_payload["idempotency_key"] = f"trainer-mail1:{payload.requirement_id}:{trainer_id or trainer_email.lower()}"
                 r = await _post_with_local_fallback(client, f"{EMAIL_SVC}/api/v1/email/send", json=send_payload)
@@ -2250,76 +2632,96 @@ async def send_client_slots(
     client_name = _clean(payload.client_name or req.get("client_name") or req.get("client_company")) or "Client"
     attachments: List[Dict[str, str]] = []
     wants_profile, wants_toc, wants_lab_cost = _requested_client_attachments(req)
-    profile_pdf = await _generate_trainer_profile_pdf(trainer, technology) if wants_profile else None
+    wants_profile = True
+    profile_pdf = None
+    if wants_profile:
+        submitted_resume = await db["resume_uploads"].find_one(
+            {
+                "trainer_id": payload.trainer_id,
+                "original_file": {"$exists": True},
+                "$or": [
+                    {"content_type": "application/pdf"},
+                    {"filename": {"$regex": r"\.pdf$", "$options": "i"}},
+                ],
+            },
+            {"_id": 0, "original_file": 1, "filename": 1, "extracted_text": 1, "parsed_text": 1, "resume_text": 1, "text": 1},
+            sort=[("created_at", -1)],
+        )
+        if (
+            submitted_resume
+            and submitted_resume.get("original_file")
+            and _submitted_resume_suits_requirement(submitted_resume, trainer, technology)
+        ):
+            profile_pdf = _edit_submitted_trainer_pdf(
+                bytes(submitted_resume["original_file"]), trainer, technology
+            )
+        else:
+            # A missing or poorly aligned uploaded resume must not prevent the client handoff.
+            # Build a presentation copy solely from vetted trainer fields and
+            # approved requirement-aligned bullets; the master profile is not changed.
+            profile_pdf = await _generate_trainer_profile_pdf(trainer, technology)
+            if not profile_pdf:
+                logger.warning(
+                    "Cannot create client profile copy for %s: no usable submitted PDF or vetted profile data",
+                    payload.trainer_id,
+                )
     if profile_pdf:
         attachments.append({
-            "filename": f"{trainer_name} - Trainer Profile.pdf",
+            "filename": f"{trainer_name} - Client Aligned Profile.pdf",
             "content_base64": base64.b64encode(profile_pdf).decode(),
             "subtype": "pdf",
         })
 
-    toc_workbook: Optional[bytes] = None
+    toc_attachment: Optional[bytes] = None
+    toc_attachment_filename = ""
+    toc_attachment_subtype = ""
     toc_data = await _build_toc(req, trainer, db) if (wants_toc or wants_lab_cost) else None
     if wants_toc and toc_data:
-        try:
-            async with httpx.AsyncClient(timeout=60) as client:
-                toc_response = await _post_with_local_fallback(
-                    client,
-                    f"{DOC_SVC}/api/v1/documents/excel/toc",
-                    json={"toc": toc_data},
-                )
-            if toc_response.status_code == 200 and toc_response.content:
-                toc_workbook = toc_response.content
-            else:
-                logger.error("TOC workbook generation failed: %s", toc_response.text[:300])
-        except Exception:
-            logger.exception("Failed to generate TOC workbook attachment for client slots")
-    if toc_workbook:
+        toc_format = _requested_toc_output_format(req)
+        if toc_format == "xlsx":
+            try:
+                async with httpx.AsyncClient(timeout=60) as client:
+                    toc_response = await _post_with_local_fallback(
+                        client,
+                        f"{DOC_SVC}/api/v1/documents/excel/toc",
+                        json={"toc": toc_data},
+                    )
+                if toc_response.status_code == 200 and toc_response.content:
+                    toc_attachment = toc_response.content
+                    toc_attachment_filename = f"{technology} - TOC.xlsx"
+                    toc_attachment_subtype = "vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                else:
+                    logger.error("TOC workbook generation failed: %s", toc_response.text[:300])
+            except Exception:
+                logger.exception("Failed to generate TOC workbook attachment for client slots")
+        else:
+            try:
+                toc_attachment = await _generate_toc_pdf(toc_data)
+                if toc_attachment:
+                    toc_attachment_filename = f"{technology} - Detailed TOC.pdf"
+                    toc_attachment_subtype = "pdf"
+            except Exception:
+                logger.exception("Failed to generate detailed TOC PDF attachment for client slots")
+    if toc_attachment:
         attachments.append({
-            "filename": f"{technology} - TOC.xlsx",
-            "content_base64": base64.b64encode(toc_workbook).decode(),
-            "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "filename": toc_attachment_filename,
+            "content_base64": base64.b64encode(toc_attachment).decode(),
+            "subtype": toc_attachment_subtype,
         })
-
-    lab_cost_attached = False
-    if wants_lab_cost and toc_data:
-        try:
-            participant_count = int(req.get("participant_count") or 1)
-            participant_count = max(participant_count, 1)
-            async with httpx.AsyncClient(timeout=60) as client:
-                lab_response = await _post_with_local_fallback(
-                    client,
-                    f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost",
-                    json={
-                        "toc": toc_data,
-                        "assumptions": {
-                            "cloud_provider": "aws",
-                            "hours_per_day": 8,
-                            "participant_count": participant_count,
-                            "fx_rate": 83,
-                        },
-                    },
-                )
-            if lab_response.status_code == 200 and lab_response.content:
-                attachments.append({
-                    "filename": f"{technology} - Lab Cost.xlsx",
-                    "content_base64": base64.b64encode(lab_response.content).decode(),
-                    "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                })
-                lab_cost_attached = True
-            else:
-                logger.error("Lab-cost workbook generation failed: %s", lab_response.text[:300])
-        except Exception:
-            logger.exception("Failed to generate lab-cost attachment for client slots")
 
     trainer_details = _requested_trainer_details_for_client(
         req,
         trainer,
         profile_attached=bool(profile_pdf),
-        toc_attached=bool(toc_workbook),
+        toc_attached=bool(toc_attachment),
     )
     trainer_details_section = f"Trainer details shared for your review:\n{trainer_details}\n\n" if trainer_details else ""
-    lab_cost_note = "The Clahan lab-cost workbook is attached for your review.\n\n" if lab_cost_attached else ""
+    training_summary = _client_training_summary(req)
+    training_summary_section = f"Training details:\n{training_summary}\n\n" if training_summary else ""
+    lab_cost_note = (
+        "Lab cost will be shared separately after the required usage inputs and rates have been verified and reviewed.\n\n"
+        if wants_lab_cost else ""
+    )
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:
@@ -2327,6 +2729,7 @@ async def send_client_slots(
             body = (
                 f"{_client_time_greeting(client_name)},\n\n"
                 f"We have received the requested trainer details for the shortlisted {technology} trainer.\n\n"
+                f"{training_summary_section}"
                 f"{trainer_details_section}"
                 "Available slots:\n"
                 f"{slots_text}\n\n"
@@ -2350,6 +2753,11 @@ async def send_client_slots(
             response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=email_payload)
             response.raise_for_status()
             sent_payload = response.json()
+            if sent_payload.get("success") is not True or not _clean(sent_payload.get("email_id")):
+                raise RuntimeError(
+                    _clean(sent_payload.get("error") or sent_payload.get("detail"))
+                    or "Email service did not confirm client handoff delivery"
+                )
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
 
@@ -2364,6 +2772,10 @@ async def send_client_slots(
             "top_trainers.$.slot_reply_text": slots_text,
             "top_trainers.$.client_slot_error": "",
             "top_trainers.$.updated_at": now,
+            "pipeline_summary.status": "in_progress",
+            "pipeline_summary.matching_status": "completed",
+            "pipeline_summary.current_stage": "client_handoff_sent",
+            "pipeline_summary.client_handoff_completed": True,
             "updated_at": now,
         }},
     )
