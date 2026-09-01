@@ -290,16 +290,57 @@ async def delete_inbox_email(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     now = datetime.utcnow()
-    result = await db["client_emails"].update_one(
-        {"email_id": email_id},
+    doc = await db["client_emails"].find_one({"email_id": email_id}, {"_id": 0})
+    tombstone_requirement_id = (doc or {}).get("deleted_requirement_id") or (doc or {}).get("requirement_id") or ""
+    if doc:
+        gmail_message_id = _current_inbound_message_id(doc)
+        gmail_thread_id = str((doc or {}).get("gmail_thread_id") or (doc or {}).get("thread_id") or "").strip()
+        tombstone_filter = {"source_email_id": email_id}
+        await db["deleted_requirements"].update_one(
+            tombstone_filter,
+            {
+                "$set": {
+                    "requirement_id": tombstone_requirement_id,
+                    "source_email_id": email_id,
+                    "gmail_message_id": gmail_message_id,
+                    "latest_gmail_message_id": (doc or {}).get("latest_gmail_message_id") or gmail_message_id,
+                    "gmail_thread_id": gmail_thread_id,
+                    "client_email": _email_address((doc or {}).get("from_email") or (doc or {}).get("sender") or ""),
+                    "client_name": (doc or {}).get("from_name") or "",
+                    "client_company": (doc or {}).get("client_company") or "",
+                    "technology_needed": ((doc or {}).get("extracted") or {}).get("technology_needed") or (doc or {}).get("technology_needed") or "",
+                    "domain": ((doc or {}).get("extracted") or {}).get("domain") or (doc or {}).get("domain") or "",
+                    "deleted_at": now,
+                    "source": "inbox_delete",
+                },
+                "$setOnInsert": {"created_at": now},
+            },
+            upsert=True,
+        )
+        duplicate_filters: List[Dict[str, Any]] = [{"email_id": email_id}]
+        if tombstone_requirement_id:
+            duplicate_filters.append({"requirement_id": tombstone_requirement_id})
+        if gmail_message_id:
+            duplicate_filters.extend([
+                {"gmail_message_id": gmail_message_id},
+                {"latest_gmail_message_id": gmail_message_id},
+                {"thread_message_ids": gmail_message_id},
+            ])
+    else:
+        duplicate_filters = [{"email_id": email_id}]
+    result = await db["client_emails"].update_many(
+        {"$or": duplicate_filters},
         {
             "$set": {
                 "status": "deleted",
                 "reply_status": "deleted",
                 "deleted": True,
+                "deleted_requirement_id": tombstone_requirement_id,
                 "deleted_at": now,
                 "updated_at": now,
                 "processed": True,
+                "pending_trainer_automation": False,
+                "client_authorized_trainer_search": False,
             }
         },
     )

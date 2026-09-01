@@ -257,6 +257,11 @@ def _commercial_amounts_from_text(text: Any) -> List[int]:
         return []
     rupee = re.escape(chr(0x20B9))
     amounts: List[int] = []
+    range_pattern = (
+        rf"(?:INR|Rs\.?|{rupee}|commercials?|rates?|charges?|fees?|cost|quote|quoted)?\D{{0,30}}"
+        r"([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?\s*(?:-|to|–|—)\s*"
+        r"([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?"
+    )
     patterns = [
         (rf"(?:INR|Rs\.?|{rupee})\s*([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?", False),
         (r"\b(?:commercials?|rates?|charges?|fees?|cost|quote|quoted)\b\D{0,80}([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?", False),
@@ -265,6 +270,12 @@ def _commercial_amounts_from_text(text: Any) -> List[int]:
     contextual_line = re.compile(r"\b(?:commercials?|rates?|charges?|fees?|cost|quote|quoted)\b", flags=re.IGNORECASE)
     for line in raw.splitlines():
         line_has_money_context = bool(contextual_line.search(line))
+        for match in re.finditer(range_pattern, line, flags=re.IGNORECASE):
+            suffix = match.group(4) or match.group(2)
+            for raw_amount, raw_suffix in ((match.group(1), suffix), (match.group(3), suffix)):
+                amount = _money_to_int(raw_amount, raw_suffix)
+                if amount >= 1000 and amount not in amounts:
+                    amounts.append(amount)
         for pattern, requires_context in patterns:
             for match in re.finditer(pattern, line, flags=re.IGNORECASE):
                 if requires_context and not line_has_money_context:
@@ -363,6 +374,13 @@ def _mail1_requested_items(requirement: Dict[str, Any]) -> List[str]:
         ("Relevant certifications", ("certification", "certifications", "certified")),
     ]
     items = [label for label, needles in checks if any(needle in source for needle in needles)]
+    toc_action = _clean(requirement.get("toc_action") or (requirement.get("extracted") or {}).get("toc_action")).lower()
+    scope_attached = bool(requirement.get("scope_attached") or (requirement.get("extracted") or {}).get("scope_attached"))
+    if toc_action == "generate_by_clahan" and not scope_attached:
+        items = [
+            item for item in items
+            if not any(term in item.lower() for term in ("toc", "course agenda", "day-wise"))
+        ]
     return items or ["Updated trainer profile/CV", "LinkedIn profile", "Availability"]
 
 
@@ -558,7 +576,19 @@ def _client_commercial_message(
     client_name = _clean(requirement.get("client_name") or requirement.get("client_company") or shortlist.get("client_name")) or "Client"
     trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name")) or "Trainer"
     client_amounts = sorted({round(amount * (1 + CLIENT_COMMERCIAL_MARKUP)) for amount in amounts})
-    rate_lines = "\n".join(f"- INR {amount:,.0f} per day/session" for amount in client_amounts)
+    duration_days = _safe_int(
+        requirement.get("duration_days")
+        or requirement.get("commercial_working_days")
+        or requirement.get("number_of_days"),
+        0,
+    )
+    rate_lines_list = []
+    for amount in client_amounts:
+        line = f"- INR {amount:,.0f} per day/session"
+        if duration_days > 1:
+            line += f" x {duration_days} days = INR {amount * duration_days:,.0f} total"
+        rate_lines_list.append(line)
+    rate_lines = "\n".join(rate_lines_list)
     subject = f"Shortlisted Trainer Profile - {technology}"
     body = (
         f"{_client_time_greeting(client_name)},\n\n"
@@ -992,6 +1022,12 @@ def _client_profile_evidence_items(trainer: Dict[str, Any], technology: str) -> 
 
     items.extend(f"Needs confirmation: {value}" for value in missing[:3])
     return items
+
+
+def _client_profile_ready_for_handoff(trainer: Dict[str, Any], technology: str) -> bool:
+    """Client TOC/profile handoff is allowed only with requirement-aligned trainer evidence."""
+    evidence_items = _client_profile_evidence_items(trainer, technology)
+    return bool(evidence_items) and not any(str(item).startswith("Needs confirmation:") for item in evidence_items)
 
 
 def _resume_confirms_domain_experience(trainer: Dict[str, Any], domain: str) -> bool:
@@ -2192,14 +2228,6 @@ async def send_shortlist_mail(
                         tmpl = tmpl_response.json()
                         subject = payload.subject or tmpl.get("subject") or subject
                         body = tmpl.get("body") or body
-                if payload.mail_type in ("mail3", "mail3_slot_booking") and not (payload.mail_type == "mail3" and "proposal" in flow_value):
-                    toc_text = _trainer_slot_mail_toc_text(requirement, t, domain)
-                    if toc_text and "ToC / Course Agenda" not in body:
-                        body = (
-                            f"{body.rstrip()}\n\n"
-                            "ToC / Course Agenda:\n"
-                            f"{toc_text}"
-                        )
                 if trainer_ref not in body:
                     body = f"{body.rstrip()}\n\n{trainer_ref}"
                 if payload.mail_type in ("mail1", "first") and not is_proposal_flow:
@@ -2633,6 +2661,14 @@ async def send_client_slots(
     attachments: List[Dict[str, str]] = []
     wants_profile, wants_toc, wants_lab_cost = _requested_client_attachments(req)
     wants_profile = True
+    if wants_toc and not _client_profile_ready_for_handoff(trainer, technology):
+        evidence_items = _client_profile_evidence_items(trainer, technology)
+        missing = [item.replace("Needs confirmation: ", "", 1) for item in evidence_items if str(item).startswith("Needs confirmation:")]
+        raise HTTPException(
+            400,
+            "Trainer profile/CV is not verified for this TOC handoff. "
+            f"Resolve profile evidence first: {'; '.join(missing) if missing else 'profile evidence missing'}",
+        )
     profile_pdf = None
     if wants_profile:
         submitted_resume = await db["resume_uploads"].find_one(
@@ -2709,6 +2745,37 @@ async def send_client_slots(
             "subtype": toc_attachment_subtype,
         })
 
+    lab_cost_attachment: Optional[bytes] = None
+    if wants_lab_cost and toc_data:
+        try:
+            participant_count = _safe_int(req.get("participant_count") or req.get("participants"), 1) or 1
+            async with httpx.AsyncClient(timeout=60) as client:
+                lab_response = await _post_with_local_fallback(
+                    client,
+                    f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost",
+                    json={
+                        "toc": toc_data,
+                        "assumptions": {
+                            "cloud_provider": "aws",
+                            "hours_per_day": 3,
+                            "participant_count": max(1, participant_count),
+                            "include_default_hour_options": True,
+                        },
+                    },
+                )
+            if lab_response.status_code == 200 and lab_response.content:
+                lab_cost_attachment = lab_response.content
+            else:
+                logger.error("Default lab-cost workbook generation failed: %s", lab_response.text[:300])
+        except Exception:
+            logger.exception("Failed to generate default lab-cost workbook for client handoff")
+    if lab_cost_attachment:
+        attachments.append({
+            "filename": f"{technology} - Default Lab Cost Options.xlsx",
+            "content_base64": base64.b64encode(lab_cost_attachment).decode(),
+            "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        })
+
     trainer_details = _requested_trainer_details_for_client(
         req,
         trainer,
@@ -2718,10 +2785,17 @@ async def send_client_slots(
     trainer_details_section = f"Trainer details shared for your review:\n{trainer_details}\n\n" if trainer_details else ""
     training_summary = _client_training_summary(req)
     training_summary_section = f"Training details:\n{training_summary}\n\n" if training_summary else ""
-    lab_cost_note = (
-        "Lab cost will be shared separately after the required usage inputs and rates have been verified and reviewed.\n\n"
-        if wants_lab_cost else ""
-    )
+    lab_cost_note = ""
+    if wants_lab_cost:
+        if lab_cost_attachment:
+            lab_cost_note = (
+                "Lab cost estimate attached with default 1-participant options for 3-hour/day and 8-hour/day access. "
+                "Once the client confirms exact timings or participant count, we can revise the workbook accordingly.\n\n"
+            )
+        else:
+            lab_cost_note = (
+                "Lab cost will be shared separately after the default workbook is generated and reviewed.\n\n"
+            )
 
     try:
         async with httpx.AsyncClient(timeout=30) as client:

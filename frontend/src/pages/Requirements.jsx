@@ -19,18 +19,28 @@ const SKILLS_PRESETS = {
 
 
 function batchFlowType(req = {}) {
-  const raw = String(req.batch_flow || req.batch_type || req.requirement_type || req.training_status || '').toLowerCase()
+  const raw = String(req.pipeline_target || req.pipeline_page || req.batch_flow || req.batch_type || req.requirement_type || req.training_status || req.source || req.metadata?.source || '').toLowerCase()
+  if (raw.includes('linkedin')) return 'linkedin'
   if (raw.includes('proposal')) return 'proposal'
   return 'confirmed'
 }
 
 function batchFlowPath(req = {}) {
+  if (batchFlowType(req) === 'linkedin') return '/linkedin-pipeline'
   return batchFlowType(req) === 'proposal' ? '/shortlist' : '/shortlist1'
 }
 
 function batchFlowLabel(req = {}) {
+  if (batchFlowType(req) === 'linkedin') return 'LinkedIn Pipeline'
   return batchFlowType(req) === 'proposal' ? 'Proposal Batch' : 'Confirmed Batch'
 }
+
+function batchFlowOpenLabel(req = {}) {
+  if (batchFlowType(req) === 'linkedin') return 'Open LinkedIn Pipeline'
+  return batchFlowType(req) === 'proposal' ? 'Open Proposal Flow' : 'Open Confirmed Flow'
+}
+
+const isLinkedInRequirement = req => batchFlowType(req) === 'linkedin'
 
 const ScoreBadge = ({ score }) => {
   const color = score >= 80 ? 'bg-emerald-100 text-emerald-700'
@@ -276,7 +286,7 @@ function AutomationPipelinePreview({ trainer, requirement }) {
           onClick={e => e.stopPropagation()}
           className="inline-flex items-center gap-1.5 rounded-lg bg-blue-500 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-600"
         >
-          <TrendingUp className="h-3.5 w-3.5" /> {batchFlowType(requirement) === 'proposal' ? 'Open Proposal Flow' : 'Open Confirmed Flow'}
+          <TrendingUp className="h-3.5 w-3.5" /> {batchFlowOpenLabel(requirement)}
         </a>
       </div>
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -424,7 +434,7 @@ export default function Requirements() {
   })
 
   useEffect(() => {
-    getRequirements().then(r => setReqs(r.data.requirements || [])).catch(() => {})
+    getRequirements().then(r => setReqs((r.data.requirements || []).filter(req => !isLinkedInRequirement(req)))).catch(() => {})
   }, [])
 
   // Generate skill suggestions based on input
@@ -487,7 +497,7 @@ export default function Requirements() {
       setResult(res.data)
       setShowForm(false)
       toast.success(`✅ Shortlisted ${res.data.top_trainers} trainers!`)
-      getRequirements().then(r => setReqs(r.data.requirements || []))
+      getRequirements().then(r => setReqs((r.data.requirements || []).filter(req => !isLinkedInRequirement(req))))
     } catch (e) { toast.error(e.message) }
     finally { setLoading(false); setLoadingMode('') }
   }

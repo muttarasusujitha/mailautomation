@@ -312,7 +312,11 @@ export default function LinkedInPipeline() {
   const loadRequirements = async () => {
     try {
       const res = await api.get('/requirements', { params: { page_size: 100 } })
-      setRequirements(res.data.requirements || res.data.items || [])
+      const rows = res.data.requirements || res.data.items || []
+      setRequirements(rows.filter(req => {
+        const raw = String(req.pipeline_target || req.pipeline_page || req.batch_flow || req.batch_type || req.requirement_type || req.source || req.metadata?.source || '').toLowerCase()
+        return raw.includes('linkedin')
+      }))
     } catch (e) {
       toast.error(e.message)
     }
@@ -380,6 +384,11 @@ export default function LinkedInPipeline() {
         domain: technology,
         top_n: 20,
         source: 'linkedin_pipeline',
+        batch_flow: 'linkedin',
+        batch_type: 'linkedin',
+        requirement_type: 'linkedin_pipeline',
+        pipeline_target: 'linkedin_pipeline',
+        pipeline_page: 'linkedin-pipeline',
         metadata: { source: 'linkedin_pipeline', search_query: technology },
       })
       const req = res.data.requirement || { requirement_id: res.data.requirement_id, technology_needed: technology, domain: technology, top_n: 20 }

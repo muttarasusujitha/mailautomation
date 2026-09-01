@@ -121,6 +121,48 @@ def test_lab_cost_is_recorded_for_clahan_without_requesting_it_from_trainers():
     assert "We will confirm lab availability and cost separately." in _client_proceed_ack_reply(extracted)["body"]
 
 
+def test_training_requirement_with_lab_cost_still_creates_requirement():
+    extracted = _extract_requirement_from_email(
+        "DevOps Training Requirement - 15 Days",
+        (
+            "We have a corporate training requirement for DevOps including AWS and Azure.\n"
+            "Duration: 15 Days\n"
+            "Training Dates: November 1, 2026 to November 15, 2026\n"
+            "Please share trainer CV, day-wise TOC and lab cost for 15 days."
+        ),
+        sender_email="client@example.com",
+        sender_name="Client Team",
+    )
+
+    assert extracted["is_training_request"] is True
+    assert extracted["direct_request_language"] is True
+    assert extracted["toc_action"] == "generate_by_clahan"
+    assert extracted["clahan_managed_details"] == ["Lab availability and cost"]
+
+
+def test_proposal_word_alone_does_not_trigger_toc_request_before_slots():
+    from app.routes.inbox import _client_requested_toc_or_proposal
+
+    requirement = {
+        "requirement_type": "proposal_batch",
+        "requested_details": ["Trainer Profile", "Commercials"],
+        "client_requirement_text": "Please share proposal commercials for DevOps training.",
+    }
+
+    assert _client_requested_toc_or_proposal(requirement, {}) is False
+
+
+def test_explicit_toc_word_triggers_toc_request_before_slots():
+    from app.routes.inbox import _client_requested_toc_or_proposal
+
+    requirement = {
+        "requirement_type": "proposal_batch",
+        "requested_details": ["Trainer Profile", "ToC"],
+    }
+
+    assert _client_requested_toc_or_proposal(requirement, {}) is True
+
+
 def test_natural_month_range_counts_as_preferred_dates():
     body = (
         "Good morning,\n\n"

@@ -756,6 +756,41 @@ def check_gmail_api_replies(
                 else:
                     body_text = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
 
+                # Gmail API returns the complete RFC822 message in raw mode.
+                # Capture safe client scope documents here just as the IMAP
+                # polling path does, otherwise Excel/PDF TOCs are silently
+                # dropped before requirement creation and trainer Mail 1.
+                attachments: List[Dict[str, Any]] = []
+                captured_attachment_bytes = 0
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        filename = part.get_filename()
+                        if not filename:
+                            continue
+                        decoded_filename = _decode_header(filename)
+                        disposition = (part.get_content_disposition() or "").lower()
+                        attachment = {
+                            "filename": decoded_filename,
+                            "content_type": part.get_content_type(),
+                            "disposition": disposition or "attachment",
+                        }
+                        extension = os.path.splitext(decoded_filename)[1].lower()
+                        if extension in CLIENT_SCOPE_EXTENSIONS:
+                            raw_attachment = part.get_payload(decode=True) or b""
+                            remaining = MAX_CLIENT_SCOPE_MESSAGE_BYTES - captured_attachment_bytes
+                            if (
+                                raw_attachment
+                                and len(raw_attachment) <= MAX_CLIENT_SCOPE_ATTACHMENT_BYTES
+                                and len(raw_attachment) <= remaining
+                            ):
+                                attachment["content_base64"] = base64.b64encode(raw_attachment).decode("ascii")
+                                attachment["size_bytes"] = len(raw_attachment)
+                                attachment["safe_client_scope"] = True
+                                captured_attachment_bytes += len(raw_attachment)
+                            elif raw_attachment:
+                                attachment["capture_skipped"] = "attachment_size_limit"
+                        attachments.append(attachment)
+
                 try:
                     date_hdr = msg.get("Date", "")
                     if date_hdr:
@@ -791,6 +826,8 @@ def check_gmail_api_replies(
                     "action": action,
                     "received_at": received_at.isoformat(),
                     "gmail_api_user": "me",
+                    "attachments": attachments,
+                    "attachment_names": [item.get("filename", "") for item in attachments if item.get("filename")],
                 })
             except Exception:
                 logger.exception("Gmail API message fetch failed for %s", gmail_id)

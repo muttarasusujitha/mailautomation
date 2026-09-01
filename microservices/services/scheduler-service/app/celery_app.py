@@ -55,22 +55,18 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(hour=2, minute=0),
         "args": [],
     },
-    # Daily follow-up reminders for unanswered trainer emails (9 AM UTC)
-    "daily-followup-reminders": {
+    # First trainer follow-up for unanswered Mail 1 after 6 hours.
+    # Checked hourly; each original Mail 1 can produce this follow-up only once.
+    "trainer-followup-1-hourly": {
         "task": "app.tasks.reminders.send_followup_reminders",
-        "schedule": crontab(hour=9, minute=0),
+        "schedule": crontab(minute=0),
         "args": [],
     },
-    # Send followup2 for mail1_reminder logs that have been sent at least 3 hours ago.
-    "followup2-reminders-every-15-min": {
+    # Second and final trainer follow-up 24 hours after the first follow-up.
+    # Checked hourly; each original Mail 1 can produce this follow-up only once.
+    "trainer-followup-2-hourly": {
         "task": "app.tasks.reminders.send_followup2_reminders",
-        "schedule": crontab(minute="*/15"),
-        "args": [],
-    },
-    # Send followup3 for mail1_reminder logs that have been sent at least 6 hours ago.
-    "followup3-reminders-every-15-min": {
-        "task": "app.tasks.reminders.send_followup3_reminders",
-        "schedule": crontab(minute="*/15"),
+        "schedule": crontab(minute=0),
         "args": [],
     },
 }

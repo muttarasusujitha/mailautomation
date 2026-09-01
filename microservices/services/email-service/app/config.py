@@ -99,6 +99,17 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = "gpt-5.5"
     USE_OPENAI_FOR_EMAILS: bool = False
     USE_LLM_FOR_EMAILS: bool = False
+    # Auto-send is opt-in. The LLM can draft email text, but application rules
+    # must still approve the action before Gmail is called.
+    AUTO_SEND_ENABLED: bool = False
+    AUTO_SEND_CONFIDENCE_THRESHOLD: float = 0.85
+    AUTO_SEND_RISK_KEYWORDS: str = (
+        "price,pricing,payment,invoice,discount,quote,quotation,contract,"
+        "agreement,legal,complaint,refund,cancel,cancellation,terminate,termination"
+    )
+    # Optional ISO-8601 boundary used after an inbox reset. Messages received
+    # before this moment are ignored and cannot recreate old requirements.
+    INBOX_PROCESS_AFTER: str = ""
     ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,https://localhost:3000"
 
     @property

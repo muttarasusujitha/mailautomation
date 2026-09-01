@@ -428,6 +428,11 @@ This helps us process your availability automatically and move forward quickly.
         if "Relevant corporate training and implementation experience" in requested_set:
             requested_set.remove("Relevant corporate training and implementation experience")
             requested_set.add(experience_item)
+        if payload.toc_action == "generate_by_clahan" and not payload.scope_attached:
+            requested_set = {
+                item for item in requested_set
+                if not any(term in item.lower() for term in ("toc", "course agenda", "day-wise"))
+            }
         if "Detailed day-wise ToC/course agenda" in requested_set and toc_item != "Detailed day-wise ToC/course agenda":
             requested_set.remove("Detailed day-wise ToC/course agenda")
             requested_set.add(toc_item)

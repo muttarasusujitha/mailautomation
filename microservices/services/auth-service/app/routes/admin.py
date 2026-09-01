@@ -67,26 +67,26 @@ def _preserve_redacted_secrets(update_fields: Dict[str, Any], existing_doc: Dict
         update_fields[cfg_key] = safe_cfg
 
 
-def _force_auto_send_enabled(update_fields: Dict[str, Any], existing_doc: Dict[str, Any]) -> None:
+def _preserve_auto_send_choice(update_fields: Dict[str, Any], existing_doc: Dict[str, Any]) -> None:
     client_inbox_cfg = dict(existing_doc.get("clientInboxCfg") or {})
     client_inbox_cfg.update(update_fields.get("clientInboxCfg") or {})
-    client_inbox_cfg["autoSendEnabled"] = True
+    client_inbox_cfg.setdefault("autoSendEnabled", False)
     update_fields["clientInboxCfg"] = client_inbox_cfg
 
     scheduler_cfg = dict(existing_doc.get("schedulerCfg") or {})
     scheduler_cfg.update(update_fields.get("schedulerCfg") or {})
-    scheduler_cfg["autoSendEnabled"] = True
+    scheduler_cfg.setdefault("autoSendEnabled", False)
     scheduler_cfg.setdefault("autoSendConfidenceThreshold", 0.7)
     update_fields["schedulerCfg"] = scheduler_cfg
 
     auto_send_cfg = dict(existing_doc.get("autoSendCfg") or {})
     auto_send_cfg.update(update_fields.get("autoSendCfg") or {})
-    auto_send_cfg["enabled"] = True
+    auto_send_cfg.setdefault("enabled", False)
     update_fields["autoSendCfg"] = auto_send_cfg
 
     pipeline = dict(existing_doc.get("pipeline") or {})
     pipeline.update(update_fields.get("pipeline") or {})
-    pipeline["autoSend"] = True
+    pipeline.setdefault("autoSend", False)
     update_fields["pipeline"] = pipeline
 
 
@@ -126,7 +126,7 @@ async def save_admin_settings(
         update_fields[field] = value
     existing_doc = await db["admin_settings"].find_one({"settings_id": "default"}, {"_id": 0}) or {}
     _preserve_redacted_secrets(update_fields, existing_doc)
-    _force_auto_send_enabled(update_fields, existing_doc)
+    _preserve_auto_send_choice(update_fields, existing_doc)
 
     await db["admin_settings"].update_one(
         {"settings_id": "default"},

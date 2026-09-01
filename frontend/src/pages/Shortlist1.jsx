@@ -130,7 +130,13 @@ function poDurationText(req = {}) {
 }
 
 function requirementFlowType(req = {}) {
-  const raw = String(req.batch_flow || req.batch_type || req.requirement_type || req.training_status || '').toLowerCase()
+  const explicitTarget = String(req.pipeline_target || req.pipeline_page || '').trim().toLowerCase()
+  if (explicitTarget === 'shortlist1') return 'confirmed'
+  if (explicitTarget === 'shortlist') return 'proposal'
+  if (explicitTarget === 'linkedin-pipeline' || explicitTarget === 'linkedin_pipeline') return 'linkedin'
+
+  const raw = String(req.batch_flow || req.batch_type || req.requirement_type || req.training_status || req.source || req.metadata?.source || '').toLowerCase()
+  if (raw.includes('linkedin')) return 'linkedin'
   if (raw.includes('proposal')) return 'proposal'
   if (raw.includes('confirmed')) return 'confirmed'
 
@@ -183,6 +189,7 @@ function requirementFlowType(req = {}) {
 }
 
 const isConfirmedRequirement = req => requirementFlowType(req) === 'confirmed'
+const isLinkedInRequirement = req => requirementFlowType(req) === 'linkedin'
 
 async function getAllRequirementsForFlow() {
   const first = await getRequirements({ page: 1, page_size: 100 })
@@ -684,6 +691,11 @@ function requestedTrainerDetailItems(req = {}) {
     req.email_body,
     req.body,
   ].filter(Boolean).join(' ')).toLowerCase()
+  const tocGeneratedByClahan = String(req.toc_action || req.metadata?.toc_action || req.extracted?.toc_action || '').toLowerCase() === 'generate_by_clahan'
+  const labManagedByClahan = [
+    ...(Array.isArray(req.clahan_managed_details) ? req.clahan_managed_details : []),
+    ...(Array.isArray(req.metadata?.clahan_managed_details) ? req.metadata.clahan_managed_details : []),
+  ].some(item => String(item).toLowerCase().includes('lab'))
   const items = []
   const add = (key, label) => {
     if (!items.some(item => item.key === key)) items.push({ key, label })
@@ -696,8 +708,8 @@ function requestedTrainerDetailItems(req = {}) {
     add('commercial', 'Commercial expectation per day/session')
   }
   if (/\b(certification|certifications|certificate|certified)\b/.test(source)) add('certification', 'Relevant certifications')
-  if (/\b(toc|table of contents|course agenda|agenda|day[-\s]?wise)\b/.test(source)) add('toc', 'ToC/course agenda')
-  if (/\b(lab|hands[-\s]?on|environment|setup)\b/.test(source)) add('lab', 'Lab/support details')
+  if (!tocGeneratedByClahan && /\b(toc|table of contents|course agenda|agenda|day[-\s]?wise)\b/.test(source)) add('toc', 'ToC/course agenda')
+  if (!labManagedByClahan && /\b(lab|hands[-\s]?on|environment|setup)\b/.test(source)) add('lab', 'Lab/support details')
   return items
 }
 
@@ -2755,6 +2767,9 @@ function PipelineProgressSummary({ stage, state, req }) {
 function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowReminders = false }) {
   const runningRef = useRef(false)
   const statesRef  = useRef(states)
+  // Remember a declined first-outreach batch so the background poll does not
+  // repeatedly show the same confirmation every refresh.
+  const firstOutreachDecisionRef = useRef('')
   useEffect(() => { statesRef.current = states }, [states])
 
   useEffect(() => {
@@ -2976,6 +2991,28 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
         // First outreach is now a broadcast: every shortlisted trainer gets Mail 1.
         const pendingTrainers = trainers.filter(t => getStage(t) === 'pending')
         if (pendingTrainers.length) {
+          const batchKey = `${req.requirement_id || 'requirement'}:${pendingTrainers
+            .map(trainer => trainer.trainer_id)
+            .sort()
+            .join(',')}`
+
+          if (firstOutreachDecisionRef.current !== batchKey) {
+            const mailLabel = pendingTrainers.length === 1 ? 'email' : 'emails'
+            const trainerLabel = pendingTrainers.length === 1 ? 'trainer' : 'trainers'
+            const shouldSend = globalThis.confirm(
+              `AI pipeline is ready to start. It will send ${pendingTrainers.length} ${mailLabel} to ${pendingTrainers.length} shortlisted ${trainerLabel} (Mail 1).\n\nNo emails have been sent yet. Do you want to continue?`
+            )
+
+            // Mark both confirmation and cancellation for this exact batch.
+            // A changed shortlist creates a new key and prompts again.
+            firstOutreachDecisionRef.current = batchKey
+            if (!shouldSend) {
+              toast('AI pipeline paused. No emails were sent.', { icon: 'i', duration: 5000 })
+              runningRef.current = false
+              return
+            }
+          }
+
           const sentResults = []
           for (const trainer of pendingTrainers) {
             const { subject, body } = mail1Template(trainer, req, false, {})
@@ -3006,9 +3043,9 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           }).length
           const failedCount = pendingTrainers.length - deliveredCount
           if (failedCount) {
-            toast.error(`Auto: Mail 1 sent to ${deliveredCount}/${pendingTrainers.length}. ${failedCount} failed.`)
+            toast.error(`Sent ${deliveredCount} of ${pendingTrainers.length} emails. ${failedCount} failed.`)
           } else {
-            toast(`Auto: Mail 1 sent to all ${pendingTrainers.length} shortlisted trainers`, { icon: 'i', duration: 5000 })
+            toast.success(`Sent ${deliveredCount} email${deliveredCount === 1 ? '' : 's'} successfully.`, { duration: 5000 })
           }
           runningRef.current = false
           return
@@ -4991,15 +5028,25 @@ export default function Shortlist1() {
             setSelectedReq(match)
             setMissingRequirement(false)
           } else if (match) {
-            toast('This is a proposal requirement. Opening Proposal Flow.', { icon: 'i' })
-            globalThis.location.replace(`/shortlist?requirement_id=${encodeURIComponent(match.requirement_id)}`)
+            if (isLinkedInRequirement(match)) {
+              toast('This is a LinkedIn requirement. Opening LinkedIn Pipeline.', { icon: 'i' })
+              globalThis.location.replace(`/linkedin-pipeline?requirement_id=${encodeURIComponent(match.requirement_id)}&domain=${encodeURIComponent(match.technology_needed || match.domain || '')}`)
+            } else {
+              toast('This is a proposal requirement. Opening Proposal Flow.', { icon: 'i' })
+              globalThis.location.replace(`/shortlist?requirement_id=${encodeURIComponent(match.requirement_id)}`)
+            }
           } else {
             try {
               const reqRes = await getRequirement(targetRequirementId)
               const requirement = reqRes.data
               if (!isConfirmedRequirement(requirement)) {
-                toast('This is a proposal requirement. Opening Proposal Flow.', { icon: 'i' })
-                globalThis.location.replace(`/shortlist?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}`)
+                if (isLinkedInRequirement(requirement)) {
+                  toast('This is a LinkedIn requirement. Opening LinkedIn Pipeline.', { icon: 'i' })
+                  globalThis.location.replace(`/linkedin-pipeline?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}&domain=${encodeURIComponent(requirement.technology_needed || requirement.domain || '')}`)
+                } else {
+                  toast('This is a proposal requirement. Opening Proposal Flow.', { icon: 'i' })
+                  globalThis.location.replace(`/shortlist?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}`)
+                }
                 return
               }
               setSelectedReq(requirement)
