@@ -1,6 +1,8 @@
 from app.routes.inbox import (
     _client_rate_for_trainer_quote,
     _client_same_commercial_acceptance,
+    _trainer_commercial_amounts,
+    _trainer_commercial_body,
     _trainer_budget_amounts_from_requirement,
     _trainer_profile_commercial_amounts,
 )
@@ -50,3 +52,30 @@ def test_client_rate_adds_thirty_percent_when_trainer_asks_more():
     }
 
     assert _client_rate_for_trainer_quote(196000, requirement) == 254800
+
+
+def test_proposal_range_quotes_to_client_with_thirty_percent_markup():
+    requirement = {
+        "technology_needed": "DevOps",
+        "requirement_type": "proposal_batch",
+        "batch_flow": "proposal",
+        "duration_days": 20,
+    }
+    amounts = _trainer_commercial_amounts("Commercials: INR 12 to 15k per day")
+    client_rates = [round(_client_rate_for_trainer_quote(amount, requirement)) for amount in amounts]
+
+    assert amounts == [12000, 15000]
+    assert client_rates == [15600, 19500]
+
+
+def test_commercial_body_shows_day_rate_and_total_without_invented_toc():
+    body = _trainer_commercial_body(
+        {"technology_needed": "DevOps", "duration_days": 20, "batch_flow": "proposal"},
+        {},
+        {"name": "Karthik Menon"},
+        [15600, 19500],
+    )["body"]
+
+    assert "INR 15,600 per day/session x 20 days = INR 312,000 total" in body
+    assert "INR 19,500 per day/session x 20 days = INR 390,000 total" in body
+    assert "Proposed ToC / Course Agenda" not in body

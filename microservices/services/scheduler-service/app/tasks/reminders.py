@@ -11,6 +11,10 @@ from app.database import get_db, run_async
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+FIRST_FOLLOWUP_AFTER_HOURS = 6
+SECOND_FOLLOWUP_AFTER_FIRST_HOURS = 24
+GMAIL_QUOTA_COOLDOWN_HOURS = 6
+
 
 def _coerce_bool(value, default=True):
     if value is None:
@@ -36,16 +40,41 @@ async def _followup_automation_enabled(db) -> bool:
     return all(_coerce_bool(value, True) for value in switches)
 
 
+async def _gmail_quota_cooldown_active(db) -> dict:
+    now = datetime.utcnow()
+    cooldown = await db["mail_send_cooldowns"].find_one(
+        {"_id": "gmail_send_quota", "retry_after": {"$gt": now}},
+        {"_id": 0, "retry_after": 1, "error_message": 1},
+    )
+    if cooldown:
+        return {"active": True, "retry_after": cooldown.get("retry_after"), "source": "mail_send_cooldowns"}
+    recent_quota = await db["email_logs"].find_one(
+        {
+            "status": "failed",
+            "error_message": {"$regex": "Gmail sending quota exceeded|Daily user sending limit exceeded|User-rate limit exceeded", "$options": "i"},
+            "created_at": {"$gte": now - timedelta(hours=GMAIL_QUOTA_COOLDOWN_HOURS)},
+        },
+        {"_id": 0, "created_at": 1, "error_message": 1},
+        sort=[("created_at", -1)],
+    )
+    if recent_quota:
+        retry_after = recent_quota.get("created_at") + timedelta(hours=GMAIL_QUOTA_COOLDOWN_HOURS)
+        return {"active": True, "retry_after": retry_after, "source": "recent_quota_failure"}
+    return {"active": False}
+
+
 async def _do_followup_reminders():
     """
-    Find trainers who received mail1 but haven't replied in 3 days.
-    Send them a reminder via email-service.
+    First trainer follow-up only: send once when Mail 1 is unanswered for 6 hours.
     """
     db = get_db()
     if not await _followup_automation_enabled(db):
         return {"sent": 0, "failed": 0, "skipped": True, "reason": "followup_automation_disabled"}
+    cooldown = await _gmail_quota_cooldown_active(db)
+    if cooldown.get("active"):
+        return {"sent": 0, "failed": 0, "skipped": True, "reason": "gmail_quota_cooldown", **cooldown}
 
-    cutoff = datetime.utcnow() - timedelta(days=3)
+    cutoff = datetime.utcnow() - timedelta(hours=FIRST_FOLLOWUP_AFTER_HOURS)
     query = {
         "mail_type": "mail1",
         "direction": "outbound",
@@ -99,6 +128,19 @@ async def _do_followup_reminders():
                 timeout=30,
             )
             success = send_resp.status_code < 400
+            if send_resp.status_code == 429 or "quota" in send_resp.text.lower():
+                await db["mail_send_cooldowns"].update_one(
+                    {"_id": "gmail_send_quota"},
+                    {
+                        "$set": {
+                            "retry_after": datetime.utcnow() + timedelta(hours=GMAIL_QUOTA_COOLDOWN_HOURS),
+                            "error_message": send_resp.text[:1000],
+                            "updated_at": datetime.utcnow(),
+                        },
+                        "$setOnInsert": {"created_at": datetime.utcnow()},
+                    },
+                    upsert=True,
+                )
         except Exception as exc:
             logger.error("Follow-up send failed for %s: %s", recipient, exc)
             success = False
@@ -119,14 +161,19 @@ async def _do_followup_reminders():
 
 async def _do_followup2_reminders():
     """
-    Send second follow-up (followup2) for mail1_reminder entries that were sent >= 3 hours ago
-    and haven't yet received followup2. Uses atomic claim fields to avoid duplicate sends.
+    Second and final trainer follow-up only.
+
+    It is based on the first follow-up timestamp. The second follow-up waits a
+    full 24 hours after the first follow-up, then the chain stops.
     """
     db = get_db()
     if not await _followup_automation_enabled(db):
         return {"sent": 0, "failed": 0, "skipped": True, "reason": "followup_automation_disabled"}
+    cooldown = await _gmail_quota_cooldown_active(db)
+    if cooldown.get("active"):
+        return {"sent": 0, "failed": 0, "skipped": True, "reason": "gmail_quota_cooldown", **cooldown}
 
-    cutoff = datetime.utcnow() - timedelta(hours=3)
+    cutoff = datetime.utcnow() - timedelta(hours=SECOND_FOLLOWUP_AFTER_FIRST_HOURS)
     query = {
         "mail_type": "mail1_reminder",
         "direction": "outbound",
@@ -177,6 +224,19 @@ async def _do_followup2_reminders():
                 timeout=30,
             )
             success = send_resp.status_code < 400
+            if send_resp.status_code == 429 or "quota" in send_resp.text.lower():
+                await db["mail_send_cooldowns"].update_one(
+                    {"_id": "gmail_send_quota"},
+                    {
+                        "$set": {
+                            "retry_after": datetime.utcnow() + timedelta(hours=GMAIL_QUOTA_COOLDOWN_HOURS),
+                            "error_message": send_resp.text[:1000],
+                            "updated_at": datetime.utcnow(),
+                        },
+                        "$setOnInsert": {"created_at": datetime.utcnow()},
+                    },
+                    upsert=True,
+                )
         except Exception as exc:
             logger.error("Followup2 send failed for %s: %s", recipient, exc)
             success = False
@@ -196,79 +256,12 @@ async def _do_followup2_reminders():
 
 async def _do_followup3_reminders():
     """
-    Send third follow-up (followup3) for mail1_reminder entries that were sent >= 6 hours ago
-    and haven't yet received followup3. Uses atomic claim fields to avoid duplicate sends.
+    Disabled by policy: trainer outreach is capped at two follow-ups.
+
+    Kept as a no-op for backwards compatibility with old manual endpoints or
+    stale worker messages; it must never send another trainer email.
     """
-    db = get_db()
-    if not await _followup_automation_enabled(db):
-        return {"sent": 0, "failed": 0, "skipped": True, "reason": "followup_automation_disabled"}
-
-    cutoff = datetime.utcnow() - timedelta(hours=6)
-    query = {
-        "mail_type": "mail1_reminder",
-        "direction": "outbound",
-        "status": "sent",
-        "followup3_sent": {"$ne": True},
-        "followup3_claimed": {"$ne": True},
-        "sent_at": {"$lte": cutoff},
-    }
-    sent = failed = 0
-
-    cursor = db["email_logs"].find(query).limit(200)
-    async for candidate in cursor:
-        email_id = candidate.get("email_id")
-        recipient = candidate.get("recipient") or candidate.get("trainer_email") or ""
-        trainer_name = candidate.get("trainer_name") or "Trainer"
-        technology = candidate.get("technology") or "Training"
-        req_id = candidate.get("requirement_id") or ""
-
-        if not recipient or not email_id:
-            continue
-
-        now = datetime.utcnow()
-        claimed = await db["email_logs"].find_one_and_update(
-            {"email_id": email_id, "followup3_sent": {"$ne": True}, "followup3_claimed": {"$ne": True}},
-            {"$set": {"followup3_claimed": True, "followup3_claimed_at": now}},
-        )
-        if not claimed:
-            continue
-
-        try:
-            tmpl_resp = httpx.post(
-                f"{settings.EMAIL_SERVICE_URL}/api/v1/email/templates/retry",
-                json={"trainer_name": trainer_name, "technology": technology, "req_id": req_id},
-                headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                timeout=10,
-            )
-            tmpl = tmpl_resp.json()
-
-            send_resp = httpx.post(
-                f"{settings.EMAIL_SERVICE_URL}/api/v1/email/send",
-                json={
-                    "to": recipient,
-                    "subject": tmpl.get("subject", f"Follow-Up: {technology}"),
-                    "body": tmpl.get("body", ""),
-                    "mail_type": "mail3_reminder",
-                    "requirement_id": req_id,
-                },
-                timeout=30,
-            )
-            success = send_resp.status_code < 400
-        except Exception as exc:
-            logger.error("Followup3 send failed for %s: %s", recipient, exc)
-            success = False
-
-        now2 = datetime.utcnow()
-        await db["email_logs"].update_one(
-            {"email_id": email_id},
-            {"$set": {"followup3_sent": True if success else False, "followup3_sent_at": now2 if success else None, "updated_at": now2}, "$unset": {"followup3_claimed": "", "followup3_claimed_at": ""}},
-        )
-        if success:
-            sent += 1
-        else:
-            failed += 1
-
-    return {"sent": sent, "failed": failed}
+    return {"sent": 0, "failed": 0, "skipped": True, "reason": "followup3_disabled_two_followup_limit"}
 
 
 async def _do_cleanup_old_logs(days_old: int = 90):

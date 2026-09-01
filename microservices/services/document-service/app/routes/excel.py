@@ -742,6 +742,57 @@ def _lab_cost_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[str, Any]
         summary_ws.column_dimensions[get_column_letter(column)].width = width
     summary_ws.freeze_panes = "A5"
 
+    if values.get("include_default_hour_options"):
+        comparison_ws = wb.create_sheet("Default 3h and 8h Options", 1)
+        comparison_ws.sheet_view.showGridLines = False
+        comparison_ws.merge_cells("A1:F1")
+        comparison_ws["A1"] = f"Default Lab Cost Options - {title}"
+        comparison_ws["A1"].font = Font(name="Calibri", size=16, bold=True, color=white)
+        comparison_ws["A1"].fill = section_fill
+        comparison_ws.row_dimensions[1].height = 28
+        comparison_ws.merge_cells("A2:F2")
+        comparison_ws["A2"] = (
+            "Default estimate for 1 participant. Two standard access windows are shown: "
+            "3 hours/day and 8 hours/day. Revise after the client confirms final timings or participant count."
+        )
+        comparison_ws["A2"].fill = PatternFill("solid", fgColor=light_blue)
+        comparison_ws["A2"].alignment = Alignment(wrap_text=True, vertical="center")
+        comparison_ws.row_dimensions[2].height = 42
+        comparison_ws.append([])
+        comparison_ws.append([
+            "Option", "Participants", "Hours / Day", "Total Training Hours",
+            "Estimated Infrastructure Cost", "Estimated Total Lab Cost",
+        ])
+        for cell in comparison_ws[4]:
+            cell.fill = header_fill
+            cell.font = Font(bold=True, color=white)
+            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        day_count_formula = f"=IF('Assumptions'!$B$4=0,0,'Lab Cost'!$J${total_row}/'Assumptions'!$B$4)"
+        for row, option_hours in enumerate((3, 8), 5):
+            comparison_ws.cell(row, 1, f"{option_hours}-hour/day lab access")
+            comparison_ws.cell(row, 2, 1)
+            comparison_ws.cell(row, 3, option_hours)
+            comparison_ws.cell(row, 4, f"={day_count_formula}*C{row}")
+            comparison_ws.cell(row, 5, f"=IF('Lab Cost'!$J${total_row}=0,0,'Lab Cost'!$M${total_row}/'Lab Cost'!$J${total_row}*D{row})")
+            comparison_ws.cell(row, 6, f"=(E{row}+(B{row}*'Assumptions'!$B$12))*(1+'Assumptions'!$B$8)*(1+'Assumptions'!$B$9)")
+        note_row = 8
+        comparison_ws.merge_cells(start_row=note_row, start_column=1, end_row=note_row, end_column=6)
+        comparison_ws.cell(note_row, 1, "Use this sheet for the first client response when participants/timings are not confirmed. The detailed Lab Cost sheet remains editable for the final quote.")
+        comparison_ws.cell(note_row, 1).font = Font(italic=True, color="595959")
+        comparison_ws.cell(note_row, 1).alignment = Alignment(wrap_text=True, vertical="top")
+        comparison_ws.row_dimensions[note_row].height = 34
+        for row in comparison_ws.iter_rows(min_row=4, max_row=note_row, min_col=1, max_col=6):
+            for cell in row:
+                cell.border = border
+                cell.alignment = Alignment(vertical="top", wrap_text=True)
+        for column, width in enumerate([28, 16, 16, 22, 28, 28], 1):
+            comparison_ws.column_dimensions[get_column_letter(column)].width = width
+        for row in (5, 6):
+            comparison_ws.cell(row, 5).number_format = 'INR #,##0.00'
+            comparison_ws.cell(row, 6).number_format = 'INR #,##0.00'
+            comparison_ws.cell(row, 4).number_format = '0.00'
+        comparison_ws.freeze_panes = "A5"
+
     requirements_ws.sheet_view.showGridLines = False
     requirements_ws.merge_cells("A1:D1")
     requirements_ws["A1"] = f"Lab Requirements and Setup Checklist - {title}"

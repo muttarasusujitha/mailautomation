@@ -1,16 +1,20 @@
 ﻿"""Gmail inbox polling and inbound client requirement processing."""
 import asyncio
+import base64
 import html
+import io
 import logging
 import math
 import re
+import subprocess
+import tempfile
 import uuid
 from datetime import datetime, timedelta, timezone
 from email.utils import parseaddr
 from typing import Annotated, Any, Dict, List, Optional, Tuple
 
 import httpx
-from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 from pymongo.errors import DuplicateKeyError
@@ -35,21 +39,25 @@ settings = get_settings()
 
 CORE_API_URL = settings.CORE_API_URL.rstrip("/")
 TRAINER_SERVICE_URL = settings.TRAINER_SERVICE_URL.rstrip("/")
+DOCUMENT_SERVICE_URL = "http://document-service:8006"
 LOCAL_TZ = timezone(timedelta(hours=5, minutes=30))
 LOCAL_SERVICE_FALLBACKS = {
     "https://core-api:8001": "http://127.0.0.1:8001",
     "http://core-api:8001": "http://127.0.0.1:8001",
     "https://trainer-service:8004": "http://127.0.0.1:8004",
     "http://trainer-service:8004": "http://127.0.0.1:8004",
+    "http://document-service:8006": "http://127.0.0.1:8006",
     "https://intelligence-service:8005": "http://127.0.0.1:8005",
     "http://intelligence-service:8005": "http://127.0.0.1:8005",
     "http://127.0.0.1:8001": "http://127.0.0.1:8001",
     "http://127.0.0.1:8004": "http://127.0.0.1:8004",
     "http://127.0.0.1:8005": "http://127.0.0.1:8005",
+    "http://127.0.0.1:8006": "http://127.0.0.1:8006",
 }
 REPLY_OUTBOUND_MAIL_PRIORITY = {
     "mail1": 10,
     "mail1_reminder": 11,
+    "mail1_toc_correction": 12,
     "mail2": 20,
     "mail2_followup": 21,
     "trainer_commercials_to_client": 30,
@@ -77,6 +85,7 @@ REPLY_OUTBOUND_MAIL_PRIORITY = {
 TRAINER_REPLY_SOURCE_MAIL_TYPES = {
     "mail1",
     "mail1_reminder",
+    "mail1_toc_correction",
     "mail2",
     "mail2_followup",
     "trainer_commercials_to_client",
@@ -304,9 +313,17 @@ def _message_time(email_doc: Dict[str, Any]) -> Optional[datetime]:
     )
 
 
+def _inbox_process_after() -> Optional[datetime]:
+    """Return the reset boundary for inbound mail, if one is configured."""
+    return _parse_datetime(get_settings().INBOX_PROCESS_AFTER)
+
+
 def _is_today_or_newer(email_doc: Dict[str, Any]) -> bool:
-    # Always allow processing regardless of the original message timestamp.
-    return True
+    cutoff = _inbox_process_after()
+    if not cutoff:
+        return True
+    message_time = _message_time(email_doc)
+    return bool(message_time and message_time >= cutoff)
 
 
 def _today_client_email_query() -> Dict[str, Any]:
@@ -667,6 +684,14 @@ def _should_attempt_auto_reply(
     reply: Dict[str, str],
     confidence: Optional[float] = None,
 ) -> bool:
+    risk_reason = _auto_send_risk_reason(email_doc)
+    if risk_reason:
+        logger.info(
+            "Auto-reply blocked: risk category %s. email_id=%s",
+            risk_reason,
+            email_doc.get("email_id"),
+        )
+        return False
     confidence_score = (
         _safe_float(confidence, 0)
         if confidence is not None
@@ -706,6 +731,33 @@ def _should_attempt_auto_reply(
         logger.debug("Auto-reply blocked: retry not due. email_id=%s retry_after=%s", email_doc.get("email_id"), email_doc.get("auto_send_retry_after"))
         return False
     return True
+
+
+def _auto_send_risk_reason(email_doc: Dict[str, Any]) -> str:
+    """Return a deterministic reason when an inbound email needs a human.
+
+    This gate intentionally runs independently of LLM classification so a model
+    can never override commercial, legal, or complaint-related safeguards.
+    """
+    runtime_settings = get_settings()
+    keywords = [
+        keyword.strip().lower()
+        for keyword in runtime_settings.AUTO_SEND_RISK_KEYWORDS.split(",")
+        if keyword.strip()
+    ]
+    subject = str(email_doc.get("subject") or "")
+    body = str(
+        email_doc.get("classification_body")
+        or email_doc.get("clean_body")
+        or email_doc.get("raw_body")
+        or email_doc.get("body")
+        or ""
+    )
+    text = f"{subject}\n{body}".lower()
+    for keyword in keywords:
+        if re.search(rf"(?<!\\w){re.escape(keyword)}(?!\\w)", text):
+            return f"risky_keyword:{keyword}"
+    return ""
 
 
 def _has_training_domain(extracted: Dict[str, Any]) -> bool:
@@ -934,6 +986,10 @@ def _is_obvious_non_client_email(sender_email: str, subject: str, body: str) -> 
     domain = email.split("@", 1)[1] if "@" in email else ""
     automated_sender = (
         local in AUTOMATED_SENDER_LOCALS
+        # Providers use names such as googleaistudio-noreply.  Treat any
+        # no-reply marker in the local part as automated, not just prefixes.
+        or "noreply" in local
+        or "no-reply" in local
         or local.startswith(("bounce", "no-reply", "noreply", "donotreply", "do-not-reply"))
         or "mailer-daemon" in local
     )
@@ -2221,19 +2277,12 @@ def _client_email_status_for_reply(reply: dict) -> dict:
 
 async def _auto_send_settings(db: AsyncIOMotorDatabase) -> Dict[str, Any]:
     settings_doc = await _load_admin_settings(db)
-    inbox_cfg = settings_doc.get("clientInboxCfg") or {}
-    scheduler_cfg = settings_doc.get("schedulerCfg") or {}
-    legacy_auto_send_cfg = settings_doc.get("autoSendCfg") or {}
-
-    threshold_value = inbox_cfg.get("autoSendThreshold")
-    if threshold_value is None:
-        threshold_value = legacy_auto_send_cfg.get("threshold")
-    if threshold_value is None:
-        threshold_value = scheduler_cfg.get("autoSendConfidenceThreshold")
+    runtime_settings = get_settings()
+    threshold_value = runtime_settings.AUTO_SEND_CONFIDENCE_THRESHOLD
 
     return {
-        "enabled": True,
-        "threshold": _normalise_threshold(threshold_value, 0.7),
+        "enabled": bool(runtime_settings.AUTO_SEND_ENABLED),
+        "threshold": _normalise_threshold(threshold_value, 0.85),
         "mailbox_addresses": _configured_mailbox_addresses(settings_doc),
     }
 
@@ -2481,6 +2530,11 @@ def _trainer_commercial_amounts(text: Any) -> List[int]:
 
     rupee = re.escape(chr(0x20B9))
     amounts: List[int] = []
+    range_pattern = (
+        rf"(?:INR|Rs\.?|{rupee}|commercials?|rates?|charges?|fees?|cost)?\D{{0,30}}"
+        r"([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?\s*(?:-|to|–|—)\s*"
+        r"([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?"
+    )
     patterns = [
         (rf"(?:INR|Rs\.?|{rupee})\s*([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?", False),
         (r"\b(?:commercials?|rates?|charges?|fees?|cost)\b\D{0,80}([0-9][0-9,]*(?:\.\d+)?)\s*(k|thousand|lakh|lakhs)?", False),
@@ -2489,6 +2543,12 @@ def _trainer_commercial_amounts(text: Any) -> List[int]:
     contextual_line = re.compile(r"\b(?:commercials?|rates?|charges?|fees?|cost)\b", flags=re.IGNORECASE)
     for line in reply_text.splitlines():
         line_has_money_context = bool(contextual_line.search(line))
+        for match in re.finditer(range_pattern, line, flags=re.IGNORECASE):
+            suffix = match.group(4) or match.group(2)
+            for raw_amount, raw_suffix in ((match.group(1), suffix), (match.group(3), suffix)):
+                amount = _money_to_int(raw_amount, raw_suffix)
+                if amount >= 1000 and amount not in amounts:
+                    amounts.append(amount)
         for pattern, requires_context in patterns:
             for match in re.finditer(pattern, line, flags=re.IGNORECASE):
                 if requires_context and not line_has_money_context:
@@ -2568,6 +2628,14 @@ def _client_rate_for_trainer_quote(trainer_rate: float, requirement: Dict[str, A
     trainer_rate = float(trainer_rate or 0)
     if trainer_rate <= 0:
         return 0
+    flow_value = _clean(
+        requirement.get("batch_flow")
+        or requirement.get("batch_type")
+        or requirement.get("requirement_type")
+        or requirement.get("pipeline_target")
+    ).lower()
+    if "proposal" in flow_value:
+        return trainer_rate * 1.30
     client_budget = _client_budget_from_requirement(requirement)
     trainer_target = _trainer_target_from_requirement(requirement)
     if client_budget and trainer_target and trainer_rate <= trainer_target:
@@ -2758,7 +2826,19 @@ def _trainer_commercial_body(
         or trainer.get("agenda")
     )
 
-    rate_lines = "\n".join(f"- INR {amount:,.0f} per day/session" for amount in client_rates)
+    duration_days = _safe_int(
+        requirement.get("duration_days")
+        or requirement.get("commercial_working_days")
+        or requirement.get("number_of_days"),
+        0,
+    )
+    rate_lines_list = []
+    for amount in client_rates:
+        line = f"- INR {amount:,.0f} per day/session"
+        if duration_days > 1:
+            line += f" x {duration_days} days = INR {amount * duration_days:,.0f} total"
+        rate_lines_list.append(line)
+    rate_lines = "\n".join(rate_lines_list)
     details = [
         f"- Trainer: {trainer_name}",
         f"- Technology: {technology}",
@@ -2774,11 +2854,20 @@ def _trainer_commercial_body(
     elif skills_text or certifications_text:
         profile_lines.append("Trainer Profile Summary")
         profile_lines.append("A suitable trainer profile is available for client review, with relevant delivery experience aligned to the requested technology.")
+    requested_text = " ".join(
+        _clean(item).lower()
+        for item in (
+            requirement.get("requested_details")
+            or (requirement.get("extracted") or {}).get("requested_details")
+            or []
+        )
+    )
+    wants_toc = bool(re.search(r"\b(?:toc|table of contents?|course agenda|curriculum|syllabus)\b", requested_text))
     toc_lines = []
     if toc_text:
         toc_lines.append("Proposed ToC / Course Agenda")
         toc_lines.append(toc_text)
-    else:
+    elif wants_toc:
         toc_lines.append("Proposed ToC / Course Agenda")
         toc_lines.append(_fallback_toc())
 
@@ -2910,22 +2999,110 @@ def _trainer_initial_reply_intent(text: Any) -> str:
 
 def _trainer_resume_attachment_present(email_doc: Optional[Dict[str, Any]] = None) -> bool:
     email_doc = email_doc or {}
-    attachment_values: List[Any] = []
-    attachment_values.extend(email_doc.get("attachment_names") or [])
-    attachment_values.extend(email_doc.get("attachments") or [])
-    attachment_values.extend(email_doc.get("source_attachments") or [])
-    for attachment in attachment_values:
-        if isinstance(attachment, dict):
-            filename = _clean(
-                attachment.get("filename")
-                or attachment.get("name")
-                or attachment.get("file_name")
-            )
-        else:
-            filename = _clean(attachment)
-        if filename.lower().endswith((".pdf", ".doc", ".docx", ".rtf", ".odt")):
+    if any(isinstance(profile, dict) and profile for profile in (email_doc.get("attachment_profiles") or [])):
+        return True
+    # Receiving the requested document and extracting claims from it are
+    # separate concerns. A bounded, safely captured CV/profile file satisfies
+    # the document handoff even when profile extraction is delayed or fails.
+    for attachment in email_doc.get("attachments") or []:
+        if not isinstance(attachment, dict) or not attachment.get("safe_client_scope"):
+            continue
+        filename = str(attachment.get("filename") or "").strip().lower()
+        filename_words = re.sub(r"[^a-z0-9]+", " ", filename)
+        if filename.endswith((".pdf", ".doc", ".docx", ".rtf", ".odt")) and re.search(
+            r"\b(?:cv|resume|profile|biodata)\b", filename_words
+        ):
             return True
     return False
+
+
+def _requested_detail_matches_category(detail: Any, key: str) -> bool:
+    text = _clean(detail).lower()
+    if not text:
+        return False
+    if key == "cv" and re.search(r"\b(?:linkedin|linked\s*in)\b", text):
+        return False
+    checks = {
+        "cv": r"\b(?:cv|resume|trainer profile|updated profile|trainer biodata|biodata)\b",
+        "linkedin": r"\b(?:linkedin|linked\s*in)\b",
+        "experience": r"\b(?:experience|implementation|hands[-\s]?on|batches delivered|trainings delivered|similar trainings?)\b",
+        "certifications": r"\b(?:certification|certifications|certificate|certified)\b",
+        "current_location": r"\b(?:current location|trainer location|consultant location|location)\b",
+        "availability": r"\b(?:availability|available|dates?|timings?|schedule|free)\b",
+        "technical_slots": r"\b(?:technical call|available time slots|interview slots|discussion slots)\b",
+        "training_dates": r"\b(?:available dates for training|training dates availability|dates for training|training dates)\b",
+        "commercials": r"\b(?:commercial|commercials|per hour|per day|rate|charges|budget|cost|fee|fees)\b",
+        "certification_cost": r"\b(?:certification cost|certificate cost)\b",
+        "toc": r"\b(?:toc|table of content|table of contents|day[-\s]?wise|course agenda|curriculum|syllabus|scope of the delivery)\b",
+        "similar_batches": r"\b(?:batches delivered|number of similar batches|similar batches)\b",
+        "similar_clients": r"\b(?:client names|similar trainings were delivered|similar clients)\b",
+        "hardware": r"\b(?:system requirement|system requirements|hardware)\b",
+        "software": r"\b(?:software required|required software|software)\b",
+    }
+    pattern = checks.get(key)
+    return bool(pattern and re.search(pattern, text, flags=re.IGNORECASE))
+
+
+def _trainer_detail_evidence_doc(
+    email_doc: Optional[Dict[str, Any]] = None,
+    trainer_state: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    email_doc = email_doc or {}
+    trainer_state = trainer_state or {}
+    text_values: List[str] = []
+    for source in (trainer_state, email_doc):
+        if not isinstance(source, dict):
+            continue
+        for key in (
+            "classification_body",
+            "clean_body",
+            "body",
+            "body_snippet",
+            "details_reply_text",
+            "trainer_details_text",
+            "mail1_reply_text",
+            "mail2_reply_text",
+            "reply_text",
+            "last_reply_snippet",
+            "linkedin",
+            "linkedin_url",
+            "linkedin_profile",
+            "availability",
+            "available_dates",
+            "availability_text",
+            "commercials",
+            "commercial_text",
+            "commercial_details",
+            "current_location",
+            "location",
+            "certifications",
+            "certification",
+            "toc_reply_text",
+            "toc_text",
+            "toc",
+            "course_agenda",
+            "agenda",
+        ):
+            value = source.get(key)
+            if isinstance(value, list):
+                value = ", ".join(_clean(item) for item in value if _clean(item))
+            value = _clean(value)
+            if value:
+                text_values.append(value)
+
+    attachments = list(email_doc.get("attachments") or [])
+    profiles = list(email_doc.get("attachment_profiles") or [])
+    if any(_clean(trainer_state.get(key)) for key in ("resume_url", "resume_link", "cv_url", "cv_link", "resume_filename", "source_file")):
+        profiles.append({"source": "shortlist", "profile_document_present": True})
+
+    combined = {
+        **email_doc,
+        "classification_body": "\n".join(dict.fromkeys(text_values)),
+        "clean_body": "\n".join(dict.fromkeys(text_values)),
+        "attachments": attachments,
+        "attachment_profiles": profiles,
+    }
+    return combined
 
 
 def _trainer_missing_requested_details(
@@ -2942,29 +3119,74 @@ def _trainer_missing_requested_details(
         _clean(requirement.get(key))
         for key in ("client_request", "requirement_text", "original_email_body", "email_body", "raw_email", "description")
     ).lower()
+    raw_requested_details = requirement.get("requested_details") or (requirement.get("metadata") or {}).get("requested_details") or []
+    if not isinstance(raw_requested_details, (list, tuple, set)):
+        raw_requested_details = [raw_requested_details] if _clean(raw_requested_details) else []
+    requested_details = [_clean(item) for item in raw_requested_details if _clean(item)]
+    explicit_requests = " ".join(requested_details).lower()
+    has_explicit_requests = bool(requested_details)
+    request_context = f"{explicit_requests} {source}".strip()
     technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "training")
     requested = [
-        ("cv", "Updated CV / Trainer Profile", True, r"\b(?:cv|resume|trainer profile|profile attached|attached profile|attached my profile|updated profile|attachment|attached)\b"),
-        ("linkedin", "LinkedIn Profile", True, r"linkedin\.com|linked\s*in|linkedin profile|linkedin"),
-        ("experience", f"{technology} implementation and training experience", True, r"\b(?:experience|implementation|hands[-\s]?on|training experience|trained|delivered|worked on|years?|yrs?)\b"),
-        ("certifications", "Relevant certifications", not source or bool(re.search(r"certification|certifications|certificate|certified", source)), r"\b(?:certification|certifications|certified|certificate|not certified|no certification|none)\b"),
-        ("current_location", "Current Location", bool(re.search(r"current location|trainer location|consultant location", source)), r"\b(?:current location|location|based in|from|pune|mumbai|bangalore|bengaluru|hyderabad|chennai|delhi|noida|gurgaon|remote|onsite)\b"),
-        ("availability", "Availability", True, r"\b(?:available|availability|slots?|dates?|timings?|schedule|free|can join|can take|from|to|weekdays|weekends|morning|afternoon|evening)\b"),
-        ("technical_slots", "Available time slots for technical call", bool(re.search(r"technical call|available time slots|interview slots|discussion slots", source)), r"\b(?:slot|slots|technical call|discussion|interview|am|pm|ist|available)\b"),
-        ("training_dates", "Available dates for training", bool(re.search(r"available dates for training|training dates availability|dates for training", source)), r"\b(?:available|availability|dates?|from|start|can start|training)\b"),
-        ("commercials", "Commercials (per hour/day)", not source or bool(re.search(r"commercial|commercials|per hour|per day|rate|charges|budget|cost", source)), r"\b(?:inr|rs\.?|₹|rate|charges?|commercial|commercials|fee|fees|per day|per hour|per session|cost)\b"),
-        ("certification_cost", "Certification cost, if applicable", bool(re.search(r"certification cost", source)), r"\b(?:certification cost|certificate cost|not applicable|na|n/a|none|included|extra)\b"),
-        ("toc", "Table of Content (TOC) / day-wise content", bool(re.search(r"toc|table of content|table of contents|day[-\s]?wise content|scope of the delivery|course agenda", source)), r"\b(?:toc|table of content|table of contents|agenda|curriculum|day[-\s]?wise|scope|content|modules?)\b"),
-        ("similar_batches", "Number of similar batches delivered", bool(re.search(r"batches delivered|similar technology", source)), r"\b(?:batches|trainings delivered|delivered|similar technology|corporate trainings?|count|number)\b"),
-        ("similar_clients", "Client names where similar trainings were delivered", bool(re.search(r"client names|similar trainings were delivered", source)), r"\b(?:client names?|delivered for|trained for|companies|organizations|confidential|nda)\b"),
-        ("hardware", "System requirements / hardware", bool(re.search(r"system requirement|hardware", source)), r"\b(?:hardware|system requirements?|ram|cpu|laptop|machine|browser|not applicable|na|n/a)\b"),
-        ("software", "Software required for training", bool(re.search(r"software required|required software", source)), r"\b(?:software|required software|tools?|install|license|availability of required software|not applicable|na|n/a)\b"),
+        ("cv", "Updated CV / Trainer Profile", r"\b(?:cv|resume|trainer profile|profile attached|attached profile|attached my profile|updated profile|attachment|attached)\b"),
+        ("linkedin", "LinkedIn Profile", r"linkedin\.com|linked\s*in|linkedin profile|linkedin"),
+        ("experience", f"{technology} implementation and training experience", r"\b(?:experience|implementation|hands[-\s]?on|training experience|trained|delivered|worked on|years?|yrs?)\b"),
+        ("certifications", "Relevant certifications", r"\b(?:certification|certifications|certified|certificate|not certified|no certification|none)\b"),
+        ("current_location", "Current Location", r"\b(?:current location|location|based in|from|pune|mumbai|bangalore|bengaluru|hyderabad|chennai|delhi|noida|gurgaon|remote|onsite)\b"),
+        ("availability", "Availability", r"\b(?:available|availability|slots?|dates?|timings?|schedule|free|can join|can take|from|to|weekdays|weekends|morning|afternoon|evening)\b"),
+        ("technical_slots", "Available time slots for technical call", r"\b(?:slot|slots|technical call|discussion|interview|am|pm|ist|available)\b"),
+        ("training_dates", "Available dates for training", r"\b(?:available|availability|dates?|from|start|can start|training)\b"),
+        ("commercials", "Commercials (per hour/day)", r"\b(?:inr|rs\.?|₹|rate|charges?|commercial|commercials|fee|fees|per day|per hour|per session|cost)\b"),
+        ("certification_cost", "Certification cost, if applicable", r"\b(?:certification cost|certificate cost|not applicable|na|n/a|none|included|extra)\b"),
+        ("toc", "Table of Content (TOC) / day-wise content", r"\b(?:toc|table of content|table of contents|agenda|curriculum|day[-\s]?wise|scope|content|modules?)\b"),
+        ("similar_batches", "Number of similar batches delivered", r"\b(?:batches|trainings delivered|delivered|similar technology|corporate trainings?|count|number)\b"),
+        ("similar_clients", "Client names where similar trainings were delivered", r"\b(?:client names?|delivered for|trained for|companies|organizations|confidential|nda)\b"),
+        ("hardware", "System requirements / hardware", r"\b(?:hardware|system requirements?|ram|cpu|laptop|machine|browser|not applicable|na|n/a)\b"),
+        ("software", "Software required for training", r"\b(?:software|required software|tools?|install|license|availability of required software|not applicable|na|n/a)\b"),
     ]
+    fallback_required = {
+        "cv": True,
+        "linkedin": True,
+        "experience": bool(re.search(r"experience|implementation|hands[-\s]?on|batches delivered|trainings delivered", request_context)),
+        "certifications": not source or bool(re.search(r"certification|certifications|certificate|certified", source)),
+        "current_location": bool(re.search(r"current location|trainer location|consultant location", source)),
+        "availability": True,
+        "technical_slots": bool(re.search(r"technical call|available time slots|interview slots|discussion slots", source)),
+        "training_dates": bool(re.search(r"available dates for training|training dates availability|dates for training", source)),
+        "commercials": not source or bool(re.search(r"commercial|commercials|per hour|per day|rate|charges|budget|cost", source)),
+        "certification_cost": bool(re.search(r"certification cost", source)),
+        "toc": bool(re.search(r"toc|table of content|table of contents|day[-\s]?wise content|scope of the delivery|course agenda", source)),
+        "similar_batches": bool(re.search(r"batches delivered|similar technology", source)),
+        "similar_clients": bool(re.search(r"client names|similar trainings were delivered", source)),
+        "hardware": bool(re.search(r"system requirement|hardware", source)),
+        "software": bool(re.search(r"software required|required software", source)),
+    }
     resume_attached = _trainer_resume_attachment_present(email_doc)
+    positive_intent = _trainer_initial_reply_intent(reply_text) == "interested"
+    has_offered_budget = any(requirement.get(key) not in (None, "", []) for key in ("budget_total", "budget_per_day", "client_budget_per_day", "trainer_visible_budget_per_session"))
+    client_toc_supplied = False
+    for attachment in requirement.get("source_attachments") or []:
+        if not isinstance(attachment, dict) or not attachment.get("safe_client_scope"):
+            continue
+        filename_words = re.sub(r"[^a-z0-9]+", " ", str(attachment.get("filename") or "").lower())
+        if re.search(r"\b(?:toc|agenda|curriculum|syllabus|course outline)\b", filename_words):
+            client_toc_supplied = True
+            break
     missing: List[str] = []
-    for key, label, required, pattern in requested:
-        supplied_by_resume = resume_attached and key in {"cv", "experience"}
-        if required and not supplied_by_resume and not re.search(pattern, lower, flags=re.IGNORECASE):
+    for key, label, pattern in requested:
+        required = (
+            any(_requested_detail_matches_category(item, key) for item in requested_details)
+            if has_explicit_requests
+            else fallback_required.get(key, False)
+        )
+        supplied_by_resume = resume_attached and key == "cv"
+        if key == "experience":
+            supplied_by_resume = resume_attached
+        supplied_by_intent = positive_intent and (
+            key == "availability" or (key == "commercials" and has_offered_budget)
+        )
+        supplied_by_client = key == "toc" and client_toc_supplied
+        if required and not supplied_by_resume and not supplied_by_intent and not supplied_by_client and not re.search(pattern, lower, flags=re.IGNORECASE):
             missing.append(label)
     return missing
 
@@ -3347,7 +3569,7 @@ def _client_requested_toc_or_proposal(requirement: Dict[str, Any], shortlist: Di
             if source.get(key):
                 requested.append(str(source.get(key)))
     text = " ".join(requested).lower()
-    return bool(re.search(r"\b(?:toc|table\s+of\s+contents|course\s+agenda|training\s+agenda|detailed\s+training\s+proposal|training\s+proposal|proposal|methodology)\b", text))
+    return bool(re.search(r"\b(?:toc|table\s+of\s+contents?|course\s+agenda|training\s+agenda|day[-\s]?wise\s+content|curriculum|syllabus|methodology)\b", text))
 
 
 async def _send_next_step_after_commercial_approval(
@@ -6265,6 +6487,15 @@ async def _send_client_auto_reply(
     if not send_settings["enabled"]:
         return {"success": False, "error": "Auto-send is disabled"}
 
+    risk_reason = _auto_send_risk_reason(email_doc)
+    if risk_reason:
+        return {
+            "success": False,
+            "error": "Auto-send blocked by deterministic safety rule",
+            "blocked": True,
+            "reason": risk_reason,
+        }
+
     source_mail_type_guard = _clean(email_doc.get("source_outbound_mail_type") or "").lower()
     classification_guard = email_doc.get("email_classification") or {}
     scenario_guard = _clean(classification_guard.get("scenario") or email_doc.get("office_mail_category") or "").lower()
@@ -6276,6 +6507,7 @@ async def _send_client_auto_reply(
         or source_mail_type_guard in {
             "mail1",
             "mail1_reminder",
+            "mail1_toc_correction",
             "mail2",
             "mail2_followup",
             "mail3",
@@ -6339,12 +6571,14 @@ async def _send_client_auto_reply(
                 {"requirement_id": effective_requirement_id},
                 {"_id": 0},
             ) or {}
-        if _trainer_reply_has_requested_details(trainer_reply_text, requirement_doc, email_doc):
-            shortlist_doc = await db["shortlists"].find_one(
-                {"requirement_id": effective_requirement_id, "top_trainers.trainer_id": email_doc.get("trainer_id")},
-                {"_id": 0, "top_trainers.$": 1, "client_email": 1, "client_name": 1, "technology_needed": 1},
-            ) or {}
-            current_trainer = (shortlist_doc.get("top_trainers") or [{}])[0] or {}
+        shortlist_doc = await db["shortlists"].find_one(
+            {"requirement_id": effective_requirement_id, "top_trainers.trainer_id": email_doc.get("trainer_id")},
+            {"_id": 0, "top_trainers.$": 1, "client_email": 1, "client_name": 1, "technology_needed": 1},
+        ) or {}
+        current_trainer = (shortlist_doc.get("top_trainers") or [{}])[0] or {}
+        evidence_doc = _trainer_detail_evidence_doc(email_doc, current_trainer)
+        evidence_text = evidence_doc.get("classification_body") or trainer_reply_text
+        if _trainer_reply_has_requested_details(evidence_text, requirement_doc, evidence_doc):
             await _mark_shortlist_trainer_reply_received(
                 db,
                 {
@@ -6684,6 +6918,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         "topics": extracted.get("topics"),
         "custom_topics": extracted.get("custom_topics"),
         "requested_details": extracted.get("requested_details", []),
+        "clahan_managed_details": extracted.get("clahan_managed_details", []),
         "toc_requested": extracted.get("toc_requested"),
         "toc_action": extracted.get("toc_action"),
         "scope_attached": extracted.get("scope_attached"),
@@ -6707,9 +6942,12 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
             "source": "client_inbox",
             "source_email_id": email_doc.get("email_id"),
             "gmail_message_id": email_doc.get("gmail_message_id"),
+            "latest_gmail_message_id": email_doc.get("latest_gmail_message_id"),
+            "gmail_thread_id": email_doc.get("gmail_thread_id") or email_doc.get("thread_id"),
             "original_subject": email_doc.get("subject"),
             "original_body": client_requirement_text[:2500],
             "requested_details": extracted.get("requested_details", []),
+            "clahan_managed_details": extracted.get("clahan_managed_details", []),
             "toc_requested": extracted.get("toc_requested"),
             "toc_action": extracted.get("toc_action"),
             "scope_attached": extracted.get("scope_attached"),
@@ -6958,6 +7196,16 @@ async def _create_requirement(
     deleted_identity_clauses: List[Dict[str, Any]] = []
     if email_id:
         deleted_identity_clauses.append({"source_email_id": email_id})
+    gmail_message_id = _clean(email_doc.get("gmail_message_id") or email_doc.get("latest_gmail_message_id") or "")
+    if gmail_message_id:
+        deleted_identity_clauses.extend([
+            {"gmail_message_id": gmail_message_id},
+            {"latest_gmail_message_id": gmail_message_id},
+            {"thread_message_ids": gmail_message_id},
+        ])
+    gmail_thread_id = _clean(email_doc.get("gmail_thread_id") or email_doc.get("thread_id") or "")
+    if gmail_thread_id:
+        deleted_identity_clauses.append({"gmail_thread_id": gmail_thread_id})
     if deleted_identity_clauses and not force_new_requirement:
         deleted_identity = await db["deleted_requirements"].find_one(
             {"$or": deleted_identity_clauses},
@@ -7216,9 +7464,81 @@ async def _process_client_requirement_email(
     if force_new_requirement and email_doc.get("email_id"):
         await db["deleted_requirements"].delete_many({"source_email_id": email_doc.get("email_id")})
 
-    if email_doc.get("deleted") is True and not force_new_requirement:
+    sender_email = email_doc.get("from_email") or email_doc.get("sender") or ""
+    if not force_new_requirement and _is_obvious_non_client_email(
+        sender_email,
+        email_doc.get("subject") or "",
+        email_doc.get("clean_body") or email_doc.get("raw_body") or email_doc.get("body") or "",
+    ):
         now = _now()
-        deleted_requirement_id = email_doc.get("deleted_requirement_id") or email_doc.get("requirement_id") or ""
+        await db["client_emails"].update_one(
+            {"email_id": email_doc.get("email_id")},
+            {"$set": {
+                "processed": True,
+                "processed_at": now,
+                "status": "ignored",
+                "reply_status": "ignored",
+                "auto_send_eligible": False,
+                "auto_send_ready": False,
+                "auto_send_block_reason": "Automated or no-reply sender",
+                "updated_at": now,
+            }},
+        )
+        return {"processed": True, "email_id": email_doc.get("email_id"), "status": "ignored", "reason": "automated_sender"}
+
+    # TOC-correction messages are exceptional follow-ups to an already-sent
+    # Mail 1. Their replies must not be interpreted as fresh client requests or
+    # trigger another trainer template. Hold them for a human to review.
+    if _clean(email_doc.get("source_outbound_mail_type")).lower() == "mail1_toc_correction":
+        now = _now()
+        update = {
+            "processed": True,
+            "processed_at": now,
+            "status": "needs_manual_review",
+            "reply_status": "needs_manual_review",
+            "office_mail_category": "trainer_reply",
+            "classification_reason": "trainer_reply_to_toc_correction",
+            "auto_send_candidate": False,
+            "auto_send_eligible": False,
+            "auto_send_ready": False,
+            "updated_at": now,
+        }
+        await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": update})
+        return {
+            "processed": True,
+            "email_id": email_doc.get("email_id"),
+            "status": "needs_manual_review",
+            "reason": "trainer_reply_to_toc_correction",
+        }
+
+    deleted_source_clauses: List[Dict[str, Any]] = []
+    if email_doc.get("email_id"):
+        deleted_source_clauses.append({"source_email_id": email_doc.get("email_id")})
+    inbound_message_id = _clean(email_doc.get("gmail_message_id") or email_doc.get("latest_gmail_message_id") or "")
+    if inbound_message_id:
+        deleted_source_clauses.extend([
+            {"gmail_message_id": inbound_message_id},
+            {"latest_gmail_message_id": inbound_message_id},
+            {"thread_message_ids": inbound_message_id},
+        ])
+    inbound_thread_id = _clean(email_doc.get("gmail_thread_id") or email_doc.get("thread_id") or "")
+    if inbound_thread_id:
+        deleted_source_clauses.append({"gmail_thread_id": inbound_thread_id})
+    deleted_source = None
+    if deleted_source_clauses and not force_new_requirement:
+        deleted_source = await db["deleted_requirements"].find_one(
+            {"$or": deleted_source_clauses},
+            {"_id": 0, "requirement_id": 1, "deleted_at": 1},
+        )
+
+    if (email_doc.get("deleted") is True or deleted_source) and not force_new_requirement:
+        now = _now()
+        deleted_requirement_id = (
+            email_doc.get("deleted_requirement_id")
+            or (deleted_source or {}).get("requirement_id")
+            or email_doc.get("requirement_id")
+            or ""
+        )
         update_doc = {
             "$set": {
                 "processed": True,
@@ -7226,7 +7546,7 @@ async def _process_client_requirement_email(
                 "status": "deleted",
                 "reply_status": "deleted",
                 "deleted": True,
-                "deleted_at": email_doc.get("deleted_at") or now,
+                "deleted_at": email_doc.get("deleted_at") or (deleted_source or {}).get("deleted_at") or now,
                 "pending_trainer_automation": False,
                 "client_authorized_trainer_search": False,
                 "updated_at": now,
@@ -7303,15 +7623,25 @@ async def _process_client_requirement_email(
             "status": "ignored",
         }
 
+    lab_requirement_probe: Dict[str, Any] = {}
     if _is_lab_cost_inquiry(subject, body):
-        from app.routes.inbox_actions import _build_lab_reference_reply, _lab_request_context
-
-        extracted = _extract_requirement_from_email(
+        lab_requirement_probe = _extract_requirement_from_email(
             subject=subject,
             body=body,
             sender_email=sender_email,
             sender_name=email_doc.get("from_name") or "",
         )
+    lab_email_is_new_training_requirement = bool(
+        lab_requirement_probe.get("is_training_request")
+        and lab_requirement_probe.get("direct_request_language")
+        and _has_training_domain(lab_requirement_probe)
+        and not _is_reply_thread(subject, email_doc)
+    )
+
+    if _is_lab_cost_inquiry(subject, body) and not lab_email_is_new_training_requirement:
+        from app.routes.inbox_actions import _build_lab_reference_reply, _lab_request_context
+
+        extracted = lab_requirement_probe
         lab_context = _lab_request_context(body, extracted)
         lab_classification = {
             "person_type": "corporate_client",
@@ -7475,7 +7805,7 @@ async def _process_client_requirement_email(
                 "client_slot_confirmation": slot_result,
             }
 
-    if source_mail_type in {"mail1", "mail1_reminder"} and email_doc.get("requirement_id") and email_doc.get("trainer_id"):
+    if source_mail_type in {"mail1", "mail1_reminder", "mail1_toc_correction"} and email_doc.get("requirement_id") and email_doc.get("trainer_id"):
         shortlist_state = await db["shortlists"].find_one(
             {
                 "requirement_id": email_doc.get("requirement_id"),
@@ -7678,7 +8008,9 @@ async def _process_client_requirement_email(
                 {"requirement_id": email_doc.get("requirement_id")},
                 {"_id": 0},
             ) or {}
-        missing_requested_details = _trainer_missing_requested_details(latest_reply_text, mail2_requirement, email_doc)
+        evidence_doc = _trainer_detail_evidence_doc(email_doc, current_trainer_state)
+        evidence_text = evidence_doc.get("classification_body") or latest_reply_text
+        missing_requested_details = _trainer_missing_requested_details(evidence_text, mail2_requirement, evidence_doc)
         if not missing_requested_details:
             requirement_id = email_doc.get("requirement_id") or ""
             trainer_id = email_doc.get("trainer_id") or ""
@@ -7738,7 +8070,9 @@ async def _process_client_requirement_email(
                 "mail3": mail3_result,
             }
         reply = _trainer_mail2_details_reply({
-            **email_doc,
+            **evidence_doc,
+            "from_name": email_doc.get("from_name") or evidence_doc.get("from_name"),
+            "trainer_name": email_doc.get("trainer_name") or current_trainer_state.get("name") or current_trainer_state.get("trainer_name"),
             "requirement": mail2_requirement,
             "missing_requested_details": missing_requested_details,
         })
@@ -7835,6 +8169,18 @@ async def _process_client_requirement_email(
                 }
 
     if source_mail_type in {"mail2", "mail2_followup"} and email_doc.get("requirement_id") and email_doc.get("trainer_id"):
+        mail2_requirement = await db["requirements"].find_one(
+            {"requirement_id": email_doc.get("requirement_id")},
+            {"_id": 0},
+        ) or {}
+        shortlist_state = await db["shortlists"].find_one(
+            {
+                "requirement_id": email_doc.get("requirement_id"),
+                "top_trainers.trainer_id": email_doc.get("trainer_id"),
+            },
+            {"_id": 0, "top_trainers.$": 1},
+        ) or {}
+        current_trainer_state = (shortlist_state.get("top_trainers") or [{}])[0] or {}
         trainer_doc = {
             **email_doc,
             "from_email": sender_email or email_doc.get("from_email") or email_doc.get("sender") or "",
@@ -7842,6 +8188,60 @@ async def _process_client_requirement_email(
             "email_classification": {"person_type": "trainer", "scenario": "trainer_details_sent"},
             "office_mail_category": "trainer_details_sent",
         }
+        latest_mail2_details_body = _strip_quoted_email_history(body) or body
+        evidence_doc = _trainer_detail_evidence_doc(trainer_doc, current_trainer_state)
+        evidence_text = evidence_doc.get("classification_body") or latest_mail2_details_body
+        missing_requested_details = _trainer_missing_requested_details(evidence_text, mail2_requirement, evidence_doc)
+        if missing_requested_details:
+            reply = _trainer_mail2_details_reply({
+                **evidence_doc,
+                "from_name": email_doc.get("from_name") or evidence_doc.get("from_name"),
+                "trainer_name": email_doc.get("trainer_name") or current_trainer_state.get("name") or current_trainer_state.get("trainer_name"),
+                "requirement": mail2_requirement,
+                "missing_requested_details": missing_requested_details,
+            })
+            auto_reply_result = await _send_client_auto_reply(db, trainer_doc, reply, email_doc.get("requirement_id") or "")
+            update = {
+                "processed": True,
+                "processed_at": auto_reply_result.get("sent_at") or now,
+                "status": "processed" if auto_reply_result.get("success") else "reply_failed",
+                "reply_status": "sent" if auto_reply_result.get("success") else "failed",
+                "generated_reply": reply,
+                "ai_reply": reply["body"],
+                "draft_reply": reply["body"],
+                "reply_template_key": "mail2_followup",
+                "email_classification": {"person_type": "trainer", "scenario": "trainer_details_missing"},
+                "office_mail_category": "trainer_details_missing",
+                "missing_requested_details": missing_requested_details,
+                "auto_send_candidate": True,
+                "auto_send_eligible": True,
+                "auto_send_ready": True,
+                "auto_send_error": "" if auto_reply_result.get("success") else auto_reply_result.get("error", "Send failed"),
+                "reply_error": "" if auto_reply_result.get("success") else auto_reply_result.get("error", "Send failed"),
+                "reply_sent": bool(auto_reply_result.get("success")),
+                "reply_sent_at": auto_reply_result.get("sent_at"),
+                "reply_sent_for_message_id": auto_reply_result.get("source_gmail_message_id"),
+                "sent_reply_body": auto_reply_result.get("body") or reply["body"],
+                "sent_reply_subject": auto_reply_result.get("subject") or reply.get("subject"),
+                "updated_at": _now(),
+            }
+            await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": update})
+            await _mark_shortlist_trainer_reply_received(
+                db,
+                trainer_doc,
+                stage="mail1",
+                status="waiting_reply2" if auto_reply_result.get("success") else "mail1_replied",
+                reply_at=now,
+                error="" if auto_reply_result.get("success") else auto_reply_result.get("error", "Send failed"),
+            )
+            return {
+                "processed": True,
+                "email_id": email_doc.get("email_id"),
+                "status": update["status"],
+                "reason": "trainer_mail2_missing_details_followup",
+                "auto_reply": auto_reply_result,
+                "missing_requested_details": missing_requested_details,
+            }
         await _mark_shortlist_trainer_reply_received(
             db,
             trainer_doc,
@@ -7891,8 +8291,20 @@ async def _process_client_requirement_email(
         sender_email=email_doc.get("from_email") or "",
         sender_name=email_doc.get("from_name") or "",
     )
+    extracted = _merge_client_toc_attachment_topics(extracted, email_doc)
     extracted = _merge_existing_requirement_context(extracted, email_doc)
     extracted = await _merge_requirement_record_context(db, extracted, email_doc.get("requirement_id"))
+    attachment_validation = _validate_trainer_attachments_against_requirement(email_doc, extracted)
+    toc_recheck = _build_toc_recheck_state(email_doc, attachment_validation)
+    if email_doc.get("email_id"):
+        await db["client_emails"].update_one(
+            {"email_id": email_doc.get("email_id")},
+            {"$set": {
+                "attachment_validation": attachment_validation,
+                "toc_recheck": toc_recheck,
+                "updated_at": _now(),
+            }},
+        )
     classification_body = latest_body
     classification = classify_email(
         subject=subject,
@@ -9151,6 +9563,372 @@ async def _find_outbound_log_for_reply(
     return None
 
 
+def _classify_inbound_attachment(attachment: Dict[str, Any], subject: str = "", body: str = "") -> str:
+    """Route inbound documents before parsing; filenames alone are not CV proof."""
+    filename = _clean((attachment or {}).get("filename")).lower()
+    if re.search(r"\b(?:toc|agenda|curriculum|syllabus|course[ _-]?outline|module[ _-]?wise)\b", filename):
+        return "toc"
+    if re.search(r"\b(?:lab[ _-]?(?:cost|pricing|quote)|commercials?|quotation|pricing|budget)\b", filename):
+        return "lab_cost"
+    if re.search(r"\b(?:cv|resume|trainer[ _-]?profile|consultant[ _-]?profile|biodata)\b", filename):
+        return "cv"
+    context = f"{subject}\n{body[:1500]}".lower()
+    mentioned = {
+        "toc": bool(re.search(r"\b(?:toc|agenda|curriculum|syllabus|course[ _-]?outline)\b", context)),
+        "lab_cost": bool(re.search(r"\b(?:lab[ _-]?(?:cost|pricing|quote)|commercials?|quotation|pricing|budget)\b", context)),
+        "cv": bool(re.search(r"\b(?:cv|resume|trainer[ _-]?profile|consultant[ _-]?profile|biodata)\b", context)),
+    }
+    # If the mail talks about just one document type, use it.  Mixed or vague
+    # mail is kept as "other" for review rather than mis-parsing a TOC as a CV.
+    if sum(mentioned.values()) == 1:
+        return next(kind for kind, present in mentioned.items() if present)
+    return "other"
+
+
+def _extract_attachment_pages(attachment: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Extract page/section text so every later claim has source evidence."""
+    filename = _clean((attachment or {}).get("filename"))
+    encoded = (attachment or {}).get("content_base64")
+    if not filename or not encoded:
+        return []
+    try:
+        file_bytes = base64.b64decode(encoded, validate=True)
+        lower = filename.lower()
+        if lower.endswith(".pdf"):
+            import fitz
+            with fitz.open(stream=file_bytes, filetype="pdf") as document:
+                pages = [
+                    {"page": index + 1, "text": page.get_text("text")[:12000]}
+                    for index, page in enumerate(document)
+                ]
+                # Scanned PDFs have no usable text layer. OCR only those pages
+                # so normal PDFs remain fast and local (no AI/API charge).
+                if not any(len(str(page.get("text") or "").strip()) >= 50 for page in pages):
+                    import pytesseract
+                    from PIL import Image
+                    for index, page in enumerate(document):
+                        image = Image.open(io.BytesIO(page.get_pixmap(matrix=fitz.Matrix(2, 2)).tobytes("png")))
+                        pages[index] = {"page": index + 1, "text": pytesseract.image_to_string(image)[:12000], "ocr": True}
+                return pages
+        if lower.endswith(".docx"):
+            from docx import Document
+            document = Document(io.BytesIO(file_bytes))
+            parts = [paragraph.text for paragraph in document.paragraphs if paragraph.text.strip()]
+            for table in document.tables:
+                for row in table.rows:
+                    parts.extend(cell.text for cell in row.cells if cell.text.strip())
+            return [{"page": 1, "text": "\n".join(parts)[:50000]}]
+        if lower.endswith(".doc"):
+            # Legacy Word documents need the container's antiword reader.
+            with tempfile.NamedTemporaryFile(suffix=".doc") as temporary_file:
+                temporary_file.write(file_bytes)
+                temporary_file.flush()
+                result = subprocess.run(
+                    ["antiword", temporary_file.name],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
+            if result.returncode == 0 and result.stdout.strip():
+                return [{"page": 1, "text": result.stdout[:50000]}]
+        if lower.endswith(".xlsx"):
+            from openpyxl import load_workbook
+            workbook = load_workbook(io.BytesIO(file_bytes), read_only=True, data_only=True)
+            pages = []
+            for sheet in workbook.worksheets:
+                rows = []
+                for row in sheet.iter_rows(values_only=True):
+                    values = [str(value).strip() for value in row if value not in (None, "")]
+                    if values:
+                        rows.append(" | ".join(values))
+                if rows:
+                    pages.append({"page": f"Sheet: {sheet.title}", "text": "\n".join(rows)[:50000]})
+            return pages
+        if lower.endswith(".xls"):
+            import xlrd
+            workbook = xlrd.open_workbook(file_contents=file_bytes)
+            pages = []
+            for sheet in workbook.sheets():
+                rows = []
+                for row_index in range(sheet.nrows):
+                    values = [str(value).strip() for value in sheet.row_values(row_index) if str(value).strip()]
+                    if values:
+                        rows.append(" | ".join(values))
+                if rows:
+                    pages.append({"page": f"Sheet: {sheet.name}", "text": "\n".join(rows)[:50000]})
+            return pages
+        if lower.endswith((".txt", ".csv")):
+            return [{"page": 1, "text": file_bytes.decode("utf-8", errors="replace")[:50000]}]
+    except Exception:
+        logger.exception("Could not extract attachment text for %s", filename)
+    return []
+
+
+def _evidence_lines(pages: List[Dict[str, Any]], pattern: str, limit: int = 5) -> List[Dict[str, Any]]:
+    evidence: List[Dict[str, Any]] = []
+    for page in pages:
+        for line_number, line in enumerate(str(page.get("text") or "").splitlines(), start=1):
+            if re.search(pattern, line, re.IGNORECASE):
+                evidence.append({"page": page.get("page", 1), "line": line_number, "text": line[:500]})
+                if len(evidence) >= limit:
+                    return evidence
+    return evidence
+
+
+def _attachment_analysis(attachment: Dict[str, Any], subject: str = "", body: str = "") -> Dict[str, Any]:
+    filename = _clean((attachment or {}).get("filename"))
+    attachment_type = _classify_inbound_attachment(attachment, subject, body)
+    pages = _extract_attachment_pages(attachment)
+    text = "\n".join(str(page.get("text") or "") for page in pages)[:50000]
+    lower = text.lower()
+    technologies = [technology for technology in KNOWN_TECHNOLOGIES if technology.lower() in lower]
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    toc_rows = [line for line in lines if re.search(r"\b(?:day|module|session|agenda|topic)\b", line, re.IGNORECASE)][:80]
+    topic_candidates = [line for line in lines if len(line) >= 3][:180]
+    return {
+        "filename": _clean(attachment.get("filename")),
+        "attachment_type": attachment_type,
+        "text_extracted": bool(text),
+        "text_length": len(text),
+        "extracted_text": text,
+        "page_count": len(pages),
+        "ocr_used": any(bool(page.get("ocr")) for page in pages),
+        "ocr_required": filename.lower().endswith(".pdf") and len(text.strip()) < 50,
+        "technologies": technologies,
+        "toc_rows": toc_rows if attachment_type == "toc" else [],
+        "topic_candidates": topic_candidates if attachment_type == "toc" else [],
+        "evidence": {
+            "experience": _evidence_lines(pages, r"\b\d+(?:\.\d+)?\+?\s*(?:years?|yrs?)\b"),
+            "projects": _evidence_lines(pages, r"\b(?:project|implementation|delivered|client)\b"),
+            "skills": _evidence_lines(pages, r"\b(?:skills?|technologies|tools?)\b"),
+            "toc": _evidence_lines(pages, r"\b(?:day|module|session|agenda|topic)\b"),
+        },
+    }
+
+
+async def _extract_profiles_from_attachments(
+    attachments: List[Dict[str, Any]],
+    subject: str = "",
+    body: str = "",
+) -> List[Dict[str, Any]]:
+    """Parse safe inbound CV attachments through the resume service.
+
+    The Gmail client only retains allow-listed attachments up to its size cap.
+    This function deliberately uses only those retained bytes and never treats a
+    filename alone as proof of a trainer's experience.
+    """
+    profiles: List[Dict[str, Any]] = []
+    for attachment in attachments or []:
+        filename = _clean((attachment or {}).get("filename"))
+        encoded = (attachment or {}).get("content_base64")
+        analysis = _attachment_analysis(attachment, subject, body)
+        attachment["analysis"] = analysis
+        attachment_type = analysis["attachment_type"]
+        attachment["attachment_type"] = attachment_type
+        if attachment_type != "cv" or not filename.lower().endswith((".pdf", ".docx")) or not encoded:
+            continue
+        try:
+            file_bytes = base64.b64decode(encoded, validate=True)
+        except (ValueError, TypeError):
+            logger.warning("Skipping invalid encoded attachment %s", filename)
+            continue
+        if not file_bytes:
+            continue
+        try:
+            async with httpx.AsyncClient(timeout=120) as client:
+                response = await _post_with_local_fallback(
+                    client,
+                    f"{DOCUMENT_SERVICE_URL}/api/v1/documents/resume/upload",
+                    files={"file": (filename, file_bytes, attachment.get("content_type") or "application/octet-stream")},
+                )
+            if response.status_code >= 400:
+                logger.warning("Resume attachment parsing failed for %s: HTTP %s", filename, response.status_code)
+                continue
+            result = response.json()
+            profile = result.get("profile") if isinstance(result, dict) else None
+            if isinstance(profile, dict) and profile:
+                profiles.append({"filename": filename, **profile})
+        except Exception:
+            logger.exception("Resume attachment parsing failed for %s", filename)
+    return profiles
+
+
+def _validate_trainer_attachments_against_requirement(email_doc: Dict[str, Any], extracted: Dict[str, Any]) -> Dict[str, Any]:
+    """Evidence-based CV/TOC comparison; recommendations never alter a CV."""
+    attachments = email_doc.get("attachments") or []
+    analyses = [item.get("analysis") for item in attachments if isinstance(item, dict) and isinstance(item.get("analysis"), dict)]
+    profiles = [item for item in (email_doc.get("attachment_profiles") or []) if isinstance(item, dict)]
+    requirement_technology = _clean(extracted.get("technology_needed") or extracted.get("technology") or extracted.get("domain"))
+    required_terms = _attachment_requirement_terms(extracted, requirement_technology)
+    generated_toc_text = _clean(
+        extracted.get("generated_toc_text")
+        or extracted.get("generated_toc")
+        or extracted.get("toc_text")
+        or extracted.get("toc_content")
+        or extracted.get("toc")
+        or extracted.get("course_agenda")
+        or extracted.get("topics")
+        or extracted.get("custom_topics")
+        or ""
+    )
+    generated_toc_available = bool(
+        generated_toc_text
+        and (
+            extracted.get("toc_action") == "generate_by_clahan"
+            or extracted.get("toc_generated")
+            or extracted.get("generated_toc_id")
+            or extracted.get("toc_id")
+            or extracted.get("scope_attached")
+        )
+    )
+    profile_text = " ".join(
+        " ".join(map(str, profile.get(key) or [])) if isinstance(profile.get(key), list) else str(profile.get(key) or "")
+        for profile in profiles for key in ("skills", "summary", "technology_category", "secondary_categories")
+    ) + " " + " ".join(
+        str(analysis.get("extracted_text") or "")
+        for analysis in analyses if analysis.get("attachment_type") == "cv"
+    )
+    profile_text = profile_text.lower()
+    toc_text = " ".join(
+        str(analysis.get("extracted_text") or "")
+        for analysis in analyses if analysis.get("attachment_type") == "toc"
+    )
+    if generated_toc_available:
+        toc_text = f"{toc_text}\n{requirement_technology}\n{generated_toc_text}"
+    toc_text = toc_text.lower()
+    profile_matches = [term for term in required_terms if term.lower() in profile_text]
+    toc_matches = [term for term in required_terms if term.lower() in toc_text]
+    profile_gaps = [term for term in required_terms if term not in profile_matches]
+    toc_gaps = [term for term in required_terms if term not in toc_matches]
+    domain_match = bool(requirement_technology and requirement_technology.lower() in profile_text)
+    project_evidence = []
+    for analysis in analyses:
+        if analysis.get("attachment_type") != "cv":
+            continue
+        for evidence in (analysis.get("evidence") or {}).get("projects") or []:
+            line = _clean(evidence.get("text"))
+            if not line:
+                continue
+            relevant = any(term.lower() in line.lower() for term in required_terms)
+            project_evidence.append({**evidence, "relevant_to_requirement": relevant})
+    relevant_projects = [item for item in project_evidence if item.get("relevant_to_requirement")]
+    project_status = "relevant_project_found" if relevant_projects else "basic_project_evidence" if project_evidence else "not_available"
+    actions: List[str] = []
+    if not profiles:
+        actions.append("Ask the trainer to attach a readable PDF/DOCX CV or trainer profile.")
+    elif profile_gaps:
+        actions.append(f"Ask the trainer to confirm verified {', '.join(profile_gaps)} experience or projects.")
+    has_toc_evidence = generated_toc_available or any(analysis.get("attachment_type") == "toc" for analysis in analyses)
+    if not has_toc_evidence:
+        actions.append("Ask the trainer for a day-wise TOC/agenda.")
+    elif toc_gaps:
+        actions.append(f"Ask the trainer to add or explain coverage for {', '.join(toc_gaps)} in the TOC.")
+    score_parts = [
+        35 if profiles else 0,
+        25 if profiles and any(_safe_float(profile.get("experience_years"), 0) > 0 for profile in profiles) else 0,
+        20 if domain_match else 0,
+        20 if has_toc_evidence and bool(toc_matches) else 0,
+    ]
+    match_score = sum(score_parts)
+    return {
+        "requirement_technology": requirement_technology,
+        "required_topics": required_terms,
+        "domain_match": domain_match,
+        "matched_profile_topics": profile_matches,
+        "matched_toc_topics": toc_matches,
+        "project_status": project_status,
+        "project_evidence": (relevant_projects or project_evidence)[:5],
+        "profile_attachment_count": len(profiles),
+        "toc_attachment_count": sum(1 for analysis in analyses if analysis.get("attachment_type") == "toc"),
+        "generated_toc_evidence": generated_toc_available,
+        "toc_evidence_source": "generated_or_saved" if generated_toc_available else "attachment" if any(analysis.get("attachment_type") == "toc" for analysis in analyses) else "",
+        "lab_cost_attachment_count": sum(1 for analysis in analyses if analysis.get("attachment_type") == "lab_cost"),
+        "profile_gaps": profile_gaps,
+        "toc_gaps": toc_gaps,
+        "match_score": match_score,
+        "match_status": "ready" if match_score >= 80 else "needs_update" if match_score >= 35 else "incomplete",
+        "recommended_actions": actions,
+        "evidence_only": True,
+    }
+
+
+def _merge_client_toc_attachment_topics(extracted: Dict[str, Any], email_doc: Dict[str, Any]) -> Dict[str, Any]:
+    """Add explicit client TOC rows to the requirement before trainer shortlist matching."""
+    attachment_topics: List[str] = []
+    for attachment in email_doc.get("attachments") or []:
+        if not isinstance(attachment, dict):
+            continue
+        analysis = attachment.get("analysis") or {}
+        if analysis.get("attachment_type") != "toc":
+            continue
+        attachment_topics.extend(_clean(item) for item in analysis.get("topic_candidates") or [] if _clean(item))
+    if not attachment_topics:
+        return extracted
+    existing = extracted.get("topics") or extracted.get("custom_topics") or ""
+    existing_text = "\n".join(existing) if isinstance(existing, list) else str(existing)
+    combined = [line for line in (existing_text.splitlines() + attachment_topics) if _clean(line)]
+    unique: List[str] = []
+    for line in combined:
+        value = _clean(line)
+        if value and value.lower() not in {item.lower() for item in unique}:
+            unique.append(value)
+    return {
+        **extracted,
+        "topics": "\n".join(unique[:180]),
+        "custom_topics": "\n".join(unique[:180]),
+        "attachment_topics": attachment_topics[:180],
+        "scope_attached": True,
+    }
+
+
+def _attachment_requirement_terms(extracted: Dict[str, Any], technology: str) -> List[str]:
+    """Get the client domain plus explicit scope subtopics, without guessing synonyms."""
+    values: List[str] = [technology] if technology else []
+    for key in ("topics", "custom_topics", "required_skills", "skills"):
+        value = extracted.get(key)
+        if isinstance(value, list):
+            values.extend(str(item) for item in value)
+        elif value:
+            values.extend(re.split(r"[,;\n•|]+", str(value)))
+    ignored = {"topic", "topics", "scope", "training", "course", "agenda", "toc", "table of contents"}
+    result: List[str] = []
+    for value in values:
+        term = _clean(str(value).strip(" -:*"))
+        normalized = term.lower()
+        if len(term) < 3 or normalized in ignored or normalized in {item.lower() for item in result}:
+            continue
+        result.append(term)
+    return result[:80]
+
+
+def _build_toc_recheck_state(email_doc: Dict[str, Any], validation: Dict[str, Any]) -> Dict[str, Any]:
+    """Store attachment review status only; trainer follow-up is intentionally manual."""
+    toc_gaps = [str(item) for item in validation.get("toc_gaps") or [] if _clean(item)]
+    has_toc = bool(validation.get("toc_attachment_count") or validation.get("generated_toc_evidence"))
+    needs_review = bool(toc_gaps or not has_toc)
+    previous = email_doc.get("toc_recheck") if isinstance(email_doc.get("toc_recheck"), dict) else {}
+    if not needs_review:
+        return {
+            "status": "resolved",
+            "resolved_at": _now(),
+            "required_topics": [],
+            "reason": "TOC evidence now covers the requested topic.",
+            "previous_status": previous.get("status", ""),
+        }
+    topics = toc_gaps or [str(validation.get("requirement_technology") or "the requested training topic")]
+    return {
+        "status": "needs_profile_review",
+        "created_at": previous.get("created_at") or _now(),
+        "last_checked_at": _now(),
+        "required_topics": topics,
+        "reason": "No day-wise TOC was attached." if not has_toc else "The attached TOC does not evidence all requested topics.",
+        "review_note": "Use the trainer profile template only after verifying the domain and subtopic evidence.",
+        "recheck_on_next_trainer_reply": True,
+        "auto_send": False,
+    }
+
+
 async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict) -> str:
     raw_from = reply.get("from_raw") or reply.get("from_email") or ""
     parsed_name, parsed_email = parseaddr(raw_from)
@@ -9192,6 +9970,13 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
             received_at=reply.get("received_at"),
             is_thread_reply=is_thread_reply,
         )
+    attachment_profiles = list((existing or {}).get("attachment_profiles") or [])
+    if not existing or is_new_inbound_message:
+        attachment_profiles = await _extract_profiles_from_attachments(
+            reply.get("attachments") or [],
+            reply.get("subject") or "",
+            reply.get("full_body") or reply.get("body") or "",
+        )
     update_fields = {
         "from_email": from_email,
         "from_name": from_name,
@@ -9202,6 +9987,7 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
         "body_snippet": (reply.get("full_body") or reply.get("body") or "")[:500],
         "attachments": reply.get("attachments") or [],
         "attachment_names": reply.get("attachment_names") or [],
+        "attachment_profiles": attachment_profiles,
         "latest_gmail_message_id": msg_id_hdr,
         "in_reply_to": in_reply_to,
         "references": references,
@@ -9250,19 +10036,23 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
 
     if existing:
         if existing.get("deleted") or existing.get("status") == "deleted" or existing.get("reply_status") == "deleted":
-            if not is_new_inbound_message:
-                return existing["email_id"]
-            update_fields.update({
-                "deleted": False,
-                "deleted_at": None,
-                "deleted_requirement_id": "",
-                "processed": False,
-                "status": "received",
-                "reply_status": "received",
+            delete_set = {
+                "deleted": True,
+                "deleted_at": existing.get("deleted_at") or now,
+                "processed": True,
+                "processed_at": now,
+                "status": "deleted",
+                "reply_status": "deleted",
                 "requirement_id": "",
                 "requirement_created": False,
                 "client_authorized_trainer_search": False,
                 "pending_trainer_automation": False,
+                "updated_at": now,
+            }
+            if existing.get("deleted_requirement_id") or existing.get("requirement_id"):
+                delete_set["deleted_requirement_id"] = existing.get("deleted_requirement_id") or existing.get("requirement_id")
+            update_fields.update({
+                **delete_set,
             })
         add_to_set = {"thread_message_ids": {"$each": message_ids}} if message_ids else {}
         update_doc: Dict[str, Any] = {"$set": update_fields}
@@ -9342,7 +10132,16 @@ async def _persist_client_email_from_reply(db: AsyncIOMotorDatabase, reply: dict
 async def _process_and_store_replies(db: AsyncIOMotorDatabase, replies: list) -> int:
     """Persist inbound replies to email logs and process client requirements."""
     stored = 0
+    cutoff = _inbox_process_after()
     for reply in replies:
+        received_at = _parse_datetime(reply.get("received_at"))
+        if cutoff and (not received_at or received_at < cutoff):
+            logger.info(
+                "Skipping inbound email before configured reset boundary. received_at=%s cutoff=%s",
+                reply.get("received_at"),
+                cutoff.isoformat(),
+            )
+            continue
         msg_id_hdr = reply.get("message_id_header", "")
         if msg_id_hdr:
             existing = await db.email_logs.find_one({"gmail_message_id": msg_id_hdr})
@@ -9627,6 +10426,38 @@ async def process_pending_client_emails(
 ):
     """Re-run client requirement extraction/automation for stored inbox emails."""
     return {"success": True, **await _process_pending_client_emails(db, payload.limit)}
+
+
+@router.get("/process-pending/preview")
+async def preview_pending_client_emails(
+    limit: int = Query(10, ge=1, le=100),
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Return a bounded AI-processing preview; it never sends or generates."""
+    query = {
+        "$and": [
+            _today_client_email_query(),
+            {"deleted": {"$ne": True}},
+            {"processed": {"$ne": True}},
+            {"status": {"$nin": list(FINAL_CLIENT_STATUSES)}},
+            {"reply_sent": {"$ne": True}},
+            {"from_email": {"$not": re.compile(r"noreply|no-reply|mailer-daemon|postmaster", re.IGNORECASE)}},
+        ]
+    }
+    eligible = await db["client_emails"].count_documents(query)
+    planned = min(eligible, limit)
+    # Based on observed GPT-5.5 usage in this workspace; it is an estimate,
+    # not a billing guarantee.
+    estimated_cost_usd = round(planned * 0.0112, 2)
+    return {
+        "success": True,
+        "eligible": eligible,
+        "planned": planned,
+        "limit": limit,
+        "estimated_ai_requests": planned,
+        "estimated_cost_usd": estimated_cost_usd,
+        "automation_enabled": (await _auto_send_settings(db))["enabled"],
+    }
 
 
 @router.get("/unprocessed")

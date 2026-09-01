@@ -689,16 +689,36 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
     data["top_n"] = max(1, min(_safe_int(data.get("top_n"), 5), 20))
     data["min_experience_years"] = _safe_int(data.get("min_experience_years"), 0)
     data["send_emails"] = bool(data.get("send_emails", False))
-    batch_raw = _clean(
-        data.get("batch_flow")
-        or data.get("batch_type")
-        or data.get("requirement_type")
-        or data.get("training_status")
+    source_text = " ".join(
+        _clean(value)
+        for value in (
+            data.get("source"),
+            data.get("pipeline"),
+            data.get("pipeline_target"),
+            data.get("requirement_source"),
+            (data.get("metadata") or {}).get("source") if isinstance(data.get("metadata"), dict) else "",
+        )
     ).lower()
-    batch_flow = "proposal" if "proposal" in batch_raw else "confirmed"
-    data["batch_flow"] = batch_flow
-    data["batch_type"] = batch_flow
-    data["requirement_type"] = "proposal_batch" if batch_flow == "proposal" else "confirmed_batch"
+    type_raw = _clean(data.get("requirement_type") or data.get("batch_type") or data.get("batch_flow")).lower()
+    if "linkedin" in source_text or "linkedin" in type_raw:
+        data["batch_flow"] = "linkedin"
+        data["batch_type"] = "linkedin"
+        data["requirement_type"] = "linkedin_pipeline"
+        data["pipeline_target"] = "linkedin_pipeline"
+        data["pipeline_page"] = "linkedin-pipeline"
+    else:
+        batch_raw = _clean(
+            data.get("batch_flow")
+            or data.get("batch_type")
+            or data.get("requirement_type")
+            or data.get("training_status")
+        ).lower()
+        batch_flow = "proposal" if "proposal" in batch_raw else "confirmed"
+        data["batch_flow"] = batch_flow
+        data["batch_type"] = batch_flow
+        data["requirement_type"] = "proposal_batch" if batch_flow == "proposal" else "confirmed_batch"
+        data["pipeline_target"] = "shortlist" if batch_flow == "proposal" else "shortlist1"
+        data["pipeline_page"] = "shortlist" if batch_flow == "proposal" else "shortlist1"
     data.setdefault("status", "active")
     data.setdefault("priority", "medium")
     data.setdefault("customer_id", data.get("client_email") or "manual")
@@ -793,6 +813,11 @@ async def _build_shortlist_for_requirement(
         "shortlist_id": existing.get("shortlist_id") or f"SL-{uuid.uuid4().hex[:8].upper()}",
         "requirement_id": req_id,
         "technology_needed": requirement.get("technology_needed", ""),
+        "batch_flow": requirement.get("batch_flow", ""),
+        "batch_type": requirement.get("batch_type", ""),
+        "requirement_type": requirement.get("requirement_type", ""),
+        "pipeline_target": requirement.get("pipeline_target", ""),
+        "pipeline_page": requirement.get("pipeline_page", ""),
         "top_trainers": top_trainers,
         "total_matched": len(scored),
         "total_trainers_scanned": len(all_trainers),
@@ -1099,6 +1124,9 @@ async def delete_requirement(
                 "requirement_id": requirement_id,
                 "deleted_at": now,
                 "source_email_id": (doc or {}).get("metadata", {}).get("source_email_id", ""),
+                "gmail_message_id": (doc or {}).get("metadata", {}).get("gmail_message_id", ""),
+                "latest_gmail_message_id": (doc or {}).get("metadata", {}).get("latest_gmail_message_id", ""),
+                "gmail_thread_id": (doc or {}).get("metadata", {}).get("gmail_thread_id", ""),
                 "client_email": (doc or {}).get("client_email", ""),
                 "client_name": (doc or {}).get("client_name", ""),
                 "client_company": (doc or {}).get("client_company", ""),
@@ -1109,8 +1137,19 @@ async def delete_requirement(
         },
         upsert=True,
     )
+    source_email_id = (doc or {}).get("metadata", {}).get("source_email_id") or ""
+    gmail_message_id = (doc or {}).get("metadata", {}).get("gmail_message_id") or ""
+    source_email_filter = [{"requirement_id": requirement_id}]
+    if source_email_id:
+        source_email_filter.append({"email_id": source_email_id})
+    if gmail_message_id:
+        source_email_filter.extend([
+            {"gmail_message_id": gmail_message_id},
+            {"latest_gmail_message_id": gmail_message_id},
+            {"thread_message_ids": gmail_message_id},
+        ])
     await db["client_emails"].update_many(
-        {"requirement_id": requirement_id},
+        {"$or": source_email_filter},
         {
             "$set": {
                 "status": "deleted",

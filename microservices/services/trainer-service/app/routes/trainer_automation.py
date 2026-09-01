@@ -186,6 +186,13 @@ def _mail1_requested_items(requirement: Dict[str, Any]) -> List[str]:
         ("Relevant certifications", ("certification", "certifications", "certified")),
     ]
     items = [label for label, needles in checks if any(needle in source for needle in needles)]
+    toc_action = _clean_text(requirement.get("toc_action") or (requirement.get("extracted") or {}).get("toc_action")).lower()
+    scope_attached = bool(requirement.get("scope_attached") or (requirement.get("extracted") or {}).get("scope_attached"))
+    if toc_action == "generate_by_clahan" and not scope_attached:
+        items = [
+            item for item in items
+            if not any(term in item.lower() for term in ("toc", "course agenda", "day-wise"))
+        ]
     return items or ["Updated trainer profile/CV", "LinkedIn profile", "Availability"]
 
 

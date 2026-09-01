@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from app.routes.profile_enhancements import _fallback_analysis, _keywords, _resume_text
 from app.routes.shortlists import (
     _client_profile_evidence_items,
+    _client_profile_ready_for_handoff,
     _edit_submitted_trainer_pdf,
     _submitted_resume_suits_requirement,
 )
@@ -126,3 +127,19 @@ def test_client_profile_evidence_flags_missing_proof_instead_of_overclaiming():
 
     assert "Needs confirmation: DevOps evidence not found in available trainer data" in evidence
     assert "Needs confirmation: Implementation/project proof not found" in evidence
+
+
+def test_client_toc_handoff_allows_verified_profile_only():
+    trainer = {
+        "summary": "Delivered DevOps training and implemented CI/CD pipeline automation projects.",
+    }
+
+    assert _client_profile_ready_for_handoff(trainer, "DevOps") is True
+
+
+def test_client_toc_handoff_blocks_weak_profile():
+    trainer = {
+        "summary": "Corporate instructor for communication skills.",
+    }
+
+    assert _client_profile_ready_for_handoff(trainer, "DevOps") is False

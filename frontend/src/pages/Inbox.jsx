@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import {
-  AlertTriangle, Bot, CheckCircle2, Clock, ExternalLink, Mail, MessageSquare,
+  AlertTriangle, Bot, CheckCircle2, Clock, ExternalLink, FileText, Mail, MessageSquare,
   RefreshCw, Send, ShieldCheck, SlidersHorizontal, Trash2, Zap
 } from 'lucide-react'
 import api from '../utils/api'
@@ -85,7 +85,7 @@ const INBOX_PROVIDERS = new Set(['gmail_api', 'imap', 'smtp_only'])
 
 const normalizeClientInboxCfg = (cfg = {}) => ({
   ...cfg,
-  autoSendEnabled: true,
+  autoProcessingEnabled: true,
   inboxProvider: INBOX_PROVIDERS.has(cfg.inboxProvider) ? cfg.inboxProvider : 'smtp_only',
 })
 
@@ -101,6 +101,7 @@ function EmailCard({ email, onApprove, onReject, onRegenerate }) {
   const missing = extracted.needs_clarification || []
   const company = extracted.client_company || email.from_email?.split('@')[1] || 'Client'
   const officeLabel = OFFICE_CATEGORY_LABELS[email.office_mail_category] || ''
+  const attachmentValidation = email.attachment_validation || {}
 
   useEffect(() => {
     setBody(email.generated_reply?.body || '')
@@ -207,6 +208,27 @@ function EmailCard({ email, onApprove, onReject, onRegenerate }) {
           </div>
         )}
 
+        {attachmentValidation.match_status && (
+          <div className="mt-4 rounded-lg border border-violet-200 bg-violet-50 p-3">
+            <div className="flex items-center justify-between gap-3">
+              <p className="flex items-center gap-1.5 text-sm font-bold text-violet-900"><FileText className="h-4 w-4" /> Profile & TOC validation</p>
+              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-violet-800">{attachmentValidation.match_score || 0}% match</span>
+            </div>
+            <p className="mt-1 text-xs font-medium capitalize text-violet-700">Status: {String(attachmentValidation.match_status).replace('_', ' ')}</p>
+            {attachmentValidation.project_status && <p className="mt-2 text-xs text-violet-800">Project evidence: {String(attachmentValidation.project_status).replaceAll('_', ' ')}</p>}
+            {!!attachmentValidation.project_evidence?.length && (
+              <div className="mt-1 space-y-1 text-xs text-violet-800">
+                {attachmentValidation.project_evidence.slice(0, 2).map((item, index) => (
+                  <p key={`${item.page || 0}-${item.line || index}`}>Page {item.page || 1}: {item.text}</p>
+                ))}
+              </div>
+            )}
+            {!!attachmentValidation.profile_gaps?.length && <p className="mt-2 text-xs text-violet-800">Profile gaps: {attachmentValidation.profile_gaps.join(', ')}</p>}
+            {!!attachmentValidation.toc_gaps?.length && <p className="mt-1 text-xs text-violet-800">TOC gaps: {attachmentValidation.toc_gaps.join(', ')}</p>}
+            {!!attachmentValidation.recommended_actions?.length && <p className="mt-2 text-xs text-violet-900">Next: {attachmentValidation.recommended_actions[0]}</p>}
+          </div>
+        )}
+
         <div className="mt-5 flex flex-wrap items-center gap-2">
           <button onClick={() => setOpen(v => !v)} className="btn-secondary text-sm">
             <Mail className="h-4 w-4" /> {open ? 'Collapse' : 'Review Draft'}
@@ -301,8 +323,7 @@ export default function Inbox() {
     fetchSettings()
   }, [])
 
-  const saveAutoSend = async (_enabled = autoSendEnabled, threshold = autoSendThreshold) => {
-    const enabled = true
+  const saveAutoSend = async (enabled = autoSendEnabled, threshold = autoSendThreshold) => {
     setAutoSendEnabled(enabled)
     setAutoSendThreshold(threshold)
     try {
@@ -310,11 +331,12 @@ export default function Inbox() {
         clientInboxCfg: {
           ...clientInboxCfg,
           autoSendEnabled: enabled,
+          autoProcessingEnabled: enabled,
           autoSendThreshold: threshold,
         },
       })
-      setClientInboxCfg(prev => ({ ...prev, autoSendEnabled: enabled, autoSendThreshold: threshold }))
-      toast.success('Auto-send settings saved')
+      setClientInboxCfg(prev => ({ ...prev, autoSendEnabled: enabled, autoProcessingEnabled: enabled, autoSendThreshold: threshold }))
+      toast.success(enabled ? 'Automatic processing enabled' : 'Automation paused — manual review required')
     } catch (e) {
       toast.error(e.message)
     }
@@ -365,7 +387,13 @@ export default function Inbox() {
   const syncNow = async () => {
     setSyncingNow(true)
     try {
-      const res = await api.post('/gmail/sync-now?limit=50')
+      const preview = await api.get('/email/inbox/process-pending/preview', { params: { limit: 10 } })
+      const batch = preview.data || {}
+      const proceed = globalThis.confirm(
+        `AI batch preview\n\nEligible pending emails: ${batch.eligible || 0}\nThis run limit: ${batch.planned || 0}\nEstimated AI requests: ${batch.estimated_ai_requests || 0}\nEstimated cost: $${Number(batch.estimated_cost_usd || 0).toFixed(2)}\n\nContinue?`
+      )
+      if (!proceed) return
+      const res = await api.post('/gmail/sync-now?limit=10')
       if (res.data?.queued) {
         toast.success(res.data?.message || 'Inbox sync started. Refreshing shortly.')
         window.setTimeout(() => {
@@ -429,10 +457,11 @@ export default function Inbox() {
             <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
               <input
                 type="checkbox"
-                checked={autoSendEnabled}
-                onChange={e => saveAutoSend(e.target.checked, autoSendThreshold)}
+                checked
+                disabled
+                title="Automatic inbox processing is always enabled"
               />
-              Auto-send
+              Auto-process (always on)
             </label>
             <input
               type="range"

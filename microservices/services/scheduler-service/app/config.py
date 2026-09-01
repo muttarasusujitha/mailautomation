@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     # Internal service URLs (for HTTP calls between services)
     EMAIL_SERVICE_URL: str = "http://email-service:8002"
     NOTIFICATION_SERVICE_URL: str = "http://notification-service:8003"
+    INTERNAL_SERVICE_TOKEN: str = ""
 
     # Reminder lead-time in hours
     INTERVIEW_REMINDER_HOURS_BEFORE: int = 1

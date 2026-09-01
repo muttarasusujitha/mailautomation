@@ -143,7 +143,13 @@ const remindersAllowedFromSettings = (settings = {}) => {
 }
 
 function requirementFlowType(req = {}) {
-  const raw = String(req.batch_flow || req.batch_type || req.requirement_type || req.training_status || '').toLowerCase()
+  const explicitTarget = String(req.pipeline_target || req.pipeline_page || '').trim().toLowerCase()
+  if (explicitTarget === 'shortlist1') return 'confirmed'
+  if (explicitTarget === 'shortlist') return 'proposal'
+  if (explicitTarget === 'linkedin-pipeline' || explicitTarget === 'linkedin_pipeline') return 'linkedin'
+
+  const raw = String(req.batch_flow || req.batch_type || req.requirement_type || req.training_status || req.source || req.metadata?.source || '').toLowerCase()
+  if (raw.includes('linkedin')) return 'linkedin'
   if (raw.includes('proposal')) return 'proposal'
   if (raw.includes('confirmed')) return 'confirmed'
 
@@ -196,6 +202,7 @@ function requirementFlowType(req = {}) {
 }
 
 const isProposalRequirement = req => requirementFlowType(req) === 'proposal'
+const isLinkedInRequirement = req => requirementFlowType(req) === 'linkedin'
 
 async function getAllRequirementsForFlow() {
   const first = await getRequirements({ page: 1, page_size: 100 })
@@ -535,8 +542,6 @@ function mail1Template(trainer, req, hasDetails, details, isReminder = false, re
     '* Relevant certifications',
     '* Availability',
     '* Commercials (per hour/day)',
-    '* Lab support availability and cost, if applicable',
-    '* ToC/course agenda, if requested',
   ]
   const body = `${reminderPrefix}${hello}\n\nWe have an upcoming corporate training requirement for an experienced ${domain} Trainer.\n\nRequirement Details:\n\n${requirementLines.join('\n')}\n\nIf you are interested and available for this requirement, please share the following details:\n\n${requested.join('\n')}\n\nPlease share the details at the earliest as this is an urgent requirement.\n\nRegards,\nClahan Team`
   const subject = isReminder
@@ -752,6 +757,11 @@ function requestedTrainerDetailItems(req = {}) {
     req.description,
   ].filter(Boolean).join('\n').toLowerCase()
   const domain = req.technology_needed || req.technology || 'training'
+  const tocGeneratedByClahan = String(req.toc_action || req.metadata?.toc_action || req.extracted?.toc_action || '').toLowerCase() === 'generate_by_clahan'
+  const labManagedByClahan = [
+    ...(Array.isArray(req.clahan_managed_details) ? req.clahan_managed_details : []),
+    ...(Array.isArray(req.metadata?.clahan_managed_details) ? req.metadata.clahan_managed_details : []),
+  ].some(item => String(item).toLowerCase().includes('lab'))
   const items = [
     { key: 'cv', label: 'Updated CV / Trainer Profile', required: true },
     { key: 'linkedin', label: 'LinkedIn Profile', required: true },
@@ -759,7 +769,8 @@ function requestedTrainerDetailItems(req = {}) {
     { key: 'certifications', label: 'Relevant certifications', required: /certification|certifications|certificate|certified/.test(source) || !source },
     { key: 'availability', label: 'Availability', required: true },
     { key: 'commercials', label: 'Commercials (per hour/day)', required: /commercial|commercials|per hour|per day|rate|charges|budget|cost/.test(source) || !source },
-    { key: 'lab', label: 'Lab support availability and cost, if applicable', required: /lab support|lab availability|lab cost|labs?\b/.test(source) },
+    { key: 'lab', label: 'Lab support availability and cost, if applicable', required: !labManagedByClahan && /lab support|lab availability|lab cost|labs?\b/.test(source) },
+    { key: 'toc', label: 'ToC/course agenda', required: !tocGeneratedByClahan && /\b(toc|table of contents|course agenda|agenda|day[-\s]?wise)\b/.test(source) },
   ]
   if (!source) return items
   return items.filter(item => item.required || source.includes(item.key) || source.includes(item.label.toLowerCase().split(' ')[0]))
@@ -3605,14 +3616,22 @@ export default function Shortlist() {
           if (match && isProposalRequirement(match)) {
             setSelectedReq(match)
           } else if (match) {
-            toast('This is a confirmed requirement. Opening Confirmed Flow.', { icon: 'i' })
-            window.location.replace(`/shortlist1?requirement_id=${encodeURIComponent(match.requirement_id)}`)
+            if (isLinkedInRequirement(match)) {
+              toast('This is a LinkedIn requirement. Opening LinkedIn Pipeline.', { icon: 'i' })
+              window.location.replace(`/linkedin-pipeline?requirement_id=${encodeURIComponent(match.requirement_id)}&domain=${encodeURIComponent(match.technology_needed || match.domain || '')}`)
+            } else {
+              toast('This is a confirmed requirement. Opening Confirmed Flow.', { icon: 'i' })
+              window.location.replace(`/shortlist1?requirement_id=${encodeURIComponent(match.requirement_id)}`)
+            }
           } else {
             const reqRes = await getRequirement(targetRequirementId)
             const requirement = reqRes.data
             if (isProposalRequirement(requirement)) {
               setSelectedReq(requirement)
               setReqs(prev => prev.some(item => item.requirement_id === requirement.requirement_id) ? prev : [requirement, ...prev])
+            } else if (isLinkedInRequirement(requirement)) {
+              toast('This is a LinkedIn requirement. Opening LinkedIn Pipeline.', { icon: 'i' })
+              window.location.replace(`/linkedin-pipeline?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}&domain=${encodeURIComponent(requirement.technology_needed || requirement.domain || '')}`)
             } else {
               toast('This is a confirmed requirement. Opening Confirmed Flow.', { icon: 'i' })
               window.location.replace(`/shortlist1?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}`)

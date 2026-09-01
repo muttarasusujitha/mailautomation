@@ -1,6 +1,7 @@
 """Send email endpoints."""
 import base64
 import logging
+import re
 import uuid
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
@@ -15,6 +16,43 @@ from app.gmail_client import generate_message_id, is_send_quota_error, send_emai
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def _parse_quota_retry_after(value: Any) -> Optional[datetime]:
+    match = re.search(r"Retry after ([^\".]+(?:\.\d+)?Z)", str(value or ""))
+    if not match:
+        return None
+    try:
+        return datetime.fromisoformat(match.group(1).replace("Z", "+00:00")).replace(tzinfo=None)
+    except ValueError:
+        return None
+
+
+async def _gmail_quota_cooldown(db: AsyncIOMotorDatabase) -> Optional[datetime]:
+    doc = await db["mail_send_cooldowns"].find_one({"_id": "gmail_send_quota"}, {"_id": 0, "retry_after": 1})
+    retry_after = (doc or {}).get("retry_after")
+    if isinstance(retry_after, datetime) and retry_after > datetime.utcnow():
+        return retry_after
+    return None
+
+
+async def _remember_gmail_quota_cooldown(db: AsyncIOMotorDatabase, error: Any) -> Optional[datetime]:
+    retry_after = _parse_quota_retry_after(error)
+    if not retry_after:
+        return None
+    await db["mail_send_cooldowns"].update_one(
+        {"_id": "gmail_send_quota"},
+        {
+            "$set": {
+                "retry_after": retry_after,
+                "error_message": str(error or ""),
+                "updated_at": datetime.utcnow(),
+            },
+            "$setOnInsert": {"created_at": datetime.utcnow()},
+        },
+        upsert=True,
+    )
+    return retry_after
 
 
 def _ics_escape(value: Any) -> str:
@@ -167,6 +205,17 @@ async def send_single_email(
                 "already_in_progress": existing_log.get("status") == "sending",
             }
 
+    quota_retry_after = await _gmail_quota_cooldown(db)
+    if quota_retry_after:
+        raise HTTPException(
+            429,
+            detail={
+                "message": "Gmail sending quota cooldown is active",
+                "retry_after": quota_retry_after.isoformat() + "Z",
+                "error": "Previous Gmail send attempt hit quota. The system is holding new sends until the retry time.",
+            },
+        )
+
     attachments = []
     if payload.attachments:
         for att in payload.attachments:
@@ -274,6 +323,8 @@ async def send_single_email(
     log.pop("_id", None)
 
     if not success:
+        if is_send_quota_error(error):
+            await _remember_gmail_quota_cooldown(db, error)
         raise HTTPException(502, detail={"message": "Email delivery failed", "error": error})
     return {"success": True, "email_id": log["email_id"], "sent_at": now}
 
@@ -284,6 +335,16 @@ async def send_bulk_emails(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     import asyncio
+    quota_retry_after = await _gmail_quota_cooldown(db)
+    if quota_retry_after:
+        return {
+            "total": len(payload.payloads),
+            "sent": 0,
+            "failed": len(payload.payloads),
+            "quota_blocked": True,
+            "retry_after": quota_retry_after.isoformat() + "Z",
+            "results": [],
+        }
     results = []
     for item in payload.payloads:
         cfg = item.smtp_config or payload.smtp_config
@@ -353,6 +414,7 @@ async def send_bulk_emails(
             "quota_blocked": quota_blocked,
         })
         if quota_blocked:
+            await _remember_gmail_quota_cooldown(db, error)
             break
         if success:
             await asyncio.sleep(1.5)
