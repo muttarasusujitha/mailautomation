@@ -46,9 +46,10 @@ class LabCostRequest(BaseModel):
     toc: Optional[Dict[str, Any]] = None
     toc_id: Optional[str] = None
     cloud_provider: str = "aws"
-    hours_per_day: float = 8
+    cloud_region: str = "india-mumbai"
+    hours_per_day: float = 3
     participant_count: int = 1
-    fx_rate: float = 83
+    fx_rate: float = 84
     contingency_percent: float = 10
     tax_percent: float = 0
     lab_package: str = "standard"
@@ -56,12 +57,90 @@ class LabCostRequest(BaseModel):
     quote_validity_days: int = 7
     include_internal_pricing: bool = False
     clahan_margin_percent: float = 0
+    storage_gb: float = 10
+    egress_gb: float = 1
+    build_minutes: float = 60
+    monitoring_gb: float = 1
+    k8s_worker_nodes: int = 1
+
+
+def _lab_cost_delivery_summary(requirement: Dict[str, Any], log: Dict[str, Any], workbook: Dict[str, Any]) -> Dict[str, Any]:
+    """Public, client-facing audit record for one delivered lab-cost workbook.
+
+    Commercial margin and trainer/client percentage logic deliberately do not
+    appear here.  Lab cost is a separate operational estimate.
+    """
+    return {
+        "email_id": log.get("email_id"),
+        "requirement_id": requirement.get("requirement_id") or log.get("requirement_id"),
+        "client_name": requirement.get("client_name") or requirement.get("client_company") or log.get("recipient") or "Client",
+        "client_email": requirement.get("client_email") or log.get("recipient") or log.get("to_email") or "",
+        "technology": requirement.get("technology_needed") or requirement.get("domain") or requirement.get("title") or "Training",
+        "duration_days": requirement.get("duration_days") or requirement.get("duration") or "",
+        "training_dates": requirement.get("training_dates") or requirement.get("preferred_dates") or "",
+        "sent_at": log.get("sent_at") or log.get("created_at"),
+        "mail_type": log.get("mail_type"),
+        "subject": log.get("subject") or "Lab Cost Estimate",
+        "workbook_filename": workbook.get("filename") or "Lab Cost Estimate.xlsx",
+        "has_download": bool(workbook.get("content_base64") or workbook.get("_available")),
+        "summary": {
+            "scope": "TOC-based lab infrastructure estimate",
+            "cost_status": "Included in the attached workbook",
+            "note": "Lab cost is separate from trainer commercial, client commercial, margin, and percentage calculations.",
+        },
+    }
+
+
+@router.get("/lab-cost/client-deliveries")
+async def list_client_lab_cost_deliveries(db: AsyncIOMotorDatabase = Depends(get_db)):
+    """List the exact lab-cost workbooks successfully sent to clients."""
+    query = {
+        "direction": "outbound",
+        "status": "sent",
+        "mail_type": {"$in": ["client_slots", "client_lab_cost_revised"]},
+        "lab_cost_workbooks.0": {"$exists": True},
+    }
+    logs = [doc async for doc in db["email_logs"].find(query, {"_id": 0, "lab_cost_workbooks.content_base64": 0}).sort("sent_at", -1).limit(200)]
+    requirement_ids = list({str(doc.get("requirement_id") or "") for doc in logs if doc.get("requirement_id")})
+    requirements = [doc async for doc in db["requirements"].find({"requirement_id": {"$in": requirement_ids}}, {"_id": 0})]
+    by_id = {str(item.get("requirement_id")): item for item in requirements}
+    items = []
+    for log in logs:
+        requirement = by_id.get(str(log.get("requirement_id"))) or {"requirement_id": log.get("requirement_id")}
+        for workbook in log.get("lab_cost_workbooks") or []:
+            display_workbook = {**workbook, "_available": True}
+            items.append(_lab_cost_delivery_summary(requirement, log, display_workbook))
+    return {"items": items, "total": len(items)}
+
+
+@router.get("/lab-cost/client-deliveries/{email_id}/download")
+async def download_client_lab_cost_delivery(email_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Download the same lab-cost workbook that was attached to the sent mail."""
+    log = await db["email_logs"].find_one(
+        {"email_id": email_id, "direction": "outbound", "status": "sent"},
+        {"_id": 0, "lab_cost_workbooks": 1},
+    )
+    workbook = next((item for item in (log or {}).get("lab_cost_workbooks") or [] if item.get("content_base64")), None)
+    if not workbook:
+        raise HTTPException(404, "The sent lab-cost workbook is not available for this delivery")
+    try:
+        content = base64.b64decode(workbook["content_base64"])
+    except Exception as exc:
+        raise HTTPException(500, "The saved lab-cost workbook is invalid") from exc
+    filename = str(workbook.get("filename") or "Lab Cost Estimate.xlsx").replace('"', "")
+    return Response(
+        content=content,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 class AutoGenerateRequest(BaseModel):
     requirement_id: str
     domain: Optional[str] = ""
-    duration_days: Optional[float] = 3.0
+    # Omit the duration to inherit it from the requirement.  A default of
+    # three silently overrode real requirement durations in auto-generation.
+    duration_days: Optional[float] = None
     level: Optional[str] = "intermediate"
 
 
@@ -537,7 +616,10 @@ async def auto_generate_toc(payload: AutoGenerateRequest, db: AsyncIOMotorDataba
         or ""
     )
 
-    # Delegate to existing /toc/generate
+    mode_setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
+    generation_mode = "ai" if str(mode_setting.get("value") or "").strip().lower() == "ai" else "template"
+
+    # Delegate to existing /toc/generate using the pipeline-wide AI switch.
     from app.routes.toc import generate_toc, TocRequest
     toc_req = TocRequest(
         domain=domain,
@@ -548,6 +630,14 @@ async def auto_generate_toc(payload: AutoGenerateRequest, db: AsyncIOMotorDataba
         audience_level=req.get("audience_level") or req.get("participant_level") or "",
         training_dates=training_dates,
         timing=req.get("timing") or req.get("session_timing") or "",
+        generation_mode=generation_mode,
+        hours_per_day=float(req.get("hours_per_day") or req.get("lab_hours_per_day") or 3),
+        participant_count=int(req.get("participant_count") or req.get("participants") or 1),
+        custom_topics="; ".join(str(value).strip() for value in (
+            req.get("technology_needed"), req.get("domain"), req.get("skills"),
+            req.get("required_skills"), req.get("requested_topics"),
+        ) if value),
+        client_notes=str(req.get("client_notes") or req.get("notes") or req.get("description") or "").strip(),
     )
     result = await generate_toc(toc_req, db)
     return {"success": True, "requirement_id": payload.requirement_id, "domain": domain, **result}
@@ -658,6 +748,8 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
         raise HTTPException(422, "cloud_provider must be aws, azure, or gcp")
     if payload.hours_per_day <= 0 or payload.participant_count <= 0 or payload.fx_rate <= 0:
         raise HTTPException(422, "hours_per_day, participant_count, and fx_rate must be positive")
+    if min(payload.storage_gb, payload.egress_gb, payload.build_minutes, payload.monitoring_gb) < 0 or payload.k8s_worker_nodes < 0:
+        raise HTTPException(422, "usage quantities cannot be negative")
     if not 0 <= payload.contingency_percent <= 100 or not 0 <= payload.tax_percent <= 100:
         raise HTTPException(422, "contingency_percent and tax_percent must be between 0 and 100")
     if not 0 <= payload.clahan_margin_percent <= 100:
@@ -676,6 +768,7 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                     "toc": toc,
                     "assumptions": {
                         "cloud_provider": provider,
+                        "cloud_region": payload.cloud_region,
                         "hours_per_day": payload.hours_per_day,
                         "participant_count": payload.participant_count,
                         "fx_rate": payload.fx_rate,
@@ -686,6 +779,11 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                         "quote_validity_days": payload.quote_validity_days,
                         "include_internal_pricing": payload.include_internal_pricing,
                         "clahan_margin_percent": payload.clahan_margin_percent,
+                        "storage_gb": payload.storage_gb,
+                        "egress_gb": payload.egress_gb,
+                        "build_minutes": payload.build_minutes,
+                        "monitoring_gb": payload.monitoring_gb,
+                        "k8s_worker_nodes": payload.k8s_worker_nodes,
                     },
                 },
             )

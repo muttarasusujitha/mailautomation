@@ -52,6 +52,10 @@ async def _ensure_indexes(db) -> None:
         ("requirements", [("requirement_id", 1)], {}),
         ("requirements", [("metadata.source_email_id", 1)], {"sparse": True}),
         ("requirements", [("client_email", 1), ("status", 1), ("created_at", -1)], {}),
+        ("trainer_question_queries", [("query_id", 1)], {"unique": True}),
+        ("trainer_question_queries", [("source_message_id", 1)], {"unique": True, "sparse": True}),
+        ("trainer_question_queries", [("client_email", 1), ("status", 1), ("created_at", -1)], {}),
+        ("trainer_question_queries", [("requirement_id", 1), ("trainer_id", 1), ("created_at", -1)], {}),
     ]
     for collection, keys, options in indexes:
         await _create_index(db, collection, keys, **options)

@@ -4,7 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from app.routes.inbox import _client_email_status_for_reply, _client_proceed_ack_reply, _extract_requirement_from_email, _requirement_payload_from_email
+from app.routes.inbox import _client_email_status_for_reply, _client_proceed_ack_reply, _extract_requirement_from_email, _requirement_payload_from_email, _trainer_mail_for_requirement, _trainer_rate_from_client_budget
 from app.agents.email_classifier import classify_email
 from app.agents.reply_templates import build_auto_reply
 
@@ -195,6 +195,33 @@ def test_requirement_payload_preserves_original_client_request_text():
 
     assert "Need DevOps trainer from 2 Sep to 20 Sep." in payload["client_requirement_text"]
     assert payload["metadata"]["original_body"] == payload["client_requirement_text"]
+
+
+def test_total_client_commercial_uses_duration_without_fifteen_thousand_cap():
+    body = (
+        "Technology: DevOps\n"
+        "Training Duration: 15 days\n"
+        "Training Dates: Sep 2 to Sep 20\n"
+        "Mode: Online\n"
+        "Participants: 20\n"
+        "Commercials: INR 650000 for 15 days\n"
+    )
+
+    extracted = _extract_requirement_from_email("DevOps trainer requirement", body, "client@example.com", "Client")
+    payload = _requirement_payload_from_email({"email_id": "E2", "body": body}, extracted)
+
+    assert extracted["budget_total"] == 650000
+    assert "Budget or expected commercial range, if available" not in extracted["needs_clarification"]
+    assert round(payload["client_budget_per_day"], 2) == 43333.33
+    assert payload["trainer_visible_budget_per_session"] == 31000
+    assert _trainer_rate_from_client_budget(43333.33) == 31000
+
+
+def test_first_trainer_mail_requests_three_dated_interview_slots():
+    mail = _trainer_mail_for_requirement({"technology_needed": "DevOps"}, "REQ-1")
+
+    assert "3 convenient interview/discussion slots" in mail["body"]
+    assert "date, time, and time zone" in mail["body"]
 
 
 def test_date_first_training_dates_are_extracted_from_recent_client_request():

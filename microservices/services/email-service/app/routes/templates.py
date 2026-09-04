@@ -6,12 +6,14 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 
 from app.config import get_settings
 from app.agents import reply_templates as rt
 
 router = APIRouter()
+# Proposal enquiries use this internal shortlist range in the trainer mail.
+# It is not a request for the trainer to quote a commercial.
 PROPOSAL_COMMERCIAL_RANGE = "INR 12,000-15,000 per day/session"
 settings = get_settings()
 LOCAL_TZ = timezone(timedelta(hours=5, minutes=30))
@@ -90,6 +92,11 @@ class ShortlistEmailRequest(BaseModel):
     scope_attached: Optional[bool] = False
     requirement_kind: Optional[str] = ""
     resume_verified_experience: Optional[bool] = False
+    profile_available: Optional[bool] = False
+    linkedin_available: Optional[bool] = False
+    certifications_available: Optional[bool] = False
+    location_available: Optional[bool] = False
+    request_interview_slots: Optional[bool] = False
 
 
 def _clean_client_request_for_trainer(value: str) -> str:
@@ -222,7 +229,6 @@ def _proposal_requirement_snapshot(payload: ShortlistEmailRequest) -> str:
         ("Mode", payload.mode or "To be confirmed"),
         ("Duration", payload.duration or "To be confirmed"),
         ("Location", payload.location or "To be confirmed"),
-        ("Commercials", PROPOSAL_COMMERCIAL_RANGE),
     ]
     return "\n".join(f"* {label}: {str(value).strip()}" for label, value in rows if str(value or "").strip())
 
@@ -250,25 +256,69 @@ def _simple_trainer_mail1_body(payload: ShortlistEmailRequest, domain: str, requ
         ("Participants", payload.participants or payload.audience_level),
         ("Location", payload.location),
     ]
-    detail_text = "\n".join(f"{label}: {str(value).strip()}" for label, value in details if _has_value(str(value or "")))
+    detail_text = "\n".join(f"- {label}: {str(value).strip()}" for label, value in details if _has_value(str(value or "")))
+    proposal_flow = _requirement_kind(payload, payload.client_request or "") == "proposal_requirement"
     cleaned_items = [_clean_trainer_detail_label(item) for item in requested_items]
-    preferred_order = ["availability", "updated profile", "commercials", "relevant experience", "day-wise TOC", "TOC"]
-    selected = []
-    for preferred in preferred_order:
-        if any(preferred.lower() in item.lower() for item in cleaned_items):
-            selected.append(preferred)
-    if "day-wise TOC" in selected and "TOC" in selected:
-        selected = [item for item in selected if item != "TOC"]
+    selected = list(dict.fromkeys(item for item in cleaned_items if item))
+    if proposal_flow:
+        # Proposal scope is intentionally incomplete. Show every core field
+        # explicitly so the trainer knows these items are confirmed later by
+        # the client rather than being missing from the email.
+        proposal_details = [
+            ("Technology", domain),
+            ("Mode", payload.mode or "To be confirmed (Online/Offline)"),
+            ("Duration", payload.duration or "To be confirmed"),
+            ("Location", payload.location or "To be confirmed"),
+            ("Participants", payload.participants or payload.audience_level or "Corporate professionals"),
+            ("Commercials", PROPOSAL_COMMERCIAL_RANGE),
+        ]
+        detail_text = "\n".join(f"- {label}: {value}" for label, value in proposal_details)
+        managed_terms = ("commercial", "toc", "course agenda", "day-wise", "lab")
+        selected = [item for item in selected if not any(term in item.lower() for term in managed_terms)]
+        # Every proposal shortlist needs trainer availability and three slots
+        # for the client handoff, even when availability was not extracted
+        # from the inbound client email as a separate requested field.
+        if not any("availability" in item.lower() for item in selected):
+            selected.append("availability")
     if not selected:
-        selected = ["availability", "updated profile", "commercials", "relevant experience"]
-    ask = ", ".join(dict.fromkeys(selected))
+        selected = ["availability"] if proposal_flow else ["updated profile", "LinkedIn profile", "availability"]
+    ask = ", ".join(dict.fromkeys(item for item in selected if "availability" not in item.lower()))
+    request_line = (
+        "Please let us know whether you are available for this requirement"
+        if not ask
+        else f"Please let us know whether you are available for this requirement and share your {ask}"
+    )
+    needs_slots = bool(payload.request_interview_slots) or proposal_flow or any("availability" in item.lower() for item in selected)
+    slot_request = (
+        "\n\nPlease also share three convenient interview/discussion slots with the date, time, and time zone.\n"
+        "Example:\n"
+        "- 04 September 2026, 10:00 AM IST\n"
+        "- 04 September 2026, 2:00 PM IST\n"
+        "- 04 September 2026, 4:00 PM IST\n"
+        if needs_slots else ""
+    )
+    if not proposal_flow:
+        request_text = "\n".join(f"- {item}" for item in requested_items)
+        return (
+            f"Hi {payload.trainer_name or 'Trainer'},\n\n"
+            "Hope you are doing well.\n\n"
+            f"We have received a training requirement for {domain}.\n\n"
+            "Training Details:\n"
+            f"{_requirement_snapshot(payload)}\n\n"
+            "Kindly share the details below:\n"
+            f"{request_text}{slot_request}\n\n"
+            "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
+            "Regards,\n"
+            "Clahan Technologies"
+        )
     return (
         f"Hi {payload.trainer_name or 'Trainer'},\n\n"
         "Hope you are doing well.\n\n"
-        f"We have a corporate training requirement for {domain} and are checking trainer availability.\n\n"
-        "Training Details:\n"
+        "We are reaching out regarding the following corporate training requirement.\n\n"
+        "Requirement details noted:\n\n"
         f"{detail_text}\n\n"
-        f"Please confirm your availability for the above requirement. Also share your {ask}.\n\n"
+        f"{request_line}.{slot_request}\n\n"
+        "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
         "Regards,\n"
         "Clahan Technologies"
     )
@@ -447,24 +497,36 @@ This helps us process your availability automatically and move forward quickly.
                 "Availability",
             ]
     if requirement_kind != "confirmed_batch":
-        requested_items = [item for item in requested_items if "commercial" not in item.lower()]
-        experience_item = f"{domain} implementation and training experience"
-        toc_item = (
-            "Day-wise TOC aligned with the shared scope"
-            if payload.scope_attached or payload.toc_action == "trainer_validate_scope"
-            else "ToC/course agenda"
-        )
+        # ToC and lab cost are Clahan-managed in a proposal workflow. The
+        # trainer is not asked to quote a commercial or prepare a ToC/lab-cost
+        # document.
+        managed_terms = ("commercial", "toc", "course agenda", "day-wise", "lab plan", "lab support", "lab cost")
+        requested_items = [item for item in requested_items if not any(term in item.lower() for term in managed_terms)]
+        # Experience and current location are read from the trainer resume
+        # already held by the platform; do not ask the trainer to repeat them.
+        requested_items = [
+            item for item in requested_items
+            if "experience" not in item.lower() and "current location" not in item.lower()
+        ]
+        # Apply the same record cross-check used by Shortlist 1. Proposal Mail
+        # 1 asks only for information that is absent from the trainer record.
+        def is_already_available(item: str) -> bool:
+            label = item.lower()
+            return (
+                (payload.profile_available and any(term in label for term in ("profile", "cv", "resume")))
+                or (payload.linkedin_available and "linkedin" in label)
+                or (payload.certifications_available and "certification" in label)
+                or (payload.location_available and "location" in label)
+            )
+        requested_items = [item for item in requested_items if not is_already_available(item)]
         ordered_items = [
             "Updated CV / Trainer Profile",
             "LinkedIn Profile",
-            experience_item,
             "Relevant certifications",
-            "Current Location",
             "Availability",
+            "Availability for the specified dates and timings",
             "Available dates for training",
             "Available time slots for technical call",
-            toc_item,
-            "Day-wise ToC / course content",
             "Certification cost, if applicable",
             "Number of similar batches delivered",
             "Client names where similar trainings were delivered",
@@ -472,21 +534,10 @@ This helps us process your availability automatically and move forward quickly.
             "Software required for training",
             "Availability of required software from trainer side",
         ]
-        generic_experience = "Relevant training and implementation experience"
         requested_set = set(requested_items)
-        if generic_experience in requested_set:
-            requested_set.remove(generic_experience)
-            requested_set.add(experience_item)
-        if payload.toc_action == "generate_by_clahan" and "ToC/course agenda" in requested_set and not payload.scope_attached:
-            requested_set.remove("ToC/course agenda")
-        if "ToC/course agenda" in requested_set and toc_item != "ToC/course agenda":
-            requested_set.remove("ToC/course agenda")
-            requested_set.add(toc_item)
-        if toc_item in requested_set and "Day-wise ToC / course content" in requested_set:
-            requested_set.remove("Day-wise ToC / course content")
         requested_items = [item for item in ordered_items if item in requested_set]
-        if "Day-wise ToC / course content" in requested_set and "Day-wise ToC / course content" not in requested_items:
-            requested_items.append("Day-wise ToC / course content")
+        if not requested_items:
+            requested_items = ["Availability"]
     request_bullet = "*" if requirement_kind != "confirmed_batch" else "-"
     request_text = "\n".join(f"{request_bullet} {item}" for item in requested_items)
     signature = "Clahan Team" if requirement_kind != "confirmed_batch" else "Clahan Technologies"
@@ -642,6 +693,7 @@ class GenericSimpleRequest(BaseModel):
     technology: Optional[str] = ""
     requirement_id: Optional[str] = ""
     client_name: Optional[str] = "Client"
+    requested_details: List[str] = []
 
 
 @router.post("/mail2")
@@ -649,14 +701,14 @@ async def compose_mail2(payload: GenericSimpleRequest):
     tech = payload.technology or "training"
     subject = f"Details Request: {tech} Trainer Requirement"
     ref_text = f" (Ref: {payload.requirement_id})" if payload.requirement_id else ""
+    requested_details = payload.requested_details or ["Updated trainer profile/CV"]
+    requested_lines = "\n".join(f"- {item}" for item in requested_details)
     polished_body = (
         f"Dear {payload.name or 'Trainer'},\n\n"
         f"Thank you for confirming your interest in the {tech} requirement{ref_text}.\n\n"
         "To proceed further, kindly share the below details:\n\n"
         f"- Technology: {tech}\n\n"
-        "- Trainer profile\n"
-        "- CV/resume\n"
-        "- LinkedIn profile\n\n"
+        f"{requested_lines}\n\n"
         "Regards,\nClahan Technologies"
     )
     return {"subject": subject, "body": polished_body}
@@ -796,38 +848,24 @@ async def compose_mail3_slot_booking(payload: GenericSimpleRequest):
 
 @router.post("/mail3-too-many")
 async def compose_mail3_too_many(payload: GenericSimpleRequest):
-    subject = "Re: Interview Slot Booking"
-    polished_body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Thank you for sharing your availability. To coordinate smoothly with the client, please share your top 3 preferred slots with date, time, and time zone.\n\n"
-        "Regards,\nClahan Technologies"
+    raise HTTPException(
+        status_code=410,
+        detail=(
+            "Retired workflow: slots are requested in Mail 1. "
+            "An incomplete response may receive one Mail 2 follow-up for exactly three dated slots."
+        ),
     )
-    return {"subject": subject, "body": polished_body}
-    body = (
-        f"Hi {payload.name or 'Trainer'},\n\n"
-        "Thank you for your availability. For our scheduling process, we typically work with 3 slots as it helps us coordinate efficiently.\n\n"
-        "Could you please share your top 3 preferred slots with dates and times?\n\n"
-        "Thank you."
-    )
-    return {"subject": subject, "body": body}
 
 
 @router.post("/mail3-too-few")
 async def compose_mail3_too_few(payload: GenericSimpleRequest):
-    subject = "Interview Slot Details Required"
-    polished_body = (
-        f"Dear {payload.name or 'Trainer'},\n\n"
-        "Thank you for sharing the slot. Please share the exact date and time, including AM/PM and time zone. If possible, share 2-3 options so we can close the schedule faster.\n\n"
-        "Regards,\nClahan Technologies"
+    raise HTTPException(
+        status_code=410,
+        detail=(
+            "Retired workflow: slots are requested in Mail 1. "
+            "An incomplete response may receive one Mail 2 follow-up for exactly three dated slots."
+        ),
     )
-    return {"subject": subject, "body": polished_body}
-    body = (
-        f"Hi {payload.name or 'Trainer'},\n\n"
-        "Thank you for sharing the slot. Could you please provide the exact interview date and time, including whether it is AM or PM?\n\n"
-        "Also, please share 3 available slots with the corresponding dates so that we can schedule the interview accordingly.\n\n"
-        "Thanks."
-    )
-    return {"subject": subject, "body": body}
 
 
 @router.post("/mail5-selection")

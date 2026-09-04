@@ -15,6 +15,7 @@ celery_app = Celery(
         "app.tasks.inbox_poll",
         "app.tasks.interview_reminders",
         "app.tasks.meet_start_notices",
+        "app.tasks.no_show_notices",
     ],
 )
 
@@ -43,9 +44,16 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute="*/10"),
         "args": [],
     },
-    # Send exact start-time Google Meet join notices every minute.
+    # Send Google Meet join notices 10 minutes before each interview.
     "meet-start-notices-every-minute": {
         "task": "app.tasks.meet_start_notices.send_due_start_notices",
+        "schedule": crontab(minute="*"),
+        "args": [],
+    },
+    # Send a no-show notice only when the authenticated Meet bot observed a
+    # readable participant list and could not find the participant's identity.
+    "interview-no-show-checks-every-minute": {
+        "task": "app.tasks.no_show_notices.send_due_no_show_notices",
         "schedule": crontab(minute="*"),
         "args": [],
     },

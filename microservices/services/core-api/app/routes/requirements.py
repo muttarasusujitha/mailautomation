@@ -305,80 +305,27 @@ def _build_commercial_option(
 def _commercial_options_for_trainer(requirement: Dict[str, Any], trainer: Dict[str, Any]) -> List[Dict[str, Any]]:
     days = _duration_days(requirement)
     budget = _client_budget(requirement)
-    trainer_day_rate = _trainer_day_rate(trainer, requirement)
-    missing_trainer_commercial = trainer_day_rate <= 0
-    assumed_trainer_day_rate = (budget * 0.70 / days) if missing_trainer_commercial and budget and days else trainer_day_rate
-    assumed_trainer_total = budget * 0.70 if missing_trainer_commercial and budget else 0.0
-    trainer_total = _money_from_fields(
-        trainer,
-        ["trainer_total_commercial", "total_commercial", "batch_cost", "lumpsum_cost"],
-        assumed_trainer_total or trainer_day_rate * days,
-    )
-    client_day_rate = _money_from_fields(
-        requirement,
-        ["client_day_rate", "approved_client_rate", "day_rate", "client_rate", "per_day_rate"],
-        (budget / days) if budget and days else 0.0,
-    )
-    client_lumpsum = _money_from_fields(
-        requirement,
-        ["client_lumpsum", "lumpsum_amount", "fixed_amount", "client_fixed_amount", "client_batch_amount"],
-        budget,
-    )
+    client_day_rate = (budget / days) if budget and days else 0.0
     tds_rate = _safe_float(requirement.get("tds_rate") or requirement.get("tds_percent"), 10.0)
     other_costs = _money_from_fields(requirement, ["other_costs", "applicable_costs", "travel_cost", "hospitality_cost"])
-    one_time_total = budget if budget else 0.0
-    one_time_trainer_share = one_time_total * 0.70
-    one_time_clahan_share = one_time_total * 0.30
-
-    candidates = [
-        _build_commercial_option(
-            "ONE_TIME_30",
-            one_time_total,
-            one_time_trainer_share,
-            days,
-            tds_rate,
-            days <= 7,
-            "Client total is split as 30% Clahan share and 70% trainer share; TDS is calculated on the 70% trainer amount.",
-            other_costs,
-            tds_base=one_time_trainer_share,
-        ),
-        _build_commercial_option(
-            "PER_DAY",
-            client_day_rate * days,
-            assumed_trainer_day_rate * days,
-            days,
-            tds_rate,
-            days > 7,
-            "Per-day budget split: 30% Clahan share and 70% trainer share; TDS is calculated on trainer share.",
-            other_costs,
-            tds_base=assumed_trainer_day_rate * days,
-            missing_trainer_commercial=False,
-        ),
-        _build_commercial_option(
-            "LUMPSUM",
-            client_lumpsum,
-            trainer_total,
-            days,
-            tds_rate,
-            bool(client_lumpsum),
-            "Fixed client amount split as 30% Clahan share and 70% trainer share when trainer commercial is not separately confirmed.",
-            other_costs,
-            tds_base=trainer_total,
-            missing_trainer_commercial=False,
-        ),
-        _build_commercial_option(
-            "PER_BATCH",
-            _money_from_fields(requirement, ["per_batch_amount", "client_batch_commercial"], 0.0),
-            trainer_total,
-            days,
-            tds_rate,
-            False,
-            "Batch commercial is used only when a batch amount is available.",
-            other_costs,
-            tds_base=trainer_total,
-            missing_trainer_commercial=missing_trainer_commercial,
-        ),
-    ]
+    # Client commercial is authoritative. Trainers do not quote a separate
+    # rate: the platform allocates 70% to the trainer and 30% to Clahan.
+    # Below INR 10,000/day is shown and sent as one total engagement amount.
+    use_total = bool(client_day_rate and client_day_rate < 10000)
+    trainer_share = budget * 0.70
+    candidates = [_build_commercial_option(
+        "TOTAL_70_30" if use_total else "DAYWISE_70_30",
+        budget,
+        trainer_share,
+        days,
+        tds_rate,
+        True,
+        "Client daily commercial is below INR 10,000; trainer receives one total 70% amount."
+        if use_total else
+        "Client commercial is allocated day-wise: 70% trainer share and 30% Clahan share.",
+        other_costs,
+        tds_base=trainer_share,
+    )]
     valid_budget = []
     for option in [item for item in candidates if item]:
         option["within_client_budget"] = not budget or option["client_revenue"] <= budget
@@ -686,7 +633,10 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
     data["timeline_end"] = _clean(data.get("timeline_end"))
     data["timing"] = _clean(data.get("timing"))
     data["preferred_location"] = _clean(data.get("preferred_location") or data.get("location"))
-    data["top_n"] = max(1, min(_safe_int(data.get("top_n"), 5), 20))
+    # The workflow deliberately contacts the single best matched trainer.
+    # Ignore caller-provided shortlist sizes so every creation path follows
+    # the same one-trainer policy.
+    data["top_n"] = 1
     data["min_experience_years"] = _safe_int(data.get("min_experience_years"), 0)
     data["send_emails"] = bool(data.get("send_emails", False))
     source_text = " ".join(
@@ -792,8 +742,7 @@ async def _build_shortlist_for_requirement(
         reverse=True,
     )
 
-    top_n = max(1, min(_safe_int(requirement.get("top_n"), 5), 20))
-    top_trainers = scored[:top_n]
+    top_trainers = scored[:1]
     existing = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0}) or {}
     old_by_id = {
         _clean(trainer.get("trainer_id")): trainer
@@ -949,6 +898,28 @@ async def create_requirement(
     }
 
 
+@router.get("/generation-mode")
+async def get_generation_mode(db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Return the one global content-generation switch for all pipelines."""
+    setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
+    return {"generation_mode": _clean(setting.get("value")).lower() or "template"}
+
+
+@router.put("/generation-mode")
+async def set_generation_mode(payload: Dict[str, Any], db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Set AI/template generation globally; workflow rules remain deterministic."""
+    mode = _clean(payload.get("generation_mode")).lower()
+    if mode not in {"ai", "template"}:
+        raise HTTPException(422, "generation_mode must be 'ai' or 'template'")
+    now = datetime.utcnow()
+    await db["automation_settings"].update_one(
+        {"key": "generation_mode"},
+        {"$set": {"value": mode, "updated_at": now}, "$setOnInsert": {"created_at": now}},
+        upsert=True,
+    )
+    return {"generation_mode": mode}
+
+
 @router.get("/{req_id}")
 async def get_requirement(
     req_id: str,
@@ -1096,6 +1067,17 @@ async def update_requirement(
     data = {k: v for k, v in payload.items() if v is not None}
     if not data:
         raise HTTPException(400, "No fields to update")
+    # Content-generation preference only: commercial calculations and all
+    # pipeline transitions stay deterministic system rules.
+    if "generation_mode" in data:
+        generation_mode = _clean(data["generation_mode"]).lower()
+        if generation_mode not in {"ai", "template"}:
+            raise HTTPException(422, "generation_mode must be 'ai' or 'template'")
+        data["generation_mode"] = generation_mode
+    if "top_n" in data:
+        # Preserve the system-wide single-trainer policy on partial updates
+        # too, not just during requirement creation.
+        data["top_n"] = 1
     if any(key in data for key in ("technology_needed", "domain", "title", "job_title")):
         data = _normalise_requirement_payload(data, current)
     data.pop("_id", None)
@@ -1302,6 +1284,20 @@ async def request_client_po(
                     "mail_type": "client_po_request",
                     "trainer_id": payload.trainer_id,
                     "trainer_name": payload.trainer_name,
+                    # The email service checks the global wording switch. The
+                    # verified PO facts above remain the safe fallback.
+                    "ai_generate": True,
+                    "ai_context": {
+                        "workflow": "client_po_request",
+                        "batch_type": "proposal" if "proposal" in str(doc.get("batch_flow") or doc.get("batch_type") or doc.get("requirement_type") or "").lower() else "confirmed",
+                        "requirement_id": req_id,
+                        "client_name": payload.client_name or doc.get("client_name") or doc.get("client_company") or "",
+                        "trainer_name": payload.trainer_name or "",
+                        "technology": doc.get("technology_needed") or doc.get("technology") or "",
+                        "training_dates": training_dates,
+                        "commercial": day_rate,
+                        "requested_action": "share the purchase order",
+                    },
                 },
             )
     except Exception as exc:

@@ -266,6 +266,14 @@ def _client_simple_reply(client: str, tech: str, subject: str, body_lines: list[
 
 
 CONSULTANCY_REPLY_LINES = {
+    "client_asks_technology_catalogue": (
+        "client_technology_catalogue_ack",
+        [
+            "Thank you for asking about our corporate training catalogue.",
+            "We provide instructor-led training across software engineering, cloud, DevOps, data, AI, cybersecurity, enterprise platforms, and related technologies.",
+            "Please share the technologies or capability areas you are evaluating, and we will send the most relevant options.",
+        ],
+    ),
     "client_escalation_delay": (
         "client_escalation_delay_ack",
         [
@@ -804,14 +812,14 @@ def build_auto_reply(
         body = (
             f"Dear {trainer_name},\n\n"
             "Thank you for your response.\n\n"
-            "To proceed further, kindly share the below details if not already shared:\n\n"
-            "* Updated trainer profile/CV\n"
-            "* Availability dates or discussion/interview slots\n"
-            "* Commercial expectation per hour/day\n"
-            "* LinkedIn, certifications, or ToC only if applicable/requested by the client\n\n"
+            "We are checking the details already available in your trainer profile against this requirement. "
+            "We will contact you only if a required detail, such as availability for the proposed dates, is missing.\n\n"
             f"{TRAINER_SIGNATURE}"
         )
-        return _reply(f"Re: {tech} Training Opportunity", body, "trainer_interested_ack")
+        # Do not automatically send a generic profile/CV/LinkedIn request.
+        # The shortlist workflow sends a follow-up only after checking the
+        # analysed trainer record for genuinely missing information.
+        return _reply(f"Re: {tech} Training Opportunity", body, "trainer_interested_ack", auto_send_safe=False)
 
     if scenario in TRAINER_REPLY_LINES:
         template_key, lines = TRAINER_REPLY_LINES[scenario]

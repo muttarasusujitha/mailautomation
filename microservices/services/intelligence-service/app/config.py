@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     ANTHROPIC_MODEL: str = "z-ai/glm-5.2[im]"
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-5.5"
 
     # Local Ollama Sonnet model settings
     OLLAMA_BINARY: str = "ollama"

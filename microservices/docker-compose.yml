@@ -173,6 +173,9 @@ services:
 
   intelligence-service:
     container_name: ts-intelligence-service
+    build:
+      context: ..
+      dockerfile: microservices/services/intelligence-service/Dockerfile
     image: ghcr.io/muttarasusujitha/trainersync/intelligence-service:latest
     <<: *service-defaults
     environment:
@@ -290,6 +293,28 @@ services:
       redis:
         condition: service_healthy
 
+  # Optional browser host for unattended Google Meet sessions. It stays inert
+  # until the profile is authenticated and MEET_BOT_ENABLED=true.
+  meet-bot-service:
+    container_name: ts-meet-bot
+    build:
+      context: ..
+      dockerfile: microservices/services/meet-bot-service/Dockerfile
+    image: trainersync/meet-bot-service:local
+    restart: unless-stopped
+    networks:
+      - trainersync
+    environment:
+      <<: *common-env
+      MEET_BOT_PROFILE_PATH: /data/chrome-profile
+    env_file: .env
+    volumes:
+      - meet_bot_profile:/data/chrome-profile
+    shm_size: "1gb"
+    depends_on:
+      mongo:
+        condition: service_healthy
+
   # ── API Gateway (nginx) ───────────────────────────────────────────────────────
   gateway:
     container_name: ts-gateway
@@ -333,6 +358,7 @@ volumes:
   mongo_data:
   redis_data:
   celery_beat_data:
+  meet_bot_profile:
 
 networks:
   trainersync:

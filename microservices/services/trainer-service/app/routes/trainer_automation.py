@@ -23,13 +23,31 @@ NOTIF_SVC = settings.NOTIFICATION_SERVICE_URL.rstrip("/")
 
 PIPELINE_STAGES = ["mail1", "mail1_reminder", "mail2", "mail3", "mail4", "mail5_ok", "mail5_no", "mail6_toc", "mail7_confirm"]
 MIN_TRAINER_DAY_RATE_VISIBLE = 10000
-SHORT_DURATION_DAYS = 7
-SHORT_DURATION_TRAINER_SHARE = 0.78
 DEFAULT_TRAINER_SHARE = 0.70
 
 
 def _clean_text(value: Any) -> str:
     return str(value or "").strip()
+
+
+def _is_proposal_requirement(requirement: Dict[str, Any]) -> bool:
+    flow_value = _clean_text(
+        requirement.get("batch_flow")
+        or requirement.get("batch_type")
+        or requirement.get("requirement_type")
+    ).lower()
+    if "proposal" in flow_value:
+        return True
+    source = "\n".join(_clean_text(requirement.get(key)) for key in (
+        "client_requirement_text", "requirement_text", "description", "original_body",
+    )).lower()
+    return any(marker in source for marker in (
+        "mode: to be confirmed",
+        "duration: to be confirmed",
+        "location: to be confirmed",
+        "upcoming corporate training",
+        "immediate requirement",
+    ))
 
 
 def _trainer_scope_attachments(requirement: Dict[str, Any]) -> List[Dict[str, str]]:
@@ -87,7 +105,7 @@ def _round_commercial_amount(value: Any) -> int:
     numeric = _safe_float(value, 0)
     if numeric <= 0:
         return 0
-    return int(math.ceil(numeric / 1000.0) * 1000)
+    return int(round(numeric))
 
 
 def _clean_duration_text(value: Any) -> str:
@@ -97,58 +115,31 @@ def _clean_duration_text(value: Any) -> str:
 
 
 def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
-    amount = None
-    total_amount = None
+    daily_client_amount = 0.0
+    total_client_amount = 0.0
     days = _safe_int(requirement.get("duration_days"), 0) or _safe_int(requirement.get("commercial_working_days"), 0)
-    trainer_share = SHORT_DURATION_TRAINER_SHARE if days and days <= SHORT_DURATION_DAYS else DEFAULT_TRAINER_SHARE
-    share_label = f"{int(round(trainer_share * 100))}%"
-    if requirement.get("budget_total") not in (None, "", []) and days:
-        try:
-            client_total = _safe_float(requirement.get("budget_total"))
-            amount = (client_total / float(days)) * trainer_share
-            total_amount = client_total * trainer_share
-        except (TypeError, ValueError, ZeroDivisionError):
-            amount = None
-    if amount in (None, "", []):
-        amount = requirement.get("trainer_visible_budget_per_session") or requirement.get("trainer_requested_budget_per_session")
-    if amount in (None, "", []):
-        client_amount = (
-            requirement.get("client_budget_per_day")
-            or requirement.get("budget_per_day")
-            or requirement.get("budget")
-        )
-        if client_amount in (None, "", []) and requirement.get("budget_total") not in (None, "", []):
-            try:
-                client_amount = float(requirement.get("budget_total")) / days if days else requirement.get("budget_total")
-            except (TypeError, ValueError):
-                client_amount = requirement.get("budget_total")
-        try:
-            amount = _safe_float(client_amount) * trainer_share
-            if days:
-                total_amount = amount * days
-        except (TypeError, ValueError):
-            amount = None
-    try:
-        numeric = float(amount)
-    except (TypeError, ValueError):
+    if requirement.get("budget_total") not in (None, "", []):
+        total_client_amount = _safe_float(requirement.get("budget_total"))
+        daily_client_amount = total_client_amount / days if days else 0.0
+    if not daily_client_amount:
+        daily_client_amount = _safe_float(requirement.get("client_budget_per_day") or requirement.get("budget_per_day"))
+        total_client_amount = daily_client_amount * days if daily_client_amount and days else total_client_amount
+    if not daily_client_amount and not total_client_amount:
         return ""
-    if numeric <= 0:
-        return ""
-    if days and numeric < MIN_TRAINER_DAY_RATE_VISIBLE and total_amount:
-        return (
-            f"INR {int(round(total_amount)):,} total trainer commercial, inclusive of TDS "
-            f"({share_label} of client commercial; day-wise share is below INR {MIN_TRAINER_DAY_RATE_VISIBLE:,}/day)"
-        )
-    return f"INR {_round_commercial_amount(numeric):,} per day/session, inclusive of TDS"
+    if daily_client_amount and daily_client_amount < MIN_TRAINER_DAY_RATE_VISIBLE and total_client_amount:
+        return f"INR {_round_commercial_amount(total_client_amount * DEFAULT_TRAINER_SHARE):,} total commercial, inclusive of applicable TDS"
+    if daily_client_amount:
+        return f"INR {_round_commercial_amount(daily_client_amount * DEFAULT_TRAINER_SHARE):,} per day/session, inclusive of applicable TDS"
+    return f"INR {_round_commercial_amount(total_client_amount * DEFAULT_TRAINER_SHARE):,} total commercial, inclusive of applicable TDS"
 
 
 def _replace_trainer_mail1_commercial(body: str, requirement: Dict[str, Any]) -> str:
     commercial_text = _trainer_mail1_commercial_text(requirement)
     if not commercial_text:
         return body
-    line = f"Commercials/Budget: {commercial_text}"
-    if re.search(r"(?im)^Commercials/Budget:\s*.*$", body or ""):
-        return re.sub(r"(?im)^Commercials/Budget:\s*.*$", line, body or "")
+    line = f"Offered trainer commercial: {commercial_text}"
+    if re.search(r"(?im)^(?:Commercials/Budget|Offered trainer commercial):\s*.*$", body or ""):
+        return re.sub(r"(?im)^(?:Commercials/Budget|Offered trainer commercial):\s*.*$", line, body or "")
     return body
 
 
@@ -241,7 +232,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     if participants:
         details.append(f"Participants: {participants}")
     if commercial:
-        details.append(f"Commercials/Budget: {commercial}")
+        details.append(f"Offered trainer commercial: {commercial}")
     requested_items = _mail1_requested_items(requirement)
     selected = []
     for label, needle in [
@@ -361,8 +352,12 @@ async def send_automation_mail(
     if payload.requirement_id:
         requirement = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
 
-    # Compose body via email-service templates if no explicit body
-    body = payload.body
+    # This legacy Trainer page must never fetch email-service/template.py.
+    # The live automatic workflow belongs to Shortlist / Shortlist1, where
+    # requirement facts, ToC attachment, exact three slots and one-only
+    # missing-detail follow-up are all enforced together.  This endpoint may
+    # deliver an explicitly reviewed manual message only.
+    body = _clean_text(payload.body)
     subject = payload.subject
     technology = (
         payload.technology
@@ -371,154 +366,10 @@ async def send_automation_mail(
         or requirement.get("domain")
         or "Training"
     )
-    calendar_invite = None
     if not body:
-        try:
-            async with httpx.AsyncClient(timeout=15) as client:
-                r = None
-                base_template_payload = {
-                    "name": name,
-                    "technology": technology,
-                    "requirement_id": payload.requirement_id or "",
-                    "client_name": payload.client_name or "",
-                }
-                if payload.mail_type in ("mail1", "first"):
-                    duration = _clean_duration_text(
-                        payload.duration
-                        or requirement.get("duration_text")
-                        or (f"{requirement.get('duration_days')} days" if requirement.get("duration_days") else "")
-                        or (f"{requirement.get('duration_hours')} hours" if requirement.get("duration_hours") else "")
-                    )
-                    dates = _clean_text(
-                        requirement.get("training_dates")
-                        or requirement.get("preferred_dates")
-                        or requirement.get("dates")
-                        or requirement.get("date_time_text")
-                        or requirement.get("timeline")
-                        or requirement.get("schedule")
-                        or requirement.get("training_schedule")
-                        or requirement.get("timing")
-                        or requirement.get("session_timing")
-                    )
-                    if not dates:
-                        date_match = re.search(
-                            r"(?im)^\s*(?:training\s*)?(?:dates?|schedule|timings?)\s*[:\-]\s*(.+)$",
-                            _client_requirement_text(requirement) or "",
-                        )
-                        if date_match:
-                            dates = _clean_text(date_match.group(1))
-                    mode = _clean_text(payload.mode or requirement.get("mode") or requirement.get("delivery_mode"))
-                    participants = _clean_text(payload.participants or requirement.get("participant_count"))
-                    flow_value = _clean_text(
-                        requirement.get("batch_flow")
-                        or requirement.get("batch_type")
-                        or requirement.get("requirement_type")
-                    ).lower()
-                    is_proposal_flow = "proposal" in flow_value
-                    r = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/shortlist-first",
-                        json={
-                            "trainer_name": name,
-                            "domain": technology,
-                            "duration": duration,
-                            "dates": dates,
-                            "training_time": _clean_text(requirement.get("training_time") or requirement.get("session_timing") or _mail1_source_value(requirement, r"training\s+time|timings?")),
-                            "hands_on_lab": _clean_text(requirement.get("hands_on_lab") or _mail1_source_value(requirement, r"hands[-\s]?on\s+lab|lab\s+duration")),
-                            "mode": mode,
-                            "location": _clean_text(requirement.get("preferred_location") or requirement.get("location")),
-                            "participants": participants,
-                            "budget": "" if is_proposal_flow else _trainer_mail1_commercial_text(requirement),
-                            "client_request": _client_requirement_text(requirement),
-                            "requirement_kind": "proposal_requirement" if is_proposal_flow else "confirmed_batch",
-                            "toc_action": requirement.get("toc_action") or (requirement.get("extracted") or {}).get("toc_action") or "",
-                            "scope_attached": bool(requirement.get("scope_attached") or (requirement.get("extracted") or {}).get("scope_attached")),
-                        },
-                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                    )
-                elif payload.mail_type in ("mail2", "mail2_followup"):
-                    tmpl_name = "mail2" if payload.mail_type == "mail2" else "mail2-followup"
-                    r = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/{tmpl_name}",
-                        json=base_template_payload,
-                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                    )
-                elif payload.mail_type in ("mail3", "mail3_slot_booking"):
-                    r = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/mail3-slot-booking",
-                        json=base_template_payload,
-                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                    )
-                elif payload.mail_type in ("mail3_slot_followup", "mail3_too_few", "mail3_too_few_slots"):
-                    r = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/mail3-too-few",
-                        json=base_template_payload,
-                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                    )
-                elif payload.mail_type in ("mail3_too_many", "mail3_too_many_slots"):
-                    r = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/mail3-too-many",
-                        json=base_template_payload,
-                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                    )
-                elif payload.mail_type == "mail4":
-                    r = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/interview",
-                        json={
-                            "trainer_name": name,
-                            "technology": technology,
-                            "req_id": payload.requirement_id or "",
-                            "interview_date": payload.date_time or "",
-                            "interview_link": payload.interview_link or "",
-                            "slot_start": payload.date_time or "",
-                            "slot_end": "",
-                        },
-                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                    )
-                elif payload.mail_type in ("mail5", "mail5_ok", "mail5_selection"):
-                    r = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/mail5-selection",
-                        json=base_template_payload,
-                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                    )
-                elif payload.mail_type in ("mail5_no", "mail5_rejection"):
-                    r = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/mail5-rejection",
-                        json=base_template_payload,
-                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                    )
-                elif payload.mail_type in ("mail6", "mail6_toc", "toc-request"):
-                    r = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/mail6-toc-request",
-                        json=base_template_payload,
-                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                    )
-                elif payload.mail_type in ("mail7", "mail7_confirm", "training_confirmation"):
-                    r = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/mail7-training-confirmation",
-                        json=base_template_payload,
-                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                    )
-                elif payload.mail_type in ("mail1_reminder",):
-                    r = await client.post(
-                        f"{EMAIL_SVC}/api/v1/email/templates/retry",
-                        json={"trainer_name": name, "technology": technology, "req_id": payload.requirement_id or ""},
-                        headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
-                    )
-            if r and r.status_code < 400:
-                tmpl = r.json()
-                body = tmpl.get("body", "")
-                subject = subject or tmpl.get("subject", "")
-                calendar_invite = tmpl.get("calendar_invite")
-        except Exception as exc:
-            logger.warning("Template fetch failed, using fallback: %s", exc)
-
-    if not body:
-        from_name = getattr(settings, "FROM_NAME", None) or "Clahan Technologies"
-        from_email = getattr(settings, "FROM_EMAIL", None) or "sujithaofficial585@gmail.com"
-        body = (
-            f"Dear {name},\n\n"
-            "We have a training requirement matching your profile. Please revert if interested.\n\n"
-            f"Regards,\n{from_name}\n{from_email}"
+        raise HTTPException(
+            409,
+            "Automatic mail drafting from template.py is retired. Use Shortlist/Shortlist1 for the current AI workflow, or provide a reviewed manual email body.",
         )
     if payload.mail_type not in ("mail1", "first") and payload.message and payload.message.strip():
         body = f"{payload.message.strip()}\n\n{body}"
@@ -544,8 +395,6 @@ async def send_automation_mail(
                 scope_attachments = _trainer_scope_attachments(requirement)
                 if scope_attachments:
                     send_payload["attachments"] = scope_attachments
-            if calendar_invite:
-                send_payload["calendar_invite"] = calendar_invite
             if payload.mail_type in ("mail1", "first") and payload.requirement_id:
                 send_payload["idempotency_key"] = f"trainer-mail1:{payload.requirement_id}:{public_trainer_id or email.lower()}"
             r = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=send_payload)

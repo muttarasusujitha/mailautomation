@@ -12,6 +12,65 @@ import {
 import clsx from 'clsx'
 import { formatRequirementSchedule } from '../utils/requirementDates'
 
+// Some legacy pipeline strings were saved with their UTF-8 bytes decoded as
+// Latin-1. Repair them at the UI boundary so no mojibake reaches the screen.
+function repairMojibakeText(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+  const nodes = []
+  while (walker.nextNode()) nodes.push(walker.currentNode)
+  nodes.forEach(node => {
+    const value = node.nodeValue || ''
+    if (!/[ÃÂâðï]/.test(value)) return
+    try {
+      const repaired = decodeURIComponent(escape(value))
+      if (repaired !== value) node.nodeValue = repaired
+    } catch { /* Leave text unchanged if it is not recoverable UTF-8. */ }
+  })
+}
+
+// Repair both single-encoded and double-encoded legacy strings. Keeping this
+// separate from the data layer prevents old saved labels from leaking into UI.
+function normalizeVisibleText(root) {
+  if (!root || typeof document === 'undefined') return
+  for (let pass = 0; pass < 2; pass += 1) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+    const nodes = []
+    while (walker.nextNode()) nodes.push(walker.currentNode)
+    let changed = false
+    nodes.forEach(node => {
+      const value = node.nodeValue || ''
+      if (!/[\u00c3\u00c2\u00e2\u00f0\u00ef]/.test(value)) return
+      try {
+        const repaired = decodeURIComponent(escape(value))
+        if (repaired !== value) {
+          node.nodeValue = repaired
+          changed = true
+        }
+      } catch { /* Keep non-UTF-8 text unchanged. */ }
+    })
+    if (!changed) break
+  }
+}
+
+async function generateAIShortlistEmail({ trainerName, domain, stage, fallback }) {
+  const response = await api.post('/assistant/chat', {
+    system_prompt: 'You write concise professional training-coordination emails for Clahan Technologies.',
+    messages: [{ role: 'user', content: `Write the ${stage} email to ${trainerName || 'the trainer'} for ${domain || 'the training requirement'}. Use the approved reference below as the authoritative business rule. Keep all facts and requested actions unchanged. Do not invent commercial amounts, slots, meeting links, or confirmations. Return exactly:\nSUBJECT: <subject>\nBODY:\n<body>\n\nApproved reference:\n${fallback?.subject || ''}\n${fallback?.body || ''}` }],
+    feature: 'shortlist_email_generation',
+    metadata: { trainerName, domain, stage },
+  })
+  const text = response.data?.reply || ''
+  const subject = /SUBJECT:\s*(.+)/i.exec(text)?.[1]?.trim()
+  const body = /BODY:\s*([\s\S]+)/i.exec(text)?.[1]?.trim()
+  if (!subject || !body || /^i(?:'m| am) sorry/i.test(text)) {
+    throw new Error(response.data?.error || 'AI did not return a valid email')
+  }
+  return {
+    subject,
+    body,
+  }
+}
+
 // â”€â”€â”€ localStorage helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function getLS(k) { try { return JSON.parse(localStorage.getItem(k) || 'null') } catch { return null } }
 function setLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} }
@@ -106,7 +165,7 @@ const STAGES = {
   details_received:     { label: 'Details Received âœ…',   color: 'bg-emerald-100 text-emerald-700', step: 2 },
   waiting_reply2:       { label: 'Waiting for Reply â³',  color: 'bg-sky-100 text-sky-700',         step: 2 },
   slot_booked:          { label: 'Slot Booked ðŸ“…',        color: 'bg-amber-100 text-amber-700',     step: 3 },
-  interview_scheduled:  { label: 'Interview Scheduled ðŸ—“ï¸',color: 'bg-purple-100 text-purple-700',  step: 4 },
+  interview_scheduled:  { label: 'Interview Scheduled', color: 'bg-purple-100 text-purple-700',  step: 4 },
   selected:             { label: 'Selected âœ…',            color: 'bg-emerald-100 text-emerald-700', step: 5 },
   rejected:             { label: 'Not Selected âŒ',        color: 'bg-red-100 text-red-600',         step: 5 },
   stopped_selected:     { label: 'Stopped - Role Filled', color: 'bg-slate-100 text-slate-500',     step: 0 },
@@ -119,6 +178,26 @@ const STAGES = {
   invoice_sent:         { label: 'Invoice Sent',           color: 'bg-green-100 text-green-700',     step: 10 },
 }
 
+// Plain labels keep pipeline status easy to scan and avoid legacy emoji bytes.
+Object.assign(STAGES, {
+  mail1_sent: { ...STAGES.mail1_sent, label: 'Mail 1 Sent' },
+  waiting_reply1: { ...STAGES.waiting_reply1, label: 'Waiting for Reply' },
+  mail1_replied: { ...STAGES.mail1_replied, label: 'Mail 1 Reply Received' },
+  details_requested: { ...STAGES.details_requested, label: 'Details Requested' },
+  details_received: { ...STAGES.details_received, label: 'Details Received' },
+  waiting_reply2: { ...STAGES.waiting_reply2, label: 'Waiting for Reply' },
+  slot_booked: { ...STAGES.slot_booked, label: 'Slots Received' },
+  selected: { ...STAGES.selected, label: 'Selected' },
+  rejected: { ...STAGES.rejected, label: 'Not Selected' },
+  training_confirmed: { ...STAGES.training_confirmed, label: 'Training Confirmed' },
+  po_requested: { ...STAGES.po_requested, step: 6 },
+  client_po_received: { ...STAGES.client_po_received, step: 6 },
+  invoice_generated: { ...STAGES.invoice_generated, label: 'Invoice Ready', step: 8 },
+  invoice_sent: { ...STAGES.invoice_sent, label: 'Invoice Sent to Client', step: 8 },
+  toc_requested: { ...STAGES.toc_requested, label: 'ToC Shared', step: 5 },
+  toc_received_pending: { ...STAGES.toc_received_pending, label: 'ToC Received', step: 5 },
+})
+
 // â”€â”€â”€ Reminder intervals for Mail 1 (in ms) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const REMINDER_INTERVALS = [
   { hours: 6,  label: '6h follow-up'  },
@@ -127,7 +206,10 @@ const REMINDER_INTERVALS = [
 ]
 
 const SHORTLIST_REFRESH_INTERVAL_MS = 10000
-const AUTO_SEND_CLIENT_SLOTS = true
+// The inbox workflow is the one authoritative sender for the client handoff.
+// Keeping a second browser-side sender here caused duplicate client emails when
+// a trainer reply was processed at the same time as this page refresh.
+const AUTO_SEND_CLIENT_SLOTS = false
 const THREAD_REFRESH_INTERVAL_MS = 5000
 const REPLY_SYNC_THROTTLE_MS = 15000
 const truthySetting = value => value === true || ['1', 'true', 'yes', 'on', 'enabled'].includes(String(value ?? '').trim().toLowerCase())
@@ -220,11 +302,7 @@ async function getAllRequirementsForFlow() {
 }
 
 const PIPELINE_MAIL_OPTIONS = [
-  { value: 'mail1', label: 'Mail 1 - Proposal Requirement' },
-  { value: 'mail2', label: 'Mail 2 - Slot Booking' },
-  { value: 'trainer_commercials_to_client', label: 'Client Handoff + Availability' },
-  { value: 'mail3', label: 'Mail 3 - Interview Link' },
-  { value: 'mail4', label: 'Mail 4 - Selected' },
+  { value: 'mail1', label: 'Trainer requirement (Mail 1)' },
 ]
 const sentGuard = new Set()
 let shortlistReplyCheckPromise = null
@@ -534,16 +612,18 @@ function mail1Template(trainer, req, hasDetails, details, isReminder = false, re
     `* Mode: ${detailMap.mode || 'To be confirmed'}`,
     `* Duration: ${detailMap.duration || 'To be confirmed'}`,
     `* Location: ${req.location || req.preferred_location || 'To be confirmed'}`,
+    detailMap.commercial ? `* Client Commercial/Budget: ${detailMap.commercial}` : '',
   ].filter(Boolean)
-  const requested = [
+  const requested = hasDetails ? [] : [
     '* Updated CV / Trainer Profile',
     '* LinkedIn Profile',
     `* ${domain} implementation and training experience`,
     '* Relevant certifications',
-    '* Availability',
-    '* Commercials (per hour/day)',
   ]
-  const body = `${reminderPrefix}${hello}\n\nWe have an upcoming corporate training requirement for an experienced ${domain} Trainer.\n\nRequirement Details:\n\n${requirementLines.join('\n')}\n\nIf you are interested and available for this requirement, please share the following details:\n\n${requested.join('\n')}\n\nPlease share the details at the earliest as this is an urgent requirement.\n\nRegards,\nClahan Team`
+  const profileRequest = requested.length
+    ? `\n\nPlease also share:\n${requested.join('\n')}`
+    : ''
+  const body = `${reminderPrefix}${hello}\n\nWe are reaching out regarding the following corporate training requirement.\n\nRequirement Details:\n\n${requirementLines.join('\n')}\n\nPlease confirm your delivery feasibility and availability for the stated training dates.${profileRequest}\n\nPlease also share exactly three convenient interview/discussion slots with date, time, and time zone.\nExample:\n* 04 September 2026, 10:00 AM IST\n* 04 September 2026, 2:00 PM IST\n* 04 September 2026, 4:00 PM IST\n\nCommercials are managed by Clahan from the client-approved commercial.\n\nRegards,\nClahan Technologies`
   const subject = isReminder
     ? `[Reminder ${reminderNum}] Training Requirement - ${domain}`
     : `Training Requirement - ${domain}`
@@ -584,19 +664,11 @@ function mail2FollowupTemplate(trainer, req, missingItems = null) {
   const domain = req.technology_needed || 'training'
   const items = Array.isArray(missingItems) && missingItems.length
     ? missingItems
-    : [
-      'Updated trainer profile (CV)',
-      'LinkedIn profile',
-      `Relevant ${domain} training and implementation experience`,
-      'Availability',
-      'Commercials per hour/day',
-      'Lab support availability and associated cost, if applicable',
-      'Any relevant certifications',
-    ]
+    : ['the one outstanding item recorded in the current workflow']
   const itemLines = items.map(item => `* ${item}`).join('\n')
   return {
     subject: `Re: Training Requirement - ${domain} | Details Required`,
-    body: `${greeting(trainer)}\n\nPlease share the pending proposal details below so we can submit your profile for client review:\n\n${itemLines}\n\nRegards,\nClahan Technologies\nsujithaofficial784@gmail.com`
+    body: `${greeting(trainer)}\n\nThank you for your response. Please share only the following outstanding item:\n\n${itemLines}\n\nYou do not need to resend information already shared. Once this item is available, we will proceed with the next coordination step.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
   }
 }
 function mail3Template(trainer, req, trainerDates) {
@@ -838,20 +910,6 @@ function hasProperInterviewSlots(text = '') {
   return hasOneExactSlot || hasThreeSlotOptions
 }
 
-async function sendSlotClarificationMail({ trainer, req }) {
-  const { subject, body } = mail3SlotClarificationTemplate(trainer)
-  const res = await api.post('/shortlists/send-mail', {
-    trainer_id: trainer.trainer_id,
-    trainer_name: trainer.name,
-    to_email: trainer.email,
-    requirement_id: req.requirement_id,
-    subject,
-    body,
-    mail_type: 'mail3_slot_followup',
-  })
-  return res.data
-}
-
 function latestReplyAfter(messages, sentTypes = []) {
   const sent = messages.filter(m => m.direction === 'sent' && sentTypes.includes(m.mail_type))
   if (!sent.length) return null
@@ -863,7 +921,7 @@ function latestReplyAfter(messages, sentTypes = []) {
 }
 
 // â”€â”€â”€ Send Mail Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-async function sendSlotsToClient({ trainer, req, slotText = '', force = false, clientEmail = '', clientName = '' }) {
+async function sendSlotsToClient({ trainer, req, slotText = '', clientEmail = '', clientName = '' }) {
   const res = await api.post('/shortlists/send-client-slots', {
     trainer_id: trainer.trainer_id,
     trainer_name: trainer.name,
@@ -878,7 +936,6 @@ async function sendSlotsToClient({ trainer, req, slotText = '', force = false, c
       trainer.last_reply_snippet ||
       ''
     ),
-    force,
     client_email: clientEmail,
     client_name: clientName,
   })
@@ -954,7 +1011,7 @@ function ClientEmailModal({
   )
 }
 
-function MailModal({ trainer, req, mailType, onClose, onSent }) {
+function MailModal({ trainer, req, mailType, onClose, onSent, generationMode = 'template' }) {
   const [loading, setLoading]           = useState(false)
   const [hasDetails, setHasDetails]     = useState(false)
   const [details, setDetails]           = useState({ domain: req?.technology_needed || '', duration: '', mode: 'Online', participants: '' })
@@ -969,6 +1026,8 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
   const [contactEmail, setContactEmail] = useState('')
   const [clientEmail, setClientEmail]   = useState(req?.client_email || '')
   const [clientName, setClientName]     = useState(req?.client_name || req?.client_company || '')
+  const [aiMail, setAiMail] = useState(null)
+  const [aiGenerating, setAiGenerating] = useState(false)
 
   const getPreview = () => {
     switch (mailType) {
@@ -987,6 +1046,20 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
   }
 
   const preview = getPreview()
+
+  useEffect(() => {
+    if (generationMode !== 'ai') {
+      setAiMail(null)
+      return undefined
+    }
+    let cancelled = false
+    setAiGenerating(true)
+    generateAIShortlistEmail({ trainerName: trainer.name, domain: req.technology_needed, stage: mailType, fallback: preview })
+      .then(result => { if (!cancelled) setAiMail(result) })
+      .catch(() => { if (!cancelled) setAiMail(null) })
+      .finally(() => { if (!cancelled) setAiGenerating(false) })
+    return () => { cancelled = true }
+  }, [generationMode, mailType, trainer.trainer_id, req.requirement_id])
 
   const TITLES = {
     mail1:         'ðŸ“§ Send Shortlist Mail',
@@ -1021,6 +1094,9 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
     }
     setLoading(true)
     try {
+      if (generationMode === 'ai' && !aiMail) {
+        throw new Error('AI email generation failed. Template fallback is disabled while AI mode is on.')
+      }
       if (mailType === 'mail3') {
         await api.post('/shortlists/send-interview-link', {
           trainer_id:     trainer.trainer_id,
@@ -1040,8 +1116,8 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
           trainer_name:   trainer.name,
           to_email:       trainer.email,
           requirement_id: req.requirement_id,
-          subject:        preview.subject,
-          body:           preview.body,
+          subject:        aiMail?.subject || preview.subject,
+          body:           aiMail?.body || preview.body,
           mail_type:      mailType,
           client_email:   mailType === 'mail2' ? clientEmail.trim() : undefined,
           client_name:    mailType === 'mail2' ? clientName.trim() : undefined,
@@ -1192,16 +1268,18 @@ function MailModal({ trainer, req, mailType, onClose, onSent }) {
           )}
 
           <div>
-            <p className="label mb-1">Email Preview</p>
+            <p className="label mb-1">{generationMode === 'ai' ? 'AI Email Preview' : 'Approved Template Preview'}</p>
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-              <p className="text-xs text-slate-400 mb-1 font-semibold">Subject: <span className="text-slate-700 font-normal">{preview.subject}</span></p>
-              <pre className="text-sm text-slate-700 whitespace-pre-wrap font-sans leading-relaxed mt-2">{preview.body}</pre>
+              {aiGenerating ? <p className="text-sm text-violet-700">Generating AI email...</p> : <>
+                <p className="text-xs text-slate-400 mb-1 font-semibold">Subject: <span className="text-slate-700 font-normal">{aiMail?.subject || preview.subject}</span></p>
+                <pre className="text-sm text-slate-700 whitespace-pre-wrap font-sans leading-relaxed mt-2">{aiMail?.body || preview.body}</pre>
+              </>}
             </div>
           </div>
         </div>
 
         <div className="flex gap-3 p-5 border-t border-slate-100 sticky bottom-0 bg-white">
-          <button onClick={handleSend} disabled={loading}
+          <button onClick={handleSend} disabled={loading || aiGenerating}
             className="flex items-center gap-2 justify-center flex-1 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all disabled:opacity-60">
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : <><Send className="w-4 h-4" /> Send Email</>}
           </button>
@@ -1284,7 +1362,7 @@ function getTocAccuracy(tocData, form, req) {
 }
 
 // TOC Generator Modal
-function TocModal({ trainer, req, onClose }) {
+function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
   const [form, setForm] = useState({
     duration_days: req?.duration_days || (req?.duration_hours ? Math.max(1, Math.ceil(Number(req.duration_hours) / 8)) : 3),
     training_dates: req?.training_dates || req?.preferred_dates || req?.timeline_start || '',
@@ -1295,9 +1373,9 @@ function TocModal({ trainer, req, onClose }) {
     custom_topics: '',
     client_notes: req?.client_notes || req?.job_description || req?.description || req?.content_scope || '',
     cloud_provider: 'aws',
-    lab_hours_per_day: req?.hours_per_day || 8,
+    lab_hours_per_day: req?.hours_per_day || 3,
     participant_count: req?.participant_count || req?.participants || req?.batch_size || 1,
-    fx_rate: 83,
+    fx_rate: 84,
   })
   const [tocId, setTocId] = useState('')
   const [tocData, setTocData] = useState(null)
@@ -1334,6 +1412,9 @@ function TocModal({ trainer, req, onClose }) {
         toc_type: form.toc_type,
         custom_topics: form.custom_topics,
         client_notes: form.client_notes,
+        generation_mode: generationMode === 'ai' ? 'ai' : 'template',
+        hours_per_day: Number(form.lab_hours_per_day),
+        participant_count: Number(form.participant_count),
       })
       setTocId(res.data.toc_id)
       setTocData(res.data.toc_data)
@@ -1347,15 +1428,15 @@ function TocModal({ trainer, req, onClose }) {
   }
 
   const handleDownload = async () => {
-    if (!tocId) return
+    if (!tocData) return
     setDownloading(true)
     try {
-      const res = await api.post('/toc/generate-pdf', { toc_id: tocId }, { responseType: 'blob' })
-      const blob = new Blob([res.data], { type: 'application/pdf' })
+      const res = await api.post('/documents/excel/toc', { toc: tocData }, { responseType: 'blob' })
+      const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `${(req.technology_needed || 'training').replace(/[^a-z0-9]+/gi, '_')}_${tocId}.pdf`
+      link.download = `${(req.technology_needed || 'training').replace(/[^a-z0-9]+/gi, '_')}_ToC.xlsx`
       document.body.appendChild(link)
       link.click()
       link.remove()
@@ -2119,10 +2200,10 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
 
 // â”€â”€â”€ Pipeline Step Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function StepBar({ stage }) {
-  const steps = ['Mail 1', 'Details', 'Slot', 'Interview', 'Selected', 'ToC', 'Confirmed']
+  const steps = ['Trainer request', 'Trainer reply', 'Client handoff', 'Meet scheduled', 'Client decision', 'PO', 'Confirmed', 'Invoice sent']
   const stepIndex = STAGES[stage]?.step ?? 0
   const isRejected = stage === 'rejected'
-  const isDone     = ['training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(stage)
+  const isDone     = stage === 'invoice_sent'
 
   return (
     <div className="flex items-center gap-0 mt-2 flex-wrap">
@@ -2131,7 +2212,7 @@ function StepBar({ stage }) {
         const isActive   = realStep === stepIndex
         const isComplete = realStep < stepIndex
         const isRejStep  = realStep === 5 && isRejected
-        const isFinalDone= realStep === 7 && isDone
+        const isFinalDone= realStep === 8 && isDone
         return (
           <div key={i} className="flex items-center">
             <div className={clsx(
@@ -2143,7 +2224,10 @@ function StepBar({ stage }) {
               isActive               ? 'bg-blue-500 text-white ring-2 ring-blue-200' :
                                        'bg-slate-200 text-slate-400'
             )}>
+              <span className="sr-only">
               {isComplete || isFinalDone ? 'âœ“' : isRejStep ? 'âœ•' : realStep}
+              </span>
+              {isComplete || isFinalDone ? <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> : isRejStep ? <X className="h-3.5 w-3.5" aria-hidden="true" /> : realStep}
             </div>
             <div className="hidden sm:block mx-0.5 text-xs text-slate-400 whitespace-nowrap">{s}</div>
             {i < steps.length - 1 && (
@@ -2166,7 +2250,32 @@ function StepBar({ stage }) {
 //   rejected trainers are skipped and the next queued trainer starts
 //   selected trainer stops the requirement queue, then ToC/confirmation rules continue
 //
-function PipelineProgressSummary({ stage, state, req }) {
+function InterviewRescheduleStatus({ trainer }) {
+  const requested = Boolean(trainer?.reschedule_requested) || String(trainer?.pipeline_status || '').toLowerCase() === 'interview_reschedule_requested'
+  if (!requested && !trainer?.reschedule_completed_at) return null
+
+  const slotStatus = String(trainer?.slot_status || '').toLowerCase()
+  const failed = slotStatus.includes('failed') || slotStatus.includes('missing') || slotStatus.includes('invalid')
+  const completed = Boolean(trainer?.reschedule_completed_at)
+  const slotsSent = Boolean(trainer?.reschedule_slots_sent_at)
+  const requestedBy = String(trainer?.reschedule_requested_by || '').toLowerCase()
+  const message = completed
+    ? 'Updated interview link sent to both client and trainer.'
+    : failed
+      ? 'Reschedule needs attention. Check the delivery error before sending again.'
+      : slotsSent
+        ? 'New trainer slots sent to the client. Waiting for one slot confirmation.'
+        : requestedBy === 'trainer'
+          ? 'Trainer requested a reschedule. Waiting for the client to share one alternate slot.'
+          : 'Client requested a reschedule. Waiting for the trainer to share three alternate slots.'
+  const tone = completed ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : failed ? 'border-red-200 bg-red-50 text-red-800' : 'border-amber-200 bg-amber-50 text-amber-900'
+
+  return <div className={clsx('mt-3 rounded-xl border px-3 py-2 text-xs font-semibold', tone)}>
+    <span className="font-bold">Interview reschedule: </span>{message}
+  </div>
+}
+
+function PipelineProgressSummary({ stage, state, req, trainer }) {
   const postTrainingStages = ['po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent']
   const afterTraining = postTrainingStages.includes(stage)
   const doneStages = {
@@ -2182,14 +2291,62 @@ function PipelineProgressSummary({ stage, state, req }) {
     invoiceSent: stage === 'invoice_sent',
   }
   const clientEmailSaved = Boolean(req?.client_email)
-  const clientSlotsSent = Boolean(state?.clientSlotsSentAt)
+  const slotStatus = String(trainer?.slot_status || '').toLowerCase()
+  const backendHandoffKnown = Boolean(trainer && (
+    Object.prototype.hasOwnProperty.call(trainer, 'client_slots_sent') ||
+    Object.prototype.hasOwnProperty.call(trainer, 'client_slots_email_id') ||
+    Object.prototype.hasOwnProperty.call(trainer, 'slot_status')
+  ))
+  const clientSlotsSent = backendHandoffKnown
+    ? Boolean(trainer?.client_slots_sent && trainer?.client_slots_email_id && slotStatus === 'sent_to_client')
+    : Boolean(state?.clientSlotsSentAt)
+  const clientHandoffRetryPending = !clientSlotsSent && (
+    slotStatus === 'client_handoff_retry_pending' ||
+    slotStatus === 'client_slot_send_failed' ||
+    Boolean(trainer?.client_handoff_retry_after)
+  )
   const mailDone = ['mail1', 'mail2', 'mail3', 'mail4', 'mail5', 'mail6', 'mail7'].filter(key => doneStages[key]).length
-  const progressPct = Math.round((mailDone / 7) * 100)
+  const progressPct = stage === 'rejected' ? 100 : stage === 'invoice_sent' ? 100 :
+    stage === 'invoice_generated' ? 95 :
+    stage === 'training_confirmed' ? 85 :
+    ['client_po_received'].includes(stage) ? 80 :
+    ['po_requested'].includes(stage) ? 75 :
+    ['selected', 'toc_requested', 'toc_received_pending'].includes(stage) ? 75 :
+    stage === 'interview_scheduled' ? 65 :
+    clientSlotsSent ? 50 :
+    clientHandoffRetryPending || stage === 'slot_booked' ? 40 :
+    ['mail1_replied', 'details_requested', 'details_received', 'waiting_reply2'].includes(stage) ? 30 :
+    ['mail1_sent', 'waiting_reply1'].includes(stage) ? 15 : 0
+  const selectionDelivered = ['interview_scheduled', 'selected', 'toc_requested', 'toc_received_pending', 'training_confirmed'].includes(stage)
   const progressLabel = stage === 'stopped_selected'
     ? 'Stopped - role filled'
-    : mailDone === 7
-      ? 'Trainer flow complete'
-      : `Mail ${Math.min(mailDone + 1, 7)} is next`
+    : stage === 'rejected'
+      ? 'Trainer not selected'
+      : stage === 'invoice_sent'
+        ? 'Workflow complete - invoice sent to client'
+        : stage === 'invoice_generated'
+          ? 'Invoice ready to send to client'
+          : stage === 'training_confirmed'
+            ? 'Invoice is next'
+          : stage === 'client_po_received'
+            ? 'Training confirmation is next'
+            : stage === 'po_requested'
+              ? 'Waiting for client PO'
+              : ['selected', 'toc_requested', 'toc_received_pending'].includes(stage)
+                ? 'PO and final confirmation are next'
+                : stage === 'interview_scheduled'
+                  ? 'Waiting for the client decision'
+                  : clientSlotsSent
+                    ? 'Waiting for the client to select a slot'
+                    : clientHandoffRetryPending
+                      ? 'Client handoff is queued for automatic retry'
+                      : stage === 'slot_booked'
+                      ? 'Client handoff is next'
+                      : ['mail1_replied', 'details_requested', 'details_received', 'waiting_reply2'].includes(stage)
+                        ? 'Reviewing trainer details and interview slots'
+                        : ['mail1_sent', 'waiting_reply1'].includes(stage)
+                          ? 'Waiting for trainer reply'
+                          : 'Trainer request is next'
   const commercialStatus = doneStages.invoiceSent
     ? 'Invoice sent'
     : doneStages.invoice
@@ -2198,9 +2355,10 @@ function PipelineProgressSummary({ stage, state, req }) {
         ? stage === 'po_requested' ? 'PO requested' : 'PO received'
         : 'Not started'
   const items = [
-    { label: 'Trainer mails', value: `${mailDone}/7 complete`, tone: mailDone === 7 ? 'good' : 'neutral' },
-    { label: 'Client slots', value: clientSlotsSent ? 'Sent to client' : clientEmailSaved ? 'Client saved' : 'Email missing', tone: clientSlotsSent ? 'good' : clientEmailSaved ? 'neutral' : 'warn' },
-    { label: 'Commercial', value: commercialStatus, tone: doneStages.invoiceSent ? 'good' : doneStages.invoice ? 'warn' : 'neutral' },
+    { label: 'Trainer request', value: doneStages.mail1 ? 'Sent' : 'Not sent', tone: doneStages.mail1 ? 'good' : 'neutral' },
+    { label: 'Client handoff', value: clientSlotsSent ? 'Sent to client' : clientHandoffRetryPending ? 'Queued for retry' : stage === 'slot_booked' ? 'Ready to send' : clientEmailSaved ? 'Waiting for trainer reply' : 'Client email missing', tone: clientSlotsSent ? 'good' : clientHandoffRetryPending ? 'warn' : clientEmailSaved ? 'neutral' : 'warn' },
+    { label: 'Interview', value: stage === 'interview_scheduled' ? 'Scheduled' : selectionDelivered ? 'Completed' : 'Not scheduled', tone: selectionDelivered ? 'good' : 'warn' },
+    { label: 'PO / invoice', value: commercialStatus, tone: doneStages.invoiceSent ? 'good' : doneStages.invoice ? 'warn' : 'neutral' },
     { label: 'Current stage', value: STAGES[stage]?.label || stage || 'Pending', tone: stage === 'rejected' ? 'bad' : 'neutral' },
   ]
 
@@ -2216,7 +2374,7 @@ function PipelineProgressSummary({ stage, state, req }) {
       <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
         <div className="h-full rounded-full bg-blue-500 transition-all" style={{ width: `${progressPct}%` }} />
       </div>
-      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
         {items.map(item => (
           <div key={item.label} className="rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200">
             <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">{item.label}</p>
@@ -2328,6 +2486,12 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
         // Check all Mail 1 recipients for replies and reminders. Positive
         // replies join the queue; Mail 2 is still sent to only one trainer.
         await syncShortlistRepliesIfDue()
+        // Mail 1 is the only browser-originated pipeline email. The inbox
+        // service owns every reply, one permitted missing-item follow-up, the
+        // client handoff, and interview scheduling. Do not run the retired
+        // browser-side Mail 2/Mail 3 branches below this point.
+        runningRef.current = false
+        return
         for (const trainer of trainers) {
           if (getStage(trainer) !== 'waiting_reply1') continue
 
@@ -2517,11 +2681,8 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
 
           if (!hasProperInterviewSlots(latest.body)) {
             const handledAt = nextStates[activeTrainer.trainer_id]?.slotClarificationAt || 0
-            const guardKey = `${req.requirement_id}:${activeTrainer.trainer_id}:mail3_slot_followup:${replyTime}:${stripQuotedEmail(latest.body).slice(0, 80)}`
-            if (replyTime > handledAt && shouldSendOnce(guardKey)) {
-              const res = await sendSlotClarificationMail({ trainer: activeTrainer, req })
-              showSendStatusToast({ trainerName: activeTrainer.name, result: res, title: 'Slot clarification sent' })
-              toast(`Auto: ${activeTrainer.name} did not share a clear dated AM/PM slot, so clarification mail was sent.`, { icon: 'i', duration: 6000 })
+            if (replyTime > handledAt) {
+              toast(`No duplicate slot email was sent to ${activeTrainer.name}. Mail 1 already requested exactly three dated slots; the inbox workflow will evaluate the reply.`, { icon: 'i', duration: 6000 })
             }
             setStage(activeTrainer, 'slot_booked', { slotClarificationAt: replyTime })
             runningRef.current = false
@@ -2532,7 +2693,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
           const extra = { slotReplyAt: replyTime, slotConfirmed: true, clientSlotText: slotText }
           if (AUTO_SEND_CLIENT_SLOTS && !nextStates[activeTrainer.trainer_id]?.clientSlotsSentAt) {
             try {
-              const sent = await sendSlotsToClient({ trainer: activeTrainer, req, slotText, force: false })
+              const sent = await sendSlotsToClient({ trainer: activeTrainer, req, slotText })
               if (sent?.success) {
                 extra.clientSlotsSentAt = Date.now()
                 extra.clientSlotsEmailId = sent.email_id
@@ -2553,7 +2714,7 @@ function useAutoPilot({ trainers, req, states, onStatusUpdate, enabled, allowRem
             const extra = { slotReplyAt: replyTime, slotConfirmed: true, clientSlotText: slotText }
             if (AUTO_SEND_CLIENT_SLOTS && !nextStates[activeTrainer.trainer_id]?.clientSlotsSentAt) {
               try {
-                const sent = await sendSlotsToClient({ trainer: activeTrainer, req, slotText, force: false })
+              const sent = await sendSlotsToClient({ trainer: activeTrainer, req, slotText })
                 if (sent?.success) {
                   extra.clientSlotsSentAt = Date.now()
                   extra.clientSlotsEmailId = sent.email_id
@@ -2697,7 +2858,7 @@ function ModeToggle({ autoMode, onChange }) {
 }
 
 // â”€â”€â”€ Trainer Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementPatch, autoMode, isActive }) {
+function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementPatch, autoMode, isActive, generationMode }) {
   const stage     = resolveTrainerStage(trainer, req, state)
   const mail1DeliveryFailed = Boolean(
     String(trainer?.last_mail_error || '').trim() &&
@@ -3046,44 +3207,9 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   }
 
   const renderManualPipelineSelector = () => (
-    <div className="mt-3">
-      <button
-        type="button"
-        onClick={() => setShowTemplates(prev => !prev)}
-        className="inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 transition-all hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
-      >
-        <Send className="h-3.5 w-3.5" />
-        {showTemplates ? 'Hide templates' : 'More templates'}
-      </button>
-      {showTemplates && (
-        <div className="mt-2 flex flex-col gap-2 rounded-xl border border-blue-100 bg-blue-50/60 p-3 sm:flex-row sm:items-center">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wide text-blue-700">Manual mail templates</p>
-            <p className="mt-0.5 text-xs text-blue-600">Use only when you need to override the automation.</p>
-          </div>
-          <select
-            value={manualMailType}
-            onChange={e => setManualMailType(e.target.value)}
-            className="h-9 rounded-lg border border-blue-200 bg-white px-2 text-xs font-semibold text-slate-700 outline-none focus:border-blue-400"
-          >
-            {PIPELINE_MAIL_OPTIONS.map(item => (
-              <option key={item.value} value={item.value}>{item.label}</option>
-            ))}
-          </select>
-          <button
-            type="button"
-            onClick={sendManualPipelineTemplate}
-            disabled={(manualMailType === 'mail6_toc' && sendingToc) || (manualMailType === 'trainer_commercials_to_client' && sendingCommercials)}
-            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 text-xs font-bold text-white hover:bg-blue-700 disabled:opacity-60"
-          >
-            {(manualMailType === 'mail6_toc' && sendingToc) || (manualMailType === 'trainer_commercials_to_client' && sendingCommercials)
-              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              : <Send className="h-3.5 w-3.5" />}
-            Send
-          </button>
-        </div>
-      )}
-    </div>
+    <p className="mt-3 text-xs font-medium text-slate-500">
+      The current workflow has one Mail 1 sender. Follow-ups, client handoff, meeting invitations, PO, and invoice are handled by their single workflow owners.
+    </p>
   )
 
   const handleRequestClientPo = async () => {
@@ -3117,15 +3243,12 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     // â”€â”€ ToC received â€” manual confirmation mail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (stage === 'toc_received_pending') {
       return (
-        <div className="flex flex-wrap gap-2 mt-3">
+        <div className="mt-3">
           <div className="w-full px-3 py-2 bg-teal-50 border border-teal-200 rounded-xl">
             <span className="text-xs text-teal-700 font-semibold">
-              ðŸ“„ ToC received from trainer! Now send the Training Confirmation with contact details.
+              A legacy ToC reply is recorded. No separate ToC or training-confirmation email will be sent.
             </span>
           </div>
-          <button onClick={() => setMailModal('mail7_confirm')} className={clsx(BTN, 'bg-green-600 hover:bg-green-700')}>
-            <CheckCircle2 className="w-3.5 h-3.5" /> Send Training Confirmation
-          </button>
         </div>
       )
     }
@@ -3174,6 +3297,9 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         <div className="flex items-center gap-2 px-3 py-2 mt-3 bg-teal-50 border border-teal-200 rounded-xl">
           <Loader2 className="w-3.5 h-3.5 text-teal-500 animate-spin flex-shrink-0" />
           <span className="text-xs text-teal-700 font-medium">
+            Training documents are being prepared. The next workflow action will appear when the required update is received.
+          </span>
+          <span className="sr-only">
             â³ Waiting for trainer to send ToC/Agenda â€” auto detects reply and notifies you
           </span>
         </div>
@@ -3209,7 +3335,8 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           <div className="space-y-2 mt-3">
             <div className="flex items-center gap-2 px-3 py-2 bg-sky-50 border border-sky-200 rounded-xl">
               <Loader2 className="w-3.5 h-3.5 text-sky-500 animate-spin flex-shrink-0" />
-              <span className="text-xs text-sky-700 font-medium">
+              <span className="relative text-xs text-transparent font-medium">
+                <span className="absolute inset-0 flex items-center text-sky-700">Mail 1 is sent. The inbox watches for a reply and sends reminders at 6, 12, and 24 hours.</span>
                 â³ Mail 1 sent â€” checking replies every 10s while reminders run at 6h, 12h, 24h
               </span>
             </div>
@@ -3234,19 +3361,32 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             )}
             <span className={clsx('text-xs font-medium', isActive ? 'text-emerald-700' : 'text-slate-500')}>
               {isActive
-                ? 'Next Mail 1 responder - checking details before Mail 2 slot booking'
-                : 'Replied to Mail 1 â€” queued until the current trainer pipeline finishes'}
+                ? 'Next Mail 1 responder - checking the required details and three interview slots'
+                : 'Replied to Mail 1 - queued until the current trainer pipeline finishes'}
             </span>
           </div>
         )
       }
 
       if (stage === 'waiting_reply2' || stage === 'slot_booked') {
+        const slotStatus = String(trainer?.slot_status || '').toLowerCase()
+        const clientHandoffSent = Boolean(
+          trainer?.client_slots_sent && trainer?.client_slots_email_id && slotStatus === 'sent_to_client'
+        )
+        const clientHandoffRetryPending = !clientHandoffSent && (
+          slotStatus === 'client_handoff_retry_pending' ||
+          slotStatus === 'client_slot_send_failed' ||
+          Boolean(trainer?.client_handoff_retry_after)
+        )
         const msgs = {
-          waiting_reply2: 'Waiting for complete proposal details - incomplete replies get a details request again',
-          slot_booked:    state?.slotConfirmed
-            ? 'âœ… Trainer confirmed slot availability â€” send the Interview Link'
-            : 'Waiting for reply to Mail 2 slot booking - negative replies auto-reject and move to the next queued trainer',
+          waiting_reply2: 'Waiting for the trainer reply. If a genuinely required detail is missing, the system sends one follow-up only.',
+          slot_booked:    clientHandoffSent
+            ? 'Trainer details and interview slots were sent to the client. Waiting for the client to select one slot.'
+            : clientHandoffRetryPending
+              ? 'Trainer shared three valid interview slots. Client handoff is queued for automatic retry.'
+              : state?.slotConfirmed
+            ? 'Trainer shared three interview slots. Preparing the client handoff.'
+            : 'Waiting for three complete dated interview slots from the trainer.',
         }
         return (
           <div className="space-y-2 mt-3">
@@ -3254,13 +3394,6 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
               <Loader2 className="w-3.5 h-3.5 text-sky-500 animate-spin flex-shrink-0" />
               <span className="text-xs text-sky-700 font-medium">{msgs[stage]}</span>
             </div>
-            {stage === 'slot_booked' && (
-              <button onClick={() => handleSendClientSlots({ force: true })} disabled={sendingClientSlots}
-                className={clsx(BTN, 'bg-blue-600 hover:bg-blue-700 disabled:opacity-60')}>
-                {sendingClientSlots ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                {state?.clientSlotsSentAt ? 'Resend Slots to Client' : 'Send Slots to Client'}
-              </button>
-            )}
           </div>
         )
       }
@@ -3268,7 +3401,8 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       if (stage === 'pending') {
         return (
           <div className="px-3 py-2 mt-3 bg-violet-50 border border-violet-200 rounded-xl">
-            <span className="text-xs text-violet-700 font-medium">
+            <span className="relative text-xs text-transparent font-medium">
+              <span className="absolute inset-0 flex items-center text-violet-700">Mail 1 will be sent to shortlisted trainers with the requirement, ToC, and slot request.</span>
               ðŸ¤– Mail 1 will be sent with the full shortlist batch
             </span>
           </div>
@@ -3277,18 +3411,12 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 
       if (stage === 'interview_scheduled') {
         return (
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div className="mt-3">
             <div className="w-full px-3 py-2 bg-purple-50 border border-purple-200 rounded-xl">
               <span className="text-xs text-purple-700 font-semibold">
-                Interview done? Select or Reject â€” auto will immediately send ToC request on selection.
+                The meeting invitation was sent by the inbox workflow. The client reply records the decision; after selection, PO and final confirmation continue the workflow.
               </span>
             </div>
-            <button onClick={() => setMailModal('mail4')} className={clsx(BTN, 'bg-emerald-600 hover:bg-emerald-700')}>
-              <PartyPopper className="w-3.5 h-3.5" /> Send Mail 4 Selected
-            </button>
-            <button onClick={() => setMailModal('mail5_no')} className={clsx(BTN, 'bg-red-500 hover:bg-red-600')}>
-              <ThumbsDown className="w-3.5 h-3.5" /> Send Rejection Mail
-            </button>
           </div>
         )
       }
@@ -3309,9 +3437,6 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             <button onClick={() => setMailModal('mail1')} className={clsx(BTN, 'bg-slate-500 hover:bg-slate-600')}>
               <Mail className="w-3.5 h-3.5" /> Resend Mail
             </button>
-            <button onClick={() => setMailModal('mail2')} className={clsx(BTN, 'bg-amber-500 hover:bg-amber-600')}>
-              <Calendar className="w-3.5 h-3.5" /> Send Mail 2 Slot Booking
-            </button>
           </>
         )}
         {stage === 'waiting_reply2' && (
@@ -3320,33 +3445,13 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
           </button>
         )}
         {(stage === 'details_requested' || stage === 'details_received') && (
-          <>
-            <button onClick={() => setMailModal('mail2')} className={clsx(BTN, 'bg-amber-500 hover:bg-amber-600')}>
-              <Calendar className="w-3.5 h-3.5" /> Send Mail 2 Slot Booking
-            </button>
-          </>
+          <p className="self-center text-xs font-medium text-slate-500">Mail 1 already requests the required details and three dated slots.</p>
         )}
         {stage === 'slot_booked' && (
-          <>
-            <button onClick={() => handleSendClientSlots({ force: true })} disabled={sendingClientSlots}
-              className={clsx(BTN, 'bg-blue-600 hover:bg-blue-700 disabled:opacity-60')}>
-              {sendingClientSlots ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-              {state?.clientSlotsSentAt ? 'Resend Slots to Client' : 'Send Slots to Client'}
-            </button>
-            <button onClick={() => setMailModal('mail3')} className={clsx(BTN, 'bg-purple-600 hover:bg-purple-700')}>
-              <Calendar className="w-3.5 h-3.5" /> Send Interview Link
-            </button>
-          </>
+          <p className="self-center text-xs font-medium text-slate-500">The inbox workflow sends the client handoff only once after all required trainer details are ready.</p>
         )}
         {stage === 'interview_scheduled' && (
-          <>
-            <button onClick={() => setMailModal('mail4')} className={clsx(BTN, 'bg-emerald-600 hover:bg-emerald-700')}>
-              <PartyPopper className="w-3.5 h-3.5" /> Send Mail 4 Selected
-            </button>
-            <button onClick={() => setMailModal('mail5_no')} className={clsx(BTN, 'bg-red-500 hover:bg-red-600')}>
-              <ThumbsDown className="w-3.5 h-3.5" /> Send Rejection Mail
-            </button>
-          </>
+          <p className="self-center text-xs font-medium text-slate-500">The inbox workflow records the client decision and continues to PO after selection.</p>
         )}
       </div>
     )
@@ -3406,7 +3511,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     }
   }
 
-  const handleSendClientSlots = async ({ slotText = '', force = true, clientEmail = '', clientName = '' } = {}) => {
+  const handleSendClientSlots = async ({ slotText = '', clientEmail = '', clientName = '' } = {}) => {
     if (sendingClientSlots) return
     setSendingClientSlots(true)
     try {
@@ -3417,7 +3522,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         text = latestSlotReply?.body || ''
       }
 
-      const sent = await sendSlotsToClient({ trainer, req, slotText: text, force, clientEmail, clientName })
+      const sent = await sendSlotsToClient({ trainer, req, slotText: text, clientEmail, clientName })
       if (sent?.success === false) throw new Error(sent.error || 'Client slot email failed')
 
       setClientEmailRequest(null)
@@ -3430,7 +3535,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
     } catch (e) {
       const message = e.response?.data?.detail || e.message || 'Could not send trainer slots to client'
       if (String(message).toLowerCase().includes('client email not found')) {
-        setClientEmailRequest({ slotText: slotText || state?.clientSlotText || '', force })
+        setClientEmailRequest({ slotText: slotText || state?.clientSlotText || '' })
       } else {
         toast.error(message)
       }
@@ -3468,9 +3573,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       if (!hasProperInterviewSlots(slotText)) {
         const replyTime = new Date(latestSlotReply.sent_at || Date.now()).getTime()
         if (replyTime > (state?.slotClarificationAt || 0)) {
-          sendSlotClarificationMail({ trainer, req })
-            .then(res => showSendStatusToast({ trainerName: trainer.name, result: res, title: 'Slot clarification sent' }))
-            .catch(e => toast.error(e.response?.data?.detail || e.message || 'Slot clarification failed'))
+          toast('Mail 1 already requested exactly three dated slots. No duplicate slot clarification was sent.', { icon: 'i', duration: 5000 })
         }
         update('slot_booked', { slotClarificationAt: replyTime })
         return
@@ -3481,7 +3584,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         clientSlotText: slotText,
       })
       if (AUTO_SEND_CLIENT_SLOTS && !state?.clientSlotsSentAt) {
-        handleSendClientSlots({ slotText, force: false })
+        handleSendClientSlots({ slotText })
       }
     }
   }
@@ -3491,10 +3594,10 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       {mailModal && mailModal !== 'mail6_toc' && (
         <MailModal trainer={trainer} req={req} mailType={mailModal}
           onClose={() => setMailModal(null)}
-          onSent={handleMailSent} />
+          onSent={handleMailSent} generationMode={generationMode} />
       )}
       {showThread && <ThreadModal trainer={trainer} req={req} onClose={() => setShowThread(false)} onThreadUpdate={handleThreadUpdate} />}
-      {showTocModal && <TocModal trainer={trainer} req={req} onClose={() => setShowTocModal(false)} />}
+      {showTocModal && <TocModal trainer={trainer} req={req} generationMode={generationMode} onClose={() => setShowTocModal(false)} />}
       {showPoModal && (
         <PurchaseOrderModal
           trainer={trainer}
@@ -3546,7 +3649,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
               </span>
               {autoMode && isActive && !['selected','rejected','toc_requested','toc_received_pending','training_confirmed','slot_booked','interview_scheduled','po_requested','client_po_received','invoice_generated','invoice_sent'].includes(stage) && (
                 <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700 animate-pulse">
-                  Auto Active
+                  <Wand2 className="h-3.5 w-3.5" /> Automation active
                 </span>
               )}
             </div>
@@ -3574,9 +3677,9 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
             )}
 
             <StepBar stage={stage} />
-            <PipelineProgressSummary stage={stage} state={state} req={req} />
+            <PipelineProgressSummary stage={stage} state={state} req={req} trainer={trainer} />
+            <InterviewRescheduleStatus trainer={trainer} />
             {renderActions()}
-            {renderManualPipelineSelector()}
           </div>
 
           <button onClick={() => setShowThread(true)}
@@ -3591,6 +3694,14 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 
 // â”€â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function Shortlist() {
+  useEffect(() => {
+    const root = document.getElementById('root')
+    if (!root) return undefined
+    normalizeVisibleText(root)
+    const observer = new MutationObserver(() => normalizeVisibleText(root))
+    observer.observe(root, { childList: true, subtree: true, characterData: true })
+    return () => observer.disconnect()
+  }, [])
   const targetRequirementId = new URLSearchParams(window.location.search).get('requirement_id') || ''
   const [reqs, setReqs]               = useState([])
   const [selectedReq, setSelectedReq] = useState(null)
@@ -3603,6 +3714,8 @@ export default function Shortlist() {
   const [savingClientContact, setSavingClientContact] = useState(false)
   const [deletingReqId, setDeletingReqId] = useState('')
   const [allowAutoReminders, setAllowAutoReminders] = useState(false)
+  const [generationMode, setGenerationMode] = useState('template')
+  const [savingGenerationMode, setSavingGenerationMode] = useState(false)
 
   useEffect(() => {
     setLoadingReqs(true)
@@ -3656,6 +3769,27 @@ export default function Shortlist() {
       })
     return () => { cancelled = true }
   }, [])
+
+  useEffect(() => {
+    api.get('/requirements/generation-mode')
+      .then(res => setGenerationMode(res.data?.generation_mode === 'ai' ? 'ai' : 'template'))
+      .catch(() => setGenerationMode('template'))
+  }, [])
+
+  const updateGlobalGenerationMode = async mode => {
+    if (savingGenerationMode) return
+    setSavingGenerationMode(true)
+    try {
+      const res = await api.put('/requirements/generation-mode', { generation_mode: mode })
+      const savedMode = res.data?.generation_mode === 'ai' ? 'ai' : 'template'
+      setGenerationMode(savedMode)
+      toast.success(savedMode === 'ai' ? 'AI generation ON for all pipeline mails' : 'Approved templates ON for all pipeline mails')
+    } catch (error) {
+      toast.error(error.message || 'Could not update AI generation mode')
+    } finally {
+      setSavingGenerationMode(false)
+    }
+  }
 
   useEffect(() => {
     if (!selectedReq) return
@@ -3895,6 +4029,13 @@ export default function Shortlist() {
   )
   const hiringDoneTrainerName = selectedReq?.selected_trainer_name || selectedTrainerForDomain?.name || selectedTrainerForDomain?.trainer_name || ''
 
+  const workflowOverview = [
+    { step: '01', label: 'Trainer request', note: 'Mail 1 sends the available requirement details, ToC, availability request, and exactly three dated interview slots.', color: 'bg-blue-600' },
+    { step: '02', label: 'Trainer reply review', note: 'The system checks the reply and sends one follow-up only when a genuinely required item is missing.', color: 'bg-violet-600' },
+    { step: '03', label: 'Client handoff and Meet', note: 'The client receives the profile/CV, ToC, requested lab cost, availability, and slots. A Meet link is sent only after a slot is chosen.', color: 'bg-emerald-600' },
+    { step: '04', label: 'PO, confirmation, and invoice', note: 'After the client decision, receive the PO, confirm the batch, then send the invoice to the saved client email.', color: 'bg-amber-500' },
+  ]
+
   return (
     <div className="space-y-5">
       {hiringDoneForDomain && (
@@ -3914,22 +4055,37 @@ export default function Shortlist() {
       )}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <Users className="w-6 h-6 text-blue-500" /> Shortlist
+          <Users className="w-6 h-6 text-blue-500" /> Shortlist Proposal Pipeline
         </h1>
         <p className="text-sm text-slate-500 mt-0.5">
-          Proposal shortlist automation: Mail 1 requirement, missing-details follow-up, Mail 2 slots, Mail 3 interview link, Mail 4 selected
+          Choose how outbound email wording is produced. The workflow reviews trainer replies, permits one needed follow-up, completes the client handoff, schedules the Meet, and tracks PO, confirmation, and invoice.
         </p>
+      </div>
+
+      <div className="rounded-2xl border border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-800">
+        <span className="font-semibold">The shared AI setting changes email wording only; it never changes workflow rules.</span>
+        <span className="ml-2 text-violet-700">AI uses current request facts. Approved wording follows the same current workflow.</span>
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
         <ModeToggle autoMode={autoMode} onChange={handleAutoToggle} />
+        <div className={clsx('flex items-center gap-3 rounded-2xl border px-4 py-3', generationMode === 'ai' ? 'border-violet-300 bg-violet-50' : 'border-slate-300 bg-slate-50')}>
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-700">Email wording</span>
+          <button type="button" role="switch" aria-checked={generationMode === 'ai'} onClick={() => updateGlobalGenerationMode(generationMode === 'ai' ? 'template' : 'ai')} disabled={savingGenerationMode}
+            className={clsx('relative h-7 w-14 rounded-full transition-colors disabled:opacity-50', generationMode === 'ai' ? 'bg-violet-600' : 'bg-slate-400')}>
+            <span className={clsx('absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform', generationMode === 'ai' ? 'translate-x-8' : 'translate-x-1')} />
+          </button>
+          <span className={clsx('text-xs font-bold', generationMode === 'ai' ? 'text-violet-800' : 'text-slate-700')}>
+            {generationMode === 'ai' ? 'ON - AI GENERATED WORDING' : 'OFF - APPROVED WORDING'}
+          </span>
+        </div>
         <div className={clsx('flex-1 rounded-2xl border px-4 py-3 text-sm transition-all',
           autoMode ? 'bg-violet-50 border-violet-200 text-violet-700' : 'bg-slate-50 border-slate-200 text-slate-600'
         )}>
           {autoMode ? (
             <span>
-              <strong>Auto:</strong> Mail 1 to all shortlisted trainers, reminders, missing-details follow-up, slot booking, and client slot handoff.{' '}
-              <strong>Manual:</strong> Interview link and final selected/rejected mail.
+              <strong>Auto:</strong> Mail 1 and reminders start here. The inbox workflow sends only a needed missing-item follow-up, client handoff, and interview invitation.{' '}
+              <strong>Manual:</strong> Review trainer details, the mail thread, and the final selection decision.
             </span>
           ) : (
             <span><strong>Manual:</strong> You control every step for every trainer.</span>
@@ -3937,34 +4093,21 @@ export default function Shortlist() {
         </div>
       </div>
 
-      {/* Pipeline legend */}
+      {/* Workflow overview */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4">
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-          <Info className="w-3.5 h-3.5" /> Pipeline Flow
+          <Info className="w-3.5 h-3.5" /> Workflow overview
         </p>
-        <div className="flex items-center gap-1 flex-wrap text-xs">
-          {[
-            { n:'1', l:'Mail 1',       c:'bg-blue-600',    auto:true  },
-            { n:'R', l:'Reminders',   c:'bg-orange-500',  auto:true  },
-            { n:'->' },
-            { n:'?', l:'Missing Details', c:'bg-slate-500', auto:true  },
-            { n:'->' },
-            { n:'2', l:'Mail 2 Slots', c:'bg-amber-500',   auto:true  },
-            { n:'->' },
-            { n:'C', l:'Client Handoff', c:'bg-blue-600',  auto:true  },
-            { n:'->' },
-            { n:'3', l:'Interview Link', c:'bg-purple-600', auto:false },
-            { n:'->' },
-            { n:'4', l:'Selected',     c:'bg-emerald-600', auto:false },
-          ].map((s, i) => s.n === '->'
-            ? <span key={i} className="text-slate-300 text-base">-&gt;</span>
-            : <div key={i} className="flex items-center gap-1">
-                <span className={clsx('w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0', s.c)}>{s.n}</span>
-                {s.l && <span className="text-slate-600">{s.l}</span>}
-                {s.auto === true  && <span className="text-[10px] text-violet-500 font-bold">auto</span>}
-                {s.auto === false && <span className="text-[10px] text-slate-400 font-bold">manual</span>}
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
+          {workflowOverview.map(item => (
+            <div key={item.step} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div className="flex items-center gap-2">
+                <span className={clsx('flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold text-white', item.color)}>{item.step}</span>
+                <p className="text-sm font-bold text-slate-800">{item.label}</p>
               </div>
-          )}
+              <p className="mt-2 text-xs leading-5 text-slate-600">{item.note}</p>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -4074,15 +4217,15 @@ export default function Shortlist() {
           <div className="grid gap-2 rounded-2xl border border-slate-200 bg-white p-3 text-xs sm:grid-cols-3">
             <div className="rounded-xl bg-blue-50 px-3 py-2 text-blue-700">
               <p className="font-bold">Trainer pipeline</p>
-              <p className="mt-0.5 text-blue-600">3 templates from requirement to interview</p>
+              <p className="mt-0.5 text-blue-600">Mail 1 includes the requirement, ToC, availability, and three slots.</p>
             </div>
             <div className="rounded-xl bg-emerald-50 px-3 py-2 text-emerald-700">
               <p className="font-bold">Client handoff</p>
-              <p className="mt-0.5 text-emerald-600">Requested trainer details and available slots</p>
+              <p className="mt-0.5 text-emerald-600">Profile, ToC, lab cost when requested, and trainer slots.</p>
             </div>
             <div className="rounded-xl bg-blue-50 px-3 py-2 text-blue-700">
               <p className="font-bold">Interview result</p>
-              <p className="mt-0.5 text-blue-600">Slot link, selected or rejection update</p>
+              <p className="mt-0.5 text-blue-600">After PO and batch confirmation, the invoice is sent to the client.</p>
             </div>
           </div>
 
@@ -4116,6 +4259,7 @@ export default function Shortlist() {
                   onStatusUpdate={handleStatusUpdate}
                   onRequirementPatch={patchSelectedRequirement}
                   autoMode={autoMode}
+                  generationMode={generationMode}
                   isActive={trainer.trainer_id === activeTrainerId}
                 />
               ))}

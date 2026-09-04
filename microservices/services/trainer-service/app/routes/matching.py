@@ -48,7 +48,7 @@ class MatchRequest(BaseModel):
     domain: Optional[str] = ""
     location: Optional[str] = ""
     budget: Optional[float] = None
-    top_n: int = 10
+    top_n: int = 1
 
 
 @router.post("/match")
@@ -81,7 +81,9 @@ async def match_trainers(
             scored.append({**t, "_match_score": s})
 
     scored.sort(key=lambda x: x["_match_score"], reverse=True)
-    top = scored[: payload.top_n]
+    # This endpoint is also used by ad-hoc matching screens; enforce the
+    # system policy here instead of relying on each caller's payload.
+    top = scored[:1]
 
     return {
         "matched": len(top),

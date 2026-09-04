@@ -9,7 +9,7 @@ from shared.database.service import init_db as connect_service_db, shutdown_db
 from app.routes import (
     trainers, matching, slots, toc,
     resume_data, resume_uploads, shortlists,
-    interview_reminders, purchase_orders, invoices,
+    interview_reminders, purchase_orders, invoices, finance_approvals,
     toc_extended, trainer_automation, voice_ai, profile_enhancements,
 )
 
@@ -99,6 +99,7 @@ app.include_router(toc_extended.router,       prefix="/api/v1/toc",             
 # Purchase orders + invoices
 app.include_router(purchase_orders.router,    prefix="/api/v1/purchase-orders",      tags=["purchase-orders"])
 app.include_router(invoices.router,           prefix="/api/v1/invoices",             tags=["invoices"])
+app.include_router(finance_approvals.router,  prefix="/api/v1/finance",              tags=["finance"])
 
 # Voice AI recruiter assistant
 app.include_router(voice_ai.router,           prefix="/api/v1/voice-ai",             tags=["voice-ai"])

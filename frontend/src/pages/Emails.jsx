@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { getEmails, checkReplies, retryEmail, scheduleInterview, sendMailToOne, sendClientSlotsFromEmail } from '../utils/api'
+import { getEmails, checkReplies, retryEmail, scheduleInterview, sendMailToOne } from '../utils/api'
 import toast from 'react-hot-toast'
 import {
   Mail, RefreshCw, MessageSquare, AlertCircle, Send,
@@ -378,8 +378,6 @@ function EmailRow({ email, onRefresh }) {
   const [expanded,  setExpanded]  = useState(false)
   const [retrying,  setRetrying]  = useState(false)
   const [mailing,   setMailing]   = useState(false)
-  const [sendingClientSlots, setSendingClientSlots] = useState(false)
-  const [showClientEmailModal, setShowClientEmailModal] = useState(false)
   const [showSched, setShowSched] = useState(false)
 
   const handleRetry = async (e) => {
@@ -408,34 +406,9 @@ function EmailRow({ email, onRefresh }) {
     finally { setMailing(false) }
   }
 
-  const sendClientSlots = async (payload = {}) => {
-    setSendingClientSlots(true)
-    try {
-      const res = await sendClientSlotsFromEmail(email.email_id, true, payload)
-      const data = res.data || {}
-      toast.success(data.already_sent ? 'Slots already sent to client' : 'Trainer slots sent to client')
-      setShowClientEmailModal(false)
-      onRefresh()
-    } catch (err) {
-      if ((err.message || '').toLowerCase().includes('client email not found')) {
-        setShowClientEmailModal(true)
-      } else {
-        toast.error(err.message || 'Could not send slots to client')
-      }
-    } finally {
-      setSendingClientSlots(false)
-    }
-  }
-
-  const handleSendClientSlots = async (e) => {
-    e.stopPropagation()
-    await sendClientSlots()
-  }
-
   const isFailed     = email.status === 'failed'
   const isInterested = email.reply_sentiment === 'positive' && email.reply_received
   const canSchedule  = isInterested && !email.interview_scheduled
-  const canSendClientSlots = email.mail_type === 'mail3' && email.reply_received && !!email.reply_text
   const clientSlotsSent = !!email.client_slot_auto_result?.success
   const retryCount   = email.retry_count || 0
   const toggleExpanded = () => setExpanded(e => !e)
@@ -445,13 +418,6 @@ function EmailRow({ email, onRefresh }) {
     <>
       {showSched && (
         <InterviewModal email={email} onClose={() => setShowSched(false)} onSuccess={onRefresh} />
-      )}
-      {showClientEmailModal && (
-        <ClientEmailModal
-          onClose={() => setShowClientEmailModal(false)}
-          onSubmit={sendClientSlots}
-          loading={sendingClientSlots}
-        />
       )}
       <div className={clsx(
         'card overflow-hidden transition-all duration-300 hover:shadow-card-hover group',
@@ -529,16 +495,6 @@ function EmailRow({ email, onRefresh }) {
                     className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold
                                bg-emerald-500 hover:bg-emerald-600 text-white transition-all active:scale-95 shadow-sm">
                     <Calendar className="w-3 h-3" /> Schedule Interview
-                  </button>
-                )}
-
-                {canSendClientSlots && (
-                  <button onClick={handleSendClientSlots} disabled={sendingClientSlots}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold
-                               bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition-all active:scale-95 disabled:opacity-60">
-                    {sendingClientSlots
-                      ? <><Loader2 className="w-3 h-3 animate-spin" /> Sending...</>
-                      : <><Send className="w-3 h-3" /> {clientSlotsSent ? 'Resend Slots to Client' : 'Send Slots to Client'}</>}
                   </button>
                 )}
 

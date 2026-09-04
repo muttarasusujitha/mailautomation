@@ -312,6 +312,17 @@ async def get_client_pipeline(
                     "last_mail_type",
                     "last_mailed_at",
                     "last_mail_error",
+                    "slot_status",
+                    "client_slots_sent",
+                    "client_slots_sent_at",
+                    "client_slots_email_id",
+                    "client_handoff_retry_after",
+                    "reschedule_requested",
+                    "reschedule_requested_by",
+                    "reschedule_request_text",
+                    "reschedule_forward_email_id",
+                    "reschedule_slots_sent_at",
+                    "reschedule_completed_at",
                 )
                 if trainer.get(key) is not None
             }

@@ -1,4 +1,4 @@
-"""Start-time Google Meet notices for scheduled interviews."""
+"""Ten-minute Google Meet notices for scheduled interviews."""
 import logging
 from datetime import datetime, timedelta
 
@@ -20,20 +20,26 @@ def _notice_body(*, name: str, technology: str, interview_link: str, interview_d
     greeting = f"Dear {name}," if name else "Hello,"
     return (
         f"{greeting}\n\n"
-        f"The {technology or 'training'} interview meeting is starting now.\n\n"
-        f"Meeting Time: {interview_date or 'Now'}\n"
+        f"Your {technology or 'training'} interview meeting starts in 10 minutes.\n\n"
+        f"Meeting Time: {interview_date or 'As scheduled'}\n"
         f"Google Meet Link: {interview_link}\n\n"
-        "Please join using the above link.\n\n"
+        "Please open the link and join a few minutes before the scheduled start time.\n\n"
         "Regards,\n"
-        "TrainerSync Team"
+        "Clahan Technologies"
     )
+
+
+def _notice_window(now: datetime) -> tuple[datetime, datetime]:
+    """Return the tolerated interview-time window for a notice due now."""
+    return now + timedelta(minutes=9), now + timedelta(minutes=11)
 
 
 async def _send_start_notices():
     db = get_db()
     now = datetime.utcnow()
-    window_start = now - timedelta(minutes=2)
-    window_end = now + timedelta(minutes=2)
+    # Beat runs every minute. Select meetings whose 10-minute notice is due,
+    # with a small tolerance for scheduler/worker latency.
+    window_start, window_end = _notice_window(now)
     query = {
         "interview_scheduled": True,
         "meet_start_notice_sent": {"$ne": True},
@@ -103,7 +109,7 @@ async def _send_start_notices():
                     f"{settings.EMAIL_SERVICE_URL}/api/v1/email/send",
                     json={
                         "to": recipient["email"],
-                        "subject": f"Meeting Starting Now - {technology}",
+                        "subject": f"Interview Starts in 10 Minutes - {technology}",
                         "body": _notice_body(
                             name=recipient["name"],
                             technology=technology,
@@ -113,7 +119,17 @@ async def _send_start_notices():
                         "mail_type": "meet_start_notice",
                         "requirement_id": requirement_id,
                         "trainer_name": log.get("trainer_name") or "",
-                        "idempotency_key": f"meet-start:{email_id}:{recipient['role']}:{recipient['email']}",
+                        "idempotency_key": f"interview-10min:{email_id}:{recipient['role']}:{recipient['email']}",
+                        "ai_generate": True,
+                        "ai_context": {
+                            "workflow": "interview_10_minute_reminder",
+                            "recipient_role": recipient["role"],
+                            "recipient_name": recipient["name"],
+                            "technology": technology,
+                            "meeting_time": interview_date,
+                            "meeting_link": interview_link,
+                            "required_message": "The interview starts in 10 minutes; join a few minutes early.",
+                        },
                     },
                     timeout=30,
                 )

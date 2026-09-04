@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import {
   AlertTriangle, BriefcaseBusiness, CalendarCheck, CalendarDays, CheckCircle2, Clock,
   ExternalLink, FileText, IndianRupee, Link2, Loader2, Mail, MapPin, RefreshCw,
-  Search, Send, Trash2, Users, Video, X
+  Search, Send, Sparkles, Trash2, Users, Video, X
 } from 'lucide-react'
 import api from '../utils/api'
 
@@ -219,7 +219,15 @@ function ClientUpdatePanel({ updates = [], loading, onRetry, retryingId = '' }) 
   )
 }
 
-function DetailModal({ request, onClose, onCreateRequirement, processingId = '' }) {
+function DetailModal({
+  request,
+  onClose,
+  onCreateRequirement,
+  onRegenerateReply,
+  processingId = '',
+  regeneratingId = '',
+  generationMode = 'template',
+}) {
   const [trainerMails, setTrainerMails] = useState([])
   const [loadingMails, setLoadingMails] = useState(false)
 
@@ -326,7 +334,25 @@ function DetailModal({ request, onClose, onCreateRequirement, processingId = '' 
           </div>
 
           <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Generated Reply</p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Generated Reply</p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {generationMode === 'ai'
+                    ? 'AI writes a tailored draft. Review it before sending.'
+                    : 'Approved template mode is active. Turn on AI mode to create a tailored draft.'}
+                </p>
+              </div>
+              <button
+                onClick={() => onRegenerateReply?.(request)}
+                disabled={generationMode !== 'ai' || regeneratingId === request.email_id}
+                title={generationMode === 'ai' ? 'Generate a new AI reply draft' : 'Enable AI text generation first'}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {regeneratingId === request.email_id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                {reply.body ? 'Regenerate with AI' : 'Generate with AI'}
+              </button>
+            </div>
             <p className="mt-2 text-sm font-semibold text-slate-900">{reply.subject || 'No reply generated'}</p>
             <pre className="mt-3 whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-700">
               {reply.body || 'No generated reply available.'}
@@ -456,6 +482,9 @@ export default function ClientRequests() {
   const [processingId, setProcessingId] = useState('')
   const [deletingId, setDeletingId] = useState('')
   const [retryingUpdateId, setRetryingUpdateId] = useState('')
+  const [regeneratingId, setRegeneratingId] = useState('')
+  const [generationMode, setGenerationMode] = useState('template')
+  const [savingGenerationMode, setSavingGenerationMode] = useState(false)
   const [filter, setFilter] = useState('all')
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
@@ -494,6 +523,12 @@ export default function ClientRequests() {
       }
     }
   }, [filter])
+
+  useEffect(() => {
+    api.get('/requirements/generation-mode')
+      .then(res => setGenerationMode(res.data?.generation_mode === 'ai' ? 'ai' : 'template'))
+      .catch(() => setGenerationMode('template'))
+  }, [])
 
   const syncNow = async (silent = false) => {
     if (autoSyncRunningRef.current) return
@@ -568,6 +603,41 @@ export default function ClientRequests() {
     }
   }
 
+  const setClientGenerationMode = async mode => {
+    if (savingGenerationMode || !['ai', 'template'].includes(mode)) return
+    setSavingGenerationMode(true)
+    try {
+      const res = await api.put('/requirements/generation-mode', { generation_mode: mode })
+      const savedMode = res.data?.generation_mode === 'ai' ? 'ai' : 'template'
+      setGenerationMode(savedMode)
+      toast.success(savedMode === 'ai' ? 'AI text generation enabled for Client Requests and Shortlist' : 'Approved templates enabled')
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Could not save AI generation mode')
+    } finally {
+      setSavingGenerationMode(false)
+    }
+  }
+
+  const regenerateClientReply = async item => {
+    if (!item?.email_id || regeneratingId || generationMode !== 'ai') return
+    setRegeneratingId(item.email_id)
+    try {
+      const res = await api.post(`/inbox/${item.email_id}/regenerate-reply`, {})
+      const generatedReply = res.data?.generated_reply || {}
+      setSelected(current => current?.email_id === item.email_id
+        ? { ...current, generated_reply: generatedReply, ai_reply: res.data?.reply || generatedReply.body, status: 'pending_approval' }
+        : current)
+      setRequests(current => current.map(request => request.email_id === item.email_id
+        ? { ...request, generated_reply: generatedReply, ai_reply: res.data?.reply || generatedReply.body, status: 'pending_approval' }
+        : request))
+      toast.success('AI reply draft generated. Review it before sending.')
+    } catch (e) {
+      toast.error(e.response?.data?.detail || e.message || 'Could not generate the AI reply')
+    } finally {
+      setRegeneratingId('')
+    }
+  }
+
   const deleteClientRequest = async item => {
     if (!item?.email_id || deletingId) return
     const label = item.from_name || item.from_email || item.subject || 'this client request'
@@ -634,6 +704,17 @@ export default function ClientRequests() {
             <BriefcaseBusiness className="h-6 w-6 text-blue-500" /> Client Requests
           </h1>
           <p className="mt-1 text-sm text-slate-500">All training inquiries captured from the client inbox.</p>
+          <div className={clsx('mt-3 flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2.5 text-sm', generationMode === 'ai' ? 'border-violet-300 bg-violet-50/60' : 'border-slate-300 bg-slate-50')}>
+            <Sparkles className={clsx('h-4 w-4', generationMode === 'ai' ? 'text-violet-700' : 'text-slate-500')} />
+            <span className="text-xs font-bold uppercase tracking-wide text-slate-700">AI reply generation</span>
+            <button type="button" role="switch" aria-checked={generationMode === 'ai'} onClick={() => setClientGenerationMode(generationMode === 'ai' ? 'template' : 'ai')} disabled={savingGenerationMode}
+              className={clsx('relative h-7 w-14 rounded-full transition-colors disabled:opacity-50', generationMode === 'ai' ? 'bg-violet-600' : 'bg-slate-400')}>
+              <span className={clsx('absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform', generationMode === 'ai' ? 'translate-x-8' : 'translate-x-1')} />
+            </button>
+            <span className={clsx('rounded-full px-2.5 py-1 text-xs font-bold', generationMode === 'ai' ? 'bg-violet-100 text-violet-800' : 'bg-slate-200 text-slate-700')}>
+              {generationMode === 'ai' ? 'ON — AI WRITES DRAFTS' : 'OFF — APPROVED TEMPLATES'}
+            </span>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -806,7 +887,10 @@ export default function ClientRequests() {
         request={selected}
         onClose={() => setSelected(null)}
         onCreateRequirement={createRequirementFromEmail}
+        onRegenerateReply={regenerateClientReply}
         processingId={processingId}
+        regeneratingId={regeneratingId}
+        generationMode={generationMode}
       />
     </div>
   )

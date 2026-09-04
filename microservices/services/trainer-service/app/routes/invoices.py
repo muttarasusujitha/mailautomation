@@ -105,6 +105,17 @@ async def send_invoice(
     if not to_email:
         raise HTTPException(400, "to_email is required")
 
+    # A sent invoice is final. Returning the recorded delivery avoids a
+    # second physical invoice email when a user refreshes or double-clicks.
+    if str(doc.get("status") or "").lower() == "sent":
+        return {
+            "success": True,
+            "already_sent": True,
+            "invoice_id": invoice_id,
+            "sent_to": doc.get("sent_to") or to_email,
+            "invoice": doc,
+        }
+
     invoice_number = doc.get("invoice_number") or invoice_id
     subject = payload.subject or f"Invoice {invoice_number} - Clahan Technologies"
     body = payload.body or (
@@ -175,6 +186,9 @@ async def send_invoice(
                 "body": body,
                 "mail_type": "invoice",
                 "requirement_id": doc.get("requirement_id"),
+                # email-service stores this key uniquely, protecting the
+                # invoice against concurrent send requests as well.
+                "idempotency_key": f"invoice:{invoice_id}:{to_email.strip().lower()}",
             }
             if attachment_payload:
                 email_json["attachments"] = attachment_payload

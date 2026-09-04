@@ -104,7 +104,10 @@ def _create_google_meet_event_sync(
                 calendarId=getattr(settings, "GOOGLE_CALENDAR_ID", "primary") or "primary",
                 body=body,
                 conferenceDataVersion=1,
-                sendUpdates="all",
+                # Interview participants receive a private branded email from
+                # TrainerSync.  Do not send a shared Calendar invitation,
+                # which exposes every attendee's email address to the others.
+                sendUpdates="all" if attendee_items else "none",
             )
             .execute()
         )
@@ -143,3 +146,65 @@ async def create_google_meet_event(
         attendees=attendees,
         timezone=timezone,
     )
+
+
+def _add_calendar_attendees_sync(event_id: str, attendees: List[str]) -> Dict[str, Any]:
+    """Add attendees to an existing event and make Google deliver invites."""
+    service, error = _load_calendar_service()
+    if not service:
+        return {"success": False, "error": error}
+    clean_attendees = sorted({str(email or "").strip().lower() for email in attendees if str(email or "").strip()})
+    if not event_id or not clean_attendees:
+        return {"success": False, "error": "Calendar event ID and attendees are required."}
+    try:
+        event = service.events().get(
+            calendarId=getattr(settings, "GOOGLE_CALENDAR_ID", "primary") or "primary",
+            eventId=event_id,
+        ).execute()
+        existing = {
+            str(item.get("email") or "").strip().lower()
+            for item in (event.get("attendees") or [])
+            if str(item.get("email") or "").strip()
+        }
+        combined = sorted(existing | set(clean_attendees))
+        updated = service.events().patch(
+            calendarId=getattr(settings, "GOOGLE_CALENDAR_ID", "primary") or "primary",
+            eventId=event_id,
+            body={"attendees": [{"email": email} for email in combined]},
+            sendUpdates="all",
+        ).execute()
+        return {
+            "success": True,
+            "event_id": updated.get("id") or event_id,
+            "meet_link": _extract_meet_link(updated),
+        }
+    except Exception as exc:
+        logger.exception("Failed to add interview attendees to calendar event %s", event_id)
+        return {"success": False, "error": str(exc)}
+
+
+async def add_google_calendar_attendees(event_id: str, attendees: List[str]) -> Dict[str, Any]:
+    return await asyncio.to_thread(_add_calendar_attendees_sync, event_id, attendees)
+
+
+def _cancel_google_calendar_event_sync(event_id: str) -> Dict[str, Any]:
+    """Cancel a superseded interview event only after a replacement is ready."""
+    service, error = _load_calendar_service()
+    if not service:
+        return {"success": False, "error": error}
+    if not event_id:
+        return {"success": False, "error": "Calendar event ID is required."}
+    try:
+        service.events().delete(
+            calendarId=getattr(settings, "GOOGLE_CALENDAR_ID", "primary") or "primary",
+            eventId=event_id,
+            sendUpdates="all",
+        ).execute()
+        return {"success": True, "event_id": event_id}
+    except Exception as exc:
+        logger.exception("Failed to cancel superseded interview event %s", event_id)
+        return {"success": False, "error": str(exc)}
+
+
+async def cancel_google_calendar_event(event_id: str) -> Dict[str, Any]:
+    return await asyncio.to_thread(_cancel_google_calendar_event_sync, event_id)
