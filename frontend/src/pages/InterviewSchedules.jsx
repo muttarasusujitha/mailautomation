@@ -123,35 +123,29 @@ function meetingKey(item = {}) {
 function defaultRescheduleNote(item = {}) {
   return `Hi ${item.trainer_name || 'Trainer'},
 
-The client has requested to reschedule the interview for ${item.domain || 'the training requirement'}.
+A schedule change has been requested for the ${item.domain || 'training requirement'} interview on [Requested Date].
 
-Client proposed slots:
-- [Date and time 1]
-- [Date and time 2]
-- [Date and time 3]
+Please share exactly three convenient interview/discussion slots on [Requested Date], including the date, time, and time zone.
 
-Please confirm which slot works for you. Once confirmed, we will share the updated meeting link with both you and the client.
+If that date is not possible, please share your nearest available date and exactly three slots on that date.
+
+Once a slot is finalized, we will share the revised meeting invitation with you.
 
 Regards,
 Clahan Technologies`
 }
 
 function ReschedulePanel({ selected, onDone }) {
-  const [slotsText, setSlotsText] = useState('')
+  const [requestedDate, setRequestedDate] = useState('')
   const [trainerNote, setTrainerNote] = useState('')
-  const [finalDate, setFinalDate] = useState('')
-  const [meetLink, setMeetLink] = useState('')
   const [sendingTrainer, setSendingTrainer] = useState(false)
-  const [sendingFinal, setSendingFinal] = useState(false)
 
   useEffect(() => {
-    setSlotsText('')
+    setRequestedDate('')
     setTrainerNote(defaultRescheduleNote(selected || {}))
-    setFinalDate(selected?.date_time_text || '')
-    setMeetLink(selected?.meet_link || '')
   }, [selected?.email_id, selected?.calendar_event_id])
 
-  const sendClientSlotsToTrainer = async () => {
+  const requestTrainerSlots = async () => {
     if (!selected?.requirement_id || !selected?.trainer_id) {
       toast.error('Requirement or trainer id is missing')
       return
@@ -160,18 +154,15 @@ function ReschedulePanel({ selected, onDone }) {
       toast.error('Trainer email is missing')
       return
     }
-    const proposedSlots = slotsText.trim()
-    if (!proposedSlots) {
-      toast.error('Add the client proposed dates/slots first')
+    const date = requestedDate.trim()
+    if (!date) {
+      toast.error('Enter the client requested date first')
       return
     }
 
     setSendingTrainer(true)
     try {
-      const body = trainerNote.replace(
-        '- [Date and time 1]\n- [Date and time 2]\n- [Date and time 3]',
-        proposedSlots
-      )
+      const body = trainerNote.replaceAll('[Requested Date]', date)
       const res = await api.post('/shortlists/send-mail', {
         requirement_id: selected.requirement_id,
         trainer_id: selected.trainer_id,
@@ -182,51 +173,12 @@ function ReschedulePanel({ selected, onDone }) {
         mail_type: 'mail4_reschedule_request',
       })
       if (!res.data?.success) throw new Error(res.data?.error || 'Could not send reschedule request')
-      toast.success('Client proposed slots sent to trainer')
+      toast.success('Requested exactly three trainer slots for the selected date')
       onDone?.()
     } catch (error) {
       toast.error(error.response?.data?.detail || error.message || 'Could not send to trainer')
     } finally {
       setSendingTrainer(false)
-    }
-  }
-
-  const sendFinalReschedule = async () => {
-    if (!selected?.requirement_id || !selected?.trainer_id) {
-      toast.error('Requirement or trainer id is missing')
-      return
-    }
-    if (!finalDate.trim()) {
-      toast.error('Enter the confirmed new date/time')
-      return
-    }
-    if (!meetLink.trim()) {
-      toast.error('Paste the new Google Meet link')
-      return
-    }
-
-    setSendingFinal(true)
-    try {
-      const res = await api.post('/shortlists/send-interview-link', {
-        requirement_id: selected.requirement_id,
-        trainer_id: selected.trainer_id,
-        trainer_name: selected.trainer_name,
-        to_email: selected.trainer_email,
-        client_email: selected.client_email,
-        client_name: selected.client_name || selected.client_company,
-        technology: selected.domain,
-        interview_date: finalDate.trim(),
-        date_time: finalDate.trim(),
-        interview_link: meetLink.trim(),
-        platform: 'Google Meet',
-      })
-      if (!res.data?.success) throw new Error(res.data?.error || 'Could not send updated interview link')
-      toast.success('Updated meeting link sent to client and trainer')
-      onDone?.()
-    } catch (error) {
-      toast.error(error.response?.data?.detail || error.message || 'Could not send updated link')
-    } finally {
-      setSendingFinal(false)
     }
   }
 
@@ -242,44 +194,33 @@ function ReschedulePanel({ selected, onDone }) {
 
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
         <div className="rounded-lg border border-amber-200 bg-white p-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Client Proposed Slots</p>
-          <textarea
-            value={slotsText}
-            onChange={e => setSlotsText(e.target.value)}
-            rows={4}
-            placeholder={'- 12 Aug 2026, 11:00 AM IST\n- 13 Aug 2026, 3:00 PM IST\n- 14 Aug 2026, 5:00 PM IST'}
-            className="mt-2 w-full rounded-lg border border-slate-200 p-3 text-sm outline-none focus:border-blue-400"
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Client Requested Date</p>
+          <input
+            value={requestedDate}
+            onChange={e => setRequestedDate(e.target.value)}
+            placeholder="Example: 05 September 2026"
+            className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-blue-400"
           />
           <textarea
             value={trainerNote}
             onChange={e => setTrainerNote(e.target.value)}
-            rows={7}
+            rows={10}
             className="mt-2 w-full rounded-lg border border-slate-200 p-3 text-sm outline-none focus:border-blue-400"
           />
-          <button onClick={sendClientSlotsToTrainer} disabled={sendingTrainer} className="btn-secondary mt-3 w-full justify-center text-sm">
+          <button onClick={requestTrainerSlots} disabled={sendingTrainer} className="btn-secondary mt-3 w-full justify-center text-sm">
             {sendingTrainer ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-            Send Slots To Trainer
+            Request 3 Trainer Slots
           </button>
         </div>
 
         <div className="rounded-lg border border-emerald-200 bg-white p-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Trainer Accepted Slot</p>
-          <input
-            value={finalDate}
-            onChange={e => setFinalDate(e.target.value)}
-            placeholder="Confirmed date/time"
-            className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-blue-400"
-          />
-          <input
-            value={meetLink}
-            onChange={e => setMeetLink(e.target.value)}
-            placeholder="Google Meet link"
-            className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-blue-400"
-          />
-          <button onClick={sendFinalReschedule} disabled={sendingFinal} className="btn-primary mt-3 w-full justify-center text-sm">
-            {sendingFinal ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />}
-            Send Updated Link To Both
-          </button>
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Automatic Completion</p>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            The trainer replies with exactly three slots. The system shares those slots with the client. When the client chooses one, it creates a new Google Meet invitation for both parties and cancels the previous calendar event only after the replacement has been sent.
+          </p>
+          <p className="mt-3 rounded-md bg-emerald-50 p-3 text-xs font-medium text-emerald-800">
+            Do not paste or send a Meet link manually for a normal reschedule.
+          </p>
         </div>
       </div>
     </div>

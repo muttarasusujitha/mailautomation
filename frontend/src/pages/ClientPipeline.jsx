@@ -125,9 +125,39 @@ function buildClientSteps(item = {}) {
   const selectionStatus = String(item.shortlist?.selection_status || item.selection_status || '').toLowerCase()
   const selectedTrainer = item.selected_trainer || {}
   const hasStage = (...stages) => trainerStages.some(stage => stages.includes(stage))
-  const detailsSent = types.has('trainer_commercials_to_client') || types.has('commercial_details_notification') || types.has('client_slots')
-  const slotsSent = types.has('client_slots') || hasStage('slot_booked', 'interview_scheduled', 'selected', 'toc_requested', 'toc_received_pending', 'training_confirmed')
-  const interviewScheduled = types.has('client_interview_schedule') || hasStage('interview_scheduled', 'selected', 'toc_requested', 'toc_received_pending', 'training_confirmed')
+  const slotDeliveryTrainer = trainers.find(trainer =>
+    Boolean(trainer.client_slots_sent) &&
+    Boolean(trainer.client_slots_email_id) &&
+    String(trainer.slot_status || '').toLowerCase() === 'sent_to_client'
+  )
+  const interviewDeliveryTrainer = trainers.find(trainer =>
+    Boolean(trainer.client_email_sent) &&
+    Boolean(trainer.trainer_email_sent) &&
+    Boolean(trainer.meet_link || trainer.interview_link)
+  )
+  const deliveryFailureTrainer = trainers.find(trainer =>
+    /failed|missing|invalid|calendar_failed/.test(String(trainer.slot_status || '').toLowerCase()) ||
+    Boolean(trainer.client_slot_error) ||
+    Boolean(trainer.google_meet_error)
+  )
+  const deliveryError = clean(
+    deliveryFailureTrainer?.client_slot_error ||
+      deliveryFailureTrainer?.google_meet_error ||
+      deliveryFailureTrainer?.last_mail_error,
+    ''
+  )
+  const rescheduleTrainer = trainers.find(trainer =>
+    Boolean(trainer.reschedule_requested) ||
+    Boolean(trainer.reschedule_completed_at) ||
+    String(trainer.pipeline_status || '').toLowerCase() === 'interview_reschedule_requested'
+  ) || {}
+  const rescheduleActive = Boolean(rescheduleTrainer.reschedule_requested) || String(rescheduleTrainer.pipeline_status || '').toLowerCase() === 'interview_reschedule_requested'
+  const rescheduleCompleted = Boolean(rescheduleTrainer.reschedule_completed_at)
+  const rescheduleSlotsSent = Boolean(rescheduleTrainer.reschedule_slots_sent_at)
+  const rescheduleFailure = /failed|missing|invalid/.test(String(rescheduleTrainer.slot_status || '').toLowerCase())
+  const detailsSent = Boolean(slotDeliveryTrainer) || types.has('trainer_commercials_to_client') || types.has('commercial_details_notification')
+  const slotsSent = Boolean(slotDeliveryTrainer) || types.has('client_slots')
+  const interviewScheduled = Boolean(interviewDeliveryTrainer) || types.has('client_interview_schedule')
   const selected = Boolean(selectedTrainer.trainer_id || selectedTrainer.name || item.shortlist?.selected_trainer_id) || ['selected', 'confirmed', 'approved'].includes(selectionStatus) || hasStage('selected', 'toc_requested', 'toc_received_pending', 'training_confirmed')
   const tocSent = types.has('client_toc') || hasStage('toc_requested', 'toc_received_pending', 'training_confirmed')
   const confirmed = ['training_confirmed', 'confirmed'].includes(String(item.status || '').toLowerCase()) || hasStage('training_confirmed')
@@ -142,7 +172,7 @@ function buildClientSteps(item = {}) {
     from_email: item.from_email || item.client?.email,
   }
 
-  return [
+  const steps = [
     {
       key: 'client_request',
       title: 'Client Request',
@@ -162,16 +192,16 @@ function buildClientSteps(item = {}) {
     {
       key: 'slots',
       title: 'Interview Slots',
-      status: stepState({ done: slotsSent, active: detailsSent && !slotsSent }),
-      detail: slotsSent ? 'Available trainer slots sent to the client' : 'Waiting for trainer slots',
+      status: stepState({ done: slotsSent, active: detailsSent && !slotsSent && !deliveryError, blocked: Boolean(deliveryError) }),
+      detail: slotsSent ? 'Available trainer slots sent to the client' : deliveryError || 'Waiting for trainer slots',
       meta: slotsSent ? 'Client confirms the preferred slot' : '',
       message: latestMessage('client_slots'),
     },
     {
       key: 'interview',
       title: 'Interview',
-      status: stepState({ done: interviewScheduled, active: slotsSent && !interviewScheduled }),
-      detail: interviewScheduled ? 'Interview date and meeting link sent' : 'Waiting for client slot confirmation',
+      status: stepState({ done: interviewScheduled, active: slotsSent && !interviewScheduled && !deliveryError, blocked: Boolean(deliveryError) }),
+      detail: interviewScheduled ? 'Interview date and meeting link sent to client and trainer' : deliveryError || 'Waiting for client slot confirmation',
       meta: interviewScheduled ? 'Client and trainer notified' : '',
       message: latestMessage('client_interview_schedule'),
     },
@@ -200,6 +230,30 @@ function buildClientSteps(item = {}) {
       message: latestMessage('client_confirmation', 'client_po'),
     },
   ]
+
+  if (rescheduleActive || rescheduleCompleted) {
+    const requestedByTrainer = String(rescheduleTrainer.reschedule_requested_by || '').toLowerCase() === 'trainer'
+    const rescheduleDetail = rescheduleCompleted
+      ? 'Updated interview link sent to both client and trainer'
+      : rescheduleFailure
+        ? 'Delivery needs attention before the rescheduled interview can continue'
+        : rescheduleSlotsSent
+          ? 'New trainer slots sent to the client; waiting for one confirmed slot'
+          : requestedByTrainer
+            ? 'Trainer requested a new time; waiting for one client slot'
+            : 'Client requested a new time; waiting for three trainer slots'
+    const interviewIndex = steps.findIndex(step => step.key === 'interview')
+    steps.splice(interviewIndex + 1, 0, {
+      key: 'reschedule',
+      title: 'Reschedule',
+      status: stepState({ done: rescheduleCompleted, active: rescheduleActive && !rescheduleFailure, blocked: rescheduleFailure }),
+      detail: rescheduleDetail,
+      meta: requestedByTrainer ? 'Requested by trainer' : 'Requested by client',
+      message: latestMessage('client_interview_reschedule_request', 'client_slots', 'client_interview_schedule'),
+    })
+  }
+
+  return steps
 }
 
 function searchText(item = {}) {

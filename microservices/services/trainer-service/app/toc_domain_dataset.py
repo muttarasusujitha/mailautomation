@@ -56,6 +56,14 @@ def _load_compact_domains():
         duration = _dataset_duration(file_key, data)
         if key:
             _register_compact_domain(key, data, duration)
+        # The UI displays ``name`` while many datasets use the shorter
+        # ``domain`` value as their primary key.  Register both values so a
+        # selected catalogue item always returns its own curriculum instead of
+        # falling through to a broad or generic course.
+        for display_value in (data.get("name"), data.get("domain")):
+            display_key = _normalise_key(display_value)
+            if display_key and display_key != key:
+                _register_compact_domain(display_key, data, duration)
         for alias in data.get("aliases") or []:
             alias_key = _normalise_key(alias)
             _register_compact_domain(alias_key, data, duration)
@@ -802,14 +810,19 @@ def list_domains():
     domains = []
     seen = set()
     for key, value in COMPACT_DOMAINS.items():
-        root_key = re.sub(r"_[0-9]+$", "", key)
-        if root_key in seen:
+        display_name = value.get("name") or value.get("domain") or key
+        # Multiple lookup keys (domain, display name and aliases) may point to
+        # one dataset.  The catalogue must expose that course only once.
+        canonical_key = _normalise_key(display_name)
+        if canonical_key in seen:
             continue
-        seen.add(root_key)
-        domains.append({"key": root_key, "name": value.get("name") or root_key, "icon": value.get("icon", "book")})
+        seen.add(canonical_key)
+        domains.append({"key": key, "name": display_name, "icon": value.get("icon", "book")})
     for key, value in DOMAINS.items():
-        if key in seen:
+        display_name = value.get("name") or key
+        canonical_key = _normalise_key(display_name)
+        if canonical_key in seen:
             continue
-        seen.add(key)
-        domains.append({"key": key, "name": value.get("name"), "icon": value.get("icon")})
+        seen.add(canonical_key)
+        domains.append({"key": key, "name": display_name, "icon": value.get("icon")})
     return domains

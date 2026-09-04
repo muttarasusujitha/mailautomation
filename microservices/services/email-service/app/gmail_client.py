@@ -265,7 +265,7 @@ def _html_template(body: str, from_name: str, from_email: str, tracking_url: str
     body = _normalize_trainer_reply_body(body)
     from_email = _normalize_email_address(from_email) or _resolve_sender_email("")
     display_name = "Clahan Technologies" if _is_trainer_reply(body) else (from_name or "Clahan Technologies")
-    tagline = "Clahan Technologies"
+    tagline = "Trainer Matching Platform"
     html_body = body.replace("\n", "<br>")
     pixel = (
         f'<img src="{tracking_url}" width="1" height="1" alt="" style="display:none;" />'
@@ -333,7 +333,11 @@ def send_gmail_oauth(
         msg["From"] = f"{sender_name} <{sender_email}>"
         msg["To"] = to
         msg["Reply-To"] = sender_email
-        msg["Message-ID"] = message_id_header or generate_message_id()
+        # Let Gmail create the delivery Message-ID.  A synthetic local-domain
+        # Message-ID is unnecessary and can look suspicious to recipient spam
+        # filters.  We still keep the internal id in the database for tracing.
+        if message_id_header and not message_id_header.lower().endswith("@trainersync.local>"):
+            msg["Message-ID"] = message_id_header
 
         alt = MIMEMultipart("alternative") if attachments else msg
         if attachments:
@@ -417,7 +421,10 @@ def send_smtp(
             msg["From"] = f"{from_name} <{from_email}>"
             msg["To"] = to
             msg["Reply-To"] = from_email
-            msg["Message-ID"] = message_id_header or generate_message_id()
+            # SMTP servers will add a standards-compliant Message-ID when one
+            # is absent; do not expose the internal trainersync.local id.
+            if message_id_header and not message_id_header.lower().endswith("@trainersync.local>"):
+                msg["Message-ID"] = message_id_header
             alternative.attach(MIMEText(body, "plain"))
             alternative.attach(MIMEText(_html_template(body, from_name, from_email, tracking_url), "html"))
 
@@ -468,21 +475,8 @@ async def send_email_async(
     message_id_header: str = "",
 ) -> Tuple[bool, str]:
     loop = asyncio.get_event_loop()
-    smtp_ok, smtp_error = await loop.run_in_executor(
-        None,
-        send_smtp,
-        to,
-        subject,
-        body,
-        smtp_config,
-        tracking_url,
-        attachments,
-        message_id_header,
-    )
-    if smtp_ok:
-        return True, ""
-
-    logger.warning("SMTP delivery failed for %s; trying Gmail OAuth send fallback: %s", to, smtp_error)
+    # Gmail API delivery is preferred: it uses the authenticated Gmail account
+    # directly and avoids an additional SMTP relay signal for bulk trainer mail.
     oauth_ok, oauth_error = await loop.run_in_executor(
         None,
         send_gmail_oauth,
@@ -497,7 +491,22 @@ async def send_email_async(
     )
     if oauth_ok:
         return True, ""
-    return False, oauth_error or smtp_error
+
+    logger.warning("Gmail OAuth delivery failed for %s; trying SMTP fallback: %s", to, oauth_error)
+    smtp_ok, smtp_error = await loop.run_in_executor(
+        None,
+        send_smtp,
+        to,
+        subject,
+        body,
+        smtp_config,
+        tracking_url,
+        attachments,
+        message_id_header,
+    )
+    if smtp_ok:
+        return True, ""
+    return False, smtp_error or oauth_error
 
 
 def check_imap_replies(
@@ -528,7 +537,8 @@ def check_imap_replies(
         cfg.get("imapPass") or cfg.get("smtpPass") or settings.effective_gmail_pass,
     )
     add_candidate(settings.GMAIL_FALLBACK_USER, settings.effective_gmail_fallback_pass)
-    add_candidate(settings.STYLE_IMAP_USER, settings.STYLE_IMAP_PASSWORD)
+    # STYLE_IMAP_* belongs to the separate sent-mail style importer. Polling it
+    # here would treat an archive mailbox as another reply inbox.
     if settings.GMAIL_FALLBACK_FROM_EMAIL:
         add_candidate(settings.GMAIL_FALLBACK_FROM_EMAIL, settings.effective_gmail_fallback_pass)
     if settings.FROM_EMAIL:

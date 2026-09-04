@@ -442,11 +442,13 @@ export default function Inbox() {
             connected ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'
           )}>
             <span className={clsx('h-2 w-2 rounded-full', connected ? 'bg-emerald-500' : 'bg-red-500')} />
-            {usingGmailApi ? (connected ? 'Connected' : 'Not Connected') : (inboxProvider === 'smtp_only' ? 'SMTP Only Mode' : 'IMAP Mode')}
+            {usingGmailApi
+              ? (connected ? (gmailStatus?.calendar_connected ? 'Gmail + Calendar ready' : 'Calendar permission required') : 'Not Connected')
+              : (inboxProvider === 'smtp_only' ? 'SMTP Only Mode' : 'IMAP Mode')}
           </span>
           {usingGmailApi && (
             <button onClick={connectGmail} className="btn-secondary text-sm">
-              <RefreshCw className="h-4 w-4" /> {connected ? 'Renew Watch' : 'Connect Gmail'}
+              <RefreshCw className="h-4 w-4" /> {!gmailStatus?.calendar_connected ? 'Enable Calendar' : (connected ? 'Renew Watch' : 'Connect Gmail')}
             </button>
           )}
           <button onClick={syncNow} disabled={!connected || syncingNow} className="btn-secondary text-sm disabled:opacity-50">

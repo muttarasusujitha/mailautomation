@@ -21,6 +21,8 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 PENDING_STATUSES = ["pending_approval", "pending_review", "needs_manual_review"]
+LAB_COST_DEFAULT_PARTICIPANTS = 1
+LAB_COST_DEFAULT_DURATION_DAYS = 1
 VISIBLE_DEFAULT_STATUSES = [
     "pending_approval",
     "pending_review",
@@ -501,6 +503,12 @@ async def regenerate_reply(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Re-generate an AI reply for a client email using Anthropic/Gemini."""
+    # The Client Requests and Shortlist screens use this one persisted setting.
+    # Enforce it here too so an API call cannot silently bypass template mode.
+    setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
+    if str(setting.get("value") or "template").strip().lower() != "ai":
+        raise HTTPException(409, "AI reply generation is off. Enable AI text generation first.")
+
     doc = await db["client_emails"].find_one({"email_id": email_id}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Inbox email not found")
@@ -591,31 +599,48 @@ def _lab_request_context(body: str, extracted: Dict[str, Any]) -> Dict[str, Any]
         r"|\b(\d+(?:\.\d+)?)\s*(?:total\s+)(?:hours?|hrs?)\b",
         lower,
     )
-    participants_match = re.search(r"\b(\d+)\s*(?:participants?|learners?|users?|employees?|students?)\b", lower)
+    participants_match = re.search(r"\b(\d+)\s*(?:participants?|learners?|users?|employees?|students?|people)\b", lower)
     if duration_match and not known_inputs.get("duration_days"):
         known_inputs["duration_days"] = float(duration_match.group(1))
     if hours_per_day_match:
         known_inputs["hours_per_day"] = float(hours_per_day_match.group(1))
+    elif re.search(r"\b(?:duration|lab\s*(?:access|duration))\s*[:=-]?\s*(\d+(?:\.\d+)?)\s*(?:hours?|hrs?)\b", lower):
+        # In a reply to a lab-cost request, "duration: 3 hours" means the
+        # requested daily lab-access window, not the course duration.
+        known_inputs["hours_per_day"] = float(re.search(r"\b(?:duration|lab\s*(?:access|duration))\s*[:=-]?\s*(\d+(?:\.\d+)?)\s*(?:hours?|hrs?)\b", lower).group(1))
     if total_hours_match:
         known_inputs["total_hours"] = float(total_hours_match.group(1) or total_hours_match.group(2))
-    if participants_match and not known_inputs.get("participant_count"):
+    if participants_match:
         known_inputs["participant_count"] = int(participants_match.group(1))
     providers = []
     if re.search(r"\baws\b", lower):
-        providers.append("AWS")
+        providers.append("aws")
     if re.search(r"\bazure\b", lower):
-        providers.append("Azure")
+        providers.append("azure")
     if re.search(r"\b(?:gcp|google\s+cloud)\b", lower):
-        providers.append("GCP")
+        providers.append("gcp")
     if providers:
         known_inputs["cloud_provider"] = " and ".join(providers)
     cluster_requested = bool(re.search(r"\bclusters?\b|\bkubernetes\b|\bk8s\b", lower))
     cluster_count_match = re.search(r"\b(\d+)\s+(?:kubernetes\s+|k8s\s+)?clusters?\b", lower)
     if cluster_count_match:
         known_inputs["cluster_count"] = int(cluster_count_match.group(1))
+
+    # Participant count changes the quote materially, so it must come from the
+    # client instead of being silently replaced by a costing default.
+    if known_inputs.get("participant_count"):
+        known_inputs["participant_count_source"] = "client"
+    if not known_inputs.get("duration_days"):
+        known_inputs["duration_days"] = LAB_COST_DEFAULT_DURATION_DAYS
+        known_inputs["duration_days_source"] = "default"
+    else:
+        known_inputs["duration_days_source"] = "client"
+    # Clahan's lab-cost model allocates one cluster per participant.  Use the
+    # client participant count unless they explicitly specify another count.
+    if cluster_requested and known_inputs.get("participant_count") and not known_inputs.get("cluster_count"):
+        known_inputs["cluster_count"] = int(known_inputs["participant_count"])
+        known_inputs["cluster_count_source"] = "derived_from_participants"
     required_inputs = ["cloud_provider", "participant_count", "hours_per_day", "duration_days"]
-    if cluster_requested:
-        required_inputs.append("cluster_count")
     return {
         "feature": "lab_cost",
         "request_type": "lab_access_only" if lab_only else "training_with_lab_support",
@@ -745,6 +770,7 @@ async def _load_reply_workflow_context(
     purchase_order: Dict[str, Any] = {}
     invoice: Dict[str, Any] = {}
     recent_client_replies: List[str] = []
+    clahan_reply_style_examples: List[str] = []
     if requirement_id:
         requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
         shortlist = await db["shortlists"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
@@ -792,6 +818,29 @@ async def _load_reply_workflow_context(
             )
             if str(prior_reply).strip():
                 recent_client_replies.append(str(prior_reply).strip()[:900])
+
+    # Historic Clahan replies establish the natural writing style, never facts
+    # for the current request.  Keep the sample deliberately small and bounded.
+    try:
+        style_cursor = db["email_logs"].find(
+            {
+                "direction": "outbound",
+                "status": "sent",
+                "mail_type": {"$in": ["client_auto_reply", "client_reply"]},
+                "body": {"$type": "string", "$ne": ""},
+            },
+            {"_id": 0, "body": 1},
+        ).sort("sent_at", -1).limit(8)
+        async for sent_mail in style_cursor:
+            sent_body = str(sent_mail.get("body") or "").strip()
+            if sent_body and sent_body not in clahan_reply_style_examples:
+                clahan_reply_style_examples.append(sent_body[:900])
+            if len(clahan_reply_style_examples) >= 5:
+                break
+    except (KeyError, TypeError, AttributeError):
+        # Lightweight test/local stores may not expose email history. Core
+        # requirement, shortlist and document context remains usable.
+        pass
 
     trainer_summaries = []
     for trainer in (shortlist.get("top_trainers") or [])[:10]:
@@ -869,6 +918,7 @@ async def _load_reply_workflow_context(
         "document_delivery": _client_document_delivery_context(doc, extracted),
         "lab_cost": _lab_request_context(body, extracted),
         "recent_replies_to_this_sender": recent_client_replies,
+        "clahan_reply_style_examples": clahan_reply_style_examples,
     }
 
 
@@ -945,12 +995,17 @@ async def _ai_draft_reply(
                     "'the proposed programme', or 'once validated'. Do not narrate internal processing. A strong client acknowledgement should "
                     "read like a brief personal note: thank them for a clear brief, explain what the next response "
                     "will contain, and close with confidence. "
-                    "For a detailed corporate-training request, write a complete acknowledgement of roughly 180-300 "
-                    "words when the sender has asked for several deliverables: state that trainer options are being "
-                    "reviewed, group the deliverables the client will receive, and explain the next confirmation step. "
+                    "For a new corporate-training request, normally write 90-150 words in three short paragraphs: "
+                    "acknowledge the brief, say that Clahan will share relevant trainer profiles/experience/availability/"
+                    "commercials and ToC, then give the next step. Do not create a long generic acknowledgement. "
                     "Keep a simple question to "
                     "roughly 60-100 words. Use 140-250 words only when several facts, questions, or next steps must be "
                     "covered. Prefer short paragraphs; use bullets only when they make three or more items clearer. "
+                    "Use fluent, direct business English. For lab support, when participant_count is present, state that "
+                    "the lab-cost estimate will be prepared for that number of participants and shared separately. "
+                    "Use one cluster per participant unless the client explicitly provides a different cluster count. "
+                    "Never ask for cluster count, participant count, duration, dates, mode, or any other information "
+                    "already present in the incoming email or workflow JSON. "
                     "Address the sender by their reliable name when available. For ordinary client and trainer "
                     "emails, prefer the natural greeting 'Hi <name>'; use 'Hi Team' when no reliable name is available. "
                     "Produce the most accurate client-facing reply for the current workflow stage. Treat the "
@@ -961,7 +1016,9 @@ async def _ai_draft_reply(
                     "that the context actually resolves. If recent_replies_to_this_sender is present, it contains "
                     "messages already sent to this client. Do not reuse their opening, sentence sequence, closing, "
                     "or distinctive phrases. Preserve the business meaning but choose a clearly different natural "
-                    "voice and structure for this reply. "
+                    "voice and structure for this reply. When clahan_reply_style_examples is present, use those "
+                    "historic sent emails only to learn Clahan's natural tone, greeting, paragraph length, and "
+                    "coordinator language. Never copy their names, dates, prices, commitments, or exact wording. "
                     "Never invent "
                     "prices, dates, availability, policies, names, attachments, actions, approvals, statuses, or "
                     "commitments. Never claim an action was completed merely because the application has a feature "

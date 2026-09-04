@@ -23,9 +23,9 @@ def test_word_reference_uses_detailed_client_ready_format():
     assert _requested_toc_output_format(requirement) == "pdf"
 
 
-def test_toc_without_format_defaults_to_detailed_pdf():
+def test_toc_without_format_defaults_to_editable_excel():
     requirement = {"requested_details": ["Table of Contents"]}
-    assert _requested_toc_output_format(requirement) == "pdf"
+    assert _requested_toc_output_format(requirement) == "xlsx"
 
 
 def test_lab_cost_is_detected_separately_from_toc_and_profile():

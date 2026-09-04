@@ -168,6 +168,8 @@ class SendEmailRequest(BaseModel):
     idempotency_key: Optional[str] = None
     attachments: Optional[List[EmailAttachment]] = None
     calendar_invite: Optional[CalendarInvite] = None
+    ai_generate: bool = False
+    ai_context: Optional[Dict[str, Any]] = None
 
 
 class BulkEmailRequest(BaseModel):
@@ -181,6 +183,36 @@ async def send_single_email(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     body = _normalize_trainer_reply_body(payload.body)
+    generation_source = "template"
+    # This opt-in is used only by controlled pipeline callers.  The supplied
+    # body remains the authoritative fallback: the model may improve wording
+    # but cannot change links, attachments, commercials, slots, or stage.
+    if payload.ai_generate:
+        setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
+        if str(setting.get("value") or "").strip().lower() == "ai":
+            try:
+                from app.routes.inbox_actions import _ai_draft_reply
+
+                generated = await _ai_draft_reply(
+                    subject=payload.subject,
+                    body=body,
+                    hint=(
+                        "Write this recipient-facing workflow email naturally and concisely. Preserve every verified fact in the "
+                        "reference exactly, including links, dates, times, requested next action, and attachments. "
+                        "Do not invent commercial, availability, trainer details, or completion status."
+                    ),
+                    workflow_context=payload.ai_context or {},
+                    reference_reply={"body": body},
+                    require_openai=True,
+                )
+                if str(generated or "").strip():
+                    body = _normalize_trainer_reply_body(generated.strip())
+                    generation_source = "ai"
+                else:
+                    generation_source = "template_fallback"
+            except Exception:
+                logger.exception("Client pipeline AI wording failed; using approved template")
+                generation_source = "template_fallback"
     idempotency_key = str(payload.idempotency_key or "").strip()
     existing_log = None
     if idempotency_key:
@@ -217,6 +249,10 @@ async def send_single_email(
         )
 
     attachments = []
+    # Keep the exact client-facing lab-cost workbook in the delivery log.  This
+    # lets the Lab Cost screen provide an auditable re-download of the file
+    # that was actually sent, without retaining unrelated CV/profile files.
+    lab_cost_workbooks: List[Dict[str, str]] = []
     if payload.attachments:
         for att in payload.attachments:
             try:
@@ -225,6 +261,13 @@ async def send_single_email(
                     "content": base64.b64decode(att.content_base64),
                     "subtype": att.subtype or "pdf",
                 })
+                filename_lower = (att.filename or "").lower()
+                if "lab" in filename_lower and "cost" in filename_lower and filename_lower.endswith((".xlsx", ".xls")):
+                    lab_cost_workbooks.append({
+                        "filename": att.filename,
+                        "subtype": att.subtype or "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "content_base64": att.content_base64,
+                    })
             except Exception as exc:
                 raise HTTPException(400, detail={"message": "Invalid attachment encoding", "error": str(exc)})
     if payload.calendar_invite:
@@ -267,8 +310,11 @@ async def send_single_email(
         "customer_id": payload.customer_id,
         "requirement_id": payload.requirement_id,
         "mail_type": payload.mail_type,
+        "generation_source": generation_source,
         "trainer_id": payload.trainer_id,
         "trainer_name": payload.trainer_name,
+        "attachment_names": [item.get("filename", "") for item in attachments if item.get("filename")],
+        "lab_cost_workbooks": lab_cost_workbooks,
         "sent_at": None,
         "created_at": now,
         "updated_at": now,

@@ -72,6 +72,20 @@ async def _call_gemini(messages: List[Dict], system: str, settings, max_tokens: 
     return resp.text.strip()
 
 
+async def _call_openai(messages: List[Dict], system: str, settings, max_tokens: int) -> str:
+    from openai import AsyncOpenAI
+    client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY.strip())
+    response = await client.responses.create(
+        model=settings.OPENAI_MODEL or "gpt-5.5",
+        instructions=system or "You are TrainerSync AI, a helpful training coordination assistant.",
+        input=messages,
+        reasoning={"effort": "low"},
+        text={"verbosity": "low"},
+        max_output_tokens=max_tokens,
+    )
+    return (response.output_text or "").strip()
+
+
 @router.post("/chat")
 async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     settings = get_settings()
@@ -89,7 +103,16 @@ async def assistant_chat(payload: ChatRequest, db: AsyncIOMotorDatabase = Depend
 
     reply = ""
     error = ""
-    if settings.ANTHROPIC_API_KEY.strip():
+    # Prefer the configured OpenAI provider used by the email services, then
+    # retain Anthropic/Gemini as compatible fallbacks.
+    if settings.OPENAI_API_KEY.strip():
+        try:
+            reply = await _call_openai(messages, system, settings, payload.max_tokens)
+        except Exception as exc:
+            logger.warning("OpenAI failed, trying Anthropic/Gemini: %s", exc)
+            error = str(exc)
+
+    if not reply and settings.ANTHROPIC_API_KEY.strip():
         try:
             reply = await _call_anthropic(messages, system, settings, payload.max_tokens, payload.temperature)
         except Exception as exc:

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getRequirements, getShortlist, sendShortlistInterviewLink } from '../utils/api'
+import { getRequirements, getShortlist } from '../utils/api'
 import toast from 'react-hot-toast'
 import {
   Calendar, Mail, X, Loader2, ExternalLink,
@@ -22,34 +22,12 @@ function ScheduleModal({ trainer, req, onClose, onSuccess }) {
 
   const selectedPlatform = MEET_PLATFORMS.find(p => p.id === platform)
 
-  const handleSubmit = async () => {
-    if (!date) return toast.error('Please select interview date and time')
-    if (!trainer) return toast.error('Trainer data is missing')
-    const trainerEmail = trainer.email || trainer.trainer_email || trainer.to_email || ''
-    if (!trainerEmail) return toast.error('Trainer email is required to send the interview invite')
-    setLoading(true)
-    try {
-      const res = await sendShortlistInterviewLink({
-        trainer_id: trainer.trainer_id,
-        trainer_name: trainer.name || trainer.trainer_name || 'Trainer',
-        to_email: trainerEmail,
-        requirement_id: req?.requirement_id || '',
-        interview_link: link,
-        date_time: date,
-        platform: selectedPlatform?.label || 'Google Meet',
-        technology: req?.technology_needed || req?.technology || req?.domain || 'Training',
-        client_email: req?.client_email || '',
-        client_name: req?.client_name || req?.client_company || '',
-      })
-      if (res.data.success || res.data.message) {
-        toast.success(`Interview scheduled & email sent to ${trainer.name || trainer.trainer_name}!`)
-        onSuccess()
-        onClose()
-      } else {
-        toast.error(`Failed: ${res.data.error || 'Unknown error'}`)
-      }
-    } catch (e) { toast.error(e.message) }
-    finally { setLoading(false) }
+  const handleSubmit = () => {
+    // The current pipeline creates the Meet link only after the client selects
+    // one of the three sent slots. This retired screen must not create a
+    // parallel invitation with a manually entered link.
+    toast('Meeting invitations are created only from the client slot-selection workflow.')
+    onClose()
   }
 
   return (
@@ -129,7 +107,7 @@ function ScheduleModal({ trainer, req, onClose, onSuccess }) {
   )
 }
 
-function TrainerCard({ trainer, onSchedule }) {
+function TrainerCard({ trainer }) {
   const name  = trainer.name || trainer.trainer_name
   const email = trainer.email || trainer.to_email
   return (
@@ -164,11 +142,9 @@ function TrainerCard({ trainer, onSchedule }) {
             'bg-amber-100 text-amber-700'
           )}>{trainer.match_score} pts</span>
         )}
-        <button onClick={() => onSchedule(trainer)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold
-                     bg-blue-500 hover:bg-blue-600 text-white shadow-sm transition-all active:scale-95">
-          <Calendar className="w-3.5 h-3.5" /> Schedule Interview
-        </button>
+        <span className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">
+          Awaiting client slot selection
+        </span>
       </div>
     </div>
   )
@@ -178,7 +154,6 @@ export default function Interviews() {
   const [reqs, setReqs]               = useState([])
   const [selectedReq, setSelectedReq] = useState(null)
   const [trainers, setTrainers]       = useState([])
-  const [scheduleFor, setScheduleFor] = useState(null)
   const [loadingReqs, setLoadingReqs]         = useState(false)
   const [loadingTrainers, setLoadingTrainers] = useState(false)
 
@@ -211,16 +186,12 @@ export default function Interviews() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {scheduleFor && (
-        <ScheduleModal trainer={scheduleFor} req={selectedReq} onClose={() => setScheduleFor(null)} onSuccess={reload} />
-      )}
-
       <div>
         <h1 className="page-title flex items-center gap-2">
           <Calendar className="w-6 h-6 text-blue-500" /> Interviews
         </h1>
         <p className="text-sm text-slate-500 mt-0.5">
-          Schedule interviews for shortlisted trainers — choose Zoom, Teams or Google Meet
+          Meetings are created only after the client selects one of the trainer's offered slots.
         </p>
       </div>
 
@@ -321,7 +292,7 @@ export default function Interviews() {
             </div>
           ) : (
             trainers.map(trainer => (
-              <TrainerCard key={trainer.trainer_id} trainer={trainer} onSchedule={setScheduleFor} />
+              <TrainerCard key={trainer.trainer_id} trainer={trainer} />
             ))
           )}
         </div>

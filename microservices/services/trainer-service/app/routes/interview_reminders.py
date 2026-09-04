@@ -7,15 +7,19 @@ from datetime import datetime, timedelta
 from io import BytesIO
 from typing import Any, Dict, List, Optional
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
+from app.config import get_settings
 from shared.database.service import get_db
 
 schedules_router = APIRouter()
 router = APIRouter()
 logger = logging.getLogger(__name__)
+settings = get_settings()
+EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 
 
 class ScheduleReminderRequest(BaseModel):
@@ -35,6 +39,7 @@ class ScheduleReminderRequest(BaseModel):
 class RescheduleRequest(BaseModel):
     new_interview_at: str
     interview_link: Optional[str] = ""
+    duration_minutes: int = 60
 
 
 class InterviewNotesRequest(BaseModel):
@@ -591,5 +596,69 @@ async def reschedule_reminder(
     if payload.interview_link:
         update["interview_link"] = payload.interview_link
 
+    requirement = await db["requirements"].find_one(
+        {"requirement_id": doc.get("requirement_id")}, {"_id": 0}
+    ) or {}
+    trainer_email = _clean(doc.get("trainer_email"))
+    client_email = _clean(requirement.get("client_email"))
+    meeting_link = _clean(payload.interview_link or doc.get("interview_link"))
+    if not trainer_email or not client_email or not meeting_link:
+        raise HTTPException(
+            400,
+            "A reschedule requires trainer email, client email, and a meeting link; no calendar email was sent.",
+        )
+
+    duration_minutes = max(15, min(int(payload.duration_minutes or 60), 480))
+    end_at = new_at + timedelta(minutes=duration_minutes)
+    technology = _clean(doc.get("technology") or requirement.get("technology_needed") or "training")
+    trainer_name = _clean(doc.get("trainer_name")) or "Trainer"
+    client_name = _clean(requirement.get("client_name") or requirement.get("client_company")) or "Client"
+    when = new_at.strftime("%d %B %Y, %I:%M %p IST")
+
+    async def send_revision(to_email: str, recipient_name: str, other_party: str) -> str:
+        payload_json = {
+            "to": to_email,
+            "subject": f"Revised Interview Schedule - {technology}",
+            "body": (
+                f"Dear {recipient_name},\n\n"
+                f"The interview for the {technology} requirement has been rescheduled to {when}.\n"
+                f"Meeting link: {meeting_link}\n\n"
+                f"This revised invitation has also been shared with {other_party}.\n\n"
+                "Regards,\nClahan Technologies"
+            ),
+            "mail_type": "interview_rescheduled",
+            "trainer_id": doc.get("trainer_id") or "",
+            "trainer_name": trainer_name,
+            "requirement_id": doc.get("requirement_id") or "",
+            "calendar_invite": {
+                "summary": f"Rescheduled Interview - {technology}",
+                "start": new_at.isoformat(),
+                "end": end_at.isoformat(),
+                "timezone": "Asia/Kolkata",
+                "description": f"Rescheduled interview for {technology}. Meeting link: {meeting_link}",
+                "attendee_name": recipient_name,
+                "attendee_email": to_email,
+                "meeting_url": meeting_link,
+            },
+        }
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=payload_json)
+        if response.status_code >= 400:
+            raise HTTPException(502, f"Could not send revised invite to {to_email}: {response.text[:200]}")
+        return str((response.json() or {}).get("email_id") or "")
+
+    trainer_email_id = await send_revision(trainer_email, trainer_name, client_name)
+    client_email_id = await send_revision(client_email, client_name, trainer_name)
+    update.update({
+        "trainer_reschedule_email_id": trainer_email_id,
+        "client_reschedule_email_id": client_email_id,
+        "reschedule_invites_sent_at": now,
+    })
     await db["interview_reminders"].update_one({"reminder_id": reminder_id}, {"$set": update})
-    return {"success": True, "reminder_id": reminder_id, "new_interview_at": new_at.isoformat()}
+    return {
+        "success": True,
+        "reminder_id": reminder_id,
+        "new_interview_at": new_at.isoformat(),
+        "trainer_email_id": trainer_email_id,
+        "client_email_id": client_email_id,
+    }
