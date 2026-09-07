@@ -143,14 +143,15 @@ async def _join_meeting(log: dict, db) -> None:
     leave_at = end_at + timedelta(minutes=settings.MEET_BOT_LEAVE_MINUTES_AFTER)
 
     async with async_playwright() as playwright:
-        context = await playwright.chromium.launch_persistent_context(
-            settings.MEET_BOT_PROFILE_PATH,
-            headless=settings.MEET_BOT_HEADLESS,
-            viewport={"width": 1280, "height": 800},
-            args=["--disable-dev-shm-usage", "--no-sandbox"],
-        )
-        page = context.pages[0] if context.pages else await context.new_page()
+        context = None
         try:
+            context = await playwright.chromium.launch_persistent_context(
+                settings.MEET_BOT_PROFILE_PATH,
+                headless=settings.MEET_BOT_HEADLESS,
+                viewport={"width": 1280, "height": 800},
+                args=["--disable-dev-shm-usage", "--no-sandbox"],
+            )
+            page = context.pages[0] if context.pages else await context.new_page()
             await page.goto(link, wait_until="domcontentloaded", timeout=60000)
             await page.wait_for_timeout(4000)
             if "accounts.google.com" in page.url or await page.get_by_text("Sign in", exact=True).count():
@@ -162,7 +163,17 @@ async def _join_meeting(log: dict, db) -> None:
                 raise RuntimeError("Meet join control was not available; authentication or UI may require attention")
             await db.email_logs.update_one(
                 {"email_id": email_id},
-                {"$set": {"meet_bot_status": "joined", "meet_bot_joined_at": datetime.utcnow()}},
+                {"$set": {"meet_bot_status": "joining", "meet_bot_updated_at": datetime.utcnow()}},
+            )
+            # A click on Ask to join only requests admission. The leave control
+            # appears after admission and is also used to detect disconnection.
+            await page.get_by_role("button", name="Leave call", exact=False).first.wait_for(
+                state="visible", timeout=180000,
+            )
+            await db.email_logs.update_one(
+                {"email_id": email_id},
+                {"$set": {"meet_bot_status": "joined", "meet_bot_joined_at": datetime.utcnow()},
+                 "$unset": {"meet_bot_error": "", "meet_bot_next_retry_at": ""}},
             )
             await _observe_attendance(page, log, db, email_id)
             logger.info("Bot joined interview %s", email_id)
@@ -179,6 +190,9 @@ async def _join_meeting(log: dict, db) -> None:
                     break
                 if page.is_closed():
                     raise RuntimeError("Meet browser page closed unexpectedly")
+                await page.get_by_role("button", name="Leave call", exact=False).first.wait_for(
+                    state="visible", timeout=10000,
+                )
                 if settings.MEET_BOT_AUTO_ADMIT:
                     # Meet's browser UI does not reliably expose the requester's
                     # email address. Enable only for invite-restricted meetings.
@@ -209,7 +223,8 @@ async def _join_meeting(log: dict, db) -> None:
             )
         finally:
             service_state["active_meeting"] = ""
-            await context.close()
+            if context is not None:
+                await context.close()
 
 
 async def _claim_due_meeting(db):
@@ -218,13 +233,20 @@ async def _claim_due_meeting(db):
     return await db.email_logs.find_one_and_update(
         {
             "interview_scheduled": True,
-            "interview_at": {"$gte": now - timedelta(minutes=2), "$lte": due_before},
+            "interview_at": {"$lte": due_before},
             "$and": [
+                {"$or": [
+                    {"interview_end_at": {"$gt": now}},
+                    {"interview_end_at": None, "interview_at": {
+                        "$gt": now - timedelta(minutes=settings.MEET_BOT_DEFAULT_DURATION_MINUTES),
+                    }},
+                ]},
                 {"$or": [
                     {"meet_bot_status": {"$exists": False}},
                     {"meet_bot_status": "pending"},
                     {"meet_bot_status": "retry_pending", "meet_bot_next_retry_at": {"$lte": now}},
                     {"meet_bot_status": "claimed", "meet_bot_claimed_at": {"$lte": now - timedelta(minutes=5)}},
+                    {"meet_bot_status": "joining", "meet_bot_updated_at": {"$lte": now - timedelta(minutes=5)}},
                 ]},
                 {"$or": [
                     {"interview_link": {"$exists": True, "$nin": ["", None]}},

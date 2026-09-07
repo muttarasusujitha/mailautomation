@@ -1,7 +1,7 @@
 """TOC extended routes — knowledge base CRUD, PDF generation, email, auto-generate."""
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 from app.config import get_settings
 from shared.database.service import get_db
+from shared.lab_cost_inputs import validate_lab_cost_inputs
 from app.toc_pdf_template import build_toc_html
 
 settings = get_settings()
@@ -43,17 +44,19 @@ class TocEmailRequest(BaseModel):
 
 
 class LabCostRequest(BaseModel):
+    lab_generation_mode: Optional[str] = None
+    lab_day_mapping: Optional[List[Dict[str, Any]]] = None
     toc: Optional[Dict[str, Any]] = None
     toc_id: Optional[str] = None
-    cloud_provider: str = "aws"
-    cloud_region: str = "india-mumbai"
-    hours_per_day: float = 3
-    participant_count: int = 1
-    fx_rate: float = 84
+    cloud_provider: Optional[str] = None
+    cloud_region: Optional[str] = None
+    hours_per_day: Optional[float] = None
+    participant_count: Optional[int] = None
+    fx_rate: Optional[float] = None
     contingency_percent: float = 10
     tax_percent: float = 0
     lab_package: str = "standard"
-    lab_support_per_participant: float = 0
+    lab_support_per_participant: Optional[float] = None
     quote_validity_days: int = 7
     include_internal_pricing: bool = False
     clahan_margin_percent: float = 0
@@ -62,6 +65,61 @@ class LabCostRequest(BaseModel):
     build_minutes: float = 60
     monitoring_gb: float = 1
     k8s_worker_nodes: int = 1
+    rate_card_overrides: Optional[Dict[str, Dict[str, Any]]] = None
+    vm_profile_rates: Optional[Dict[str, float]] = None
+    vm_profile_sources: Optional[Dict[str, str]] = None
+    rate_snapshot_source: Optional[str] = None
+    rate_checked_at: Optional[str] = None
+    price_change_review_threshold_percent: float = 5
+    pricing_selections: Optional[Dict[str, Dict[str, Any]]] = None
+    ai_usage: Optional[Dict[str, Any]] = None
+
+
+class AIPricingEvidenceRequest(BaseModel):
+    provider: str
+    model: str
+    input_per_million: float = 0
+    output_per_million: float = 0
+    gpu_per_hour: float = 0
+    source_url: str
+    title: str = "Approved pricing evidence"
+    excerpt: str = ""
+    effective_date: str = ""
+    approved: bool = True
+
+
+@router.put('/ai-pricing/evidence')
+async def save_ai_pricing_evidence(payload: AIPricingEvidenceRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Save an approved pricing document chunk for deterministic manual RAG."""
+    from shared.ai_pricing import _number
+    if not payload.source_url.startswith(('https://', 'http://')):
+        raise HTTPException(422, 'source_url must be an http(s) URL')
+    row = payload.model_dump()
+    for key in ('input_per_million', 'output_per_million', 'gpu_per_hour'):
+        _number(row[key], key)
+    row.update(provider=row['provider'].strip().lower(), model=row['model'].strip(),
+               updated_at=datetime.now(timezone.utc), approved=bool(row['approved']))
+    await db['ai_pricing_evidence'].update_one(
+        {'provider': row['provider'], 'model': row['model'], 'source_url': row['source_url']},
+        {'$set': row}, upsert=True)
+    return {'status': 'saved', 'source': 'manual_rag_approved', 'provider': row['provider'], 'model': row['model']}
+
+
+class LabPricingCatalogRequest(BaseModel):
+    cloud_provider: str
+    cloud_region: str
+    selections: Dict[str, Dict[str, Any]]
+
+
+def _pricing_catalog_key(provider: str, region: str) -> tuple[str, str]:
+    checked = validate_lab_cost_inputs({
+        "cloud_provider": provider,
+        "cloud_region": region,
+        "hours_per_day": 1,
+        "participant_count": 1,
+        "fx_rate": 1,
+    })
+    return checked["cloud_provider"], checked["cloud_region"]
 
 
 def _lab_cost_delivery_summary(requirement: Dict[str, Any], log: Dict[str, Any], workbook: Dict[str, Any]) -> Dict[str, Any]:
@@ -113,6 +171,72 @@ async def list_client_lab_cost_deliveries(db: AsyncIOMotorDatabase = Depends(get
     return {"items": items, "total": len(items)}
 
 
+@router.get("/lab-cost/pricing-catalog/{cloud_provider}/{cloud_region}")
+async def get_lab_pricing_catalog(
+    cloud_provider: str,
+    cloud_region: str,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Return resource selectors; live prices are fetched only when quoting."""
+    try:
+        provider, region = _pricing_catalog_key(cloud_provider, cloud_region)
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(422, str(exc)) from exc
+    catalog = await db["lab_pricing_catalogs"].find_one(
+        {"provider": provider, "region": region}, {"_id": 0}
+    )
+    if not catalog:
+        raise HTTPException(404, "No live-pricing catalog configured for this provider and region")
+    return catalog
+
+
+@router.put("/lab-cost/pricing-catalog")
+async def save_lab_pricing_catalog(
+    payload: LabPricingCatalogRequest,
+    db: AsyncIOMotorDatabase = Depends(get_db),
+):
+    """Verify every selector against current public pricing before saving it."""
+    try:
+        provider, region = _pricing_catalog_key(payload.cloud_provider, payload.cloud_region)
+        from shared.live_lab_pricing import refresh_rates
+        from starlette.concurrency import run_in_threadpool
+        snapshot = await run_in_threadpool(refresh_rates, {
+            "cloud_provider": provider,
+            "cloud_region": region,
+            "hours_per_day": 1,
+            "participant_count": 1,
+            "fx_rate": 1,
+            "quote_validity_days": 7,
+            "pricing_selections": payload.selections,
+        })
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except Exception as exc:
+        logger.exception("Lab pricing catalog validation failed")
+        raise HTTPException(503, "Provider prices could not verify this catalog") from exc
+    now = datetime.now(timezone.utc)
+    document = {
+        "provider": provider,
+        "region": region,
+        "selections": payload.selections,
+        "validated_at": now,
+        "validation_snapshot": {
+            name: {key: row[key] for key in ("sku", "dimension", "unit", "source", "effective_date")}
+            for name, row in snapshot["rate_card_overrides"].items()
+        },
+        "updated_at": now,
+    }
+    await db["lab_pricing_catalogs"].update_one(
+        {"provider": provider, "region": region}, {"$set": document}, upsert=True
+    )
+    return {
+        "provider": provider,
+        "region": region,
+        "validated_at": now,
+        "resources": document["validation_snapshot"],
+    }
+
+
 @router.get("/lab-cost/client-deliveries/{email_id}/download")
 async def download_client_lab_cost_delivery(email_id: str, db: AsyncIOMotorDatabase = Depends(get_db)):
     """Download the same lab-cost workbook that was attached to the sent mail."""
@@ -141,7 +265,7 @@ class AutoGenerateRequest(BaseModel):
     # Omit the duration to inherit it from the requirement.  A default of
     # three silently overrode real requirement durations in auto-generation.
     duration_days: Optional[float] = None
-    level: Optional[str] = "intermediate"
+    level: Optional[str] = None
 
 
 LEVEL_KEYS = (
@@ -624,19 +748,19 @@ async def auto_generate_toc(payload: AutoGenerateRequest, db: AsyncIOMotorDataba
     toc_req = TocRequest(
         domain=domain,
         duration_days=duration,
-        level=payload.level or "intermediate",
+        level=payload.level or req.get("level") or req.get("audience_level") or req.get("participant_level") or "intermediate",
         requirement_id=payload.requirement_id,
         mode=req.get("mode") or "Online",
         audience_level=req.get("audience_level") or req.get("participant_level") or "",
         training_dates=training_dates,
         timing=req.get("timing") or req.get("session_timing") or "",
         generation_mode=generation_mode,
-        hours_per_day=float(req.get("hours_per_day") or req.get("lab_hours_per_day") or 3),
+        hours_per_day=float(req["hours_per_day"]) if req.get("hours_per_day") else None,
         participant_count=int(req.get("participant_count") or req.get("participants") or 1),
-        custom_topics="; ".join(str(value).strip() for value in (
+        custom_topics="; ".join(str(item).strip() for value in (
             req.get("technology_needed"), req.get("domain"), req.get("skills"),
-            req.get("required_skills"), req.get("requested_topics"),
-        ) if value),
+            req.get("required_skills"), req.get("requested_topics"), req.get("topics"), req.get("custom_topics"),
+        ) if value for item in (value if isinstance(value, list) else [value]) if str(item).strip()),
         client_notes=str(req.get("client_notes") or req.get("notes") or req.get("description") or "").strip(),
     )
     result = await generate_toc(toc_req, db)
@@ -697,6 +821,10 @@ async def generate_toc_pdf(payload: TocIdRequest, db: AsyncIOMotorDatabase = Dep
         toc = _with_toc_metadata(doc["toc"], doc)
 
     title = toc.get("title", "Training Programme")
+    from shared.toc_quality import toc_delivery_error
+    error = toc_delivery_error(toc)
+    if error:
+        raise HTTPException(422, error)
     html = build_toc_html(toc)
 
     try:
@@ -743,6 +871,10 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
             raise HTTPException(404, f"TOC not found: {payload.toc_id}")
         toc = _with_toc_metadata(doc["toc"], doc)
 
+    try:
+        validate_lab_cost_inputs(payload.model_dump())
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(422, str(exc)) from exc
     provider = payload.cloud_provider.lower()
     if provider not in {"aws", "azure", "gcp"}:
         raise HTTPException(422, "cloud_provider must be aws, azure, or gcp")
@@ -754,14 +886,40 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
         raise HTTPException(422, "contingency_percent and tax_percent must be between 0 and 100")
     if not 0 <= payload.clahan_margin_percent <= 100:
         raise HTTPException(422, "clahan_margin_percent must be between 0 and 100")
-    if payload.lab_support_per_participant < 0 or payload.quote_validity_days < 1:
+    if (payload.lab_support_per_participant is not None and payload.lab_support_per_participant < 0) or payload.quote_validity_days < 1:
         raise HTTPException(422, "lab_support_per_participant must be non-negative and quote_validity_days must be positive")
     package = payload.lab_package.strip().lower()
     if package not in {"basic", "standard", "advanced"}:
         raise HTTPException(422, "lab_package must be basic, standard, or advanced")
 
+    issued_at = datetime.now(timezone.utc)
+    resource_mapping = payload.lab_day_mapping
+    if payload.lab_generation_mode is not None:
+        from shared.lab_planning import plan_resources
+        try:
+            if payload.lab_generation_mode == 'ai':
+                from openai import AsyncOpenAI
+                async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY) as planner:
+                    resource_mapping = await plan_resources(
+                        'ai', toc, payload.model_dump(), planner, settings.OPENAI_MODEL)
+            else:
+                resource_mapping = await plan_resources(
+                    payload.lab_generation_mode, toc, payload.model_dump())
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+    quote_id = f"LCQ-{uuid.uuid4().hex[:12].upper()}"
+    checked_at = payload.rate_checked_at or issued_at.isoformat()
+    valid_until = issued_at + timedelta(days=payload.quote_validity_days)
+    has_live_vm_rates = bool(
+        payload.vm_profile_rates
+        and payload.vm_profile_sources
+        and all(payload.vm_profile_rates.get(profile) is not None for profile in ("Light", "Heavy"))
+        and all(payload.vm_profile_sources.get(profile) for profile in ("Light", "Heavy"))
+    )
+    pricing_status = "live_sku_rates_supplied" if has_live_vm_rates else "template_fallback_review_required"
+
     try:
-        async with httpx.AsyncClient(timeout=60) as client:
+        async with httpx.AsyncClient(timeout=300) as client:
             response = await client.post(
                 f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost",
                 json={
@@ -784,17 +942,61 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                         "build_minutes": payload.build_minutes,
                         "monitoring_gb": payload.monitoring_gb,
                         "k8s_worker_nodes": payload.k8s_worker_nodes,
+                        "rate_card_overrides": payload.rate_card_overrides,
+                        "vm_profile_rates": payload.vm_profile_rates,
+                        "vm_profile_sources": payload.vm_profile_sources,
+                        "rate_snapshot_id": quote_id,
+                        "rate_snapshot_source": payload.rate_snapshot_source or "",
+                        "rate_checked_at": checked_at,
+                        "quote_valid_until": valid_until.isoformat(),
+                        "price_change_review_threshold_percent": payload.price_change_review_threshold_percent,
+                        "pricing_status": pricing_status,
+                        "pricing_selections": payload.pricing_selections,
+                        "ai_usage": payload.ai_usage,
+                        "lab_generation_mode": payload.lab_generation_mode,
+                        "lab_day_mapping": resource_mapping,
                     },
                 },
             )
         if response.status_code >= 400:
             raise HTTPException(502, f"Document service error: {response.text[:200]}")
+        quote_id = response.headers['X-Lab-Cost-Quote-ID']
+        valid_until = datetime.fromisoformat(response.headers['X-Lab-Cost-Quote-Valid-Until'])
+        pricing_status = response.headers['X-Lab-Cost-Pricing-Status']
         domain = _slugify_domain(str(toc.get("domain") or toc.get("title") or "training"))
         filename = f"{domain}_{provider}_lab_cost.xlsx"
+        await db["lab_cost_quotes"].insert_one({
+            "quote_id": quote_id,
+            "created_at": issued_at,
+            "quote_valid_until": valid_until,
+            "pricing_status": pricing_status,
+            "submitted_rate_inputs_unverified": {
+                "provider": provider,
+                "region": payload.cloud_region,
+                "source": payload.rate_snapshot_source or "",
+                "checked_at": checked_at,
+                "review_threshold_percent": payload.price_change_review_threshold_percent,
+                "rate_card_overrides": payload.rate_card_overrides or {},
+                "vm_profile_rates": payload.vm_profile_rates or {},
+                "vm_profile_sources": payload.vm_profile_sources or {},
+            },
+                "scope": {
+                "domain": toc.get("domain") or toc.get("title"),
+                "duration_days": len(toc.get("days") or []),
+                "participant_count": payload.participant_count,
+                    "hours_per_day": payload.hours_per_day,
+                    "ai_usage": payload.ai_usage or {},
+            },
+            "workbook_filename": filename,
+        })
         return Response(
             content=response.content,
             media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            headers={"Content-Disposition": f"attachment; filename={filename}"},
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}",
+                "X-Lab-Cost-Quote-ID": quote_id,
+                "X-Lab-Cost-Quote-Valid-Until": valid_until.isoformat(),
+            },
         )
     except HTTPException:
         raise
@@ -841,6 +1043,8 @@ async def send_toc_email(payload: TocEmailRequest, db: AsyncIOMotorDatabase = De
         raise HTTPException(400, "to_email is required")
 
     title = toc.get("title", "Training Programme TOC")
+    if (toc.get("quality") or {}).get("status") in {"requires_regeneration", "requires_review"}:
+        raise HTTPException(422, "TOC requires review before delivery; resolve its quality warnings first")
     body = payload.body or (
         f"Dear {trainer_name},\n\n"
         f"Please find attached the Table of Contents workbook for {title}.\n\n"
@@ -865,6 +1069,9 @@ async def send_toc_email(payload: TocEmailRequest, db: AsyncIOMotorDatabase = De
                 }]
         except Exception:
             logger.exception("Failed to generate TOC Excel workbook for email attachment")
+
+        if not attachment_payload:
+            raise HTTPException(502, "TOC workbook generation failed; email was not sent")
 
         async with httpx.AsyncClient(timeout=30) as client:
             email_json = {

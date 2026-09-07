@@ -119,7 +119,8 @@ def _load_oauth_service():
         from google.oauth2.credentials import Credentials
         from googleapiclient.discovery import build
 
-        creds = Credentials.from_authorized_user_file(token_file, GMAIL_SCOPES)
+        # Preserve all granted scopes when refreshing the shared Gmail/Calendar token.
+        creds = Credentials.from_authorized_user_file(token_file)
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(GoogleAuthRequest())
             with open(token_file, "w", encoding="utf-8") as f:

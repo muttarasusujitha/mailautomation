@@ -26,13 +26,15 @@ class _Database:
             "trainer_logistics_queries": _Collection({
                 "query_id": "LQ-001",
                 "requirement_id": "REQ-001",
+                "trainer_id": "TR-001",
                 "trainer_name": "Asha",
                 "trainer_email": "asha@example.com",
                 "client_email": "client@example.com",
                 "clarification_subject": "Travel / Stay Clarification Required - DevOps",
                 "status": "client_asked",
             }),
-            "requirements": _Collection({"requirement_id": "REQ-001", "batch_flow": "proposal"}),
+            "requirements": _Collection({"requirement_id": "REQ-001", "batch_flow": "proposal", "client_email": "client@example.com"}),
+            "shortlists": _Collection({"top_trainers": [{"trainer_id": "TR-001", "email": "asha@example.com"}]}),
         }
 
     def __getitem__(self, name):

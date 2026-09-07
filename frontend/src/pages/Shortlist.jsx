@@ -938,6 +938,7 @@ async function sendSlotsToClient({ trainer, req, slotText = '', clientEmail = ''
     ),
     client_email: clientEmail,
     client_name: clientName,
+    approved: true,
   })
   return res.data
 }
@@ -1372,10 +1373,11 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
     toc_type: 'standard',
     custom_topics: '',
     client_notes: req?.client_notes || req?.job_description || req?.description || req?.content_scope || '',
-    cloud_provider: 'aws',
-    lab_hours_per_day: req?.hours_per_day || 3,
-    participant_count: req?.participant_count || req?.participants || req?.batch_size || 1,
-    fx_rate: 84,
+    cloud_provider: req?.cloud_provider || '',
+    cloud_region: req?.cloud_region || '',
+    lab_hours_per_day: req?.lab_hours_per_day || '',
+    participant_count: req?.participant_count || req?.participants || req?.batch_size || '',
+    fx_rate: req?.fx_rate || '',
   })
   const [tocId, setTocId] = useState('')
   const [tocData, setTocData] = useState(null)
@@ -1458,6 +1460,7 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
       const res = await api.post('/toc/generate-lab-cost', {
         toc_id: tocId,
         cloud_provider: form.cloud_provider,
+        cloud_region: form.cloud_region,
         hours_per_day: Number(form.lab_hours_per_day),
         participant_count: Number(form.participant_count),
         fx_rate: Number(form.fx_rate),
@@ -1588,13 +1591,21 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="label">Cloud</label>
-                    <select className="input" value={form.cloud_provider} onChange={e => updateCost('cloud_provider', e.target.value)}>
+                    <select className="input" value={form.cloud_provider} onChange={e => { updateCost('cloud_provider', e.target.value); updateCost('cloud_region', '') }}>
+                      <option value="">Confirm provider</option>
                       <option value="aws">AWS</option>
                       <option value="azure">Azure</option>
                       <option value="gcp">GCP</option>
                     </select>
                   </div>
                   <div>
+                    <label className="label">Cloud region</label>
+                    <select className="input" value={form.cloud_region} onChange={e => updateCost('cloud_region', e.target.value)}>
+                      <option value="">Confirm region</option>
+                      {form.cloud_provider === 'aws' && <option value="ap-south-1">Mumbai</option>}
+                      {form.cloud_provider === 'azure' && <option value="central-india">Central India</option>}
+                      {form.cloud_provider === 'gcp' && <option value="asia-south1">Mumbai</option>}
+                    </select>
                     <label className="label">Lab Hrs/Day</label>
                     <input type="number" min="0.5" step="0.5" className="input" value={form.lab_hours_per_day}
                       onChange={e => updateCost('lab_hours_per_day', e.target.value)} />
@@ -2292,14 +2303,11 @@ function PipelineProgressSummary({ stage, state, req, trainer }) {
   }
   const clientEmailSaved = Boolean(req?.client_email)
   const slotStatus = String(trainer?.slot_status || '').toLowerCase()
-  const backendHandoffKnown = Boolean(trainer && (
-    Object.prototype.hasOwnProperty.call(trainer, 'client_slots_sent') ||
-    Object.prototype.hasOwnProperty.call(trainer, 'client_slots_email_id') ||
-    Object.prototype.hasOwnProperty.call(trainer, 'slot_status')
-  ))
-  const clientSlotsSent = backendHandoffKnown
-    ? Boolean(trainer?.client_slots_sent && trainer?.client_slots_email_id && slotStatus === 'sent_to_client')
-    : Boolean(state?.clientSlotsSentAt)
+  // Do not infer delivery from local optimistic state. The API must persist
+  // the sent flag, email id, and sent_to_client status before showing done.
+  const clientSlotsSent = Boolean(
+    trainer?.client_slots_sent && trainer?.client_slots_email_id && slotStatus === 'sent_to_client'
+  )
   const clientHandoffRetryPending = !clientSlotsSent && (
     slotStatus === 'client_handoff_retry_pending' ||
     slotStatus === 'client_slot_send_failed' ||
@@ -3523,7 +3531,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       }
 
       const sent = await sendSlotsToClient({ trainer, req, slotText: text, clientEmail, clientName })
-      if (sent?.success === false) throw new Error(sent.error || 'Client slot email failed')
+      if (!sent?.success || !sent?.email_id) throw new Error(sent?.error || 'Client slot email was not confirmed as delivered')
 
       setClientEmailRequest(null)
       toast.success(sent?.already_sent ? 'Slots already sent to client' : 'Trainer slots sent to client')

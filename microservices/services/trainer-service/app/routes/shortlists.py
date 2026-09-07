@@ -324,7 +324,8 @@ def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
     days = _safe_int(requirement.get("duration_days"), 0) or _safe_int(requirement.get("commercial_working_days"), 0)
     if requirement.get("budget_total") not in (None, "", []):
         total_client_amount = _safe_float(requirement.get("budget_total"))
-        daily_client_amount = total_client_amount / days if days else 0.0
+        if total_client_amount:
+            return f"INR {_trainer_visible_commercial_amount(total_client_amount * DEFAULT_TRAINER_SHARE):,} total commercial, inclusive of applicable TDS"
     if not daily_client_amount:
         daily_client_amount = _safe_float(
             requirement.get("client_budget_per_day") or requirement.get("budget_per_day"),
@@ -1758,6 +1759,11 @@ def _dated_slot_option_count(slot_text: Any, structured_slots: Optional[List[Dic
     time_pattern = re.compile(r"\b\d{1,2}(?::\d{2})?\s*(?:am|pm)\b", flags=re.IGNORECASE)
     chunks = [part.strip() for part in re.split(r"[\r\n;]+", _clean(slot_text)) if part.strip()]
     return sum(1 for chunk in chunks if date_pattern.search(chunk) and time_pattern.search(chunk))
+
+
+def _format_client_slot_lines(slot_text: str) -> str:
+    lines = [line.strip().strip("*").strip() for line in str(slot_text or "").splitlines() if line.strip()]
+    return "\n".join(f"*{line}*" for line in lines)
 
 
 async def _build_toc(requirement: Dict[str, Any], trainer: Dict[str, Any], db: AsyncIOMotorDatabase) -> Optional[Dict[str, Any]]:
@@ -3312,6 +3318,7 @@ async def send_client_slots(
     slot_count = _dated_slot_option_count(slots_text, payload.slots)
     if slot_count != 3:
         raise HTTPException(400, "Exactly three dated trainer interview slots are required before sending to the client")
+    formatted_slots_text = _format_client_slot_lines(slots_text)
 
     # Client handoff is always idempotent. Extra request fields cannot bypass it.
     existing = await db["email_logs"].find_one(
@@ -3377,8 +3384,12 @@ async def send_client_slots(
     client_name = _clean(payload.client_name or req.get("client_name") or req.get("client_company")) or "Client"
     attachments: List[Dict[str, str]] = []
     wants_profile, wants_toc, wants_lab_cost = _requested_client_attachments(req)
-    client_toc_supplied = _has_client_supplied_toc(req)
+    # A valid three-slot reply triggers one complete client handoff.  These
+    # core documents are mandatory for that automated delivery, irrespective
+    # of whether the original client request named each attachment explicitly.
     wants_profile = True
+    wants_lab_cost = True
+    client_toc_supplied = _has_client_supplied_toc(req)
     profile_pdf = None
     if wants_profile:
         submitted_resume = await db["resume_uploads"].find_one(
@@ -3417,6 +3428,8 @@ async def send_client_slots(
             "content_base64": base64.b64encode(profile_pdf).decode(),
             "subtype": "pdf",
         })
+    else:
+        raise HTTPException(502, "Could not generate the required trainer profile for the client handoff")
 
     # Client handoff always includes the training ToC together with the
     # trainer profile and exactly three slots.  Where the client supplied a
@@ -3456,10 +3469,8 @@ async def send_client_slots(
         })
 
     lab_cost_attachment: Optional[bytes] = None
-    # Automated client handoff sends the agreed lab-cost input summary only.
-    # The same workbook is generated manually from the Lab Cost page after
-    # commercial review, so AI automation never attaches a provisional file.
-    if AUTO_ATTACH_LAB_COST_WORKBOOK and wants_lab_cost and toc_data and (not client_toc_supplied or client_toc_topics):
+    # Every automated client handoff includes the lab-cost workbook.
+    if AUTO_ATTACH_LAB_COST_WORKBOOK and wants_lab_cost and toc_data:
         try:
             participant_count = _safe_int(req.get("participant_count") or req.get("participants"), 1) or 1
             hours_per_day = _safe_float(req.get("hours_per_day") or req.get("lab_hours_per_day") or req.get("training_hours_per_day"), 3) or 3
@@ -3471,6 +3482,8 @@ async def send_client_slots(
                         "toc": toc_data,
                         "assumptions": {
                             "cloud_provider": _clean(req.get("cloud_provider") or "aws").lower(),
+                            "cloud_region": _clean(req.get("cloud_region") or "ap-south-1"),
+                            "fx_rate": _safe_float(req.get("fx_rate"), 84) or 84,
                             "hours_per_day": hours_per_day,
                             "participant_count": max(1, participant_count),
                             "include_default_hour_options": False,
@@ -3489,6 +3502,15 @@ async def send_client_slots(
             "content_base64": base64.b64encode(lab_cost_attachment).decode(),
             "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         })
+    # Lab pricing depends on live provider rates and may be temporarily
+    # unavailable. Keep the client handoff deliverable instead of blocking the
+    # profile, ToC, and interview-slot email; disclose that the estimate will
+    # follow separately and keep the failure in the workflow logs.
+    elif wants_lab_cost:
+        logger.warning(
+            "Lab-cost workbook unavailable; continuing client handoff requirement=%s",
+            payload.requirement_id,
+        )
 
     trainer_details = _requested_trainer_details_for_client(
         req,
@@ -3503,7 +3525,7 @@ async def send_client_slots(
     proposal_commercial_section = _proposal_client_commercial_section(req)
     lab_cost_note = ""
     toc_note = "The training ToC is attached for your review together with the trainer profile and interview slots.\n\n"
-    if wants_lab_cost:
+    if wants_lab_cost and lab_cost_attachment:
         lab_cost_note = (
             ("The lab-cost estimate is attached and is based on the ToC you provided. " if client_toc_supplied else "The lab-cost estimate is attached. ")
             + "We will update the final quote once the cloud region, participant count, and access timings are confirmed.\n\n"
@@ -3522,7 +3544,7 @@ async def send_client_slots(
                 f"{proposal_commercial_section}"
                 f"{toc_note}"
                 "Available slots:\n"
-                f"{slots_text}\n\n"
+                f"{formatted_slots_text}\n\n"
                 f"{lab_cost_note}"
                 "Kindly confirm the preferred slot, and we will proceed with the meeting coordination.\n\n"
                 "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"

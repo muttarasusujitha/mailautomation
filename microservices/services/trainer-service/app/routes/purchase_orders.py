@@ -172,12 +172,16 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
     except Exception:
         logger.exception("Failed to generate PO PDF for attachment")
 
+    if not attachment_payload:
+        raise HTTPException(502, "PO PDF generation failed; no email was sent")
+
     try:
         email_json = {"to": payload.to_email, "subject": subject, "body": body}
         if attachment_payload:
             email_json["attachments"] = attachment_payload
         async with httpx.AsyncClient(timeout=30) as client:
-            await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=email_json)
+            response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=email_json)
+            response.raise_for_status()
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
 

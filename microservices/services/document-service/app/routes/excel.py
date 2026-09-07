@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Body, Depends, Response
+from fastapi import APIRouter, Body, Depends, HTTPException, Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
@@ -565,7 +565,11 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     if not LAB_COST_TEMPLATE_PATH.exists():
         raise FileNotFoundError(f"Lab Cost template is missing: {LAB_COST_TEMPLATE_PATH}")
 
-    values = assumptions or {}
+    from shared.lab_cost_inputs import validate_lab_cost_inputs, lab_resources
+    try:
+        values = validate_lab_cost_inputs(assumptions)
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(422, str(exc)) from exc
     provider = str(values.get("cloud_provider") or values.get("provider") or "aws").strip().lower()
     if provider not in {"aws", "azure", "gcp"}:
         provider = "aws"
@@ -638,7 +642,9 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     assumptions_ws["B14"] = as_positive_int("k8s_worker_nodes", 1)
     assumptions_ws["B15"] = as_number("fx_rate", 84, 0.01)
     assumptions_ws["B16"] = as_number("contingency_percent", 10, 0) / 100
-    assumptions_ws["B17"] = as_number("tax_percent", 0, 0) / 100
+    # India is the default billing context for the approved regional rate
+    # card. A caller may still supply a validated exemption/different rate.
+    assumptions_ws["B17"] = as_number("tax_percent", 18, 0) / 100
     package = str(values.get("lab_package") or "standard").strip().lower()
     assumptions_ws["B18"] = package.title() if package in {"basic", "standard", "advanced"} else "Standard"
     assumptions_ws["B19"] = as_positive_int("quote_validity_days", 7)
@@ -646,8 +652,8 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     # The supplied template owns the entire visual structure.  Replace only
     # its example mapping rows with one accurately mapped row per ToC day.
     mapping_ws = workbook["TOC Mapping"]
-    body_styles = [copy(mapping_ws.cell(4, column)._style) for column in range(1, 9)]
-    body_alignments = [copy(mapping_ws.cell(4, column).alignment) for column in range(1, 9)]
+    body_styles = [copy(mapping_ws.cell(4, min(column, 8))._style) for column in range(1, 10)]
+    body_alignments = [copy(mapping_ws.cell(4, min(column, 8)).alignment) for column in range(1, 10)]
     body_row_height = mapping_ws.row_dimensions[4].height
     note_title_style = copy(mapping_ws["A10"]._style)
     note_title_alignment = copy(mapping_ws["A10"].alignment)
@@ -658,24 +664,57 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         if merged_range in {str(item) for item in mapping_ws.merged_cells.ranges}:
             mapping_ws.unmerge_cells(merged_range)
     mapping_ws.delete_rows(4, mapping_ws.max_row - 3)
+    mapping_ws.cell(3, 9, "Active days")
+    mapping_ws.cell(3, 9)._style = copy(mapping_ws.cell(3, 8)._style)
+    mapping_ws.cell(3, 9).alignment = copy(mapping_ws.cell(3, 8).alignment)
+    mapping_ws.column_dimensions["I"].width = 13
+
+    # `lab_day_mapping` is the auditable hand-off from a trainer/client lab
+    # template. It may be keyed by 1-based day number or provided as a list.
+    # When supplied, exact template counts always override keyword inference.
+    supplied_mapping = values.get("lab_day_mapping") or {}
+
+    def template_mapping(day_number: int) -> Dict[str, Any]:
+        if isinstance(supplied_mapping, list):
+            item = supplied_mapping[day_number - 1] if day_number <= len(supplied_mapping) else {}
+        elif isinstance(supplied_mapping, dict):
+            item = supplied_mapping.get(day_number) or supplied_mapping.get(str(day_number)) or {}
+        else:
+            item = {}
+        return item if isinstance(item, dict) else {}
+
+    def mapped_quantity(mapping: Dict[str, Any], key: str, fallback: Any) -> Any:
+        value = mapping.get(key, fallback)
+        if isinstance(value, str) and value.startswith("="):
+            return value
+        try:
+            return max(0, int(value))
+        except (TypeError, ValueError):
+            return fallback
 
     for index, day in enumerate(days, 1):
         row = index + 3
         text = day_text(day)
-        k8s_needed = any(token in text for token in ("kubernetes", " k8s", "eks", "aks", "gke", "helm"))
-        database_needed = any(token in text for token in ("database", " rds", "azure sql", "cloud sql", "postgres", "mysql", "mongodb"))
-        storage_needed = any(token in text for token in ("s3", "blob storage", "object storage", "bucket"))
-        heavy_vm = any(token in text for token in ("docker", "terraform", "ansible", "jenkins", "ci/cd", "pipeline", "agentic ai", "llm"))
-        vm_needed = not k8s_needed or heavy_vm
+        resources = lab_resources(text)
+        template = template_mapping(index)
+        k8s_needed = resources["k8s"]
+        database_needed = resources["database"]
+        storage_needed = resources["storage"]
+        heavy_vm = resources["heavy"]
+        vm_needed = resources["vm"]
         row_values = [
             index,
             day_title(day, index),
-            "=Assumptions!$B$9" if vm_needed else 0,
-            "Heavy" if heavy_vm else ("Light" if vm_needed else "None"),
-            "=Assumptions!$B$9" if k8s_needed else 0,
-            "=Assumptions!$B$9*Assumptions!$B$14" if k8s_needed else 0,
-            "=Assumptions!$B$9" if database_needed else 0,
-            "=Assumptions!$B$9" if storage_needed else 0,
+            mapped_quantity(template, "vm_qty", "=Assumptions!$B$9" if vm_needed else 0),
+            str(template.get("vm_profile") or ("Heavy" if heavy_vm else ("Light" if vm_needed else "None"))).title(),
+            mapped_quantity(template, "k8s_control_plane", 1 if k8s_needed else 0),
+            # A managed cluster has a fixed worker count. Never multiply it
+            # by participants unless the supplied lab template explicitly does.
+            mapped_quantity(template, "k8s_worker_nodes", "=Assumptions!$B$14" if k8s_needed else 0),
+            # One managed database is billed per provisioned instance, not per learner.
+            mapped_quantity(template, "managed_db", 1 if database_needed else 0),
+            mapped_quantity(template, "object_storage_gb", "=Assumptions!$B$10" if storage_needed else 0),
+            mapped_quantity(template, "active_days", max(1, int(float(day.get("duration_days") or day.get("days") or 1)))),
         ]
         for column, value in enumerate(row_values, 1):
             cell = mapping_ws.cell(row, column, value)
@@ -686,28 +725,238 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     mapping_end_row = len(days) + 3
     mapping_table = mapping_ws.tables.get("TOCMappingTable")
     if mapping_table:
-        mapping_table.ref = f"A3:H{mapping_end_row}"
+        mapping_table.ref = f"A3:I{mapping_end_row}"
     note_title_row = mapping_end_row + 2
     note_body_row = note_title_row + 1
-    mapping_ws.merge_cells(start_row=note_title_row, start_column=1, end_row=note_title_row, end_column=8)
+    mapping_ws.merge_cells(start_row=note_title_row, start_column=1, end_row=note_title_row, end_column=9)
     mapping_ws.cell(note_title_row, 1, "Mapping note")
     mapping_ws.cell(note_title_row, 1)._style = note_title_style
     mapping_ws.cell(note_title_row, 1).alignment = note_title_alignment
-    mapping_ws.merge_cells(start_row=note_body_row, start_column=1, end_row=note_body_row + 1, end_column=8)
-    mapping_ws.cell(note_body_row, 1, note_text)
+    mapping_ws.merge_cells(start_row=note_body_row, start_column=1, end_row=note_body_row + 1, end_column=9)
+    mapping_ws.cell(note_body_row, 1, note_text + " VM Light and Heavy rows are billed separately from the Rate Card; active days prevent multi-day labs from being under-counted.")
     mapping_ws.cell(note_body_row, 1)._style = note_body_style
     mapping_ws.cell(note_body_row, 1).alignment = note_body_alignment
 
-    # Retain the approved billing-unit formulas.  Only the quantities are
-    # linked to the generated mapping, so one participant receives one lab
-    # environment/cluster when that technology requires it.
-    breakdown_ws = workbook["Resource Cost Breakdown"]
-    breakdown_ws["B4"] = f"=MAX('TOC Mapping'!$C$4:$C${mapping_end_row})"
-    breakdown_ws["B5"] = f"=MAX('TOC Mapping'!$E$4:$E${mapping_end_row})"
-    breakdown_ws["B6"] = f"=MAX('TOC Mapping'!$F$4:$F${mapping_end_row})"
-    breakdown_ws["B11"] = f"=MAX('TOC Mapping'!$G$4:$G${mapping_end_row})"
-    breakdown_ws["B8"] = f"=IF(MAX('TOC Mapping'!$H$4:$H${mapping_end_row})>0,Assumptions!$B$10,0)"
+    # Add selected-provider VM profile rows to the rate card. Consumers can
+    # supply current, SKU-specific values through vm_profile_rates; otherwise
+    # the workbook deliberately labels its template-rate fallback for review.
+    rate_ws = workbook["Rate Card"]
+    rate_end_row = rate_ws.max_row
+    # A quote may provide current, SKU-specific prices for the selected
+    # provider/region. Keep the amount, source URL, and verification date in
+    # the visible rate card rather than burying them in the export request.
+    rate_card_overrides = values.get("rate_card_overrides") or {}
+    if isinstance(rate_card_overrides, dict):
+        for row in range(4, rate_end_row + 1):
+            if rate_ws.cell(row, 1).value != provider_label or rate_ws.cell(row, 2).value != region_label:
+                continue
+            resource = str(rate_ws.cell(row, 3).value or "")
+            override = rate_card_overrides.get(resource) or rate_card_overrides.get(resource.lower())
+            if not isinstance(override, dict):
+                continue
+            if override.get("rate") is not None:
+                rate_ws.cell(row, 5, max(0, float(override["rate"])))
+            if override.get("source"):
+                rate_ws.cell(row, 7, str(override["source"]))
+            rate_ws.cell(row, 8, str(override.get("verified_date") or values.get("rate_card_verified_date") or datetime.now().date().isoformat()))
+            rate_ws.cell(row, 7).comment = openpyxl.comments.Comment(
+                str(override.get("note") or "Current rate supplied for this estimate"), "Codex"
+            )
+    selected_vm_row = next(
+        (row for row in range(4, rate_end_row + 1)
+         if rate_ws.cell(row, 1).value == provider_label and rate_ws.cell(row, 2).value == region_label
+         and rate_ws.cell(row, 3).value == "VM"),
+        None,
+    )
+    if selected_vm_row is None:
+        raise HTTPException(422, "A base VM rate is required for the selected provider/region")
+    profile_rates = values.get("vm_profile_rates") or {}
+    profile_sources = values.get("vm_profile_sources") or {}
+    verified_date = str(values.get("rate_card_verified_date") or datetime.now().date().isoformat())
+    base_rate = float(rate_ws.cell(selected_vm_row, 5).value or 0)
+    base_source = str(rate_ws.cell(selected_vm_row, 7).value or "")
+    profile_rate_rows: Dict[str, int] = {}
+    for profile in ("Light", "Heavy"):
+        profile_value = profile_rates.get(profile, profile_rates.get(profile.lower())) if isinstance(profile_rates, dict) else None
+        source_value = profile_sources.get(profile, profile_sources.get(profile.lower())) if isinstance(profile_sources, dict) else None
+        rate = base_rate if profile_value is None else float(profile_value)
+        source = str(source_value or base_source)
+        status = "live SKU rate supplied" if profile_value is not None and source_value else "template fallback — replace with current SKU rate before approval"
+        rate_end_row += 1
+        for column in range(1, 9):
+            rate_ws.cell(rate_end_row, column)._style = copy(rate_ws.cell(selected_vm_row, column)._style)
+            rate_ws.cell(rate_end_row, column).alignment = copy(rate_ws.cell(selected_vm_row, column).alignment)
+        rate_ws.cell(rate_end_row, 1, provider_label)
+        rate_ws.cell(rate_end_row, 2, region_label)
+        rate_ws.cell(rate_end_row, 3, f"VM {profile}")
+        rate_ws.cell(rate_end_row, 4, "per hour")
+        rate_ws.cell(rate_end_row, 5, rate)
+        rate_ws.cell(rate_end_row, 6, f"=E{rate_end_row}*'Assumptions'!$B$15")
+        rate_ws.cell(rate_end_row, 7, source)
+        rate_ws.cell(rate_end_row, 8, verified_date)
+        rate_ws.cell(rate_end_row, 7).comment = openpyxl.comments.Comment(status, "Codex")
+        profile_rate_rows[profile] = rate_end_row
+    for row in range(4, rate_end_row + 1):
+        resource = rate_ws.cell(row, 3).value
+        if resource not in {"VM Light", "VM Heavy"}:
+            rate_ws.cell(row, 6, f"=E{row}*'Assumptions'!$B$15")
 
+    # Billing is driven by resource-days in the mapping. This avoids the old
+    # peak-quantity approximation and makes every ToC line auditable.
+    breakdown_ws = workbook["Resource Cost Breakdown"]
+    mapping_ranges = {
+        "vm": f"'TOC Mapping'!$C$4:$C${mapping_end_row}",
+        "profile": f"'TOC Mapping'!$D$4:$D${mapping_end_row}",
+        "control": f"'TOC Mapping'!$E$4:$E${mapping_end_row}",
+        "worker": f"'TOC Mapping'!$F$4:$F${mapping_end_row}",
+        "database": f"'TOC Mapping'!$G$4:$G${mapping_end_row}",
+        "storage": f"'TOC Mapping'!$H$4:$H${mapping_end_row}",
+        "days": f"'TOC Mapping'!$I$4:$I${mapping_end_row}",
+    }
+    for cost_row, key in ((5, "control"), (6, "worker"), (11, "database")):
+        breakdown_ws[f"B{cost_row}"] = f"=SUMPRODUCT({mapping_ranges[key]},{mapping_ranges['days']})"
+        breakdown_ws[f"F{cost_row}"] = "='Assumptions'!$B$7"
+        breakdown_ws[f"H{cost_row}"] = f"=B{cost_row}*D{cost_row}*F{cost_row}"
+        breakdown_ws[f"G{cost_row}"] = "Resource-days × Rate × Hours/day"
+    breakdown_ws["A4"] = "VM (profiled)"
+    breakdown_ws["B4"] = f"=SUMPRODUCT({mapping_ranges['vm']},{mapping_ranges['days']})"
+    breakdown_ws["F4"] = "='Assumptions'!$B$7"
+    breakdown_ws["G4"] = "Light/Heavy VM-days × respective rate × Hours/day"
+    breakdown_ws["H4"] = (
+        f"=(SUMPRODUCT({mapping_ranges['vm']},{mapping_ranges['days']},--({mapping_ranges['profile']}=\"Light\"))*"
+        f"'Rate Card'!$F${profile_rate_rows['Light']}+SUMPRODUCT({mapping_ranges['vm']},{mapping_ranges['days']},--({mapping_ranges['profile']}=\"Heavy\"))*"
+        f"'Rate Card'!$F${profile_rate_rows['Heavy']})*'Assumptions'!$B$7"
+    )
+    # Disk is driven by nodes and an explicit GB-per-node assumption, never
+    # by participant count. A per-day template mapping can override the node
+    # quantities above before this formula is evaluated.
+    assumptions_ws["A20"] = "Disk GB per VM / worker node"
+    assumptions_ws["B20"] = as_number("disk_gb_per_node", 20, 0)
+    assumptions_ws["C20"] = "GB"
+    assumptions_ws["D20"] = "Explicit sizing assumption; replace with lab-template node sizing when supplied"
+    for column in range(1, 5):
+        assumptions_ws.cell(20, column)._style = copy(assumptions_ws.cell(19, column)._style)
+    breakdown_ws["B7"] = f"=SUMPRODUCT(({mapping_ranges['vm']}+{mapping_ranges['worker']}),{mapping_ranges['days']})*'Assumptions'!$B$20"
+    breakdown_ws["F7"] = 1
+    breakdown_ws["G7"] = "GB-node-days × monthly rate / 30"
+    breakdown_ws["H7"] = "=B7*D7/30"
+    breakdown_ws["B8"] = f"=SUMPRODUCT({mapping_ranges['storage']},{mapping_ranges['days']})"
+    breakdown_ws["F8"] = 1
+    breakdown_ws["G8"] = "GB-days × monthly rate / 30"
+    breakdown_ws["H8"] = "=B8*D8/30"
+
+    support = as_number("lab_support_per_participant_day", values.get("lab_support_per_participant") or 0, 0)
+    assumptions_ws["A21"] = "Applied support rate (INR / participant-day)"
+    assumptions_ws["B21"] = "=IF(B23=\"Basic\",B24,IF(B23=\"Standard\",B25,B26))"
+    assumptions_ws["C21"] = "INR / participant-day"
+    assumptions_ws["D21"] = "Formula selects the applied support tier; total scales with participants and training days"
+    for column in range(1, 5):
+        assumptions_ws.cell(21, column)._style = copy(assumptions_ws.cell(19, column)._style)
+    assumptions_ws["A22"] = "Advanced support threshold"
+    assumptions_ws["B22"] = as_positive_int("advanced_support_threshold_participant_days", 400)
+    assumptions_ws["C22"] = "participant-days"
+    assumptions_ws["D22"] = "At or above this engagement size, Standard is automatically quoted as Advanced support"
+    assumptions_ws["A23"] = "Applied support tier"
+    assumptions_ws["B23"] = "=IF(B9*B8>=B22,\"Advanced\",B18)"
+    assumptions_ws["C23"] = "tier"
+    assumptions_ws["D23"] = "Uses participant count × training days"
+    assumptions_ws["A24"] = "Basic support rate"
+    assumptions_ws["B24"] = as_number("basic_support_per_participant_day", 0, 0)
+    assumptions_ws["C24"] = "INR / participant-day"
+    assumptions_ws["D24"] = "Editable commercial rate"
+    assumptions_ws["A25"] = "Standard support rate"
+    assumptions_ws["B25"] = support
+    assumptions_ws["C25"] = "INR / participant-day"
+    assumptions_ws["D25"] = "Editable commercial rate"
+    assumptions_ws["A26"] = "Advanced support rate"
+    assumptions_ws["B26"] = as_number("advanced_support_per_participant_day", support, 0)
+    assumptions_ws["C26"] = "INR / participant-day"
+    assumptions_ws["D26"] = "Editable commercial rate"
+    profile_is_live = bool(isinstance(profile_rates, dict) and profile_rates.get("Light", profile_rates.get("light")) is not None and profile_rates.get("Heavy", profile_rates.get("heavy")) is not None and isinstance(profile_sources, dict))
+    assumptions_ws["A27"] = "VM profile pricing status"
+    assumptions_ws["B27"] = "Live profile rates supplied" if profile_is_live else "Template fallback — approval blocked"
+    assumptions_ws["C27"] = verified_date
+    assumptions_ws["D27"] = "Enter vm_profile_rates and vm_profile_sources with current provider URLs before final client approval"
+    for row in range(22, 28):
+        for column in range(1, 5):
+            assumptions_ws.cell(row, column)._style = copy(assumptions_ws.cell(19, column)._style)
+    # Quote provenance belongs in the workbook as well as the service audit
+    # record. This makes a downloaded file independently reviewable months
+    # later, even after a provider updates its public price list.
+    provenance_rows = [
+        ("Rate snapshot ID", values.get("rate_snapshot_id") or "Not recorded", "audit ID", "Use this ID to retrieve the rate snapshot and calculation record"),
+        ("Pricing status", values.get("pricing_status") or "template_fallback_review_required", "status", "Live SKU rates and official source URLs are required before final client approval"),
+        ("Rate source", values.get("rate_snapshot_source") or "Not supplied", "URL", "Official provider pricing page or approved pricing-export URL"),
+        ("Rates checked at (UTC)", values.get("rate_checked_at") or "Not recorded", "timestamp", "Rate snapshot timestamp"),
+        ("Quote valid until (UTC)", values.get("quote_valid_until") or "Not recorded", "timestamp", "Recalculate from current rates after this time"),
+        ("Price-change review threshold", as_number("price_change_review_threshold_percent", 5, 0), "%", "Escalate for review when refreshed pricing changes beyond this threshold"),
+    ]
+    for row, values_row in enumerate(provenance_rows, start=28):
+        for column, value in enumerate(values_row, start=1):
+            assumptions_ws.cell(row, column, value)
+            assumptions_ws.cell(row, column)._style = copy(assumptions_ws.cell(19, column)._style)
+    workbook["Client Estimate"]["B9"] = "='Assumptions'!B21*'Assumptions'!B9*'Assumptions'!B8"
+    workbook["Client Estimate"]["A17"] = (
+        "Infrastructure is calculated from per-day resource counts, active days, VM profile rates, and storage/node sizing. "
+        "India GST defaults to 18%. VM profile rate rows marked as template fallback must be replaced with a current provider SKU rate and URL before client approval."
+    )
+
+    if values.get('price_changes'):
+        audit_ws = workbook.create_sheet('Live Price Check')
+        audit_ws.append(['Resource', 'SKU', 'Billing dimension', 'Unit', 'USD rate',
+                         'Region', 'Source', 'Checked at', 'Previous USD rate',
+                         'Change %', 'Review required'])
+        for change in values['price_changes']:
+            rate = values['rate_card_overrides'][change['resource']]
+            audit_ws.append([change['resource'], rate['sku'], rate['dimension'],
+                rate['unit'], rate['rate'], region_label, rate['source'],
+                values['rate_checked_at'], change['previous'], change['change_percent'],
+                'Yes' if change['review_required'] else 'No'])
+        audit_ws.freeze_panes = 'A2'
+        audit_ws.auto_filter.ref = audit_ws.dimensions
+        for col in 'ABCDEFGHIJK':
+            audit_ws.column_dimensions[col].width = 26
+        audit_ws.column_dimensions['G'].width = 65
+        workbook['Client Estimate']['A17'] = (
+            'Fresh public retail rates checked: ' + values['rate_checked_at']
+            + '. Valid until: ' + values['quote_valid_until']
+            + '. Price-change review: ' + ('required' if any(c['review_required'] for c in values['price_changes']) else 'not triggered')
+            + '. See Live Price Check. Account discounts and future usage may differ.'
+        )
+    ai_cost = values.get('ai_cost')
+    if ai_cost:
+        ai_ws = workbook.create_sheet('AI Cost Evidence')
+        ai_ws.append(['Field', 'Value'])
+        usage = ai_cost.get('usage', {})
+        rows = [
+            ('Status', ai_cost.get('status')), ('Provider', usage.get('provider')),
+            ('Model', usage.get('model')), ('Input tokens', usage.get('input_tokens')),
+            ('Output tokens', usage.get('output_tokens')), ('GPU hours', usage.get('gpu_hours')),
+            ('Input USD / 1M tokens', ai_cost.get('input_per_million')),
+            ('Output USD / 1M tokens', ai_cost.get('output_per_million')),
+            ('GPU USD / hour', ai_cost.get('gpu_per_hour')),
+            ('Total AI cost (USD)', ai_cost.get('total_usd')),
+            ('Evidence source', ai_cost.get('source_url')),
+            ('Evidence title', ai_cost.get('source_title')),
+            ('Effective date', ai_cost.get('effective_date')),
+            ('Retrieved at (UTC)', ai_cost.get('retrieved_at')),
+            ('Evidence excerpt', ai_cost.get('evidence_excerpt') or ai_cost.get('message')),
+        ]
+        for row in rows:
+            ai_ws.append(row)
+        ai_ws.freeze_panes = 'A2'
+        ai_ws.column_dimensions['A'].width = 28
+        ai_ws.column_dimensions['B'].width = 95
+        ai_ws['A1'].font = ai_ws['B1'].font = openpyxl.styles.Font(bold=True)
+    # openpyxl writes formulas but does not calculate them.  Ask Excel and
+    # compatible spreadsheet clients to rebuild the client-facing totals
+    # before showing cached values from the template.
+    from openpyxl.workbook.properties import CalcProperties
+
+    workbook.calculation = workbook.calculation or CalcProperties()
+    workbook.calculation.calcMode = "auto"
+    workbook.calculation.fullCalcOnLoad = True
+    workbook.calculation.forceFullCalc = True
     output = io.BytesIO()
     workbook.save(output)
     return output.getvalue()
@@ -1181,6 +1430,10 @@ def _lab_cost_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[str, Any]
 @router.post("/toc")
 async def export_toc_workbook(payload: Dict[str, Any] = Body(...)):
     toc = payload.get("toc") if isinstance(payload.get("toc"), dict) else payload
+    from shared.toc_quality import toc_delivery_error
+    error = toc_delivery_error(toc)
+    if error:
+        raise HTTPException(422, error)
     workbook = _toc_to_excel(toc)
     return Response(
         content=workbook,
@@ -1190,15 +1443,97 @@ async def export_toc_workbook(payload: Dict[str, Any] = Body(...)):
 
 
 @router.post("/toc/lab-cost")
-async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...)):
+async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=Depends(get_db)):
     toc = payload.get("toc") if isinstance(payload.get("toc"), dict) else payload
+    from shared.toc_quality import toc_delivery_error
+    error = toc_delivery_error(toc)
+    if error:
+        raise HTTPException(422, error)
     assumptions = payload.get("assumptions") if isinstance(payload.get("assumptions"), dict) else {}
+    from shared.lab_cost_inputs import validate_lab_cost_inputs
+    from shared.live_lab_pricing import refresh_rates, automatic_pricing_selections
+    from starlette.concurrency import run_in_threadpool
+    import hashlib
+    import json
+    ai_usage = assumptions.get('ai_usage')
+    try:
+        assumptions = dict(assumptions)
+        for key in ('rate_snapshot_id', 'rate_snapshot_source', 'rate_checked_at', 'quote_valid_until'):
+            assumptions.pop(key, None)
+        assumptions = validate_lab_cost_inputs(assumptions)
+        # Selections may be maintained centrally; never substitute stored rates.
+        if not assumptions.get('pricing_selections'):
+            config = await db['lab_pricing_catalogs'].find_one({
+                'provider': assumptions['cloud_provider'], 'region': assumptions['cloud_region'],
+            }, {'_id': 0})
+            assumptions['pricing_selections'] = (config or {}).get('selections', {})
+        if not assumptions.get('pricing_selections'):
+            assumptions['pricing_selections'] = automatic_pricing_selections(toc, assumptions)
+            assumptions['pricing_profile'] = 'automatic_baseline'
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(422, str(exc)) from exc
+    selection_key = hashlib.sha256(json.dumps({
+        'provider': assumptions['cloud_provider'], 'region': assumptions['cloud_region'],
+        'selections': assumptions['pricing_selections'],
+    }, sort_keys=True).encode()).hexdigest()
+    previous = await db['lab_cost_rate_snapshots'].find_one(
+        {'selection_key': selection_key}, sort=[('rate_checked_at', -1)])
+    try:
+        # This is always attempted first. A cached rate is only a resilience
+        # fallback when the public provider endpoint is unavailable.
+        assumptions = await run_in_threadpool(refresh_rates, assumptions)
+    except Exception as exc:
+        if (not previous or not previous.get('rates') or
+                any(rate.get('sku') == 'NOT_BILLED' for rate in previous['rates'].values())):
+            logger.exception('Provider price refresh failed and no verified cache exists')
+            raise HTTPException(503, 'Live pricing is temporarily unavailable and no verified cached rate exists yet') from exc
+        from uuid import uuid4
+        cached_assumptions = dict(previous.get('assumptions') or {})
+        assumptions['rate_card_overrides'] = previous['rates']
+        assumptions['vm_profile_rates'] = cached_assumptions.get('vm_profile_rates', {})
+        assumptions['vm_profile_sources'] = cached_assumptions.get('vm_profile_sources', {})
+        assumptions['rate_snapshot_id'] = 'LCQ-CACHED-' + uuid4().hex.upper()
+        assumptions['rate_checked_at'] = previous.get('rate_checked_at')
+        assumptions['rate_card_verified_date'] = previous.get('rate_checked_at')
+        assumptions['rate_snapshot_source'] = next(
+            (row.get('source') for row in previous['rates'].values() if row.get('source')), '')
+        assumptions['quote_valid_until'] = previous.get('quote_valid_until')
+        assumptions['pricing_status'] = 'cached_verified_public_retail_provider_unavailable'
+        assumptions['pricing_fallback_reason'] = str(exc)[:250]
+        logger.warning('Using cached verified lab prices after provider refresh failed: %s', exc)
+    if ai_usage:
+        from shared.ai_pricing import resolve_ai_cost
+        usage = ai_usage if isinstance(ai_usage, dict) else {}
+        evidence = await db['ai_pricing_evidence'].find(
+            {'provider': str(usage.get('provider') or '').lower()}, {'_id': 0}).to_list(100)
+        assumptions['ai_cost'] = resolve_ai_cost(usage, evidence)
+    changes = []
+    threshold = assumptions.get('price_change_review_threshold_percent', 5)
+    for name, rate in assumptions['rate_card_overrides'].items():
+        old = (previous or {}).get('rates', {}).get(name, {}).get('rate')
+        delta = None if old in (None, 0) else (rate['rate'] / old - 1) * 100
+        review = (old == 0 and rate['rate'] != 0) or (delta is not None and abs(delta) > threshold)
+        changes.append({'resource': name, 'previous': old, 'current': rate['rate'],
+                        'change_percent': delta, 'review_required': review})
+    assumptions['price_changes'] = changes
     workbook = _lab_cost_to_excel(toc, assumptions)
+    await db['lab_cost_rate_snapshots'].insert_one({
+        'quote_id': assumptions['rate_snapshot_id'], 'selection_key': selection_key,
+        'rate_checked_at': assumptions['rate_checked_at'],
+        'quote_valid_until': assumptions['quote_valid_until'],
+        'provider': assumptions['cloud_provider'], 'region': assumptions['cloud_region'],
+        'rates': assumptions['rate_card_overrides'], 'changes': changes,
+        'assumptions': assumptions, 'toc': toc,
+        'workbook_sha256': hashlib.sha256(workbook).hexdigest(),
+    })
     provider = str(assumptions.get("cloud_provider") or "aws").lower()
     return Response(
         content=workbook,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={provider}_lab_cost.xlsx"},
+        headers={"Content-Disposition": f"attachment; filename={provider}_lab_cost.xlsx",
+                 'X-Lab-Cost-Quote-ID': assumptions['rate_snapshot_id'],
+                 'X-Lab-Cost-Quote-Valid-Until': assumptions['quote_valid_until'],
+                 'X-Lab-Cost-Pricing-Status': assumptions['pricing_status']},
     )
 
 

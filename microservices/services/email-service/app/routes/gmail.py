@@ -82,7 +82,7 @@ def _load_creds(refresh_expired: bool = True):
     try:
         from google.auth.transport.requests import Request as GReq
         from google.oauth2.credentials import Credentials
-        creds = Credentials.from_authorized_user_file(tp, GMAIL_SCOPES)
+        creds = Credentials.from_authorized_user_file(tp)
         if refresh_expired and creds and creds.expired and creds.refresh_token:
             refresh_request = GReq()
             creds.refresh(lambda *args, **kwargs: refresh_request(*args, timeout=10, **kwargs))

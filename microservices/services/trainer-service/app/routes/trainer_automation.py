@@ -120,7 +120,8 @@ def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
     days = _safe_int(requirement.get("duration_days"), 0) or _safe_int(requirement.get("commercial_working_days"), 0)
     if requirement.get("budget_total") not in (None, "", []):
         total_client_amount = _safe_float(requirement.get("budget_total"))
-        daily_client_amount = total_client_amount / days if days else 0.0
+        if total_client_amount:
+            return f"INR {_round_commercial_amount(total_client_amount * DEFAULT_TRAINER_SHARE):,} total commercial, inclusive of applicable TDS"
     if not daily_client_amount:
         daily_client_amount = _safe_float(requirement.get("client_budget_per_day") or requirement.get("budget_per_day"))
         total_client_amount = daily_client_amount * days if daily_client_amount and days else total_client_amount

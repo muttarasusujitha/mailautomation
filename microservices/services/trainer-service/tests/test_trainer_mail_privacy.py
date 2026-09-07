@@ -32,6 +32,13 @@ def test_secondary_trainer_automation_hides_margin_formula():
     assert "client" not in commercial.lower()
 
 
+def test_total_budget_stays_total_for_short_duration_batches():
+    requirement = {**_requirement(), "duration_days": 10}
+
+    assert shortlists._trainer_mail1_commercial_text(requirement) == "INR 91,000 total commercial, inclusive of applicable TDS"
+    assert trainer_automation._trainer_mail1_commercial_text(requirement) == "INR 91,000 total commercial, inclusive of applicable TDS"
+
+
 def test_attachment_note_is_inserted_before_signature():
     body = "Hi Trainer,\n\nPlease review.\n\nRegards,\nClahan Technologies"
     result = shortlists._insert_before_signature(

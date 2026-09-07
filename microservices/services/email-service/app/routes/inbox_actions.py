@@ -283,7 +283,40 @@ async def create_requirement_from_inbox_email(
     doc = await db["client_emails"].find_one({"email_id": email_id}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Inbox email not found")
-    return {"success": True, **await _process_client_requirement_email(db, doc, force_new_requirement=True)}
+    # A client request can be accidentally linked to an older trainer thread
+    # when its sender address also appears in historical mail.  Creating the
+    # request must clear that stale trainer context, otherwise the client
+    # acknowledgement is (correctly) blocked as a trainer-thread reply.
+    extracted = doc.get("extracted") or {}
+    is_new_client_request = bool(
+        extracted.get("is_training_request")
+        or str(doc.get("office_mail_category") or "").lower() == "new_training_requirement"
+    )
+    if is_new_client_request:
+        await db["client_emails"].update_one(
+            {"email_id": email_id},
+            {"$set": {
+                "trainer_id": "",
+                "trainer_name": "",
+                "source_outbound_email_id": "",
+                "source_outbound_mail_type": "",
+                "updated_at": datetime.utcnow(),
+            }},
+        )
+        doc.update({
+            "trainer_id": "", "trainer_name": "",
+            "source_outbound_email_id": "", "source_outbound_mail_type": "",
+        })
+    # Restore a deleted source once.  A previous processing attempt may already
+    # have created its requirement, in which case reuse it instead of creating
+    # a duplicate.
+    # A standalone client requirement explicitly recreated from the inbox must
+    # not inherit a deleted trainer/client-slot thread's tombstone.
+    force_new = is_new_client_request or bool(
+        (doc.get("deleted") or doc.get("status") == "deleted" or doc.get("reply_status") == "deleted")
+        and not doc.get("requirement_id")
+    )
+    return {"success": True, **await _process_client_requirement_email(db, doc, force_new_requirement=force_new)}
 
 
 @router.delete("/{email_id}", status_code=204)
@@ -415,6 +448,10 @@ async def approve_inbox_reply(
             message_id_header = existing_sent_log.get("gmail_message_id") or existing_sent_log.get("message_id_header") or ""
         else:
             message_id_header = generate_message_id()
+            from app.recipient_guard import recipient_error
+            recipient_block = await recipient_error(db, to, doc.get("requirement_id"), doc.get("trainer_id"), "client_reply")
+            if recipient_block:
+                raise HTTPException(422, recipient_block)
             success, error = await send_email_async(
                 to=to,
                 subject=subject,

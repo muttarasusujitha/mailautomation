@@ -1869,9 +1869,11 @@ def _requirement_line_items(body: Any) -> List[Dict[str, str]]:
             category, automation = "trainer_profile", "attach_client_aligned_profile"
         elif re.search(r"\b(?:commercials?|budget|quote|quotation|price|charges?)\b", lower):
             category, automation = "commercials", "prepare_client_commercials"
+        elif re.search(r"\b(?:confirm|confirmed|confirmation)\b.{0,100}\b(?:program|training|batch|requirement)\b", lower):
+            category, automation = "batch_confirmation", "record_confirmed_batch"
         elif re.search(r"\b(?:dates?|schedule|timings?|duration|days?)\b", lower):
             category, automation = "training_schedule", "record_training_schedule"
-        elif re.search(r"\b(?:participant|learner|trainee|pax|batch\s+size)\b", lower):
+        elif re.search(r"\b(?:participants?|learners?|trainees?|pax|batch\s+size)\b", lower):
             category, automation = "participants", "record_participant_count"
         elif re.search(r"\b(?:certificate|certification)\b", lower):
             category, automation = "certification", "record_certification_requirement"
@@ -2800,6 +2802,39 @@ async def _send_missing_trainer_details_followup(
     if not requirement_id or not trainer_id:
         return {"success": False, "reason": "missing_requirement_or_trainer_link"}
 
+    # Mail 2 is trainer-only. Thread recovery can occasionally attach a client
+    # reply to an older trainer thread, so never trust the linked trainer_id by
+    # itself when choosing the recipient.
+    recipient_email = _email_address(email_doc.get("from_email") or email_doc.get("sender") or "")
+    trainer_email = _email_address(
+        trainer_state.get("email")
+        or trainer_state.get("trainer_email")
+        or trainer_state.get("email_address")
+        or ""
+    )
+    requirement_metadata = requirement.get("metadata") or {}
+    client_email = _email_address(
+        requirement.get("client_email")
+        or requirement.get("contact_email")
+        or requirement_metadata.get("client_email")
+        or requirement_metadata.get("sender_email")
+        or ""
+    )
+    if client_email and recipient_email == client_email:
+        return {
+            "success": False,
+            "blocked": True,
+            "reason": "trainer_followup_recipient_is_client",
+            "error": "Trainer-only follow-up blocked because the recipient is the client",
+        }
+    if trainer_email and recipient_email != trainer_email:
+        return {
+            "success": False,
+            "blocked": True,
+            "reason": "trainer_followup_recipient_mismatch",
+            "error": "Trainer-only follow-up blocked because the recipient does not match the linked trainer",
+        }
+
     # This is deliberately one attempt per trainer and requirement. A polling
     # retry, a reopened message, or an incomplete second reply must never send
     # the same missing-details request again.
@@ -2808,15 +2843,15 @@ async def _send_missing_trainer_details_followup(
             "direction": "outbound",
             "requirement_id": requirement_id,
             "trainer_id": trainer_id,
-            "mail_type": "mail2_followup",
+            "mail_type": {"$in": ["mail2_followup", "mail2followup"]},
         },
         {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1, "error_message": 1},
         sort=[("created_at", -1)],
     )
-    if existing:
+    if existing and existing.get("status") != "failed":
         return {
             "success": existing.get("status") == "sent",
-            "already_attempted": True,
+            "already_attempted": existing.get("status") == "sent",
             "email_id": existing.get("email_id") or "",
             "status": existing.get("status") or "",
             "error": existing.get("error_message") or "",
@@ -4054,7 +4089,7 @@ async def _send_toc_request_before_slot_if_missing(
 
     async def _send_and_log(to_email: str, message: Dict[str, str], mail_type: str) -> Dict[str, Any]:
         message_id_header = generate_message_id()
-        success, error = await send_email_async(
+        success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, mail_type,
             to=to_email,
             subject=message["subject"],
             body=message["body"],
@@ -4210,7 +4245,7 @@ async def _send_client_toc_received_email(
     )
     settings_doc = await _load_admin_settings(db)
     message_id_header = generate_message_id()
-    success, error = await send_email_async(
+    success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "client_reply",
         to=client_email,
         subject=subject,
         body=body,
@@ -4283,6 +4318,17 @@ async def _client_pipeline_email_body(
             workflow.startswith("trainer_logistics_")
             or workflow == "client_logistics_clarification"
         )
+        meeting_link = _clean(context.get("meeting_link"))
+        # Calendar creates one authoritative Meet URL for both attendees.
+        # Never permit separately generated trainer/client wording to replace,
+        # omit, or add a second Meet URL.  Falling back to the deterministic
+        # reference body is safer than delivering contradictory invitations.
+        if meeting_link and not _has_exact_authoritative_meet_link(generated, meeting_link):
+            logger.warning(
+                "Rejected AI interview-confirmation wording with a changed Meet link for %s",
+                requirement.get("requirement_id"),
+            )
+            return reference_body, "template_fallback"
         if _clean(generated) and (
             not is_logistics_workflow
             or _logistics_ai_output_is_grounded(generated, reference_body)
@@ -4405,7 +4451,7 @@ async def _send_client_interview_schedule_email(
         },
     )
     message_id_header = generate_message_id()
-    success, error = await send_email_async(
+    success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "client_reply",
         to=client_email,
         subject=message["subject"],
         body=message_body,
@@ -4708,7 +4754,7 @@ async def _handle_trainer_commercial_negotiation_reply(
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
     message_id_header = generate_message_id()
-    success, error = await send_email_async(
+    success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "trainer_reply",
         to=trainer_email,
         subject=message["subject"],
         body=message["body"],
@@ -4852,7 +4898,7 @@ async def _send_trainer_mail3_if_missing(
     message = _trainer_slot_booking_message(trainer, requirement, shortlist)
     settings_doc = await _load_admin_settings(db)
     message_id_header = generate_message_id()
-    success, error = await send_email_async(
+    success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "trainer_reply",
         to=trainer_email,
         subject=message["subject"],
         body=message["body"],
@@ -4918,6 +4964,8 @@ async def _handle_trainer_slot_reply(
     email_doc: Dict[str, Any],
 ) -> Dict[str, Any]:
     source_mail_type = str(email_doc.get("source_outbound_mail_type") or "").strip()
+    if source_mail_type in {"client_slots", "client_interview_schedule", "client_interview_reschedule_request"}:
+        return {"attempted": False, "reason": "client_thread_not_trainer_slot_reply"}
     subject = str(email_doc.get("subject") or "")
     reply_text_preview = _strip_quoted_email_history(
         email_doc.get("classification_body")
@@ -4956,6 +5004,11 @@ async def _handle_trainer_slot_reply(
         trainer = await db["trainers"].find_one({"trainer_id": trainer_id}, {"_id": 0}) or {}
     if not trainer:
         trainer = {"trainer_id": trainer_id, "name": email_doc.get("trainer_name") or "Trainer"}
+
+    sender_email = _email_address(email_doc.get("from_email") or email_doc.get("sender"))
+    linked_trainer_email = _email_address(trainer.get("email") or trainer.get("trainer_email"))
+    if sender_email and linked_trainer_email and sender_email.lower() != linked_trainer_email.lower():
+        return {"attempted": False, "reason": "sender_not_linked_trainer"}
 
     is_reschedule_slot_reply = bool(
         source_mail_type == "mail4_reschedule_request"
@@ -5043,7 +5096,7 @@ async def _handle_trainer_slot_reply(
             )
             settings_doc = await _load_admin_settings(db)
             message_id_header = generate_message_id()
-            success, error = await send_email_async(
+            success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "client_reply",
                 to=client_email,
                 subject=subject_line,
                 body=body,
@@ -5534,6 +5587,16 @@ def _time_to_24h(hour: int, minute: int, meridiem: str) -> tuple[int, int]:
     return hour, minute
 
 
+def _ist_wall_time_to_utc(value: datetime) -> datetime:
+    """Store parsed interview slots as UTC while preserving their IST wall time.
+
+    Slot text is parsed as a naive local time (for example, 6:00 PM IST).
+    MongoDB treats naive datetimes as UTC, so persisting it unchanged makes
+    schedulers run 5 hours 30 minutes late.
+    """
+    return value.replace(tzinfo=LOCAL_TZ).astimezone(timezone.utc).replace(tzinfo=None)
+
+
 def _slot_time_candidates(text: Any) -> List[Dict[str, Any]]:
     """Extract every time or time range without relying on email line breaks."""
     clean = _normalise_slot_text(text)
@@ -5769,6 +5832,21 @@ def _is_google_meet_link(value: Any) -> bool:
     return "meet.google.com" in str(value or "").lower()
 
 
+def _has_exact_authoritative_meet_link(body: Any, meeting_link: Any) -> bool:
+    """Require a generated interview email to contain exactly the Calendar URL.
+
+    Google Meet conference IDs are URL-safe and Calendar returns the canonical
+    ``https://meet.google.com/<code>`` form.  A confirmation containing no
+    Meet URL or more than one URL is rejected, avoiding different links for
+    the trainer and client when AI wording is enabled.
+    """
+    expected = _clean(meeting_link)
+    if not expected:
+        return False
+    found = re.findall(r"https://meet\.google\.com/[A-Za-z0-9-]+", str(body or ""), flags=re.IGNORECASE)
+    return len(found) == 1 and found[0] == expected
+
+
 def _is_reschedule_request(text: Any) -> bool:
     lower = _strip_quoted_email_history(text).lower()
     if not lower:
@@ -5942,7 +6020,7 @@ async def _handle_trainer_logistics_question(db: AsyncIOMotorDatabase, email_doc
     if known and trainer_email:
         reference = f"Hi {trainer_name},\n\nRegarding your travel/stay query for the {technology} requirement:\n\n" + "\n".join(f"- {item}" for item in known) + "\n\nRegards,\nClahan Technologies"
         body, source = await _client_pipeline_email_body(db, requirement=req, workflow="trainer_logistics_answer", subject=f"Travel / Stay Details - {technology}", reference_body=reference, context={"trainer_name": trainer_name, "question": text, "verified_logistics": known})
-        ok, error = await send_email_async(to=trainer_email, subject=f"Travel / Stay Details - {technology}", body=body, smtp_config=settings_doc.get("emailCfg") or None, message_id_header=generate_message_id())
+        ok, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "trainer_reply", to=trainer_email, subject=f"Travel / Stay Details - {technology}", body=body, smtp_config=settings_doc.get("emailCfg") or None, message_id_header=generate_message_id())
         return {"attempted": True, "success": bool(ok), "generation_source": source, "error": error or ""}
     if not client_email:
         return {"attempted": True, "success": False, "error": "Client email unavailable for logistics clarification"}
@@ -5950,7 +6028,7 @@ async def _handle_trainer_logistics_question(db: AsyncIOMotorDatabase, email_doc
     reference = f"Dear {req.get('client_name') or 'Team'},\n\nThe shortlisted trainer has asked about travel, stay, or related expense arrangements for the {technology} requirement.\n\nPlease confirm the travel policy, accommodation/stay arrangement, local transport or reimbursement terms, and training location.\n\nRegards,\nClahan Technologies"
     body, source = await _client_pipeline_email_body(db, requirement=req, workflow="client_logistics_clarification", subject=subject, reference_body=reference, context={"trainer_name": trainer_name, "trainer_question": text, "technology": technology})
     message_id = generate_message_id()
-    ok, error = await send_email_async(to=client_email, subject=subject, body=body, smtp_config=settings_doc.get("emailCfg") or None, message_id_header=message_id)
+    ok, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "client_reply", to=client_email, subject=subject, body=body, smtp_config=settings_doc.get("emailCfg") or None, message_id_header=message_id)
     query_id = f"LQ-{uuid.uuid4().hex[:10].upper()}"
     await db["trainer_logistics_queries"].insert_one({"query_id": query_id, "requirement_id": requirement_id, "trainer_id": trainer_id, "trainer_name": trainer_name, "trainer_email": trainer_email, "client_email": client_email, "clarification_subject": subject, "clarification_message_id": message_id, "trainer_question": text, "status": "client_asked" if ok else "client_ask_failed", "generation_source": source, "created_at": _now(), "updated_at": _now()})
     return {"attempted": True, "success": bool(ok), "asked_client": True, "query_id": query_id, "error": error or ""}
@@ -5981,7 +6059,7 @@ async def _relay_client_logistics_answer(db: AsyncIOMotorDatabase, email_doc: Di
     reference = f"Hi {query.get('trainer_name') or 'Trainer'},\n\nThe client has shared the following response to your travel/stay query:\n\n{text}\n\nRegards,\nClahan Technologies"
     body, source = await _client_pipeline_email_body(db, requirement=req, workflow="trainer_logistics_client_answer", subject=subject, reference_body=reference, context={"trainer_name": query.get("trainer_name"), "client_answer": text})
     settings_doc = await _load_admin_settings(db)
-    ok, error = await send_email_async(to=query["trainer_email"], subject=subject, body=body, smtp_config=settings_doc.get("emailCfg") or None, message_id_header=generate_message_id())
+    ok, error = await _send_verified_workflow_email(db, query.get("requirement_id"), query.get("trainer_id"), "trainer_reply", to=query["trainer_email"], subject=subject, body=body, smtp_config=settings_doc.get("emailCfg") or None, message_id_header=generate_message_id())
     await db["trainer_logistics_queries"].update_one({"query_id": query["query_id"]}, {"$set": {"status": "trainer_answer_sent" if ok else "trainer_answer_failed", "client_answer": text, "generation_source": source, "updated_at": _now()}})
     return {"attempted": True, "success": bool(ok), "error": error or ""}
 
@@ -6191,7 +6269,7 @@ async def _handle_trainer_general_question(
                 {"$set": {"status": "answer_failed", "error": "Trainer email unavailable", "updated_at": _now()}},
             )
             return {"attempted": True, "success": False, "error": "Trainer email unavailable"}
-        ok, error = await send_email_async(
+        ok, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "trainer_reply",
             to=trainer_email,
             subject=generated_reply.get("subject") or f"Re: {email_doc.get('subject') or technology}",
             body=generated_reply.get("body") or "",
@@ -6238,7 +6316,7 @@ async def _handle_trainer_general_question(
         context={"query_id": query_id, "trainer_name": trainer_name, "trainer_question": question},
     )
     clarification_message_id = generate_message_id()
-    ok, error = await send_email_async(
+    ok, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "client_reply",
         to=client_email,
         subject=subject,
         body=body,
@@ -6318,7 +6396,7 @@ async def _relay_client_question_answer(
         },
     )
     settings_doc = await _load_admin_settings(db)
-    ok, error = await send_email_async(
+    ok, error = await _send_verified_workflow_email(db, query.get("requirement_id"), query.get("trainer_id"), "trainer_reply",
         to=query["trainer_email"],
         subject=subject,
         body=body,
@@ -6480,7 +6558,7 @@ async def _handle_interview_reschedule_reply(
 
     settings_doc = await _load_admin_settings(db)
     message_id_header = generate_message_id()
-    success, error = await send_email_async(
+    success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, mail_type,
         to=target_email,
         subject=subject_line,
         body=body,
@@ -6992,6 +7070,10 @@ async def _handle_client_slot_confirmation_reply(
         }
 
     calendar_timezone = getattr(settings, "GOOGLE_CALENDAR_TIMEZONE", "Asia/Kolkata") or "Asia/Kolkata"
+    # Calendar receives the parsed IST wall time together with its timezone;
+    # internal schedulers receive the equivalent UTC instant.
+    stored_interview_start = _ist_wall_time_to_utc(resolved_slot["start"])
+    stored_interview_end = _ist_wall_time_to_utc(resolved_slot["end"])
     calendar_event = await create_google_meet_event(
         summary=f"{technology} Interview",
         description=(
@@ -7097,7 +7179,7 @@ async def _handle_client_slot_confirmation_reply(
         },
     )
     message_id_header = generate_message_id()
-    success, error = await send_email_async(
+    success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "trainer_reply",
         to=trainer_email,
         subject=message["subject"],
         body=message_body,
@@ -7128,8 +7210,8 @@ async def _handle_client_slot_confirmation_reply(
         "slot_text": reply_text,
         "interview_date": interview_date,
         "date_time_text": interview_date,
-        "interview_at": resolved_slot["start"],
-        "interview_end_at": resolved_slot["end"],
+        "interview_at": stored_interview_start,
+        "interview_end_at": stored_interview_end,
         "interview_link": meeting_link,
         "meet_link": meeting_link,
         "calendar_event": calendar_event,
@@ -7156,8 +7238,8 @@ async def _handle_client_slot_confirmation_reply(
         meeting_link=meeting_link,
         interview_date=interview_date,
         smtp_config=smtp_config,
-        interview_start=resolved_slot["start"],
-        interview_end=resolved_slot["end"],
+        interview_start=stored_interview_start,
+        interview_end=stored_interview_end,
         calendar_event=calendar_event,
         source_email_id=email_doc.get("email_id") or "",
         source_gmail_message_id=source_gmail_message_id,
@@ -7423,7 +7505,7 @@ async def _handle_client_selection_reply(
         settings_doc = await _load_admin_settings(db)
         smtp_config = settings_doc.get("emailCfg") or None
         message_id_header = generate_message_id()
-        success, error = await send_email_async(
+        success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "trainer_reply",
             to=trainer_email,
             subject=message["subject"],
             body=message["body"],
@@ -7547,7 +7629,7 @@ async def _send_trainer_decision_mail(
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
     message_id_header = generate_message_id()
-    success, error = await send_email_async(
+    success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "trainer_reply",
         to=trainer_email,
         subject=message["subject"],
         body=message_body,
@@ -7929,7 +8011,7 @@ async def _handle_client_budget_reply(
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
     message_id_header = generate_message_id()
-    success, error = await send_email_async(
+    success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "trainer_reply",
         to=trainer_email,
         subject=message["subject"],
         body=message["body"],
@@ -8200,7 +8282,7 @@ async def _forward_trainer_commercials_to_client(
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
     message_id_header = generate_message_id()
-    success, error = await send_email_async(
+    success, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "client_reply",
         to=client_email,
         subject=message["subject"],
         body=message["body"],
@@ -8267,6 +8349,14 @@ async def _forward_trainer_commercials_to_client(
         "client_rates": client_rates,
         "mail3": mail3_result,
     }
+
+
+async def _send_verified_workflow_email(db, requirement_id, trainer_id, mail_type, **kwargs):
+    from app.recipient_guard import recipient_error
+    error = await recipient_error(db, kwargs.get("to"), requirement_id, trainer_id, mail_type)
+    if error:
+        return False, error
+    return await send_email_async(**kwargs)
 
 
 async def _send_client_auto_reply(
@@ -8350,8 +8440,13 @@ async def _send_client_auto_reply(
         mail_type = "client_auto_reply"
     else:
         mail_type = "office_auto_reply"
-    if _clean(mail_type_override):
-        mail_type = _clean(mail_type_override).lower()
+    if str(mail_type_override or "").strip():
+        mail_type = str(mail_type_override).strip().lower()
+
+    from app.recipient_guard import recipient_error
+    recipient_block = await recipient_error(db, to, effective_requirement_id, email_doc.get("trainer_id"), mail_type)
+    if recipient_block:
+        return {"success": False, "blocked": True, "reason": recipient_block, "error": "Workflow recipient could not be verified"}
 
     if mail_type == "mail2" and effective_requirement_id and email_doc.get("trainer_id"):
         trainer_reply_text = (
@@ -8577,7 +8672,7 @@ async def _send_client_auto_reply(
                 "body": body,
                 "source_gmail_message_id": source_gmail_message_id,
             }
-    success, error = await send_email_async(
+    success, error = await _send_verified_workflow_email(db, effective_requirement_id, email_doc.get("trainer_id"), mail_type,
         to=to,
         subject=subject,
         body=body,
@@ -9330,17 +9425,30 @@ async def _create_revised_lab_cost_attachment(
 ) -> Optional[Dict[str, str]]:
     """Build a lab-cost workbook from the saved ToC and latest client inputs."""
     known = lab_context.get("known_inputs") or {}
-    participants = _safe_int(known.get("participant_count") or requirement.get("participant_count"), 1) or 1
-    hours = _safe_float(known.get("hours_per_day") or requirement.get("hours_per_day"), 3) or 3
-    duration = _safe_float(
-        requirement.get("duration_days") or known.get("duration_days") or 1,
-        1,
-    ) or 1
+    from shared.lab_cost_inputs import validate_lab_cost_inputs
+    assumptions = {
+        "participant_count": known.get("participant_count") or requirement.get("participant_count"),
+        "hours_per_day": known.get("lab_hours_per_day") or known.get("hours_per_day") or requirement.get("lab_hours_per_day"),
+        "cloud_provider": known.get("cloud_provider") or requirement.get("cloud_provider"),
+        "cloud_region": known.get("cloud_region") or requirement.get("cloud_region"),
+        "fx_rate": known.get("fx_rate") or requirement.get("fx_rate"),
+        "lab_support_per_participant": known.get("lab_support_per_participant", requirement.get("lab_support_per_participant")),
+    }
+    try:
+        assumptions = validate_lab_cost_inputs(assumptions)
+    except (ValueError, TypeError) as exc:
+        logger.warning("Lab-cost workbook withheld: %s", exc)
+        return None
+    participants = assumptions["participant_count"]
+    hours = assumptions["hours_per_day"]
+    duration = _safe_float(known.get("duration_days") or requirement.get("duration_days"), 0)
+    if duration <= 0:
+        logger.warning("Lab-cost workbook withheld: confirm lab duration")
+        return None
     technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain"))
     if not technology:
         return None
-    provider = _clean(known.get("cloud_provider") or requirement.get("cloud_provider") or "aws").lower()
-    provider = "aws" if provider not in {"aws", "azure", "gcp"} else provider
+    provider = assumptions["cloud_provider"]
     # Price the approved/saved day-wise ToC when it exists. Regenerating a
     # generic ToC here can silently change its topics and make the workbook
     # disagree with the ToC already shared with the client.
@@ -9381,6 +9489,7 @@ async def _create_revised_lab_cost_attachment(
                 client,
                 f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc/lab-cost",
                 json={"toc": toc, "assumptions": {
+                    **assumptions,
                     "cloud_provider": provider,
                     "participant_count": participants,
                     "hours_per_day": hours,
@@ -9402,19 +9511,26 @@ async def _create_revised_lab_cost_attachment(
 
 def _lab_cost_template_reply(subject: str, sender_name: str, known: Dict[str, Any]) -> Dict[str, str]:
     """Client-facing lab-cost acknowledgement; workbook generation is manual."""
-    participants = _safe_int(known.get("participant_count"), 1) or 1
-    duration = _safe_float(known.get("duration_days"), 1) or 1
-    hours = _safe_float(known.get("hours_per_day"), 3) or 3
-    provider = _clean(known.get("cloud_provider") or "AWS")
+    details = []
+    missing = []
+    for key, label in (("cloud_provider", "Cloud provider"), ("participant_count", "Participant count"), ("duration_days", "Lab-access days"), ("hours_per_day", "Lab-access hours per day")):
+        value = known.get(key)
+        if value not in (None, "", 0):
+            details.append(f"- {label}: {value}")
+        else:
+            missing.append(label.lower())
+    message = "Thank you for your lab-cost enquiry."
+    if details:
+        message += " We have noted:\n\n" + "\n".join(details)
+    if missing:
+        message += "\n\nPlease confirm " + ", ".join(missing) + "."
     name = (_clean(sender_name) or "Team").split()[0]
     return {
         "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
         "body": (
             f"Hi {name},\n\n"
-            f"We have noted the {provider} lab requirement for {participants} participant(s), "
-            f"{duration:g} day(s), and {hours:g} hours of access per day. "
-            "The lab-cost template has been prepared from these inputs and the applicable ToC scope. "
-            "Our team will share the final workbook separately after the manual cost review.\n\n"
+            f"{message}\n\n"
+            "Our team will prepare the estimate after verifying the lab scope and pricing inputs.\n\n"
             "Best Regards,\nRecruitment Team\nClahan Technologies"
         ),
     }
@@ -9628,7 +9744,10 @@ async def _process_client_requirement_email(
     body = email_doc.get("clean_body") or email_doc.get("raw_body") or email_doc.get("body") or ""
     # Header-less replies are common in mobile clients.  Recover their exact
     # client-slots handoff before deciding whether this is a generic request.
-    email_doc = await _recover_client_slot_reply_context(db, email_doc)
+    # An explicit inbox recreation is a new requirement and must not inherit a
+    # historical slot thread merely because the sender address is shared.
+    if not force_new_requirement:
+        email_doc = await _recover_client_slot_reply_context(db, email_doc)
     now = _now()
     trainer_doc = None
     settings = await _auto_send_settings(db)

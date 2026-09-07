@@ -13,6 +13,7 @@ from pymongo.errors import DuplicateKeyError
 
 from shared.database.service import get_db
 from app.gmail_client import generate_message_id, is_send_quota_error, send_email_async, _normalize_trainer_reply_body
+from app.config import get_settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -182,6 +183,10 @@ async def send_single_email(
     payload: SendEmailRequest,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
+    from app.recipient_guard import recipient_error
+    recipient_block = await recipient_error(db, str(payload.to), payload.requirement_id, payload.trainer_id, payload.mail_type)
+    if recipient_block:
+        raise HTTPException(422, recipient_block)
     body = _normalize_trainer_reply_body(payload.body)
     generation_source = "template"
     # This opt-in is used only by controlled pipeline callers.  The supplied
@@ -230,7 +235,7 @@ async def send_single_email(
                 stale_sending = False
         if existing_log and (existing_status == "sent" or (existing_status == "sending" and not stale_sending)):
             return {
-                "success": True,
+                "success": existing_status == "sent",
                 "email_id": existing_log.get("email_id"),
                 "sent_at": existing_log.get("sent_at"),
                 "already_sent": existing_log.get("status") == "sent",
@@ -238,7 +243,9 @@ async def send_single_email(
             }
 
     quota_retry_after = await _gmail_quota_cooldown(db)
-    if quota_retry_after:
+    # A Gmail API cooldown must not block the configured fallback SMTP sender.
+    # send_email_async will try SMTP when OAuth hits the quota.
+    if quota_retry_after and not get_settings().effective_gmail_fallback_pass:
         raise HTTPException(
             429,
             detail={
@@ -382,7 +389,7 @@ async def send_bulk_emails(
 ):
     import asyncio
     quota_retry_after = await _gmail_quota_cooldown(db)
-    if quota_retry_after:
+    if quota_retry_after and not get_settings().effective_gmail_fallback_pass:
         return {
             "total": len(payload.payloads),
             "sent": 0,
@@ -393,6 +400,11 @@ async def send_bulk_emails(
         }
     results = []
     for item in payload.payloads:
+        from app.recipient_guard import recipient_error
+        recipient_block = await recipient_error(db, str(item.to), item.requirement_id, item.trainer_id, item.mail_type)
+        if recipient_block:
+            results.append({"to": str(item.to), "success": False, "error": recipient_block})
+            continue
         cfg = item.smtp_config or payload.smtp_config
         body = _normalize_trainer_reply_body(item.body)
         attachments = []

@@ -179,6 +179,9 @@ async def send_invoice(
         except Exception:
             logger.exception("Failed to generate invoice PDF for attachment")
 
+        if not attachment_payload:
+            raise HTTPException(502, "Invoice PDF generation failed; no email was sent")
+
         async with httpx.AsyncClient(timeout=30) as client:
             email_json = {
                 "to": to_email,

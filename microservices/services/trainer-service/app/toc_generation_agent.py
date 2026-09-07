@@ -434,6 +434,12 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
 
     return {
         "day": day_number,
+        # Preserve an approved schedule held in a compact dataset.  A supplied
+        # training_dates value may still replace this later in
+        # _enrich_programme_pack, but generating a TOC without that argument
+        # must not silently discard the saved schedule.
+        "date": str(item.get("date") or ""),
+        "weekday": str(item.get("weekday") or ""),
         "title": title,
         "focus_area": topic_name,
         "subtopics": source_subtopics,
@@ -659,7 +665,13 @@ def _enrich_programme_pack(toc: dict, audience_level: str = "", training_dates: 
         })
     for index, day in enumerate(days):
         day["week"] = index // 5 + 1
-        day["date"] = dates[index]
+        # A compact course dataset may already carry an approved client
+        # schedule.  Do not erase it merely because a generation request did
+        # not repeat ``training_dates``.  An explicit request date still wins.
+        if dates[index]:
+            day["date"] = dates[index]
+        else:
+            day["date"] = str(day.get("date") or "")
         day["category"] = _meaningful_category(day, index == duration - 1)
         if (index + 1) % 5 == 0 and index + 1 < duration:
             day["assessment"] = "Weekly knowledge check and scenario role-play"

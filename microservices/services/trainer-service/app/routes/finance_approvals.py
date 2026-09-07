@@ -6,6 +6,7 @@ from typing import Any, Dict, Optional
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
@@ -53,6 +54,8 @@ async def reject_finance_approval(finance_id: str, payload: FinanceRejectRequest
 
 @router.post("/approvals/{finance_id}/approve-send")
 async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    if payload.total_amount <= 0:
+        raise HTTPException(400, "Approved PO amount must be greater than zero")
     # Atomically claim the approval before creating documents or sending mail.
     # A duplicate click can therefore never create two invoices.
     claimed = await db["finance_approvals"].update_one(
@@ -62,8 +65,6 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
     if not claimed.modified_count:
         raise HTTPException(404, "Pending finance approval not found")
     approval = await db["finance_approvals"].find_one({"finance_id": finance_id}, {"_id": 0}) or {}
-    if payload.total_amount <= 0:
-        raise HTTPException(400, "Approved PO amount must be greater than zero")
     now = datetime.utcnow()
     po_id, invoice_id = f"PO-{uuid.uuid4().hex[:10].upper()}", f"INV-{uuid.uuid4().hex[:10].upper()}"
     item = {"description": payload.description, "quantity": 1, "rate": payload.total_amount, "amount": payload.total_amount}
@@ -76,8 +77,10 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
     doc_url, email_url = settings.DOCUMENT_SERVICE_URL.rstrip("/"), settings.EMAIL_SERVICE_URL.rstrip("/")
     try:
         async with httpx.AsyncClient(timeout=60) as client:
-            pdf = await client.post(f"{doc_url}/api/v1/documents/pdf/invoice", json=invoice)
+            pdf = await client.post(f"{doc_url}/api/v1/documents/pdf/invoice", json=jsonable_encoder({key: value for key, value in invoice.items() if key != "_id"}))
             pdf.raise_for_status()
+            if not pdf.content:
+                raise ValueError("Invoice PDF is empty")
             mail = await client.post(f"{email_url}/api/v1/email/send", json={"to": payload.client_email, "subject": f"Invoice {invoice_id} - Clahan Technologies", "body": f"Dear {payload.client_name},\n\nPlease find the invoice attached against PO {payload.po_number}.\n\nRegards,\nClahan Technologies", "mail_type": "finance_invoice", "idempotency_key": f"finance-invoice:{finance_id}", "attachments": [{"filename": f"{invoice_id}.pdf", "content_base64": base64.b64encode(pdf.content).decode(), "subtype": "pdf"}]})
             mail.raise_for_status()
     except Exception as exc:

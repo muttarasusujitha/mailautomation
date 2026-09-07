@@ -1923,8 +1923,8 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
     toc_type: 'standard',
     custom_topics: '',
     client_notes: req?.client_notes || req?.job_description || req?.description || req?.content_scope || '',
-    lab_hours_per_day: req?.hours_per_day || 3,
-    participant_count: req?.participant_count || req?.participants || req?.batch_size || 1,
+    lab_hours_per_day: req?.lab_hours_per_day || '',
+    participant_count: req?.participant_count || req?.participants || req?.batch_size || '',
   })
   const [tocId, setTocId] = useState('')
   const [tocData, setTocData] = useState(null)
@@ -2800,14 +2800,12 @@ function PipelineProgressSummary({ stage, state, req, trainer }) {
 
   const clientEmailSaved = Boolean(req?.client_email)
   const slotStatus = String(trainer?.slot_status || '').toLowerCase()
-  const backendHandoffKnown = Boolean(trainer && (
-    Object.prototype.hasOwnProperty.call(trainer, 'client_slots_sent') ||
-    Object.prototype.hasOwnProperty.call(trainer, 'client_slots_email_id') ||
-    Object.prototype.hasOwnProperty.call(trainer, 'slot_status')
-  ))
-  const clientSlotsSent = backendHandoffKnown
-    ? Boolean(trainer?.client_slots_sent && trainer?.client_slots_email_id && slotStatus === 'sent_to_client')
-    : Boolean(state?.clientSlotsSentAt)
+  // A handoff is complete only when the backend records both delivery and an
+  // email id. Local optimistic state must never turn a failed/unknown send
+  // into a completed handoff.
+  const clientSlotsSent = Boolean(
+    trainer?.client_slots_sent && trainer?.client_slots_email_id && slotStatus === 'sent_to_client'
+  )
   const clientHandoffRetryPending = !clientSlotsSent && (
     slotStatus === 'client_handoff_retry_pending' ||
     slotStatus === 'client_slot_send_failed' ||
@@ -4668,7 +4666,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
       }
 
       const sent = await sendSlotsToClient({ trainer, req, slotText: text, trainerDetailsText, clientEmail, clientName })
-      if (sent?.success === false) throw new Error(sent.error || 'Client slot email failed')
+      if (!sent?.success || !sent?.email_id) throw new Error(sent?.error || 'Client slot email was not confirmed as delivered')
 
       setClientEmailRequest(null)
       toast.success(sent?.already_sent ? 'Slots already sent to client' : 'Trainer slots sent to client')

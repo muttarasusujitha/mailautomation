@@ -36,7 +36,7 @@ def _load_calendar_service() -> Tuple[Any, str]:
         from google.oauth2.credentials import Credentials
         from googleapiclient.discovery import build
 
-        creds = Credentials.from_authorized_user_file(token_file, CALENDAR_SCOPES)
+        creds = Credentials.from_authorized_user_file(token_file)
         granted_scopes = [str(scope) for scope in (getattr(creds, "scopes", None) or [])]
         if granted_scopes and not any("/auth/calendar" in scope for scope in granted_scopes):
             return None, "Google Calendar scope is missing. Reconnect Gmail and allow Calendar access."
@@ -85,6 +85,9 @@ def _create_google_meet_event_sync(
     body: Dict[str, Any] = {
         "summary": summary,
         "description": description,
+        "guestsCanSeeOtherGuests": False,
+        "guestsCanInviteOthers": False,
+        "guestsCanModify": False,
         "start": {"dateTime": start.isoformat(), "timeZone": timezone},
         "end": {"dateTime": end.isoformat(), "timeZone": timezone},
         "conferenceData": {
@@ -104,9 +107,8 @@ def _create_google_meet_event_sync(
                 calendarId=getattr(settings, "GOOGLE_CALENDAR_ID", "primary") or "primary",
                 body=body,
                 conferenceDataVersion=1,
-                # Interview participants receive a private branded email from
-                # TrainerSync.  Do not send a shared Calendar invitation,
-                # which exposes every attendee's email address to the others.
+                # Deliver RSVP invitations with the guest list hidden so client
+                # and trainer addresses are not disclosed to one another.
                 sendUpdates="all" if attendee_items else "none",
             )
             .execute()
@@ -170,7 +172,12 @@ def _add_calendar_attendees_sync(event_id: str, attendees: List[str]) -> Dict[st
         updated = service.events().patch(
             calendarId=getattr(settings, "GOOGLE_CALENDAR_ID", "primary") or "primary",
             eventId=event_id,
-            body={"attendees": [{"email": email} for email in combined]},
+            body={
+                "attendees": [{"email": email} for email in combined],
+                "guestsCanSeeOtherGuests": False,
+                "guestsCanInviteOthers": False,
+                "guestsCanModify": False,
+            },
             sendUpdates="all",
         ).execute()
         return {

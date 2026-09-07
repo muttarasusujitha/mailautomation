@@ -1,10 +1,55 @@
+import asyncio
+
 from app.routes.inbox import (
     _build_toc_recheck_state,
+    _send_missing_trainer_details_followup,
     _trainer_detail_evidence_doc,
     _trainer_missing_requested_details,
     _trainer_reply_has_requested_details,
     _validate_trainer_attachments_against_requirement,
 )
+
+
+def test_missing_trainer_details_followup_is_never_sent_to_client_address():
+    result = asyncio.run(
+        _send_missing_trainer_details_followup(
+            None,
+            email_doc={
+                "requirement_id": "REQ-1",
+                "trainer_id": "TR-1",
+                "from_email": "client@example.com",
+            },
+            requirement={"client_email": "client@example.com"},
+            trainer_state={"email": "trainer@example.com"},
+            missing_details=["Exactly three interview/discussion slots (date, time, and time zone)"],
+            now=None,
+        )
+    )
+
+    assert result["success"] is False
+    assert result["blocked"] is True
+    assert result["reason"] == "trainer_followup_recipient_is_client"
+
+
+def test_missing_trainer_details_followup_blocks_unknown_recipient_mismatch():
+    result = asyncio.run(
+        _send_missing_trainer_details_followup(
+            None,
+            email_doc={
+                "requirement_id": "REQ-1",
+                "trainer_id": "TR-1",
+                "from_email": "other@example.com",
+            },
+            requirement={"client_email": "client@example.com"},
+            trainer_state={"email": "trainer@example.com"},
+            missing_details=["Current Location"],
+            now=None,
+        )
+    )
+
+    assert result["success"] is False
+    assert result["blocked"] is True
+    assert result["reason"] == "trainer_followup_recipient_mismatch"
 
 
 def test_cv_attachment_supplies_profile_and_experience_for_slot_mail():

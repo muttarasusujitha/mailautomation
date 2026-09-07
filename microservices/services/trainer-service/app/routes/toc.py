@@ -1,4 +1,5 @@
 """Training Table of Contents (TOC) generation endpoint."""
+import asyncio
 import json
 import logging
 import re
@@ -50,6 +51,7 @@ class TocRequest(BaseModel):
     # AI is the standard ToC path.  The deterministic dataset generator is
     # retained only as a safe fallback when an AI response cannot be used.
     generation_mode: Optional[str] = "ai"
+    allow_ai_enrichment: bool = True
     toc_type: Optional[str] = "standard"
     custom_topics: Optional[str] = ""
     client_notes: Optional[str] = ""
@@ -297,12 +299,186 @@ def _ai_curriculum_rules() -> str:
     )
 
 
-async def _generate_ai_toc(payload: TocRequest) -> Optional[dict]:
-    """Create a validated ToC from the dedicated AI ToC contract.
+_DAY_ENRICHMENT_PROMPT = """You are a technical curriculum designer creating one day of a {domain} training program.
 
-    This is deliberately content-only: dates, workbooks, lab pricing and
-    workflow decisions remain deterministic system responsibilities.
-    """
+DAY DATA:
+Day: {day}
+Topic: {topic}
+Subtopics: {subtopics}
+Tools: {tools}
+Jira focus: {jira_focus}
+Lab task: {lab_task}
+
+REFERENCE (style only, do not copy):
+{retrieved_context}
+
+TASK:
+Generate learning outcomes and a hands-on summary for this exact topic.
+
+1. learning_outcomes (3-4 bullets):
+- Each must name a specific tool, command, config, or artifact from the day data above
+- At least one must connect to the jira_focus
+- No generic phrases like "explain the design choices" or "validate the implementation" unless naming exactly what is validated
+
+2. hands_on_summary (1-2 sentences):
+- Expand the lab_task with the specific tools/commands/steps involved
+
+RULES:
+- Do not invent tools or steps not listed in the day data
+- If a sentence could apply unchanged to a different topic, rewrite it
+- No filler categories ("terminology and scope", "key components", etc.)
+
+OUTPUT (JSON only, no other text):
+{
+  "learning_outcomes": ["...", "...", "..."],
+  "hands_on_summary": "..."
+}
+
+WORKED EXAMPLE (style and specificity only; do not reuse for a different day):
+Day: 10
+Topic: Docker Fundamentals
+Subtopics: ["images", "containers", "Dockerfile", "layers", "volumes", "networks"]
+Tools: ["Docker", "Docker Hub"]
+Jira focus: Create containerization task and document image tag
+Lab task: Dockerize a Python or Node application and push image to registry
+
+Good JSON:
+{
+  "learning_outcomes": [
+    "Build a Docker image from a Dockerfile and inspect its image layers.",
+    "Run a container with a named volume and network, then verify the container state with Docker.",
+    "Push the tagged image to Docker Hub and document the image tag in the containerization Jira task."
+  ],
+  "hands_on_summary": "Create a Dockerfile for the sample Python or Node application, build and tag the image with Docker, then push the tag to Docker Hub. Record the published image tag in the Jira task."
+}"""
+
+_GENERIC_OUTCOME_PHRASES = (
+    "explain the design choices",
+    "validate the implementation",
+    "understand the concepts",
+    "apply best practices",
+    "key components",
+    "terminology and scope",
+)
+
+
+def _normalise_daily_text(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", str(value or "").lower()).strip()
+
+
+def _daily_enrichment_is_specific(result: dict, day: dict, prior_outcomes: list[str]) -> bool:
+    """Reject generic or repeated AI copy without spending an extra model call."""
+    outcomes = [str(item).strip() for item in result.get("learning_outcomes") or [] if str(item).strip()]
+    summary = str(result.get("hands_on_summary") or "").strip()
+    if len(outcomes) not in (3, 4) or not summary:
+        return False
+    fields = list(day.get("tools") or []) + list(day.get("subtopics") or [])
+    if isinstance(day.get("tools"), str):
+        fields.extend(part.strip() for part in day["tools"].split("+") if part.strip())
+    fields.extend([day.get("jira_focus") or "", day.get("lab") or day.get("lab_task") or ""])
+    keywords = {_normalise_daily_text(item) for item in fields if _normalise_daily_text(item)}
+    keyword_terms = {term for keyword in keywords for term in keyword.split() if len(term) >= 3}
+    text = " ".join(outcomes + [summary]).lower()
+    if any(phrase in text for phrase in _GENERIC_OUTCOME_PHRASES):
+        return False
+    if not any(term in _normalise_daily_text(text).split() for term in keyword_terms):
+        return False
+    normalised_outcomes = [_normalise_daily_text(item) for item in outcomes]
+    if any(item in prior_outcomes for item in normalised_outcomes):
+        return False
+    return True
+
+
+async def _generate_ai_day_enrichment(client: Any, model: str, domain: str, day: dict) -> Optional[dict]:
+    """Generate outcomes for one fixed curriculum day, without changing its scope."""
+    tools = day.get("tools") or []
+    if isinstance(tools, str):
+        tools = [value.strip() for value in tools.split("+") if value.strip()]
+    schema = {
+        "type": "object",
+        "properties": {
+            "learning_outcomes": {
+                "type": "array", "minItems": 3, "maxItems": 4,
+                "items": {"type": "string"},
+            },
+            "hands_on_summary": {"type": "string"},
+        },
+        "required": ["learning_outcomes", "hands_on_summary"],
+        "additionalProperties": False,
+    }
+    replacements = {
+        "{domain}": domain,
+        "{day}": str(day.get("day") or ""),
+        "{topic}": str(day.get("focus_area") or day.get("title") or ""),
+        "{subtopics}": json.dumps(day.get("subtopics") or []),
+        "{tools}": json.dumps(tools),
+        "{jira_focus}": str(day.get("jira_focus") or ""),
+        "{lab_task}": str(day.get("lab") or day.get("lab_task") or ""),
+        # Retrieval is optional; do not manufacture a reference when none was found.
+        "{retrieved_context}": str(day.get("retrieved_context") or ""),
+    }
+    prompt = _DAY_ENRICHMENT_PROMPT
+    for placeholder, value in replacements.items():
+        prompt = prompt.replace(placeholder, value)
+    response = await client.responses.create(
+        model=model,
+        reasoning={"effort": "low"},
+        text={"format": {"type": "json_schema", "name": "daily_toc_enrichment", "strict": True, "schema": schema}, "verbosity": "low"},
+        input=prompt,
+        max_output_tokens=700,
+        temperature=0.6,
+    )
+    return json.loads(response.output_text)
+
+
+async def _enrich_toc_days_with_ai(client: Any, model: str, toc: dict) -> None:
+    """Make exactly one model request per day, retaining the deterministic curriculum backbone."""
+    days = toc.get("days") or []
+    semaphore = asyncio.Semaphore(5)
+
+    async def enrich(day: dict) -> Optional[dict]:
+        async with semaphore:
+            try:
+                return await _generate_ai_day_enrichment(client, model, str(toc.get("domain") or "Training"), day)
+            except Exception:
+                logger.exception("AI day enrichment failed for day %s", day.get("day"))
+                return None
+
+    results = await asyncio.gather(*(enrich(day) for day in days))
+    prior_outcomes = []
+    for day, result in zip(days, results):
+        if not result:
+            continue
+        outcomes = [str(item).strip() for item in result.get("learning_outcomes") or [] if str(item).strip()]
+        summary = str(result.get("hands_on_summary") or "").strip()
+        if not _daily_enrichment_is_specific(result, day, prior_outcomes):
+            logger.warning("AI day enrichment rejected quality checks for day %s", day.get("day"))
+            continue
+        day["learning_objectives"] = outcomes
+        day["lab"] = summary
+        prior_outcomes.extend(_normalise_daily_text(item) for item in outcomes)
+
+
+async def _enrich_manual_toc_if_available(toc: dict) -> bool:
+    """Apply the same daily enrichment to Manual/Template TOCs when AI is configured."""
+    settings = get_settings()
+    api_key = str(getattr(settings, "OPENAI_API_KEY", "") or "").strip()
+    if not api_key:
+        return False
+    try:
+        from openai import AsyncOpenAI
+        client = AsyncOpenAI(api_key=api_key)
+        await _enrich_toc_days_with_ai(
+            client, str(getattr(settings, "OPENAI_MODEL", "gpt-5.5") or "gpt-5.5"), toc,
+        )
+        return True
+    except Exception:
+        logger.exception("Manual TOC daily enrichment failed; retaining deterministic output")
+        return False
+
+
+async def _generate_ai_toc(payload: TocRequest) -> Optional[dict]:
+    """Create a ToC from the approved backbone, enriching each day independently."""
     settings = get_settings()
     api_key = str(getattr(settings, "OPENAI_API_KEY", "") or "").strip()
     if not api_key:
@@ -319,83 +495,13 @@ async def _generate_ai_toc(payload: TocRequest) -> Optional[dict]:
             payload.domain, days, payload.level, payload.mode, payload.notes or "",
             audience_level=payload.audience_level or "", training_dates=payload.training_dates or "",
         )
-    ordered_backbone = [day.get("focus_area") for day in backbone.get("days") or []]
-    schema = {
-        "type": "object",
-        "properties": {
-            "title": {"type": "string"},
-            "overview": {"type": "string"},
-            "days": {
-                "type": "array",
-                "minItems": days,
-                "maxItems": days,
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "day": {"type": "integer"},
-                        "title": {"type": "string"},
-                        "focus_area": {"type": "string"},
-                        "subtopics": {"type": "array", "items": {"type": "string"}},
-                        "tools": {"type": "array", "items": {"type": "string"}},
-                        "lab": {"type": "string"},
-                        "learning_objectives": {"type": "array", "items": {"type": "string"}},
-                    },
-                    "required": ["day", "title", "focus_area", "subtopics", "tools", "lab", "learning_objectives"],
-                    "additionalProperties": False,
-                },
-            },
-        },
-        "required": ["title", "overview", "days"],
-        "additionalProperties": False,
-    }
     try:
         from openai import AsyncOpenAI
         client = AsyncOpenAI(api_key=api_key)
-        response = await client.responses.create(
-            model=str(getattr(settings, "OPENAI_MODEL", "gpt-5.5") or "gpt-5.5"),
-            reasoning={"effort": "low"},
-            text={"format": {"type": "json_schema", "name": "ai_toc_template", "strict": True, "schema": schema}, "verbosity": "low"},
-            instructions=(
-                "Create a professional corporate-training Table of Contents using exactly the supplied requirement scope. "
-                "The output will be inserted into the approved green eight-column Excel template: Day Number, Training "
-                "Date, Weekday, Timing, Main Topic, Subtopics, Hands-on / Lab Activity, and Learning Outcomes. Produce "
-                "one complete row of content for each training day: focus_area maps to Main Topic, subtopics maps to "
-                "Subtopics, lab maps to Hands-on / Lab Activity, and learning_objectives maps to Learning Outcomes. "
-                "Use exactly the requested number of days. Every day must have a main topic, practical subtopics, named "
-                "tools/services, a realistic hands-on exercise, and measurable learning outcomes. Order content from "
-                "foundations through implementation, automation, monitoring/security, and an end-to-end deployment where "
-                "the supplied technology scope supports it. Cover every technology explicitly requested by the client; do "
-                "not substitute a generic curriculum or omit requested technologies. Dates, weekday, daily hours, and "
-                "participant count are applied by the workbook renderer from the supplied requirement details. Do not invent "
-                "client facts, certifications, pricing, dates, or product access. Return only JSON matching the schema."
-                f" Level contract: {_ai_level_contract(payload.level)} The ordered curriculum backbone supplied in the "
-                "input is mandatory: preserve its prerequisite sequence and technical depth. Expand it into specific "
-                "subtopics, labs, and measurable outcomes; do not replace it with a generic syllabus."
-                f"{_ai_curriculum_rules()}"
-            ),
-            input=json.dumps({
-                "technology": " + ".join(_required_technologies(payload)),
-                "technology_allocations": allocations,
-                "duration_days": days,
-                "level": payload.level,
-                "mode": payload.mode,
-                "audience_level": payload.audience_level or "",
-                "client_topics": payload.custom_topics or "",
-                "client_notes": payload.client_notes or payload.notes or "",
-                "training_dates": payload.training_dates or "",
-                "timing": payload.timing or "",
-                "hours_per_day": payload.hours_per_day or "",
-                "participant_count": payload.participant_count or "",
-                "ordered_curriculum_backbone": ordered_backbone,
-            }, ensure_ascii=False),
-            max_output_tokens=6000,
+        await _enrich_toc_days_with_ai(
+            client, str(getattr(settings, "OPENAI_MODEL", "gpt-5.5") or "gpt-5.5"), backbone,
         )
-        toc = json.loads(response.output_text)
-        for item in toc.get("days") or []:
-            subtopics = [str(value).strip() for value in item.get("subtopics") or [] if str(value).strip()]
-            item["morning_session"] = {"time": "", "title": "Concepts", "topics": subtopics[:max(1, len(subtopics) // 2)]}
-            item["afternoon_session"] = {"time": "", "title": "Hands-on", "topics": subtopics[max(1, len(subtopics) // 2):] or [item.get("lab") or "Guided lab"]}
-        toc = validate_toc(toc, days)
+        toc = validate_toc(backbone, days)
         if not _ai_toc_passes_level_gate(toc, payload.level) or not _ai_toc_passes_requirement_gate(toc, payload, days):
             logger.warning("AI ToC rejected because it violated level, duration, technology coverage, or uniqueness rules")
             return None
@@ -449,6 +555,9 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
                 if knowledge:
                     used_generation_mode = "template_knowledge"
             toc = validate_toc(toc, int(payload.duration_days))
+            if requested_mode != "ai" and payload.allow_ai_enrichment and await _enrich_manual_toc_if_available(toc):
+                toc = validate_toc(toc, int(payload.duration_days))
+                used_generation_mode = "template_ai_enriched"
     except Exception:
         # Fallback to minimal if generator fails
         toc = _minimal_toc(payload.domain, payload.duration_days)
@@ -468,6 +577,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         toc["timing"] = payload.timing
     if payload.trainer_name:
         toc["trainer_name"] = payload.trainer_name
+    _apply_requirement_quality(toc, payload)
     _attach_ai_generation_templates(toc, payload)
 
     toc_id = payload.toc_id or f"TOC-{uuid.uuid4().hex[:10].upper()}"
@@ -493,6 +603,57 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     })
 
     return {"success": True, "toc_id": toc_id, "toc_data": toc}
+
+
+def _apply_requirement_quality(toc: dict, payload: TocRequest) -> None:
+    """Do not mistake structural completeness for client scope approval."""
+    warnings = []
+    hours = payload.hours_per_day
+    if hours is not None and not 0 < hours <= 24:
+        raise HTTPException(422, "Training hours per day must be greater than zero and at most 24")
+    toc["hours_per_day"] = hours
+    timing = payload.timing or "To be confirmed"
+    for day in toc.get("days") or []:
+        day["timing"] = timing
+        day["hours_per_day"] = hours
+        # Dataset sessions contain fixed 9-5 times. Preserve curriculum, but
+        # remove those invented times from every exported session and topic.
+        for key in ("morning_session", "afternoon_session"):
+            session = day.get(key) or {}
+            session["time"] = "To be confirmed"
+            for topic in session.get("topics") or []:
+                if isinstance(topic, dict):
+                    topic.pop("time", None)
+            day[key] = session
+    if not hours:
+        warnings.append("Confirm training hours per day independently of lab-access hours")
+    else:
+        overloaded = []
+        for index, day in enumerate(toc.get("days") or [], 1):
+            # Conservative minimum planning budget: ten minutes per subtopic,
+            # one practical lab (45 minutes), and a 15-minute assessment.
+            minimum_minutes = len(day.get("subtopics") or []) * 10 + 60
+            day["minimum_planned_minutes"] = minimum_minutes
+            if minimum_minutes > hours * 60:
+                overloaded.append(str(day.get("day") or index))
+        if overloaded:
+            warnings.append("Daily workload exceeds training hours on day(s): " + ", ".join(overloaded))
+
+    # Search curriculum only: echoing a topic in overview/metadata is not coverage.
+    curriculum = json.dumps([
+        {key: day.get(key) for key in ("focus_area", "subtopics", "lab", "learning_objectives")}
+        for day in toc.get("days") or []
+    ], ensure_ascii=False).lower()
+    requested = [part.strip() for part in re.split(r"[;,\n]+", payload.custom_topics or "") if part.strip()]
+    from shared.toc_quality import topic_is_covered
+    missing = [topic for topic in requested if not topic_is_covered(topic, curriculum)]
+    if missing:
+        warnings.append("Requested topics need coverage review: " + "; ".join(missing))
+    quality = toc.setdefault("quality", {})
+    quality["missing_requested_topics"] = missing
+    quality["review_warnings"] = warnings
+    if warnings and quality.get("status") != "requires_regeneration":
+        quality["status"] = "requires_review"
 
 
 def _as_text_list(value) -> List[str]:
