@@ -288,13 +288,13 @@ def _simple_trainer_mail1_body(payload: ShortlistEmailRequest, domain: str, requ
         if not ask
         else f"Please let us know whether you are available for this requirement and share your {ask}"
     )
-    needs_slots = bool(payload.request_interview_slots) or proposal_flow or any("availability" in item.lower() for item in selected)
+    needs_slots = True  # Mail 1 collects interview availability for both shortlist flows.
     slot_request = (
         "\n\nPlease also share three convenient interview/discussion slots with the date, time, and time zone.\n"
-        "Example:\n"
-        "- 04 September 2026, 10:00 AM IST\n"
-        "- 04 September 2026, 2:00 PM IST\n"
-        "- 04 September 2026, 4:00 PM IST\n"
+        "Format only; please replace the placeholders with your actual availability:\n"
+        "- [Your available date 1], [time], [time zone]\n"
+        "- [Your available date 2], [time], [time zone]\n"
+        "- [Your available date 3], [time], [time zone]\n"
         if needs_slots else ""
     )
     if not proposal_flow:

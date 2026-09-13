@@ -132,8 +132,17 @@ def _toc_to_eight_column_template(toc: Dict[str, Any], template_path: Path) -> b
         sheet.cell(row, 2).number_format = "dd-mmm-yyyy"
         sheet.row_dimensions[row].height = max(sheet.row_dimensions[row].height or 15, 72)
 
+    # Keep scheduling inputs for curriculum sizing, but the delivered ToC
+    # contains only curriculum content for both proposals and confirmed batches.
+    sheet.delete_cols(7)  # Separate lab-task column is not part of the ToC.
+    sheet.delete_cols(1, 4)  # Day number, date, weekday, and timing.
+    for column, heading in enumerate(("Topic", "Subtopics", "Learning Outcomes"), 1):
+        sheet.cell(1, column, heading)
+    for column, width in (("A", 38), ("B", 75), ("C", 65)):
+        sheet.column_dimensions[column].width = width
     sheet.freeze_panes = "A2"
-    sheet.auto_filter.ref = f"A1:H{max(sheet.max_row, len(days) + 1)}"
+    sheet.auto_filter.ref = f"A1:C{max(sheet.max_row, len(days) + 1)}"
+    sheet.print_area = sheet.auto_filter.ref
     output = io.BytesIO()
     workbook.save(output)
     return output.getvalue()
@@ -688,7 +697,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         if isinstance(value, str) and value.startswith("="):
             return value
         try:
-            return max(0, int(value))
+            return max(0, float(value) if key == "object_storage_gb" else int(value))
         except (TypeError, ValueError):
             return fallback
 
@@ -749,6 +758,10 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     if isinstance(rate_card_overrides, dict):
         for row in range(4, rate_end_row + 1):
             if rate_ws.cell(row, 1).value != provider_label or rate_ws.cell(row, 2).value != region_label:
+                # Other-provider template examples are not verified prices.
+                rate_ws.cell(row, 5).value = None
+                rate_ws.cell(row, 6).value = None
+                rate_ws.cell(row, 8, 'Not priced for this quote')
                 continue
             resource = str(rate_ws.cell(row, 3).value or "")
             override = rate_card_overrides.get(resource) or rate_card_overrides.get(resource.lower())
@@ -798,7 +811,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         profile_rate_rows[profile] = rate_end_row
     for row in range(4, rate_end_row + 1):
         resource = rate_ws.cell(row, 3).value
-        if resource not in {"VM Light", "VM Heavy"}:
+        if resource not in {"VM Light", "VM Heavy"} and rate_ws.cell(row, 1).value == provider_label and rate_ws.cell(row, 2).value == region_label:
             rate_ws.cell(row, 6, f"=E{row}*'Assumptions'!$B$15")
 
     # Billing is driven by resource-days in the mapping. This avoids the old
@@ -857,7 +870,7 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     assumptions_ws["C22"] = "participant-days"
     assumptions_ws["D22"] = "At or above this engagement size, Standard is automatically quoted as Advanced support"
     assumptions_ws["A23"] = "Applied support tier"
-    assumptions_ws["B23"] = "=IF(B9*B8>=B22,\"Advanced\",B18)"
+    assumptions_ws["B23"] = "=IF(AND(B18=\"Standard\",B9*B8>=B22),\"Advanced\",B18)"
     assumptions_ws["C23"] = "tier"
     assumptions_ws["D23"] = "Uses participant count × training days"
     assumptions_ws["A24"] = "Basic support rate"
@@ -890,6 +903,10 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
         ("Rates checked at (UTC)", values.get("rate_checked_at") or "Not recorded", "timestamp", "Rate snapshot timestamp"),
         ("Quote valid until (UTC)", values.get("quote_valid_until") or "Not recorded", "timestamp", "Recalculate from current rates after this time"),
         ("Price-change review threshold", as_number("price_change_review_threshold_percent", 5, 0), "%", "Escalate for review when refreshed pricing changes beyond this threshold"),
+        ("Lab architecture", values.get('architecture_note') or 'Caller-supplied per-day resource mapping', 'assumption', 'Quantities are total resources; learner VMs scale with participants, shared services do not'),
+        ("FX status", 'User-supplied assumption', 'status', 'USD/INR is not verified by the cloud price lookup; confirm before approval'),
+        ("Support pricing status", 'Configured' if support > 0 or values.get('advanced_support_per_participant_day') else 'Unconfigured / zero charge', 'status', 'No support price is invented. Confirm the applied tier rate before client approval'),
+        ("Quote approval status", 'Draft — commercial review required', 'status', 'Provider verification covers selected resource rates only; confirm architecture, access hours, support, FX, taxes and exclusions'),
     ]
     for row, values_row in enumerate(provenance_rows, start=28):
         for column, value in enumerate(values_row, start=1):
@@ -1442,6 +1459,24 @@ async def export_toc_workbook(payload: Dict[str, Any] = Body(...)):
     )
 
 
+@router.post("/toc/lab-cost/combine")
+async def combine_cloud_lab_costs(payload: Dict[str, Any] = Body(...)):
+    import base64
+    from app.lab_sheet import combine_lab_estimates
+    try:
+        inputs = payload.get('estimates') or []
+        content = combine_lab_estimates([
+            (item['provider'], base64.b64decode(item['content_base64'], validate=True))
+            for item in inputs
+        ])
+    except Exception as exc:
+        logger.exception('Could not consolidate cloud estimates')
+        raise HTTPException(422, 'Could not combine complete cloud estimates') from exc
+    return Response(content=content,
+        media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        headers={'Content-Disposition': 'attachment; filename=lab_cost_estimate.xlsx'})
+
+
 @router.post("/toc/lab-cost")
 async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=Depends(get_db)):
     toc = payload.get("toc") if isinstance(payload.get("toc"), dict) else payload
@@ -1450,8 +1485,8 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
     if error:
         raise HTTPException(422, error)
     assumptions = payload.get("assumptions") if isinstance(payload.get("assumptions"), dict) else {}
-    from shared.lab_cost_inputs import validate_lab_cost_inputs
-    from shared.live_lab_pricing import refresh_rates, automatic_pricing_selections
+    from shared.lab_cost_inputs import validate_lab_cost_inputs, validate_lab_pricing_coverage
+    from shared.live_lab_pricing import refresh_rates
     from starlette.concurrency import run_in_threadpool
     import hashlib
     import json
@@ -1461,6 +1496,21 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         for key in ('rate_snapshot_id', 'rate_snapshot_source', 'rate_checked_at', 'quote_valid_until'):
             assumptions.pop(key, None)
         assumptions = validate_lab_cost_inputs(assumptions)
+        if not assumptions.get('lab_day_mapping'):
+            from shared.lab_planning import default_cloud_mapping
+            assumptions['lab_day_mapping'] = default_cloud_mapping(toc, assumptions)
+            assumptions['architecture_note'] = (
+                'Proposed cloud lab: one learner VM per participant on practical days; '
+                'generic Kubernetes runs locally on heavy learner VMs. Explicit managed '
+                'clusters, database and object storage are shared. No resources have been provisioned. '
+                'Compute hours use the supplied lab-access assumption; disk/storage retention '
+                'uses active days and requires deletion after each mapped lab period.'
+            )
+        from shared.lab_planning import validate_mapping
+        mapping = assumptions['lab_day_mapping']
+        if isinstance(mapping, dict):
+            mapping = [mapping.get(str(i)) or mapping.get(i) for i in range(1, len(toc.get('days') or []) + 1)]
+        assumptions['lab_day_mapping'] = validate_mapping(mapping, len(toc.get('days') or []))
         # Selections may be maintained centrally; never substitute stored rates.
         if not assumptions.get('pricing_selections'):
             config = await db['lab_pricing_catalogs'].find_one({
@@ -1468,8 +1518,11 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
             }, {'_id': 0})
             assumptions['pricing_selections'] = (config or {}).get('selections', {})
         if not assumptions.get('pricing_selections'):
-            assumptions['pricing_selections'] = automatic_pricing_selections(toc, assumptions)
-            assumptions['pricing_profile'] = 'automatic_baseline'
+            raise ValueError(
+                'No approved pricing architecture is configured for this provider and region; '
+                'configure exact SKUs before generating a client lab-cost workbook'
+            )
+        validate_lab_pricing_coverage(toc, assumptions)
     except (ValueError, TypeError) as exc:
         raise HTTPException(422, str(exc)) from exc
     selection_key = hashlib.sha256(json.dumps({
@@ -1479,28 +1532,17 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
     previous = await db['lab_cost_rate_snapshots'].find_one(
         {'selection_key': selection_key}, sort=[('rate_checked_at', -1)])
     try:
-        # This is always attempted first. A cached rate is only a resilience
-        # fallback when the public provider endpoint is unavailable.
+        # Every workbook requires a fresh provider lookup.
         assumptions = await run_in_threadpool(refresh_rates, assumptions)
+    except ValueError as exc:
+        # Invalid SKU, billing units, or architecture cannot use old rates.
+        raise HTTPException(422, str(exc)) from exc
     except Exception as exc:
-        if (not previous or not previous.get('rates') or
-                any(rate.get('sku') == 'NOT_BILLED' for rate in previous['rates'].values())):
-            logger.exception('Provider price refresh failed and no verified cache exists')
-            raise HTTPException(503, 'Live pricing is temporarily unavailable and no verified cached rate exists yet') from exc
-        from uuid import uuid4
-        cached_assumptions = dict(previous.get('assumptions') or {})
-        assumptions['rate_card_overrides'] = previous['rates']
-        assumptions['vm_profile_rates'] = cached_assumptions.get('vm_profile_rates', {})
-        assumptions['vm_profile_sources'] = cached_assumptions.get('vm_profile_sources', {})
-        assumptions['rate_snapshot_id'] = 'LCQ-CACHED-' + uuid4().hex.upper()
-        assumptions['rate_checked_at'] = previous.get('rate_checked_at')
-        assumptions['rate_card_verified_date'] = previous.get('rate_checked_at')
-        assumptions['rate_snapshot_source'] = next(
-            (row.get('source') for row in previous['rates'].values() if row.get('source')), '')
-        assumptions['quote_valid_until'] = previous.get('quote_valid_until')
-        assumptions['pricing_status'] = 'cached_verified_public_retail_provider_unavailable'
-        assumptions['pricing_fallback_reason'] = str(exc)[:250]
-        logger.warning('Using cached verified lab prices after provider refresh failed: %s', exc)
+        logger.exception('Fresh provider price refresh failed; client workbook is blocked')
+        raise HTTPException(
+            503,
+            'Fresh public provider pricing is temporarily unavailable; client workbook generation is blocked',
+        ) from exc
     if ai_usage:
         from shared.ai_pricing import resolve_ai_cost
         usage = ai_usage if isinstance(ai_usage, dict) else {}

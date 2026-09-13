@@ -4,7 +4,7 @@ COPY microservices/services/meet-bot-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 # Used only for the one-time, localhost-only Google login screen.  The normal
 # service never exposes VNC or noVNC.
-RUN apt-get update && apt-get install -y --no-install-recommends x11vnc novnc websockify \
+RUN apt-get update && apt-get install -y --no-install-recommends x11vnc novnc websockify espeak-ng \
     && rm -rf /var/lib/apt/lists/*
 COPY microservices/services/meet-bot-service/app ./app
 ENV PYTHONPATH=/app

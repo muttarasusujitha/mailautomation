@@ -167,6 +167,7 @@ def _detected_skills_from_text(text: str) -> List[str]:
         for skill, aliases in SKILL_PATTERNS
         if any(_has_skill_alias(lower, alias) for alias in aliases)
     ]
+    matches.extend(skill for skill in COMMON_SKILLS if _has_skill_alias(lower, skill.lower()))
     if "MERN Stack" in matches:
         matches.extend(["MongoDB", "Express.js", "React", "Node.js", "JavaScript"])
     return _unique_list(matches)

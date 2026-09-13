@@ -845,7 +845,8 @@ def _combined_track_items(technology: str, days: int, level: str, domain_overrid
 def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str = "intermediate", mode: str = "Online", notes: str = "", domain_override: dict = None, audience_level: str = "", training_dates: str = "") -> dict:
     duration = max(1, min(int(duration_days or 1), 100))
     level = _normalize_level(level)
-    domain = deepcopy(domain_override) if domain_override else (get_domain(domain_name, duration) or _generic_domain(domain_name))
+    matched_domain = deepcopy(domain_override) if domain_override else get_domain(domain_name, duration)
+    domain = matched_domain or _generic_domain(domain_name)
     topics = _select_topics(domain, duration, level)
     days = [_day_entry(domain, item, index + 1, duration, notes) for index, item in enumerate(topics)]
     tools = []
@@ -943,6 +944,7 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
             "level": level,
         },
     }
+    toc['unsupported_curriculum'] = not bool(matched_domain)
     return validate_toc(_enrich_programme_pack(toc, audience_level, training_dates), duration)
 
 
@@ -991,6 +993,10 @@ def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "i
             day_number += 1
 
     if duration >= 5 and combined_days:
+        includes_agentic_ai = any(
+            re.search(r"\b(?:agentic\s*ai|llmops|ai\s+agents?)\b", name, re.I)
+            for name in names
+        )
         final_day = combined_days[-1]
         final_day["title"] = f"Day {duration}: Integrated Capstone - {combined_name}"
         final_day["focus_area"] = f"Integrated {combined_name} Capstone"
@@ -998,20 +1004,27 @@ def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "i
             "Integrate the requested technologies into one delivery workflow",
             "Validate logs, deployment status, alerts and remediation recommendations",
             "Apply secure identity, secrets handling, policy checks and approval gates",
-            "Apply LLMOps evaluation gates, agent guardrails, human escalation and audit evidence",
+            ("Apply LLMOps evaluation gates, agent guardrails, human escalation and audit evidence"
+             if includes_agentic_ai else "Verify acceptance criteria, automated checks and delivery evidence"),
             "Demonstrate rollback, incident triage and recovery decisions",
             "Present the solution architecture, evidence and operational trade-offs",
         ]
         final_day["lab"] = f"Build, deploy, observe, troubleshoot and demonstrate an integrated {combined_name} delivery solution"
-        final_day["tools"] = " + ".join(combined_tools or ["Git", "Terraform", "Kubernetes", "Python", "LangGraph"])
+        final_day["tools"] = " + ".join(combined_tools or names)
         final_day["learning_objectives"] = [
             "Integrate the requested technologies into one production-oriented delivery workflow",
-            "Validate deployment, observability, security controls, LLMOps evaluation gates and AI-agent guardrails using evidence",
+            ("Validate deployment, observability, security controls, LLMOps evaluation gates and AI-agent guardrails using evidence"
+             if includes_agentic_ai else "Validate deployment, observability and security controls using test evidence"),
             "Explain design, rollback and incident-response decisions to stakeholders",
         ]
         final_day["morning_session"]["title"] = "Integrated Capstone - Design and Demonstration"
         final_day["afternoon_session"]["title"] = "Integrated Capstone - Hands-on"
         final_day["afternoon_session"]["topics"][2]["topic"] = f"Lab: {final_day['lab']}"
+        # Session detail must agree with the replaced day-level capstone.
+        for key, topics in (("morning_session", final_day["subtopics"][:3]),
+                            ("afternoon_session", final_day["subtopics"][3:])):
+            final_day[key]["topics"] = [{"topic": topic} for topic in topics]
+        final_day["afternoon_session"]["topics"].append({"topic": f"Lab: {final_day['lab']}"})
 
     tools = list(combined_tools)
     certs = []
@@ -1044,6 +1057,11 @@ def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "i
     })
     if domain_overrides:
         toc.setdefault("agent", {})["source"] = "admin_knowledge_base"
+    toc['unsupported_curriculum'] = any(
+        not domain_overrides.get(item['technology'].strip().lower())
+        and not get_domain(item['technology'], item['days'])
+        for item in normalized
+    )
     return validate_toc(_enrich_programme_pack(toc, audience_level, training_dates), duration)
 
 
@@ -1109,7 +1127,8 @@ def validate_toc(toc_data: dict, duration_days: int) -> dict:
     }
     focus_names = [str(day.get("focus_area") or day.get("title") or "").strip().lower() for day in days]
     quality_passed = (
-        len(days) == expected
+        not toc.get('unsupported_curriculum')
+        and len(days) == expected
         and len(focus_names) == len(set(focus_names))
         and all(not _is_generic_lab_activity(day.get("lab")) for day in days)
         and all(len(_as_list(day.get("subtopics"))) >= _subtopic_target(day.get("focus_area") or day.get("title")) for day in days)

@@ -4,6 +4,7 @@ import base64
 import html
 import hashlib
 import io
+import json
 import logging
 import math
 import re
@@ -1163,7 +1164,14 @@ def _infer_technology(subject: str, body: str) -> str:
 def _extract_duration(text: str) -> Dict[str, Any]:
     raw = _field_value(text, ["Duration", "Training Duration"])
     source = raw or text
-    match = re.search(r"(\d+(?:\.\d+)?)\s*(days?|weeks?|months?|hours?|hrs?)", source, flags=re.IGNORECASE)
+    # Clients commonly write "20 Training Days" rather than simply
+    # "20 Days".  Treat the descriptive word as part of the duration label,
+    # not as a reason to discard an otherwise explicit duration.
+    match = re.search(
+        r"(\d+(?:\.\d+)?)\s*(?:(?:training|working)\s+)?(days?|weeks?|months?|hours?|hrs?)",
+        source,
+        flags=re.IGNORECASE,
+    )
     if not match:
         return {"duration_text": raw}
 
@@ -1511,12 +1519,47 @@ def _is_linked_trainer_thread(email_doc: Dict[str, Any]) -> bool:
     )
 
 
+def _latest_authored_email_text(value: Any) -> str:
+    """Return only the new message, without falling back to quoted history.
+
+    This is deliberately stricter than ``_strip_quoted_email_history``.  The
+    latter preserves its input when a message contains only quoted material,
+    which is useful for display/extraction fallbacks but unsafe for intent
+    classification: an old request must never be attributed to the trainer's
+    newest reply.
+    """
+    text = _plain_text_lines(value)
+    if not text:
+        return ""
+    quote_marker = re.compile(
+        r"^On .{0,160} wrote:$|^From:\s+|^Sent:\s+|^To:\s+|^Subject:\s+|"
+        r"^-{2,}\s*Original Message\s*-{2,}$|^_{5,}$",
+        flags=re.IGNORECASE,
+    )
+    kept: List[str] = []
+    for line in text.splitlines():
+        clean_line = line.strip()
+        if clean_line.startswith(">") or quote_marker.search(clean_line):
+            break
+        kept.append(clean_line)
+    return "\n".join(kept).strip()
+
+
 def _is_linked_trainer_question(email_doc: Dict[str, Any], subject: str, body: str) -> bool:
     """Detect a real question before a trainer reply can advance the pipeline."""
     if not _is_linked_trainer_thread(email_doc):
         return False
-    latest = _plain_text(_strip_quoted_email_history(body) or body).strip().lower()
+    authored = _latest_authored_email_text(body)
+    latest = _plain_text(authored).strip().lower()
     if not latest:
+        return False
+    # Mail 1 requests three interview/discussion options.  A trainer who
+    # supplies exactly those options is responding to that request, not
+    # asking a clarification question.  This guard is intentionally before
+    # question detection because a quoted original message can contain words
+    # such as "please confirm" (or a stray question mark) in some mail
+    # clients.
+    if _slot_reply_intent(authored) in {"valid_slots", "unclear_slots", "too_many_slots"}:
         return False
     # Do not mistake normal acceptance/details statements such as "I can take
     # the training" for questions merely because they contain the word "can".
@@ -1984,11 +2027,19 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         text,
         flags=re.IGNORECASE,
     )
-    if lab_daily_match and lab_delivery_requested:
+    if lab_daily_match and lab_cost_requested:
         lab_hours_per_day = _safe_float(lab_daily_match.group(1))
     lab_total_match = re.search(r"\btotal\s+lab\s+duration\s*:\s*(\d+(?:\.\d+)?)\s*hours?", text, flags=re.IGNORECASE)
     if lab_total_match:
         total_lab_duration_hours = _safe_float(lab_total_match.group(1))
+    cloud_platforms = []
+    if re.search(r"\baws\b|\bamazon\s+web\s+services\b", lower):
+        cloud_platforms.append("AWS")
+    if re.search(r"\bazure\b|\bmicrosoft\s+azure\b", lower):
+        cloud_platforms.append("Azure")
+    if re.search(r"\b(?:gcp|google\s+cloud)\b", lower):
+        cloud_platforms.append("GCP")
+    cloud_provider = " & ".join(cloud_platforms)
     duration = _extract_duration(text)
     budget = _extract_budget(text)
     dates = _extract_preferred_dates(text)
@@ -2050,6 +2101,21 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
 
     requested_details = []
     clahan_managed_details = []
+    # A line such as "Training Commercial: INR 540,000" supplies the
+    # client's budget; it does not ask us to send trainer commercials back.
+    # Only retain commercials as a requested deliverable when the same line
+    # actually asks for a quote/rate/commercial response.
+    commercial_requested_explicitly = any(
+        re.search(
+            r"\b(?:share|send|provide|submit|quote|require|need|kindly\s+share)\b.{0,70}"
+            r"\b(?:commercials?|rates?|pricing|quote|quotation)\b"
+            r"|\b(?:commercials?|rates?|pricing|quote|quotation)\b.{0,70}"
+            r"\b(?:share|send|provide|submit|required|needed)\b",
+            line,
+            flags=re.IGNORECASE,
+        )
+        for line in _plain_text_lines(text).splitlines()
+    )
     detail_map = {
         "cv": "Updated CV / Trainer Profile",
         "resume": "Updated Resume",
@@ -2093,6 +2159,8 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         "availability of required software": "Availability of required software from trainer side",
     }
     for needle, label in detail_map.items():
+        if label == "Commercials (per hour/day)" and not commercial_requested_explicitly:
+            continue
         if needle in lower and label not in requested_details:
             requested_details.append(label)
     if lab_cost_requested:
@@ -2145,6 +2213,7 @@ def _extract_requirement_from_email(subject: str, body: str, sender_email: str =
         "hands_on_lab": hands_on_lab,
         "lab_hours_per_day": lab_hours_per_day,
         "total_lab_duration_hours": total_lab_duration_hours,
+        "cloud_provider": cloud_provider,
         "lab_cost_requested": lab_cost_requested,
         "lab_required_tools_requested": "lab_requirements" in requirement_categories,
         "lab_delivery_preference": "local_or_cloud_to_be_confirmed" if "lab_delivery_preference" in requirement_categories else "",
@@ -2385,6 +2454,54 @@ def _reply_signature() -> str:
     return "Best Regards,\nClahan Technologies"
 
 
+def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
+    """State the exact lab inputs supplied by the client, or disclose defaults."""
+    if "Lab availability and cost" not in (extracted.get("clahan_managed_details") or []):
+        return ""
+
+    participants = _safe_int(extracted.get("participant_count"), 0)
+    hours_per_day = _safe_float(
+        extracted.get("lab_hours_per_day") or extracted.get("hours_per_day"), 0,
+    )
+    duration_days = _safe_float(extracted.get("duration_days"), 0)
+    if participants and hours_per_day:
+        def quantity(value: float) -> str:
+            return str(int(value)) if float(value).is_integer() else str(value)
+
+        scope = f"{participants} participants"
+        if duration_days:
+            scope += f", {quantity(duration_days)} lab-access days"
+        scope += f", and {quantity(hours_per_day)} lab-access hours per day"
+        return (
+            f"\n\nWe have noted the lab-estimate inputs: {scope}. "
+            "We will prepare the estimate using these confirmed inputs."
+        )
+
+    return (
+        "\n\nWe will prepare the lab estimate using 3 lab-access hours per day for 1 participant when those inputs are not provided. "
+        "Please share the participant count and required lab-access hours per day if you want the estimate calculated using different inputs."
+    )
+
+
+def _confirmed_requirement_scope_acknowledgement(extracted: Dict[str, Any]) -> str:
+    """Echo material client-supplied facts before committing to next steps."""
+    facts = []
+    duration = _safe_float(extracted.get("duration_days"), 0)
+    if duration:
+        duration_text = str(int(duration)) if duration.is_integer() else str(duration)
+        facts.append(f"{duration_text} training days")
+    if _clean(extracted.get("mode")):
+        facts.append(_clean(extracted["mode"]))
+    participants = _safe_int(extracted.get("participant_count"), 0)
+    if participants:
+        facts.append(f"{participants} participants")
+    if _clean(extracted.get("audience_level")):
+        facts.append(f"{_clean(extracted['audience_level'])} level")
+    if _clean(extracted.get("cloud_provider")):
+        facts.append(f"{_clean(extracted['cloud_provider'])} platforms")
+    return f"\n\nWe have recorded the confirmed batch scope: {', '.join(facts)}." if facts else ""
+
+
 def _client_requested_items_for_reply(extracted: Dict[str, Any]) -> str:
     requested_details = extracted.get("requested_details") or []
     if isinstance(requested_details, (list, tuple, set)):
@@ -2465,11 +2582,7 @@ def _client_short_requirement_ack(
         if missing
         else f"Thank you for sharing the {technology} training requirement."
     )
-    clahan_note = (
-        "\n\nWe will confirm lab availability and cost separately."
-        if "Lab availability and cost" in (extracted.get("clahan_managed_details") or [])
-        else ""
-    )
+    clahan_note = _lab_estimate_acknowledgement(extracted)
     if missing:
         body = (
             "Dear Team\n\n"
@@ -2486,7 +2599,7 @@ def _client_short_requirement_ack(
         )
         body = (
             "Dear Team,\n\n"
-            f"{opening}\n\n"
+            f"{opening}{_confirmed_requirement_scope_acknowledgement(extracted)}\n\n"
             f"{profile_action}"
             f"{_client_requested_items_for_reply(extracted)} for your review.{clahan_note}\n\n"
             + _reply_signature()
@@ -2652,6 +2765,14 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         f"Duration: {extracted.get('duration_text') or (str(extracted.get('duration_days')) + ' days' if extracted.get('duration_days') else 'To be confirmed')}",
         f"Timings: {extracted.get('timing') or 'To be confirmed'}",
     ]
+    if extracted.get("participant_count"):
+        lines.append(f"Participants: {extracted['participant_count']}")
+    if extracted.get("cloud_provider"):
+        lines.append(f"Cloud Platforms: {extracted['cloud_provider']}")
+    if extracted.get("lab_hours_per_day"):
+        lab_hours = _safe_float(extracted["lab_hours_per_day"], 0)
+        display_hours = str(int(lab_hours)) if lab_hours and lab_hours.is_integer() else str(extracted["lab_hours_per_day"])
+        lines.append(f"Lab Access: {display_hours} hours per day")
 
     # Use a concise, single-render template matching the requested clean version.
     body = (
@@ -2667,9 +2788,9 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         "- Commercials per day\n"
         "- LinkedIn profile, if available\n\n"
         "Please also share 3 convenient interview/discussion slots with the date, time, and time zone. For example:\n"
-        "- Monday, 15 September, 10:00 AM IST\n"
-        "- Tuesday, 16 September, 2:00 PM IST\n"
-        "- Wednesday, 17 September, 4:00 PM IST\n\n"
+        "- [Your available date 1], [time], [time zone]\n"
+        "- [Your available date 2], [time], [time zone]\n"
+        "- [Your available date 3], [time], [time zone]\n\n"
         f"Reference: {requirement_id}\n\n"
         + _reply_signature()
     )
@@ -2761,6 +2882,19 @@ async def _mark_shortlist_trainer_reply_received(
 
     now = reply_at or _now()
     body = email_doc.get("body_snippet") or email_doc.get("clean_body") or email_doc.get("body") or ""
+    # A replayed Gmail message must never move a delivered client handoff
+    # backwards to ``details_received``.  Inbox polling can legitimately see
+    # the same trainer reply again after the client-slot mail has been sent.
+    # Keep the handoff stage authoritative in that case.
+    existing = await db["shortlists"].find_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"_id": 0, "top_trainers.$": 1},
+    ) or {}
+    existing_trainer = (existing.get("top_trainers") or [{}])[0]
+    delivered_handoff = bool(existing_trainer.get("client_slots_sent")) or (
+        _clean(existing_trainer.get("slot_status")).lower() == "sent_to_client"
+    )
+
     set_fields = {
         "top_trainers.$.pipeline_status": status,
         "top_trainers.$.reply_status": "received",
@@ -3673,6 +3807,29 @@ def _trainer_detail_evidence_doc(
     return combined
 
 
+def _linkedin_profile_url(value: Any) -> str:
+    """Return a real LinkedIn profile URL, never a bare LinkedIn mention."""
+    match = re.search(
+        r"https?://(?:[a-z]{2,3}\.)?(?:www\.)?linkedin\.com/(?:in|pub|company)/[^\s<>)]+",
+        str(value or ""),
+        flags=re.IGNORECASE,
+    )
+    return match.group(0).rstrip(".,;:") if match else ""
+
+
+def _trainer_has_linkedin_profile(reply_text: Any, email_doc: Optional[Dict[str, Any]] = None) -> bool:
+    """LinkedIn is complete only when an actual profile URL was supplied."""
+    sources: List[Any] = [reply_text]
+    for source in (email_doc or {},):
+        if not isinstance(source, dict):
+            continue
+        sources.extend(source.get(key) for key in ("linkedin", "linkedin_url", "linkedin_profile"))
+        for profile in source.get("attachment_profiles") or []:
+            if isinstance(profile, dict):
+                sources.extend(profile.get(key) for key in ("linkedin", "linkedin_url", "linkedin_profile"))
+    return any(_linkedin_profile_url(value) for value in sources)
+
+
 def _trainer_missing_requested_details(
     text: Any,
     requirement: Optional[Dict[str, Any]] = None,
@@ -3761,7 +3918,13 @@ def _trainer_missing_requested_details(
             key == "availability" or (key == "commercials" and has_offered_budget)
         )
         supplied_by_client = key == "toc" and client_toc_supplied
-        if required and not supplied_by_resume and not supplied_by_intent and not supplied_by_client and not re.search(pattern, lower, flags=re.IGNORECASE):
+        supplied_in_reply = bool(re.search(pattern, lower, flags=re.IGNORECASE))
+        # "LinkedIn profile is not available" must not clear the checklist.
+        # The document reader and text parser can only mark it complete with
+        # a usable LinkedIn URL from the trainer or their structured profile.
+        if key == "linkedin":
+            supplied_in_reply = _trainer_has_linkedin_profile(reply_text, email_doc)
+        if required and not supplied_by_resume and not supplied_by_intent and not supplied_by_client and not supplied_in_reply:
             missing.append(label)
     # A detail-only reply must not be blocked by interview slots unless the
     # client or requirement explicitly requested those slots.
@@ -5262,6 +5425,20 @@ async def _handle_trainer_slot_reply(
         }
 
     pending_retry_after = trainer.get("client_handoff_retry_after")
+    from shared.handoff_inputs import handoff_input_version
+    input_version = handoff_input_version(requirement)
+    if (trainer.get("slot_status") == "client_handoff_needs_input"
+            and trainer.get("client_handoff_input_version") == input_version):
+        # Retry once after requirement inputs change; unchanged invalid inputs
+        # stay paused without repeated document generation or failed mail logs.
+        return {
+            "attempted": False,
+            "success": False,
+            "needs_input": True,
+            "reason": "client_handoff_needs_input",
+            "intent": intent,
+            "error": "Client handoff needs client input before delivery.",
+        }
     if isinstance(pending_retry_after, str):
         pending_retry_after = _parse_retry_after(f"Retry after {pending_retry_after}")
     if isinstance(pending_retry_after, datetime) and pending_retry_after > now:
@@ -5275,7 +5452,11 @@ async def _handle_trainer_slot_reply(
             "error": "Client handoff is queued for automatic retry.",
         }
 
-    slot_text = _extract_slot_lines(reply_text)
+    parsed_options = _slot_options_from_text(reply_text)
+    slot_text = "\n".join(
+        option["start"].strftime("%d %B %Y, %I:%M %p IST")
+        for option in parsed_options
+    ) if len(parsed_options) == 3 else _extract_slot_lines(reply_text)
     if not _has_proper_interview_slots(slot_text):
         await db["shortlists"].update_one(
             {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
@@ -5334,8 +5515,9 @@ async def _handle_trainer_slot_reply(
     retry_after: Optional[datetime] = None
     technical_error = ""
     handoff_in_progress = False
+    needs_input = False
     try:
-        async with httpx.AsyncClient(timeout=90) as client:
+        async with httpx.AsyncClient(timeout=300) as client:
             response = await _post_with_local_fallback(
                 client,
                 f"{TRAINER_SERVICE_URL}/api/v1/shortlists/send-client-slots",
@@ -5352,18 +5534,37 @@ async def _handle_trainer_slot_reply(
             )
             response.raise_for_status()
             sent = response.json()
-        # The client handoff is complete only after the downstream service
-        # confirms an actual outbound email record.  A generic 200 response
-        # must not turn the UI green when SMTP delivery did not occur.
-        downstream_email_id = _clean(sent.get("email_id"))
-        success = bool(sent.get("success")) and bool(downstream_email_id)
-        error = "" if success else _clean(
-            sent.get("error")
-            or sent.get("error_message")
-            or sent.get("message")
-            or "Client handoff was not confirmed as delivered."
-        )
-        email_id = downstream_email_id or email_id
+        if sent.get("pending_approval"):
+            # Preparation is complete, but no email has been authorized. Do
+            # not create a failed/sent log or schedule more preparation retries.
+            return {
+                "attempted": True, "success": False, "pending_approval": True,
+                "reason": "client_handoff_pending_approval", "error": "",
+                "package_id": sent.get("package_id"), "slot_text": slot_text,
+            }
+        if sent.get("needs_input") or sent.get("status") == "needs_input":
+            # A 422 from document/lab generation is a client-input problem,
+            # not a transient transport failure. Keep it visible and stop the
+            # inbox retry loop until the missing requirement data is confirmed.
+            needs_input = True
+            success = False
+            technical_error = _clean(sent.get("message") or sent.get("error") or "Required client inputs are missing.")
+            error = "Client handoff needs client input before delivery."
+            retry_after = None
+            email_id = ""
+        else:
+            # The client handoff is complete only after the downstream service
+            # confirms an actual outbound email record.  A generic 200 response
+            # must not turn the UI green when SMTP delivery did not occur.
+            downstream_email_id = _clean(sent.get("email_id"))
+            success = bool(sent.get("success")) and bool(downstream_email_id)
+            error = "" if success else _clean(
+                sent.get("error")
+                or sent.get("error_message")
+                or sent.get("message")
+                or "Client handoff was not confirmed as delivered."
+            )
+            email_id = downstream_email_id or email_id
     except httpx.HTTPStatusError as exc:
         response = exc.response
         try:
@@ -5376,11 +5577,16 @@ async def _handle_trainer_slot_reply(
         handoff_in_progress = response.status_code == 409 and "progress" in technical_error.lower()
         retry_after = _client_handoff_retry_after(response_detail, now)
         success = False
+        needs_input = response.status_code == 422
         error = (
             "Another worker is completing the client handoff. Delivery status will update automatically."
             if handoff_in_progress
+            else "Client handoff needs client input before delivery."
+            if needs_input
             else "Client handoff is temporarily delayed and will retry automatically."
         )
+        if needs_input:
+            retry_after = None
     except Exception as exc:
         technical_error = str(exc)
         retry_after = _client_handoff_retry_after(technical_error, now)
@@ -5405,33 +5611,37 @@ async def _handle_trainer_slot_reply(
             "error": error,
         }
 
-    await db["email_logs"].insert_one({
-        "email_id": email_id,
-        "direction": "outbound",
-        "recipient": client_email,
-        "to_email": client_email,
-        "subject": message["subject"],
-        "gmail_message_id": message_id_header,
-        "message_id_header": message_id_header,
-        "body": message["body"],
-        "body_snippet": message["body"][:300],
-        "status": "sent" if success else "failed",
-        "error_message": error if not success else "",
-        "error_detail": technical_error if not success else "",
-        "mail_type": "client_slots",
-        "source_email_id": email_doc.get("email_id"),
-        "source_gmail_message_id": source_gmail_message_id,
-        "source_mail3_email_id": (source_log or {}).get("email_id") or "",
-        "requirement_id": requirement_id,
-        "trainer_id": trainer_id,
-        "trainer_name": trainer.get("name") or email_doc.get("trainer_name") or "",
-        "client_email": client_email,
-        "slot_text": slot_text,
-        "sent_at": now if success else None,
-        "created_at": now,
-        "updated_at": now,
-    })
-    retry_pending = not success
+    # A needs-input response is a paused workflow, not an attempted email.
+    # Do not create a misleading failed delivery record; the handoff state
+    # below remains visible on the shortlist and resumes when inputs change.
+    if not success and not needs_input:
+        await db["email_logs"].insert_one({
+            "email_id": email_id,
+            "direction": "outbound",
+            "recipient": client_email,
+            "to_email": client_email,
+            "subject": message["subject"],
+            "gmail_message_id": message_id_header,
+            "message_id_header": message_id_header,
+            "body": message["body"],
+            "body_snippet": message["body"][:300],
+            "status": "sent" if success else "failed",
+            "error_message": error if not success else "",
+            "error_detail": technical_error if not success else "",
+            "mail_type": "client_slots",
+            "source_email_id": email_doc.get("email_id"),
+            "source_gmail_message_id": source_gmail_message_id,
+            "source_mail3_email_id": (source_log or {}).get("email_id") or "",
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+            "trainer_name": trainer.get("name") or email_doc.get("trainer_name") or "",
+            "client_email": client_email,
+            "slot_text": slot_text,
+            "sent_at": now if success else None,
+            "created_at": now,
+            "updated_at": now,
+        })
+    retry_pending = not success and not needs_input
     update_filter: Dict[str, Any] = {
         "requirement_id": requirement_id,
         "top_trainers.trainer_id": trainer_id,
@@ -5447,7 +5657,7 @@ async def _handle_trainer_slot_reply(
         }
     update_fields = {
         "top_trainers.$.pipeline_status": "slot_booked",
-        "top_trainers.$.slot_status": "sent_to_client" if success else "client_handoff_retry_pending",
+        "top_trainers.$.slot_status": "sent_to_client" if success else ("client_handoff_needs_input" if needs_input else "client_handoff_retry_pending"),
         "top_trainers.$.slot_reply_at": now,
         "top_trainers.$.slot_reply_text": slot_text,
         "top_trainers.$.client_slots_sent": bool(success),
@@ -5455,12 +5665,15 @@ async def _handle_trainer_slot_reply(
         "top_trainers.$.client_slots_email_id": email_id if success else "",
         "top_trainers.$.client_slot_error": "" if success else error,
         "top_trainers.$.client_handoff_error_detail": "" if success else technical_error,
-        "top_trainers.$.client_handoff_retry_after": None if success else retry_after,
+        "top_trainers.$.client_handoff_retry_after": None if success or needs_input else retry_after,
         "top_trainers.$.last_mail_error": "" if success else error,
         "top_trainers.$.reschedule_slots_sent_at": now if success and trainer.get("reschedule_requested") else trainer.get("reschedule_slots_sent_at"),
         "top_trainers.$.updated_at": now,
         "updated_at": now,
     }
+    if needs_input:
+        update_fields["pipeline_summary.current_stage"] = "client_handoff_needs_input"
+        update_fields["top_trainers.$.client_handoff_input_version"] = input_version
     update_doc: Dict[str, Any] = {"$set": update_fields}
     if not success:
         update_doc["$inc"] = {"top_trainers.$.client_handoff_attempts": 1}
@@ -5472,6 +5685,7 @@ async def _handle_trainer_slot_reply(
         "attempted": True,
         "success": success,
         "retry_pending": retry_pending,
+        "needs_input": needs_input,
         "retry_after": retry_after if retry_pending else None,
         "error": error or "",
         "error_detail": technical_error if not success else "",
@@ -5878,7 +6092,7 @@ def _slot_confirmation_intent(text: Any) -> str:
         flags=re.IGNORECASE,
     ):
         return "selected_slot_details"
-    if _has_proper_interview_slots(lower):
+    if len(_slot_options_from_text(lower)) == 1:
         return "selected_slot_details"
     if re.search(r"\b(book|confirm|select|choose|pick)\b[\s\S]*\bslot\b", lower, flags=re.IGNORECASE) and re.search(r"\b\d{1,2}(?::\d{2})?\s*(?:am|pm)\b", lower, flags=re.IGNORECASE):
         return "selected_slot_details"
@@ -5943,7 +6157,7 @@ async def _reschedule_mail_body(
 
 def _is_trainer_logistics_question(text: str) -> bool:
     return bool(re.search(
-        r"\b(?:travel|travelling|traveling|accommodation|stay|hotel|transport|local conveyance|reimbursement|expense|expenses)\b",
+        r"\b(?:travel|travelling|traveling|accommodation|stay|hotel|transport|local conveyance|reimbursement|expense|expenses|food|meals?|lunch|dinner|breakfast|per diem)\b",
         _plain_text(text), flags=re.IGNORECASE,
     ))
 
@@ -5977,9 +6191,26 @@ def _verified_logistics_details(requirement: Dict[str, Any]) -> List[str]:
         for key in (
             "travel_policy", "travel_arrangement", "travel_reimbursement",
             "accommodation_policy", "stay_details", "location",
+            "food_policy", "meal_arrangement", "food_reimbursement", "local_transport_policy",
         )
         if str(requirement.get(key) or "").strip()
     ]
+
+
+def _logistics_missing_topics(requirement: Dict[str, Any], text: str) -> List[str]:
+    groups = (
+        (r'travel|flight|train fare', 'travel arrangements and reimbursement terms', ('travel_policy', 'travel_arrangement', 'travel_reimbursement')),
+        (r'accommodation|stay|hotel', 'accommodation arrangements and charges', ('accommodation_policy', 'stay_details')),
+        (r'food|meal|lunch|dinner|breakfast|per diem', 'food provision and meal reimbursement terms', ('food_policy', 'meal_arrangement', 'food_reimbursement')),
+        (r'transport|conveyance|taxi|cab', 'local transport arrangements and charges', ('local_transport_policy',)),
+        (r'location|venue|address', 'training venue', ('location',)),
+    )
+    requested = [group for group in groups if re.search(group[0], text, re.I)]
+    if not requested:
+        requested = list(groups[:4])
+    return [label for _, label, keys in requested if not any(
+        _clean(requirement.get(key)).lower() not in ('', 'tbd', 'pending', 'unknown', 'to be confirmed') for key in keys
+    )]
 
 
 def _has_expense_commitment(text: str) -> bool:
@@ -5987,7 +6218,7 @@ def _has_expense_commitment(text: str) -> bool:
     return bool(re.search(
         r"\b(?:will|shall|is|are)\s+(?:be\s+)?(?:covered|reimbursed|paid|arranged|provided)\b"
         r"|\b(?:cover|reimburse|pay|arrange|provide)\s+(?:your\s+|all\s+|the\s+)?"
-        r"(?:travel|stay|hotel|accommodation|transport|expense|expenses)\b",
+        r"(?:travel|stay|hotel|accommodation|transport|expense|expenses|food|meals?|lunch|dinner|breakfast)\b",
         _plain_text(text),
         flags=re.IGNORECASE,
     ))
@@ -6016,8 +6247,9 @@ async def _handle_trainer_logistics_question(db: AsyncIOMotorDatabase, email_doc
     trainer_name = _clean(trainer.get("name") or trainer.get("trainer_name") or email_doc.get("from_name") or "Trainer")
     technology = _clean(req.get("technology_needed") or req.get("technology") or req.get("domain") or "training")
     known = _verified_logistics_details(req)
+    missing_topics = _logistics_missing_topics(req, text)
     settings_doc = await _load_admin_settings(db)
-    if known and trainer_email:
+    if known and not missing_topics and trainer_email:
         reference = f"Hi {trainer_name},\n\nRegarding your travel/stay query for the {technology} requirement:\n\n" + "\n".join(f"- {item}" for item in known) + "\n\nRegards,\nClahan Technologies"
         body, source = await _client_pipeline_email_body(db, requirement=req, workflow="trainer_logistics_answer", subject=f"Travel / Stay Details - {technology}", reference_body=reference, context={"trainer_name": trainer_name, "question": text, "verified_logistics": known})
         ok, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "trainer_reply", to=trainer_email, subject=f"Travel / Stay Details - {technology}", body=body, smtp_config=settings_doc.get("emailCfg") or None, message_id_header=generate_message_id())
@@ -6026,6 +6258,11 @@ async def _handle_trainer_logistics_question(db: AsyncIOMotorDatabase, email_doc
         return {"attempted": True, "success": False, "error": "Client email unavailable for logistics clarification"}
     subject = f"Travel / Stay Clarification Required - {technology}"
     reference = f"Dear {req.get('client_name') or 'Team'},\n\nThe shortlisted trainer has asked about travel, stay, or related expense arrangements for the {technology} requirement.\n\nPlease confirm the travel policy, accommodation/stay arrangement, local transport or reimbursement terms, and training location.\n\nRegards,\nClahan Technologies"
+    reference = (
+        f"Dear {req.get('client_name') or 'Team'},\n\nThe shortlisted trainer asked:\n{text}\n\n"
+        + "Please confirm " + "; ".join(missing_topics) + ". "
+        + "For each expense, specify whether you provide it directly, reimburse it, or expect the trainer to include it in the rate. Please include any limits and receipt requirements.\n\nRegards,\nClahan Technologies"
+    )
     body, source = await _client_pipeline_email_body(db, requirement=req, workflow="client_logistics_clarification", subject=subject, reference_body=reference, context={"trainer_name": trainer_name, "trainer_question": text, "technology": technology})
     message_id = generate_message_id()
     ok, error = await _send_verified_workflow_email(db, requirement_id, trainer_id, "client_reply", to=client_email, subject=subject, body=body, smtp_config=settings_doc.get("emailCfg") or None, message_id_header=message_id)
@@ -6858,18 +7095,30 @@ async def _handle_client_slot_confirmation_reply(
         return {"attempted": True, "success": False, "reason": "missing_client_email", "error": error, "intent": intent}
 
     selected_slot_text = _extract_slot_selection_text(reply_text)
+    inbound_sender = _email_address(email_doc.get("from_email") or email_doc.get("sender_email") or email_doc.get("sender") or email_doc.get("from"))
+    if inbound_sender != _email_address(client_email):
+        return {"attempted": False, "reason": "sender_not_linked_client"}
+    delivered_handoff = await db["email_logs"].find_one({
+        "requirement_id": requirement_id, "trainer_id": trainer_id,
+        "mail_type": "client_slots", "status": "sent", "direction": "outbound",
+    }, {"_id": 0, "email_id": 1})
+    if not delivered_handoff:
+        return {"attempted": True, "success": False, "reason": "client_handoff_not_delivered",
+                "error": "Approve and deliver the client package before scheduling the interview."}
     interview_date = selected_slot_text or _strip_quoted_email_history(reply_text)
     source_gmail_message_id = _current_inbound_message_id(email_doc)
     client_slots_email_id = (
         (email_doc.get("source_outbound_email_id") if source_mail_type == "client_slots" else "")
         or trainer.get("client_slots_email_id")
+        or delivered_handoff.get("email_id")
         or ""
     )
     client_slots_sent_at = trainer.get("client_slots_sent_at")
     source_client_slots_log: Optional[Dict[str, Any]] = None
-    if source_mail_type == "client_slots" and client_slots_email_id:
+    if client_slots_email_id:
         source_client_slots_log = await db["email_logs"].find_one(
-            {"email_id": client_slots_email_id, "mail_type": "client_slots"},
+            {"email_id": client_slots_email_id, "mail_type": "client_slots", "status": "sent",
+             "requirement_id": requirement_id, "trainer_id": trainer_id},
             {"_id": 0, "sent_at": 1, "created_at": 1, "slot_text": 1, "body": 1, "body_snippet": 1, "subject": 1},
             sort=[("created_at", -1)],
         )
@@ -6890,12 +7139,18 @@ async def _handle_client_slot_confirmation_reply(
         or ""
     )
     resolved_slot = _resolve_interview_slot_datetime(reply_text, source_slot_text)
+    offered_starts = {option["start"] for option in _slot_options_from_text(source_slot_text)}
+    if resolved_slot.get("start") and resolved_slot["start"] not in offered_starts:
+        return {"attempted": True, "success": False, "reason": "selected_slot_not_offered",
+                "error": "The selected time is not one of the delivered interview options. Please select an offered slot or request rescheduling."}
     if resolved_slot.get("label"):
         interview_date = resolved_slot["label"]
 
     duplicate_query: Dict[str, Any] = {
         "direction": "outbound",
-        "status": "sent",
+        # Reuse a Calendar link from an earlier failed delivery. Creating a
+        # new event for every SMTP retry leaves participants in different Meet rooms.
+        "status": {"$in": ["sent", "failed"]},
         "mail_type": "mail4",
         "requirement_id": requirement_id,
         "trainer_id": trainer_id,
@@ -6909,6 +7164,8 @@ async def _handle_client_slot_confirmation_reply(
             "recipient": 1,
             "subject": 1,
             "sent_at": 1,
+            "status": 1,
+            "body": 1,
             "interview_link": 1,
             "meet_link": 1,
             "calendar_event_id": 1,
@@ -6932,7 +7189,43 @@ async def _handle_client_slot_confirmation_reply(
                 trainer_id,
                 calendar_invite_result.get("error"),
             )
-        client_schedule_result: Dict[str, Any] = {"success": True, "already_sent": True}
+        # If Calendar succeeded but the original trainer email failed, retry
+        # that same email/link. Never silently mark a failed trainer invite as
+        # delivered and never create another Meet room for the retry.
+        trainer_schedule_success = existing.get("status") == "sent"
+        trainer_retry_error = ""
+        if not trainer_schedule_success:
+            retry_message = _trainer_interview_schedule_message(
+                trainer_name=trainer_name,
+                technology=technology,
+                requirement_id=requirement_id,
+                interview_date=interview_date,
+                meeting_link=existing_link,
+            )
+            retry_body = _clean(existing.get("body")) or retry_message["body"]
+            retry_settings = await _load_admin_settings(db)
+            trainer_schedule_success, trainer_retry_error = await _send_verified_workflow_email(
+                db, requirement_id, trainer_id, "trainer_reply",
+                to=trainer_email,
+                subject=existing.get("subject") or retry_message["subject"],
+                body=retry_body,
+                smtp_config=retry_settings.get("emailCfg") or None,
+                message_id_header=generate_message_id(),
+            )
+            await db["email_logs"].update_one(
+                {"email_id": existing.get("email_id")},
+                {"$set": {
+                    "status": "sent" if trainer_schedule_success else "failed",
+                    "error_message": "" if trainer_schedule_success else trainer_retry_error,
+                    "trainer_email_sent": bool(trainer_schedule_success),
+                    "interview_scheduled": bool(trainer_schedule_success),
+                    "updated_at": now,
+                }},
+            )
+        client_schedule_result: Dict[str, Any] = {
+            "success": trainer_schedule_success,
+            "already_sent": trainer_schedule_success,
+        }
         existing_client_schedule = await db["email_logs"].find_one(
             {
                 "direction": "outbound",
@@ -6949,7 +7242,7 @@ async def _handle_client_slot_confirmation_reply(
             {"_id": 0, "email_id": 1, "sent_at": 1, "to_email": 1, "recipient": 1, "subject": 1},
             sort=[("created_at", -1)],
         )
-        if existing_client_schedule:
+        if existing_client_schedule and trainer_schedule_success:
             client_schedule_result = {
                 "success": True,
                 "already_sent": True,
@@ -6958,7 +7251,7 @@ async def _handle_client_slot_confirmation_reply(
                 "subject": existing_client_schedule.get("subject"),
                 "sent_at": existing_client_schedule.get("sent_at") or sent_at,
             }
-        else:
+        elif trainer_schedule_success:
             settings_doc = await _load_admin_settings(db)
             smtp_config = settings_doc.get("emailCfg") or None
             client_schedule_result = await _send_client_interview_schedule_email(
@@ -6979,7 +7272,7 @@ async def _handle_client_slot_confirmation_reply(
                 slot_text=reply_text,
                 now=now,
             )
-        client_schedule_success = bool(client_schedule_result.get("success"))
+        client_schedule_success = bool(trainer_schedule_success and client_schedule_result.get("success"))
         client_schedule_sent_at = client_schedule_result.get("sent_at") or sent_at
         if existing.get("email_id"):
             await db["email_logs"].update_one(
@@ -7011,7 +7304,7 @@ async def _handle_client_slot_confirmation_reply(
             "top_trainers.$.meet_link": existing_link,
             "top_trainers.$.calendar_event_id": existing.get("calendar_event_id") or "",
             "top_trainers.$.client_email_sent": client_schedule_success,
-            "top_trainers.$.trainer_email_sent": True,
+            "top_trainers.$.trainer_email_sent": bool(trainer_schedule_success),
             "top_trainers.$.last_mail_type": "mail4",
             "top_trainers.$.last_mail_type_attempted": "mail4",
             "top_trainers.$.last_mail_attempted_at": now,
@@ -7040,7 +7333,7 @@ async def _handle_client_slot_confirmation_reply(
             "intent": intent,
             "slot_text": reply_text,
             "interview_link": existing_link if client_schedule_success else "",
-            "error": "" if client_schedule_success else (client_schedule_result.get("error") or "Client interview schedule email failed"),
+            "error": "" if client_schedule_success else (trainer_retry_error or client_schedule_result.get("error") or "Interview schedule email failed"),
             "sent_at": sent_at,
         }
 
@@ -7452,11 +7745,15 @@ async def _handle_client_selection_reply(
         or ""
     )
     text = (subject + "\n" + body).lower()
+    # Accept the normal confirmation wording and the common accidental
+    # ``selectedslove`` suffix (for example, "he is selectedslove").  A
+    # strict word boundary after "selected" made that otherwise unambiguous
+    # client decision fall through into the ordinary reply flow.
     patterns = [
         r"\bwe have selected\b",
         r"\bwe selected\b",
-        r"\bhe is selected\b",
-        r"\bshe is selected\b",
+        r"\bhe is selected(?:\b|s(?:\b|love\b))",
+        r"\bshe is selected(?:\b|s(?:\b|love\b))",
         r"\btrainer is selected\b",
         r"\bselected the trainer\b",
         r"\byou have been selected\b",
@@ -7469,6 +7766,22 @@ async def _handle_client_selection_reply(
 
     requirement_id = email_doc.get("requirement_id") or ""
     trainer_id = email_doc.get("trainer_id") or ""
+    # Older interview-reminder logs record a trainer name but not its ID.
+    # Continue only where that name resolves to exactly one shortlist entry.
+    if requirement_id and not trainer_id:
+        reminder_trainer_name = str(email_doc.get("trainer_name") or "").strip().casefold()
+        shortlist = await db["shortlists"].find_one(
+            {"requirement_id": requirement_id},
+            {"_id": 0, "top_trainers": 1},
+        ) or {}
+        candidates = [
+            item for item in (shortlist.get("top_trainers") or [])
+            if isinstance(item, dict)
+            and str(item.get("trainer_id") or "").strip()
+            and str(item.get("name") or item.get("trainer_name") or "").strip().casefold() == reminder_trainer_name
+        ]
+        if len(candidates) == 1:
+            trainer_id = str(candidates[0]["trainer_id"])
     if not requirement_id or not trainer_id:
         return {"attempted": True, "success": False, "reason": "missing_requirement_or_trainer_link"}
 
@@ -7491,6 +7804,19 @@ async def _handle_client_selection_reply(
         {"_id": 0, "top_trainers.$": 1, "requirement_id": 1},
     ) or {}
     trainer_doc = (shortlist_doc.get("top_trainers") or [{}])[0] or {}
+    # Keep the requirement record authoritative for the client pipeline, PO,
+    # invoice, and dashboard views. Previously only the shortlist array was
+    # updated, so a selected trainer appeared unrecognized elsewhere.
+    await db["requirements"].update_one(
+        {"requirement_id": requirement_id},
+        {"$set": {
+            "selected_trainer_id": trainer_id,
+            "selected_trainer_name": trainer_doc.get("name") or trainer_doc.get("trainer_name") or email_doc.get("trainer_name") or "Trainer",
+            "selection_status": "selected",
+            "status": "active",
+            "updated_at": now,
+        }},
+    )
     trainer_email = trainer_doc.get("email") or trainer_doc.get("trainer_email") or email_doc.get("trainer_email") or ""
     trainer_name = trainer_doc.get("name") or trainer_doc.get("trainer_name") or email_doc.get("trainer_name") or "Trainer"
     technology = (
@@ -7500,7 +7826,29 @@ async def _handle_client_selection_reply(
         or "training"
     )
     mail5_result: Dict[str, Any]
-    if trainer_email:
+    # Inbox polling can replay a message after a restart.  Reuse a completed
+    # Mail 5 instead of congratulating the trainer again or re-running the PO
+    # handoff for the same requirement/trainer pair.
+    existing_mail5 = await db["email_logs"].find_one(
+        {
+            "direction": "outbound",
+            "status": "sent",
+            "mail_type": "mail5_ok",
+            "requirement_id": requirement_id,
+            "trainer_id": trainer_id,
+        },
+        {"_id": 0, "email_id": 1, "to_email": 1, "recipient": 1, "sent_at": 1},
+        sort=[("created_at", -1)],
+    )
+    if existing_mail5:
+        mail5_result = {
+            "success": True,
+            "already_sent": True,
+            "email_id": existing_mail5.get("email_id") or "",
+            "to": existing_mail5.get("to_email") or existing_mail5.get("recipient") or trainer_email,
+            "sent_at": existing_mail5.get("sent_at"),
+        }
+    elif trainer_email:
         message = await compose_mail5_selection(GenericSimpleRequest(name=trainer_name, technology=technology))
         settings_doc = await _load_admin_settings(db)
         smtp_config = settings_doc.get("emailCfg") or None
@@ -7548,11 +7896,22 @@ async def _handle_client_selection_reply(
             "message": "Trainer selection mail was not sent because trainer email is missing.",
         }
 
-    po_request_result = await _auto_request_client_po(
-        db,
-        requirement_id=requirement_id,
-        trainer_id=trainer_id,
-    )
+    # Do not request a client PO until the selected trainer has actually
+    # received the selection email.  Otherwise a mail failure leaves the
+    # client progressing a workflow the trainer was never informed about.
+    if mail5_result.get("success"):
+        po_request_result = await _auto_request_client_po(
+            db,
+            requirement_id=requirement_id,
+            trainer_id=trainer_id,
+        )
+    else:
+        po_request_result = {
+            "attempted": False,
+            "skipped": True,
+            "reason": "trainer_selection_email_not_sent",
+            "error": "Client PO request is waiting for successful trainer selection email delivery.",
+        }
 
     try:
         email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
@@ -7578,10 +7937,12 @@ async def _handle_client_selection_reply(
     except Exception:
         pass
 
+    po_request_succeeded = bool(po_request_result.get("success") or po_request_result.get("skipped"))
+    workflow_success = bool(mail5_result.get("success")) and po_request_succeeded
     return {
         "attempted": True,
-        "success": True,
-        "reason": "client_selected",
+        "success": workflow_success,
+        "reason": "client_selected" if workflow_success else "client_selection_workflow_incomplete",
         "selected_at": now,
         "mail5_result": mail5_result,
         "po_request_result": po_request_result,
@@ -7625,6 +7986,7 @@ async def _send_trainer_decision_mail(
     else:
         message = await compose_mail5_rejection(payload)
         mail_type = "mail5_no"
+    message_body = message["body"]
 
     settings_doc = await _load_admin_settings(db)
     smtp_config = settings_doc.get("emailCfg") or None
@@ -7658,10 +8020,6 @@ async def _send_trainer_decision_mail(
         "created_at": now,
         "updated_at": now,
     })
-    if success:
-        await db["email_send_locks"].update_one({"_id": lock_id}, {"$set": {"status": "sent", "sent_at": now}})
-    else:
-        await db["email_send_locks"].delete_one({"_id": lock_id})
     return {
         "success": bool(success),
         "email_id": mail5_email_id,
@@ -8818,6 +9176,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         "budget_range": extracted.get("budget_range"),
         "budget_currency": extracted.get("budget_currency"),
         "participant_count": extracted.get("participant_count"),
+        "cloud_provider": extracted.get("cloud_provider"),
         "hands_on_lab": extracted.get("hands_on_lab"),
         "lab_hours_per_day": extracted.get("lab_hours_per_day"),
         "total_lab_duration_hours": extracted.get("total_lab_duration_hours"),
@@ -8846,8 +9205,12 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         "client_requirement_text": client_requirement_text[:2500],
         "batch_flow": flow_type,
         "batch_type": flow_type,
-        "requirement_type": flow_type,
+        "requirement_type": "confirmed_batch" if flow_type == "confirmed" else "proposal_batch",
         "training_status": flow_type,
+        # Confirmed batches belong to the Shortlist 1 workflow; proposal
+        # enquiries remain on the regular Shortlist workflow.
+        "pipeline_target": "shortlist1" if flow_type == "confirmed" else "shortlist",
+        "pipeline_page": "shortlist1" if flow_type == "confirmed" else "shortlist",
         "top_n": 5,
         "send_emails": True,
         "status": "active",
@@ -8865,6 +9228,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
             "requested_details": extracted.get("requested_details", []),
             "clahan_managed_details": extracted.get("clahan_managed_details", []),
             "lab_cost_requested": bool(extracted.get("lab_cost_requested")),
+            "cloud_provider": extracted.get("cloud_provider"),
             "requirement_items": extracted.get("requirement_items", []),
             "toc_requested": extracted.get("toc_requested"),
             "toc_action": extracted.get("toc_action"),
@@ -8921,6 +9285,8 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
         "purchase order",
         "po no",
         "program confirmation",
+        "confirmed requirement",
+        "confirmed program",
         "confirmed batch",
         "confirmed training batch",
         "confirmed training requirement",
@@ -9023,6 +9389,7 @@ async def _update_existing_requirement_from_extracted(
         "hands_on_lab",
         "lab_hours_per_day",
         "total_lab_duration_hours",
+        "cloud_provider",
         "lab_cost_requested",
         "lab_required_tools_requested",
         "lab_delivery_preference",
@@ -9051,8 +9418,13 @@ async def _update_existing_requirement_from_extracted(
     update.update({
         "batch_flow": flow_type,
         "batch_type": flow_type,
-        "requirement_type": flow_type,
+        "requirement_type": "confirmed_batch" if flow_type == "confirmed" else "proposal_batch",
         "training_status": flow_type,
+        # A confirmed reply may update an earlier proposal requirement. Move
+        # that existing record to Shortlist 1 rather than leaving it in the
+        # old Shortlist page.
+        "pipeline_target": "shortlist1" if flow_type == "confirmed" else "shortlist",
+        "pipeline_page": "shortlist1" if flow_type == "confirmed" else "shortlist",
     })
 
     budget = extracted.get("budget_total") or extracted.get("budget_per_day")
@@ -10512,6 +10884,9 @@ async def _process_client_requirement_email(
             ) or {}
         evidence_doc = _trainer_detail_evidence_doc(email_doc, current_trainer_state)
         evidence_text = evidence_doc.get("classification_body") or latest_reply_text
+        document_review = await _persist_trainer_requirement_fit(
+            db, email_doc, mail2_requirement, current_trainer_state,
+        )
         missing_requested_details = _trainer_missing_requested_details(evidence_text, mail2_requirement, evidence_doc)
         if missing_requested_details:
             # If three valid slots were already provided with this partial
@@ -10523,7 +10898,10 @@ async def _process_client_requirement_email(
                     {"requirement_id": email_doc.get("requirement_id"), "top_trainers.trainer_id": email_doc.get("trainer_id")},
                     {"$set": {
                         "top_trainers.$.pending_slot_reply_text": latest_reply_text,
+                        "top_trainers.$.slot_reply_text": latest_reply_text,
                         "top_trainers.$.availability_text": latest_reply_text,
+                        "top_trainers.$.slot_status": "received_pending_requested_details",
+                        "top_trainers.$.slot_count": 3,
                         "top_trainers.$.updated_at": now,
                         "updated_at": now,
                     }},
@@ -10549,6 +10927,9 @@ async def _process_client_requirement_email(
                 "email_classification": {"person_type": "trainer", "scenario": "trainer_details_partial"},
                 "office_mail_category": "trainer_details_partial",
                 "missing_requested_details": missing_requested_details,
+                "document_review": document_review,
+                "slot_intent": _slot_reply_intent(latest_reply_text),
+                "slots_received": _slot_reply_intent(latest_reply_text) == "valid_slots",
                 "missing_details_followup": followup_result,
                 "auto_send_candidate": False,
                 "auto_send_eligible": False,
@@ -10615,8 +10996,8 @@ async def _process_client_requirement_email(
             update = {
                 "processed": not handoff_retry_pending,
                 "processed_at": now,
-                "status": "processed" if slot_result.get("success") else "pending_retry" if handoff_retry_pending else "needs_manual_review",
-                "reply_status": "slots_sent_to_client" if slot_result.get("success") else "client_handoff_retry_pending" if handoff_retry_pending else "interested_without_slots",
+                "status": "processed" if slot_result.get("pending_approval") else "processed" if slot_result.get("success") else "pending_retry" if handoff_retry_pending else "needs_manual_review",
+                "reply_status": "client_handoff_pending_approval" if slot_result.get("pending_approval") else "slots_sent_to_client" if slot_result.get("success") else "client_handoff_retry_pending" if handoff_retry_pending else "interested_without_slots",
                 "reply_template_key": "client_slots" if slot_result.get("success") else "trainer_interested",
                 "email_classification": {"person_type": "trainer", "scenario": "trainer_interested"},
                 "office_mail_category": "trainer_interested",
@@ -10750,8 +11131,8 @@ async def _process_client_requirement_email(
                 update = {
                     "processed": not handoff_retry_pending,
                     "processed_at": now,
-                    "status": "auto_sent" if success else "pending_retry" if handoff_retry_pending else "needs_manual_review",
-                    "reply_status": "slot_received" if success else "client_handoff_retry_pending" if handoff_retry_pending else "pending_review",
+                    "status": "processed" if slot_result.get("pending_approval") else "auto_sent" if success else "pending_retry" if handoff_retry_pending else "needs_manual_review",
+                    "reply_status": "client_handoff_pending_approval" if slot_result.get("pending_approval") else "slot_received" if success else "client_handoff_retry_pending" if handoff_retry_pending else "pending_review",
                     "reply_template_key": "trainer_slot_reply",
                     "trainer_slot_reply": slot_result,
                     "auto_send_candidate": False,
@@ -10811,8 +11192,8 @@ async def _process_client_requirement_email(
                 update = {
                     "processed": not handoff_retry_pending,
                     "processed_at": now,
-                    "status": "auto_sent" if success else "pending_retry" if handoff_retry_pending else "needs_manual_review",
-                    "reply_status": "slots_sent_to_client" if success else "client_handoff_retry_pending" if handoff_retry_pending else "pending_review",
+                    "status": "processed" if slot_result.get("pending_approval") else "auto_sent" if success else "pending_retry" if handoff_retry_pending else "needs_manual_review",
+                    "reply_status": "client_handoff_pending_approval" if slot_result.get("pending_approval") else "slots_sent_to_client" if success else "client_handoff_retry_pending" if handoff_retry_pending else "pending_review",
                     "reply_template_key": "client_slots" if success else "trainer_slot_reply",
                     "trainer_slot_reply": slot_result,
                     "auto_send_candidate": False,
@@ -10833,6 +11214,9 @@ async def _process_client_requirement_email(
                 }
         evidence_doc = _trainer_detail_evidence_doc(trainer_doc, current_trainer_state)
         evidence_text = evidence_doc.get("classification_body") or latest_mail2_details_body
+        document_review = await _persist_trainer_requirement_fit(
+            db, trainer_doc, mail2_requirement, current_trainer_state,
+        )
         missing_requested_details = _trainer_missing_requested_details(evidence_text, mail2_requirement, evidence_doc)
         if missing_requested_details:
             # Do not send a follow-up Mail 2.  Mail 1 already asked for the
@@ -10847,6 +11231,7 @@ async def _process_client_requirement_email(
                 "email_classification": {"person_type": "trainer", "scenario": "trainer_details_partial"},
                 "office_mail_category": "trainer_details_partial",
                 "missing_requested_details": missing_requested_details,
+                "document_review": document_review,
                 "auto_send_candidate": False,
                 "auto_send_eligible": False,
                 "auto_send_ready": False,
@@ -10902,13 +11287,14 @@ async def _process_client_requirement_email(
         update = {
             "processed": not handoff_retry_pending,
             "processed_at": now,
-            "status": "processed" if success else "pending_retry" if handoff_retry_pending else "needs_manual_review",
-            "reply_status": "slots_sent_to_client" if success else "client_handoff_retry_pending" if handoff_retry_pending else "pending_review",
+            "status": "processed" if slot_result.get("pending_approval") else "processed" if success else "pending_retry" if handoff_retry_pending else "needs_manual_review",
+            "reply_status": "client_handoff_pending_approval" if slot_result.get("pending_approval") else "slots_sent_to_client" if success else "client_handoff_retry_pending" if handoff_retry_pending else "pending_review",
             "reply_template_key": "client_slots" if success else "trainer_details_received",
             "email_classification": {"person_type": "trainer", "scenario": "trainer_details_sent"},
             "office_mail_category": "trainer_details_sent",
             "trainer_details_received": True,
             "trainer_details_received_at": now,
+            "document_review": document_review,
             "slot_result": slot_result,
             "auto_send_candidate": False,
             "auto_send_eligible": False,
@@ -11398,8 +11784,8 @@ async def _process_client_requirement_email(
             }
             set_update: Dict[str, Any] = {
                 **base_update,
-                "status": "auto_sent" if trainer_slot_result.get("success") else "pending_retry" if handoff_retry_pending else "needs_manual_review",
-                "reply_status": "auto_sent" if trainer_slot_result.get("success") else "client_handoff_retry_pending" if handoff_retry_pending else "needs_manual_review",
+                "status": "processed" if trainer_slot_result.get("pending_approval") else "auto_sent" if trainer_slot_result.get("success") else "pending_retry" if handoff_retry_pending else "needs_manual_review",
+                "reply_status": "client_handoff_pending_approval" if trainer_slot_result.get("pending_approval") else "auto_sent" if trainer_slot_result.get("success") else "client_handoff_retry_pending" if handoff_retry_pending else "needs_manual_review",
                 "processed": not handoff_retry_pending,
                 "processed_at": trainer_slot_result.get("sent_at") or now,
                 "classification_reason": "trainer_slot_reply",
@@ -11581,8 +11967,8 @@ async def _process_client_requirement_email(
         }
         set_update: Dict[str, Any] = {
             **base_update,
-            "status": "auto_sent" if trainer_slot_result.get("success") else "pending_retry" if handoff_retry_pending else "needs_manual_review",
-            "reply_status": "auto_sent" if trainer_slot_result.get("success") else "client_handoff_retry_pending" if handoff_retry_pending else "needs_manual_review",
+            "status": "processed" if trainer_slot_result.get("pending_approval") else "auto_sent" if trainer_slot_result.get("success") else "pending_retry" if handoff_retry_pending else "needs_manual_review",
+            "reply_status": "client_handoff_pending_approval" if trainer_slot_result.get("pending_approval") else "auto_sent" if trainer_slot_result.get("success") else "client_handoff_retry_pending" if handoff_retry_pending else "needs_manual_review",
             "processed": not handoff_retry_pending,
             "processed_at": trainer_slot_result.get("sent_at") or now,
             "classification_reason": "trainer_slot_reply",
@@ -12366,6 +12752,34 @@ def _classify_inbound_attachment(attachment: Dict[str, Any], subject: str = "", 
     return "other"
 
 
+def _attachment_type_from_extracted_text(current_type: str, text: Any) -> str:
+    """Classify generic document names from their extracted, auditable text."""
+    if current_type != "other":
+        return current_type
+    content = str(text or "").lower()
+    if not content:
+        return current_type
+    toc_markers = re.findall(r"\b(?:day\s*\d+|module\s*\d+|session\s*\d+|course\s+agenda|table\s+of\s+contents?)\b", content)
+    if len(toc_markers) >= 2:
+        return "toc"
+    if re.search(
+        r"\b(?:lab(?:oratory)?\s*(?:cost|pricing|estimate|quote)|per\s*(?:pax|participant|user)|"
+        r"cloud\s*(?:lab|environment)|aws\s*(?:lab|sandbox)|azure\s*(?:lab|sandbox))\b",
+        content,
+        flags=re.IGNORECASE,
+    ):
+        return "lab_cost"
+    profile_markers = re.findall(
+        r"\b(?:professional\s+(?:summary|experience)|work\s+experience|employment\s+history|"
+        r"education|technical\s+skills|certifications?|linkedin\.com)\b",
+        content,
+        flags=re.IGNORECASE,
+    )
+    if len(profile_markers) >= 2:
+        return "cv"
+    return current_type
+
+
 def _extract_attachment_pages(attachment: Dict[str, Any]) -> List[Dict[str, Any]]:
     """Extract page/section text so every later claim has source evidence."""
     filename = _clean((attachment or {}).get("filename"))
@@ -12457,16 +12871,43 @@ def _evidence_lines(pages: List[Dict[str, Any]], pattern: str, limit: int = 5) -
     return evidence
 
 
+def _document_readability(text: Any, attachment_type: str = "other", ocr_used: bool = False) -> Dict[str, Any]:
+    """Measure whether extracted text is sufficient to support a document decision."""
+    content = str(text or "").strip()
+    words = re.findall(r"[A-Za-z][A-Za-z0-9+#./-]*", content)
+    word_count = len(words)
+    letters = sum(character.isalpha() for character in content)
+    non_space = max(1, len(re.sub(r"\s+", "", content)))
+    alphabetic_ratio = letters / non_space
+    distinct_ratio = len({word.lower() for word in words}) / max(word_count, 1)
+    minimum_words = {"cv": 80, "toc": 12, "lab_cost": 15}.get(attachment_type, 40)
+    if not content or word_count < max(5, minimum_words // 4):
+        return {"status": "unreadable", "confidence": 0, "word_count": word_count,
+                "ocr_used": bool(ocr_used), "reason": "insufficient_extracted_text"}
+    confidence = min(70.0, 70.0 * word_count / minimum_words)
+    confidence += 20.0 if alphabetic_ratio >= 0.55 else 5.0 if alphabetic_ratio >= 0.3 else 0.0
+    confidence += 10.0 if distinct_ratio >= 0.18 else 0.0
+    if ocr_used:
+        confidence -= 8.0
+    confidence = round(max(0.0, min(100.0, confidence)), 1)
+    status = "readable" if confidence >= 70 else "partial"
+    return {"status": status, "confidence": confidence, "word_count": word_count,
+            "ocr_used": bool(ocr_used),
+            "reason": "sufficient_extracted_text" if status == "readable" else "limited_extracted_text"}
+
+
 def _attachment_analysis(attachment: Dict[str, Any], subject: str = "", body: str = "") -> Dict[str, Any]:
     filename = _clean((attachment or {}).get("filename"))
     attachment_type = _classify_inbound_attachment(attachment, subject, body)
     pages = _extract_attachment_pages(attachment)
     text = "\n".join(str(page.get("text") or "") for page in pages)[:50000]
+    attachment_type = _attachment_type_from_extracted_text(attachment_type, text)
     lower = text.lower()
     technologies = [technology for technology in KNOWN_TECHNOLOGIES if technology.lower() in lower]
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     toc_rows = [line for line in lines if re.search(r"\b(?:day|module|session|agenda|topic)\b", line, re.IGNORECASE)][:80]
     topic_candidates = [line for line in lines if len(line) >= 3][:180]
+    ocr_used = any(bool(page.get("ocr")) for page in pages)
     return {
         "filename": _clean(attachment.get("filename")),
         "attachment_type": attachment_type,
@@ -12474,8 +12915,9 @@ def _attachment_analysis(attachment: Dict[str, Any], subject: str = "", body: st
         "text_length": len(text),
         "extracted_text": text,
         "page_count": len(pages),
-        "ocr_used": any(bool(page.get("ocr")) for page in pages),
+        "ocr_used": ocr_used,
         "ocr_required": filename.lower().endswith(".pdf") and len(text.strip()) < 50,
+        "readability": _document_readability(text, attachment_type, ocr_used),
         "technologies": technologies,
         "toc_rows": toc_rows if attachment_type == "toc" else [],
         "topic_candidates": topic_candidates if attachment_type == "toc" else [],
@@ -12539,6 +12981,13 @@ def _validate_trainer_attachments_against_requirement(email_doc: Dict[str, Any],
     """Evidence-based CV/TOC comparison; recommendations never alter a CV."""
     attachments = email_doc.get("attachments") or []
     analyses = [item.get("analysis") for item in attachments if isinstance(item, dict) and isinstance(item.get("analysis"), dict)]
+    for analysis in analyses:
+        if not isinstance(analysis.get("readability"), dict):
+            analysis["readability"] = _document_readability(
+                analysis.get("extracted_text"),
+                analysis.get("attachment_type") or "other",
+                bool(analysis.get("ocr_used")),
+            )
     profiles = [item for item in (email_doc.get("attachment_profiles") or []) if isinstance(item, dict)]
     requirement_technology = _clean(extracted.get("technology_needed") or extracted.get("technology") or extracted.get("domain"))
     required_terms = _attachment_requirement_terms(extracted, requirement_technology)
@@ -12563,12 +13012,17 @@ def _validate_trainer_attachments_against_requirement(email_doc: Dict[str, Any],
             or extracted.get("scope_attached")
         )
     )
+    readable_profile_analyses = [
+        analysis for analysis in analyses
+        if analysis.get("attachment_type") == "cv"
+        and (analysis.get("readability") or {}).get("status") == "readable"
+    ]
     profile_text = " ".join(
         " ".join(map(str, profile.get(key) or [])) if isinstance(profile.get(key), list) else str(profile.get(key) or "")
         for profile in profiles for key in ("skills", "summary", "technology_category", "secondary_categories")
     ) + " " + " ".join(
         str(analysis.get("extracted_text") or "")
-        for analysis in analyses if analysis.get("attachment_type") == "cv"
+        for analysis in readable_profile_analyses
     )
     profile_text = profile_text.lower()
     toc_text = " ".join(
@@ -12595,9 +13049,49 @@ def _validate_trainer_attachments_against_requirement(email_doc: Dict[str, Any],
             project_evidence.append({**evidence, "relevant_to_requirement": relevant})
     relevant_projects = [item for item in project_evidence if item.get("relevant_to_requirement")]
     project_status = "relevant_project_found" if relevant_projects else "basic_project_evidence" if project_evidence else "not_available"
+    profile_document_count = sum(1 for analysis in analyses if analysis.get("attachment_type") == "cv")
+    profile_readability = max(
+        [
+            _safe_float((analysis.get("readability") or {}).get("confidence"), 0)
+            for analysis in analyses if analysis.get("attachment_type") == "cv"
+        ] + ([75.0] if profiles and not profile_document_count else []) + [0]
+    )
+    profile_readability_status = (
+        "readable" if readable_profile_analyses or (profiles and not profile_document_count)
+        else "partial" if profile_readability >= 30 else "unreadable"
+    )
+    has_profile_document = bool(profiles or profile_document_count)
+    observed_experience_years = max(
+        [_safe_float(profile.get("experience_years"), 0) for profile in profiles]
+        + [
+            _safe_float(match.group(1), 0)
+            for match in re.finditer(r"\b(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?)\b", profile_text, flags=re.IGNORECASE)
+        ]
+        + [0]
+    )
+    required_experience_years = _safe_float(extracted.get("min_experience_years"), 0)
+    seniority_status = (
+        "not_requested" if not required_experience_years
+        else "met" if observed_experience_years >= required_experience_years
+        else "below_requirement" if observed_experience_years else "not_evidenced"
+    )
+    skill_coverage_percent = round(100 * len(profile_matches) / max(len(required_terms), 1), 1)
+    fit_score = round(min(100.0,
+        (15 if has_profile_document else 0)
+        + 45 * len(profile_matches) / max(len(required_terms), 1)
+        + (20 if seniority_status in {"met", "not_requested"} and observed_experience_years else 0)
+        + (20 if relevant_projects else 10 if project_evidence else 0)
+    ), 1)
+    fit_status = (
+        "strong_fit" if profile_readability_status == "readable" and seniority_status != "below_requirement" and fit_score >= 75
+        else "partial_fit" if has_profile_document and fit_score >= 40
+        else "needs_review"
+    )
     actions: List[str] = []
-    if not profiles:
+    if not has_profile_document:
         actions.append("Ask the trainer to attach a readable PDF/DOCX CV or trainer profile.")
+    elif profile_readability_status != "readable":
+        actions.append("Ask the trainer to resend a readable, text-selectable CV or trainer profile; the current document cannot support a strong fit decision.")
     elif profile_gaps:
         actions.append(f"Ask the trainer to confirm verified {', '.join(profile_gaps)} experience or projects.")
     has_toc_evidence = generated_toc_available or any(analysis.get("attachment_type") == "toc" for analysis in analyses)
@@ -12606,14 +13100,25 @@ def _validate_trainer_attachments_against_requirement(email_doc: Dict[str, Any],
     elif toc_gaps:
         actions.append(f"Ask the trainer to add or explain coverage for {', '.join(toc_gaps)} in the TOC.")
     score_parts = [
-        35 if profiles else 0,
-        25 if profiles and any(_safe_float(profile.get("experience_years"), 0) > 0 for profile in profiles) else 0,
+        35 if has_profile_document else 0,
+        25 if observed_experience_years > 0 else 0,
         20 if domain_match else 0,
         20 if has_toc_evidence and bool(toc_matches) else 0,
     ]
     match_score = sum(score_parts)
     return {
         "requirement_technology": requirement_technology,
+        "requirement_id": _clean(email_doc.get("requirement_id") or extracted.get("requirement_id")),
+        "document_inventory": [
+            {
+                "filename": analysis.get("filename") or "",
+                "type": analysis.get("attachment_type") or "other",
+                "text_extracted": bool(analysis.get("text_extracted")),
+                "ocr_used": bool(analysis.get("ocr_used")),
+                "readability": analysis.get("readability"),
+            }
+            for analysis in analyses
+        ],
         "required_topics": required_terms,
         "domain_match": domain_match,
         "matched_profile_topics": profile_matches,
@@ -12621,6 +13126,7 @@ def _validate_trainer_attachments_against_requirement(email_doc: Dict[str, Any],
         "project_status": project_status,
         "project_evidence": (relevant_projects or project_evidence)[:5],
         "profile_attachment_count": len(profiles),
+        "profile_document_count": profile_document_count,
         "toc_attachment_count": sum(1 for analysis in analyses if analysis.get("attachment_type") == "toc"),
         "generated_toc_evidence": generated_toc_available,
         "toc_evidence_source": "generated_or_saved" if generated_toc_available else "attachment" if any(analysis.get("attachment_type") == "toc" for analysis in analyses) else "",
@@ -12629,9 +13135,155 @@ def _validate_trainer_attachments_against_requirement(email_doc: Dict[str, Any],
         "toc_gaps": toc_gaps,
         "match_score": match_score,
         "match_status": "ready" if match_score >= 80 else "needs_update" if match_score >= 35 else "incomplete",
+        "requirement_fit": {
+            "requirement_id": _clean(email_doc.get("requirement_id") or extracted.get("requirement_id")),
+            "score": fit_score,
+            "status": fit_status,
+            "skills": {
+                "required": required_terms,
+                "matched": profile_matches,
+                "missing": profile_gaps,
+                "coverage_percent": skill_coverage_percent,
+            },
+            "seniority": {
+                "required_years": required_experience_years or None,
+                "evidenced_years": observed_experience_years or None,
+                "status": seniority_status,
+            },
+            "projects": {
+                "status": project_status,
+                "relevant_count": len(relevant_projects),
+                "evidence": (relevant_projects or project_evidence)[:5],
+            },
+            "readability": {
+                "status": profile_readability_status,
+                "confidence": profile_readability,
+                "decision_rule": "Only readable profile text can produce a strong fit.",
+            },
+        },
         "recommended_actions": actions,
         "evidence_only": True,
     }
+
+
+def _redact_profile_review_text(value: Any) -> str:
+    """Keep technical evidence while removing obvious contact details for AI review."""
+    text = str(value or "")
+    text = re.sub(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", "[email removed]", text, flags=re.IGNORECASE)
+    text = re.sub(r"(?<!\d)(?:\+?\d[\d\s().-]{8,}\d)(?!\d)", "[phone removed]", text)
+    return text[:24000]
+
+
+async def _contextual_profile_review_agent(
+    db: AsyncIOMotorDatabase,
+    validation: Dict[str, Any],
+    email_doc: Dict[str, Any],
+    requirement: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Provide a source-grounded context review without replacing deterministic gates.
+
+    The agent is optional and only runs in the existing global AI mode.  It
+    must return JSON and cite supplied snippets; its result is advisory and
+    cannot invent skills, project history, or qualifications.
+    """
+    snippets = []
+    for attachment in email_doc.get("attachments") or []:
+        if not isinstance(attachment, dict):
+            continue
+        analysis = attachment.get("analysis") or {}
+        readability = analysis.get("readability") or _document_readability(
+            analysis.get("extracted_text"), analysis.get("attachment_type") or "other", bool(analysis.get("ocr_used")),
+        )
+        if analysis.get("attachment_type") != "cv":
+            continue
+        if readability.get("status") != "readable":
+            continue
+        text = _redact_profile_review_text(analysis.get("extracted_text"))
+        if text:
+            snippets.append({
+                "filename": _clean(attachment.get("filename")),
+                "type": analysis.get("attachment_type") or "other",
+                "text": text,
+            })
+    if not snippets:
+        return {"status": "not_run", "reason": "no_readable_profile_text", "advisory": True}
+    if not settings.OPENAI_API_KEY or not await _global_ai_wording_enabled(db):
+        return {"status": "not_run", "reason": "ai_mode_disabled", "advisory": True}
+    requirement_context = {
+        "requirement_id": validation.get("requirement_id"),
+        "technology": validation.get("requirement_technology"),
+        "required_skills": (validation.get("requirement_fit") or {}).get("skills", {}).get("required", []),
+        "minimum_experience_years": (validation.get("requirement_fit") or {}).get("seniority", {}).get("required_years"),
+        "client_scope": _redact_profile_review_text(requirement.get("requirement_source_text")),
+    }
+    try:
+        from openai import AsyncOpenAI
+
+        response = await AsyncOpenAI(api_key=settings.OPENAI_API_KEY).responses.create(
+            model=settings.OPENAI_MODEL or "gpt-5.5",
+            reasoning={"effort": "low"},
+            text={"verbosity": "low"},
+            instructions=(
+                "You are a trainer-profile evidence reviewer. Compare only the supplied document snippets against "
+                "the requirement. Do not infer unstated skills, years, projects, certifications, or delivery claims. "
+                "Every positive/negative finding must have a short exact evidence excerpt copied from a supplied "
+                "snippet, or say 'not evidenced'. Return JSON only with this exact schema: "
+                "{\"status\":\"reviewed\",\"advisory_score\":0-100,\"summary\":\"...\","
+                "\"skill_findings\":[{\"skill\":\"...\",\"status\":\"evidenced|not_evidenced\",\"evidence\":\"...\"}],"
+                "\"seniority_finding\":{\"status\":\"met|below_requirement|not_evidenced|not_requested\",\"evidence\":\"...\"},"
+                "\"project_findings\":[{\"evidence\":\"...\",\"relevant\":true}],\"advisory\":true}. "
+                "This is advisory only; do not decide whether an email is sent."
+            ),
+            input=json.dumps({"requirement": requirement_context, "documents": snippets}),
+            max_output_tokens=1000,
+        )
+        result = json.loads(_clean(response.output_text))
+        if not isinstance(result, dict):
+            raise ValueError("profile review response is not an object")
+        allowed_statuses = {"reviewed", "not_evidenced", "needs_review"}
+        result["status"] = result.get("status") if result.get("status") in allowed_statuses else "needs_review"
+        result["advisory_score"] = max(0, min(100, _safe_float(result.get("advisory_score"), 0)))
+        result["advisory"] = True
+        result["model"] = settings.OPENAI_MODEL or "gpt-5.5"
+        result["reviewed_at"] = _now().isoformat()
+        return result
+    except Exception as exc:
+        logger.warning("Context profile review agent failed: %s", exc)
+        return {"status": "not_run", "reason": "agent_error", "advisory": True}
+
+
+async def _persist_trainer_requirement_fit(
+    db: AsyncIOMotorDatabase,
+    email_doc: Dict[str, Any],
+    requirement: Dict[str, Any],
+    trainer_state: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Persist an auditable document review against the exact trainer/requirement pair."""
+    requirement_id = _clean(email_doc.get("requirement_id") or requirement.get("requirement_id"))
+    trainer_id = _clean(email_doc.get("trainer_id") or (trainer_state or {}).get("trainer_id"))
+    evidence_doc = _trainer_detail_evidence_doc(email_doc, trainer_state or {})
+    validation = _validate_trainer_attachments_against_requirement(
+        {**evidence_doc, "requirement_id": requirement_id},
+        {**requirement, "requirement_id": requirement_id},
+    )
+    context_review = await _contextual_profile_review_agent(db, validation, evidence_doc, requirement)
+    if context_review:
+        validation["requirement_fit"]["context_review"] = context_review
+    if not requirement_id or not trainer_id:
+        return validation
+    fit = validation.get("requirement_fit") or {}
+    await db["shortlists"].update_one(
+        {"requirement_id": requirement_id, "top_trainers.trainer_id": trainer_id},
+        {"$set": {
+            "top_trainers.$.document_review": validation,
+            "top_trainers.$.requirement_fit": fit,
+            "top_trainers.$.requirement_fit_score": fit.get("score"),
+            "top_trainers.$.requirement_fit_status": fit.get("status"),
+            "top_trainers.$.updated_at": _now(),
+            "updated_at": _now(),
+        }},
+    )
+    return validation
 
 
 def _merge_client_toc_attachment_topics(extracted: Dict[str, Any], email_doc: Dict[str, Any]) -> Dict[str, Any]:
@@ -12672,6 +13324,15 @@ def _attachment_requirement_terms(extracted: Dict[str, Any], technology: str) ->
             values.extend(str(item) for item in value)
         elif value:
             values.extend(re.split(r"[,;\n•|]+", str(value)))
+    # Keep recognised technologies named anywhere in the confirmed source
+    # scope as independent fit criteria. For example, a requirement titled
+    # "Advanced DevOps with AWS & Azure" is checked for DevOps, AWS and Azure
+    # rather than demanding that exact sentence in a trainer CV.
+    source = "\n".join([str(item) for item in values] + [str(extracted.get("requirement_source_text") or "")])
+    values.extend(
+        technology_name for technology_name in KNOWN_TECHNOLOGIES
+        if re.search(rf"\b{re.escape(technology_name)}\b", source, flags=re.IGNORECASE)
+    )
     ignored = {"topic", "topics", "scope", "training", "course", "agenda", "toc", "table of contents"}
     result: List[str] = []
     for value in values:

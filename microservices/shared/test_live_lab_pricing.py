@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from shared.live_lab_pricing import refresh_rates, _choose, PricingUnavailable, RESOURCES
+from shared.live_lab_pricing import refresh_rates, _choose, PricingUnavailable, RESOURCES, automatic_pricing_selections
 
 
 class LivePricingTests(unittest.TestCase):
@@ -32,6 +32,33 @@ class LivePricingTests(unittest.TestCase):
             with self.assertRaises(PricingUnavailable):
                 refresh_rates({'cloud_provider': 'aws'})
             fetch.assert_not_called()
+
+    def test_automatic_baseline_prices_compute_and_marks_disabled_resources_not_billed(self):
+        selections = automatic_pricing_selections({}, {'cloud_provider': 'aws'})
+        values = {'cloud_provider': 'aws', 'pricing_selections': selections}
+        catalog = self.catalog()
+        compute_rows = [catalog[0], catalog[1]]
+        for index, (row, _url) in enumerate(compute_rows):
+            row.update({'Instance Type': 't3.medium' if index == 0 else 't3.xlarge',
+                        'Operating System': 'Linux', 'Tenancy': 'Shared', 'MarketOption': 'OnDemand',
+                        'CapacityStatus': 'Used', 'Pre Installed S/W': 'NA',
+                        'License Model': 'No License required'})
+        disk = dict(catalog[5][0])
+        disk.update({'SKU': 'gp3', 'RateCode': 'gp3-hourly-capacity', 'Unit': 'GB-Mo',
+                     'usageType': 'APS3-EBS:VolumeUsage.gp3'})
+        compute_rows.append((disk, catalog[0][1]))
+        with patch('shared.live_lab_pricing._aws_catalog', return_value=compute_rows):
+            result = refresh_rates(values)
+        self.assertGreater(result['rate_card_overrides']['VM']['rate'], 0)
+        self.assertGreater(result['rate_card_overrides']['Disk']['rate'], 0)
+        self.assertEqual(result['rate_card_overrides']['Storage']['sku'], 'NOT_BILLED')
+        self.assertIn('Not enabled', result['rate_card_overrides']['Storage']['note'])
+
+    def test_unexplained_zero_rate_is_rejected(self):
+        values = self.inputs()
+        values['pricing_selections']['Storage'] = {'auto_zero': True}
+        with self.assertRaises(PricingUnavailable):
+            refresh_rates(values)
 
     def test_ambiguous_rate_blocks(self):
         with patch('shared.live_lab_pricing._aws_catalog', return_value=self.catalog() * 2):

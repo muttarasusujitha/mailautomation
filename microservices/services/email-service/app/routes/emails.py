@@ -196,6 +196,17 @@ async def retry_email(
     )
     if not success:
         raise HTTPException(502, detail={"message": "Retry failed", "error": error})
+    if doc.get("mail_type") == "client_po_request" and doc.get("requirement_id"):
+        await db["requirements"].update_one(
+            {"requirement_id": doc["requirement_id"]},
+            {"$set": {
+                "client_po_requested": True,
+                "client_po_requested_at": now,
+                "po_request_status": "requested",
+                "po_requested_at": now,
+                "updated_at": now,
+            }},
+        )
     return {"success": True, "email_id": email_id, "sent_at": now.isoformat()}
 
 

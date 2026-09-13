@@ -1,3 +1,4 @@
+import { mail1Template, mail2FollowupTemplate, mail3Template, mail3SlotClarificationTemplate, mail3TooManySlotsTemplate, mail4Template, mail5SelectedTemplate, mail5RejectedTemplate, mailTocAutoTemplate, mailTrainingConfirmedTemplate, trainerCommercialNegotiationTemplate } from '../utils/workflowTemplates'
 import { useState, useEffect, useRef } from 'react'
 import api, { deleteRequirement, getRequirement, getRequirements, getShortlist, updateRequirement } from '../utils/api'
 import toast from 'react-hot-toast'
@@ -10,7 +11,11 @@ import {
   Sparkles, Bot, Trash2
 } from 'lucide-react'
 import clsx from 'clsx'
+import { isClientHandoffDelivered, pipelineStepComplete } from '../utils/handoffStatus'
+import { useLiveShortlist } from '../utils/useLiveShortlist'
 import { formatRequirementSchedule } from '../utils/requirementDates'
+import ClientHandoffReview from '../components/ClientHandoffReview'
+import { batchEmailRules } from '../utils/batchEmailRules'
 
 // Some legacy pipeline strings were saved with their UTF-8 bytes decoded as
 // Latin-1. Repair them at the UI boundary so no mojibake reaches the screen.
@@ -53,10 +58,10 @@ function normalizeVisibleText(root) {
 }
 
 // â”€â”€â”€ Gemini AI Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-async function generateAIReply({ trainerName, domain, stage, trainerReply, previousMails, fallback }) {
-  const workflowGuide = `
+async function generateAIReply({ trainerName, domain, stage, trainerReply, previousMails, fallback, batchFlow }) {
+  const workflowGuide = `${batchEmailRules(batchFlow)}
 Mail 1 - Trainer request:
-Include the confirmed client requirement, client or generated ToC, client budget, delivery feasibility, training-date availability, profile/CV only when missing, and exactly three dated interview slots. Never ask the trainer to quote commercials. Do not promise a meeting link.
+Use the batch-specific scope and reference. Include only verified trainer-facing commercial offers, never the client budget or company margin. Ask about feasibility and availability, profile/CV only when missing, and three dated interview options when required by this stage. Never ask the trainer to quote commercials. Do not promise a meeting link.
 
 Permitted follow-up:
 Send only one follow-up, and only for a genuinely missing item from the trainer reply. Never repeat Mail 1 or ask again for items already supplied. Do not send a separate slot request because Mail 1 already requested the three slots.
@@ -71,6 +76,11 @@ Only after the client chooses one of the offered slots may the system send an in
   const prompt = `Generate the next email for the trainer pipeline.
 
 Use the mail template rules below as the source of truth, but write the email naturally and professionally.
+Treat the reference as verified facts and required actions, not wording to copy. Compose a fresh email for this stage and thread. Vary the opening and structure to fit the actual conversation; omit requests already answered. Preserve exact amounts, links, dates and commitments. Never invent missing facts.
+
+Reference for this specific requirement:
+${fallback?.subject || ''}
+${fallback?.body || ''}
 
 Trainer name: ${trainerName}
 Domain: ${domain}
@@ -103,7 +113,7 @@ BODY:
     system_prompt: 'You generate concise professional trainer outreach emails for Clahan Technologies / TrainerSync.',
     messages: [{ role: 'user', content: prompt }],
     feature: 'shortlist_email_generation',
-    metadata: { trainerName, domain, stage },
+    metadata: { trainerName, domain, stage, batchFlow },
   })
   const text = response.data?.reply || ''
   const subjectMatch = /SUBJECT:\s*(.+)/i.exec(text)
@@ -232,13 +242,13 @@ const isConfirmedRequirement = req => requirementFlowType(req) === 'confirmed'
 const isLinkedInRequirement = req => requirementFlowType(req) === 'linkedin'
 
 async function getAllRequirementsForFlow() {
-  const first = await getRequirements({ page: 1, page_size: 100 })
+  const first = await getRequirements({ page: 1, page_size: 100, pipeline: 'shortlist1' })
   const firstData = first.data || {}
   const firstItems = firstData.requirements || firstData.items || []
   const pages = Number(firstData.pages || 1)
   if (pages <= 1) return firstItems
   const rest = await Promise.all(
-    Array.from({ length: pages - 1 }, (_, index) => getRequirements({ page: index + 2, page_size: 100 }))
+    Array.from({ length: pages - 1 }, (_, index) => getRequirements({ page: index + 2, page_size: 100, pipeline: 'shortlist1' }))
   )
   return rest.reduce((items, res) => {
     const data = res.data || {}
@@ -260,7 +270,7 @@ function poCommercialText(req = {}, trainer = {}) {
 }
 
 function channelStatus(label, result, successLabel = 'sent') {
-  if (!result) return { label, value: 'Not returned', tone: 'warn', detail: '' }
+  if (!result) return { label, value: 'Not attempted', tone: 'warn', detail: '' }
   const numberDetail = result.to_number ? `To: ${result.to_number}` : (result.teams_email ? `To: ${result.teams_email}` : '')
   const idDetail = result.twilio_sid || result.aisensy_message_id || result.meta_message_id || result.teams_direct_id || result.email_id || ''
   const detail = [numberDetail, idDetail].filter(Boolean).join(' | ')
@@ -322,6 +332,7 @@ function showSendStatusToast({ trainerName, result, title = 'Message sent' }) {
 function showBulkSendStatusToast({ title = 'Bulk messages sent', results = [] }) {
   const countOk = (items, pick) => items.filter(item => pick(item)?.success === true).length
   const emailOk = results.filter(item => isSendMailDelivered(item.result)).length
+  if (emailOk < results.length) title = title.replace(/sent$/i, emailOk ? 'partially sent' : 'failed')
   const whatsappOk = countOk(results, item => item.result?.whatsapp)
   const teamsDirectOk = countOk(results, item => item.result?.teams_direct)
   const teamsOk = countOk(results, item => item.result?.teams)
@@ -568,15 +579,6 @@ function resolveTrainerStage(trainer, req, state) {
   const backendStage = normalizePipelineStage(
     trainer?.pipeline_status || trainer?.status || trainer?.last_mail_type || trainer?.last_automation_mail_type
   )
-  if (
-    authoritative &&
-    stateStage &&
-    stateStage !== 'pending' &&
-    ['waiting_reply1', 'mail1_sent', 'waiting_reply2'].includes(authoritative) &&
-    !['waiting_reply1', 'mail1_sent', 'waiting_reply2'].includes(stateStage)
-  ) {
-    return stateStage
-  }
   if (authoritative) return authoritative
 
   if (isBackendAheadOfLocal(backendStage, stateStage)) return backendStage
@@ -613,6 +615,12 @@ function backendAuthoritativeStage(trainer, req) {
       return requirementStage
     }
     return 'selected'
+  }
+  // Handoff delivery is stronger evidence than a stale/replayed trainer
+  // reply status.  The inbox can reprocess a Gmail thread after sending the
+  // client-slots email, so keep the visual pipeline at client handoff.
+  if (trainer?.client_slots_sent || String(trainer?.slot_status || '').toLowerCase() === 'sent_to_client') {
+    return 'slot_booked'
   }
   return trainerStage
 }
@@ -809,33 +817,6 @@ function hasRequestedTrainerDetails(text = '', req = {}) {
   return hasCompleteRequestedTrainerDetails(text, req)
 }
 
-function mail1Template(trainer, req, hasDetails, details, isReminder = false, reminderNum = 0) {
-  const domain = details?.domain || req.technology_needed
-  const detailMap = mail1RequirementDetails(req, details)
-  const missingDetails = mail1MissingClientDetails(detailMap)
-  const hello = greeting(trainer)
-  const reminderPrefix = isReminder
-    ? `${hello}\n\nThis is a gentle follow-up (Reminder ${reminderNum}) to our earlier email regarding the ${domain} training requirement.\n\nWe haven't received your response yet. Kindly let us know your interest and availability at the earliest.\n\n---\n\n`
-    : ''
-  let body = `${reminderPrefix}${hello}\n\nWe have received a training requirement for ${domain} and are looking for a trainer with relevant experience.\n\nTraining Details:\n\nDomain/Technology: ${domain}`
-  if (detailMap.duration) body += `\nDuration: ${detailMap.duration}`
-  if (detailMap.timing) body += `\nTiming/Schedule: ${detailMap.timing}`
-  if (detailMap.mode) body += `\nMode: ${detailMap.mode}`
-  if (detailMap.participants) body += `\nParticipants: ${detailMap.participants}`
-  if (detailMap.commercial) body += `\nCommercials/Budget: ${detailMap.commercial}`
-  if (missingDetails.length) {
-    body += `\n\nThe client has not provided the ${missingDetails.join(', ')} yet. We will share those details later once we receive them.`
-  }
-  const requestedItems = requestedTrainerDetailItems(req)
-    .filter(item => !/(commercial|rate|charge|lab cost|toc|course agenda)/i.test(item.label))
-    .map(item => `* ${item.label}`)
-    .join('\n')
-  body += `\n\nPlease confirm your delivery feasibility and availability for this requirement.${requestedItems ? ` Kindly share:\n\n${requestedItems}` : ''}\n\nPlease also share exactly three convenient interview/discussion slots with date, time, and time zone.\nExample:\n* 04 September 2026, 10:00 AM IST\n* 04 September 2026, 2:00 PM IST\n* 04 September 2026, 4:00 PM IST\n\nCommercials are managed by Clahan from the client-approved commercial.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
-  const subject = isReminder
-    ? `[Reminder ${reminderNum}] Training Requirement â€“ ${domain}`
-    : `Training Requirement â€“ ${domain}`
-  return { subject, body }
-}
 
 function isMail1OffStageQuestion(text = '') {
   const clean = stripQuotedEmail(text).toLowerCase()
@@ -861,89 +842,15 @@ function mail2Template(trainer, req, trainerReply = '') {
   }
 }
 
-function mail2FollowupTemplate(trainer, req, trainerReply = '') {
-  const missingItems = missingTrainerDetailItems(trainerReply, req)
-  const items = (missingItems.length ? missingItems : requestedTrainerDetailItems(req))
-    .map(item => `* ${item.label}`)
-    .join('\n')
-  return {
-    subject: `Re: Training Requirement – ${req.technology_needed} | Details Required`,
-    body: `${greeting(trainer)}\n\nThank you for confirming your interest.\n\nTo proceed further, kindly share the below pending details:\n\n${items}\n\nOnce we receive these details, we can move ahead with the next step.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
-  }
-}
-function trainerCommercialNegotiationTemplate(trainer, req, quote, target) {
-  const domain = req?.technology_needed || 'the training requirement'
-  const unitText = target.unit === 'hour' ? 'per hour' : 'per day'
-  const clientBudget = target.clientBudget || clientBudgetInfo(req)
-  const clientBudgetLine = clientBudget?.amount
-    ? `The client has confirmed a budget of INR ${clientBudget.amount.toLocaleString('en-IN')} ${unitText}. `
-    : ''
-  return {
-    subject: `Re: Training Requirement - ${domain} | Commercial Discussion`,
-    body: `${greeting(trainer)}\n\nThank you for sharing your details and commercials for the ${domain} requirement.\n\n${clientBudgetLine}To align with this budget, kindly confirm if you can proceed at INR ${target.amount.toLocaleString('en-IN')} ${unitText}.\n\nPlease let us know if this revised commercial is workable.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
-  }
-}
 
-function mail3Template(trainer, req, trainerDates) {
-  const formattedDates = trainerDates
-    ? trainerDates.split('\n').map(date => date.trim()).filter(Boolean).map(date => `• ${date}`).join('\n')
-    : '• Monday, Jan 15, 2024 - 10:00 AM IST\n• Tuesday, Jan 16, 2024 - 2:00 PM IST\n• Wednesday, Jan 17, 2024 - 4:00 PM IST'
 
-  return {
-    subject: `Interview Slot Booking - ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nPlease share three convenient interview/discussion slots with date, time, and time zone so we can coordinate with the client.\n\nPreferred format:\n${formattedDates}\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
-  }
-}
-function mail3SlotClarificationTemplate(trainer) {
-  return {
-    subject: 'Interview Slot Details Required',
-    body: `Hi ${trainer?.name || 'Trainer'},\n\nThank you for sharing the slot. Could you please provide the exact interview date and time, including whether it is AM or PM?\n\nAlso, please share 3 available slots with the corresponding dates so that we can schedule the interview accordingly.\n\nThanks.`
-  }
-}
 
-function mail3TooManySlotsTemplate(trainer) {
-  return {
-    subject: 'Re: Interview Slot Booking',
-    body: `Hi ${trainer?.name || 'Trainer'},\n\nThank you for your availability. For our scheduling process, we typically work with 3 slots as it helps us coordinate efficiently.\n\nCould you please share your top 3 preferred slots with dates and times?\n\nThank you.`
-  }
-}
 
-function mail4Template(trainer, req, interviewLink, platform, dateTime) {
-  return {
-    subject: `Interview Schedule Confirmation â€“ ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nYour interview has been scheduled. Please find the details below:\n\nDate & Time: ${dateTime || '[Date & Time]'}\nPlatform: ${platform || 'Google Meet'}\nMeeting Link: ${interviewLink || '[Google Meet Link]'}\n\nPlease join on time. Let us know if you need any assistance.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
-  }
-}
 
-function mail5SelectedTemplate(trainer, req) {
-  return {
-    subject: `Congratulations! You have been Selected â€“ ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nCongratulations. The client has selected your profile for this assignment.\n\nWe will share the next steps and coordination details shortly.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
-  }
-}
-
-function mail5RejectedTemplate(trainer, req) {
-  return {
-    subject: `Update on Training Requirement â€“ ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nThank you for your time and interest in the ${req.technology_needed} training requirement.\n\nAfter careful consideration, we regret to inform you that we have decided to proceed with another trainer at this time.\n\nWe will keep your profile on record and reach out for future opportunities.\n\nThank you once again for your cooperation.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
-  }
-}
 
 // AUTO: ToC request sent immediately after selection
-function mailTocAutoTemplate(trainer, req) {
-  return {
-    subject: `Action Required: ToC / Course Agenda â€“ ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nCongratulations again on being selected for the ${req.technology_needed} training!\n\nTo initiate the onboarding process, kindly share the following at the earliest:\n\n* Detailed Table of Contents (ToC) / Course Agenda\n* Day-wise session breakdown\n* Tools, software, or prerequisites required by participants\n* Estimated preparation time needed\n\nPlease revert at the earliest so we can coordinate with the client on schedule.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
-  }
-}
 
 // MANUAL: Training confirmation with contact details â€” sent after ToC is received
-function mailTrainingConfirmedTemplate(trainer, req, contactName, contactPhone, contactEmail, trainingDate, venue) {
-  return {
-    subject: `Training Schedule Confirmed â€“ ${req.technology_needed}`,
-    body: `${greeting(trainer)}\n\nWe are pleased to confirm your engagement for the ${req.technology_needed} training. Please find the final details below:\n\nTraining Date: ${trainingDate || '[Training Date]'}\nVenue / Platform: ${venue || '[Venue / Platform]'}\n\nAction Items Before Training:\n* Ensure all materials and slides are ready\n* Share soft copies of training content with us 2 days prior\n* Confirm your availability 24 hours before the training\n\nFor any questions or additional information, please contact:\n\nðŸ‘¤ ${contactName || '[Contact Name]'}\nðŸ“ž ${contactPhone || '[Phone Number]'}\nðŸ“§ ${contactEmail || '[Email]'}\n\nWe look forward to a successful training session!\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com`
-  }
-}
 
 // â”€â”€â”€ Reply intent detector â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function detectIntent(text = '') {
@@ -1504,6 +1411,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
         trainerReply:  latestReply?.body || '',
         previousMails: threadMessages || [],
         fallback:      getTemplatePreview(),
+        batchFlow:     requirementFlowType(req),
       })
       setAiSubject(result.subject)
       setAiBody(result.body)
@@ -1533,6 +1441,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
       trainerReply:  latestReply?.body || '',
       previousMails: threadMessages || [],
       fallback:      getTemplatePreview(),
+      batchFlow:     requirementFlowType(req),
     })).then(result => {
       if (cancelled) return
       setAiSubject(result.subject)
@@ -1548,6 +1457,10 @@ function MailModal({ trainer, req, mailType, onClose, onSent, threadMessages, ge
     mailType,
     trainer.trainer_id,
     req.requirement_id,
+    req.batch_flow,
+    req.batch_type,
+    req.pipeline_target,
+    req.pipeline_page,
     trainerDates,
     interviewLink,
     platform,
@@ -1965,7 +1878,8 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
       })
       setTocId(res.data.toc_id)
       setTocData(res.data.toc_data)
-      toast.success('TOC generated successfully')
+      if (res.data.toc_data?.generation_warning) toast.error(res.data.toc_data.generation_warning)
+      else toast.success('TOC generated successfully')
     } catch (e) {
       const detail = e.response?.data?.detail
       toast.error((typeof detail === 'object' ? detail.message : detail) || e.message || 'TOC generation failed')
@@ -2701,7 +2615,7 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
 }
 
 // â”€â”€â”€ Pipeline Step Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-function StepBar({ stage }) {
+function StepBar({ stage, trainer }) {
   const steps = ['Trainer request', 'Trainer reply', 'Client handoff', 'Meet scheduled', 'Client decision', 'PO', 'Confirmed', 'Invoice sent']
   const stepIndex = STAGES[stage]?.step ?? 0
   const isRejected = stage === 'rejected'
@@ -2712,7 +2626,7 @@ function StepBar({ stage }) {
       {steps.map((s, i) => {
         const realStep   = i + 1
         const isActive   = realStep === stepIndex
-        const isComplete = realStep < stepIndex
+        const isComplete = pipelineStepComplete(realStep, stepIndex, trainer)
         const isRejStep  = realStep === 5 && isRejected
         const isFinalDone= realStep === 8 && isDone
         return (
@@ -2803,9 +2717,7 @@ function PipelineProgressSummary({ stage, state, req, trainer }) {
   // A handoff is complete only when the backend records both delivery and an
   // email id. Local optimistic state must never turn a failed/unknown send
   // into a completed handoff.
-  const clientSlotsSent = Boolean(
-    trainer?.client_slots_sent && trainer?.client_slots_email_id && slotStatus === 'sent_to_client'
-  )
+  const clientSlotsSent = isClientHandoffDelivered(trainer)
   const clientHandoffRetryPending = !clientSlotsSent && (
     slotStatus === 'client_handoff_retry_pending' ||
     slotStatus === 'client_slot_send_failed' ||
@@ -4248,7 +4160,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
         })
         
         if (isSendMailDelivered(commercialRes?.data)) {
-          toast.success(`Client handoff sent to ${req.client_name || 'client'}`)
+          toast.success(`Commercial summary sent to ${req.client_name || 'client'}`)
           onStatusUpdate(trainer.trainer_id, 'details_received', { clientCommercialsSentAt: Date.now() })
           setSendingCommercials(false)
           return
@@ -4374,6 +4286,13 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
   )
 
   const renderActions = () => {
+    if (stage === 'slot_booked' || trainer.slot_status === 'pending_approval' || trainer.slot_status === 'client_handoff_retry_pending') {
+      return <ClientHandoffReview requirementId={req.requirement_id} trainer={trainer}
+        onDelivered={result => onStatusUpdate(trainer.trainer_id, 'slot_booked', {
+          clientSlotsSentAt: Date.now(), clientSlotsEmailId: result.email_id,
+          clientSlotText: result.slot_text || trainer.slot_reply_text,
+        })} />
+    }
     // â”€â”€ ToC received â€” manual confirmation mail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (stage === 'toc_received_pending') {
       return renderPostSelectionTools({
@@ -4518,9 +4437,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 
       if (stage === 'waiting_reply2' || stage === 'slot_booked') {
         const slotStatus = String(trainer?.slot_status || '').toLowerCase()
-        const clientHandoffSent = Boolean(
-          trainer?.client_slots_sent && trainer?.client_slots_email_id && slotStatus === 'sent_to_client'
-        )
+        const clientHandoffSent = isClientHandoffDelivered(trainer)
         const clientHandoffRetryPending = !clientHandoffSent && (
           slotStatus === 'client_handoff_retry_pending' ||
           slotStatus === 'client_slot_send_failed' ||
@@ -5000,7 +4917,7 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
                 )}
               </div>
             )}
-            <StepBar stage={stage} />
+            <StepBar stage={stage} trainer={trainer} />
             <PipelineProgressSummary stage={stage} state={state} req={req} trainer={trainer} />
             <InterviewRescheduleStatus trainer={trainer} />
             {renderActions()}
@@ -5050,20 +4967,21 @@ export default function Shortlist1() {
       setLoadingReqs(true)
       try {
         const list = await getAllRequirementsForFlow()
-        // One shared pipeline supports both confirmed and proposal batches.
-        // LinkedIn requirements retain their dedicated LinkedIn pipeline.
-        const pipelineReqs = list.filter(req => !isLinkedInRequirement(req))
+        const pipelineReqs = list.filter(req => isConfirmedRequirement(req))
         setReqs(pipelineReqs)
 
         if (targetRequirementId) {
           const match = list.find(req => String(req.requirement_id) === String(targetRequirementId))
-          if (match && !isLinkedInRequirement(match)) {
+          if (match && isConfirmedRequirement(match)) {
             setSelectedReq(match)
             setMissingRequirement(false)
           } else if (match) {
             if (isLinkedInRequirement(match)) {
               toast('This is a LinkedIn requirement. Opening LinkedIn Pipeline.', { icon: 'i' })
               globalThis.location.replace(`/linkedin-pipeline?requirement_id=${encodeURIComponent(match.requirement_id)}&domain=${encodeURIComponent(match.technology_needed || match.domain || '')}`)
+            } else {
+              toast('This is a proposal requirement. Opening Proposal Flow.', { icon: 'i' })
+              globalThis.location.replace(`/shortlist?requirement_id=${encodeURIComponent(match.requirement_id)}`)
             }
           } else {
             try {
@@ -5072,6 +4990,11 @@ export default function Shortlist1() {
               if (isLinkedInRequirement(requirement)) {
                 toast('This is a LinkedIn requirement. Opening LinkedIn Pipeline.', { icon: 'i' })
                 globalThis.location.replace(`/linkedin-pipeline?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}&domain=${encodeURIComponent(requirement.technology_needed || requirement.domain || '')}`)
+                return
+              }
+              if (!isConfirmedRequirement(requirement)) {
+                toast('This is a proposal requirement. Opening Proposal Flow.', { icon: 'i' })
+                globalThis.location.replace(`/shortlist?requirement_id=${encodeURIComponent(requirement.requirement_id || targetRequirementId)}`)
                 return
               }
               setSelectedReq(requirement)
@@ -5163,6 +5086,8 @@ export default function Shortlist1() {
       })
       .finally(() => setLoadingTrainers(false))
   }, [selectedReq])
+
+  useLiveShortlist(selectedReq?.requirement_id, setTrainers, SHORTLIST_REFRESH_INTERVAL_MS)
 
   const handleStatusUpdate = (trainerId, newStage, extra = {}) => {
     setStates(prev => {

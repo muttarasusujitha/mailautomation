@@ -140,6 +140,8 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
     doc = await db["purchase_orders"].find_one({"po_id": po_id}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Purchase order not found")
+    if doc.get("status") in {"sent", "acknowledged"}:
+        return {"success": True, "already_sent": True, "po_id": po_id, "sent_to": doc.get("sent_to")}
 
     subject = payload.subject or f"Purchase Order {doc.get('po_number', po_id)} - Clahan Technologies"
     body = payload.body or (
@@ -176,12 +178,14 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
         raise HTTPException(502, "PO PDF generation failed; no email was sent")
 
     try:
-        email_json = {"to": payload.to_email, "subject": subject, "body": body}
+        email_json = {"to": payload.to_email, "subject": subject, "body": body, "idempotency_key": f"purchase-order:{po_id}"}
         if attachment_payload:
             email_json["attachments"] = attachment_payload
         async with httpx.AsyncClient(timeout=30) as client:
             response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=email_json)
             response.raise_for_status()
+            if response.json().get("success") is not True:
+                raise HTTPException(502, "PO email delivery is not confirmed; retry later")
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc
 

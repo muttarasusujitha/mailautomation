@@ -198,6 +198,8 @@ async def send_invoice(
             response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=email_json)
         if response.status_code >= 400:
             raise HTTPException(502, f"Email service error: {response.text[:200]}")
+        if response.json().get("success") is not True:
+            raise HTTPException(502, "Invoice email delivery is not confirmed; retry later")
     except HTTPException:
         raise
     except Exception as exc:

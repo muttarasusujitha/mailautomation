@@ -33,6 +33,8 @@ def validate_lab_cost_inputs(values):
     if provider not in regions or region not in regions[provider]:
         raise ValueError("Unsupported provider/region pair; a matching rate card is required")
     for key in ("hours_per_day", "participant_count", "fx_rate"):
+        if isinstance(result[key], bool):
+            raise ValueError(key + " must be a number, not a boolean")
         number = float(result[key])
         if not math.isfinite(number) or number <= 0:
             raise ValueError(key + " must be a finite positive number")
@@ -67,11 +69,29 @@ def validate_lab_cost_inputs(values):
             raise ValueError("vm_profile must be Light, Heavy, or None")
         for key in numeric_mapping_keys:
             value = item.get(key)
-            if value is None or (isinstance(value, str) and value.startswith("=")):
+            if value is None:
                 continue
+            if isinstance(value, bool):
+                raise ValueError(key + " must be a number, not a boolean")
             number = float(value)
             if not math.isfinite(number) or number < 0:
                 raise ValueError(key + " must be finite and non-negative")
+            if key != "object_storage_gb" and not number.is_integer():
+                raise ValueError(key + " must be a whole number; fractional quantities cannot be silently rounded")
+            if key == "active_days" and number < 1:
+                raise ValueError("active_days must be at least one")
+    for key in ("contingency_percent", "tax_percent", "clahan_margin_percent"):
+        if result.get(key) is not None:
+            number = float(result[key])
+            if not math.isfinite(number) or not 0 <= number <= 100:
+                raise ValueError(key + " must be between 0 and 100")
+            result[key] = number
+    for key in ("storage_gb", "egress_gb", "build_minutes", "monitoring_gb", "k8s_worker_nodes"):
+        if result.get(key) is not None:
+            number = float(result[key])
+            if not math.isfinite(number) or number < 0:
+                raise ValueError(key + " must be finite and non-negative")
+            result[key] = number
     profile_rates = result.get("vm_profile_rates")
     if profile_rates is not None and not isinstance(profile_rates, dict):
         raise ValueError("vm_profile_rates must be an object with Light and Heavy rates")
@@ -137,3 +157,49 @@ def lab_resources(text):
         "database": not local and any(word in text for word in ("rds", "azure sql", "cloud sql")),
         "storage": not local and any(word in text for word in ("s3", "blob storage", "object storage", "cloud storage bucket")),
     }
+
+
+def validate_lab_pricing_coverage(toc, assumptions):
+    """Reject an incomplete architecture before fetching or reusing prices."""
+    import json
+    selections = assumptions.get('pricing_selections') or {}
+    required = set()
+    unresolved = []
+    mappings = assumptions.get('lab_day_mapping') or {}
+    for index, day in enumerate(toc.get('days') or [], 1):
+        text = json.dumps(day).lower()
+        resources = lab_resources(text)
+        mapping = (mappings[index - 1] if index <= len(mappings) else {}) if isinstance(mappings, list) else (mappings.get(str(index)) or mappings.get(index) or {})
+        local = any(word in text for word in ('local lab', 'local machine', 'localhost', 'minikube', 'kind cluster', 'docker desktop'))
+        practical = any(word in text for word in ('linux', 'shell scripting', 'jenkins', 'docker', 'kubernetes', 'helm', 'terraform', 'ansible'))
+        if practical and not local and not resources['vm'] and not resources['k8s'] and not mapping:
+            unresolved.append(str(index))
+        def used(key, inferred):
+            value = mapping.get(key, inferred)
+            if isinstance(value, str) and value.startswith('='):
+                return True
+            return float(value or 0) > 0
+        if used('vm_qty', resources['vm']):
+            profile = str(mapping.get('vm_profile') or ('Heavy' if resources['heavy'] else 'Light')).title()
+            if profile not in ('Light', 'Heavy'):
+                raise ValueError('A nonzero VM quantity requires a Light or Heavy VM profile')
+            required.update(('VM ' + profile, 'Disk'))
+        if used('k8s_control_plane', resources['k8s']):
+            required.add('Kubernetes control plane')
+        if used('k8s_worker_nodes', resources['k8s']):
+            required.update(('Kubernetes worker', 'Disk'))
+        if used('managed_db', resources['database']):
+            required.add('Managed database')
+        if used('object_storage_gb', resources['storage']):
+            required.add('Storage')
+    for key, resource in (('egress_gb', 'Egress'), ('build_minutes', 'Build runner'), ('monitoring_gb', 'Monitoring')):
+        if float(assumptions.get(key, {'egress_gb': 1, 'build_minutes': 60, 'monitoring_gb': 1}[key]) or 0) > 0:
+            required.add(resource)
+    missing = sorted(name for name in required if not selections.get(name) or selections[name].get('auto_zero'))
+    errors = []
+    if unresolved:
+        errors.append('Specify local/shared/cloud lab infrastructure or lab_day_mapping for days: ' + ', '.join(unresolved))
+    if missing:
+        errors.append('Used resources require exact pricing selections and cannot be marked not billed: ' + ', '.join(missing))
+    if errors:
+        raise ValueError('Incomplete lab estimate. ' + '; '.join(errors))

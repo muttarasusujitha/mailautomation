@@ -1,6 +1,25 @@
 from app.routes.shortlists import _trainer_missing_followup_details, _workflow_summary
 
 
+def test_selection_takes_precedence_over_existing_interview_status():
+    for target in ("shortlist", "shortlist1"):
+        summary = _workflow_summary({
+            "pipeline_target": target,
+            "top_trainers": [{"pipeline_status": "interview_scheduled", "selected": True}],
+        })
+        assert summary["current_stage"] == "trainer_selected"
+        assert summary["client_handoff_completed"] is False
+
+
+def test_missing_input_is_not_reported_as_missing_trainer_slots():
+    summary = _workflow_summary({'top_trainers': [{
+        'pipeline_status': 'details_received', 'slot_status': 'client_handoff_needs_input',
+    }]})
+    assert summary['status'] == 'needs_input'
+    assert summary['current_stage'] == 'client_handoff_needs_input'
+    assert not summary['client_handoff_completed']
+
+
 def test_followup_requests_only_availability_when_profile_is_already_stored():
     requirement = {"client_requirement_text": "Please confirm trainer availability for 10 October."}
     trainer = {

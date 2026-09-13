@@ -318,6 +318,60 @@ def test_normal_trainer_acceptance_does_not_enter_question_side_flow():
     ) is False
 
 
+def test_mail1_three_interview_slots_do_not_enter_question_side_flow():
+    email = {
+        "requirement_id": "REQ-001",
+        "trainer_id": "TR-001",
+        "source_outbound_mail_type": "mail1",
+    }
+    reply = """- 10 September 2026, 10:30 AM IST
+- 10 September 2026, 2:00 PM IST
+- 10 September 2026, 4:00 PM IST
+
+On Thu, Sep 10, 2026 at 10:16 AM Clahan Technologies wrote:
+> Please confirm the offered commercials in your reply, or share your proposed rate.
+> Please also share three convenient interview/discussion slots."""
+
+    assert inbox._has_proper_interview_slots(reply) is True
+    assert inbox._is_linked_trainer_question(
+        email,
+        "Re: Advanced DevOps with AWS & Azure",
+        reply,
+    ) is False
+
+
+def test_quoted_mail1_question_is_never_attributed_to_a_trainer_without_new_text():
+    email = {
+        "requirement_id": "REQ-001",
+        "trainer_id": "TR-001",
+        "source_outbound_mail_type": "mail1",
+    }
+    reply = """On Thu, Sep 10, 2026 at 10:16 AM Clahan Technologies wrote:
+> Can you please confirm the offered commercials?
+> Please share three convenient interview/discussion slots."""
+
+    assert inbox._latest_authored_email_text(reply) == ""
+    assert inbox._is_linked_trainer_question(
+        email,
+        "Re: Advanced DevOps with AWS & Azure",
+        reply,
+    ) is False
+
+
+def test_incomplete_slot_reply_does_not_become_a_trainer_question():
+    email = {
+        "requirement_id": "REQ-001",
+        "trainer_id": "TR-001",
+        "source_outbound_mail_type": "mail1",
+    }
+
+    assert inbox._is_linked_trainer_question(
+        email,
+        "Re: Advanced DevOps with AWS & Azure",
+        "I am available on 10 September 2026 at 10:30 AM. Can you book this slot?",
+    ) is False
+
+
 def test_unlinked_client_toc_question_does_not_enter_trainer_side_flow():
     assert inbox._is_linked_trainer_question(
         {},

@@ -726,7 +726,8 @@ def _best_fuzzy_domain_key(normalised: str):
             candidate_tokens = _key_tokens(candidate)
             if not candidate_tokens:
                 continue
-            phrase_match = candidate in normalised or normalised in candidate
+            phrase_match = (f"_{candidate}_" in f"_{normalised}_"
+                            or f"_{normalised}_" in f"_{candidate}_")
             overlap = len(requested_tokens & candidate_tokens)
             if not phrase_match and overlap <= 0:
                 continue

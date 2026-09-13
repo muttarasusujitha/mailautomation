@@ -61,6 +61,7 @@ class LabCostRequest(BaseModel):
     include_internal_pricing: bool = False
     clahan_margin_percent: float = 0
     storage_gb: float = 10
+    disk_gb_per_node: float = 20
     egress_gb: float = 1
     build_minutes: float = 60
     monitoring_gb: float = 1
@@ -732,7 +733,9 @@ async def auto_generate_toc(payload: AutoGenerateRequest, db: AsyncIOMotorDataba
     """Auto-generate a TOC from a requirement_id."""
     req = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
     domain = payload.domain or req.get("technology_needed") or req.get("job_title") or "Training"
-    duration = payload.duration_days if payload.duration_days is not None else float(req.get("duration_days") or 3.0)
+    from shared.requirement_duration import training_duration
+    duration_inputs = training_duration(req)
+    duration = payload.duration_days if payload.duration_days is not None else duration_inputs.get("duration_days", 3.0)
     training_dates = (
         req.get("training_dates")
         or " to ".join(part for part in [req.get("timeline_start"), req.get("timeline_end")] if part)
@@ -755,7 +758,7 @@ async def auto_generate_toc(payload: AutoGenerateRequest, db: AsyncIOMotorDataba
         training_dates=training_dates,
         timing=req.get("timing") or req.get("session_timing") or "",
         generation_mode=generation_mode,
-        hours_per_day=float(req["hours_per_day"]) if req.get("hours_per_day") else None,
+        hours_per_day=duration_inputs.get("hours_per_day"),
         participant_count=int(req.get("participant_count") or req.get("participants") or 1),
         custom_topics="; ".join(str(item).strip() for value in (
             req.get("technology_needed"), req.get("domain"), req.get("skills"),
@@ -894,7 +897,9 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
 
     issued_at = datetime.now(timezone.utc)
     resource_mapping = payload.lab_day_mapping
-    if payload.lab_generation_mode is not None:
+    if payload.lab_generation_mode is None and toc.get("requested_generation_mode") == "ai":
+        payload.lab_generation_mode = "ai"
+    if payload.lab_generation_mode not in {None, "template"}:
         from shared.lab_planning import plan_resources
         try:
             if payload.lab_generation_mode == 'ai':
@@ -907,6 +912,8 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                     payload.lab_generation_mode, toc, payload.model_dump())
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(502, "AI lab planning failed. Retry or select Template mode explicitly.") from exc
     quote_id = f"LCQ-{uuid.uuid4().hex[:12].upper()}"
     checked_at = payload.rate_checked_at or issued_at.isoformat()
     valid_until = issued_at + timedelta(days=payload.quote_validity_days)
@@ -938,6 +945,7 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                         "include_internal_pricing": payload.include_internal_pricing,
                         "clahan_margin_percent": payload.clahan_margin_percent,
                         "storage_gb": payload.storage_gb,
+                        "disk_gb_per_node": payload.disk_gb_per_node,
                         "egress_gb": payload.egress_gb,
                         "build_minutes": payload.build_minutes,
                         "monitoring_gb": payload.monitoring_gb,
@@ -959,7 +967,7 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                 },
             )
         if response.status_code >= 400:
-            raise HTTPException(502, f"Document service error: {response.text[:200]}")
+            raise HTTPException(response.status_code, f"Document service error: {response.text[:1000]}")
         quote_id = response.headers['X-Lab-Cost-Quote-ID']
         valid_until = datetime.fromisoformat(response.headers['X-Lab-Cost-Quote-Valid-Until'])
         pricing_status = response.headers['X-Lab-Cost-Pricing-Status']

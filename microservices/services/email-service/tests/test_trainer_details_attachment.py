@@ -1,10 +1,16 @@
 import asyncio
+from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 from app.routes.inbox import (
     _build_toc_recheck_state,
+    _attachment_type_from_extracted_text,
+    _document_readability,
     _send_missing_trainer_details_followup,
     _trainer_detail_evidence_doc,
+    _trainer_mail2_details_reply,
     _trainer_missing_requested_details,
+    _persist_trainer_requirement_fit,
     _trainer_reply_has_requested_details,
     _validate_trainer_attachments_against_requirement,
 )
@@ -176,6 +182,120 @@ def test_explicit_client_requested_detail_stays_missing_until_trainer_supplies_i
 
     assert _trainer_missing_requested_details(reply, requirement, email_doc) == ["Current Location"]
     assert _trainer_reply_has_requested_details(reply, requirement, email_doc) is False
+
+
+def test_three_valid_slots_are_preserved_while_only_missing_linkedin_is_requested():
+    reply = """I am interested.
+- 10 September 2026, 10:30 AM IST
+- 10 September 2026, 2:00 PM IST
+- 10 September 2026, 4:00 PM IST"""
+    requirement = {
+        "technology_needed": "Advanced DevOps with AWS & Azure",
+        "requested_details": ["Updated CV / Trainer Profile", "LinkedIn Profile", "ToC"],
+        "request_interview_slots": True,
+    }
+    email_doc = {
+        "attachments": [{"filename": "Trainer_Profile.pdf", "safe_client_scope": True}],
+    }
+
+    assert _trainer_missing_requested_details(reply, requirement, email_doc) == ["LinkedIn Profile"]
+    followup = _trainer_mail2_details_reply({
+        "trainer_name": "Suresh",
+        "requirement": requirement,
+        "missing_requested_details": ["LinkedIn Profile"],
+    })
+    assert "* LinkedIn Profile" in followup["body"]
+    assert "interview/discussion slots" not in followup["body"]
+
+
+def test_linkedin_mention_or_unavailability_does_not_count_as_a_profile_url():
+    requirement = {
+        "technology_needed": "DevOps",
+        "requested_details": ["LinkedIn Profile"],
+    }
+
+    assert _trainer_missing_requested_details(
+        "I am interested, but my LinkedIn profile is not available.", requirement, {}
+    ) == ["LinkedIn Profile"]
+    assert _trainer_missing_requested_details(
+        "LinkedIn: https://www.linkedin.com/in/karthik-menon/", requirement, {}
+    ) == []
+
+
+def test_document_reader_classifies_generic_toc_and_lab_files_from_content():
+    toc_text = "Module 1: CI/CD\nDay 1: Docker\nDay 2: Kubernetes"
+    lab_text = "Lab Cost Estimate\nPer participant: INR 1200\nAWS lab sandbox access"
+
+    assert _attachment_type_from_extracted_text("other", toc_text) == "toc"
+    assert _attachment_type_from_extracted_text("other", lab_text) == "lab_cost"
+
+
+def test_readability_gate_distinguishes_unreadable_and_readable_profile_text():
+    assert _document_readability("blurred scan", "cv")["status"] == "unreadable"
+    readable = _document_readability("DevOps AWS Azure Kubernetes CI CD delivery experience. " * 20, "cv")
+    assert readable["status"] == "readable"
+    assert readable["confidence"] >= 70
+
+
+def test_profile_document_is_rated_against_its_requirement_skills_seniority_and_projects():
+    email_doc = {
+        "requirement_id": "REQ-DEVOPS-1",
+        "trainer_id": "TR-1",
+        "attachments": [{
+            "filename": "trainer-document.pdf",
+            "analysis": {
+                "filename": "trainer-document.pdf",
+                "attachment_type": "cv",
+                "text_extracted": True,
+                "ocr_used": False,
+                "extracted_text": (
+                    "8 years DevOps, AWS, Azure, Kubernetes, CI/CD and infrastructure automation. "
+                    "Delivered AWS and Azure Kubernetes implementation projects for enterprise clients."
+                ) * 8,
+                "evidence": {"projects": [{"page": 1, "line": 1, "text": "Delivered AWS Azure Kubernetes implementation projects."}]},
+            },
+        }],
+        "attachment_profiles": [{
+            "filename": "trainer-document.pdf",
+            "experience_years": 8,
+            "skills": ["DevOps", "AWS", "Azure", "Kubernetes", "CI/CD"],
+            "summary": "Senior DevOps trainer",
+        }],
+    }
+    requirement = {
+        "requirement_id": "REQ-DEVOPS-1",
+        "technology_needed": "Advanced DevOps with AWS & Azure",
+        "required_skills": ["DevOps", "AWS", "Azure", "Kubernetes", "CI/CD"],
+        "min_experience_years": 6,
+        "requirement_source_text": "Advanced DevOps training covering AWS, Azure, Kubernetes and CI/CD.",
+    }
+
+    validation = _validate_trainer_attachments_against_requirement(email_doc, requirement)
+    fit = validation["requirement_fit"]
+    assert validation["document_inventory"][0]["filename"] == "trainer-document.pdf"
+    assert validation["document_inventory"][0]["type"] == "cv"
+    assert validation["document_inventory"][0]["readability"]["status"] == "readable"
+    assert fit["requirement_id"] == "REQ-DEVOPS-1"
+    assert fit["skills"]["coverage_percent"] >= 80
+    assert fit["seniority"] == {"required_years": 6.0, "evidenced_years": 8.0, "status": "met"}
+    assert fit["projects"]["status"] == "relevant_project_found"
+    assert fit["readability"]["status"] == "readable"
+    assert fit["status"] == "strong_fit"
+
+
+def test_requirement_fit_is_saved_on_the_exact_shortlisted_trainer():
+    shortlist = SimpleNamespace(update_one=AsyncMock())
+    db = {"shortlists": shortlist}
+    email_doc = {"requirement_id": "REQ-1", "trainer_id": "TR-1", "body": "I am interested."}
+    requirement = {"requirement_id": "REQ-1", "technology_needed": "DevOps"}
+
+    validation = asyncio.run(_persist_trainer_requirement_fit(db, email_doc, requirement, {}))
+
+    assert shortlist.update_one.await_args.args[0] == {
+        "requirement_id": "REQ-1", "top_trainers.trainer_id": "TR-1",
+    }
+    stored = shortlist.update_one.await_args.args[1]["$set"]
+    assert stored["top_trainers.$.requirement_fit"] == validation["requirement_fit"]
 
 
 def test_previous_trainer_state_satisfies_requested_details_without_reasking():

@@ -62,6 +62,7 @@ const LabCost = lazyWithRetry(() => import('./pages/LabCost'))
 const Shortlist = lazyWithRetry(() => import('./pages/Shortlist'))
 const Shortlist1 = lazyWithRetry(() => import('./pages/Shortlist1'))
 const Profile = lazyWithRetry(() => import('./pages/Profile'))
+const ProfileReviews = lazyWithRetry(() => import('./pages/ProfileReviews'))
 
 function PrivateRoute({ children, isLoggedIn }) {
   return isLoggedIn ? children : <Navigate to="/login" replace />
@@ -189,6 +190,7 @@ export default function App() {
             <Route path="ai-pipeline"  element={<Shortlist1 />} />
             <Route path="shortlist1"   element={<Shortlist1 />} />
             <Route path="profile"      element={<Profile />} />
+            <Route path="profile-reviews" element={<ProfileReviews />} />
           </Route>
           <Route path="*" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} />
         </Routes>

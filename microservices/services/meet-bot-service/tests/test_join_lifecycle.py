@@ -17,7 +17,10 @@ class JoinLifecycleTests(unittest.IsolatedAsyncioTestCase):
         page.get_by_role.return_value.first.wait_for = AsyncMock(side_effect=admission_error)
         context = MagicMock()
         context.pages = [page]
+        context.new_page = AsyncMock(return_value=page)
         context.close = AsyncMock()
+        context.grant_permissions = AsyncMock()
+        context.add_init_script = AsyncMock()
         playwright = MagicMock()
         playwright.chromium.launch_persistent_context = AsyncMock(
             return_value=context, side_effect=launch_error,

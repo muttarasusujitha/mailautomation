@@ -38,6 +38,16 @@ class LabCostInputTests(unittest.TestCase):
     def test_zero_support_is_preserved(self):
         self.assertEqual(validate_lab_cost_inputs(self.inputs(lab_support_per_participant=0))["lab_support_per_participant"], 0)
 
+    def test_mapping_cannot_inject_formulas_or_round_resource_counts(self):
+        for value in ('=100', 1.5, True, -1, float('nan')):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                validate_lab_cost_inputs(self.inputs(lab_day_mapping=[{'vm_qty': value}]))
+
+    def test_invalid_cost_adjustments_are_rejected(self):
+        for key, value in [('tax_percent', 101), ('contingency_percent', float('nan')), ('egress_gb', -1), ('monitoring_gb', float('inf'))]:
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                validate_lab_cost_inputs(self.inputs(**{key: value}))
+
     def test_local_topics_do_not_allocate_cloud_resources(self):
         for text in ("Git branches", "Docker Desktop on local machine", "Kubernetes minikube local lab", "Postgres on localhost"):
             resources = lab_resources(text)

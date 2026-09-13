@@ -34,25 +34,42 @@ def automatic_pricing_selections(toc=None, assumptions=None):
     if provider == 'aws':
         light = {'service': 'AmazonEC2', 'attributes': {
             'Instance Type': 't3.medium', 'Operating System': 'Linux',
-            'Tenancy': 'Shared', 'MarketOption': 'OnDemand'}}
+            'Tenancy': 'Shared', 'MarketOption': 'OnDemand',
+            'CapacityStatus': 'Used', 'Pre Installed S/W': 'NA',
+            'License Model': 'No License required'}}
         heavy = {'service': 'AmazonEC2', 'attributes': {
             'Instance Type': 't3.xlarge', 'Operating System': 'Linux',
-            'Tenancy': 'Shared', 'MarketOption': 'OnDemand'}}
-        zero = {'auto_zero': True, 'service': 'AmazonEC2'}
+            'Tenancy': 'Shared', 'MarketOption': 'OnDemand',
+            'CapacityStatus': 'Used', 'Pre Installed S/W': 'NA',
+            'License Model': 'No License required'}}
+        zero = {
+            'auto_zero': True,
+            'service': 'AmazonEC2',
+            'not_enabled_reason': 'Not enabled by the automatic baseline architecture',
+        }
     elif provider == 'azure':
         # Central India's standard B2s meter is a stable baseline; callers can
         # still override it with a catalog entry for a different VM size.
         light = {'meter_id': '734de0e1-404b-4c78-a340-a5f6498aca77'}
         heavy = light.copy()
-        zero = {'auto_zero': True}
+        zero = {
+            'auto_zero': True,
+            'not_enabled_reason': 'Not enabled by the automatic baseline architecture',
+        }
     else:
         return {}
-    return {
+    selections = {
         'VM': light, 'VM Light': light, 'VM Heavy': heavy,
         'Kubernetes control plane': zero, 'Kubernetes worker': heavy,
         'Disk': zero, 'Storage': zero, 'Egress': zero,
         'Build runner': zero, 'Managed database': zero, 'Monitoring': zero,
     }
+    if provider == 'aws':
+        # gp3 base-capacity pricing is distinct from optional extra IOPS and
+        # throughput. Resolve the exact current dimension from the catalog.
+        selections['Disk'] = {'service': 'AmazonEC2', 'attributes': {
+            'usageType': 'APS3-EBS:VolumeUsage.gp3'}}
+    return selections
 
 def _amount(value):
     value = float(value)
@@ -143,7 +160,8 @@ def refresh_rates(values):
         raise PricingUnavailable('Live lookup currently supports AWS and Azure; GCP quotes are blocked pending a catalog connector')
     selections = result.get('pricing_selections') or {}
     unpriced = [name for name, selection in selections.items()
-                if isinstance(selection, dict) and selection.get('auto_zero')]
+                if isinstance(selection, dict) and selection.get('auto_zero')
+                and not str(selection.get('not_enabled_reason') or '').strip()]
     if unpriced:
         raise PricingUnavailable('Pricing evidence is missing for: ' + ', '.join(unpriced)
                                  + '; these resources cannot be assumed free')
@@ -172,7 +190,8 @@ def refresh_rates(values):
                 matches[name] = [{'rate': 0, 'unit': next(iter(UNITS[RESOURCES[name]])),
                                   'sku': 'NOT_BILLED', 'dimension': 'not-enabled',
                                   'source': 'https://aws.amazon.com/pricing/',
-                                  'effective_date': ''}]
+                                  'effective_date': '',
+                                  'note': selection.get('not_enabled_reason')}]
         for service, names in services.items():
             for row, url in _aws_catalog(service, regions[provider]):
                 for name in names:
@@ -209,7 +228,8 @@ def refresh_rates(values):
                 rates[name] = _choose([{'rate': 0, 'unit': next(iter(UNITS[unit])),
                                         'sku': 'NOT_BILLED', 'dimension': 'not-enabled',
                                         'source': 'https://azure.microsoft.com/en-us/pricing/',
-                                        'effective_date': ''}], name, unit)
+                                        'effective_date': '',
+                                        'note': selection.get('not_enabled_reason')}], name, unit)
             else:
                 rates[name] = _choose(_azure(selection, regions[provider]), name, unit)
     checked = datetime.now(timezone.utc)
@@ -218,7 +238,7 @@ def refresh_rates(values):
         raise PricingUnavailable('Quote validity must be 1 to 365 days')
     for row in rates.values():
         row['verified_date'] = checked.isoformat()
-        row['note'] = f"SKU {row['sku']}; dimension {row['dimension']}; effective {row['effective_date']}; USD public retail price"
+        row['note'] = row.get('note') or f"SKU {row['sku']}; dimension {row['dimension']}; effective {row['effective_date']}; USD public retail price"
     result.update(rate_card_overrides=rates,
         vm_profile_rates={p: rates['VM ' + p]['rate'] for p in ('Light', 'Heavy')},
         vm_profile_sources={p: rates['VM ' + p]['source'] for p in ('Light', 'Heavy')},

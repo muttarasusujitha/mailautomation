@@ -41,6 +41,13 @@ async def _fetch_and_send_reminders():
             logger.warning("No phone for email_id=%s, skipping reminder", email_id)
             continue
 
+        claimed = await db["email_logs"].find_one_and_update(
+            {**query, "email_id": email_id, "interview_at": log["interview_at"]},
+            {"$set": {"whatsapp_reminder_status": "sending", "updated_at": now}},
+        )
+        if not claimed:
+            continue
+
         try:
             resp = httpx.post(
                 f"{settings.NOTIFICATION_SERVICE_URL}/api/v1/notifications/whatsapp/interview-reminder",
@@ -64,7 +71,7 @@ async def _fetch_and_send_reminders():
 
         status = "sent" if success else "failed"
         await db["email_logs"].update_one(
-            {"email_id": email_id},
+            {"email_id": email_id, "interview_at": log["interview_at"], "whatsapp_reminder_status": "sending"},
             {"$set": {
                 "whatsapp_reminder_status": status,
                 "whatsapp_reminder_sent_at": now if success else None,

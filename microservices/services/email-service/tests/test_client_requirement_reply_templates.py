@@ -118,7 +118,43 @@ def test_lab_cost_is_recorded_for_clahan_without_requesting_it_from_trainers():
         "Lab support availability and cost, if applicable",
         "Lab setup details",
     }.intersection(extracted["requested_details"])
-    assert "We will confirm lab availability and cost separately." in _client_proceed_ack_reply(extracted)["body"]
+    body = _client_proceed_ack_reply(extracted)["body"]
+    assert "prepare the lab estimate" in body
+    assert "3 lab-access hours per day for 1 participant" in body
+
+
+def test_client_supplied_lab_inputs_are_acknowledged_without_default_disclaimer():
+    extracted = _extract_requirement_from_email(
+        "Advanced DevOps with AWS & Azure training requirement",
+        (
+            "Technology: Advanced DevOps with AWS & Azure\n"
+            "Duration: 20 Training Days\n"
+            "Mode: Offline\n"
+            "Participants: 34\n"
+            "Lab: Required for all 20 days, 3 hours per day\n"
+            "Cloud Platforms: AWS & Azure\n"
+            "Level: Advanced\n"
+            "Please share trainer CV, LinkedIn profile, detailed ToC, and lab estimate "
+            "for 34 participants, 20 days, and 3 hours per day."
+        ),
+        sender_email="client@example.com",
+        sender_name="Client Team",
+    )
+
+    assert extracted["participant_count"] == 34
+    assert extracted["duration_days"] == 20
+    assert extracted["lab_hours_per_day"] == 3
+    assert extracted["cloud_provider"] == "AWS & Azure"
+    body = _client_proceed_ack_reply(extracted)["body"]
+    assert "20 training days, Offline, 34 participants, Advanced level, AWS & Azure platforms" in body
+    assert "34 participants, 20 lab-access days, and 3 lab-access hours per day" in body
+    assert "3 lab-access hours per day for 1 participant" not in body
+    assert "Please share the participant count" not in body
+    assert "commercials for your review" not in body
+    trainer_body = _trainer_mail_for_requirement(extracted, "REQ-001")["body"]
+    assert "Participants: 34" in trainer_body
+    assert "Cloud Platforms: AWS & Azure" in trainer_body
+    assert "Lab Access: 3 hours per day" in trainer_body
 
 
 def test_training_requirement_with_lab_cost_still_creates_requirement():

@@ -81,6 +81,7 @@ async def _do_followup_reminders():
         "status": "sent",
         "replied": {"$ne": True},
         "reminder_sent": {"$ne": True},
+        "followup_suppressed": {"$ne": True},
         "sent_at": {"$lte": cutoff},
     }
     sent = failed = 0
@@ -100,7 +101,7 @@ async def _do_followup_reminders():
         # Try to atomically claim this log for processing. If another worker claimed it, skip.
         now = datetime.utcnow()
         claimed = await db["email_logs"].find_one_and_update(
-            {"email_id": email_id, "reminder_sent": {"$ne": True}, "reminder_claimed": {"$ne": True}},
+            {**query, "email_id": email_id, "reminder_claimed": {"$ne": True}},
             {"$set": {"reminder_claimed": True, "reminder_claimed_at": now}},
         )
         if not claimed:
@@ -114,6 +115,7 @@ async def _do_followup_reminders():
                 headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                 timeout=10,
             )
+            tmpl_resp.raise_for_status()
             tmpl = tmpl_resp.json()
 
             send_resp = httpx.post(
@@ -123,11 +125,12 @@ async def _do_followup_reminders():
                     "subject": tmpl.get("subject", f"Follow-Up: {technology}"),
                     "body": tmpl.get("body", ""),
                     "mail_type": "mail1_reminder",
+                    "idempotency_key": f"followup-1:{email_id}",
                     "requirement_id": req_id,
                 },
                 timeout=30,
             )
-            success = send_resp.status_code < 400
+            success = send_resp.status_code < 400 and send_resp.json().get("success") is True
             if send_resp.status_code == 429 or "quota" in send_resp.text.lower():
                 await db["mail_send_cooldowns"].update_one(
                     {"_id": "gmail_send_quota"},
@@ -178,8 +181,10 @@ async def _do_followup2_reminders():
         "mail_type": "mail1_reminder",
         "direction": "outbound",
         "status": "sent",
+        "replied": {"$ne": True},
         "followup2_sent": {"$ne": True},
         "followup2_claimed": {"$ne": True},
+        "followup_suppressed": {"$ne": True},
         "sent_at": {"$lte": cutoff},
     }
     sent = failed = 0
@@ -195,9 +200,17 @@ async def _do_followup2_reminders():
         if not recipient or not email_id:
             continue
 
+        # Replies may be attached to the original outreach rather than the
+        # first follow-up. Either reply ends the follow-up chain.
+        if req_id and await db["email_logs"].find_one({
+            "requirement_id": req_id, "mail_type": "mail1", "replied": True,
+            "$or": [{"recipient": recipient}, {"trainer_email": recipient}, {"to_email": recipient}],
+        }, {"_id": 1}):
+            continue
+
         now = datetime.utcnow()
         claimed = await db["email_logs"].find_one_and_update(
-            {"email_id": email_id, "followup2_sent": {"$ne": True}, "followup2_claimed": {"$ne": True}},
+            {**query, "email_id": email_id},
             {"$set": {"followup2_claimed": True, "followup2_claimed_at": now}},
         )
         if not claimed:
@@ -210,6 +223,7 @@ async def _do_followup2_reminders():
                 headers={"X-INTERNAL-TOKEN": settings.INTERNAL_SERVICE_TOKEN},
                 timeout=10,
             )
+            tmpl_resp.raise_for_status()
             tmpl = tmpl_resp.json()
 
             send_resp = httpx.post(
@@ -219,11 +233,12 @@ async def _do_followup2_reminders():
                     "subject": tmpl.get("subject", f"Follow-Up: {technology}"),
                     "body": tmpl.get("body", ""),
                     "mail_type": "mail2_reminder",
+                    "idempotency_key": f"followup-2:{email_id}",
                     "requirement_id": req_id,
                 },
                 timeout=30,
             )
-            success = send_resp.status_code < 400
+            success = send_resp.status_code < 400 and send_resp.json().get("success") is True
             if send_resp.status_code == 429 or "quota" in send_resp.text.lower():
                 await db["mail_send_cooldowns"].update_one(
                     {"_id": "gmail_send_quota"},

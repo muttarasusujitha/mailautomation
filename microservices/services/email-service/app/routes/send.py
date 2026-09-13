@@ -131,7 +131,17 @@ def _build_calendar_invite_ics(invite: "CalendarInvite", fallback_attendee_email
         )
     if meeting_url:
         lines.append(f"URL:{_ics_escape(meeting_url)}")
-    lines.extend(["END:VEVENT", "END:VCALENDAR"])
+    # Ask calendar clients to show a native popup five minutes before the
+    # meeting. The scheduler email remains an additional delivery guard.
+    lines.extend([
+        "BEGIN:VALARM",
+        "ACTION:DISPLAY",
+        "DESCRIPTION:Interview starts in 5 minutes",
+        "TRIGGER:-PT5M",
+        "END:VALARM",
+        "END:VEVENT",
+        "END:VCALENDAR",
+    ])
     return "\r\n".join(_fold_ics_line(line) for line in lines) + "\r\n"
 
 
@@ -202,7 +212,9 @@ async def send_single_email(
                     subject=payload.subject,
                     body=body,
                     hint=(
-                        "Write this recipient-facing workflow email naturally and concisely. Preserve every verified fact in the "
+                        "Compose a fresh, context-specific email using the reference as facts and required actions, not a script. "
+                        "Choose an opening and structure suited to the current conversation rather than copying the reference paragraphs. "
+                        "Write naturally and concisely. Preserve every verified fact in the "
                         "reference exactly, including links, dates, times, requested next action, and attachments. "
                         "Do not invent commercial, availability, trainer details, or completion status."
                     ),
@@ -214,16 +226,19 @@ async def send_single_email(
                     body = _normalize_trainer_reply_body(generated.strip())
                     generation_source = "ai"
                 else:
-                    generation_source = "template_fallback"
+                    raise HTTPException(502, "AI email generation returned no usable draft. Retry or select Template mode explicitly.")
+            except HTTPException:
+                raise
             except Exception:
-                logger.exception("Client pipeline AI wording failed; using approved template")
-                generation_source = "template_fallback"
+                logger.exception("Client pipeline AI wording failed")
+                raise HTTPException(502, "AI email generation failed. No email was sent; retry or select Template mode explicitly.")
     idempotency_key = str(payload.idempotency_key or "").strip()
     existing_log = None
     if idempotency_key:
         existing_log = await db.email_logs.find_one(
             {"idempotency_key": idempotency_key},
-            {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1, "error_message": 1},
+            {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1, "error_message": 1,
+             "updated_at": 1, "created_at": 1, "message_id_header": 1},
         )
         existing_status = (existing_log or {}).get("status")
         existing_updated_at = (existing_log or {}).get("updated_at") or (existing_log or {}).get("created_at")
@@ -299,7 +314,7 @@ async def send_single_email(
         except Exception:
             logger.exception("Failed to log attachment filenames")
 
-    message_id_header = generate_message_id()
+    message_id_header = (existing_log or {}).get("message_id_header") or generate_message_id()
     now = datetime.utcnow()
     email_id = (existing_log or {}).get("email_id") or f"EML-{uuid.uuid4().hex[:10].upper()}"
     log = {
@@ -320,6 +335,7 @@ async def send_single_email(
         "generation_source": generation_source,
         "trainer_id": payload.trainer_id,
         "trainer_name": payload.trainer_name,
+        "slot_text": (payload.ai_context or {}).get("available_slots", ""),
         "attachment_names": [item.get("filename", "") for item in attachments if item.get("filename")],
         "lab_cost_workbooks": lab_cost_workbooks,
         "sent_at": None,
@@ -333,7 +349,13 @@ async def send_single_email(
         if existing_log:
             log_for_retry = dict(log)
             log_for_retry.pop("created_at", None)
-            await db.email_logs.update_one({"idempotency_key": idempotency_key}, {"$set": log_for_retry})
+            claimed = await db.email_logs.update_one(
+                {"idempotency_key": idempotency_key, "status": existing_log.get("status"),
+                 "updated_at": existing_log.get("updated_at")},
+                {"$set": log_for_retry},
+            )
+            if not claimed.modified_count:
+                return {"success": False, "email_id": email_id, "already_in_progress": True}
             preinserted = True
         else:
             try:

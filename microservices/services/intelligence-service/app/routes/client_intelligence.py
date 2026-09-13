@@ -47,10 +47,8 @@ def _regex_extract(text: str) -> Dict[str, Any]:
         except ValueError:
             pass
 
-    duration = None
-    dm = re.search(r"(\d+)\s*(?:days?|weeks?|months?)", text, re.IGNORECASE)
-    if dm:
-        duration = int(dm.group(1))
+    from shared.requirement_duration import training_duration
+    duration = training_duration({"body": text}).get("duration_days")
 
     participants = None
     pm = re.search(r"(\d+)\s*(?:participants?|learners?|trainees?|people|pax)", text, re.IGNORECASE)

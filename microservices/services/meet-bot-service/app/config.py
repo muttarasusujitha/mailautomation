@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings
+from pydantic import Field
 
 
 class Settings(BaseSettings):
@@ -17,6 +18,11 @@ class Settings(BaseSettings):
     MEET_BOT_HEALTH_PORT: int = 8010
     MEET_BOT_ALLOWED_HOSTS: str = "meet.google.com"
     MEET_BOT_MAX_ATTEMPTS: int = 3
+    MEET_BOT_MAX_CONCURRENT_MEETINGS: int = Field(default=4, ge=1, le=20)
+    MEET_BOT_WELCOME_ENABLED: bool = True
+    # Name used by the coordinator greeting and Meet chat fallback. The
+    # Google account itself comes from the authenticated persistent profile.
+    MEET_BOT_DISPLAY_NAME: str = "Clahan Technologies"
 
     class Config:
         env_file = ".env"

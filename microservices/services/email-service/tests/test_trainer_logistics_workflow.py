@@ -48,6 +48,23 @@ def test_travel_terms_are_detected_for_both_batch_types():
     assert _is_trainer_logistics_question("Do you arrange hotel stay for onsite delivery?")
 
 
+def test_food_and_meal_questions_are_detected():
+    for question in ('Who provides food?', 'Are meals covered?', 'Lunch charges?', 'Per diem allowance?'):
+        assert _is_trainer_logistics_question(question)
+
+
+def test_location_does_not_answer_expense_question():
+    assert inbox._logistics_missing_topics({'location': 'Bengaluru'}, 'Who covers travel and food?') == [
+        'travel arrangements and reimbursement terms', 'food provision and meal reimbursement terms']
+
+
+def test_partial_answer_still_requests_missing_topic():
+    req = {'travel_policy': 'Client arranges flights', 'food_policy': 'To be confirmed'}
+    assert inbox._logistics_missing_topics(req, 'Travel and meals?') == ['food provision and meal reimbursement terms']
+    req['food_policy'] = 'Trainer pays for meals; no reimbursement'
+    assert inbox._logistics_missing_topics(req, 'Travel and meals?') == []
+
+
 def test_only_stored_logistics_are_used_for_confirmed_and_proposal_batches():
     confirmed = {
         "batch_flow": "confirmed",

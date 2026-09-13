@@ -78,3 +78,17 @@ def test_proposal_template_shows_clahan_fixed_commercials_without_requesting_a_r
 
     assert "Commercials: INR 12,000-15,000 per day/session" in reply["body"]
     assert "Commercials (per hour/day)" not in reply["body"]
+
+
+def test_mail1_requests_real_slots_for_both_flows_even_for_profile_only_request():
+    from app.routes.inbox import _slot_options_from_text
+    for kind in ("confirmed_batch", "proposal_requirement"):
+        reply = asyncio.run(compose_shortlist_first(ShortlistEmailRequest(
+            trainer_name="Trainer", domain="DevOps", requirement_kind=kind,
+            client_request="Please share an updated CV.", request_interview_slots=False,
+        )))
+        body = reply["body"]
+        assert "three convenient interview/discussion slots" in body
+        assert "[Your available date 1]" in body
+        assert "[Your available date 3]" in body
+        assert _slot_options_from_text(body) == []

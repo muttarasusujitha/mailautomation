@@ -22,10 +22,17 @@ def _clean(value) -> str:
     return str(value or "").strip()
 
 
-def _notice_body(*, name: str, technology: str, interview_link: str, interview_date: str) -> str:
+def _notice_body(*, name: str, technology: str, interview_link: str, interview_date: str,
+                 role: str = "participant", missing_roles: list[str] | None = None,
+                 recipient_joined: bool = False) -> str:
+    if role == "clahan" or recipient_joined:
+        missing_text = ", ".join(missing_roles or []) or "a participant"
+        opening = f"The {technology or 'training'} interview started 10 minutes ago, and we could not confirm that {missing_text} joined the Google Meet."
+    else:
+        opening = f"The {technology or 'training'} interview started 10 minutes ago and we could not confirm that you joined the Google Meet."
     return (
         f"Dear {name or 'Team'},\n\n"
-        f"The {technology or 'training'} interview started 10 minutes ago and we could not confirm that you joined the Google Meet.\n\n"
+        f"{opening}\n\n"
         f"Meeting Time: {interview_date or 'As scheduled'}\n"
         f"Google Meet Link: {interview_link}\n\n"
         "Please join now if you are available. If you need to reschedule, reply with your preferred date and time zone.\n\n"
@@ -36,7 +43,7 @@ def _notice_body(*, name: str, technology: str, interview_link: str, interview_d
 async def _send_due_no_show_notices():
     db = get_db()
     now = datetime.utcnow()
-    due_before = now - timedelta(minutes=10)
+    due_before = now - timedelta(minutes=max(1, settings.INTERVIEW_NO_SHOW_MINUTES_AFTER))
     query = {
         "direction": "outbound",
         "mail_type": "mail4",
@@ -106,11 +113,20 @@ async def _send_due_no_show_notices():
                 skipped += 1
             continue
 
+        # Everyone involved receives an awareness notice whenever either party
+        # is missing; the missing participant is asked to join or reschedule.
+        clahan_email = _clean(log.get("clahan_email") or log.get("office_email")
+                              or log.get("coordinator_email") or settings.CLAHAN_NOTIFICATION_EMAIL)
+        missing_roles = [item["role"] for item in missing]
+        notice_recipients = [item for item in participants if item["email"]]
+        if clahan_email and clahan_email.lower() not in {item["email"].lower() for item in notice_recipients}:
+            notice_recipients.append({"role": "clahan", "email": clahan_email, "name": "Clahan Technologies",
+                                      "identity_available": True, "joined": False})
         technology = _clean(log.get("technology") or log.get("domain")) or "training"
         interview_link = _clean(log.get("interview_link") or log.get("meet_link"))
         interview_date = _clean(log.get("interview_date") or log.get("date_time_text") or log.get("interview_at"))
         log_sent = log_failed = 0
-        for participant in missing:
+        for participant in notice_recipients:
             try:
                 response = httpx.post(
                     f"{settings.EMAIL_SERVICE_URL}/api/v1/email/send",
@@ -122,6 +138,9 @@ async def _send_due_no_show_notices():
                             technology=technology,
                             interview_link=interview_link,
                             interview_date=interview_date,
+                            role=participant["role"],
+                            missing_roles=missing_roles,
+                            recipient_joined=participant.get("joined", False),
                         ),
                         "mail_type": "meet_no_show_notice",
                         "requirement_id": _clean(log.get("requirement_id")),
@@ -161,11 +180,24 @@ async def _send_due_no_show_notices():
                     "no_show_check_result": "notice_sent" if complete else "notice_send_failed",
                     "no_show_notice_roles": [item["role"] for item in missing] if complete else [],
                     "no_show_unverifiable_roles": unverifiable_roles,
+                    "followup_suppressed": True,
+                    "followup_suppressed_at": now,
                     "updated_at": now,
                 },
                 "$unset": {"no_show_check_claimed": "", "no_show_check_claimed_at": ""},
             },
         )
+        # The meeting reply has already completed trainer outreach. Prevent
+        # any stale Mail 1/Mail 2 reminder chain from firing after attendance
+        # failure is handled.
+        requirement_key = _clean(log.get("requirement_id"))
+        trainer_key = _clean(log.get("trainer_id"))
+        if requirement_key and trainer_key:
+            await db["email_logs"].update_many(
+                {"requirement_id": requirement_key, "trainer_id": trainer_key,
+                 "mail_type": {"$in": ["mail1", "mail1_reminder", "mail2_reminder"]}},
+                {"$set": {"followup_suppressed": True, "followup_suppressed_at": now}},
+            )
         if complete and _clean(log.get("requirement_id")) and _clean(log.get("trainer_id")):
             await db["shortlists"].update_one(
                 {"requirement_id": log["requirement_id"], "top_trainers.trainer_id": log["trainer_id"]},

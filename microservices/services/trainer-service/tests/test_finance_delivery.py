@@ -12,7 +12,7 @@ from app.routes import finance_approvals as finance, purchase_orders as po, invo
 
 def database():
     db = {}
-    for name in ('finance_approvals', 'purchase_orders', 'invoices', 'requirements', 'interview_reminders'):
+    for name in ('finance_approvals', 'purchase_orders', 'invoices', 'requirements', 'interview_reminders', 'email_logs'):
         db[name] = SimpleNamespace(find_one=AsyncMock(return_value={
             'status': 'draft', 'client_email': 'client@example.com',
             'trainer_email': 'trainer@example.com', 'interview_link': 'https://meet.google.com/test',
@@ -84,6 +84,8 @@ def test_reschedule_sends_both_invites_before_updating(monkeypatch):
     assert {body['to'] for _, body in requests} == {'trainer@example.com', 'client@example.com'}
     assert all(body['calendar_invite']['meeting_url'] for _, body in requests)
     db['interview_reminders'].update_one.assert_awaited_once()
+    assert db['email_logs'].update_one.await_args.args[1]['$set']['interview_at'].hour == 4
+    assert all(body['idempotency_key'] for _, body in requests)
 
 
 def test_reschedule_delivery_failure_does_not_mark_complete(monkeypatch):
@@ -92,3 +94,30 @@ def test_reschedule_delivery_failure_does_not_mark_complete(monkeypatch):
     with pytest.raises(HTTPException):
         asyncio.run(reminders.reschedule_reminder('TEST', reminders.RescheduleRequest(new_interview_at='2026-10-01T10:00:00'), db))
     db['interview_reminders'].update_one.assert_not_awaited()
+
+
+@pytest.mark.parametrize('kind', ['po', 'invoice'])
+def test_in_progress_mail_is_not_marked_sent(monkeypatch, kind):
+    original = httpx.AsyncClient
+    def handle(request):
+        if '/documents/' in request.url.path:
+            return httpx.Response(200, content=b'%PDF-test')
+        return httpx.Response(200, json={'success': False, 'already_in_progress': True})
+    monkeypatch.setattr(httpx, 'AsyncClient', lambda **kwargs: original(transport=httpx.MockTransport(handle), **kwargs))
+    db = database()
+    call = po.send_po('TEST', po.POSendRequest(to_email='client@example.com'), db) if kind == 'po' else invoices.send_invoice('TEST', invoices.InvoiceSendRequest(to_email='client@example.com'), db)
+    with pytest.raises(HTTPException):
+        asyncio.run(call)
+    db['purchase_orders' if kind == 'po' else 'invoices'].update_one.assert_not_awaited()
+
+
+def test_interview_time_offsets_represent_same_instant():
+    assert reminders._interview_utc('2026-10-01T10:00:00+05:30') == reminders._interview_utc('2026-10-01T04:30:00Z')
+    assert reminders._interview_utc('2026-10-01T10:00:00').hour == 4
+
+
+def test_cancellation_updates_scheduler_record():
+    db = database()
+    db['interview_reminders'].update_one.return_value = SimpleNamespace(matched_count=1)
+    asyncio.run(reminders.cancel_reminder('TEST', db))
+    assert db['email_logs'].update_one.await_args.args[1]['$set']['whatsapp_reminder_status'] == 'cancelled'

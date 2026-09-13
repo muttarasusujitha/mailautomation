@@ -89,6 +89,23 @@ def is_send_quota_error(value: Any) -> bool:
     return any(marker in text for marker in GMAIL_QUOTA_MARKERS)
 
 
+def is_gmail_api_rate_limit(value: Any) -> bool:
+    """Return whether a Gmail API request was throttled by Google.
+
+    Inbox reads use the same per-user quota pool as other Gmail API activity.
+    Once it is exhausted, continuing to fetch each remaining message only
+    increases the cooldown pressure and produces noisy tracebacks.
+    """
+    text = str(value or "").lower()
+    return any(marker in text for marker in (
+        "ratelimitexceeded",
+        "rate limit exceeded",
+        "quota exceeded",
+        "total query cost",
+        "userratelimitexceeded",
+    ))
+
+
 def _friendly_send_error(exc: Exception) -> str:
     text = str(exc)
     if not is_send_quota_error(text):
@@ -840,7 +857,14 @@ def check_gmail_api_replies(
                     "attachments": attachments,
                     "attachment_names": [item.get("filename", "") for item in attachments if item.get("filename")],
                 })
-            except Exception:
+            except Exception as exc:
+                if is_gmail_api_rate_limit(exc):
+                    logger.warning(
+                        "Gmail API inbox poll rate-limited after %s messages; "
+                        "stopping this poll until the next scheduled run.",
+                        len(replies),
+                    )
+                    break
                 logger.exception("Gmail API message fetch failed for %s", gmail_id)
                 continue
     except Exception:

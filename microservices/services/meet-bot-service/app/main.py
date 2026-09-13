@@ -1,24 +1,103 @@
 import asyncio
+import json
 import logging
 import re
 import signal
+from contextlib import AsyncExitStack, asynccontextmanager
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from motor.motor_asyncio import AsyncIOMotorClient
 from playwright.async_api import async_playwright
 
 from app.config import get_settings
 from app.safety import valid_meet_link
+from app.voice import MICROPHONE_SCRIPT, speak_into_meeting
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("meet-bot")
 settings = get_settings()
 shutdown_event = asyncio.Event()
-service_state = {"ready": False, "last_poll": None, "active_meeting": ""}
+service_state = {"ready": False, "last_poll": None, "active_meetings": {}}
+
+
+def _meeting_filter(log):
+    """Trainer/client invitation copies for the same meeting occurrence."""
+    link = _clean(log.get("interview_link") or log.get("meet_link"))
+    if not link or not log.get("interview_at"):
+        return {"email_id": log["email_id"]}
+    return {"interview_at": log["interview_at"], "$or": [
+        {"interview_link": link}, {"meet_link": link},
+    ]}
+
+
+class MeetingLogs:
+    """Mirror lifecycle updates to both invitations without launching twice."""
+    def __init__(self, collection, log):
+        self.collection = collection
+        self.log = log
+
+    async def update_one(self, query, update):
+        return await self.collection.update_many(_meeting_filter(self.log), update)
+
+    async def find_one(self, *args, **kwargs):
+        return await self.collection.find_one(*args, **kwargs)
+
+
+@asynccontextmanager
+async def _meeting_page(context=None):
+    if context is not None:
+        page = await context.new_page()
+        try:
+            yield page
+        finally:
+            await page.close()
+        return
+    # Standalone callers retain the original single-meeting behavior.
+    async with async_playwright() as playwright:
+        owned_context = await _launch_browser(playwright)
+        try:
+            page = await owned_context.new_page()
+            yield page
+        finally:
+            await owned_context.close()
+
+
+async def _launch_browser(playwright):
+    context = await playwright.chromium.launch_persistent_context(
+        settings.MEET_BOT_PROFILE_PATH,
+        headless=settings.MEET_BOT_HEADLESS,
+        viewport={"width": 1280, "height": 800},
+        args=["--disable-dev-shm-usage", "--no-sandbox", "--autoplay-policy=no-user-gesture-required"],
+    )
+    await context.grant_permissions(["microphone"], origin="https://meet.google.com")
+    await context.add_init_script(MICROPHONE_SCRIPT)
+    return context
 
 
 def _clean(value) -> str:
     return str(value or "").strip()
+
+
+async def _inspect_google_account(context):
+    page = await context.new_page()
+    try:
+        await page.goto("https://meet.google.com/", wait_until="domcontentloaded", timeout=45000)
+        account = page.locator('[aria-label*="Google Account"], [title*="Google Account"]').first
+        try:
+            await account.wait_for(state="visible", timeout=15000)
+            label = (await account.get_attribute("aria-label") or await account.get_attribute("title") or "")
+            match = re.search(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", label)
+            return {"status": "signed_in", "email": match.group(0) if match else "",
+                    "checked_at": datetime.utcnow().isoformat()}
+        except Exception:
+            signed_out = "accounts.google.com" in page.url or await page.get_by_text("Sign in", exact=True).count()
+            return {"status": "sign_in_required" if signed_out else "unverified",
+                    "checked_at": datetime.utcnow().isoformat()}
+    except Exception as exc:
+        return {"status": "check_failed", "error": str(exc)[:200]}
+    finally:
+        await page.close()
 
 
 def _valid_meet_link(link: str) -> bool:
@@ -81,8 +160,103 @@ async def _observe_attendance(page, log: dict, db, email_id: str) -> None:
         if client_joined:
             fields["client_joined_at"] = now
         await db.email_logs.update_one({"email_id": email_id}, {"$set": fields})
+        return trainer_joined, client_joined
     except Exception as exc:
         logger.debug("Could not observe participants for %s: %s", email_id, exc)
+        return False, False
+
+
+def _welcome_message(log: dict, now=None) -> str:
+    current = now or datetime.now(ZoneInfo("Asia/Kolkata"))
+    greeting = "Good morning" if current.hour < 12 else "Good afternoon" if current.hour < 17 else "Good evening"
+    client = _clean(log.get("client_name")) or "Client"
+    trainer = _clean(log.get("trainer_name")) or "Trainer"
+    host = _clean(getattr(settings, "MEET_BOT_DISPLAY_NAME", "Clahan Technologies")) or "Clahan Technologies"
+    return (
+        f"{greeting}. This is the automated meeting assistant from {host}. Hi {client}, and hi {trainer}. "
+        "Welcome to the trainer interview coordinated by Clahan Technologies. "
+        "Please check that your microphone and internet connection are working. "
+        "Please confirm that you can hear each other before starting. "
+        "Keep your microphone muted when you are not speaking, "
+        "and stay in the meeting until the interview ends. "
+        "If you lose connection, rejoin using the meeting link in your Clahan invitation email. "
+        "If you cannot continue, please reply to that email so our coordinator can assist."
+    )
+
+
+async def _send_chat_welcome(page, message: str) -> bool:
+    """Send the coordinator instruction in Meet chat as a reliable fallback.
+
+    Browser speech output is not guaranteed to be routed to the Meet input
+    device in a container. Chat makes the instruction visible even when the
+    virtual microphone is unavailable.
+    """
+    try:
+        opened = await _click_if_visible(page, ["Chat with everyone", "Open chat"])
+        if not opened:
+            return False
+        textbox = page.get_by_role("textbox", name="Chat", exact=False).last
+        if not await textbox.is_visible(timeout=1500):
+            textbox = page.locator("textarea").last
+        if not await textbox.is_visible(timeout=1500):
+            return False
+        await textbox.fill(message)
+        await textbox.press("Enter")
+        return True
+    except Exception as exc:
+        logger.debug("Could not send Meet chat welcome: %s", exc)
+        return False
+
+
+async def _speak_welcome(page, log: dict, db, email_id: str) -> bool:
+    """Deliver one coordinator instruction after both participants join.
+
+    The instruction is always posted to Meet chat. Voice is attempted as an
+    additional channel when the bot microphone can be enabled.
+    """
+    if not settings.MEET_BOT_WELCOME_ENABLED:
+        return False
+    message = _welcome_message(log)
+    chat_sent = bool(log.get("meet_bot_welcome_chat_sent"))
+    if not chat_sent:
+        chat_sent = await _send_chat_welcome(page, message)
+        log["meet_bot_welcome_chat_sent"] = chat_sent
+    try:
+        online = await page.evaluate("() => navigator.onLine")
+        if not online:
+            await db.email_logs.update_one({"email_id": email_id}, {"$set": {
+                "meet_bot_welcome_text": message,
+                "meet_bot_welcome_chat_sent": chat_sent,
+                "meet_bot_welcome_status": "chat_sent_offline_voice" if chat_sent else "offline",
+            }})
+            return False
+        unmuted = await _click_if_visible(page, ["Turn on microphone", "Unmute microphone"])
+        if not unmuted:
+            await db.email_logs.update_one({"email_id": email_id}, {"$set": {
+                "meet_bot_welcome_text": message,
+                "meet_bot_welcome_chat_sent": chat_sent,
+                "meet_bot_welcome_status": "chat_sent_microphone_unavailable" if chat_sent else "skipped_microphone_unavailable",
+            }})
+            return False
+        spoken = await speak_into_meeting(page, message)
+        await _click_if_visible(page, ["Turn off microphone", "Mute microphone"])
+        await db.email_logs.update_one({"email_id": email_id}, {"$set": {
+            "meet_bot_welcome_sent": bool(spoken),
+            "meet_bot_voice_transport": "webrtc_microphone",
+            "meet_bot_welcome_text": message,
+            "meet_bot_welcome_chat_sent": chat_sent,
+            "meet_bot_welcome_sent_at": datetime.utcnow() if spoken else None,
+            "meet_bot_welcome_status": "spoken_and_chat" if spoken and chat_sent else "spoken" if spoken else "chat_sent_speech_unavailable" if chat_sent else "speech_unavailable",
+        }})
+        return bool(spoken)
+    except Exception as exc:
+        logger.warning("Welcome instruction failed for %s: %s", email_id, exc)
+        await db.email_logs.update_one({"email_id": email_id}, {"$set": {
+            "meet_bot_welcome_status": "chat_sent_voice_failed" if chat_sent else "voice_failed",
+            "meet_bot_welcome_error": str(exc)[:500],
+        }})
+        await _click_if_visible(page, ["Turn off microphone", "Mute microphone"])
+        return False
 
 
 async def _health_response(reader, writer) -> None:
@@ -90,7 +264,15 @@ async def _health_response(reader, writer) -> None:
         await reader.read(2048)
         healthy = service_state["ready"] or not settings.MEET_BOT_ENABLED
         status = "200 OK" if healthy else "503 Service Unavailable"
-        body = b'{"status":"ok"}' if healthy else b'{"status":"starting"}'
+        body = json.dumps({
+            "status": "ok" if healthy else "starting",
+            "enabled": settings.MEET_BOT_ENABLED,
+            "max_concurrent_meetings": settings.MEET_BOT_MAX_CONCURRENT_MEETINGS,
+            "active_meetings": service_state["active_meetings"],
+            "last_poll": service_state["last_poll"],
+            "google_account": service_state.get("google_account", {"status": "not_checked"}),
+            "voice_transport": "webrtc_microphone",
+        }).encode()
         writer.write(
             f"HTTP/1.1 {status}\r\nContent-Type: application/json\r\nContent-Length: {len(body)}\r\nConnection: close\r\n\r\n".encode()
             + body
@@ -113,7 +295,7 @@ async def _click_if_visible(page, names: list[str]) -> bool:
     return False
 
 
-async def _join_meeting(log: dict, db) -> None:
+async def _join_meeting(log: dict, db, context=None) -> None:
     email_id = _clean(log.get("email_id"))
     link = _clean(log.get("interview_link") or log.get("meet_link"))
     if not _valid_meet_link(link):
@@ -142,16 +324,10 @@ async def _join_meeting(log: dict, db) -> None:
         end_at = interview_at + timedelta(minutes=settings.MEET_BOT_DEFAULT_DURATION_MINUTES)
     leave_at = end_at + timedelta(minutes=settings.MEET_BOT_LEAVE_MINUTES_AFTER)
 
-    async with async_playwright() as playwright:
-        context = None
+    # The dispatcher owns the browser; this task owns only its meeting tab.
+    async with _meeting_lifecycle(log, db), AsyncExitStack() as pages:
         try:
-            context = await playwright.chromium.launch_persistent_context(
-                settings.MEET_BOT_PROFILE_PATH,
-                headless=settings.MEET_BOT_HEADLESS,
-                viewport={"width": 1280, "height": 800},
-                args=["--disable-dev-shm-usage", "--no-sandbox"],
-            )
-            page = context.pages[0] if context.pages else await context.new_page()
+            page = await pages.enter_async_context(_meeting_page(context))
             await page.goto(link, wait_until="domcontentloaded", timeout=60000)
             await page.wait_for_timeout(4000)
             if "accounts.google.com" in page.url or await page.get_by_text("Sign in", exact=True).count():
@@ -172,12 +348,15 @@ async def _join_meeting(log: dict, db) -> None:
             )
             await db.email_logs.update_one(
                 {"email_id": email_id},
-                {"$set": {"meet_bot_status": "joined", "meet_bot_joined_at": datetime.utcnow()},
+                {"$set": {"meet_bot_status": "joined", "meet_bot_joined_at": datetime.utcnow(),
+                          "meet_bot_updated_at": datetime.utcnow()},
                  "$unset": {"meet_bot_error": "", "meet_bot_next_retry_at": ""}},
             )
-            await _observe_attendance(page, log, db, email_id)
+            attendance = await _observe_attendance(page, log, db, email_id)
+            if attendance == (True, True) and not log.get("meet_bot_welcome_sent"):
+                log["meet_bot_welcome_sent"] = await _speak_welcome(page, log, db, email_id)
             logger.info("Bot joined interview %s", email_id)
-            service_state["active_meeting"] = email_id
+            service_state["active_meetings"][email_id] = "joined"
 
             last_attendance_check = datetime.utcnow()
             while datetime.utcnow() < leave_at and not shutdown_event.is_set():
@@ -198,7 +377,12 @@ async def _join_meeting(log: dict, db) -> None:
                     # email address. Enable only for invite-restricted meetings.
                     await _click_if_visible(page, ["Admit all", "Admit"])
                 if datetime.utcnow() - last_attendance_check >= timedelta(seconds=20):
-                    await _observe_attendance(page, log, db, email_id)
+                    await db.email_logs.update_one({"email_id": email_id}, {"$set": {
+                        "meet_bot_updated_at": datetime.utcnow(),
+                    }})
+                    attendance = await _observe_attendance(page, log, db, email_id)
+                    if attendance == (True, True) and not log.get("meet_bot_welcome_sent"):
+                        log["meet_bot_welcome_sent"] = await _speak_welcome(page, log, db, email_id)
                     last_attendance_check = datetime.utcnow()
                 try:
                     await asyncio.wait_for(shutdown_event.wait(), timeout=5)
@@ -207,7 +391,8 @@ async def _join_meeting(log: dict, db) -> None:
             await _click_if_visible(page, ["Leave call"])
             await db.email_logs.update_one(
                 {"email_id": email_id},
-                {"$set": {"meet_bot_status": "completed", "meet_bot_left_at": datetime.utcnow()}},
+                {"$set": {"meet_bot_status": "completed", "meet_bot_left_at": datetime.utcnow(),
+                          "meet_bot_updated_at": datetime.utcnow()}},
             )
         except Exception as exc:
             logger.exception("Meeting bot failed for %s", email_id)
@@ -221,18 +406,35 @@ async def _join_meeting(log: dict, db) -> None:
                     "meet_bot_updated_at": datetime.utcnow(),
                 }},
             )
-        finally:
-            service_state["active_meeting"] = ""
-            if context is not None:
-                await context.close()
 
 
-async def _claim_due_meeting(db):
+@asynccontextmanager
+async def _meeting_lifecycle(log, db):
+    email_id = log["email_id"]
+    service_state["active_meetings"][email_id] = "joining"
+    try:
+        yield
+    except asyncio.CancelledError:
+        await db.email_logs.update_one({"email_id": email_id}, {"$set": {
+            "meet_bot_status": "retry_pending",
+            "meet_bot_error": "Bot service stopped; meeting session interrupted",
+            "meet_bot_next_retry_at": datetime.utcnow(),
+            "meet_bot_updated_at": datetime.utcnow(),
+        }})
+        raise
+    finally:
+        service_state["active_meetings"].pop(email_id, None)
+
+
+async def _claim_due_meeting(db, active_links=()):
     now = datetime.utcnow()
     due_before = now + timedelta(minutes=settings.MEET_BOT_JOIN_MINUTES_BEFORE)
     return await db.email_logs.find_one_and_update(
         {
             "interview_scheduled": True,
+            "status": {"$ne": "cancelled"},
+            "$nor": [{"interview_link": {"$in": list(active_links)}},
+                     {"meet_link": {"$in": list(active_links)}}],
             "interview_at": {"$lte": due_before},
             "$and": [
                 {"$or": [
@@ -247,6 +449,7 @@ async def _claim_due_meeting(db):
                     {"meet_bot_status": "retry_pending", "meet_bot_next_retry_at": {"$lte": now}},
                     {"meet_bot_status": "claimed", "meet_bot_claimed_at": {"$lte": now - timedelta(minutes=5)}},
                     {"meet_bot_status": "joining", "meet_bot_updated_at": {"$lte": now - timedelta(minutes=5)}},
+                    {"meet_bot_status": "joined", "meet_bot_updated_at": {"$lte": now - timedelta(minutes=5)}},
                 ]},
                 {"$or": [
                     {"interview_link": {"$exists": True, "$nin": ["", None]}},
@@ -259,7 +462,49 @@ async def _claim_due_meeting(db):
             "$inc": {"meet_bot_attempts": 1},
         },
         return_document=True,
+        sort=[("interview_at", 1)],
     )
+
+
+async def _dispatch_meetings(db, context, browser_closed=None):
+    from types import SimpleNamespace
+
+    tasks = {}
+    try:
+        while not shutdown_event.is_set():
+            if browser_closed is not None and browser_closed.is_set():
+                raise RuntimeError("Shared bot browser closed; restarting service")
+            for link, task in list(tasks.items()):
+                if task.done():
+                    try:
+                        task.result()
+                    except asyncio.CancelledError:
+                        logger.warning("Meeting task cancelled")
+                    except Exception:
+                        logger.exception("Meeting task failed")
+                    del tasks[link]
+            service_state["last_poll"] = datetime.utcnow().isoformat()
+            while len(tasks) < settings.MEET_BOT_MAX_CONCURRENT_MEETINGS and not shutdown_event.is_set():
+                meeting = await _claim_due_meeting(db, tuple(tasks))
+                if not meeting:
+                    break
+                link = _clean(meeting.get("interview_link") or meeting.get("meet_link"))
+                logs = MeetingLogs(db.email_logs, meeting)
+                await logs.update_one({}, {"$set": {
+                    "meet_bot_status": "claimed", "meet_bot_claimed_at": datetime.utcnow(),
+                    "meet_bot_attempts": meeting.get("meet_bot_attempts", 1),
+                }})
+                tasks[link] = asyncio.create_task(_join_meeting(
+                    meeting, SimpleNamespace(email_logs=logs), context,
+                ))
+            try:
+                await asyncio.wait_for(shutdown_event.wait(), timeout=max(1, settings.MEET_BOT_POLL_SECONDS))
+            except asyncio.TimeoutError:
+                pass
+    finally:
+        for task in tasks.values():
+            task.cancel()
+        await asyncio.gather(*tasks.values(), return_exceptions=True)
 
 
 async def run() -> None:
@@ -275,21 +520,23 @@ async def run() -> None:
     db = client[settings.MONGODB_DB_NAME]
     await db.command("ping")
     await db.email_logs.create_index([("interview_scheduled", 1), ("interview_at", 1), ("meet_bot_status", 1)])
-    service_state["ready"] = True
-    logger.info("Meeting bot enabled; polling for scheduled interviews")
-    while not shutdown_event.is_set():
-        service_state["last_poll"] = datetime.utcnow().isoformat()
-        meeting = await _claim_due_meeting(db)
-        if meeting:
-            await _join_meeting(meeting, db)
-        else:
+    try:
+        async with async_playwright() as playwright:
+            context = await _launch_browser(playwright)
             try:
-                await asyncio.wait_for(shutdown_event.wait(), timeout=max(5, settings.MEET_BOT_POLL_SECONDS))
-            except asyncio.TimeoutError:
-                pass
-    health_server.close()
-    await health_server.wait_closed()
-    client.close()
+                service_state["google_account"] = await _inspect_google_account(context)
+                browser_closed = asyncio.Event()
+                context.on("close", lambda *_: browser_closed.set())
+                service_state["ready"] = True
+                logger.info("Meeting bot enabled; capacity=%s concurrent meetings", settings.MEET_BOT_MAX_CONCURRENT_MEETINGS)
+                await _dispatch_meetings(db, context, browser_closed)
+            finally:
+                await context.close()
+    finally:
+        service_state["ready"] = False
+        health_server.close()
+        await health_server.wait_closed()
+        client.close()
 
 
 if __name__ == "__main__":

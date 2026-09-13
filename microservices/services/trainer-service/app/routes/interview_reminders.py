@@ -3,7 +3,7 @@ import logging
 import re
 import uuid
 import zipfile
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from typing import Any, Dict, List, Optional
 
@@ -19,6 +19,13 @@ schedules_router = APIRouter()
 router = APIRouter()
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+
+def _interview_utc(value: str) -> datetime:
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone(timedelta(hours=5, minutes=30)))
+    return parsed.astimezone(timezone.utc).replace(tzinfo=None)
 EMAIL_SVC = settings.EMAIL_SERVICE_URL.rstrip("/")
 
 
@@ -511,7 +518,7 @@ async def schedule_reminder(
 ):
     now = datetime.utcnow()
     try:
-        interview_at = datetime.fromisoformat(payload.interview_at.replace("Z", "+00:00")).replace(tzinfo=None)
+        interview_at = _interview_utc(payload.interview_at)
     except ValueError as exc:
         raise HTTPException(400, f"Invalid interview_at: {exc}") from exc
 
@@ -529,6 +536,7 @@ async def schedule_reminder(
         "technology": payload.technology,
         "interview_at": interview_at,
         "remind_at": remind_at,
+        "reminder_hours_before": payload.reminder_hours_before,
         "platform": payload.platform,
         "interview_link": payload.interview_link,
         "status": "scheduled",
@@ -564,6 +572,10 @@ async def cancel_reminder(reminder_id: str, db: AsyncIOMotorDatabase = Depends(g
     )
     if result.matched_count == 0:
         raise HTTPException(404, "Reminder not found")
+    await db["email_logs"].update_one(
+        {"reminder_id": reminder_id},
+        {"$set": {"whatsapp_reminder_status": "cancelled", "updated_at": datetime.utcnow()}},
+    )
     return {"success": True, "reminder_id": reminder_id, "status": "cancelled"}
 
 
@@ -578,7 +590,7 @@ async def reschedule_reminder(
         raise HTTPException(404, "Reminder not found")
 
     try:
-        new_at = datetime.fromisoformat(payload.new_interview_at.replace("Z", "+00:00")).replace(tzinfo=None)
+        new_at = _interview_utc(payload.new_interview_at)
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
 
@@ -613,7 +625,7 @@ async def reschedule_reminder(
     technology = _clean(doc.get("technology") or requirement.get("technology_needed") or "training")
     trainer_name = _clean(doc.get("trainer_name")) or "Trainer"
     client_name = _clean(requirement.get("client_name") or requirement.get("client_company")) or "Client"
-    when = new_at.strftime("%d %B %Y, %I:%M %p IST")
+    when = (new_at + timedelta(hours=5, minutes=30)).strftime("%d %B %Y, %I:%M %p IST")
 
     async def send_revision(to_email: str, recipient_name: str, other_party: str) -> str:
         payload_json = {
@@ -627,13 +639,14 @@ async def reschedule_reminder(
                 "Regards,\nClahan Technologies"
             ),
             "mail_type": "interview_rescheduled",
+            "idempotency_key": f"reschedule:{reminder_id}:{new_at.isoformat()}:{meeting_link}:{to_email.strip().lower()}",
             "trainer_id": doc.get("trainer_id") or "",
             "trainer_name": trainer_name,
             "requirement_id": doc.get("requirement_id") or "",
             "calendar_invite": {
                 "summary": f"Rescheduled Interview - {technology}",
-                "start": new_at.isoformat(),
-                "end": end_at.isoformat(),
+                "start": new_at.isoformat() + "Z",
+                "end": end_at.isoformat() + "Z",
                 "timezone": "Asia/Kolkata",
                 "description": f"Rescheduled interview for {technology}. Meeting link: {meeting_link}",
                 "attendee_name": recipient_name,
@@ -645,6 +658,8 @@ async def reschedule_reminder(
             response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=payload_json)
         if response.status_code >= 400:
             raise HTTPException(502, f"Could not send revised invite to {to_email}: {response.text[:200]}")
+        if response.json().get("success") is not True:
+            raise HTTPException(502, "Revised invitation delivery is not confirmed; retry later")
         return str((response.json() or {}).get("email_id") or "")
 
     trainer_email_id = await send_revision(trainer_email, trainer_name, client_name)
@@ -655,6 +670,11 @@ async def reschedule_reminder(
         "reschedule_invites_sent_at": now,
     })
     await db["interview_reminders"].update_one({"reminder_id": reminder_id}, {"$set": update})
+    await db["email_logs"].update_one(
+        {"reminder_id": reminder_id},
+        {"$set": {"interview_at": new_at, "interview_link": meeting_link,
+                  "whatsapp_reminder_status": "pending", "updated_at": now}},
+    )
     return {
         "success": True,
         "reminder_id": reminder_id,

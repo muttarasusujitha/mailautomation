@@ -27,8 +27,16 @@ end plus a grace period.
 7. Start the service and monitor `meet_bot_status` / `meet_bot_error` in
    `email_logs`.
 
-The service handles one meeting at a time. Run one independently authenticated
-bot instance/account for each simultaneous interview slot.
+The service runs up to `MEET_BOT_MAX_CONCURRENT_MEETINGS` interviews at once
+(default 4, range 1–20). One signed-in browser owns the persistent profile;
+each meeting has its own tab, task, admission check, retry state, and cleanup.
+Trainer/client invitation copies of the same meeting share status and launch
+only one tab. Meetings beyond capacity wait until a slot is free and are only
+started while their scheduled window is still valid.
+
+Run one service instance per persistent profile. The tabs share the bot account,
+so Google account restrictions and available CPU/memory can still limit capacity.
+Check the health endpoint for `max_concurrent_meetings` and `active_meetings`.
 
 For local development, install the pinned requirements and browser, then run
 `python -m app.authenticate` from this service directory. Production container

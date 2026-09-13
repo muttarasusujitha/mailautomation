@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import {
@@ -7,10 +7,12 @@ import {
   Copy,
   ExternalLink,
   CalendarDays,
+  Bot,
   FileText,
   Link2,
   Loader2,
   Mail,
+  Maximize2,
   Mic,
   MicOff,
   RefreshCw,
@@ -133,6 +135,35 @@ Once a slot is finalized, we will share the revised meeting invitation with you.
 
 Regards,
 Clahan Technologies`
+}
+
+function meetingBotState(item = {}) {
+  const status = String(item.meet_bot_status || '').trim().toLowerCase()
+  if (status === 'joined') return { key: 'joined', label: 'Bot joined' }
+  if (status === 'joining') return { key: 'joining', label: 'Bot joining' }
+  if (status === 'claimed') return { key: 'claimed', label: 'Bot preparing' }
+  if (status === 'completed') return { key: 'completed', label: 'Bot completed' }
+  if (status === 'retry_pending') return { key: 'retrying', label: 'Bot retrying' }
+  if (status === 'failed_permanent') return { key: 'needs_attention', label: 'Bot needs attention' }
+  if (meetingState(item) === 'starting') return { key: 'awaiting_update', label: 'No bot update yet' }
+  return { key: 'scheduled', label: status === 'pending' ? 'Bot pending' : 'Bot status unavailable' }
+}
+
+function MeetingBotBadge({ item, compact = false }) {
+  const bot = meetingBotState(item)
+  const tones = {
+    joined: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    joining: 'border-blue-200 bg-blue-50 text-blue-700',
+    claimed: 'border-blue-200 bg-blue-50 text-blue-700',
+    retrying: 'border-amber-200 bg-amber-50 text-amber-800',
+    needs_attention: 'border-rose-200 bg-rose-50 text-rose-700',
+    completed: 'border-slate-200 bg-slate-100 text-slate-600',
+    awaiting_update: 'border-amber-200 bg-amber-50 text-amber-800',
+    scheduled: 'border-slate-200 bg-slate-50 text-slate-600',
+  }
+  return <span className={clsx('inline-flex items-center gap-1.5 rounded-lg border font-bold', compact ? 'px-2 py-1 text-[11px]' : 'px-2.5 py-1.5 text-xs', tones[bot.key])}>
+    <Bot className={compact ? 'h-3.5 w-3.5' : 'h-4 w-4'} /> {bot.label}
+  </span>
 }
 
 function ReschedulePanel({ selected, onDone }) {
@@ -779,7 +810,7 @@ function MeetingRow({ item, active, onClick }) {
         </span>
       </div>
       <p className="mt-3 truncate text-xs font-semibold text-slate-600">{item.date_time_text || formatDate(item.start_iso)}</p>
-      <p className="mt-1 truncate text-xs text-slate-400">{item.client_name || item.client_email || 'Client'}</p>
+      <div className="mt-2 flex items-center justify-between gap-2"><p className="truncate text-xs text-slate-400">{item.client_name || item.client_email || 'Client'}</p><MeetingBotBadge item={item} compact /></div>
     </button>
   )
 }
@@ -790,15 +821,23 @@ export default function InterviewSchedules() {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState('upcoming')
   const [selectedKey, setSelectedKey] = useState('')
-  const [notified, setNotified] = useState({})
+  const notifiedRef = useRef({})
+  const loadingRef = useRef(false)
+  const [lastUpdated, setLastUpdated] = useState(null)
+  const [refreshError, setRefreshError] = useState('')
+  const [monitorFullscreen, setMonitorFullscreen] = useState(false)
   const [hostPrompt, setHostPrompt] = useState(null)
   const [showMeetPreview, setShowMeetPreview] = useState(false)
   const [screenCaptureActive, setScreenCaptureActive] = useState(false)
   const meetingPreviewRef = useRef(null)
+  const meetingWindowRef = useRef(null)
+  const botMonitorRef = useRef(null)
   const meetingStreamRef = useRef(null)
 
-  const load = async () => {
-    setLoading(true)
+  const load = useCallback(async (silent = false) => {
+    if (loadingRef.current) return
+    loadingRef.current = true
+    if (!silent) setLoading(true)
     try {
       let lastError
       for (const [index, endpoint] of SCHEDULE_ENDPOINTS.entries()) {
@@ -807,6 +846,8 @@ export default function InterviewSchedules() {
           const schedules = (res.data.schedules || []).map(normalizeSchedule)
           if (schedules.length || index === SCHEDULE_ENDPOINTS.length - 1) {
             setItems(schedules)
+            setLastUpdated(new Date())
+            setRefreshError('')
             setSelectedKey(prev => prev || `${schedules[0]?.email_id || ''}-${schedules[0]?.calendar_event_id || ''}`)
             return
           }
@@ -816,13 +857,23 @@ export default function InterviewSchedules() {
       }
       throw lastError
     } catch (err) {
-      toast.error(err.message || 'Could not load interview schedules')
+      const message = err?.message || 'Could not load interview schedules'
+      setRefreshError(message)
+      if (!silent) toast.error(message)
     } finally {
-      setLoading(false)
+      loadingRef.current = false
+      if (!silent) setLoading(false)
     }
-  }
+  }, [])
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [load])
+
+  // Bot status is persisted by the meeting-bot service on the same schedule
+  // records. Refreshing silently keeps several simultaneous meetings visible.
+  useEffect(() => {
+    const timer = setInterval(() => { load(true) }, 15000)
+    return () => clearInterval(timer)
+  }, [load])
 
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
@@ -831,8 +882,8 @@ export default function InterviewSchedules() {
   }, [])
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      const nextNotified = { ...notified }
+    const checkStartTimes = () => {
+      const nextNotified = notifiedRef.current
       items.forEach(item => {
         const time = meetingStartTime(item)
         if (!time) return
@@ -867,10 +918,21 @@ export default function InterviewSchedules() {
           }
         }
       })
-      setNotified(nextNotified)
-    }, 30000)
+    }
+    checkStartTimes()
+    const timer = setInterval(checkStartTimes, 30000)
     return () => clearInterval(timer)
-  }, [items, notified])
+  }, [items])
+
+  useEffect(() => {
+    const onFullscreenChange = () => setMonitorFullscreen(document.fullscreenElement === botMonitorRef.current)
+    document.addEventListener('fullscreenchange', onFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange)
+  }, [])
+
+  useEffect(() => () => {
+    meetingStreamRef.current?.getTracks().forEach(track => track.stop())
+  }, [])
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase()
@@ -937,6 +999,32 @@ export default function InterviewSchedules() {
     }
   }
 
+  const fullscreenMeetingWindow = async () => {
+    if (!meetingWindowRef.current?.requestFullscreen) {
+      toast.error('Fullscreen is not supported in this browser.')
+      return
+    }
+    try {
+      await meetingWindowRef.current.requestFullscreen()
+    } catch {
+      toast.error('Could not open the meeting window in fullscreen.')
+    }
+  }
+
+  const fullscreenBotMonitor = async () => {
+    try {
+      if (document.fullscreenElement === botMonitorRef.current) {
+        await document.exitFullscreen()
+      } else if (botMonitorRef.current?.requestFullscreen) {
+        await botMonitorRef.current.requestFullscreen()
+      } else {
+        toast.error('Fullscreen is not supported in this browser.')
+      }
+    } catch {
+      toast.error('Could not open the bot monitor in fullscreen.')
+    }
+  }
+
   const counts = {
     all: items.length,
     upcoming: items.filter(item => meetingState(item) === 'upcoming').length,
@@ -944,6 +1032,10 @@ export default function InterviewSchedules() {
     reschedule: items.filter(item => meetingState(item) === 'reschedule').length,
     completed: items.filter(item => meetingState(item) === 'completed').length,
   }
+  const liveMeetings = items.filter(item => {
+    const bot = meetingBotState(item).key
+    return meetingState(item) === 'starting' || ['joined', 'joining', 'claimed', 'retrying', 'needs_attention'].includes(bot)
+  })
 
   return (
     <div className="min-w-0 space-y-5 overflow-x-hidden animate-fade-in">
@@ -955,7 +1047,7 @@ export default function InterviewSchedules() {
           <h1 className="mt-3 page-title">Interview Meeting Board</h1>
           <p className="mt-1 text-sm text-slate-500">Selected trainers, client/trainer emails, meeting date, and host join controls.</p>
         </div>
-        <button onClick={load} disabled={loading} className="btn-secondary w-fit text-sm">
+        <button onClick={() => load()} disabled={loading} className="btn-secondary w-fit text-sm">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
           Refresh
         </button>
@@ -1049,6 +1141,18 @@ export default function InterviewSchedules() {
         ))}
       </div>
 
+      <section ref={botMonitorRef} className="overflow-y-auto rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div><div className="flex items-center gap-2"><Bot className="h-5 w-5 text-blue-600" /><h2 className="font-bold text-slate-950">Live Meeting Bot Monitor</h2></div><p className="mt-1 text-xs font-semibold text-slate-500">All active meetings refresh every 15 seconds. Select any meeting to open its 700px live window.</p></div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">{liveMeetings.length} active</span>
+            <button type="button" onClick={fullscreenBotMonitor} className="btn-secondary text-sm"><Maximize2 className="h-4 w-4" />{monitorFullscreen ? 'Exit Fullscreen' : 'Fullscreen Bot Status'}</button>
+          </div>
+        </div>
+        <p className="mt-2 text-xs text-slate-500" role="status">{refreshError ? `Status refresh failed. Displaying last received data. ${refreshError}` : lastUpdated ? `Last refreshed: ${lastUpdated.toLocaleTimeString('en-IN')}` : 'Waiting for schedule status...'}</p>
+        {liveMeetings.length ? <div className="mt-3 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">{liveMeetings.map(item => <button key={`bot-${meetingKey(item)}`} type="button" onClick={() => { setSelectedKey(`${item.email_id || ''}-${item.calendar_event_id || ''}`); setFilter('all') }} className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-left transition hover:border-blue-300 hover:bg-blue-50"><div className="flex items-start justify-between gap-2"><div className="min-w-0"><p className="truncate text-sm font-bold text-slate-950">{item.trainer_name || item.trainer_email || 'Trainer interview'}</p><p className="mt-1 truncate text-xs font-semibold text-slate-500">{item.domain}</p></div><MeetingBotBadge item={item} compact /></div><p className="mt-3 text-xs text-slate-600">{item.date_time_text || formatDate(item.start_iso)}</p>{item.meet_bot_error && <p className="mt-2 line-clamp-2 text-xs font-semibold text-rose-700">{item.meet_bot_error}</p>}</button>)}</div> : <p className="mt-3 rounded-lg border border-dashed border-slate-200 bg-slate-50 p-3 text-sm text-slate-500">No interview is active right now. Scheduled meetings will appear here as soon as they enter the start window.</p>}
+      </section>
+
       {loading ? (
         <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white p-5 text-sm font-semibold text-slate-500">
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1099,6 +1203,7 @@ export default function InterviewSchedules() {
                       <span className="rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">{selected.domain}</span>
                       {selected.requirement_id && <span className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-600">{selected.requirement_id}</span>}
                       <span className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold capitalize text-emerald-700">{meetingState(selected)}</span>
+                      <MeetingBotBadge item={selected} />
                     </div>
                     <h2 className="mt-3 text-2xl font-bold text-slate-950">{selected.trainer_name || selected.trainer_email || 'Selected Trainer'}</h2>
                     <p className="mt-1 text-sm text-slate-500">{selected.client_name || selected.client_email || 'Client'}</p>
@@ -1129,8 +1234,9 @@ export default function InterviewSchedules() {
                         <p className="mt-1 text-xs font-semibold text-slate-500">{selected.timezone || 'Timezone not captured'}</p>
                       </div>
                       <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm">
-                        <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Host Action</p>
-                        <p className="mt-2 text-sm font-semibold text-slate-700">Open meeting as host, then admit client and trainer.</p>
+                        <div className="flex items-center justify-between gap-2"><p className="text-xs font-bold uppercase tracking-wide text-slate-400">Meeting Bot</p><MeetingBotBadge item={selected} compact /></div>
+                        <p className="mt-2 text-sm font-semibold text-slate-700">{selected.meet_bot_status === 'joined' ? 'Bot is confirmed inside the meeting.' : 'Open meeting as host, then admit client and trainer.'}</p>
+                        {selected.meet_bot_error && <p className="mt-2 text-xs font-semibold text-rose-700">{selected.meet_bot_error}</p>}
                         <button onClick={() => openMeeting(selected.meet_link)} disabled={!selected.meet_link} className="btn-primary mt-3 w-full justify-center text-sm disabled:opacity-50">
                           <Video className="h-4 w-4" />
                           Start Meeting
@@ -1171,6 +1277,10 @@ export default function InterviewSchedules() {
                             Hide Preview
                           </button>
                         )}
+                        <button type="button" onClick={fullscreenMeetingWindow} className="btn-secondary text-sm">
+                          <Maximize2 className="h-4 w-4" />
+                          Fullscreen Window
+                        </button>
                         <button
                           type="button"
                           onClick={() => openMeeting(selected.meet_link)}
@@ -1183,16 +1293,16 @@ export default function InterviewSchedules() {
                       </div>
                     </div>
 
-                    <div className="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-slate-950">
+                    <div ref={meetingWindowRef} className="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-slate-950">
                       <video
                         ref={meetingPreviewRef}
-                        className={clsx('h-[520px] w-full bg-slate-950 object-contain', !screenCaptureActive && 'hidden')}
+                        className={clsx('h-[700px] w-full bg-slate-950 object-contain', !screenCaptureActive && 'hidden')}
                         autoPlay
                         muted
                         playsInline
                       />
                       {!screenCaptureActive && (
-                        <div className="flex min-h-[360px] flex-col items-center justify-center gap-3 p-6 text-center text-sm font-semibold text-white">
+                        <div className="flex h-[700px] flex-col items-center justify-center gap-3 p-6 text-center text-sm font-semibold text-white">
                           <Video className="h-10 w-10 text-blue-200" />
                           <p>{selected.meet_link ? 'Open the Meet tab, then share that tab here to view the live meeting inside this interview page.' : 'Meeting link is pending.'}</p>
                           {selected.meet_link && (
@@ -1204,7 +1314,7 @@ export default function InterviewSchedules() {
                       )}
                     </div>
                     <p className="mt-2 text-xs font-semibold text-slate-500">
-                      Chrome will ask what to share. Choose the Google Meet tab/window to make the live meeting visible here.
+                      Chrome will ask what to share. Choose the Google Meet tab/window to make the live meeting visible here. Use Fullscreen Window for a distraction-free 700px meeting view.
                     </p>
                   </div>
 

@@ -1,4 +1,5 @@
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
+import asyncio
 import logging
 
 from fastapi import FastAPI
@@ -55,8 +56,15 @@ async def _ensure_indexes(db) -> None:
 async def lifespan(app: FastAPI):
     db = await connect_service_db(settings)
     await _ensure_indexes(db)
-    yield
-    await shutdown_db()
+    from app.handoff import handoff_retry_loop
+    retry_task = asyncio.create_task(handoff_retry_loop(db))
+    try:
+        yield
+    finally:
+        retry_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await retry_task
+        await shutdown_db()
 
 
 app = FastAPI(

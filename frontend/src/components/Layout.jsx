@@ -18,6 +18,7 @@ const NAV_GROUPS = [
       { to: '/requirements',      label: 'Find Trainers',      icon: FileSearch,      keywords: ['find','requirement','match'] },
       { to: '/shortlist1',        label: 'AI Pipeline',        icon: Zap,             keywords: ['advanced','shortlist1','shortlist','pipeline'] },
       { to: '/shortlist',         label: 'Shortlist',          icon: Users,           keywords: ['shortlist','trainer shortlist'] },
+      { to: '/profile-reviews',   label: 'Profile Reviews',    icon: FileSearch,      keywords: ['profile review','trainer rating','document review','skill fit'] },
       { to: '/trainer-comms',     label: 'Trainer Comms',      icon: MessageSquare,   keywords: ['trainer comms','trainer conversations','trainer communications'] },
       { to: '/voice-ai-assistant', label: 'Voice AI Assistant', icon: Bot,             keywords: ['voice ai','voice assistant','hr assistant','recruiter assistant','voice recruiter'] },
       { to: '/linkedin-search',   label: 'LinkedIn Search',    icon: Globe2,          keywords: ['linkedin','public search','client post search','trainer profile search'] },
