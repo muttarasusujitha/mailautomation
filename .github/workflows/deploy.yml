@@ -285,15 +285,25 @@ jobs:
 
       - name: Cleanup Docker
         run: |
-          docker container prune -f
-          docker image prune -af
-          docker volume prune -f
+          docker system prune -af --volumes || true
+          docker builder prune -af || true
+          df -h
 
       - name: Pull Latest Images
         working-directory: ${{ github.workspace }}
+        env:
+          COMPOSE_PARALLEL_LIMIT: 1
         run: |
-          docker compose -f microservices/docker-compose.yml pull
-          docker compose -f docker-compose.yml pull
+          docker compose -f microservices/docker-compose.yml pull \
+            mongo redis auth-service core-api email-service notification-service \
+            trainer-service intelligence-service document-service scheduler-service \
+            celery-worker celery-beat gateway
+          docker compose -f docker-compose.yml pull frontend
+
+      - name: Build Meet Bot
+        working-directory: ${{ github.workspace }}
+        run: |
+          docker compose -f microservices/docker-compose.yml build meet-bot-service
 
       - name: Start Backend
         working-directory: ${{ github.workspace }}
