@@ -25,7 +25,7 @@ def test_partial_client_requirement_reply_asks_only_missing_details():
     )
     reply = _client_proceed_ack_reply(extracted)
 
-    assert "Thank you for sharing your training requirement." in reply["body"]
+    assert "Thank you for sharing the requirement." in reply["body"]
     assert "To help us refine the shortlist" in reply["body"]
     assert "- Training duration" in reply["body"]
     assert "- Training mode/location" in reply["body"]
