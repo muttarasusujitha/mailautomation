@@ -1,4 +1,5 @@
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
+import asyncio
 import logging
 
 from fastapi import FastAPI
@@ -9,8 +10,8 @@ from shared.database.service import init_db as connect_service_db, shutdown_db
 from app.routes import (
     trainers, matching, slots, toc,
     resume_data, resume_uploads, shortlists,
-    interview_reminders, purchase_orders, invoices,
-    toc_extended, trainer_automation, voice_ai,
+    interview_reminders, purchase_orders, invoices, finance_approvals,
+    toc_extended, trainer_automation, voice_ai, profile_enhancements,
 )
 
 settings = get_settings()
@@ -42,6 +43,7 @@ async def _ensure_indexes(db) -> None:
         ("email_logs", [("direction", 1), ("status", 1), ("mail_type", 1), ("created_at", -1)], {}),
         ("trainer_slots", [("trainer_id", 1), ("created_at", -1)], {}),
         ("resume_uploads", [("trainer_id", 1), ("created_at", -1)], {}),
+        ("profile_enhancements", [("requirement_id", 1), ("trainer_id", 1)], {"unique": True}),
         ("interview_meeting_notes", [("schedule_key", 1), ("created_at", -1)], {}),
         ("purchase_orders", [("requirement_id", 1), ("created_at", -1)], {}),
         ("invoices", [("requirement_id", 1), ("created_at", -1)], {}),
@@ -54,8 +56,15 @@ async def _ensure_indexes(db) -> None:
 async def lifespan(app: FastAPI):
     db = await connect_service_db(settings)
     await _ensure_indexes(db)
-    yield
-    await shutdown_db()
+    from app.handoff import handoff_retry_loop
+    retry_task = asyncio.create_task(handoff_retry_loop(db))
+    try:
+        yield
+    finally:
+        retry_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await retry_task
+        await shutdown_db()
 
 
 app = FastAPI(
@@ -81,6 +90,7 @@ app.include_router(trainer_automation.router, prefix="/api/v1/trainers",        
 # Resume pipeline
 app.include_router(resume_uploads.router,     prefix="/api/v1/resume-uploads",       tags=["resume-uploads"])
 app.include_router(resume_data.router,        prefix="/api/v1/resume-data",          tags=["resume-data"])
+app.include_router(profile_enhancements.router, prefix="/api/v1/profile-enhancements", tags=["profile-enhancements"])
 
 # Slots + shortlists
 app.include_router(slots.router,              prefix="/api/v1/trainer-slots",        tags=["slots"])
@@ -97,6 +107,7 @@ app.include_router(toc_extended.router,       prefix="/api/v1/toc",             
 # Purchase orders + invoices
 app.include_router(purchase_orders.router,    prefix="/api/v1/purchase-orders",      tags=["purchase-orders"])
 app.include_router(invoices.router,           prefix="/api/v1/invoices",             tags=["invoices"])
+app.include_router(finance_approvals.router,  prefix="/api/v1/finance",              tags=["finance"])
 
 # Voice AI recruiter assistant
 app.include_router(voice_ai.router,           prefix="/api/v1/voice-ai",             tags=["voice-ai"])

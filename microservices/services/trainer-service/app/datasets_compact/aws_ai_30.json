@@ -30,18 +30,18 @@
     },
     {
       "day": 2,
-      "topic": "AWS Fundamentals",
+      "topic": "AWS Fundamentals - Part 2",
       "subtopics": [
-        "Services",
-        "Regions",
-        "IAM",
-        "Console"
+        "Part 2: Services",
+        "Part 2: Regions",
+        "Part 2: IAM",
+        "Part 2: Console"
       ],
       "tools": [
         "AWS"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "AWS basics"
+      "lab_task": "Part 2 hands-on: AWS basics"
     },
     {
       "day": 3,
@@ -60,18 +60,18 @@
     },
     {
       "day": 4,
-      "topic": "AWS AI Services Overview",
+      "topic": "AWS AI Services Overview - Part 2",
       "subtopics": [
-        "SageMaker",
-        "Lex",
-        "Polly",
-        "Rekognition"
+        "Part 2: SageMaker",
+        "Part 2: Lex",
+        "Part 2: Polly",
+        "Part 2: Rekognition"
       ],
       "tools": [
         "AWS"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "AWS AI overview"
+      "lab_task": "Part 2 hands-on: AWS AI overview"
     },
     {
       "day": 5,
@@ -89,17 +89,17 @@
     },
     {
       "day": 6,
-      "topic": "Amazon SageMaker Basics",
+      "topic": "Amazon SageMaker Basics - Part 2",
       "subtopics": [
-        "Notebooks",
-        "Datasets",
-        "Instances"
+        "Part 2: Notebooks",
+        "Part 2: Datasets",
+        "Part 2: Instances"
       ],
       "tools": [
         "SageMaker"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "SageMaker setup"
+      "lab_task": "Part 2 hands-on: SageMaker setup"
     },
     {
       "day": 7,
@@ -117,17 +117,17 @@
     },
     {
       "day": 8,
-      "topic": "SageMaker Model Development",
+      "topic": "SageMaker Model Development - Part 2",
       "subtopics": [
-        "Training",
-        "Hyperparameter Tuning",
-        "Evaluation"
+        "Part 2: Training",
+        "Part 2: Hyperparameter Tuning",
+        "Part 2: Evaluation"
       ],
       "tools": [
         "SageMaker"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Model development"
+      "lab_task": "Part 2 hands-on: Model development"
     },
     {
       "day": 9,
@@ -145,17 +145,17 @@
     },
     {
       "day": 10,
-      "topic": "SageMaker Deployment",
+      "topic": "SageMaker Deployment - Part 2",
       "subtopics": [
-        "Endpoints",
-        "Batch Transform",
-        "Auto Scaling"
+        "Part 2: Endpoints",
+        "Part 2: Batch Transform",
+        "Part 2: Auto Scaling"
       ],
       "tools": [
         "SageMaker"
       ],
       "jira_focus": "Sprint planning; review progress for SageMaker Deployment",
-      "lab_task": "Model deployment"
+      "lab_task": "Part 2 hands-on: Model deployment"
     },
     {
       "day": 11,
@@ -173,17 +173,17 @@
     },
     {
       "day": 12,
-      "topic": "Amazon Rekognition",
+      "topic": "Amazon Rekognition - Part 2",
       "subtopics": [
-        "Image Analysis",
-        "Video Analysis",
-        "Face Detection"
+        "Part 2: Image Analysis",
+        "Part 2: Video Analysis",
+        "Part 2: Face Detection"
       ],
       "tools": [
         "Rekognition"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Computer vision"
+      "lab_task": "Part 2 hands-on: Computer vision"
     },
     {
       "day": 13,
@@ -201,17 +201,17 @@
     },
     {
       "day": 14,
-      "topic": "Amazon Textract",
+      "topic": "Amazon Textract - Part 2",
       "subtopics": [
-        "Document Analysis",
-        "OCR",
-        "Form Recognition"
+        "Part 2: Document Analysis",
+        "Part 2: OCR",
+        "Part 2: Form Recognition"
       ],
       "tools": [
         "Textract"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Document processing"
+      "lab_task": "Part 2 hands-on: Document processing"
     },
     {
       "day": 15,
@@ -230,18 +230,18 @@
     },
     {
       "day": 16,
-      "topic": "Amazon Lex",
+      "topic": "Amazon Lex - Part 2",
       "subtopics": [
-        "Chatbots",
-        "Intents",
-        "Slots",
-        "Integration"
+        "Part 2: Chatbots",
+        "Part 2: Intents",
+        "Part 2: Slots",
+        "Part 2: Integration"
       ],
       "tools": [
         "Lex"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Chatbot building"
+      "lab_task": "Part 2 hands-on: Chatbot building"
     },
     {
       "day": 17,
@@ -259,17 +259,17 @@
     },
     {
       "day": 18,
-      "topic": "Amazon Polly",
+      "topic": "Amazon Polly - Part 2",
       "subtopics": [
-        "Text-to-Speech",
-        "Neural Voices",
-        "SSML"
+        "Part 2: Text-to-Speech",
+        "Part 2: Neural Voices",
+        "Part 2: SSML"
       ],
       "tools": [
         "Polly"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Text-to-speech"
+      "lab_task": "Part 2 hands-on: Text-to-speech"
     },
     {
       "day": 19,
@@ -288,18 +288,18 @@
     },
     {
       "day": 20,
-      "topic": "Amazon Comprehend",
+      "topic": "Amazon Comprehend - Part 2",
       "subtopics": [
-        "NLP",
-        "Sentiment",
-        "Entities",
-        "Key Phrases"
+        "Part 2: NLP",
+        "Part 2: Sentiment",
+        "Part 2: Entities",
+        "Part 2: Key Phrases"
       ],
       "tools": [
         "Comprehend"
       ],
       "jira_focus": "Sprint planning; review progress for Amazon Comprehend",
-      "lab_task": "NLP services"
+      "lab_task": "Part 2 hands-on: NLP services"
     },
     {
       "day": 21,
@@ -317,17 +317,17 @@
     },
     {
       "day": 22,
-      "topic": "Amazon Forecast",
+      "topic": "Amazon Forecast - Part 2",
       "subtopics": [
-        "Time Series",
-        "Predictions",
-        "Accuracy Metrics"
+        "Part 2: Time Series",
+        "Part 2: Predictions",
+        "Part 2: Accuracy Metrics"
       ],
       "tools": [
         "Forecast"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Forecasting"
+      "lab_task": "Part 2 hands-on: Forecasting"
     },
     {
       "day": 23,
@@ -344,16 +344,16 @@
     },
     {
       "day": 24,
-      "topic": "Amazon Lookout",
+      "topic": "Amazon Lookout - Part 2",
       "subtopics": [
-        "Anomaly Detection",
-        "Equipment Monitoring"
+        "Part 2: Anomaly Detection",
+        "Part 2: Equipment Monitoring"
       ],
       "tools": [
         "Lookout"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Anomaly detection"
+      "lab_task": "Part 2 hands-on: Anomaly detection"
     },
     {
       "day": 25,
@@ -371,17 +371,17 @@
     },
     {
       "day": 26,
-      "topic": "Data Preparation",
+      "topic": "Data Preparation - Part 2",
       "subtopics": [
-        "Data Pipeline",
-        "ETL",
-        "Feature Engineering"
+        "Part 2: Data Pipeline",
+        "Part 2: ETL",
+        "Part 2: Feature Engineering"
       ],
       "tools": [
         "Data Wrangler"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Data preparation"
+      "lab_task": "Part 2 hands-on: Data preparation"
     },
     {
       "day": 27,
@@ -399,17 +399,17 @@
     },
     {
       "day": 28,
-      "topic": "MLOps on AWS",
+      "topic": "MLOps on AWS - Part 2",
       "subtopics": [
-        "CI/CD",
-        "Monitoring",
-        "Automation"
+        "Part 2: CI/CD",
+        "Part 2: Monitoring",
+        "Part 2: Automation"
       ],
       "tools": [
         "AWS MLOps"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "MLOps practices"
+      "lab_task": "Part 2 hands-on: MLOps practices"
     },
     {
       "day": 29,
@@ -439,5 +439,18 @@
       "jira_focus": "Sprint planning; review progress for Production Deployment",
       "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
     }
-  ]
+  ],
+  "aliases": [
+    "AWS AI",
+    "AWS GenAI",
+    "AWS Bedrock",
+    "Amazon Bedrock",
+    "AWS AI Datasets",
+    "AWS Machine Learning",
+    "SageMaker"
+  ],
+  "official_sources": [
+    "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
 }

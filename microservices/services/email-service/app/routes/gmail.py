@@ -82,7 +82,7 @@ def _load_creds(refresh_expired: bool = True):
     try:
         from google.auth.transport.requests import Request as GReq
         from google.oauth2.credentials import Credentials
-        creds = Credentials.from_authorized_user_file(tp, GMAIL_SCOPES)
+        creds = Credentials.from_authorized_user_file(tp)
         if refresh_expired and creds and creds.expired and creds.refresh_token:
             refresh_request = GReq()
             creds.refresh(lambda *args, **kwargs: refresh_request(*args, timeout=10, **kwargs))
@@ -300,6 +300,7 @@ async def gmail_sync_now(
     background_tasks: BackgroundTasks,
     limit: int = Query(100, ge=1, le=500),
     since_days: int = Query(3, ge=1, le=30),
+    search_query: str = Query(""),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Queue an immediate inbox sync without making the UI wait for Gmail/automation."""
@@ -332,7 +333,12 @@ async def gmail_sync_now(
     async def _run_sync() -> None:
         global GMAIL_SYNC_IN_PROGRESS, GMAIL_SYNC_LAST_RESULT
         try:
-            stored = await _poll_and_store(db, since_days=since_days, max_messages=limit)
+            stored = await _poll_and_store(
+                db,
+                since_days=since_days,
+                max_messages=limit,
+                search_query=search_query,
+            )
             pending = await _process_pending_client_emails(db, limit=limit)
             GMAIL_SYNC_LAST_RESULT = {
                 "sync_id": sync_id,

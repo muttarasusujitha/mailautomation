@@ -107,7 +107,10 @@ services:
 
   email-service:
     container_name: ts-email-service
-    image: ghcr.io/muttarasusujitha/trainersync/email-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/email-service/Dockerfile
+    image: trainersync/email-service:local
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -170,6 +173,9 @@ services:
 
   intelligence-service:
     container_name: ts-intelligence-service
+    build:
+      context: ..
+      dockerfile: microservices/services/intelligence-service/Dockerfile
     image: ghcr.io/muttarasusujitha/trainersync/intelligence-service:latest
     <<: *service-defaults
     environment:
@@ -190,7 +196,10 @@ services:
 
   document-service:
     container_name: ts-document-service
-    image: ghcr.io/muttarasusujitha/trainersync/document-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/document-service/Dockerfile
+    image: trainersync/document-service:local
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -211,7 +220,10 @@ services:
   # ── Scheduler: FastAPI management API ────────────────────────────────────────
   scheduler-service:
     container_name: ts-scheduler-api
-    image: ghcr.io/muttarasusujitha/trainersync/scheduler-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/scheduler-service/Dockerfile
+    image: trainersync/scheduler-service:local
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -234,7 +246,10 @@ services:
   # ── Celery worker ─────────────────────────────────────────────────────────────
   celery-worker:
     container_name: ts-celery-worker
-    image: ghcr.io/muttarasusujitha/trainersync/celery-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/scheduler-service/Dockerfile
+    image: trainersync/scheduler-service:local
     command: celery -A app.celery_app worker --loglevel=info --concurrency=4
     <<: *service-defaults
     environment:
@@ -259,7 +274,10 @@ services:
   # ── Celery beat (periodic task scheduler) ─────────────────────────────────────
   celery-beat:
     container_name: ts-celery-beat
-    image: ghcr.io/muttarasusujitha/trainersync/celery-beat-service:latest
+    build:
+      context: ..
+      dockerfile: microservices/services/scheduler-service/Dockerfile
+    image: trainersync/scheduler-service:local
     command: celery -A app.celery_app beat --loglevel=info --scheduler celery.beat.PersistentScheduler --schedule=/app/celerybeat-schedule/celerybeat-schedule
     <<: *service-defaults
     environment:
@@ -273,6 +291,28 @@ services:
       disable: true
     depends_on:
       redis:
+        condition: service_healthy
+
+  # Optional browser host for unattended Google Meet sessions. It stays inert
+  # until the profile is authenticated and MEET_BOT_ENABLED=true.
+  meet-bot-service:
+    container_name: ts-meet-bot
+    build:
+      context: ..
+      dockerfile: microservices/services/meet-bot-service/Dockerfile
+    image: trainersync/meet-bot-service:local
+    restart: unless-stopped
+    networks:
+      - trainersync
+    environment:
+      <<: *common-env
+      MEET_BOT_PROFILE_PATH: /data/chrome-profile
+    env_file: .env
+    volumes:
+      - meet_bot_profile:/data/chrome-profile
+    shm_size: "1gb"
+    depends_on:
+      mongo:
         condition: service_healthy
 
   # ── API Gateway (nginx) ───────────────────────────────────────────────────────
@@ -318,6 +358,7 @@ volumes:
   mongo_data:
   redis_data:
   celery_beat_data:
+  meet_bot_profile:
 
 networks:
   trainersync:

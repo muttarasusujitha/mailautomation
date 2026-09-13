@@ -24,10 +24,23 @@ def test_build_sender_candidates_includes_fallback_when_configured():
     assert len(candidates) == 2
     assert candidates[0]["smtpUser"] == "primary@gmail.com"
     assert candidates[1]["smtpUser"] == "fallback@gmail.com"
-    assert candidates[1]["fromName"] == "Fallback"
+    assert candidates[1]["smtpPass"] == "fallback-pass"
 
 
-def test_send_smtp_uses_oauth_when_smpt_password_missing(monkeypatch):
+def test_build_sender_candidates_does_not_duplicate_same_fallback_user():
+    candidates = _build_sender_candidates(
+        smtp_config={
+            "smtpUser": "primary@gmail.com",
+            "smtpPass": "primary-pass",
+            "fallbackSmtpUser": "primary@gmail.com",
+            "fallbackSmtpPass": "fallback-pass",
+        }
+    )
+
+    assert len(candidates) == 1
+
+
+def test_send_smtp_does_not_use_oauth_when_smtp_password_missing(monkeypatch):
     called = {}
 
     monkeypatch.setattr(gmail_client.settings, "GMAIL_USER", "primary@gmail.com")
@@ -48,9 +61,9 @@ def test_send_smtp_uses_oauth_when_smpt_password_missing(monkeypatch):
         smtp_config={"smtpUser": "primary@gmail.com", "smtpPass": ""},
     )
 
-    assert ok is True
-    assert error == ""
-    assert called["invoked"] is True
+    assert ok is False
+    assert error == "SMTP password is not configured (set GMAIL_APP_PASSWORD)"
+    assert called == {}
 
 
 def test_client_ack_template_is_not_treated_as_trainer_reply():

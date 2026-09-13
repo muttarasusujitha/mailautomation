@@ -30,18 +30,18 @@
     },
     {
       "day": 2,
-      "topic": "Azure Fundamentals",
+      "topic": "Azure Fundamentals - Part 2",
       "subtopics": [
-        "Subscriptions",
-        "Resource Groups",
-        "Portal",
-        "CLI"
+        "Part 2: Subscriptions",
+        "Part 2: Resource Groups",
+        "Part 2: Portal",
+        "Part 2: CLI"
       ],
       "tools": [
         "Azure"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Azure basics"
+      "lab_task": "Part 2 hands-on: Azure basics"
     },
     {
       "day": 3,
@@ -59,17 +59,17 @@
     },
     {
       "day": 4,
-      "topic": "Azure AI Services Overview",
+      "topic": "Azure AI Services Overview - Part 2",
       "subtopics": [
-        "Cognitive Services",
-        "OpenAI Service",
-        "Bot Service"
+        "Part 2: Cognitive Services",
+        "Part 2: OpenAI Service",
+        "Part 2: Bot Service"
       ],
       "tools": [
         "Azure"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Azure AI overview"
+      "lab_task": "Part 2 hands-on: Azure AI overview"
     },
     {
       "day": 5,
@@ -88,18 +88,18 @@
     },
     {
       "day": 6,
-      "topic": "Azure Cognitive Services",
+      "topic": "Azure Cognitive Services - Part 2",
       "subtopics": [
-        "Vision",
-        "Speech",
-        "Language",
-        "Search"
+        "Part 2: Vision",
+        "Part 2: Speech",
+        "Part 2: Language",
+        "Part 2: Search"
       ],
       "tools": [
         "Azure Cognitive Services"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Cognitive services"
+      "lab_task": "Part 2 hands-on: Cognitive services"
     },
     {
       "day": 7,
@@ -118,18 +118,18 @@
     },
     {
       "day": 8,
-      "topic": "Azure OpenAI Service",
+      "topic": "Azure OpenAI Service - Part 2",
       "subtopics": [
-        "Models",
-        "Deployments",
-        "API",
-        "Playground"
+        "Part 2: Models",
+        "Part 2: Deployments",
+        "Part 2: API",
+        "Part 2: Playground"
       ],
       "tools": [
         "Azure OpenAI"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Azure OpenAI setup"
+      "lab_task": "Part 2 hands-on: Azure OpenAI setup"
     },
     {
       "day": 9,
@@ -147,17 +147,17 @@
     },
     {
       "day": 10,
-      "topic": "Building Chat Applications",
+      "topic": "Building Chat Applications - Part 2",
       "subtopics": [
-        "ChatGPT Integration",
-        "Prompt Engineering",
-        "Conversation Flow"
+        "Part 2: ChatGPT Integration",
+        "Part 2: Prompt Engineering",
+        "Part 2: Conversation Flow"
       ],
       "tools": [
         "Azure OpenAI"
       ],
       "jira_focus": "Sprint planning; review progress for Building Chat Applications",
-      "lab_task": "Chat applications"
+      "lab_task": "Part 2 hands-on: Chat applications"
     },
     {
       "day": 11,
@@ -176,18 +176,18 @@
     },
     {
       "day": 12,
-      "topic": "Azure Machine Learning",
+      "topic": "Azure Machine Learning - Part 2",
       "subtopics": [
-        "Workspace",
-        "Compute",
-        "Datasets",
-        "Experiments"
+        "Part 2: Workspace",
+        "Part 2: Compute",
+        "Part 2: Datasets",
+        "Part 2: Experiments"
       ],
       "tools": [
         "Azure ML"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Azure ML workspace"
+      "lab_task": "Part 2 hands-on: Azure ML workspace"
     },
     {
       "day": 13,
@@ -206,18 +206,18 @@
     },
     {
       "day": 14,
-      "topic": "Azure ML - Model Training",
+      "topic": "Azure ML - Model Training - Part 2",
       "subtopics": [
-        "AutoML",
-        "Designer",
-        "Pipelines",
-        "Training"
+        "Part 2: AutoML",
+        "Part 2: Designer",
+        "Part 2: Pipelines",
+        "Part 2: Training"
       ],
       "tools": [
         "Azure ML"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Model training"
+      "lab_task": "Part 2 hands-on: Model training"
     },
     {
       "day": 15,
@@ -236,18 +236,18 @@
     },
     {
       "day": 16,
-      "topic": "Azure ML - Deployment",
+      "topic": "Azure ML - Deployment - Part 2",
       "subtopics": [
-        "Endpoints",
-        "Inference",
-        "Container",
-        "Batch"
+        "Part 2: Endpoints",
+        "Part 2: Inference",
+        "Part 2: Container",
+        "Part 2: Batch"
       ],
       "tools": [
         "Azure ML"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Model deployment"
+      "lab_task": "Part 2 hands-on: Model deployment"
     },
     {
       "day": 17,
@@ -265,17 +265,17 @@
     },
     {
       "day": 18,
-      "topic": "Azure Databricks",
+      "topic": "Azure Databricks - Part 2",
       "subtopics": [
-        "Clusters",
-        "Notebooks",
-        "Spark Jobs"
+        "Part 2: Clusters",
+        "Part 2: Notebooks",
+        "Part 2: Spark Jobs"
       ],
       "tools": [
         "Databricks"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Databricks on Azure"
+      "lab_task": "Part 2 hands-on: Databricks on Azure"
     },
     {
       "day": 19,
@@ -293,17 +293,17 @@
     },
     {
       "day": 20,
-      "topic": "Data Processing",
+      "topic": "Data Processing - Part 2",
       "subtopics": [
-        "Data Factory",
-        "Data Lake Storage",
-        "Synapse Analytics"
+        "Part 2: Data Factory",
+        "Part 2: Data Lake Storage",
+        "Part 2: Synapse Analytics"
       ],
       "tools": [
         "Azure Data Services"
       ],
       "jira_focus": "Sprint planning; review progress for Data Processing",
-      "lab_task": "Data processing"
+      "lab_task": "Part 2 hands-on: Data processing"
     },
     {
       "day": 21,
@@ -321,17 +321,17 @@
     },
     {
       "day": 22,
-      "topic": "Search & Retrieval",
+      "topic": "Search & Retrieval - Part 2",
       "subtopics": [
-        "Azure Cognitive Search",
-        "Vector Search",
-        "Indexing"
+        "Part 2: Azure Cognitive Search",
+        "Part 2: Vector Search",
+        "Part 2: Indexing"
       ],
       "tools": [
         "Cognitive Search"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Azure search services"
+      "lab_task": "Part 2 hands-on: Azure search services"
     },
     {
       "day": 23,
@@ -349,17 +349,17 @@
     },
     {
       "day": 24,
-      "topic": "Computer Vision",
+      "topic": "Computer Vision - Part 2",
       "subtopics": [
-        "Image Analysis",
-        "OCR",
-        "Face Recognition"
+        "Part 2: Image Analysis",
+        "Part 2: OCR",
+        "Part 2: Face Recognition"
       ],
       "tools": [
         "Azure Vision"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Vision AI"
+      "lab_task": "Part 2 hands-on: Vision AI"
     },
     {
       "day": 25,
@@ -377,17 +377,17 @@
     },
     {
       "day": 26,
-      "topic": "Natural Language Processing",
+      "topic": "Natural Language Processing - Part 2",
       "subtopics": [
-        "Text Analysis",
-        "Sentiment",
-        "Entity Recognition"
+        "Part 2: Text Analysis",
+        "Part 2: Sentiment",
+        "Part 2: Entity Recognition"
       ],
       "tools": [
         "Azure Language"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Language AI"
+      "lab_task": "Part 2 hands-on: Language AI"
     },
     {
       "day": 27,
@@ -405,17 +405,17 @@
     },
     {
       "day": 28,
-      "topic": "Responsible AI",
+      "topic": "Responsible AI - Part 2",
       "subtopics": [
-        "Fairness",
-        "Transparency",
-        "Accountability"
+        "Part 2: Fairness",
+        "Part 2: Transparency",
+        "Part 2: Accountability"
       ],
       "tools": [
         "Responsible AI"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Responsible AI practices"
+      "lab_task": "Part 2 hands-on: Responsible AI practices"
     },
     {
       "day": 29,
@@ -445,5 +445,17 @@
       "jira_focus": "Sprint planning; review progress for Production & Governance",
       "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
     }
-  ]
+  ],
+  "aliases": [
+    "Azure AI",
+    "Azure OpenAI",
+    "Azure AI Foundry",
+    "Azure Cognitive Services",
+    "Azure AI Datasets",
+    "Azure Machine Learning"
+  ],
+  "official_sources": [
+    "https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/"
+  ],
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
 }

@@ -26,6 +26,14 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    // Keep all lazy-loaded pages on the same React runtime. This prevents hook
+    // dispatcher errors when Vite's dependency cache is refreshed after updates.
+    resolve: {
+      dedupe: ['react', 'react-dom'],
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
+    },
     server: {
       host: devHost,
       port: devPort,

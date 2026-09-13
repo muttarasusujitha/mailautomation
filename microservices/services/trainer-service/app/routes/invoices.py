@@ -105,6 +105,17 @@ async def send_invoice(
     if not to_email:
         raise HTTPException(400, "to_email is required")
 
+    # A sent invoice is final. Returning the recorded delivery avoids a
+    # second physical invoice email when a user refreshes or double-clicks.
+    if str(doc.get("status") or "").lower() == "sent":
+        return {
+            "success": True,
+            "already_sent": True,
+            "invoice_id": invoice_id,
+            "sent_to": doc.get("sent_to") or to_email,
+            "invoice": doc,
+        }
+
     invoice_number = doc.get("invoice_number") or invoice_id
     subject = payload.subject or f"Invoice {invoice_number} - Clahan Technologies"
     body = payload.body or (
@@ -168,6 +179,9 @@ async def send_invoice(
         except Exception:
             logger.exception("Failed to generate invoice PDF for attachment")
 
+        if not attachment_payload:
+            raise HTTPException(502, "Invoice PDF generation failed; no email was sent")
+
         async with httpx.AsyncClient(timeout=30) as client:
             email_json = {
                 "to": to_email,
@@ -175,12 +189,17 @@ async def send_invoice(
                 "body": body,
                 "mail_type": "invoice",
                 "requirement_id": doc.get("requirement_id"),
+                # email-service stores this key uniquely, protecting the
+                # invoice against concurrent send requests as well.
+                "idempotency_key": f"invoice:{invoice_id}:{to_email.strip().lower()}",
             }
             if attachment_payload:
                 email_json["attachments"] = attachment_payload
             response = await client.post(f"{EMAIL_SVC}/api/v1/email/send", json=email_json)
         if response.status_code >= 400:
             raise HTTPException(502, f"Email service error: {response.text[:200]}")
+        if response.json().get("success") is not True:
+            raise HTTPException(502, "Invoice email delivery is not confirmed; retry later")
     except HTTPException:
         raise
     except Exception as exc:

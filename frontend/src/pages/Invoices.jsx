@@ -122,6 +122,7 @@ export default function Invoices() {
   const [autogenBusy, setAutogenBusy] = useState('')
   const [form, setForm] = useState(initialForm())
   const [invoiceType, setInvoiceType] = useState('beulix')
+  const [financeApprovals, setFinanceApprovals] = useState([])
 
   const selected = useMemo(
     () => items.find(item => item.requirement_id === selectedId) || items[0] || null,
@@ -148,11 +149,30 @@ export default function Invoices() {
       }))
       setItems(next)
       if (!next.some(item => item.requirement_id === selectedId)) setSelectedId(next[0]?.requirement_id || '')
+      const finance = await api.get('/finance/approvals')
+      setFinanceApprovals(finance.data.approvals || [])
     } catch (e) {
       toast.error(e.message || 'Could not load invoices')
     } finally {
       setLoading(false)
     }
+  }
+
+  const approveFinance = async (item) => {
+    const amount = Number(window.prompt('Approved PO amount (before GST):', '') || 0)
+    const poNumber = window.prompt('PO number:', '') || ''
+    if (!amount || !poNumber) return toast.error('PO number and approved amount are required')
+    try {
+      await api.post(`/finance/approvals/${item.finance_id}/approve-send`, { client_name: item.client_name || 'Client', client_email: item.client_email, po_number: poNumber, total_amount: amount })
+      toast.success('Invoice generated and sent')
+      load(true)
+    } catch (e) { toast.error(e.message || 'Could not approve invoice') }
+  }
+  const rejectFinance = async (item) => {
+    const reason = window.prompt('Reason for rejection / clarification:')
+    if (!reason) return
+    try { await api.post(`/finance/approvals/${item.finance_id}/reject`, { reason }); toast.success('Finance request rejected'); load(true) }
+    catch (e) { toast.error(e.message || 'Could not reject request') }
   }
 
   const autoGenerateInvoice = async (item) => {
@@ -310,6 +330,18 @@ export default function Invoices() {
           </button>
         </div>
       </div>
+
+      {financeApprovals.filter(item => item.status === 'pending_human_approval').length > 0 && (
+        <section className="mx-auto mb-4 w-full max-w-[1600px] rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <h2 className="font-bold text-amber-950">PO / Invoice Approval Required</h2>
+          <div className="mt-3 space-y-2">
+            {financeApprovals.filter(item => item.status === 'pending_human_approval').map(item => <div key={item.finance_id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white p-3 text-sm">
+              <span><b>{item.client_name || item.client_email}</b> — {item.request_type === 'po_to_invoice' ? 'PO to invoice' : 'Invoice request'}{item.attachment_names?.length ? ` (${item.attachment_names.join(', ')})` : ''}</span>
+              <span className="flex gap-2"><button onClick={() => approveFinance(item)} className="btn-primary text-xs">Approve & Send Invoice</button><button onClick={() => rejectFinance(item)} className="btn-secondary text-xs">Reject</button></span>
+            </div>)}
+          </div>
+        </section>
+      )}
 
       <div className="grid min-w-0 gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
         <aside className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">

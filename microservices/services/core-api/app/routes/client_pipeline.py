@@ -224,6 +224,8 @@ async def _client_timeline(
 async def get_client_pipeline(
     status: Optional[str] = None,
     q: Optional[str] = None,
+    pipeline: Optional[str] = None,
+    batch_type: Optional[str] = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     limit: Optional[int] = Query(None, ge=1, le=200),
@@ -239,6 +241,12 @@ async def get_client_pipeline(
     else:
         # Default: active requirements
         query["status"] = {"$nin": ["closed", "fulfilled", "cancelled"]}
+
+    pipeline_filter = _clean(pipeline or batch_type).lower()
+    if pipeline_filter in {"proposal", "shortlist"}:
+        query["pipeline_page"] = "shortlist"
+    elif pipeline_filter in {"confirmed", "shortlist1"}:
+        query["pipeline_page"] = "shortlist1"
 
     effective_page_size = min(limit or page_size, 200)
     total = await db["requirements"].count_documents(query)
@@ -312,6 +320,18 @@ async def get_client_pipeline(
                     "last_mail_type",
                     "last_mailed_at",
                     "last_mail_error",
+                    "slot_status",
+                    "client_slots_sent",
+                    "client_slots_sent_at",
+                    "client_slots_email_id",
+                    "client_handoff_retry_after",
+                    "client_handoff_input_version",
+                    "reschedule_requested",
+                    "reschedule_requested_by",
+                    "reschedule_request_text",
+                    "reschedule_forward_email_id",
+                    "reschedule_slots_sent_at",
+                    "reschedule_completed_at",
                 )
                 if trainer.get(key) is not None
             }

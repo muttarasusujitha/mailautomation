@@ -2,7 +2,7 @@ import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import {
-  BarChart3, Bell, BookOpen, Bot, BriefcaseBusiness, CalendarCheck,
+  BadgeIndianRupee, BarChart3, Bell, BookOpen, Bot, BriefcaseBusiness, CalendarCheck,
   ChevronRight, FileSearch, Globe2, Home,
   LayoutDashboard, LogOut, Mail, Menu, MessageSquare,
   MapPin, ReceiptText, Search, Settings, Upload, UserCircle, Users, Zap, X,
@@ -18,6 +18,7 @@ const NAV_GROUPS = [
       { to: '/requirements',      label: 'Find Trainers',      icon: FileSearch,      keywords: ['find','requirement','match'] },
       { to: '/shortlist1',        label: 'AI Pipeline',        icon: Zap,             keywords: ['advanced','shortlist1','shortlist','pipeline'] },
       { to: '/shortlist',         label: 'Shortlist',          icon: Users,           keywords: ['shortlist','trainer shortlist'] },
+      { to: '/profile-reviews',   label: 'Profile Reviews',    icon: FileSearch,      keywords: ['profile review','trainer rating','document review','skill fit'] },
       { to: '/trainer-comms',     label: 'Trainer Comms',      icon: MessageSquare,   keywords: ['trainer comms','trainer conversations','trainer communications'] },
       { to: '/voice-ai-assistant', label: 'Voice AI Assistant', icon: Bot,             keywords: ['voice ai','voice assistant','hr assistant','recruiter assistant','voice recruiter'] },
       { to: '/linkedin-search',   label: 'LinkedIn Search',    icon: Globe2,          keywords: ['linkedin','public search','client post search','trainer profile search'] },
@@ -33,6 +34,7 @@ const NAV_GROUPS = [
       { to: '/client-requests',          label: 'Client Requests',         icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
       { to: '/client-comms',             label: 'Client Comms',            icon: MessageSquare, keywords: ['client comms','client conversations','client communications','communications'] },
       { to: '/linkedin-client-pipeline', label: 'LinkedIn Client Pipeline', icon: Mail, keywords: ['linkedin client pipeline','client posts','client lead pipeline','mail 1'] },
+      { to: '/commercial-analysis',       label: 'Commercial Analysis',     icon: BadgeIndianRupee, keywords: ['commercial','profit','margin','payment','budget','qtr'] },
       { to: '/interview-scheduled',      label: 'Interviews',              icon: CalendarCheck, keywords: ['interview','schedule','meeting','meet link'] },
       { to: '/client-mail-pipeline',     label: 'Client Pipeline',         icon: ReceiptText, keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
       { to: '/invoices',                 label: 'Invoices',                icon: ReceiptText, keywords: ['invoice','manual invoice','generate invoice','billing'] },
@@ -44,6 +46,7 @@ const NAV_GROUPS = [
       { to: '/admin-dashboard', label: 'Analytics',     icon: BarChart3,  keywords: ['admin dashboard','analytics'] },
       { to: '/emails',          label: 'Email Logs',    icon: Mail,       keywords: ['email','logs','mail'] },
       { to: '/toc-knowledge',   label: 'ToC Knowledge', icon: BookOpen,   keywords: ['toc','curriculum','knowledge','course agenda'] },
+      { to: '/lab-cost',        label: 'Lab Cost',      icon: BadgeIndianRupee, keywords: ['lab cost','lab support','lab setup','cloud lab'] },
       { to: '/admin',           label: 'Settings',      icon: Settings,   keywords: ['admin','settings','gmail','whatsapp'] },
     ],
   },

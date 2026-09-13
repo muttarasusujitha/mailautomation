@@ -26,6 +26,20 @@ async def trigger_interview_reminders():
     return TriggerResponse(task_id=task.id, task_name="send_due_reminders", status="queued")
 
 
+@router.post("/meet-start-notices", response_model=TriggerResponse)
+async def trigger_meet_start_notices():
+    from app.tasks.meet_start_notices import send_due_start_notices
+    task = send_due_start_notices.delay()
+    return TriggerResponse(task_id=task.id, task_name="send_due_start_notices", status="queued")
+
+
+@router.post("/interview-no-show-checks", response_model=TriggerResponse)
+async def trigger_interview_no_show_checks():
+    from app.tasks.no_show_notices import send_due_no_show_notices
+    task = send_due_no_show_notices.delay()
+    return TriggerResponse(task_id=task.id, task_name="send_due_no_show_notices", status="queued")
+
+
 @router.post("/followup-reminders", response_model=TriggerResponse)
 async def trigger_followup_reminders():
     from app.tasks.reminders import send_followup_reminders

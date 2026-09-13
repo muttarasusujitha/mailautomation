@@ -1,6 +1,7 @@
 """Gmail OAuth2 + SMTP/IMAP helpers for the email-service."""
 import asyncio
 import base64
+import html
 import imaplib
 import logging
 import os
@@ -19,6 +20,35 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+
+def _html_to_text(value: str) -> str:
+    text = re.sub(r"(?i)<\s*br\s*/?\s*>", "\n", value or "")
+    text = re.sub(r"(?i)</\s*(?:p|div|tr|table|h[1-6]|li)\s*>", "\n", text)
+    text = re.sub(r"(?i)</\s*t[dh]\s*>", "\t", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = html.unescape(text)
+    text = re.sub(r"[ \t\r\f\v]+", " ", text)
+    return re.sub(r"\n\s*\n+", "\n", text).strip()
+
+
+def _fix_mojibake(value: str) -> str:
+    text = str(value or "")
+    if not any(marker in text for marker in ("â", "ð", "Ã")):
+        return text
+    try:
+        repaired = text.encode("cp1252", errors="ignore").decode("utf-8", errors="ignore")
+        return repaired or text
+    except Exception:
+        return text
+
+
+def _decode_message_part(part: Any) -> str:
+    payload = part.get_payload(decode=True)
+    if not payload:
+        return ""
+    charset = part.get_content_charset() or "utf-8"
+    return _fix_mojibake(payload.decode(charset, errors="ignore"))
 
 GMAIL_SCOPES = [
     "https://www.googleapis.com/auth/gmail.modify",
@@ -42,6 +72,10 @@ NEGATIVE_SIGNALS = [
     "unable", "cannot", "busy", "engaged", "withdraw",
 ]
 
+CLIENT_SCOPE_EXTENSIONS = {".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".txt"}
+MAX_CLIENT_SCOPE_ATTACHMENT_BYTES = 4 * 1024 * 1024
+MAX_CLIENT_SCOPE_MESSAGE_BYTES = 6 * 1024 * 1024
+
 
 def _decode_header(value: str) -> str:
     try:
@@ -53,6 +87,23 @@ def _decode_header(value: str) -> str:
 def is_send_quota_error(value: Any) -> bool:
     text = str(value or "").lower()
     return any(marker in text for marker in GMAIL_QUOTA_MARKERS)
+
+
+def is_gmail_api_rate_limit(value: Any) -> bool:
+    """Return whether a Gmail API request was throttled by Google.
+
+    Inbox reads use the same per-user quota pool as other Gmail API activity.
+    Once it is exhausted, continuing to fetch each remaining message only
+    increases the cooldown pressure and produces noisy tracebacks.
+    """
+    text = str(value or "").lower()
+    return any(marker in text for marker in (
+        "ratelimitexceeded",
+        "rate limit exceeded",
+        "quota exceeded",
+        "total query cost",
+        "userratelimitexceeded",
+    ))
 
 
 def _friendly_send_error(exc: Exception) -> str:
@@ -85,7 +136,8 @@ def _load_oauth_service():
         from google.oauth2.credentials import Credentials
         from googleapiclient.discovery import build
 
-        creds = Credentials.from_authorized_user_file(token_file, GMAIL_SCOPES)
+        # Preserve all granted scopes when refreshing the shared Gmail/Calendar token.
+        creds = Credentials.from_authorized_user_file(token_file)
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(GoogleAuthRequest())
             with open(token_file, "w", encoding="utf-8") as f:
@@ -148,7 +200,7 @@ def _build_sender_candidates(
         cfg.get("fromEmail") or from_email or settings.FROM_EMAIL or primary_user or ""
     )
 
-    candidates: List[Dict[str, Any]] = [{
+    candidates = [{
         "smtpUser": primary_user,
         "smtpPass": primary_pass,
         "fromName": primary_name,
@@ -159,19 +211,19 @@ def _build_sender_candidates(
 
     fallback_user = (cfg.get("fallbackSmtpUser") or settings.GMAIL_FALLBACK_USER or "").strip()
     fallback_pass = (cfg.get("fallbackSmtpPass") or settings.effective_gmail_fallback_pass or "").strip()
+    fallback_email = _normalize_email_address(
+        cfg.get("fallbackFromEmail") or settings.GMAIL_FALLBACK_FROM_EMAIL or fallback_user or ""
+    )
     if fallback_user and fallback_pass and fallback_user.lower() != primary_user.lower():
-        fallback_name = (cfg.get("fallbackFromName") or settings.GMAIL_FALLBACK_FROM_NAME or primary_name).strip()
-        fallback_email = _normalize_email_address(
-            cfg.get("fallbackFromEmail") or settings.GMAIL_FALLBACK_FROM_EMAIL or fallback_user or ""
-        )
         candidates.append({
             "smtpUser": fallback_user,
             "smtpPass": fallback_pass,
-            "fromName": fallback_name,
-            "fromEmail": fallback_email,
-            "smtpHost": (cfg.get("smtpHost") or settings.SMTP_HOST).strip(),
-            "smtpPort": int(cfg.get("smtpPort") or settings.SMTP_PORT),
+            "fromName": (cfg.get("fallbackFromName") or settings.GMAIL_FALLBACK_FROM_NAME or primary_name).strip(),
+            "fromEmail": fallback_email or fallback_user,
+            "smtpHost": (cfg.get("fallbackSmtpHost") or settings.SMTP_HOST).strip(),
+            "smtpPort": int(cfg.get("fallbackSmtpPort") or settings.SMTP_PORT),
         })
+
     return candidates
 
 
@@ -231,7 +283,7 @@ def _html_template(body: str, from_name: str, from_email: str, tracking_url: str
     body = _normalize_trainer_reply_body(body)
     from_email = _normalize_email_address(from_email) or _resolve_sender_email("")
     display_name = "Clahan Technologies" if _is_trainer_reply(body) else (from_name or "Clahan Technologies")
-    tagline = "Clahan Technologies"
+    tagline = "Trainer Matching Platform"
     html_body = body.replace("\n", "<br>")
     pixel = (
         f'<img src="{tracking_url}" width="1" height="1" alt="" style="display:none;" />'
@@ -255,6 +307,23 @@ def _html_template(body: str, from_name: str, from_email: str, tracking_url: str
 </table></td></tr></table>
 {pixel}
 </body></html>"""
+
+
+def _attachment_part(att: Dict[str, Any]) -> Any:
+    filename = att.get("filename") or "attachment"
+    content = att.get("content") or b""
+    content_type = str(att.get("content_type") or "").lower()
+    subtype = str(att.get("subtype") or "octet-stream").lower()
+    if content_type == "text/calendar" or filename.lower().endswith(".ics") or subtype == "calendar":
+        text = content.decode("utf-8", errors="ignore") if isinstance(content, (bytes, bytearray)) else str(content or "")
+        part = MIMEText(text, "calendar", "utf-8")
+        part.replace_header("Content-Type", 'text/calendar; charset="UTF-8"; method=REQUEST')
+        part.add_header("Content-Class", "urn:content-classes:calendarmessage")
+        part.add_header("Content-Disposition", "attachment", filename=filename)
+        return part
+    part = MIMEApplication(content, _subtype=att.get("subtype") or "octet-stream")
+    part.add_header("Content-Disposition", "attachment", filename=filename)
+    return part
 
 
 def send_gmail_oauth(
@@ -282,7 +351,11 @@ def send_gmail_oauth(
         msg["From"] = f"{sender_name} <{sender_email}>"
         msg["To"] = to
         msg["Reply-To"] = sender_email
-        msg["Message-ID"] = message_id_header or generate_message_id()
+        # Let Gmail create the delivery Message-ID.  A synthetic local-domain
+        # Message-ID is unnecessary and can look suspicious to recipient spam
+        # filters.  We still keep the internal id in the database for tracing.
+        if message_id_header and not message_id_header.lower().endswith("@trainersync.local>"):
+            msg["Message-ID"] = message_id_header
 
         alt = MIMEMultipart("alternative") if attachments else msg
         if attachments:
@@ -291,9 +364,7 @@ def send_gmail_oauth(
         alt.attach(MIMEText(_html_template(body, sender_name, sender_email, tracking_url), "html", "utf-8"))
 
         for att in attachments or []:
-            part = MIMEApplication(att.get("content") or b"", _subtype=att.get("subtype") or "octet-stream")
-            part.add_header("Content-Disposition", "attachment", filename=att.get("filename") or "attachment")
-            msg.attach(part)
+            msg.attach(_attachment_part(att))
 
         raw = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
         service.users().messages().send(userId="me", body={"raw": raw}).execute()
@@ -334,27 +405,7 @@ def send_smtp(
     candidates = _build_sender_candidates(smtp_config)
     last_error: Optional[Exception] = None
 
-    smtp_password_present = any(
-        bool((candidate.get("smtpPass") or settings.effective_gmail_pass or "").strip())
-        for candidate in candidates
-    )
-    if not smtp_password_present:
-        logger.info("SMTP password missing; retrying via Gmail OAuth fallback")
-        oauth_success, oauth_error = send_gmail_oauth(
-            to=to,
-            subject=subject,
-            body=body,
-            from_name=(smtp_config or {}).get("fromName") or settings.FROM_NAME,
-            from_email=(smtp_config or {}).get("fromEmail") or settings.FROM_EMAIL,
-            tracking_url=tracking_url,
-            attachments=attachments,
-            message_id_header=message_id_header,
-        )
-        if oauth_success:
-            return True, ""
-        logger.warning("Gmail OAuth fallback failed while SMTP password was absent: %s", oauth_error)
-
-    for idx, candidate in enumerate(candidates):
+    for candidate in candidates:
         user = candidate.get("smtpUser") or settings.GMAIL_USER
         pwd = str(candidate.get("smtpPass") or settings.effective_gmail_pass or "").replace(" ", "")
         from_name = candidate.get("fromName") or settings.FROM_NAME
@@ -364,8 +415,10 @@ def send_smtp(
         host = candidate.get("smtpHost") or settings.SMTP_HOST
         port = int(candidate.get("smtpPort") or settings.SMTP_PORT)
 
-        if not user or not pwd:
-            continue
+        if not user:
+            return False, "SMTP user is not configured"
+        if not pwd:
+            return False, "SMTP password is not configured (set GMAIL_APP_PASSWORD)"
 
         try:
             # debug prints to verify attachments and SMTP flow in container logs
@@ -386,55 +439,47 @@ def send_smtp(
             msg["From"] = f"{from_name} <{from_email}>"
             msg["To"] = to
             msg["Reply-To"] = from_email
-            msg["Message-ID"] = message_id_header or generate_message_id()
+            # SMTP servers will add a standards-compliant Message-ID when one
+            # is absent; do not expose the internal trainersync.local id.
+            if message_id_header and not message_id_header.lower().endswith("@trainersync.local>"):
+                msg["Message-ID"] = message_id_header
             alternative.attach(MIMEText(body, "plain"))
             alternative.attach(MIMEText(_html_template(body, from_name, from_email, tracking_url), "html"))
 
             for att in attachments or []:
-                part = MIMEApplication(att.get("content") or b"", _subtype=att.get("subtype") or "octet-stream")
-                part.add_header("Content-Disposition", "attachment", filename=att.get("filename") or "attachment")
-                msg.attach(part)
+                msg.attach(_attachment_part(att))
 
-            try:
-                with smtplib.SMTP_SSL(host, 465 if port == 587 else port, timeout=15) as s:
-                    s.login(user, pwd)
-                    s.sendmail(from_email, to, msg.as_string())
-                print(f"SMTP: sendmail via SSL to {to} completed")
-            except Exception as exc:
-                if is_send_quota_error(exc):
-                    raise
-                with smtplib.SMTP(host, 587 if port == 465 else port, timeout=15) as s:
+            if port == 587:
+                with smtplib.SMTP(host, port, timeout=15) as s:
                     s.ehlo()
                     s.starttls()
+                    s.ehlo()
                     s.login(user, pwd)
                     s.sendmail(from_email, to, msg.as_string())
                 print(f"SMTP: sendmail via STARTTLS to {to} completed")
+            else:
+                with smtplib.SMTP_SSL(host, port, timeout=15) as s:
+                    s.login(user, pwd)
+                    s.sendmail(from_email, to, msg.as_string())
+                print(f"SMTP: sendmail via SSL to {to} completed")
 
             logger.info("Email sent to %s via %s", to, from_email)
             return True, ""
-        except smtplib.SMTPAuthenticationError:
-            if "gmail" in host.lower() and idx < len(candidates) - 1:
-                continue
-            if "gmail" in host.lower():
-                return send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url, message_id_header=message_id_header)
-            return False, "SMTP authentication failed"
+        except smtplib.SMTPAuthenticationError as exc:
+            last_error = exc
+            logger.warning("SMTP authentication failed for configured sender %s", user)
+            continue
         except Exception as exc:
             last_error = exc
             logger.exception("SMTP send failed to %s via %s", to, from_email)
-            if is_send_quota_error(exc) and idx < len(candidates) - 1:
-                logger.warning("Primary sender %s hit Gmail quota; trying fallback sender", from_email)
-                continue
             if is_send_quota_error(exc):
                 return False, _friendly_send_error(exc)
-            if "gmail" in host.lower():
-                oauth_success, oauth_error = send_gmail_oauth(to, subject, body, from_name, from_email, tracking_url, message_id_header=message_id_header)
-                if oauth_success:
-                    return True, ""
-                return False, oauth_error or str(exc)
             return False, str(exc)
 
     if last_error is not None and is_send_quota_error(last_error):
         return False, _friendly_send_error(last_error)
+    if isinstance(last_error, smtplib.SMTPAuthenticationError):
+        return False, "SMTP authentication failed"
     return False, str(last_error or "SMTP send failed")
 
 
@@ -448,7 +493,38 @@ async def send_email_async(
     message_id_header: str = "",
 ) -> Tuple[bool, str]:
     loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, send_smtp, to, subject, body, smtp_config, tracking_url, attachments, message_id_header)
+    # Gmail API delivery is preferred: it uses the authenticated Gmail account
+    # directly and avoids an additional SMTP relay signal for bulk trainer mail.
+    oauth_ok, oauth_error = await loop.run_in_executor(
+        None,
+        send_gmail_oauth,
+        to,
+        subject,
+        body,
+        "",
+        "",
+        tracking_url,
+        attachments,
+        message_id_header,
+    )
+    if oauth_ok:
+        return True, ""
+
+    logger.warning("Gmail OAuth delivery failed for %s; trying SMTP fallback: %s", to, oauth_error)
+    smtp_ok, smtp_error = await loop.run_in_executor(
+        None,
+        send_smtp,
+        to,
+        subject,
+        body,
+        smtp_config,
+        tracking_url,
+        attachments,
+        message_id_header,
+    )
+    if smtp_ok:
+        return True, ""
+    return False, smtp_error or oauth_error
 
 
 def check_imap_replies(
@@ -479,6 +555,8 @@ def check_imap_replies(
         cfg.get("imapPass") or cfg.get("smtpPass") or settings.effective_gmail_pass,
     )
     add_candidate(settings.GMAIL_FALLBACK_USER, settings.effective_gmail_fallback_pass)
+    # STYLE_IMAP_* belongs to the separate sent-mail style importer. Polling it
+    # here would treat an archive mailbox as another reply inbox.
     if settings.GMAIL_FALLBACK_FROM_EMAIL:
         add_candidate(settings.GMAIL_FALLBACK_FROM_EMAIL, settings.effective_gmail_fallback_pass)
     if settings.FROM_EMAIL:
@@ -527,13 +605,46 @@ def check_imap_replies(
                     from_email = parseaddr(from_addr)[1] or from_addr
                     subject = _decode_header(msg.get("Subject", ""))
                     body_text = ""
+                    html_text = ""
+                    attachments: List[Dict[str, Any]] = []
+                    captured_attachment_bytes = 0
                     if msg.is_multipart():
                         for part in msg.walk():
-                            if part.get_content_type() == "text/plain":
-                                body_text = part.get_payload(decode=True).decode("utf-8", errors="ignore")
-                                break
+                            disposition = (part.get_content_disposition() or "").lower()
+                            filename = part.get_filename()
+                            if filename:
+                                decoded_filename = _decode_header(filename)
+                                attachment = {
+                                    "filename": decoded_filename,
+                                    "content_type": part.get_content_type(),
+                                    "disposition": disposition or "attachment",
+                                }
+                                extension = os.path.splitext(decoded_filename)[1].lower()
+                                if extension in CLIENT_SCOPE_EXTENSIONS:
+                                    raw_attachment = part.get_payload(decode=True) or b""
+                                    remaining = MAX_CLIENT_SCOPE_MESSAGE_BYTES - captured_attachment_bytes
+                                    if raw_attachment and len(raw_attachment) <= MAX_CLIENT_SCOPE_ATTACHMENT_BYTES and len(raw_attachment) <= remaining:
+                                        attachment["content_base64"] = base64.b64encode(raw_attachment).decode("ascii")
+                                        attachment["size_bytes"] = len(raw_attachment)
+                                        attachment["safe_client_scope"] = True
+                                        captured_attachment_bytes += len(raw_attachment)
+                                    elif raw_attachment:
+                                        attachment["capture_skipped"] = "attachment_size_limit"
+                                attachments.append(attachment)
+                            if disposition == "attachment":
+                                continue
+                            if part.get_content_type() == "text/plain" and not body_text:
+                                body_text = _decode_message_part(part)
+                            elif part.get_content_type() == "text/html" and not html_text:
+                                html_text = _html_to_text(_decode_message_part(part))
                     else:
-                        body_text = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+                        if msg.get_content_type() == "text/html":
+                            html_text = _html_to_text(_decode_message_part(msg))
+                        else:
+                            body_text = _decode_message_part(msg)
+                    body_text = body_text or html_text
+                    if body_text and html_text and html_text not in body_text:
+                        body_text = f"{body_text}\n\n{html_text}"
 
                     try:
                         date_hdr = msg.get("Date", "")
@@ -564,6 +675,9 @@ def check_imap_replies(
                         "from_raw": from_addr,
                         "subject": subject,
                         "body": body_text[:2000],
+                        "full_body": body_text,
+                        "attachments": attachments,
+                        "attachment_names": [item.get("filename", "") for item in attachments if item.get("filename")],
                         "sentiment": sentiment,
                         "action": action,
                         "received_at": received_at.isoformat(),
@@ -592,6 +706,7 @@ def check_gmail_api_replies(
     since_days: int = 7,
     max_messages: int = 50,
     from_emails: Optional[List[str]] = None,
+    search_query: str = "",
 ) -> List[Dict[str, Any]]:
     """Poll Gmail API inbox for recent messages using OAuth."""
     service, error = _load_oauth_service()
@@ -599,15 +714,28 @@ def check_gmail_api_replies(
         logger.warning("Gmail API check skipped: %s", error)
         return []
 
-    query_parts = [f"newer_than:{max(1, int(since_days))}d", "in:inbox"]
-    sender_filters = [
-        _normalize_email_address(sender)
-        for sender in (from_emails or [])
-        if _normalize_email_address(sender)
-    ]
-    if sender_filters:
-        query_parts.append("(" + " OR ".join(f"from:{sender}" for sender in sender_filters[:100]) + ")")
-    query = " ".join(query_parts)
+    if search_query:
+        query = search_query
+    else:
+        query_parts = [
+            f"newer_than:{max(1, int(since_days))}d",
+            "-in:sent",
+            "-in:trash",
+            "-in:spam",
+        ]
+        sender_filters = [
+            _normalize_email_address(sender)
+            for sender in (from_emails or [])
+            if _normalize_email_address(sender)
+        ]
+        if sender_filters:
+            query_parts.append("(" + " OR ".join(f"from:{sender}" for sender in sender_filters[:100]) + ")")
+        else:
+            query_parts.append(
+                '("training requirement" OR "trainer requirement" OR "requirement for" OR '
+                '"please share suitable trainer" OR "trainer profiles" OR "commercials" OR "TOC")'
+            )
+        query = " ".join(query_parts)
 
     replies: List[Dict[str, Any]] = []
     seen_message_ids: set = set()
@@ -656,6 +784,41 @@ def check_gmail_api_replies(
                 else:
                     body_text = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
 
+                # Gmail API returns the complete RFC822 message in raw mode.
+                # Capture safe client scope documents here just as the IMAP
+                # polling path does, otherwise Excel/PDF TOCs are silently
+                # dropped before requirement creation and trainer Mail 1.
+                attachments: List[Dict[str, Any]] = []
+                captured_attachment_bytes = 0
+                if msg.is_multipart():
+                    for part in msg.walk():
+                        filename = part.get_filename()
+                        if not filename:
+                            continue
+                        decoded_filename = _decode_header(filename)
+                        disposition = (part.get_content_disposition() or "").lower()
+                        attachment = {
+                            "filename": decoded_filename,
+                            "content_type": part.get_content_type(),
+                            "disposition": disposition or "attachment",
+                        }
+                        extension = os.path.splitext(decoded_filename)[1].lower()
+                        if extension in CLIENT_SCOPE_EXTENSIONS:
+                            raw_attachment = part.get_payload(decode=True) or b""
+                            remaining = MAX_CLIENT_SCOPE_MESSAGE_BYTES - captured_attachment_bytes
+                            if (
+                                raw_attachment
+                                and len(raw_attachment) <= MAX_CLIENT_SCOPE_ATTACHMENT_BYTES
+                                and len(raw_attachment) <= remaining
+                            ):
+                                attachment["content_base64"] = base64.b64encode(raw_attachment).decode("ascii")
+                                attachment["size_bytes"] = len(raw_attachment)
+                                attachment["safe_client_scope"] = True
+                                captured_attachment_bytes += len(raw_attachment)
+                            elif raw_attachment:
+                                attachment["capture_skipped"] = "attachment_size_limit"
+                        attachments.append(attachment)
+
                 try:
                     date_hdr = msg.get("Date", "")
                     if date_hdr:
@@ -691,8 +854,17 @@ def check_gmail_api_replies(
                     "action": action,
                     "received_at": received_at.isoformat(),
                     "gmail_api_user": "me",
+                    "attachments": attachments,
+                    "attachment_names": [item.get("filename", "") for item in attachments if item.get("filename")],
                 })
-            except Exception:
+            except Exception as exc:
+                if is_gmail_api_rate_limit(exc):
+                    logger.warning(
+                        "Gmail API inbox poll rate-limited after %s messages; "
+                        "stopping this poll until the next scheduled run.",
+                        len(replies),
+                    )
+                    break
                 logger.exception("Gmail API message fetch failed for %s", gmail_id)
                 continue
     except Exception:

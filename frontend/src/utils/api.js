@@ -121,6 +121,12 @@ export const getVoiceAINotes = (params = {}) => api.get('/voice-ai/notes', { par
 export const getVoiceAITasks = (params = {}) => api.get('/voice-ai/tasks', { params })
 export const getRequirements   = (params = {}) => api.get('/requirements', { params: { page_size: 100, ...params } })
 export const getRequirement    = (id)     => api.get(`/requirements/${id}`)
+export const getCommercialAnalyses = (params = {}) => api.get('/requirements/analysis/commercial', { params })
+export const getCommercialAnalysis = (id) => api.get(`/requirements/${id}/commercial-analysis`)
+export const getAgentRoles = () => api.get('/agent-orchestrator/roles')
+export const runAgentOrchestrator = (limit = 20) => api.post('/agent-orchestrator/run', null, { params: { limit } })
+export const getAgentOrchestratorSummary = () => api.get('/agent-orchestrator/summary')
+export const getAgentDecisions = (params = {}) => api.get('/agent-orchestrator/decisions', { params })
 export const createRequirement = (data)   => api.post('/requirements', data)
 export const updateRequirement = (id, data) => api.patch(`/requirements/${id}`, data)
 export const deleteRequirement = (id)     => api.delete(`/requirements/${id}`)
@@ -130,16 +136,14 @@ export const getEmails         = (params) => api.get('/emails', { params })
 export const checkReplies      = (payload = {}) => api.post('/emails/check-replies', { since_days: 7, max_messages: 100, ...payload })
 export const retryEmail        = (id)     => api.post(`/emails/${id}/retry`)
 export const sendMailToOne     = (id, msg) => api.post(`/emails/${id}/send-one`, { message: msg })
-export const sendClientSlotsFromEmail = (id, force = true, payload = {}) =>
-  api.post(`/emails/${id}/send-client-slots`, { force, ...payload })
+export const sendClientSlotsFromEmail = (id, payload = {}) =>
+  api.post(`/emails/${id}/send-client-slots`, payload)
 export const scheduleInterview = (id, interview_date, interview_link, payload = {}) =>
   api.post(`/emails/${id}/schedule-interview`, {
     ...payload,
     interview_date,
     interview_link,
   })
-export const sendShortlistInterviewLink = (payload) =>
-  api.post('/shortlists/send-interview-link', payload)
 export const getDashboardStats = ()       => api.get('/dashboard/stats')
 export const getDashboardAnalytics = (params) => api.get('/dashboard/analytics', { params })
 export const clearDatabase     = ()       => api.delete('/database/clear')

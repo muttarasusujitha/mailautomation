@@ -1,0 +1,462 @@
+{
+    "domain":  "Weaviate",
+    "name":  "Weaviate â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "Weaviate Vector Database",
+                    "Vector Search Engine"
+                ],
+    "tools":  [
+                  "Weaviate",
+                  "Python/JS clients",
+                  "Docker"
+              ],
+    "certifications":  [
+                           "Weaviate official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Foundations and Setup",
+                     "subtopics":  [
+                                       "Core concepts",
+                                       "Architecture",
+                                       "Use cases",
+                                       "Terminology",
+                                       "Environment setup",
+                                       "SDK/runtime setup",
+                                       "First example",
+                                       "Weaviate terminology and feature mapping for this topic",
+                                       "Weaviate configuration and implementation considerations",
+                                       "Weaviate best practices and common mistakes for this topic",
+                                       "collections/classes",
+                                       "objects",
+                                       "vectorizers",
+                                       "hybrid search",
+                                       "BM25",
+                                       "nearText",
+                                       "filters",
+                                       "multi-tenancy",
+                                       "references",
+                                       "generative modules concepts",
+                                       "schema",
+                                       "replication"
+                                   ],
+                     "tools":  [
+                                   "Weaviate",
+                                   "Python/JS clients",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Set up Weaviate and run a first working example.",
+                     "technology":  "Weaviate",
+                     "technology_id":  "weaviate",
+                     "learning_objectives":  [
+                                                 "Explain the Foundations and Setup concepts in the context of Weaviate.",
+                                                 "Configure or implement the key Weaviate features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Foundations and Setup practically using Weaviate.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Core Data and Representations",
+                     "subtopics":  [
+                                       "Inputs",
+                                       "Outputs",
+                                       "Token/embedding/model concepts as applicable",
+                                       "Data preparation",
+                                       "Schemas",
+                                       "Metadata",
+                                       "Validation",
+                                       "Preprocessing",
+                                       "Weaviate terminology and feature mapping for this topic",
+                                       "Weaviate configuration and implementation considerations",
+                                       "Weaviate best practices and common mistakes for this topic",
+                                       "collections/classes",
+                                       "objects",
+                                       "vectorizers",
+                                       "hybrid search",
+                                       "BM25",
+                                       "nearText",
+                                       "filters",
+                                       "multi-tenancy",
+                                       "references",
+                                       "generative modules concepts",
+                                       "schema",
+                                       "replication"
+                                   ],
+                     "tools":  [
+                                   "Weaviate",
+                                   "Python/JS clients",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Prepare representative data for Weaviate.",
+                     "technology":  "Weaviate",
+                     "technology_id":  "weaviate",
+                     "learning_objectives":  [
+                                                 "Explain the Core Data and Representations concepts in the context of Weaviate.",
+                                                 "Configure or implement the key Weaviate features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core Data and Representations practically using Weaviate.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Core APIs or Algorithms",
+                     "subtopics":  [
+                                       "Primary API/algorithm",
+                                       "Parameters",
+                                       "Configuration",
+                                       "Batching",
+                                       "Error handling",
+                                       "Reproducibility",
+                                       "Result interpretation",
+                                       "Weaviate terminology and feature mapping for this topic",
+                                       "Weaviate configuration and implementation considerations",
+                                       "Weaviate best practices and common mistakes for this topic",
+                                       "collections/classes",
+                                       "objects",
+                                       "vectorizers",
+                                       "hybrid search",
+                                       "BM25",
+                                       "nearText",
+                                       "filters",
+                                       "multi-tenancy",
+                                       "references",
+                                       "generative modules concepts",
+                                       "schema",
+                                       "replication"
+                                   ],
+                     "tools":  [
+                                   "Weaviate",
+                                   "Python/JS clients",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Implement the core workflow for Weaviate.",
+                     "technology":  "Weaviate",
+                     "technology_id":  "weaviate",
+                     "learning_objectives":  [
+                                                 "Explain the Core APIs or Algorithms concepts in the context of Weaviate.",
+                                                 "Configure or implement the key Weaviate features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Core APIs or Algorithms practically using Weaviate.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Advanced Techniques",
+                     "subtopics":  [
+                                       "Advanced features",
+                                       "Optimization",
+                                       "Caching",
+                                       "Streaming",
+                                       "Structured outputs",
+                                       "Hybrid techniques",
+                                       "Performance trade-offs",
+                                       "Weaviate terminology and feature mapping for this topic",
+                                       "Weaviate configuration and implementation considerations",
+                                       "Weaviate best practices and common mistakes for this topic",
+                                       "collections/classes",
+                                       "objects",
+                                       "vectorizers",
+                                       "hybrid search",
+                                       "BM25",
+                                       "nearText",
+                                       "filters",
+                                       "multi-tenancy",
+                                       "references",
+                                       "generative modules concepts",
+                                       "schema",
+                                       "replication"
+                                   ],
+                     "tools":  [
+                                   "Weaviate",
+                                   "Python/JS clients",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Implement an advanced Weaviate workflow.",
+                     "technology":  "Weaviate",
+                     "technology_id":  "weaviate",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Techniques concepts in the context of Weaviate.",
+                                                 "Configure or implement the key Weaviate features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Techniques practically using Weaviate.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Evaluation",
+                     "subtopics":  [
+                                       "Quality metrics",
+                                       "Offline evaluation",
+                                       "Online evaluation concepts",
+                                       "Test sets",
+                                       "Failure analysis",
+                                       "Regression testing",
+                                       "Human review",
+                                       "Weaviate terminology and feature mapping for this topic",
+                                       "Weaviate configuration and implementation considerations",
+                                       "Weaviate best practices and common mistakes for this topic",
+                                       "collections/classes",
+                                       "objects",
+                                       "vectorizers",
+                                       "hybrid search",
+                                       "BM25",
+                                       "nearText",
+                                       "filters",
+                                       "multi-tenancy",
+                                       "references",
+                                       "generative modules concepts",
+                                       "schema",
+                                       "replication"
+                                   ],
+                     "tools":  [
+                                   "Weaviate",
+                                   "Python/JS clients",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Create an evaluation harness for Weaviate.",
+                     "technology":  "Weaviate",
+                     "technology_id":  "weaviate",
+                     "learning_objectives":  [
+                                                 "Explain the Evaluation concepts in the context of Weaviate.",
+                                                 "Configure or implement the key Weaviate features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Evaluation practically using Weaviate.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "Safety and Security",
+                     "subtopics":  [
+                                       "Prompt/input security where relevant",
+                                       "Data privacy",
+                                       "Secrets",
+                                       "Access control",
+                                       "Abuse prevention",
+                                       "Policy controls",
+                                       "Auditability",
+                                       "Weaviate terminology and feature mapping for this topic",
+                                       "Weaviate configuration and implementation considerations",
+                                       "Weaviate best practices and common mistakes for this topic",
+                                       "collections/classes",
+                                       "objects",
+                                       "vectorizers",
+                                       "hybrid search",
+                                       "BM25",
+                                       "nearText",
+                                       "filters",
+                                       "multi-tenancy",
+                                       "references",
+                                       "generative modules concepts",
+                                       "schema",
+                                       "replication"
+                                   ],
+                     "tools":  [
+                                   "Weaviate",
+                                   "Python/JS clients",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Add safety and security controls.",
+                     "technology":  "Weaviate",
+                     "technology_id":  "weaviate",
+                     "learning_objectives":  [
+                                                 "Explain the Safety and Security concepts in the context of Weaviate.",
+                                                 "Configure or implement the key Weaviate features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Safety and Security practically using Weaviate.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Production Architecture",
+                     "subtopics":  [
+                                       "Service architecture",
+                                       "Scalability",
+                                       "Latency",
+                                       "Cost",
+                                       "Caching",
+                                       "Fallbacks",
+                                       "Observability",
+                                       "Reliability",
+                                       "Weaviate terminology and feature mapping for this topic",
+                                       "Weaviate configuration and implementation considerations",
+                                       "Weaviate best practices and common mistakes for this topic",
+                                       "collections/classes",
+                                       "objects",
+                                       "vectorizers",
+                                       "hybrid search",
+                                       "BM25",
+                                       "nearText",
+                                       "filters",
+                                       "multi-tenancy",
+                                       "references",
+                                       "generative modules concepts",
+                                       "schema",
+                                       "replication"
+                                   ],
+                     "tools":  [
+                                   "Weaviate",
+                                   "Python/JS clients",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Design a production architecture.",
+                     "technology":  "Weaviate",
+                     "technology_id":  "weaviate",
+                     "learning_objectives":  [
+                                                 "Explain the Production Architecture concepts in the context of Weaviate.",
+                                                 "Configure or implement the key Weaviate features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Production Architecture practically using Weaviate.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Integration",
+                     "subtopics":  [
+                                       "APIs",
+                                       "Databases/vector stores",
+                                       "Tools/functions",
+                                       "Agents or workflows",
+                                       "Web/backend integration",
+                                       "Streaming",
+                                       "Testing",
+                                       "Weaviate terminology and feature mapping for this topic",
+                                       "Weaviate configuration and implementation considerations",
+                                       "Weaviate best practices and common mistakes for this topic",
+                                       "collections/classes",
+                                       "objects",
+                                       "vectorizers",
+                                       "hybrid search",
+                                       "BM25",
+                                       "nearText",
+                                       "filters",
+                                       "multi-tenancy",
+                                       "references",
+                                       "generative modules concepts",
+                                       "schema",
+                                       "replication"
+                                   ],
+                     "tools":  [
+                                   "Weaviate",
+                                   "Python/JS clients",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Integrate Weaviate into an application.",
+                     "technology":  "Weaviate",
+                     "technology_id":  "weaviate",
+                     "learning_objectives":  [
+                                                 "Explain the Integration concepts in the context of Weaviate.",
+                                                 "Configure or implement the key Weaviate features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Integration practically using Weaviate.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  9,
+                     "topic":  "Operations and Optimization",
+                     "subtopics":  [
+                                       "Monitoring",
+                                       "Tracing",
+                                       "Cost tracking",
+                                       "Versioning",
+                                       "Rollbacks",
+                                       "Performance tuning",
+                                       "Incident handling",
+                                       "Weaviate terminology and feature mapping for this topic",
+                                       "Weaviate configuration and implementation considerations",
+                                       "Weaviate best practices and common mistakes for this topic",
+                                       "collections/classes",
+                                       "objects",
+                                       "vectorizers",
+                                       "hybrid search",
+                                       "BM25",
+                                       "nearText",
+                                       "filters",
+                                       "multi-tenancy",
+                                       "references",
+                                       "generative modules concepts",
+                                       "schema",
+                                       "replication"
+                                   ],
+                     "tools":  [
+                                   "Weaviate",
+                                   "Python/JS clients",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Monitor and optimize a production-style workload.",
+                     "technology":  "Weaviate",
+                     "technology_id":  "weaviate",
+                     "learning_objectives":  [
+                                                 "Explain the Operations and Optimization concepts in the context of Weaviate.",
+                                                 "Configure or implement the key Weaviate features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Operations and Optimization practically using Weaviate.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  10,
+                     "topic":  "Capstone AI Project",
+                     "subtopics":  [
+                                       "Requirements",
+                                       "Data",
+                                       "Implementation",
+                                       "Evaluation",
+                                       "Safety",
+                                       "Observability",
+                                       "Deployment",
+                                       "Documentation",
+                                       "Weaviate terminology and feature mapping for this topic",
+                                       "Weaviate configuration and implementation considerations",
+                                       "Weaviate best practices and common mistakes for this topic",
+                                       "collections/classes",
+                                       "objects",
+                                       "vectorizers",
+                                       "hybrid search",
+                                       "BM25",
+                                       "nearText",
+                                       "filters",
+                                       "multi-tenancy",
+                                       "references",
+                                       "generative modules concepts",
+                                       "schema",
+                                       "replication"
+                                   ],
+                     "tools":  [
+                                   "Weaviate",
+                                   "Python/JS clients",
+                                   "Docker"
+                               ],
+                     "lab_task":  "Build an end-to-end production-style project using Weaviate.",
+                     "technology":  "Weaviate",
+                     "technology_id":  "weaviate",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone AI Project concepts in the context of Weaviate.",
+                                                 "Configure or implement the key Weaviate features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone AI Project practically using Weaviate.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "weaviate"
+}

@@ -46,7 +46,8 @@ SCENARIO_KEYWORDS: List[Tuple[str, Iterable[str]]] = [
     ("system_notification", ("noreply", "no-reply", "do not reply", "donotreply", "notification", "alert")),
     ("cancellation", ("cancel", "cancelled", "canceled", "call off", "not going ahead", "drop this requirement")),
     ("reschedule", ("reschedule", "postpone", "prepone", "change the date", "change timing", "new schedule")),
-    ("client_confirms_trainer", ("confirm this trainer", "trainer is confirmed", "we confirm the trainer", "selected this trainer", "go ahead with this trainer", "proceed with this trainer", "profile approved", "trainer approved", "shortlist approved", "looks good proceed", "please onboard this trainer")),
+    ("client_shared_meeting_link_to_trainer", ("share it with trainer", "share it with the trainer", "forward it to trainer", "forward it to the trainer", "send it to trainer", "send it to the trainer")),
+    ("client_confirms_trainer", ("confirm this trainer", "trainer is confirmed", "we confirm the trainer", "selected this trainer", "he is selected", "she is selected", "go ahead with this trainer", "proceed with this trainer", "profile approved", "trainer approved", "shortlist approved", "looks good proceed", "please onboard this trainer")),
     ("client_rejects_trainer", ("not suitable", "reject this trainer", "not moving ahead with this trainer", "profile is rejected", "not shortlisted", "not a fit", "not aligned", "does not match", "not relevant", "profile not suitable", "trainer not suitable")),
     ("client_requests_replacement", ("replacement trainer", "alternate trainer", "another trainer", "share another profile", "different trainer", "backup trainer", "alternate profile", "more relevant trainer", "replace the trainer", "new trainer option")),
     ("client_confirms_interview_slot", ("confirm this slot", "slot is confirmed", "available for the slot", "book this slot", "schedule this slot", "confirmed for interview", "this timing works", "we are available", "please block this time", "go ahead with this slot", "slot works for us")),
@@ -82,6 +83,7 @@ SCENARIO_KEYWORDS: List[Tuple[str, Iterable[str]]] = [
     ("client_asks_batch_split", ("split batch", "multiple batches", "two batches", "batch wise", "separate batch", "parallel batch")),
     ("client_asks_rate_card", ("rate card", "standard rates", "pricing sheet", "commercial sheet", "rate list")),
     ("client_asks_availability", ("trainer availability", "availability check", "available dates", "available this week", "trainer free", "availability confirmation")),
+    ("client_asks_technology_catalogue", ("list of technologies", "technologies currently being taught", "technologies you teach", "courses you offer", "training courses available", "technology catalogue", "technology catalog", "training catalogue", "training catalog")),
     ("client_asks_shortlist_eta", ("when can you share profiles", "profile eta", "shortlist eta", "by when profiles", "how soon can you share", "timeline for profiles")),
     ("client_thanks", ("thank you", "thanks", "noted", "okay noted", "received", "acknowledged", "ok thanks", "fine", "great thanks")),
     ("client_updates_requirement", ("updated requirement", "revised requirement", "updated details", "revised details", "please update", "correction", "change in requirement")),
@@ -342,6 +344,7 @@ def _scenario(text: str) -> Tuple[str, List[str]]:
         best = "client_sent_details"
     else:
         priority = (
+            "client_shared_meeting_link_to_trainer",
             "client_confirms_trainer",
             "client_requests_replacement",
             "client_rejects_trainer",
@@ -415,6 +418,20 @@ def classify_email(subject: str = "", body: str = "", sender_email: str = "", se
     text = _text(subject, body, sender_email, sender_name)
     person_type = _person_type(sender_email, text)
     scenario, matched = _scenario(text)
+    # A current instruction to forward a meeting link must outrank quoted
+    # history that may contain older trainer-slot language.
+    if "client_shared_meeting_link_to_trainer" in matched:
+        scenario = "client_shared_meeting_link_to_trainer"
+        person_type = "corporate_client"
+    # Lab-only requests can contain generic words such as "requirement" and
+    # commercial language that otherwise outscore the more specific intent.
+    if "client_asks_lab_setup" in matched and re.search(
+        r"\b(?:lab\s+access\s+only|only\s+lab|without\s+(?:a\s+)?trainer)\b",
+        text,
+        flags=re.IGNORECASE,
+    ):
+        scenario = "client_asks_lab_setup"
+        person_type = "corporate_client"
     if scenario.startswith("trainer_") and person_type not in {"bounce", "system", "ooo", "internal_team"}:
         person_type = "trainer"
     if scenario.startswith("client_") and person_type not in {"bounce", "system", "ooo", "internal_team"}:

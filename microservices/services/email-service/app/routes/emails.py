@@ -105,6 +105,13 @@ async def send_one_email(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     """Send a single targeted email and log it."""
+    from app.recipient_guard import recipient_error
+
+    recipient_block = await recipient_error(
+        db, payload.to, payload.requirement_id, payload.trainer_id, payload.mail_type,
+    )
+    if recipient_block:
+        raise HTTPException(422, recipient_block)
     message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=payload.to,
@@ -155,11 +162,23 @@ async def retry_email(
     if doc.get("status") == "sent":
         return {"success": True, "message": "Already sent", "email_id": email_id}
 
+    from app.recipient_guard import recipient_error
+
+    recipient_block = await recipient_error(
+        db,
+        doc.get("recipient") or doc.get("to_email") or "",
+        doc.get("requirement_id"),
+        doc.get("trainer_id"),
+        doc.get("mail_type"),
+    )
+    if recipient_block:
+        raise HTTPException(422, recipient_block)
+
     message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=doc.get("recipient", ""),
         subject=doc.get("subject", ""),
-        body=doc.get("body_snippet", ""),
+        body=doc.get("body") or doc.get("body_snippet", ""),
         message_id_header=message_id_header,
     )
     now = datetime.utcnow()
@@ -177,6 +196,17 @@ async def retry_email(
     )
     if not success:
         raise HTTPException(502, detail={"message": "Retry failed", "error": error})
+    if doc.get("mail_type") == "client_po_request" and doc.get("requirement_id"):
+        await db["requirements"].update_one(
+            {"requirement_id": doc["requirement_id"]},
+            {"$set": {
+                "client_po_requested": True,
+                "client_po_requested_at": now,
+                "po_request_status": "requested",
+                "po_requested_at": now,
+                "updated_at": now,
+            }},
+        )
     return {"success": True, "email_id": email_id, "sent_at": now.isoformat()}
 
 
@@ -227,6 +257,18 @@ async def schedule_interview(
         + "\nPlease confirm your availability.\n\nRegards,\nClahan Technologies\nsujithaofficial585@gmail.com"
     )
 
+    # This legacy direct-send route must still use the shortlist identity,
+    # rather than trusting an address supplied by the browser.
+    existing = await db["email_logs"].find_one({"email_id": email_id}, {"_id": 0}) or {}
+    trainer_id = existing.get("trainer_id") or ""
+    from app.recipient_guard import recipient_error
+
+    recipient_block = await recipient_error(
+        db, payload.trainer_email, payload.requirement_id, trainer_id, "mail4",
+    )
+    if recipient_block:
+        raise HTTPException(422, recipient_block)
+
     message_id_header = generate_message_id()
     success, error = await send_email_async(
         to=payload.trainer_email,
@@ -272,6 +314,12 @@ async def send_client_slots(
 
     if not client_email:
         raise HTTPException(400, "client_email is required")
+
+    from app.recipient_guard import recipient_error
+
+    recipient_block = await recipient_error(db, client_email, payload.requirement_id, "", "client_slots")
+    if recipient_block:
+        raise HTTPException(422, recipient_block)
 
     slots_text = "\n".join(
         f"Slot {i+1}: {s.get('date_display', '')} {s.get('time_display', '')}"

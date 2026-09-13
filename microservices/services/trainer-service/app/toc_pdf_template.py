@@ -105,6 +105,24 @@ def _render_section(title: str, lines: Iterable[Any]) -> str:
 """
 
 
+def _render_programme_table(title: str, rows: Iterable[Dict[str, Any]], columns: List[tuple[str, str]]) -> str:
+    table_rows = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        cells = "".join(f"<td>{_html(row.get(key))}</td>" for key, _ in columns)
+        table_rows.append(f"<tr>{cells}</tr>")
+    if not table_rows:
+        return ""
+    header = "".join(f"<th>{_html(label)}</th>" for _, label in columns)
+    return f"""
+    <section class="section">
+        <h2>{_html(title)}</h2>
+        <table class="programme-table"><thead><tr>{header}</tr></thead><tbody>{''.join(table_rows)}</tbody></table>
+    </section>
+"""
+
+
 def _render_roadmap(toc: Dict[str, Any]) -> str:
     days = _list_items(toc.get("days"))
     if not days:
@@ -193,6 +211,10 @@ def _render_day(day: Dict[str, Any]) -> str:
     meta_parts = []
     if tools:
         meta_parts.append(f"Tools: {tools}")
+    if _text(day.get("week")):
+        meta_parts.append(f"Week: {_text(day.get('week'))}")
+    if _text(day.get("date")):
+        meta_parts.append(f"Date: {_text(day.get('date'))}")
     if jira:
         meta_parts.append(f"Jira Focus: {jira}")
 
@@ -253,6 +275,7 @@ def _render_day(day: Dict[str, Any]) -> str:
             "Connect the technical work to Agile/Jira delivery tracking",
         ]
     objectives = _render_section("Learning Objectives", learning_objectives)
+    assessment = _render_section("Assessment", [_text(day.get("assessment"))]) if _text(day.get("assessment")) else ""
 
     jira_practice_items = _list_items(day.get("jira_practice"))
     if not jira_practice_items:
@@ -271,6 +294,7 @@ def _render_day(day: Dict[str, Any]) -> str:
         {_render_session(afternoon, "Afternoon Session")}
         {lab_section}
         {objectives}
+        {assessment}
         {jira_practice}
     </section>
 """
@@ -374,6 +398,9 @@ def build_toc_html(toc_data: Dict[str, Any]) -> str:
             margin: 0;
             max-width: 100%;
         }}
+        .programme-table {{ width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 8px; }}
+        .programme-table th, .programme-table td {{ border: 1px solid #cbd5e1; padding: 6px; text-align: left; vertical-align: top; }}
+        .programme-table th {{ background: #eff6ff; color: #1e3a8a; font-weight: 700; }}
         .roadmap-row,
         .roadmap-line,
         .list-line,
@@ -434,6 +461,32 @@ def build_toc_html(toc_data: Dict[str, Any]) -> str:
         <p>{_html(overview)}</p>
     </section>
 """
+
+    philosophy = toc.get("programme_philosophy") or {}
+    if philosophy:
+        html += _render_section("Programme Philosophy & Design Principles", [
+            f"Target audience: {_text(philosophy.get('target_audience'))}",
+            f"Programme goal: {_text(philosophy.get('programme_goal'))}",
+            f"Design approach: {_text(philosophy.get('design_approach'))}",
+            f"Assessment strategy: {_text(philosophy.get('assessment_strategy'))}",
+        ])
+    html += _render_programme_table(
+        "Programme Structure At a Glance",
+        _list_items(toc.get("weekly_programme")),
+        [("week", "Week"), ("theme", "Theme"), ("key_topics", "Key Topics"), ("assessment_activity", "Assessment / Activity"), ("outcome", "Outcome")],
+    )
+    html += _render_programme_table(
+        "Assessment Framework",
+        _list_items(toc.get("assessment_framework")),
+        [("week", "Week"), ("assessment_type", "Assessment"), ("format", "Format"), ("pass_threshold", "Pass Threshold"), ("action_if_not_passed", "Remediation")],
+    )
+    capstone = toc.get("capstone_plan") or {}
+    if capstone:
+        html += _render_section("Capstone Plan", [
+            _text(capstone.get("approach")),
+            *[_text(item) for item in _list_items(capstone.get("checkpoints"))],
+            _text(capstone.get("finale")),
+        ])
 
     html += _render_roadmap(toc)
     html += _render_section("Prerequisites", _list_items(toc.get("prerequisites")))

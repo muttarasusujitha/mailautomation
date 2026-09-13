@@ -32,7 +32,7 @@ export default function GmailCallback({ onLogin }) {
 
       try {
         const codeVerifier = consumeGmailOAuthPkce(state || '')
-        const redirectUri = `${window.location.protocol}//${window.location.hostname}:8000/api/gmail/oauth-callback`
+        const redirectUri = `${window.location.protocol}//${window.location.hostname}:8002/api/v1/gmail/oauth-callback`
         await api.post('/gmail/oauth-callback', {
           code,
           state,

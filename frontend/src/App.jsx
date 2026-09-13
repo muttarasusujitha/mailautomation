@@ -50,6 +50,7 @@ const NaukriSearch = lazyWithRetry(() => import('./pages/NaukriSearch'))
 const TrainerLocations = lazyWithRetry(() => import('./pages/TrainerLocations'))
 const VoiceAIAssistant = lazyWithRetry(() => import('./pages/VoiceAIAssistant'))
 const ClientPipeline = lazyWithRetry(() => import('./pages/ClientPipeline'))
+const CommercialAnalysis = lazyWithRetry(() => import('./pages/CommercialAnalysis'))
 const InterviewSchedules = lazyWithRetry(() => import('./pages/InterviewSchedules'))
 const Invoices = lazyWithRetry(() => import('./pages/Invoices'))
 const ResumeUpload = lazyWithRetry(() => import('./pages/ResumeUpload'))
@@ -57,9 +58,11 @@ const GmailCallback = lazyWithRetry(() => import('./pages/GmailCallback'))
 const LinkedInCallback = lazyWithRetry(() => import('./pages/LinkedInCallback'))
 const Admin = lazyWithRetry(() => import('./pages/Admin'))
 const TocKnowledge = lazyWithRetry(() => import('./pages/TocKnowledge'))
+const LabCost = lazyWithRetry(() => import('./pages/LabCost'))
 const Shortlist = lazyWithRetry(() => import('./pages/Shortlist'))
 const Shortlist1 = lazyWithRetry(() => import('./pages/Shortlist1'))
 const Profile = lazyWithRetry(() => import('./pages/Profile'))
+const ProfileReviews = lazyWithRetry(() => import('./pages/ProfileReviews'))
 
 function PrivateRoute({ children, isLoggedIn }) {
   return isLoggedIn ? children : <Navigate to="/login" replace />
@@ -169,6 +172,7 @@ export default function App() {
             <Route path="voice-ai-assistant" element={<VoiceAIAssistant />} />
             <Route path="client-pipeline" element={<ClientPipeline />} />
             <Route path="client-mail-pipeline" element={<ClientPipeline />} />
+            <Route path="commercial-analysis" element={<CommercialAnalysis />} />
             <Route path="interview-scheduled" element={<InterviewSchedules />} />
             <Route path="interview" element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="interview-page" element={<Navigate to="/interview-scheduled" replace />} />
@@ -180,11 +184,13 @@ export default function App() {
             <Route path="resume-upload" element={<ResumeUpload />} />
             <Route path="admin"        element={<Admin />} />
             <Route path="toc-knowledge" element={<TocKnowledge />} />
+            <Route path="lab-cost" element={<LabCost />} />
             <Route path="interviews"   element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="shortlist"    element={<Shortlist />} />
             <Route path="ai-pipeline"  element={<Shortlist1 />} />
             <Route path="shortlist1"   element={<Shortlist1 />} />
             <Route path="profile"      element={<Profile />} />
+            <Route path="profile-reviews" element={<ProfileReviews />} />
           </Route>
           <Route path="*" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} replace />} />
         </Routes>

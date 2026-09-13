@@ -1,8 +1,9 @@
 """Send email endpoints."""
 import base64
 import logging
+import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -12,15 +13,156 @@ from pymongo.errors import DuplicateKeyError
 
 from shared.database.service import get_db
 from app.gmail_client import generate_message_id, is_send_quota_error, send_email_async, _normalize_trainer_reply_body
+from app.config import get_settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def _parse_quota_retry_after(value: Any) -> Optional[datetime]:
+    match = re.search(r"Retry after ([^\".]+(?:\.\d+)?Z)", str(value or ""))
+    if not match:
+        return None
+    try:
+        return datetime.fromisoformat(match.group(1).replace("Z", "+00:00")).replace(tzinfo=None)
+    except ValueError:
+        return None
+
+
+async def _gmail_quota_cooldown(db: AsyncIOMotorDatabase) -> Optional[datetime]:
+    doc = await db["mail_send_cooldowns"].find_one({"_id": "gmail_send_quota"}, {"_id": 0, "retry_after": 1})
+    retry_after = (doc or {}).get("retry_after")
+    if isinstance(retry_after, datetime) and retry_after > datetime.utcnow():
+        return retry_after
+    return None
+
+
+async def _remember_gmail_quota_cooldown(db: AsyncIOMotorDatabase, error: Any) -> Optional[datetime]:
+    retry_after = _parse_quota_retry_after(error)
+    if not retry_after:
+        return None
+    await db["mail_send_cooldowns"].update_one(
+        {"_id": "gmail_send_quota"},
+        {
+            "$set": {
+                "retry_after": retry_after,
+                "error_message": str(error or ""),
+                "updated_at": datetime.utcnow(),
+            },
+            "$setOnInsert": {"created_at": datetime.utcnow()},
+        },
+        upsert=True,
+    )
+    return retry_after
+
+
+def _ics_escape(value: Any) -> str:
+    text = str(value or "")
+    return (
+        text.replace("\\", "\\\\")
+        .replace(";", "\\;")
+        .replace(",", "\\,")
+        .replace("\r\n", "\\n")
+        .replace("\n", "\\n")
+    )
+
+
+def _parse_ics_datetime(value: str) -> datetime:
+    raw = str(value or "").strip()
+    if not raw:
+        raise ValueError("calendar start/end is required")
+    parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=None)
+    return parsed.astimezone().replace(tzinfo=None)
+
+
+def _format_ics_datetime(value: str) -> str:
+    return _parse_ics_datetime(value).strftime("%Y%m%dT%H%M%S")
+
+
+def _fold_ics_line(line: str) -> str:
+    if len(line) <= 74:
+        return line
+    chunks = [line[:74]]
+    rest = line[74:]
+    while rest:
+        chunks.append(" " + rest[:73])
+        rest = rest[73:]
+    return "\r\n".join(chunks)
+
+
+def _build_calendar_invite_ics(invite: "CalendarInvite", fallback_attendee_email: str) -> str:
+    attendee_email = str(invite.attendee_email or fallback_attendee_email or "").strip()
+    organizer_email = str(invite.organizer_email or "").strip()
+    meeting_url = str(invite.meeting_url or "").strip()
+    location = str(invite.location or ("Online Meeting" if meeting_url else "")).strip()
+    description = str(invite.description or "").strip()
+    if meeting_url and meeting_url not in description:
+        description = f"{description}\n\nJoin meeting: {meeting_url}".strip()
+
+    uid = f"{uuid.uuid4().hex}@trainersync.local"
+    now = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    timezone_name = invite.timezone or "Asia/Kolkata"
+    lines = [
+        "BEGIN:VCALENDAR",
+        "PRODID:-//Clahan Technologies//Trainer Interview//EN",
+        "VERSION:2.0",
+        "CALSCALE:GREGORIAN",
+        "METHOD:REQUEST",
+        "BEGIN:VEVENT",
+        f"UID:{uid}",
+        f"DTSTAMP:{now}",
+        f"DTSTART;TZID={timezone_name}:{_format_ics_datetime(invite.start)}",
+        f"DTEND;TZID={timezone_name}:{_format_ics_datetime(invite.end)}",
+        f"SUMMARY:{_ics_escape(invite.summary)}",
+        f"LOCATION:{_ics_escape(location)}",
+        f"DESCRIPTION:{_ics_escape(description)}",
+        "STATUS:CONFIRMED",
+        "SEQUENCE:0",
+    ]
+    if organizer_email:
+        organizer_name = _ics_escape(invite.organizer_name or "Clahan Technologies")
+        lines.append(f"ORGANIZER;CN={organizer_name}:mailto:{organizer_email}")
+    if attendee_email:
+        attendee_name = _ics_escape(invite.attendee_name or attendee_email)
+        lines.append(
+            f"ATTENDEE;CN={attendee_name};ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:mailto:{attendee_email}"
+        )
+    if meeting_url:
+        lines.append(f"URL:{_ics_escape(meeting_url)}")
+    # Ask calendar clients to show a native popup five minutes before the
+    # meeting. The scheduler email remains an additional delivery guard.
+    lines.extend([
+        "BEGIN:VALARM",
+        "ACTION:DISPLAY",
+        "DESCRIPTION:Interview starts in 5 minutes",
+        "TRIGGER:-PT5M",
+        "END:VALARM",
+        "END:VEVENT",
+        "END:VCALENDAR",
+    ])
+    return "\r\n".join(_fold_ics_line(line) for line in lines) + "\r\n"
 
 
 class EmailAttachment(BaseModel):
     filename: str
     content_base64: str
     subtype: Optional[str] = "pdf"
+
+
+class CalendarInvite(BaseModel):
+    summary: str
+    start: str
+    end: str
+    timezone: Optional[str] = "Asia/Kolkata"
+    location: Optional[str] = ""
+    description: Optional[str] = ""
+    organizer_name: Optional[str] = "Clahan Technologies"
+    organizer_email: Optional[str] = ""
+    attendee_name: Optional[str] = ""
+    attendee_email: Optional[str] = ""
+    meeting_url: Optional[str] = ""
 
 
 class SendEmailRequest(BaseModel):
@@ -36,6 +178,9 @@ class SendEmailRequest(BaseModel):
     trainer_name: Optional[str] = None
     idempotency_key: Optional[str] = None
     attachments: Optional[List[EmailAttachment]] = None
+    calendar_invite: Optional[CalendarInvite] = None
+    ai_generate: bool = False
+    ai_context: Optional[Dict[str, Any]] = None
 
 
 class BulkEmailRequest(BaseModel):
@@ -48,24 +193,88 @@ async def send_single_email(
     payload: SendEmailRequest,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
+    from app.recipient_guard import recipient_error
+    recipient_block = await recipient_error(db, str(payload.to), payload.requirement_id, payload.trainer_id, payload.mail_type)
+    if recipient_block:
+        raise HTTPException(422, recipient_block)
     body = _normalize_trainer_reply_body(payload.body)
+    generation_source = "template"
+    # This opt-in is used only by controlled pipeline callers.  The supplied
+    # body remains the authoritative fallback: the model may improve wording
+    # but cannot change links, attachments, commercials, slots, or stage.
+    if payload.ai_generate:
+        setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
+        if str(setting.get("value") or "").strip().lower() == "ai":
+            try:
+                from app.routes.inbox_actions import _ai_draft_reply
+
+                generated = await _ai_draft_reply(
+                    subject=payload.subject,
+                    body=body,
+                    hint=(
+                        "Compose a fresh, context-specific email using the reference as facts and required actions, not a script. "
+                        "Choose an opening and structure suited to the current conversation rather than copying the reference paragraphs. "
+                        "Write naturally and concisely. Preserve every verified fact in the "
+                        "reference exactly, including links, dates, times, requested next action, and attachments. "
+                        "Do not invent commercial, availability, trainer details, or completion status."
+                    ),
+                    workflow_context=payload.ai_context or {},
+                    reference_reply={"body": body},
+                    require_openai=True,
+                )
+                if str(generated or "").strip():
+                    body = _normalize_trainer_reply_body(generated.strip())
+                    generation_source = "ai"
+                else:
+                    raise HTTPException(502, "AI email generation returned no usable draft. Retry or select Template mode explicitly.")
+            except HTTPException:
+                raise
+            except Exception:
+                logger.exception("Client pipeline AI wording failed")
+                raise HTTPException(502, "AI email generation failed. No email was sent; retry or select Template mode explicitly.")
     idempotency_key = str(payload.idempotency_key or "").strip()
     existing_log = None
     if idempotency_key:
         existing_log = await db.email_logs.find_one(
             {"idempotency_key": idempotency_key},
-            {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1, "error_message": 1},
+            {"_id": 0, "email_id": 1, "status": 1, "sent_at": 1, "error_message": 1,
+             "updated_at": 1, "created_at": 1, "message_id_header": 1},
         )
-        if existing_log and existing_log.get("status") in {"sent", "sending"}:
+        existing_status = (existing_log or {}).get("status")
+        existing_updated_at = (existing_log or {}).get("updated_at") or (existing_log or {}).get("created_at")
+        stale_sending = False
+        if existing_status == "sending":
+            try:
+                stale_sending = bool(existing_updated_at and existing_updated_at < datetime.utcnow() - timedelta(minutes=10))
+            except TypeError:
+                stale_sending = False
+        if existing_log and (existing_status == "sent" or (existing_status == "sending" and not stale_sending)):
             return {
-                "success": True,
+                "success": existing_status == "sent",
                 "email_id": existing_log.get("email_id"),
                 "sent_at": existing_log.get("sent_at"),
                 "already_sent": existing_log.get("status") == "sent",
                 "already_in_progress": existing_log.get("status") == "sending",
             }
 
+    quota_retry_after = await _gmail_quota_cooldown(db)
+    # A Gmail API cooldown must not block the configured fallback SMTP sender.
+    # send_email_async will try SMTP when OAuth hits the quota.
+    if quota_retry_after and not get_settings().effective_gmail_fallback_pass:
+        raise HTTPException(
+            429,
+            detail={
+                "message": "Gmail sending quota cooldown is active",
+                "retry_after": quota_retry_after.isoformat() + "Z",
+                "error": "Previous Gmail send attempt hit quota. The system is holding new sends until the retry time.",
+            },
+        )
+
     attachments = []
+    # Keep the exact client-facing lab-cost workbook in the delivery log.  This
+    # lets the Lab Cost screen provide an auditable re-download of the file
+    # that was actually sent, without retaining unrelated CV/profile files.
+    lab_cost_workbooks: List[Dict[str, str]] = []
     if payload.attachments:
         for att in payload.attachments:
             try:
@@ -74,8 +283,27 @@ async def send_single_email(
                     "content": base64.b64decode(att.content_base64),
                     "subtype": att.subtype or "pdf",
                 })
+                filename_lower = (att.filename or "").lower()
+                if "lab" in filename_lower and "cost" in filename_lower and filename_lower.endswith((".xlsx", ".xls")):
+                    lab_cost_workbooks.append({
+                        "filename": att.filename,
+                        "subtype": att.subtype or "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "content_base64": att.content_base64,
+                    })
             except Exception as exc:
                 raise HTTPException(400, detail={"message": "Invalid attachment encoding", "error": str(exc)})
+    if payload.calendar_invite:
+        try:
+            invite = payload.calendar_invite
+            ics = _build_calendar_invite_ics(invite, payload.to)
+            attachments.append({
+                "filename": "interview-invite.ics",
+                "content": ics.encode("utf-8"),
+                "subtype": "calendar",
+                "content_type": "text/calendar",
+            })
+        except Exception as exc:
+            raise HTTPException(400, detail={"message": "Invalid calendar invite", "error": str(exc)})
     # Log attachment filenames for debugging
     if attachments:
         try:
@@ -86,7 +314,7 @@ async def send_single_email(
         except Exception:
             logger.exception("Failed to log attachment filenames")
 
-    message_id_header = generate_message_id()
+    message_id_header = (existing_log or {}).get("message_id_header") or generate_message_id()
     now = datetime.utcnow()
     email_id = (existing_log or {}).get("email_id") or f"EML-{uuid.uuid4().hex[:10].upper()}"
     log = {
@@ -104,19 +332,30 @@ async def send_single_email(
         "customer_id": payload.customer_id,
         "requirement_id": payload.requirement_id,
         "mail_type": payload.mail_type,
+        "generation_source": generation_source,
         "trainer_id": payload.trainer_id,
         "trainer_name": payload.trainer_name,
-        "idempotency_key": idempotency_key or None,
+        "slot_text": (payload.ai_context or {}).get("available_slots", ""),
+        "attachment_names": [item.get("filename", "") for item in attachments if item.get("filename")],
+        "lab_cost_workbooks": lab_cost_workbooks,
         "sent_at": None,
         "created_at": now,
         "updated_at": now,
     }
+    if idempotency_key:
+        log["idempotency_key"] = idempotency_key
     preinserted = False
     if idempotency_key:
         if existing_log:
             log_for_retry = dict(log)
             log_for_retry.pop("created_at", None)
-            await db.email_logs.update_one({"idempotency_key": idempotency_key}, {"$set": log_for_retry})
+            claimed = await db.email_logs.update_one(
+                {"idempotency_key": idempotency_key, "status": existing_log.get("status"),
+                 "updated_at": existing_log.get("updated_at")},
+                {"$set": log_for_retry},
+            )
+            if not claimed.modified_count:
+                return {"success": False, "email_id": email_id, "already_in_progress": True}
             preinserted = True
         else:
             try:
@@ -159,6 +398,8 @@ async def send_single_email(
     log.pop("_id", None)
 
     if not success:
+        if is_send_quota_error(error):
+            await _remember_gmail_quota_cooldown(db, error)
         raise HTTPException(502, detail={"message": "Email delivery failed", "error": error})
     return {"success": True, "email_id": log["email_id"], "sent_at": now}
 
@@ -169,8 +410,23 @@ async def send_bulk_emails(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     import asyncio
+    quota_retry_after = await _gmail_quota_cooldown(db)
+    if quota_retry_after and not get_settings().effective_gmail_fallback_pass:
+        return {
+            "total": len(payload.payloads),
+            "sent": 0,
+            "failed": len(payload.payloads),
+            "quota_blocked": True,
+            "retry_after": quota_retry_after.isoformat() + "Z",
+            "results": [],
+        }
     results = []
     for item in payload.payloads:
+        from app.recipient_guard import recipient_error
+        recipient_block = await recipient_error(db, str(item.to), item.requirement_id, item.trainer_id, item.mail_type)
+        if recipient_block:
+            results.append({"to": str(item.to), "success": False, "error": recipient_block})
+            continue
         cfg = item.smtp_config or payload.smtp_config
         body = _normalize_trainer_reply_body(item.body)
         attachments = []
@@ -184,6 +440,17 @@ async def send_bulk_emails(
                     })
                 except Exception as exc:
                     return HTTPException(400, detail={"message": "Invalid attachment encoding", "error": str(exc)})
+        if item.calendar_invite:
+            try:
+                ics = _build_calendar_invite_ics(item.calendar_invite, item.to)
+                attachments.append({
+                    "filename": "interview-invite.ics",
+                    "content": ics.encode("utf-8"),
+                    "subtype": "calendar",
+                    "content_type": "text/calendar",
+                })
+            except Exception as exc:
+                return HTTPException(400, detail={"message": "Invalid calendar invite", "error": str(exc)})
         message_id_header = generate_message_id()
         success, error = await send_email_async(
             to=item.to,
@@ -227,6 +494,7 @@ async def send_bulk_emails(
             "quota_blocked": quota_blocked,
         })
         if quota_blocked:
+            await _remember_gmail_quota_cooldown(db, error)
             break
         if success:
             await asyncio.sleep(1.5)

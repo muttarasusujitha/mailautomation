@@ -63,6 +63,14 @@ async def retry_schedule_client_update(
     if not reply_body:
         raise HTTPException(400, "No reply body available")
 
+    from app.recipient_guard import recipient_error
+
+    recipient_block = await recipient_error(
+        db, to, doc.get("requirement_id"), doc.get("trainer_id"), "client_reply",
+    )
+    if recipient_block:
+        raise HTTPException(422, recipient_block)
+
     success, error = await send_email_async(
         to=to,
         subject=subject,

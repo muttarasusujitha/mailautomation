@@ -1,14 +1,28 @@
 """Deterministic reply templates for classified emails."""
+import re
 from typing import Any, Dict
 
 
 SIGNATURE = "Best Regards,\nRecruitment Team\nClahan Technologies"
+CLIENT_SIGNATURE = "Best Regards,\nClahan Technologies"
 TRAINER_SIGNATURE = "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
 
 
 def _clean(value: Any, default: str = "") -> str:
     text = str(value or "").strip()
     return text if text else default
+
+
+def _hostinger_style_body(body: str) -> str:
+    """Keep deterministic replies aligned to the usable Clahan sent-mail patterns."""
+    text = str(body or "")
+    text = re.sub(r"\bDevops\s+Devops\b", "DevOps", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bDevops\b", "DevOps", text)
+    text = text.replace("TrainerSync Team", "Clahan Technologies")
+    text = text.replace("Regards,\nRecruitment Team,\nClahan Technologies", "Regards,\nClahan Technologies")
+    text = text.replace("Best Regards,\nRecruitment Team\nClahan Technologies", "Best Regards,\nClahan Technologies")
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
 
 
 def _client_name(extracted: Dict[str, Any]) -> str:
@@ -63,7 +77,18 @@ def _budget(extracted: Dict[str, Any]) -> str:
 
 
 def _missing_lines(extracted: Dict[str, Any]) -> str:
-    missing = extracted.get("needs_clarification") or []
+    requested_details = extracted.get("requested_details") or []
+    if isinstance(requested_details, (list, tuple, set)):
+        profile_markers = ("cv", "resume", "profile", "linkedin", "linked in")
+        if any(
+            any(marker in str(item or "").lower() for marker in profile_markers)
+            for item in requested_details
+        ):
+            return ""
+
+    missing = list(extracted.get("needs_clarification") or [])
+    if extracted.get("duration_inferred_from_dates") and "Training duration" not in missing:
+        missing.insert(0, "Training duration")
     return "\n".join(f"* {item}" for item in missing)
 
 
@@ -84,6 +109,104 @@ def _details_block(extracted: Dict[str, Any]) -> str:
     return "\n".join(f"{label}: {value}" for label, value in rows)
 
 
+def _client_requested_items(extracted: Dict[str, Any] | None = None, extra_text: str = "") -> str:
+    extracted = extracted or {}
+    requested_details = extracted.get("requested_details") or []
+    if isinstance(requested_details, (list, tuple, set)):
+        items = []
+        checks = [
+            (("cv", "resume", "profile"), "CV"),
+            (("linkedin", "linked in"), "LinkedIn profile"),
+            (("toc", "table of contents", "course agenda", "agenda", "curriculum"), "ToC"),
+            (("experience", "implementation"), "relevant experience"),
+            (("current location", "location"), "current location"),
+            (("availability", "available"), "availability"),
+            (("technical call", "slots", "time slots"), "technical call slots"),
+            (("commercial", "commercials", "rate", "per hour", "per day"), "commercials"),
+            (("software", "hardware", "system requirement"), "software/hardware requirements"),
+            (("certification", "certifications"), "certifications"),
+        ]
+        request_texts = [str(item or "").lower() for item in requested_details]
+        for keys, label in checks:
+            if any(any(key in text for key in keys) for text in request_texts) and label not in items:
+                items.append(label)
+        if items:
+            return _join_readable(items)
+
+    haystack = " ".join(
+        str(value or "")
+        for value in list(extracted.values()) + [extra_text]
+        if not isinstance(value, (dict, list, tuple, set))
+    ).lower()
+    items: list[str] = []
+    checks = [
+        (("cv", "resume", "profile"), "CV"),
+        (("linkedin", "linked in"), "LinkedIn profile"),
+        (("toc", "table of contents", "course agenda", "agenda", "curriculum"), "ToC"),
+        (("experience", "implementation"), "relevant experience"),
+        (("current location", "location"), "current location"),
+        (("availability", "available"), "availability"),
+        (("technical call", "slots", "time slots"), "technical call slots"),
+        (("commercial", "commercials", "rate", "per hour", "per day"), "commercials"),
+        (("software", "hardware", "system requirement"), "software/hardware requirements"),
+        (("certification", "certifications"), "certifications"),
+    ]
+    for keys, label in checks:
+        if any(key in haystack for key in keys) and label not in items:
+            items.append(label)
+    if not items:
+        items = ["CV", "LinkedIn profile", "requested details"]
+    return _join_readable(items)
+
+
+def _join_readable(items: list[str]) -> str:
+    if not items:
+        return ""
+    if len(items) == 1:
+        return items[0]
+    if len(items) == 2:
+        return f"{items[0]} and {items[1]}"
+    return f"{', '.join(items[:-1])}, and {items[-1]}"
+
+
+def _client_short_requirement_ack(
+    client: str,
+    tech: str,
+    extracted: Dict[str, Any] | None = None,
+    template_key: str = "client_requirement_ack",
+    extra_text: str = "",
+    intro: str = "",
+) -> Dict[str, Any]:
+    extracted = extracted or {}
+    greeting = client if client and client.lower() not in {"client"} else "Team"
+    items = _client_requested_items(extracted, extra_text)
+    has_profile_request = bool(extracted.get("requested_details")) and not _missing_lines(extracted)
+    missing = "" if has_profile_request else (_missing_lines(extracted) or extra_text.strip())
+    opening = _clean(
+        intro,
+        "Thank you for the detailed brief."
+        if missing
+        else f"Thank you for outlining the {tech} requirement so clearly.",
+    )
+    if missing:
+        body = (
+            f"Dear {greeting},\n\n"
+            f"{opening}\n\n"
+            "To help us refine the shortlist, please share:\n"
+            f"{missing}\n\n"
+            f"{CLIENT_SIGNATURE}"
+        )
+    else:
+        body = (
+            f"Dear {greeting},\n\n"
+            f"{opening} We are reviewing suitable {tech} trainers for the engagement and will share the most relevant options shortly. "
+            f"Our response will include the requested {items}, together with a day-wise agenda and practical lab plan.\n\n"
+            "We will ensure that the recommendations are aligned to your schedule and delivery format before sending them across.\n\n"
+            f"{CLIENT_SIGNATURE}"
+        )
+    return _reply(f"Re: {tech} Trainer Requirement", body, template_key)
+
+
 def _safe_ack(sender_name: str, subject: str) -> Dict[str, Any]:
     name = _clean(sender_name, "Sender")
     return {
@@ -102,23 +225,25 @@ def _safe_ack(sender_name: str, subject: str) -> Dict[str, Any]:
 def _reply(subject: str, body: str, template_key: str, auto_send_safe: bool = True) -> Dict[str, Any]:
     return {
         "subject": subject,
-        "body": body,
+        "body": _hostinger_style_body(body),
         "auto_send_safe": auto_send_safe,
         "template_key": template_key,
     }
 
 
-def _client_missing_details_reply(client: str, tech: str, missing: str) -> Dict[str, Any]:
-    body = (
-        f"Dear {client},\n\n"
-        f"Thank you for sharing your {tech} training requirement.\n\n"
-        "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
-        f"{missing}\n\n"
-        f"Meanwhile, we will begin an initial trainer search based on the {tech} domain and the information currently available. Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
-        "We look forward to your response.\n\n"
-        f"{SIGNATURE}"
+def _client_missing_details_reply(
+    client: str,
+    tech: str,
+    missing: str,
+    extracted: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
+    return _client_short_requirement_ack(
+        client,
+        tech,
+        extracted=extracted,
+        template_key="client_missing_details",
+        extra_text=missing,
     )
-    return _reply(f"Re: {tech} Trainer Requirement", body, "client_missing_details")
 
 
 def _client_details_ack_reply(
@@ -128,15 +253,7 @@ def _client_details_ack_reply(
     template_key: str,
     intro: str,
 ) -> Dict[str, Any]:
-    body = (
-        f"Dear {client},\n\n"
-        f"{intro}\n\n"
-        "We have noted the following details:\n\n"
-        f"{_details_block(extracted)}\n\n"
-        f"We will proceed with the trainer search for your {tech} requirement and share suitable profiles with availability and commercials for your review shortly.\n\n"
-        f"{SIGNATURE}"
-    )
-    return _reply(f"Re: {tech} Trainer Requirement", body, template_key)
+    return _client_short_requirement_ack(client, tech, extracted, template_key, intro=intro)
 
 
 def _client_simple_reply(client: str, tech: str, subject: str, body_lines: list[str], template_key: str) -> Dict[str, Any]:
@@ -149,6 +266,14 @@ def _client_simple_reply(client: str, tech: str, subject: str, body_lines: list[
 
 
 CONSULTANCY_REPLY_LINES = {
+    "client_asks_technology_catalogue": (
+        "client_technology_catalogue_ack",
+        [
+            "Thank you for asking about our corporate training catalogue.",
+            "We provide instructor-led training across software engineering, cloud, DevOps, data, AI, cybersecurity, enterprise platforms, and related technologies.",
+            "Please share the technologies or capability areas you are evaluating, and we will send the most relevant options.",
+        ],
+    ),
     "client_escalation_delay": (
         "client_escalation_delay_ack",
         [
@@ -193,7 +318,7 @@ CONSULTANCY_REPLY_LINES = {
         "client_trainer_docs_ack",
         [
             "Thank you for requesting trainer documents/profile details.",
-            "We will check the available trainer profile, credentials, and supporting details and share them shortly.",
+            "We will check the available trainer profile, credentials, and supporting details and share them for your review shortly.",
             "If you need a specific format, please share it in the same thread.",
         ],
     ),
@@ -241,7 +366,7 @@ CONSULTANCY_REPLY_LINES = {
         "client_lab_setup_ack",
         [
             "Thank you for sharing the lab/setup query.",
-            "We will check the required tools, access, and environment prerequisites with the trainer.",
+            "We will check the required tools, access, and environment prerequisites with the trainer/team.",
             "We will share the setup requirements before the session wherever applicable.",
         ],
     ),
@@ -289,7 +414,7 @@ CONSULTANCY_REPLY_LINES = {
         "client_rate_card_ack",
         [
             "Thank you for requesting rate/commercial details.",
-            "We will check the applicable trainer commercials for the requirement and share the most relevant pricing information.",
+            "We will check the applicable trainer commercials for the requirement and share the commercials for your review.",
             "Final commercials may vary based on trainer, duration, mode, and schedule.",
         ],
     ),
@@ -305,8 +430,8 @@ CONSULTANCY_REPLY_LINES = {
         "client_shortlist_eta_ack",
         [
             "Thank you for checking the profile sharing timeline.",
-            "We are working on the trainer shortlist and will share suitable profiles as soon as they are ready.",
-            "We will prioritize quality and relevance while keeping the turnaround quick.",
+            "We are working on the trainer shortlist and will share suitable profiles with commercials and availability shortly.",
+            "We will keep you updated on the next action.",
         ],
     ),
 }
@@ -381,7 +506,7 @@ TRAINER_REPLY_LINES = {
         "trainer_toc_shared_ack",
         [
             "Thank you for sharing the ToC/course agenda.",
-            "We will review it and share it with the client/team for confirmation.",
+            "We will review it and share it with the client for confirmation.",
             "If any changes are requested, we will get back to you.",
         ],
     ),
@@ -493,7 +618,7 @@ def build_auto_reply(
 
     if scenario in {"new_training_requirement", "quote_request"}:
         if missing:
-            return _client_missing_details_reply(client, tech, missing)
+            return _client_missing_details_reply(client, tech, missing, extracted)
         return _client_details_ack_reply(
             client,
             tech,
@@ -504,7 +629,7 @@ def build_auto_reply(
 
     if scenario == "client_sent_details":
         if missing:
-            return _client_missing_details_reply(client, tech, missing)
+            return _client_missing_details_reply(client, tech, missing, extracted)
         return _client_details_ack_reply(
             client,
             tech,
@@ -515,7 +640,7 @@ def build_auto_reply(
 
     if scenario == "client_asks_profiles":
         if missing:
-            return _client_missing_details_reply(client, tech, missing)
+            return _client_missing_details_reply(client, tech, missing, extracted)
         return _client_details_ack_reply(
             client,
             tech,
@@ -526,7 +651,7 @@ def build_auto_reply(
 
     if scenario == "client_updates_requirement":
         if missing:
-            return _client_missing_details_reply(client, tech, missing)
+            return _client_missing_details_reply(client, tech, missing, extracted)
         return _client_details_ack_reply(
             client,
             tech,
@@ -557,7 +682,7 @@ def build_auto_reply(
         return _client_simple_reply(client, tech, subject, [
             "Thank you for the update.",
             f"We have noted that the shared trainer profile is not suitable for the {tech} requirement.",
-            "We will review alternate trainer options and share more relevant profiles for your consideration.",
+            "We will review alternate trainer options and share more relevant profiles for your review.",
         ], "client_trainer_rejection_ack")
 
     if scenario == "client_requests_replacement":
@@ -566,6 +691,13 @@ def build_auto_reply(
             f"We will arrange alternate trainer profiles for the {tech} requirement based on your feedback.",
             "If there are any specific gaps to address, please share them so we can refine the next shortlist accordingly.",
         ], "client_replacement_request_ack")
+
+    if scenario == "client_shared_meeting_link_to_trainer":
+        return _client_simple_reply(client, tech, subject, [
+            "Thank you for sharing the technical-call joining link.",
+            "We will forward the link to the trainer and confirm that he has received the invite.",
+            "We will keep you updated if any timing or access issue arises.",
+        ], "client_meeting_link_forward_to_trainer_ack")
 
     if scenario == "client_confirms_interview_slot":
         return _client_simple_reply(client, tech, subject, [
@@ -599,7 +731,7 @@ def build_auto_reply(
         return _client_simple_reply(client, tech, subject, [
             "Thank you for sharing the purchase order.",
             "We have received it and will review the details for billing, training scope, and commercial alignment.",
-            "We will proceed with invoice/logistics coordination shortly.",
+            "We will proceed with invoice and logistics coordination shortly.",
         ], "client_po_received_ack")
 
     if scenario == "client_asks_invoice":
@@ -641,14 +773,14 @@ def build_auto_reply(
         return _client_simple_reply(client, tech, subject, [
             "Thank you for following up.",
             f"We are checking the current status for the {tech} requirement and will update you shortly.",
-            "We will share the next actionable update as soon as it is available.",
+            "We will share the next update as soon as it is available.",
         ], "client_status_update_ack")
 
     if scenario == "client_asks_more_profiles":
         return _client_simple_reply(client, tech, subject, [
             "Thank you for the update.",
             f"We will look for additional trainer profiles for the {tech} requirement.",
-            "If there are specific skills, experience level, budget, or location preferences to prioritize, please share them.",
+            "If there are specific skills, experience level, budget, or location preferences to prioritize, kindly share them.",
         ], "client_more_profiles_ack")
 
     if scenario == "client_training_completed":
@@ -680,17 +812,14 @@ def build_auto_reply(
         body = (
             f"Dear {trainer_name},\n\n"
             "Thank you for your response.\n\n"
-            "To proceed further, kindly share the below details:\n\n"
-            "* Total years of experience\n"
-            "* Number of trainings conducted previously\n"
-            "* Relevant certifications\n"
-            "* Preferred training mode (Online / Offline)\n"
-            "* Availability for Full-Day or Half-Day sessions\n"
-            "* Expected commercial charges per day/session\n"
-            "* Current location\n\n"
+            "We are checking the details already available in your trainer profile against this requirement. "
+            "We will contact you only if a required detail, such as availability for the proposed dates, is missing.\n\n"
             f"{TRAINER_SIGNATURE}"
         )
-        return _reply(f"Re: {tech} Training Opportunity", body, "trainer_interested_ack")
+        # Do not automatically send a generic profile/CV/LinkedIn request.
+        # The shortlist workflow sends a follow-up only after checking the
+        # analysed trainer record for genuinely missing information.
+        return _reply(f"Re: {tech} Training Opportunity", body, "trainer_interested_ack", auto_send_safe=False)
 
     if scenario in TRAINER_REPLY_LINES:
         template_key, lines = TRAINER_REPLY_LINES[scenario]
@@ -706,7 +835,7 @@ def build_auto_reply(
         body = (
             "Dear Trainer,\n\n"
             "Thank you for sharing your profile, availability, and commercial details.\n\n"
-            "We will review them for the requirement and update you with the next steps shortly.\n\n"
+            "We will share the required details with the client and coordinate discussion/interview slots if the client asks to proceed.\n\n"
             f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_details_ack")
@@ -742,7 +871,7 @@ def build_auto_reply(
         body = (
             "Dear Trainer,\n\n"
             "Thank you for your response.\n\n"
-            "At this stage, we are first checking your interest, availability, and commercials. Confirmed client details will be shared once your profile is shortlisted for the next step.\n\n"
+            "To proceed further, kindly share any remaining client-requested details such as profile/CV, availability, commercials, LinkedIn, ToC, or certifications.\n\n"
             f"{TRAINER_SIGNATURE}"
         )
         return _reply(f"Re: {tech} Training Opportunity", body, "trainer_more_details")

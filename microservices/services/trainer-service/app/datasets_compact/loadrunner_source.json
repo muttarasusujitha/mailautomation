@@ -1,0 +1,373 @@
+{
+    "domain":  "LoadRunner",
+    "name":  "LoadRunner â€“ Comprehensive Fundamentals to Advanced Curriculum",
+    "aliases":  [
+                    "OpenText LoadRunner",
+                    "Enterprise Performance Testing"
+                ],
+    "tools":  [
+                  "LoadRunner Professional",
+                  "VuGen",
+                  "Controller",
+                  "Analysis"
+              ],
+    "certifications":  [
+                           "LoadRunner official/vendor learning path or relevant professional certification"
+                       ],
+    "days":  [
+                 {
+                     "day":  1,
+                     "topic":  "Framework Fundamentals",
+                     "subtopics":  [
+                                       "Purpose and use cases",
+                                       "Architecture",
+                                       "Installation",
+                                       "Project structure",
+                                       "Core syntax/API",
+                                       "First test",
+                                       "Test lifecycle",
+                                       "LoadRunner terminology and feature mapping for this topic",
+                                       "LoadRunner configuration and implementation considerations",
+                                       "LoadRunner best practices and common mistakes for this topic",
+                                       "VuGen",
+                                       "protocols",
+                                       "scripts",
+                                       "transactions",
+                                       "parameterization",
+                                       "correlation",
+                                       "Controller",
+                                       "scenarios",
+                                       "load generators",
+                                       "Analysis",
+                                       "think time",
+                                       "rendezvous"
+                                   ],
+                     "tools":  [
+                                   "LoadRunner Professional",
+                                   "VuGen",
+                                   "Controller"
+                               ],
+                     "lab_task":  "Set up LoadRunner and execute the first automated test.",
+                     "technology":  "LoadRunner",
+                     "technology_id":  "loadrunner",
+                     "learning_objectives":  [
+                                                 "Explain the Framework Fundamentals concepts in the context of LoadRunner.",
+                                                 "Configure or implement the key LoadRunner features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Framework Fundamentals practically using LoadRunner.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  2,
+                     "topic":  "Test Design",
+                     "subtopics":  [
+                                       "Test cases",
+                                       "Test data",
+                                       "Assertions",
+                                       "Positive/negative tests",
+                                       "Boundary tests",
+                                       "Reusable test components",
+                                       "Naming conventions",
+                                       "LoadRunner terminology and feature mapping for this topic",
+                                       "LoadRunner configuration and implementation considerations",
+                                       "LoadRunner best practices and common mistakes for this topic",
+                                       "VuGen",
+                                       "protocols",
+                                       "scripts",
+                                       "transactions",
+                                       "parameterization",
+                                       "correlation",
+                                       "Controller",
+                                       "scenarios",
+                                       "load generators",
+                                       "Analysis",
+                                       "think time",
+                                       "rendezvous"
+                                   ],
+                     "tools":  [
+                                   "LoadRunner Professional",
+                                   "VuGen",
+                                   "Controller"
+                               ],
+                     "lab_task":  "Design a maintainable test suite.",
+                     "technology":  "LoadRunner",
+                     "technology_id":  "loadrunner",
+                     "learning_objectives":  [
+                                                 "Explain the Test Design concepts in the context of LoadRunner.",
+                                                 "Configure or implement the key LoadRunner features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Test Design practically using LoadRunner.",
+                     "difficulty":  "Fundamental"
+                 },
+                 {
+                     "day":  3,
+                     "topic":  "Selectors, Inputs and Data",
+                     "subtopics":  [
+                                       "Test inputs",
+                                       "Parameterization",
+                                       "Data-driven testing",
+                                       "Fixtures",
+                                       "Environment configuration",
+                                       "Secrets handling",
+                                       "Test isolation",
+                                       "LoadRunner terminology and feature mapping for this topic",
+                                       "LoadRunner configuration and implementation considerations",
+                                       "LoadRunner best practices and common mistakes for this topic",
+                                       "VuGen",
+                                       "protocols",
+                                       "scripts",
+                                       "transactions",
+                                       "correlation",
+                                       "Controller",
+                                       "scenarios",
+                                       "load generators",
+                                       "Analysis",
+                                       "think time",
+                                       "rendezvous"
+                                   ],
+                     "tools":  [
+                                   "LoadRunner Professional",
+                                   "VuGen",
+                                   "Controller"
+                               ],
+                     "lab_task":  "Create parameterized/data-driven tests.",
+                     "technology":  "LoadRunner",
+                     "technology_id":  "loadrunner",
+                     "learning_objectives":  [
+                                                 "Explain the Selectors, Inputs and Data concepts in the context of LoadRunner.",
+                                                 "Configure or implement the key LoadRunner features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Selectors, Inputs and Data practically using LoadRunner.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  4,
+                     "topic":  "Advanced Automation",
+                     "subtopics":  [
+                                       "Hooks",
+                                       "Suites",
+                                       "Parallel execution",
+                                       "Retries",
+                                       "Tagging/grouping",
+                                       "Mocks/stubs concepts",
+                                       "Reusable libraries",
+                                       "LoadRunner terminology and feature mapping for this topic",
+                                       "LoadRunner configuration and implementation considerations",
+                                       "LoadRunner best practices and common mistakes for this topic",
+                                       "VuGen",
+                                       "protocols",
+                                       "scripts",
+                                       "transactions",
+                                       "parameterization",
+                                       "correlation",
+                                       "Controller",
+                                       "scenarios",
+                                       "load generators",
+                                       "Analysis",
+                                       "think time",
+                                       "rendezvous"
+                                   ],
+                     "tools":  [
+                                   "LoadRunner Professional",
+                                   "VuGen",
+                                   "Controller"
+                               ],
+                     "lab_task":  "Implement advanced automation patterns.",
+                     "technology":  "LoadRunner",
+                     "technology_id":  "loadrunner",
+                     "learning_objectives":  [
+                                                 "Explain the Advanced Automation concepts in the context of LoadRunner.",
+                                                 "Configure or implement the key LoadRunner features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Advanced Automation practically using LoadRunner.",
+                     "difficulty":  "Intermediate"
+                 },
+                 {
+                     "day":  5,
+                     "topic":  "Reporting and Debugging",
+                     "subtopics":  [
+                                       "Logs",
+                                       "Screenshots/traces where applicable",
+                                       "Reports",
+                                       "Failure diagnostics",
+                                       "Flaky test handling",
+                                       "Root-cause analysis",
+                                       "LoadRunner terminology and feature mapping for this topic",
+                                       "LoadRunner configuration and implementation considerations",
+                                       "LoadRunner best practices and common mistakes for this topic",
+                                       "VuGen",
+                                       "protocols",
+                                       "scripts",
+                                       "transactions",
+                                       "parameterization",
+                                       "correlation",
+                                       "Controller",
+                                       "scenarios",
+                                       "load generators",
+                                       "Analysis",
+                                       "think time",
+                                       "rendezvous"
+                                   ],
+                     "tools":  [
+                                   "LoadRunner Professional",
+                                   "VuGen",
+                                   "Controller"
+                               ],
+                     "lab_task":  "Diagnose failures and generate test reports.",
+                     "technology":  "LoadRunner",
+                     "technology_id":  "loadrunner",
+                     "learning_objectives":  [
+                                                 "Explain the Reporting and Debugging concepts in the context of LoadRunner.",
+                                                 "Configure or implement the key LoadRunner features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Reporting and Debugging practically using LoadRunner.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  6,
+                     "topic":  "CI/CD Integration",
+                     "subtopics":  [
+                                       "Pipeline execution",
+                                       "Headless mode",
+                                       "Artifacts",
+                                       "Environment variables",
+                                       "Test reports",
+                                       "Quality gates",
+                                       "Scheduled runs",
+                                       "LoadRunner terminology and feature mapping for this topic",
+                                       "LoadRunner configuration and implementation considerations",
+                                       "LoadRunner best practices and common mistakes for this topic",
+                                       "VuGen",
+                                       "protocols",
+                                       "scripts",
+                                       "transactions",
+                                       "parameterization",
+                                       "correlation",
+                                       "Controller",
+                                       "scenarios",
+                                       "load generators",
+                                       "Analysis",
+                                       "think time",
+                                       "rendezvous"
+                                   ],
+                     "tools":  [
+                                   "LoadRunner Professional",
+                                   "VuGen",
+                                   "Controller",
+                                   "Analysis"
+                               ],
+                     "lab_task":  "Run the test suite in CI.",
+                     "technology":  "LoadRunner",
+                     "technology_id":  "loadrunner",
+                     "learning_objectives":  [
+                                                 "Explain the CI/CD Integration concepts in the context of LoadRunner.",
+                                                 "Configure or implement the key LoadRunner features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply CI/CD Integration practically using LoadRunner.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  7,
+                     "topic":  "Performance and Maintainability",
+                     "subtopics":  [
+                                       "Execution optimization",
+                                       "Parallelization",
+                                       "Test pyramid",
+                                       "Coverage concepts",
+                                       "Refactoring",
+                                       "Coding standards",
+                                       "Reliability",
+                                       "LoadRunner terminology and feature mapping for this topic",
+                                       "LoadRunner configuration and implementation considerations",
+                                       "LoadRunner best practices and common mistakes for this topic",
+                                       "VuGen",
+                                       "protocols",
+                                       "scripts",
+                                       "transactions",
+                                       "parameterization",
+                                       "correlation",
+                                       "Controller",
+                                       "scenarios",
+                                       "load generators",
+                                       "Analysis",
+                                       "think time",
+                                       "rendezvous"
+                                   ],
+                     "tools":  [
+                                   "LoadRunner Professional",
+                                   "VuGen",
+                                   "Controller"
+                               ],
+                     "lab_task":  "Optimize and refactor the suite.",
+                     "technology":  "LoadRunner",
+                     "technology_id":  "loadrunner",
+                     "learning_objectives":  [
+                                                 "Explain the Performance and Maintainability concepts in the context of LoadRunner.",
+                                                 "Configure or implement the key LoadRunner features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Performance and Maintainability practically using LoadRunner.",
+                     "difficulty":  "Advanced"
+                 },
+                 {
+                     "day":  8,
+                     "topic":  "Capstone Testing Project",
+                     "subtopics":  [
+                                       "Test strategy",
+                                       "Automation design",
+                                       "Data",
+                                       "Execution",
+                                       "Reporting",
+                                       "CI integration",
+                                       "Defect workflow",
+                                       "Documentation",
+                                       "LoadRunner terminology and feature mapping for this topic",
+                                       "LoadRunner configuration and implementation considerations",
+                                       "LoadRunner best practices and common mistakes for this topic",
+                                       "VuGen",
+                                       "protocols",
+                                       "scripts",
+                                       "transactions",
+                                       "parameterization",
+                                       "correlation",
+                                       "Controller",
+                                       "scenarios",
+                                       "load generators",
+                                       "Analysis",
+                                       "think time",
+                                       "rendezvous"
+                                   ],
+                     "tools":  [
+                                   "LoadRunner Professional",
+                                   "VuGen",
+                                   "Controller",
+                                   "Analysis"
+                               ],
+                     "lab_task":  "Build an end-to-end automation project with LoadRunner.",
+                     "technology":  "LoadRunner",
+                     "technology_id":  "loadrunner",
+                     "learning_objectives":  [
+                                                 "Explain the Capstone Testing Project concepts in the context of LoadRunner.",
+                                                 "Configure or implement the key LoadRunner features covered in this day.",
+                                                 "Complete the hands-on lab and validate the expected result.",
+                                                 "Identify common implementation mistakes and troubleshooting steps."
+                                             ],
+                     "expected_outcome":  "Learner can apply Capstone Testing Project practically using LoadRunner.",
+                     "difficulty":  "Advanced"
+                 }
+             ],
+    "technology_id":  "loadrunner"
+}

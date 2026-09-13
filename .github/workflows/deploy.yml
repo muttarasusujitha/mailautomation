@@ -20,25 +20,17 @@ jobs:
   source-code:
     name: Stage 1 - Checkout
     runs-on: self-hosted
-
     steps:
       - uses: actions/checkout@v4
-
       - run: |
           echo "Repository checked out"
           pwd
           ls -la
-# ======================================================
-
-#STAGE 2: BUILD & TEST
-
-# ======================================================
 
   build-test:
     name: Stage 2 - Backend Build & Test
     needs: source-code
     runs-on: self-hosted
-
     strategy:
       fail-fast: false
       matrix:
@@ -51,7 +43,6 @@ jobs:
           - intelligence-service
           - document-service
           - scheduler-service
-
     steps:
       - uses: actions/checkout@v4
 
@@ -66,6 +57,7 @@ jobs:
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
+
       - name: Validate Python
         working-directory: microservices/services/${{ matrix.service }}
         run: python -m compileall .
@@ -75,22 +67,16 @@ jobs:
         run: |
           if [ -d tests ]; then
             pip install pytest pytest-asyncio
-            pytest -v
+            PYTHONPATH=.:../.. python -m pytest -v
           else
             echo "No tests found"
           fi
- 
-       
+
   frontend-build:
-
-    name: "Stage 2 - Frontend Build"
-
+    name: Stage 2 - Frontend Build
     needs: source-code
-
     runs-on: self-hosted
-
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -112,6 +98,7 @@ jobs:
           ls -la frontend/src
           echo "Pages"
           ls -la frontend/src/pages
+
       - name: Install Frontend Dependencies
         working-directory: frontend
         run: npm ci --legacy-peer-deps
@@ -120,102 +107,117 @@ jobs:
         working-directory: frontend
         run: npm run build
 
-# =========================================================
-          
-# STAGE 3 : DOCKER BUILD + GHCR PUSH
-
-# =========================================================
-
   docker-build-push:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Stage 3 - Docker Build & Push
     needs:
       - build-test
       - frontend-build
     runs-on: self-hosted
-
     strategy:
       fail-fast: false
-      max-parallel: 3   
+      max-parallel: 3
       matrix:
         include:
           - image: auth-service
             dockerfile: microservices/services/auth-service/Dockerfile
             context: .
-
           - image: core-api
             dockerfile: microservices/services/core-api/Dockerfile
             context: .
-
           - image: email-service
             dockerfile: microservices/services/email-service/Dockerfile
             context: .
-
           - image: notification-service
             dockerfile: microservices/services/notification-service/Dockerfile
             context: .
-
           - image: trainer-service
             dockerfile: microservices/services/trainer-service/Dockerfile
             context: .
-
           - image: intelligence-service
             dockerfile: microservices/services/intelligence-service/Dockerfile
             context: .
-
           - image: document-service
             dockerfile: microservices/services/document-service/Dockerfile
             context: .
-
           - image: scheduler-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
             context: .
-
           - image: gateway-service
             dockerfile: microservices/gateway/Dockerfile
             context: .
-
-         
           - image: celery-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
             context: .
-
-     
           - image: celery-beat-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
             context: .
-
           - image: frontend
             dockerfile: frontend/Dockerfile
             context: frontend
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify Docker
+        shell: bash
+        run: |
+          set -e
+          if command -v docker >/dev/null 2>&1; then
+            echo "Docker is already installed."
+            docker --version
+          else
+            echo "Docker is not installed. Installing Docker..."
+            curl -fsSL https://get.docker.com | sudo sh
+            sudo systemctl enable --now docker
+            echo "Docker installation completed."
+            docker --version
+          fi
+
+      - name: Verify Docker access
+        shell: bash
+        run: |
+          set -e
+          if docker info >/dev/null 2>&1; then
+            echo "Docker is accessible."
+          else
+            echo "Docker is installed but current runner user cannot access Docker."
+            echo "Adding runner user to docker group..."
+            sudo usermod -aG docker "$USER"
+            echo "Current user: $USER"
+            echo "Docker group membership may require a new runner session."
+            exit 1
+          fi
+
       - name: Free Disk Space
         run: |
           df -h
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/lib/android
           docker system prune -af || true
           docker builder prune -af || true
           df -h
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - uses: docker/login-action@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/metadata-action@v5
+      - name: Docker Metadata
+        uses: docker/metadata-action@v5
         id: meta
         with:
           images: ${{ env.IMAGE_PREFIX }}/${{ matrix.image }}
           tags: |
             type=raw,value=latest
             type=sha
-      - uses: docker/build-push-action@v6
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
@@ -226,18 +228,12 @@ jobs:
         if: always()
         run: |
           docker builder prune -af || true
-# =========================================================
-          
-# STAGE 4 : DEPLOY TO EC2
-
-# =========================================================
 
   deploy-ec2:
     name: Stage 4 - Deploy to EC2
     if: github.ref == 'refs/heads/main'
     needs: docker-build-push
     runs-on: self-hosted
-
     steps:
       - uses: actions/checkout@v4
 
@@ -249,6 +245,7 @@ jobs:
           echo "$GHCR_TOKEN" | docker login ghcr.io \
             -u "$GH_USER" \
             --password-stdin
+
       - name: Create Backend .env
         working-directory: ${{ github.workspace }}/microservices
         run: |
@@ -262,7 +259,6 @@ jobs:
               printf '\n%s=%s\n' "$key" "$value" >> .env
             fi
           }
-
           set_env GMAIL_USER "${{ secrets.GMAIL_USER }}"
           set_env GMAIL_FALLBACK_USER "${{ secrets.GMAIL_FALLBACK_USER }}"
           set_env GMAIL_FALLBACK_FROM_EMAIL "${{ secrets.GMAIL_FALLBACK_FROM_EMAIL }}"
@@ -282,30 +278,35 @@ jobs:
           cat > .env <<EOF
           VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           EOF
-          
+
       - name: Stop Existing Containers
         working-directory: ${{ github.workspace }}
         run: |
           docker compose -f microservices/docker-compose.yml down --remove-orphans || true
           docker compose -f docker-compose.yml down --remove-orphans || true
+
       - name: Cleanup Docker
         run: |
           docker container prune -f
           docker image prune -af
           docker volume prune -f
+
       - name: Pull Latest Images
         working-directory: ${{ github.workspace }}
         run: |
           docker compose -f microservices/docker-compose.yml pull
           docker compose -f docker-compose.yml pull
+
       - name: Start Backend
         working-directory: ${{ github.workspace }}
         run: |
           docker compose -f microservices/docker-compose.yml up -d
+
       - name: Start Frontend
         working-directory: ${{ github.workspace }}
         run: |
           docker compose -f docker-compose.yml up -d
+
       - name: Verify Deployment
         run: |
           docker ps

@@ -14,6 +14,8 @@ celery_app = Celery(
         "app.tasks.reminders",
         "app.tasks.inbox_poll",
         "app.tasks.interview_reminders",
+        "app.tasks.meet_start_notices",
+        "app.tasks.no_show_notices",
     ],
 )
 
@@ -30,10 +32,11 @@ celery_app.conf.update(
 
 # ── Beat schedule ──────────────────────────────────────────────────────────────
 celery_app.conf.beat_schedule = {
-    # Poll Gmail inbox every minute so trainer/client automations continue without the browser open.
-    "poll-inbox-every-minute": {
+    # Poll Gmail on a sustainable cadence. Each run is bounded in inbox_poll
+    # so Gmail's per-user API quota is not exhausted during a backlog.
+    "poll-inbox-every-three-minutes": {
         "task": "app.tasks.inbox_poll.poll_inbox",
-        "schedule": crontab(minute="*"),
+        "schedule": crontab(minute="*/3"),
         "args": [],
     },
     # Check and send interview reminders every 10 minutes
@@ -42,28 +45,37 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute="*/10"),
         "args": [],
     },
+    # Send Google Meet join notices 10 minutes before each interview.
+    "meet-start-notices-every-minute": {
+        "task": "app.tasks.meet_start_notices.send_due_start_notices",
+        "schedule": crontab(minute="*"),
+        "args": [],
+    },
+    # Send a no-show notice only when the authenticated Meet bot observed a
+    # readable participant list and could not find the participant's identity.
+    "interview-no-show-checks-every-minute": {
+        "task": "app.tasks.no_show_notices.send_due_no_show_notices",
+        "schedule": crontab(minute="*"),
+        "args": [],
+    },
     # Daily cleanup of old processed logs (2 AM UTC)
     "daily-log-cleanup": {
         "task": "app.tasks.reminders.cleanup_old_logs",
         "schedule": crontab(hour=2, minute=0),
         "args": [],
     },
-    # Daily follow-up reminders for unanswered trainer emails (9 AM UTC)
-    "daily-followup-reminders": {
+    # First trainer follow-up for unanswered Mail 1 after 6 hours.
+    # Checked hourly; each original Mail 1 can produce this follow-up only once.
+    "trainer-followup-1-hourly": {
         "task": "app.tasks.reminders.send_followup_reminders",
-        "schedule": crontab(hour=9, minute=0),
+        "schedule": crontab(minute=0),
         "args": [],
     },
-    # Send followup2 for mail1_reminder logs that have been sent at least 3 hours ago.
-    "followup2-reminders-every-15-min": {
+    # Second and final trainer follow-up 24 hours after the first follow-up.
+    # Checked hourly; each original Mail 1 can produce this follow-up only once.
+    "trainer-followup-2-hourly": {
         "task": "app.tasks.reminders.send_followup2_reminders",
-        "schedule": crontab(minute="*/15"),
-        "args": [],
-    },
-    # Send followup3 for mail1_reminder logs that have been sent at least 6 hours ago.
-    "followup3-reminders-every-15-min": {
-        "task": "app.tasks.reminders.send_followup3_reminders",
-        "schedule": crontab(minute="*/15"),
+        "schedule": crontab(minute=0),
         "args": [],
     },
 }
