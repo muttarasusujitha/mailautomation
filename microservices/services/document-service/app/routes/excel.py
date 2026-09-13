@@ -132,16 +132,10 @@ def _toc_to_eight_column_template(toc: Dict[str, Any], template_path: Path) -> b
         sheet.cell(row, 2).number_format = "dd-mmm-yyyy"
         sheet.row_dimensions[row].height = max(sheet.row_dimensions[row].height or 15, 72)
 
-    # Keep scheduling inputs for curriculum sizing, but the delivered ToC
-    # contains only curriculum content for both proposals and confirmed batches.
-    sheet.delete_cols(7)  # Separate lab-task column is not part of the ToC.
-    sheet.delete_cols(1, 4)  # Day number, date, weekday, and timing.
-    for column, heading in enumerate(("Topic", "Subtopics", "Learning Outcomes"), 1):
-        sheet.cell(1, column, heading)
-    for column, width in (("A", 38), ("B", 75), ("C", 65)):
-        sheet.column_dimensions[column].width = width
+    # Preserve the approved 8-column ToC template, including
+    # day, date, weekday, timing, topic, subtopics, lab, and outcomes.
     sheet.freeze_panes = "A2"
-    sheet.auto_filter.ref = f"A1:C{max(sheet.max_row, len(days) + 1)}"
+    sheet.auto_filter.ref = f"A1:H{max(sheet.max_row, len(days) + 1)}"
     sheet.print_area = sheet.auto_filter.ref
     output = io.BytesIO()
     workbook.save(output)
