@@ -2,12 +2,11 @@
 # TrainerSync – Full Microservices Stack
 # Usage:
 #   cp .env.example .env          # fill in secrets
-#   docker-compose up --build -d  # build + start everything
+#   docker-compose up -d          # pull/start published images
 #   docker-compose logs -f        # tail all logs
 ##############################################################################
 
 x-common-env: &common-env
-  # Use the real host MongoDB so containers do not fall back to the empty Docker Mongo volume.
   MONGODB_URL: mongodb://mongo:27017
   REDIS_URL: redis://redis:6379
 
@@ -21,12 +20,7 @@ x-service-defaults: &service-defaults
     redis:
       condition: service_healthy
 
-##############################################################################
-# Infrastructure
-##############################################################################
-
 services:
-
   mongo:
     image: mongo:7.0
     container_name: ts-mongo
@@ -62,10 +56,6 @@ services:
       retries: 5
       start_period: 5s
 
-##############################################################################
-# Microservices
-##############################################################################
-
   auth-service:
     container_name: ts-auth-service
     image: ghcr.io/muttarasusujitha/trainersync/auth-service:latest
@@ -86,10 +76,7 @@ services:
 
   core-api:
     container_name: ts-core-api
-    build:
-      context: ..
-      dockerfile: microservices/services/core-api/Dockerfile
-    image: trainersync/core-api:local
+    image: ghcr.io/muttarasusujitha/trainersync/core-api:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -107,10 +94,7 @@ services:
 
   email-service:
     container_name: ts-email-service
-    build:
-      context: ..
-      dockerfile: microservices/services/email-service/Dockerfile
-    image: trainersync/email-service:local
+    image: ghcr.io/muttarasusujitha/trainersync/email-service:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -122,7 +106,7 @@ services:
     expose:
       - "8002"
     volumes:
-      - ./gmail_config:/app/config     # persists Google OAuth token.json across container recreates
+      - ./gmail_config:/app/config
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
       interval: 30s
@@ -150,10 +134,7 @@ services:
 
   trainer-service:
     container_name: ts-trainer-service
-    build:
-      context: ..
-      dockerfile: microservices/services/trainer-service/Dockerfile
-    image: trainersync/trainer-service:local
+    image: ghcr.io/muttarasusujitha/trainersync/trainer-service:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -173,9 +154,6 @@ services:
 
   intelligence-service:
     container_name: ts-intelligence-service
-    build:
-      context: ..
-      dockerfile: microservices/services/intelligence-service/Dockerfile
     image: ghcr.io/muttarasusujitha/trainersync/intelligence-service:latest
     <<: *service-defaults
     environment:
@@ -196,10 +174,7 @@ services:
 
   document-service:
     container_name: ts-document-service
-    build:
-      context: ..
-      dockerfile: microservices/services/document-service/Dockerfile
-    image: trainersync/document-service:local
+    image: ghcr.io/muttarasusujitha/trainersync/document-service:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -217,13 +192,9 @@ services:
       retries: 3
       start_period: 10s
 
-  # ── Scheduler: FastAPI management API ────────────────────────────────────────
   scheduler-service:
     container_name: ts-scheduler-api
-    build:
-      context: ..
-      dockerfile: microservices/services/scheduler-service/Dockerfile
-    image: trainersync/scheduler-service:local
+    image: ghcr.io/muttarasusujitha/trainersync/scheduler-service:latest
     <<: *service-defaults
     environment:
       <<: *common-env
@@ -243,13 +214,9 @@ services:
       retries: 3
       start_period: 10s
 
-  # ── Celery worker ─────────────────────────────────────────────────────────────
   celery-worker:
     container_name: ts-celery-worker
-    build:
-      context: ..
-      dockerfile: microservices/services/scheduler-service/Dockerfile
-    image: trainersync/scheduler-service:local
+    image: ghcr.io/muttarasusujitha/trainersync/celery-service:latest
     command: celery -A app.celery_app worker --loglevel=info --concurrency=4
     <<: *service-defaults
     environment:
@@ -271,13 +238,9 @@ services:
       notification-service:
         condition: service_healthy
 
-  # ── Celery beat (periodic task scheduler) ─────────────────────────────────────
   celery-beat:
     container_name: ts-celery-beat
-    build:
-      context: ..
-      dockerfile: microservices/services/scheduler-service/Dockerfile
-    image: trainersync/scheduler-service:local
+    image: ghcr.io/muttarasusujitha/trainersync/celery-beat-service:latest
     command: celery -A app.celery_app beat --loglevel=info --scheduler celery.beat.PersistentScheduler --schedule=/app/celerybeat-schedule/celerybeat-schedule
     <<: *service-defaults
     environment:
@@ -293,8 +256,6 @@ services:
       redis:
         condition: service_healthy
 
-  # Optional browser host for unattended Google Meet sessions. It stays inert
-  # until the profile is authenticated and MEET_BOT_ENABLED=true.
   meet-bot-service:
     container_name: ts-meet-bot
     build:
@@ -315,13 +276,9 @@ services:
       mongo:
         condition: service_healthy
 
-  # ── API Gateway (nginx) ───────────────────────────────────────────────────────
   gateway:
     container_name: ts-gateway
-    image: trainersync/gateway:local
-    build:
-      context: ..
-      dockerfile: microservices/gateway/Dockerfile
+    image: ghcr.io/muttarasusujitha/trainersync/gateway-service:latest
     restart: unless-stopped
     networks:
       - trainersync
@@ -349,10 +306,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
-
-##############################################################################
-# Volumes & Networks
-##############################################################################
 
 volumes:
   mongo_data:
