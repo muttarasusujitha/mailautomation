@@ -45,9 +45,16 @@ async def main():
                 window.remotePeak = 0;
                 const ready = new Promise(resolve => {
                     receiver.ontrack = async e => {
+                        const player = document.createElement('audio');
+                        player.srcObject = e.streams[0];
+                        document.body.appendChild(player);
+                        await player.play();
                         const audio = new AudioContext();
                         const analyser = audio.createAnalyser();
                         audio.createMediaStreamSource(e.streams[0]).connect(analyser);
+                        const silentOutput = audio.createGain();
+                        silentOutput.gain.value = 0;
+                        analyser.connect(silentOutput).connect(audio.destination);
                         await audio.resume();
                         window.remoteTimer = setInterval(() => {
                             const data = new Float32Array(analyser.fftSize);
@@ -69,6 +76,8 @@ async def main():
             await page.wait_for_timeout(300)
             remote_peak = await page.evaluate("remotePeak")
             other_peak = await silent_page.evaluate("peak")
+            print(json.dumps({"voice_played": spoken, "local_audio_peak": await page.evaluate("peak"),
+                              "remote_audio_peak": remote_peak, "other_meeting_peak": other_peak}), flush=True)
             assert spoken and remote_peak > 0.001, "Speech did not reach the remote WebRTC peer"
             assert other_peak == 0, "Speech leaked into another meeting tab"
             print(json.dumps({"voice_played": spoken, "remote_audio_peak": remote_peak,

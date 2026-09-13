@@ -187,9 +187,8 @@ def _welcome_message(log: dict, now=None) -> str:
 async def _send_chat_welcome(page, message: str) -> bool:
     """Send the coordinator instruction in Meet chat as a reliable fallback.
 
-    Browser speech output is not guaranteed to be routed to the Meet input
-    device in a container. Chat makes the instruction visible even when the
-    virtual microphone is unavailable.
+    Chat makes the instruction visible even when the virtual microphone or
+    local speech synthesizer is unavailable.
     """
     try:
         opened = await _click_if_visible(page, ["Chat with everyone", "Open chat"])
@@ -288,10 +287,28 @@ async def _click_if_visible(page, names: list[str]) -> bool:
         button = page.get_by_role("button", name=name, exact=False).first
         try:
             if await button.is_visible(timeout=700):
-                await button.click()
+                await button.click(timeout=3000)
                 return True
         except Exception:
             continue
+    return False
+
+
+async def _join_when_ready(page, timeout_seconds=90) -> bool:
+    """Wait for prejoin loading; never transfer another device's active call."""
+    deadline = asyncio.get_running_loop().time() + timeout_seconds
+    while asyncio.get_running_loop().time() < deadline:
+        await _click_if_visible(page, ["Got it"])
+        await _click_if_visible(page, ["Turn off microphone", "Mute microphone"])
+        await _click_if_visible(page, ["Turn off camera"])
+        if await _click_if_visible(page, ["Join now", "Ask to join", "Join here too"]):
+            return True
+        if await _click_if_visible(page, ["Other ways to join", "Other joining options"]):
+            option = page.get_by_text("Join here too", exact=True).first
+            if await option.is_visible():
+                await option.click()
+                return True
+        await page.wait_for_timeout(2000)
     return False
 
 
@@ -334,7 +351,7 @@ async def _join_meeting(log: dict, db, context=None) -> None:
                 raise RuntimeError("Bot browser profile is not authenticated")
             await _click_if_visible(page, ["Turn off microphone", "Mute microphone"])
             await _click_if_visible(page, ["Turn off camera"])
-            joined = await _click_if_visible(page, ["Join now", "Ask to join"])
+            joined = await _join_when_ready(page)
             if not joined:
                 raise RuntimeError("Meet join control was not available; authentication or UI may require attention")
             await db.email_logs.update_one(

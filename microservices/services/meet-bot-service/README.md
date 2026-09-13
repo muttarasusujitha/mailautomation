@@ -1,8 +1,30 @@
 # TrainerSync Meet Host Bot
 
 This optional service joins confirmed Google Meet interviews shortly before the
-scheduled start, keeps microphone and camera off, and leaves after the scheduled
+scheduled start, keeps the camera off, unmutes only for the opening instruction, and leaves after the scheduled
 end plus a grace period.
+
+## Opening voice and reminders
+
+The Clahan opening instruction uses offline `espeak-ng` speech synthesis. Each
+meeting tab feeds its own audio into a WebRTC microphone stream; browser speaker
+text-to-speech is not used. The instruction is also posted in Meet chat. It starts
+after both the trainer and client are observed in the participant list.
+
+Run `docker compose run --rm --no-deps meet-bot-service python -m app.verify_voice`
+to test speech transmission between local WebRTC peers and check that another
+tab remains silent. This test neither joins a Google meeting nor sends email.
+The test uses a temporary browser profile, not the signed-in bot profile.
+
+The health endpoint reports `google_account.status`, its startup check timestamp,
+and `voice_transport`. `signed_in` confirms the Google account control was visible;
+it does not confirm admission to a particular meeting. A real internal meeting
+is still required to verify the Google Meet UI and participant reception.
+
+The scheduler checks five-minute interview email reminders every minute and
+sends them to the trainer, client, and configured Clahan coordinator. Reminder
+email is separate from in-meeting voice; email cannot force a recipient's device
+to play an audible alarm.
 
 ## Safety defaults
 
