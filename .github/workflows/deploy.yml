@@ -1,617 +1,312 @@
-﻿name: TrainerSync CI/CD Pipeline
+name: TrainerSync CI/CD Pipeline
 
 on:
-
   push:
-
     branches:
-
       - main
-
   pull_request:
-
     branches:
-
       - main
 
 permissions:
-
   contents: read
-
   packages: write
 
 env:
-
   REGISTRY: ghcr.io
-
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/trainersync
 
 jobs:
-
   source-code:
-
     name: Stage 1 - Checkout
-
     runs-on: self-hosted
-
     steps:
-
       - uses: actions/checkout@v4
-
       - run: |
-
           echo "Repository checked out"
-
           pwd
-
           ls -la
 
-# ======================================================
-
-#STAGE 2: BUILD & TEST
-
-# ======================================================
-
   build-test:
-
     name: Stage 2 - Backend Build & Test
-
     needs: source-code
-
     runs-on: self-hosted
-
     strategy:
-
       fail-fast: false
-
       matrix:
-
         service:
-
           - auth-service
-
           - core-api
-
           - email-service
-
           - notification-service
-
           - trainer-service
-
           - intelligence-service
-
           - document-service
-
           - scheduler-service
-
     steps:
-
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
-
         with:
-
           python-version: "3.11"
 
       - name: Install Dependencies
-
         working-directory: microservices/services/${{ matrix.service }}
-
         run: |
-
           python -m pip install --upgrade pip
-
           if [ -f requirements.txt ]; then
-
             pip install -r requirements.txt
-
           fi
 
       - name: Validate Python
-
         working-directory: microservices/services/${{ matrix.service }}
-
         run: python -m compileall .
 
       - name: Run Tests
-
         working-directory: microservices/services/${{ matrix.service }}
-
         run: |
-
           if [ -d tests ]; then
-
-            pip install pytest
-
-            pytest -v
-
+            pip install pytest pytest-asyncio
+            PYTHONPATH=. python -m pytest -v
           else
-
             echo "No tests found"
-
           fi
 
   frontend-build:
-
-    name: "Stage 2 - Frontend Build"
-
+    name: Stage 2 - Frontend Build
     needs: source-code
-
     runs-on: self-hosted
-
     steps:
-
       - name: Checkout Repository
-
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-
         uses: actions/setup-node@v4
-
         with:
-
           node-version: "20"
-
           cache: npm
-
           cache-dependency-path: frontend/package-lock.json
 
       - name: Verify Frontend Files
-
         run: |
-
           echo "Repository Root"
-
           pwd
-
           ls -la
-
           echo "Frontend"
-
           ls -la frontend
-
           echo "Frontend Source"
-
           ls -la frontend/src
-
           echo "Pages"
-
           ls -la frontend/src/pages
 
       - name: Install Frontend Dependencies
-
         working-directory: frontend
-
         run: npm ci --legacy-peer-deps
 
       - name: Build Frontend Application
-
         working-directory: frontend
-
         run: npm run build
 
-# =========================================================
-
-# STAGE 3 : DOCKER BUILD + GHCR PUSH
-
-# =========================================================
-
   docker-build-push:
-
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-
     name: Stage 3 - Docker Build & Push
-
     needs:
-
       - build-test
-
       - frontend-build
-
     runs-on: self-hosted
-
     strategy:
-
       fail-fast: false
-
       max-parallel: 3
-
       matrix:
-
         include:
-
           - image: auth-service
-
             dockerfile: microservices/services/auth-service/Dockerfile
-
             context: .
-
           - image: core-api
-
             dockerfile: microservices/services/core-api/Dockerfile
-
             context: .
-
           - image: email-service
-
             dockerfile: microservices/services/email-service/Dockerfile
-
             context: .
-
           - image: notification-service
-
             dockerfile: microservices/services/notification-service/Dockerfile
-
             context: .
-
           - image: trainer-service
-
             dockerfile: microservices/services/trainer-service/Dockerfile
-
             context: .
-
           - image: intelligence-service
-
             dockerfile: microservices/services/intelligence-service/Dockerfile
-
             context: .
-
           - image: document-service
-
             dockerfile: microservices/services/document-service/Dockerfile
-
             context: .
-
           - image: scheduler-service
-
             dockerfile: microservices/services/scheduler-service/Dockerfile
-
             context: .
-
           - image: gateway-service
-
             dockerfile: microservices/gateway/Dockerfile
-
             context: .
-
           - image: celery-service
-
             dockerfile: microservices/services/scheduler-service/Dockerfile
-
             context: .
-
           - image: celery-beat-service
-
             dockerfile: microservices/services/scheduler-service/Dockerfile
-
             context: .
-
           - image: frontend
-
             dockerfile: frontend/Dockerfile
-
             context: frontend
 
     steps:
-
       - name: Checkout code
-
         uses: actions/checkout@v4
 
-      # ============================================================
-
-      # DOCKER CHECK / INSTALL
-
-      # ============================================================
-
       - name: Verify Docker
-
         shell: bash
-
         run: |
-
           set -e
-
           if command -v docker >/dev/null 2>&1; then
-
             echo "Docker is already installed."
-
             docker --version
-
           else
-
             echo "Docker is not installed. Installing Docker..."
-
             curl -fsSL https://get.docker.com | sudo sh
-
             sudo systemctl enable --now docker
-
             echo "Docker installation completed."
-
             docker --version
-
           fi
-
-      # Make sure the GitHub Actions runner user can use Docker
 
       - name: Verify Docker access
-
         shell: bash
-
         run: |
-
           set -e
-
           if docker info >/dev/null 2>&1; then
-
             echo "Docker is accessible."
-
           else
-
             echo "Docker is installed but current runner user cannot access Docker."
-
             echo "Adding runner user to docker group..."
-
             sudo usermod -aG docker "$USER"
-
             echo "Current user: $USER"
-
             echo "Docker group membership may require a new runner session."
-
             exit 1
-
           fi
 
-      # ============================================================
-
-      # FREE DISK SPACE
-
-      # ============================================================
-
       - name: Free Disk Space
-
         run: |
-
           df -h
-
           docker system prune -af || true
-
           docker builder prune -af || true
-
           df -h
-
-      # ============================================================
-
-      # DOCKER BUILDX
-
-      # ============================================================
 
       - name: Set up Docker Buildx
-
         uses: docker/setup-buildx-action@v3
 
-      # ============================================================
-
-      # LOGIN TO GHCR
-
-      # ============================================================
-
       - name: Login to GitHub Container Registry
-
         uses: docker/login-action@v3
-
         with:
-
           registry: ghcr.io
-
           username: ${{ github.actor }}
-
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ============================================================
-
-      # IMAGE METADATA
-
-      # ============================================================
-
       - name: Docker Metadata
-
         uses: docker/metadata-action@v5
-
         id: meta
-
         with:
-
           images: ${{ env.IMAGE_PREFIX }}/${{ matrix.image }}
-
           tags: |
-
             type=raw,value=latest
-
             type=sha
 
-      # ============================================================
-
-      # BUILD & PUSH
-
-      # ============================================================
-
       - name: Build and Push Docker Image
-
         uses: docker/build-push-action@v6
-
         with:
-
           context: ${{ matrix.context }}
-
           file: ${{ matrix.dockerfile }}
-
           push: true
-
           tags: ${{ steps.meta.outputs.tags }}
 
-      # ============================================================
-
-      # CLEANUP
-
-      # ============================================================
-
       - name: Cleanup Build Cache
-
         if: always()
-
         run: |
-
           docker builder prune -af || true
 
-# =========================================================
-
-# STAGE 4 : DEPLOY TO EC2
-
-# =========================================================
-
   deploy-ec2:
-
     name: Stage 4 - Deploy to EC2
-
     if: github.ref == 'refs/heads/main'
-
     needs: docker-build-push
-
     runs-on: self-hosted
-
     steps:
-
       - uses: actions/checkout@v4
 
       - name: Login to GHCR
-
         env:
-
           GH_USER: ${{ github.repository_owner }}
-
           GHCR_TOKEN: ${{ secrets.PAT_TOKEN }}
-
         run: |
-
           echo "$GHCR_TOKEN" | docker login ghcr.io \
-
             -u "$GH_USER" \
-
             --password-stdin
 
       - name: Create Backend .env
-
         working-directory: ${{ github.workspace }}/microservices
-
         run: |
-
           cp .env.example .env
-
           set_env() {
-
             key="$1"
-
             value="$2"
-
             if grep -q "^${key}=" .env; then
-
               sed -i "s|^${key}=.*|${key}=${value}|" .env
-
             else
-
               printf '\n%s=%s\n' "$key" "$value" >> .env
-
             fi
-
           }
-
           set_env GMAIL_USER "${{ secrets.GMAIL_USER }}"
-
           set_env GMAIL_FALLBACK_USER "${{ secrets.GMAIL_FALLBACK_USER }}"
-
           set_env GMAIL_FALLBACK_FROM_EMAIL "${{ secrets.GMAIL_FALLBACK_FROM_EMAIL }}"
-
           set_env FROM_EMAIL "${{ secrets.FROM_EMAIL }}"
-
           set_env FROM_NAME "${{ secrets.FROM_NAME }}"
-
           set_env GOOGLE_TOKEN_FILE "config/token.json"
-
           set_env GOOGLE_CLIENT_ID "${{ secrets.GOOGLE_CLIENT_ID }}"
-
           set_env GOOGLE_CLIENT_SECRET "${{ secrets.GOOGLE_CLIENT_SECRET }}"
-
           set_env GOOGLE_REDIRECT_URI "${{ secrets.GOOGLE_REDIRECT_URI }}"
-
           set_env GOOGLE_CALENDAR_ID "${{ secrets.GOOGLE_CALENDAR_ID }}"
-
           set_env GOOGLE_CALENDAR_TIMEZONE "${{ secrets.GOOGLE_CALENDAR_TIMEZONE }}"
-
           set_env FRONTEND_URL "${{ secrets.FRONTEND_URL }}"
 
       - name: Create Frontend .env
-
         working-directory: ${{ github.workspace }}
-
         run: |
-
           cat > .env <<EOF
-
           VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
-
           EOF
 
       - name: Stop Existing Containers
-
         working-directory: ${{ github.workspace }}
-
         run: |
-
           docker compose -f microservices/docker-compose.yml down --remove-orphans || true
-
           docker compose -f docker-compose.yml down --remove-orphans || true
 
       - name: Cleanup Docker
-
         run: |
-
           docker container prune -f
-
           docker image prune -af
-
           docker volume prune -f
 
       - name: Pull Latest Images
-
         working-directory: ${{ github.workspace }}
-
         run: |
-
           docker compose -f microservices/docker-compose.yml pull
-
           docker compose -f docker-compose.yml pull
 
       - name: Start Backend
-
         working-directory: ${{ github.workspace }}
-
         run: |
-
           docker compose -f microservices/docker-compose.yml up -d
 
       - name: Start Frontend
-
         working-directory: ${{ github.workspace }}
-
         run: |
-
           docker compose -f docker-compose.yml up -d
 
       - name: Verify Deployment
-
         run: |
-
           docker ps
