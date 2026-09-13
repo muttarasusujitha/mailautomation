@@ -74,7 +74,7 @@ jobs:
         working-directory: microservices/services/${{ matrix.service }}
         run: |
           if [ -d tests ]; then
-            pip install pytest
+            pip install pytest pytest-asyncio
             pytest -v
           else
             echo "No tests found"

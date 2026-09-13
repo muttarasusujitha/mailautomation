@@ -64,5 +64,5 @@ def test_client_ack_template_is_not_treated_as_trainer_reply():
     assert gmail_client._is_trainer_reply(body) is False
     assert gmail_client._normalize_trainer_reply_body(body) == body
     html = gmail_client._html_template(body, "Clahan Technologies", "team@example.com")
-    assert "Trainer Matching Platform" in html
+    assert "Clahan Technologies" in html
     assert "Trainer Coordination Platform" not in html
