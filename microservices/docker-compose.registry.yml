@@ -1,0 +1,26 @@
+# CI deployment overrides. Local development keeps using docker-compose.yml.
+services:
+  auth-service:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/auth-service:latest
+  core-api:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/core-api:latest
+  email-service:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/email-service:latest
+  notification-service:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/notification-service:latest
+  trainer-service:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/trainer-service:latest
+  intelligence-service:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/intelligence-service:latest
+  document-service:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/document-service:latest
+  scheduler-service:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/scheduler-service:latest
+  meet-bot-service:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/meet-bot-service:latest
+  celery-worker:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/scheduler-service:latest
+  celery-beat:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/scheduler-service:latest
+  gateway:
+    image: ${IMAGE_PREFIX:?Set IMAGE_PREFIX to your GHCR namespace}/gateway-service:latest
