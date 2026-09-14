@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: trainersync-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: read
   packages: write
@@ -43,6 +47,7 @@ jobs:
           - intelligence-service
           - document-service
           - scheduler-service
+          - meet-bot-service
     steps:
       - uses: actions/checkout@v4
 
@@ -116,7 +121,7 @@ jobs:
     runs-on: self-hosted
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 1
       matrix:
         include:
           - image: auth-service
@@ -142,6 +147,9 @@ jobs:
             context: .
           - image: scheduler-service
             dockerfile: microservices/services/scheduler-service/Dockerfile
+            context: .
+          - image: meet-bot-service
+            dockerfile: microservices/services/meet-bot-service/Dockerfile
             context: .
           - image: gateway-service
             dockerfile: microservices/gateway/Dockerfile
@@ -190,12 +198,9 @@ jobs:
             exit 1
           fi
 
-      - name: Free Disk Space
-        run: |
-          df -h
-          docker system prune -af || true
-          docker builder prune -af || true
-          df -h
+      - name: Check Docker Disk Space
+        shell: bash
+        run: bash .github/scripts/check-docker-space.sh
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -223,11 +228,6 @@ jobs:
           file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-
-      - name: Cleanup Build Cache
-        if: always()
-        run: |
-          docker builder prune -af || true
 
   deploy-ec2:
     name: Stage 4 - Deploy to EC2
@@ -277,43 +277,30 @@ jobs:
           VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}
           EOF
 
-      - name: Stop Existing Containers
-        working-directory: ${{ github.workspace }}
-        run: |
-          docker compose -f microservices/docker-compose.yml down --remove-orphans || true
-          docker compose -f docker-compose.yml down --remove-orphans || true
+      - name: Check Deployment Disk Space
+        shell: bash
+        run: bash .github/scripts/check-docker-space.sh
 
-      - name: Cleanup Docker
-        run: |
-          docker system prune -af --volumes || true
-          docker builder prune -af || true
-          df -h
-
+      # Pull everything before changing running containers. Never prune volumes:
+      # MongoDB data and the authenticated meeting-bot profile must survive.
       - name: Pull Latest Images
         working-directory: ${{ github.workspace }}
         env:
-          COMPOSE_PARALLEL_LIMIT: 1
+          COMPOSE_PARALLEL_LIMIT: "1"
         run: |
-          docker compose -f microservices/docker-compose.yml pull \
-            mongo redis auth-service core-api email-service notification-service \
-            trainer-service intelligence-service document-service scheduler-service \
-            celery-worker celery-beat gateway
-          docker compose -f docker-compose.yml pull frontend
-
-      - name: Build Meet Bot
-        working-directory: ${{ github.workspace }}
-        run: |
-          docker compose -f microservices/docker-compose.yml build meet-bot-service
+          set -euo pipefail
+          docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml pull
+          docker compose -f docker-compose.yml -f docker-compose.registry.yml pull frontend
 
       - name: Start Backend
         working-directory: ${{ github.workspace }}
         run: |
-          docker compose -f microservices/docker-compose.yml up -d
+          docker compose -f microservices/docker-compose.yml -f microservices/docker-compose.registry.yml up -d --no-build --pull never --wait --wait-timeout 180
 
       - name: Start Frontend
         working-directory: ${{ github.workspace }}
         run: |
-          docker compose -f docker-compose.yml up -d
+          docker compose -f docker-compose.yml -f docker-compose.registry.yml up -d --no-build --pull never --wait --wait-timeout 120 frontend
 
       - name: Verify Deployment
         run: |
