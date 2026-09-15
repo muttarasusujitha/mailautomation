@@ -62,3 +62,18 @@ def test_three_of_four_batch_details_are_confirmed():
         "participant_count": 34,
     }
     assert _requirement_flow_from_email(extracted, "Upcoming DevOps corporate batch") == "confirmed"
+
+
+def test_parser_accepts_common_email_separators_and_bullets():
+    from app.routes.inbox import _extract_requirement_from_email
+    text = """Technology = DevOps
+- Training Start Date – 01 November 2026
+Duration - 20 Training Days
+Participants: 34
+Commercial Budget = ₹5,40,000
+"""
+    extracted = _extract_requirement_from_email("DevOps requirement", text, "client@example.com", "Client")
+    assert extracted["training_dates"] == "01 November 2026"
+    assert extracted["duration_days"] == 20
+    assert extracted["participant_count"] == 34
+    assert extracted["budget_total"] == 540000
