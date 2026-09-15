@@ -38,3 +38,17 @@ The schedule and delivery mode will be finalized later.
 """
 
     assert _requirement_flow_from_email({"training_status": "confirmed"}, text) == "proposal"
+
+
+def test_complete_upcoming_batch_is_confirmed():
+    text = """We have a requirement for an experienced DevOps Trainer for an upcoming corporate training batch.
+Training Start Date: 01 November 2026
+Duration: 20 Training Days
+Participants: 34
+Commercial Budget: ₹5,40,000
+"""
+    from app.routes.inbox import _extract_requirement_from_email
+    extracted = _extract_requirement_from_email("DevOps requirement", text, "swayoraalbum3@gmail.com", "Swayora Album3")
+    assert extracted["training_dates"] == "01 November 2026"
+    assert extracted["budget_total"] == 540000
+    assert _requirement_flow_from_email(extracted, text) == "confirmed"
