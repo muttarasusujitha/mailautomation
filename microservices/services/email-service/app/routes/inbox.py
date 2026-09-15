@@ -9325,6 +9325,22 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
     if any(signal in text for signal in proposal_signals):
         return "proposal"
 
+    # Requirements are often completed over several messages. Once the
+    # accumulated record has a domain and any three actionable batch details,
+    # treat it as confirmed even if one detail is still pending.
+    has_schedule = bool(
+        extracted.get("training_dates") or extracted.get("preferred_dates")
+        or extracted.get("timeline_start")
+    )
+    has_duration = bool(extracted.get("duration_days") or extracted.get("duration_hours"))
+    has_participants = bool(extracted.get("participant_count"))
+    has_budget = bool(
+        extracted.get("budget_total") or extracted.get("budget_per_day")
+        or extracted.get("budget_range")
+    )
+    if extracted.get("technology_needed") and sum((has_schedule, has_duration, has_participants, has_budget)) >= 3:
+        return "confirmed"
+
     placeholder_patterns = (
         r"\bmode\s*:\s*(?:to\s+be\s+confirmed|tbc|tbd|not\s+confirmed|unknown)",
         r"\bduration\s*:\s*(?:to\s+be\s+confirmed|tbc|tbd|not\s+confirmed|unknown)",
@@ -9351,16 +9367,6 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
     # A complete, concrete batch specification is actionable even when the
     # client describes it as “upcoming” and does not use the word confirmed.
     # Do not downgrade it merely because the request also asks for profiles.
-    has_schedule = bool(
-        extracted.get("training_dates") or extracted.get("preferred_dates")
-        or extracted.get("timeline_start")
-    )
-    has_duration = bool(extracted.get("duration_days") or extracted.get("duration_hours"))
-    has_participants = bool(extracted.get("participant_count"))
-    has_budget = bool(
-        extracted.get("budget_total") or extracted.get("budget_per_day")
-        or extracted.get("budget_range")
-    )
     if has_schedule and has_duration and has_participants and has_budget:
         return "confirmed"
     # Do not let an unknown phrasing start the confirmed-batch workflow.
