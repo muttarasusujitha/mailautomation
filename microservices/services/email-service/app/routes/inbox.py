@@ -1284,6 +1284,7 @@ def _extract_preferred_dates(text: str) -> Dict[str, Any]:
         "Dates and Timings",
         "Training Dates",
         "Training Date",
+        "Training Start Date",
         "Start Date",
         "Dates",
         "Date",
@@ -1340,6 +1341,17 @@ def _extract_budget(text: str) -> Dict[str, Any]:
         "Price",
     ])
     source = raw or text
+    # Handle labels such as “Commercial Budget” even when the currency symbol
+    # was mangled during mail decoding.
+    direct_total = re.search(
+        r"\b(?:commercial\s+)?budget\b[^\n\r]{0,80}?([\d][\d,]*(?:\.\d+)?)",
+        source,
+        flags=re.IGNORECASE,
+    )
+    if direct_total:
+        amount = _safe_float(direct_total.group(1))
+        if amount > 0:
+            return {"budget_currency": "INR", "budget_range": _clean(direct_total.group(0)), "budget_total": amount}
     per_day_amount = re.search(
         rf"(?:INR|Rs\.?|{rupee})\s*([\d,]+(?:\.\d+)?)(?:\s*/-)?\s*(?:per\s*day|/day|daily)",
         source,
@@ -1353,7 +1365,7 @@ def _extract_budget(text: str) -> Dict[str, Any]:
                 "budget_range": _clean(per_day_amount.group(0)),
                 "budget_per_day": amount,
             }
-    marker_match = re.search(r"(?:budget|commercials?|rate|cost|price)[^\n\r]{0,160}", source, flags=re.IGNORECASE)
+    marker_match = re.search(r"(?:budget|commercials?|commercial\s+budget|rate|cost|price)[^\n\r]{0,160}", source, flags=re.IGNORECASE)
     if not raw and not marker_match:
         return {}
     search_text = marker_match.group(0) if marker_match else source
@@ -9336,6 +9348,21 @@ def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_t
     # delivery. A clear confirmation above always wins.
     if unresolved_logistics >= 2 and any(signal in text for signal in sourcing_signals):
         return "proposal"
+    # A complete, concrete batch specification is actionable even when the
+    # client describes it as “upcoming” and does not use the word confirmed.
+    # Do not downgrade it merely because the request also asks for profiles.
+    has_schedule = bool(
+        extracted.get("training_dates") or extracted.get("preferred_dates")
+        or extracted.get("timeline_start")
+    )
+    has_duration = bool(extracted.get("duration_days") or extracted.get("duration_hours"))
+    has_participants = bool(extracted.get("participant_count"))
+    has_budget = bool(
+        extracted.get("budget_total") or extracted.get("budget_per_day")
+        or extracted.get("budget_range")
+    )
+    if has_schedule and has_duration and has_participants and has_budget:
+        return "confirmed"
     # Do not let an unknown phrasing start the confirmed-batch workflow.
     # Confirmation has real downstream effects (trainer mail, client handoff,
     # meeting and commercial flow), so it must be explicit in the client's
