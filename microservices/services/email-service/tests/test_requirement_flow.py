@@ -52,3 +52,13 @@ Commercial Budget: ₹5,40,000
     assert extracted["training_dates"] == "01 November 2026"
     assert extracted["budget_total"] == 540000
     assert _requirement_flow_from_email(extracted, text) == "confirmed"
+
+
+def test_three_of_four_batch_details_are_confirmed():
+    extracted = {
+        "technology_needed": "DevOps",
+        "training_dates": "01 November 2026",
+        "duration_days": 20,
+        "participant_count": 34,
+    }
+    assert _requirement_flow_from_email(extracted, "Upcoming DevOps corporate batch") == "confirmed"
