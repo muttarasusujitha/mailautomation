@@ -940,7 +940,7 @@ def _field_value(text: str, labels: List[str]) -> str:
     label_pattern = "|".join(re.escape(label) for label in sorted(labels, key=len, reverse=True))
     pattern = re.compile(
         rf"(?im)^\s*(?:[-*\u2022]\s*)?(?:\*\*)?\s*(?:{label_pattern})"
-        rf"(?![A-Za-z0-9])\s*(?:\*\*)?\s*[:\-]\s*(.+?)\s*$"
+        rf"(?![A-Za-z0-9])\s*(?:\*\*)?\s*[:\-=\u2013\u2014]\s*(.+?)\s*$"
     )
     match = pattern.search(text or "")
     return _clean(match.group(1)) if match else ""
