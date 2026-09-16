@@ -4,7 +4,9 @@ import toast from 'react-hot-toast'
 
 function errorText(error) {
   const detail = error.response?.data?.detail
-  return typeof detail === 'string' ? detail : detail?.message || error.message || 'Package action failed'
+  const message = typeof detail === 'string' ? detail : detail?.message || error.message || 'Package action failed'
+  const missing = Array.isArray(detail?.missing_inputs) ? detail.missing_inputs : []
+  return missing.length ? `${message}. Missing: ${missing.map(name => name.replaceAll('_', ' ')).join(', ')}. Open Lab Cost to save these inputs.` : message
 }
 
 function downloadAttachment(attachment) {
@@ -20,6 +22,7 @@ function downloadAttachment(attachment) {
 export default function ClientHandoffReview({ requirementId, trainer, onDelivered }) {
   const [review, setReview] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [actionError, setActionError] = useState('')
   const path = `/shortlists/handoff/${encodeURIComponent(requirementId)}/${encodeURIComponent(trainer.trainer_id)}`
   const delivered = trainer.client_slots_sent && trainer.client_slots_email_id
   const labCostAttached = review?.lab_cost_attached ?? false
@@ -32,6 +35,7 @@ export default function ClientHandoffReview({ requirementId, trainer, onDelivere
 
   async function openReview() {
     setBusy(true)
+    setActionError('')
     try {
       try {
         await loadReview()
@@ -49,6 +53,7 @@ export default function ClientHandoffReview({ requirementId, trainer, onDelivere
         }
       }
     } catch (error) {
+      setActionError(errorText(error))
       toast.error(errorText(error))
     } finally {
       setBusy(false)
@@ -83,6 +88,7 @@ export default function ClientHandoffReview({ requirementId, trainer, onDelivere
     <button type="button" disabled={busy} onClick={openReview} className="mt-2 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">
       {busy ? 'Please wait…' : 'View client package'}
     </button>
+    {actionError && <p role="alert" className="mt-2 text-sm text-red-800">{actionError}</p>}
     {review && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby="handoff-review-title">
       <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
         <div className="flex items-start justify-between gap-4">

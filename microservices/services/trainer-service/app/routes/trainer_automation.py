@@ -115,23 +115,8 @@ def _clean_duration_text(value: Any) -> str:
 
 
 def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
-    daily_client_amount = 0.0
-    total_client_amount = 0.0
-    days = _safe_int(requirement.get("duration_days"), 0) or _safe_int(requirement.get("commercial_working_days"), 0)
-    if requirement.get("budget_total") not in (None, "", []):
-        total_client_amount = _safe_float(requirement.get("budget_total"))
-        if total_client_amount:
-            return f"INR {_round_commercial_amount(total_client_amount * DEFAULT_TRAINER_SHARE):,} total commercial, inclusive of applicable TDS"
-    if not daily_client_amount:
-        daily_client_amount = _safe_float(requirement.get("client_budget_per_day") or requirement.get("budget_per_day"))
-        total_client_amount = daily_client_amount * days if daily_client_amount and days else total_client_amount
-    if not daily_client_amount and not total_client_amount:
-        return ""
-    if daily_client_amount and daily_client_amount < MIN_TRAINER_DAY_RATE_VISIBLE and total_client_amount:
-        return f"INR {_round_commercial_amount(total_client_amount * DEFAULT_TRAINER_SHARE):,} total commercial, inclusive of applicable TDS"
-    if daily_client_amount:
-        return f"INR {_round_commercial_amount(daily_client_amount * DEFAULT_TRAINER_SHARE):,} per day/session, inclusive of applicable TDS"
-    return f"INR {_round_commercial_amount(total_client_amount * DEFAULT_TRAINER_SHARE):,} total commercial, inclusive of applicable TDS"
+    from shared.commercial_policy import trainer_commercial_text
+    return trainer_commercial_text(requirement)
 
 
 def _replace_trainer_mail1_commercial(body: str, requirement: Dict[str, Any]) -> str:

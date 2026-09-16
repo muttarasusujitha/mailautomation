@@ -76,6 +76,37 @@ class LivePricingTests(unittest.TestCase):
         with self.assertRaises(PricingUnavailable):
             _choose([{'unit': '1 Month', 'rate': 1}], 'VM', 'hour')
 
+    def test_azure_fixed_disk_preserves_full_disk_price(self):
+        selections = automatic_pricing_selections({}, {'cloud_provider': 'azure'})
+        selections['Disk'] = {'meter_id': 'ed9e91d2-0f0c-4d55-b3dd-7f69d4708b22'}
+        def lookup(selection, region):
+            disk = selection == selections['Disk']
+            return [{'rate': 6.4 if disk else .1, 'unit': '1/Month' if disk else '1 Hour',
+                     'sku': 'test', 'dimension': 'test', 'source': 'https://prices.azure.com', 'effective_date': ''}]
+        values = {'cloud_provider': 'azure', 'pricing_selections': selections}
+        with patch('shared.live_lab_pricing._azure', side_effect=lookup):
+            result = refresh_rates(values)
+            self.assertEqual(result['disk_gb_per_node'], 32)
+            self.assertAlmostEqual(result['rate_card_overrides']['Disk']['rate'] * 32, 6.4)
+            values['disk_gb_per_node'] = 20
+            with self.assertRaises(PricingUnavailable):
+                refresh_rates(values)
+
+    def test_explicit_s3_first_tier_is_bounded_by_all_allocations(self):
+        values = self.inputs()
+        values['pricing_selections']['Storage'].update(service='AmazonS3', first_tier_only=True)
+        rows = self.catalog()
+        next(row for row, _ in rows if row['SKU'] == 'Storage')['EndingRange'] = '100'
+        values['lab_day_mapping'] = [{'object_storage_gb': 40}, {'object_storage_gb': 50}]
+        def catalog(service, region):
+            return [(row, url) for row, url in rows if (row['SKU'] == 'Storage') == (service == 'AmazonS3')]
+        with patch('shared.live_lab_pricing._aws_catalog', side_effect=catalog):
+            result = refresh_rates(values)
+            self.assertIn('at most 100 GB', result['rate_card_overrides']['Storage']['note'])
+            values['lab_day_mapping'].append({'object_storage_gb': 11})
+            with self.assertRaises(PricingUnavailable):
+                refresh_rates(values)
+
     def test_outage_has_no_fallback(self):
         with patch('shared.live_lab_pricing._aws_catalog', side_effect=TimeoutError):
             with self.assertRaises(TimeoutError):

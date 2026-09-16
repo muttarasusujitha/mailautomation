@@ -319,32 +319,8 @@ def _commercial_amounts_from_text(text: Any) -> List[int]:
 
 
 def _trainer_mail1_commercial_text(requirement: Dict[str, Any]) -> str:
-    from shared.commercial_policy import commercial_days, margin_percent, package_basis, proposal_offer
-    if _is_proposal_requirement(requirement):
-        offer = proposal_offer(requirement)
-        return f"INR {offer['trainer_amount']:,.0f} {offer['basis']}, inclusive of applicable TDS"
-    trainer_share = 1 - margin_percent(requirement) / 100
-    daily_client_amount = 0.0
-    total_client_amount = 0.0
-    days = commercial_days(requirement) or 0
-    if requirement.get("budget_total") not in (None, "", []):
-        total_client_amount = _safe_float(requirement.get("budget_total"))
-        if total_client_amount:
-            return f"INR {_trainer_visible_commercial_amount(total_client_amount * trainer_share):,} total commercial, inclusive of applicable TDS"
-    if not daily_client_amount:
-        daily_client_amount = _safe_float(
-            requirement.get("client_budget_per_day") or requirement.get("budget_per_day"),
-        )
-        total_client_amount = daily_client_amount * days if daily_client_amount and days else total_client_amount
-    if not daily_client_amount and not total_client_amount:
-        return ""
-    # A client daily commercial below INR 10,000 is one small engagement:
-    # send the trainer one 70% total, never a misleading day-wise amount.
-    if daily_client_amount and (package_basis(requirement) or daily_client_amount < MIN_TRAINER_DAY_RATE_VISIBLE) and total_client_amount:
-        return f"INR {_trainer_visible_commercial_amount(total_client_amount * trainer_share):,} total commercial, inclusive of applicable TDS"
-    if daily_client_amount:
-        return f"INR {_trainer_visible_commercial_amount(daily_client_amount * trainer_share):,} per training day, inclusive of applicable TDS"
-    return f"INR {_trainer_visible_commercial_amount(total_client_amount * trainer_share):,} total commercial, inclusive of applicable TDS"
+    from shared.commercial_policy import trainer_commercial_text
+    return trainer_commercial_text(requirement)
 
 
 def _client_mail1_budget_text(requirement: Dict[str, Any]) -> str:
@@ -3006,16 +2982,23 @@ async def send_shortlist_mail(
                                     json={"toc": generated_toc},
                                 )
                                 if toc_response.status_code == 200 and toc_response.content:
+                                    toc_label = "Proposed TOC" if is_proposal_flow else "Confirmed Batch TOC"
+                                    toc_note = (
+                                        "The proposed ToC/course agenda is attached. Please review this scope and "
+                                        "confirm availability and delivery feasibility."
+                                        if is_proposal_flow else
+                                        "The ToC/course agenda for the confirmed batch is attached. Please review this scope and "
+                                        "confirm availability and delivery feasibility."
+                                    )
                                     scope_attachments.append({
-                                        "filename": f"{domain} - Proposed TOC.xlsx",
+                                        "filename": f"{domain} - {toc_label}.xlsx",
                                         "content_base64": base64.b64encode(toc_response.content).decode(),
                                         "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                     })
-                                    if "the proposed toc/course agenda is attached" not in body.lower():
+                                    if toc_note.lower() not in body.lower():
                                         body = _insert_before_signature(
                                             body,
-                                            "The proposed ToC/course agenda is attached. Please review this scope and "
-                                            "confirm availability and delivery feasibility.",
+                                            toc_note,
                                         )
                                         send_payload["body"] = body
                                 else:
@@ -3647,19 +3630,19 @@ async def send_client_slots(
     # the requirement so retries use the same confirmed value.
     if wants_lab_cost and _safe_float(req.get("fx_rate"), 0) <= 0:
         try:
-            async with httpx.AsyncClient(timeout=10) as fx_client:
-                fx_response = await fx_client.get("https://api.frankfurter.app/latest?from=USD&to=INR")
+            async with httpx.AsyncClient(timeout=10, follow_redirects=True) as fx_client:
+                fx_response = await fx_client.get("https://api.frankfurter.dev/v1/latest?from=USD&to=INR")
                 fx_response.raise_for_status()
                 fx_rate = _safe_float((fx_response.json().get("rates") or {}).get("INR"), 0)
             if fx_rate > 0:
                 req["fx_rate"] = fx_rate
-                req["fx_rate_source"] = "frankfurter.app"
+                req["fx_rate_source"] = "frankfurter.dev"
                 req["fx_rate_fetched_at"] = datetime.utcnow()
                 await db["requirements"].update_one(
                     {"requirement_id": payload.requirement_id},
                     {"$set": {
                         "fx_rate": fx_rate,
-                        "fx_rate_source": "frankfurter.app",
+                        "fx_rate_source": "frankfurter.dev",
                         "fx_rate_fetched_at": req["fx_rate_fetched_at"],
                         "updated_at": datetime.utcnow(),
                     }},
@@ -3740,18 +3723,9 @@ async def send_client_slots(
                 mapping = default_cloud_mapping(toc_data, {
                     "participant_count": participant_count,
                     "cloud_provider": checked["cloud_provider"],
-                    "k8s_worker_nodes": 0,
-                    "storage_gb": 0,
+                    "k8s_worker_nodes": 1,
+                    "storage_gb": 10,
                 })
-                for day in mapping:
-                    day.update({
-                        "vm_qty": 0,
-                        "vm_profile": "None",
-                        "k8s_control_plane": 0,
-                        "k8s_worker_nodes": 0,
-                        "managed_db": 0,
-                        "object_storage_gb": 0,
-                    })
                 lab_mappings[checked["cloud_provider"]] = mapping
             mode_setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
             if str(mode_setting.get("value") or "").lower() == "ai":
@@ -3764,14 +3738,9 @@ async def send_client_slots(
                             "hours_per_day": lab_hours_per_day,
                             "cloud_provider": checked["cloud_provider"],
                         }, planner, settings.OPENAI_MODEL)
-            async with httpx.AsyncClient(timeout=60) as client:
+            async with httpx.AsyncClient(timeout=180) as client:
                 for checked in checked_provider_inputs:
-                    # Use the project-approved baseline architecture only when
-                    # no saved provider catalog is available. The document
-                    # service still performs a fresh public-price lookup for
-                    # every workbook and rejects ambiguous or unavailable SKU
-                    # prices.
-                    from shared.live_lab_pricing import automatic_pricing_selections
+                    # Resolve the saved catalog and refresh its public prices.
                     lab_response = await _post_with_local_fallback(
                         client,
                         f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost",
@@ -3788,9 +3757,8 @@ async def send_client_slots(
                             "egress_gb": 0,
                             "build_minutes": 0,
                             "monitoring_gb": 0,
-                                "pricing_selections": automatic_pricing_selections(
-                                    toc_data, {"cloud_provider": checked["cloud_provider"]}
-                                ),
+                                # The document service resolves the saved catalog.
+                                "pricing_selections": {},
                             },
                         },
                     )
@@ -3806,7 +3774,7 @@ async def send_client_slots(
         except Exception:
             logger.exception("Failed to generate lab-cost workbook for client handoff")
     if wants_lab_cost and lab_cost_attachments and len(lab_cost_attachments) == len(requested_providers):
-        async with httpx.AsyncClient(timeout=60) as client:
+        async with httpx.AsyncClient(timeout=180) as client:
             combined = await _post_with_local_fallback(client,
                 f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost/combine",
                 json={"estimates": [

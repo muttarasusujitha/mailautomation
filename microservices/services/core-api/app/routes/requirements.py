@@ -331,9 +331,8 @@ def _commercial_options_for_trainer(requirement: Dict[str, Any], trainer: Dict[s
     other_costs = _money_from_fields(requirement, ["other_costs", "applicable_costs", "travel_cost", "hospitality_cost"])
     # Client commercial is authoritative. Trainers do not quote a separate
     # rate: the platform allocates 70% to the trainer and 30% to Clahan.
-    # Below INR 10,000/day is shown and sent as one total engagement amount.
+    # Use totals for at least five days only below INR 12,000 per trainer day.
     margin = margin_percent(requirement)
-    use_total = package_basis(requirement) or bool(client_day_rate and client_day_rate < 10000)
     trainer_share = budget * (1 - margin / 100)
     is_proposal = "proposal" in str(requirement.get("batch_flow") or requirement.get("batch_type") or "").lower()
     if is_proposal:
@@ -343,6 +342,7 @@ def _commercial_options_for_trainer(requirement: Dict[str, Any], trainer: Dict[s
         days = offer["days"]
         trainer_share = offer["trainer_daily_rate"] * days
         budget = round(trainer_share / (1 - margin / 100), 2)
+    use_total = package_basis(requirement, trainer_share / days if days else None)
     candidates = [_build_commercial_option(
         ("TOTAL" if use_total else "DAYWISE") + f"_{100-int(margin)}_{int(margin)}",
         budget,
@@ -683,6 +683,21 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
             (data.get("metadata") or {}).get("source") if isinstance(data.get("metadata"), dict) else "",
         )
     ).lower()
+    # The original client wording is the authoritative signal when an email
+    # asks for a proposal but also happens to state a tentative duration or
+    # participant count.  Those details must not turn a proposal into a
+    # confirmed engagement.
+    intent_text = " ".join(
+        _clean(value)
+        for value in (
+            data.get("client_requirement_text"),
+            data.get("client_request"),
+            data.get("original_body"),
+            data.get("subject"),
+            (data.get("metadata") or {}).get("original_body") if isinstance(data.get("metadata"), dict) else "",
+            (data.get("metadata") or {}).get("original_subject") if isinstance(data.get("metadata"), dict) else "",
+        )
+    ).lower()
     type_raw = _clean(data.get("requirement_type") or data.get("batch_type") or data.get("batch_flow")).lower()
     if "linkedin" in source_text or "linkedin" in type_raw:
         data["batch_flow"] = "linkedin"
@@ -716,6 +731,10 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
             batch_flow = "proposal"
         elif "confirmed" in batch_raw:
             batch_flow = "confirmed"
+        elif "proposal" in intent_text and not any(signal in intent_text for signal in (
+            "confirmed training", "program confirmation", "purchase order", "po no",
+        )):
+            batch_flow = "proposal"
         elif "shortlist1" in pipeline_raw:
             batch_flow = "confirmed"
         elif "shortlist" in pipeline_raw:

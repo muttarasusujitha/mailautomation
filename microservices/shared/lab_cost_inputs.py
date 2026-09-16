@@ -1,5 +1,6 @@
 """Validated assumptions shared by lab-cost API and document generation."""
 import math
+import re
 from datetime import datetime
 from urllib.parse import urlparse
 
@@ -148,14 +149,17 @@ def lab_resources(text):
     text = str(text).lower()
     local = any(word in text for word in ("local lab", "local machine", "localhost", "minikube", "kind cluster", "docker desktop"))
     cloud = any(word in text for word in ("ec2", "azure vm", "compute engine", "cloud vm", "cloud lab"))
-    k8s = any(word in text for word in ("eks", "aks", "gke", "managed kubernetes"))
+    def service(*names):
+        return any(re.search(r'\b' + re.escape(name) + r'\b', text) for name in names)
+
+    k8s = service("eks", "aks", "gke", "managed kubernetes")
     heavy = any(word in text for word in ("docker", "terraform", "ansible", "jenkins", "ci/cd", "pipeline", "agentic ai", "llm"))
     return {
         "vm": cloud and not local,
         "heavy": heavy,
         "k8s": k8s and not local,
-        "database": not local and any(word in text for word in ("rds", "azure sql", "cloud sql")),
-        "storage": not local and any(word in text for word in ("s3", "blob storage", "object storage", "cloud storage bucket")),
+        "database": not local and service("rds", "azure sql", "cloud sql"),
+        "storage": not local and service("s3", "blob storage", "object storage", "cloud storage bucket"),
     }
 
 
@@ -172,6 +176,10 @@ def validate_lab_pricing_coverage(toc, assumptions):
         mapping = (mappings[index - 1] if index <= len(mappings) else {}) if isinstance(mappings, list) else (mappings.get(str(index)) or mappings.get(index) or {})
         local = any(word in text for word in ('local lab', 'local machine', 'localhost', 'minikube', 'kind cluster', 'docker desktop'))
         practical = any(word in text for word in ('linux', 'shell scripting', 'jenkins', 'docker', 'kubernetes', 'helm', 'terraform', 'ansible'))
+        if mapping and not local and (practical or any(resources[key] for key in ('vm', 'k8s', 'database', 'storage'))):
+            quantities = ('vm_qty', 'k8s_control_plane', 'k8s_worker_nodes', 'managed_db', 'object_storage_gb')
+            if not any(float(mapping.get(key) or 0) > 0 for key in quantities):
+                unresolved.append(str(index))
         if practical and not local and not resources['vm'] and not resources['k8s'] and not mapping:
             unresolved.append(str(index))
         def used(key, inferred):

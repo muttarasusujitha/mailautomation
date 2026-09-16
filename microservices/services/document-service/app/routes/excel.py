@@ -1463,6 +1463,9 @@ async def combine_cloud_lab_costs(payload: Dict[str, Any] = Body(...)):
             (item['provider'], base64.b64decode(item['content_base64'], validate=True))
             for item in inputs
         ])
+        from app.lab_recalculation import recalculate_lab_workbook
+        from starlette.concurrency import run_in_threadpool
+        content = await run_in_threadpool(recalculate_lab_workbook, content)
     except Exception as exc:
         logger.exception('Could not consolidate cloud estimates')
         raise HTTPException(422, 'Could not combine complete cloud estimates') from exc
@@ -1553,6 +1556,8 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
                         'change_percent': delta, 'review_required': review})
     assumptions['price_changes'] = changes
     workbook = _lab_cost_to_excel(toc, assumptions)
+    from app.lab_recalculation import recalculate_lab_workbook
+    workbook = await run_in_threadpool(recalculate_lab_workbook, workbook)
     await db['lab_cost_rate_snapshots'].insert_one({
         'quote_id': assumptions['rate_snapshot_id'], 'selection_key': selection_key,
         'rate_checked_at': assumptions['rate_checked_at'],

@@ -9268,112 +9268,64 @@ def _flow_has_value(value: Any) -> bool:
 
 
 def _requirement_flow_from_email(extracted: Dict[str, Any], client_requirement_text: str) -> str:
-    explicit = _clean(
-        extracted.get("batch_flow")
-        or extracted.get("batch_type")
-        or extracted.get("requirement_type")
-        or extracted.get("training_status")
-    ).lower()
-    text = f"{client_requirement_text}\n{extracted}".lower()
-    # A confirmed batch is only one type of real training request. A sourcing
-    # enquiry with multiple core logistics explicitly still TBD is a proposal
-    # batch even when the client did not use the word "proposal".
-    proposal_signals = (
-        "proposal batch",
-        "request for proposal",
-        "rfp",
-        "need a proposal",
-        "require a proposal",
-        "send a proposal",
-        "share a proposal",
-        "need quotation",
-        "require quotation",
-        "send quotation",
-        "share quotation",
-        "need a quote",
-        "request a quote",
+    # Classify explicit confirmation first, then concrete scope and client intent.
+    # An extractor label alone is not evidence of a firm batch.
+    text = _clean(client_requirement_text).lower()
+    engagement = r"(?:training(?:\s+(?:batch|requirement|program|engagement))?|batch|requirement|program|engagement)"
+    confirmation_patterns = (
+        rf"\bconfirmed\s+{engagement}\b",
+        rf"\b{engagement}\s+(?:(?:is|has been)\s+)?confirmed\b",
+        rf"\b(?:we|client|the client)\s+(?:(?:has|have|hereby)\s+)?confirm(?:ed)?\s+(?:(?:the|this|a)\s+)?(?:[\w-]+\s+){{0,6}}?{engagement}\b",
+        rf"\bwe are (?:happy|pleased) to confirm\s+(?:(?:the|this)\s+)?(?:[\w-]+\s+){{0,6}}?{engagement}\b",
     )
-    confirmed_signals = (
-        "purchase order",
-        "po no",
-        "program confirmation",
-        "confirmed requirement",
-        "confirmed program",
-        "confirmed batch",
-        "confirmed training batch",
-        "confirmed training requirement",
-        "requirement is confirmed",
-        "confirmed training",
-        "training confirmed",
-        "we confirm the training",
-        "we confirm this training",
-        "we confirm the batch",
-        "we confirm this batch",
-        "we hereby confirm the training",
-        "we hereby confirm the batch",
-        "we are happy to confirm",
-        "we are pleased to confirm",
+    pending_pattern = rf"\b(?:not\s+(?:yet\s+|a\s+)?confirmed|unconfirmed|(?:awaiting|pending)\s+(?:client\s+)?confirmation|(?:if|once|when)\s+(?:the\s+)?(?:client\s+)?confirms?|please\s+confirm|(?:need|needs)\s+to\s+confirm)\b"
+    # Check individual clauses so a tentative date does not negate a clearly
+    # confirmed engagement, while conditional confirmation is not accepted.
+    for clause in re.split(r"[.!?;\n]+", text):
+        if re.search(pending_pattern, clause):
+            continue
+        if any(re.search(pattern, clause) for pattern in confirmation_patterns):
+            return "confirmed"
+    # Upcoming means future, not tentative. Conversely, numeric fields parsed
+    # from an exploratory email must not erase its uncertainty.
+    tentative = (
+        r"\b(?:exploring|possible|tentative|approximately|around|tbd|tbc)\b"
+        r"|\bto be (?:discussed|confirmed|decided|finali[sz]ed)\b"
+        r"|\b(?:expected|estimated)\s+(?:duration|participants|timeline|budget|commercials)\b"
+        r"|\b(?:request for proposal|proposal batch|request a quote|need a quote)\b"
+        r"|\b(?:share|send|provide|need|require)\s+(?:us\s+)?(?:a\s+)?(?:proposal|quotation|quote)\b"
+        r"|\bonline\s*[/ or]+\s*offline\b"
     )
-    # Client confirmation is stronger than an extractor's tentative proposal label.
-    if any(signal in text for signal in confirmed_signals):
-        return "confirmed"
-    # Extractor labels are useful only when they are backed by a clear
-    # proposal/quotation request in the client's actual message.  This stops
-    # tentative AI extraction from misrouting real confirmed requirements.
-    if "proposal" in explicit and any(signal in text for signal in proposal_signals):
-        return "proposal"
-    if any(signal in text for signal in proposal_signals):
+    if re.search(tentative, text) or re.search(pending_pattern, text):
         return "proposal"
 
-    # Requirements are often completed over several messages. Once the
-    # accumulated record has a domain and any three actionable batch details,
-    # treat it as confirmed even if one detail is still pending.
-    has_schedule = bool(
-        extracted.get("training_dates") or extracted.get("preferred_dates")
-        or extracted.get("timeline_start")
-    )
-    has_duration = bool(extracted.get("duration_days") or extracted.get("duration_hours"))
-    has_participants = bool(extracted.get("participant_count"))
-    has_budget = bool(
-        extracted.get("budget_total") or extracted.get("budget_per_day")
-        or extracted.get("budget_range")
-    )
-    if extracted.get("technology_needed") and sum((has_schedule, has_duration, has_participants, has_budget)) >= 3:
-        return "confirmed"
+    def firm_value(*keys):
+        for key in keys:
+            value = extracted.get(key)
+            value_text = str(value or "").strip().lower()
+            if _flow_has_value(value) and not re.search(tentative, value_text):
+                return value_text
+        return ""
 
-    placeholder_patterns = (
-        r"\bmode\s*:\s*(?:to\s+be\s+confirmed|tbc|tbd|not\s+confirmed|unknown)",
-        r"\bduration\s*:\s*(?:to\s+be\s+confirmed|tbc|tbd|not\s+confirmed|unknown)",
-        r"\b(?:location|venue)\s*:\s*(?:to\s+be\s+confirmed|tbc|tbd|not\s+confirmed|unknown)",
-        r"\b(?:dates?|schedule)\s*:\s*(?:to\s+be\s+confirmed|tbc|tbd|not\s+confirmed|unknown)",
-    )
-    unresolved_logistics = sum(
-        1 for pattern in placeholder_patterns if re.search(pattern, text, flags=re.IGNORECASE)
-    )
-    sourcing_signals = (
-        "upcoming corporate training",
-        "if you have a suitable trainer",
-        "share suitable trainer",
-        "share the following details",
-        "share trainer profiles",
-        "trainer profile",
-        "commercials (per hour/day)",
-    )
-    # Two or more unconfirmed core logistics plus a request for profiles or
-    # commercials means the client is evaluating options, not confirming a
-    # delivery. A clear confirmation above always wins.
-    if unresolved_logistics >= 2 and any(signal in text for signal in sourcing_signals):
-        return "proposal"
-    # A complete, concrete batch specification is actionable even when the
-    # client describes it as “upcoming” and does not use the word confirmed.
-    # Do not downgrade it merely because the request also asks for profiles.
-    if has_schedule and has_duration and has_participants and has_budget:
+    def positive_number(*keys):
+        value = firm_value(*keys)
+        return bool(re.fullmatch(r"\d+(?:\.\d+)?", value) and float(value) > 0)
+
+    dates = firm_value("training_dates", "preferred_dates", "timeline_start")
+    # A month/year alone is not a concrete start date. Accept named dates
+    # (including date ranges) and numeric day/month/year or ISO dates.
+    months = r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)"
+    has_dates = bool(re.search(
+        rf"\b\d{{1,2}}\s+{months}\b|\b{months}\s+\d{{1,2}}\b"
+        r"|\b\d{4}-\d{1,2}-\d{1,2}\b|\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b",
+        dates,
+    ))
+    has_scope = bool(firm_value("technology_needed", "technology", "domain"))
+    has_duration = positive_number("duration_days") or positive_number("duration_hours")
+    has_participants = positive_number("participant_count")
+    has_commercials = positive_number("budget_total") or positive_number("budget_per_day")
+    if all((has_scope, has_dates, has_duration, has_participants, has_commercials)):
         return "confirmed"
-    # Do not let an unknown phrasing start the confirmed-batch workflow.
-    # Confirmation has real downstream effects (trainer mail, client handoff,
-    # meeting and commercial flow), so it must be explicit in the client's
-    # message.  New, incomplete or unfamiliar requirements stay in the safe
-    # proposal flow until the client provides an explicit confirmation.
     return "proposal"
 
 

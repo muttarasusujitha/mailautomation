@@ -37,6 +37,21 @@ def test_ai_handoff_passes_ai_resource_mapping_to_workbook(monkeypatch):
     assert lab_payload['assumptions']['lab_day_mapping'] == mapping
 
 
+def test_template_handoff_preserves_cloud_resources_and_uses_saved_catalog(monkeypatch):
+    db, requests = prepare(monkeypatch)
+    monkeypatch.setattr(shortlists, '_build_toc', AsyncMock(return_value={
+        'title': 'DevOps', 'days': [{'day': 1, 'topic': 'Docker AWS EKS S3 lab'}]}))
+    asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id='REQ-TEST', trainer_id='T-TEST', slot_text=SLOTS,
+    ), db))
+    assumptions = next(body for path, body in requests if path.endswith('/lab-cost'))['assumptions']
+    day = assumptions['lab_day_mapping'][0]
+    assert day['vm_qty'] == 1
+    assert day['k8s_control_plane'] == 1
+    assert day['object_storage_gb'] == 10
+    assert assumptions['pricing_selections'] == {}
+
+
 def prepare(monkeypatch, failure=None, requirement_overrides=None):
     trainer = {"trainer_id": "T-TEST", "name": "Test Trainer", "email": "trainer@example.com"}
     req = {

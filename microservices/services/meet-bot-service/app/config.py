@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     MEET_BOT_MAX_ATTEMPTS: int = 3
     MEET_BOT_MAX_CONCURRENT_MEETINGS: int = Field(default=4, ge=1, le=20)
     MEET_BOT_WELCOME_ENABLED: bool = True
+    MEET_BOT_VOICE: str = "en-IN-NeerjaNeural"
+    MEET_BOT_VOICE_RATE: str = "-8%"
+    MEET_BOT_VOICE_VOLUME: str = "-10%"
     # Name used by the coordinator greeting and Meet chat fallback. The
     # Google account itself comes from the authenticated persistent profile.
     MEET_BOT_DISPLAY_NAME: str = "Clahan Technologies"

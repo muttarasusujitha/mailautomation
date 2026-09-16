@@ -20,9 +20,10 @@ def commercial_days(requirement):
             or positive_number(requirement.get("commercial_working_days")))
 
 
-def package_basis(requirement):
+def package_basis(requirement, trainer_daily_rate):
     days = commercial_days(requirement)
-    return bool(days and days >= 5)
+    rate = positive_number(trainer_daily_rate)
+    return bool(days and days >= 5 and rate and rate < 12000)
 
 
 def proposal_offer(requirement, trainer=None):
@@ -41,10 +42,56 @@ def proposal_offer(requirement, trainer=None):
         raise ValueError("Proposal trainer daily offer must be between INR 14,000 and INR 16,000")
     margin = margin_percent(requirement)
     days = commercial_days(requirement)
-    total = package_basis(requirement)
+    total = bool(days and days >= 5)
     trainer_amount = rate * days if total else rate
     return {"trainer_amount": trainer_amount,
             "client_amount": round(trainer_amount / (1 - margin / 100), 2),
             "trainer_daily_rate": rate, "days": days,
             "basis": "total engagement" if total else "per training day",
             "margin_percent": margin}
+
+
+def trainer_offer(requirement, trainer=None):
+    """Return both trainer daily rate and total where duration is known."""
+    batch = str(requirement.get("batch_flow") or requirement.get("batch_type") or "").lower()
+    days = commercial_days(requirement)
+    if "proposal" in batch:
+        rate = proposal_offer(requirement, trainer)["trainer_daily_rate"]
+        total = rate * days if days else None
+    else:
+        share = 1 - margin_percent(requirement) / 100
+        budget = positive_number(requirement.get("budget_total"))
+        client_rate = (positive_number(requirement.get("client_budget_per_day"))
+                       or positive_number(requirement.get("budget_per_day")))
+        total = budget * share if budget else None
+        rate = total / days if total and days else client_rate * share if client_rate else None
+        if total is None and rate and days:
+            total = rate * days
+        # Without duration, preserve a supplied total rather than invent a rate.
+        if budget and not days:
+            return {"amount": total, "basis": "total commercial",
+                    "daily_rate": None, "total": total, "days": None}
+    if not rate:
+        return None
+    return {"amount": rate, "basis": "per training day",
+            "daily_rate": rate, "total": total, "days": days}
+
+
+def trainer_commercial_text(requirement, trainer=None):
+    """Show daily plus total above INR 13,000; otherwise show known total."""
+    offer = trainer_offer(requirement, trainer)
+    if not offer:
+        return ""
+
+    def money(value):
+        return f"{value:,.2f}".rstrip("0").rstrip(".")
+
+    if offer["total"] is not None and (offer["daily_rate"] is None or round(offer["daily_rate"], 2) <= 13000):
+        amount = f"INR {money(offer['total'])} total commercial"
+    elif offer["daily_rate"] is not None and offer["days"]:
+        amount = (f"INR {money(offer['daily_rate'])} per training day x "
+                  f"{offer['days']:g} training days = INR {money(offer['total'])} total commercial")
+    else:
+        amount = f"INR {money(offer['amount'])} {offer['basis']}"
+    return f"{amount}, inclusive of applicable TDS"
+

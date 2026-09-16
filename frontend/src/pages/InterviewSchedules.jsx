@@ -24,6 +24,7 @@ import {
   Video,
 } from 'lucide-react'
 import api from '../utils/api'
+import { createInterviewAlarm } from '../utils/interviewAlarm'
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 
@@ -822,6 +823,23 @@ export default function InterviewSchedules() {
   const [filter, setFilter] = useState('upcoming')
   const [selectedKey, setSelectedKey] = useState('')
   const notifiedRef = useRef({})
+  const alarmRef = useRef(null)
+  const [alarmEnabled, setAlarmEnabled] = useState(false)
+  if (!alarmRef.current) alarmRef.current = createInterviewAlarm(window.AudioContext || window.webkitAudioContext)
+  const enableAlarm = async () => {
+    try {
+      await alarmRef.current.enable()
+      alarmRef.current.play()
+      setAlarmEnabled(true)
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().catch(() => {})
+      }
+    } catch (error) {
+      setAlarmEnabled(false)
+      toast.error(error.message || 'Could not enable alarm audio')
+    }
+  }
+  useEffect(() => () => alarmRef.current.close(), [])
   const loadingRef = useRef(false)
   const [lastUpdated, setLastUpdated] = useState(null)
   const [refreshError, setRefreshError] = useState('')
@@ -876,19 +894,19 @@ export default function InterviewSchedules() {
   }, [load])
 
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission().catch(() => {})
-    }
-  }, [])
-
-  useEffect(() => {
     const checkStartTimes = () => {
       const nextNotified = notifiedRef.current
       items.forEach(item => {
+        if (meetingState(item) === 'reschedule' || /cancelled|canceled|completed/i.test(`${item.status || ''} ${item.slot_status || ''} ${item.pipeline_status || ''}`)) return
         const time = meetingStartTime(item)
         if (!time) return
         const key = meetingKey(item)
         const diff = time - Date.now()
+        const alarmPhase = diff > 0 && diff <= 5 * 60 * 1000 ? 'reminder' : diff <= 0 && diff > -2 * 60 * 1000 ? 'start' : null
+        if (alarmPhase && !nextNotified[`${key}:${alarmPhase}:audio`]) {
+          if (alarmRef.current.play()) nextNotified[`${key}:${alarmPhase}:audio`] = true
+          else setAlarmEnabled(false)
+        }
         if (diff > 0 && diff <= 5 * 60 * 1000 && !nextNotified[`${key}:reminder`]) {
           nextNotified[`${key}:reminder`] = true
           const title = 'Meeting starts in 5 minutes'
@@ -922,7 +940,7 @@ export default function InterviewSchedules() {
     checkStartTimes()
     const timer = setInterval(checkStartTimes, 30000)
     return () => clearInterval(timer)
-  }, [items])
+  }, [items, alarmEnabled])
 
   useEffect(() => {
     const onFullscreenChange = () => setMonitorFullscreen(document.fullscreenElement === botMonitorRef.current)
@@ -1046,6 +1064,10 @@ export default function InterviewSchedules() {
           </div>
           <h1 className="mt-3 page-title">Interview Meeting Board</h1>
           <p className="mt-1 text-sm text-slate-500">Selected trainers, client/trainer emails, meeting date, and host join controls.</p>
+          <button type="button" onClick={enableAlarm} className="btn-secondary mt-3 text-sm">
+            {alarmEnabled ? 'Test alarm sound' : 'Enable & test alarm'}
+          </button>
+          <p className="mt-1 text-xs text-slate-500">{alarmEnabled ? 'Alarm enabled.' : 'Enable sound for meeting reminders.'} Keep this Interviews page open and your tab unmuted. Sounds 5 minutes before and at the start.</p>
         </div>
         <button onClick={() => load()} disabled={loading} className="btn-secondary w-fit text-sm">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}

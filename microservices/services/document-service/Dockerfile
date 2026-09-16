@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY microservices/shared /app/shared
 COPY microservices/services/document-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y --no-install-recommends libreoffice-calc \
+  && rm -rf /var/lib/apt/lists/*
 COPY microservices/services/document-service/app ./app
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1

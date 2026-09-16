@@ -57,6 +57,7 @@ def test_proposal_generation_instruction_attaches_toc_in_first_mail(monkeypatch,
     mail = calls[1][1]
     assert base64.b64decode(mail["attachments"][0]["content_base64"]) == b"test-workbook"
     assert "proposed ToC/course agenda is attached" in mail["body"]
+    assert mail["attachments"][0]["filename"].endswith(" - Proposed TOC.xlsx")
 
 
 @pytest.mark.parametrize("toc,status", [(None, 200), ({"title": "DevOps"}, 500)])
@@ -67,13 +68,21 @@ def test_missing_toc_blocks_email_delivery(monkeypatch, toc, status):
     assert not any("/email/send" in url for url, _ in calls)
 
 
-def test_confirmed_batch_still_generates_without_action(monkeypatch):
+@pytest.mark.parametrize("flow", [
+    {"batch_flow": "confirmed"},
+    {"batch_flow": "proposal", "pipeline_target": "shortlist1"},
+])
+def test_confirmed_batch_still_generates_without_action(monkeypatch, flow):
     result, calls, generate = setup_delivery(
-        monkeypatch, requirement(batch_flow="confirmed", toc_action=""), toc={"title": "DevOps"},
+        monkeypatch, requirement(**flow, toc_action=""), toc={"title": "DevOps"},
     )
     assert result["sent"] == 1
     generate.assert_awaited_once()
     assert calls[-1][1]["attachments"]
+    mail = calls[-1][1]
+    assert mail["attachments"][0]["filename"].endswith(" - Confirmed Batch TOC.xlsx")
+    assert "for the confirmed batch is attached" in mail["body"]
+    assert "proposed ToC/course agenda is attached" not in mail["body"]
 
 
 def test_proposal_without_generation_instruction_keeps_existing_behavior(monkeypatch):

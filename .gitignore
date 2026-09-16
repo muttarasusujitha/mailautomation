@@ -64,6 +64,7 @@ Thumbs.db
 !/frontend/src/utils/
 /frontend/src/utils/*
 !/frontend/src/utils/handoffStatus.js
+!/frontend/src/utils/interviewAlarm.js
 !/frontend/src/utils/handoffStatus.test.js
 !/frontend/src/utils/useLiveShortlist.js
 !/frontend/src/components/

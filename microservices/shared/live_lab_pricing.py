@@ -77,6 +77,23 @@ def _amount(value):
         raise PricingUnavailable('Provider returned an invalid price')
     return value
 
+
+def _storage_first_tier(row, selection, resource, values):
+    """Allow an explicitly selected S3 first tier only within its usage bound."""
+    if not (resource == 'Storage' and selection.get('service') == 'AmazonS3'
+            and selection.get('first_tier_only') is True
+            and row.get('StartingRange') in ('0', '0.0000000000')):
+        return False
+    limit = _amount(row['EndingRange'])
+    mapping = values.get('lab_day_mapping') or []
+    rows = mapping.values() if isinstance(mapping, dict) else mapping
+    # Sum all allocations, even if they do not overlap: a conservative bound.
+    usage = sum(_amount(day.get('object_storage_gb', 0)) for day in rows)
+    usage = max(usage, _amount(values.get('storage_gb', 10)))
+    if usage > limit or limit <= 0:
+        raise PricingUnavailable('S3 storage exceeds the selected first-tier capacity; use a tier-aware estimate')
+    return True
+
 def _choose(rows, resource, unit_key):
     if len(rows) != 1:
         raise PricingUnavailable(f'{resource}: expected one exact rate, found {len(rows)}; confirm SKU and billing dimension')
@@ -214,11 +231,14 @@ def refresh_rates(values):
                         continue
                     if (row.get('TermType') != 'OnDemand' or row.get('Currency') != 'USD'
                             or row.get('StartingRange') not in ('0', '0.0000000000')
-                            or row.get('EndingRange') not in ('Inf', 'Infinity')):
+                            or (row.get('EndingRange') not in ('Inf', 'Infinity')
+                                and not _storage_first_tier(row, s, name, result))):
                         raise PricingUnavailable(f'{name}: tiered or non-on-demand rates require a different billing formula')
                     matches[name].append({'rate': row['PricePerUnit'], 'unit': row['Unit'],
                         'sku': row['SKU'], 'dimension': row['RateCode'], 'source': url,
-                        'effective_date': row.get('EffectiveDate', '')})
+                        'effective_date': row.get('EffectiveDate', ''),
+                        **({'note': f"S3 Standard first-tier estimate, at most {row['EndingRange']} GB; excludes request charges and account-level volume discounts. Regenerate if storage quantities change."}
+                           if s.get('first_tier_only') else {})})
         rates = {name: _choose(matches[name], name, unit) for name, unit in RESOURCES.items()}
     else:
         rates = {}
@@ -231,7 +251,24 @@ def refresh_rates(values):
                                         'effective_date': '',
                                         'note': selection.get('not_enabled_reason')}], name, unit)
             else:
-                rates[name] = _choose(_azure(selection, regions[provider]), name, unit)
+                azure_rows = _azure(selection, regions[provider])
+                if name == 'Disk' and selection.get('meter_id') == 'ed9e91d2-0f0c-4d55-b3dd-7f69d4708b22':
+                    # Central India Premium SSD P4 LRS is a fixed 32-GiB disk.
+                    # Normalize only this known meter, with the same allocation
+                    # enforced in the workbook so fractional disks cannot result.
+                    size = result.get('disk_gb_per_node', 32)
+                    if isinstance(size, bool) or float(size) != 32:
+                        raise PricingUnavailable('Azure P4 disk selection requires exactly 32 GiB per node')
+                    result['disk_gb_per_node'] = 32
+                    for row in azure_rows:
+                        if row['unit'] != '1/Month':
+                            raise PricingUnavailable('Azure P4 disk billing unit changed')
+                        row['provider_rate'] = _amount(row['rate'])
+                        row['provider_unit'] = row['unit']
+                        row['rate'] = row['provider_rate'] / 32
+                        row['unit'] = '1 GB/Month'
+                        row['note'] = 'Premium SSD P4 LRS: one 32-GiB disk per node; monthly disk price divided by 32 for workbook arithmetic. Keep disk size at 32 GiB; regenerate to change SKU. Retention uses the workbook 30-day month estimate.'
+                rates[name] = _choose(azure_rows, name, unit)
     checked = datetime.now(timezone.utc)
     validity = int(result.get('quote_validity_days') or 7)
     if not 1 <= validity <= 365:

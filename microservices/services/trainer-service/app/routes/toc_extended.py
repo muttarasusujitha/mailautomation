@@ -945,7 +945,7 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                         "include_internal_pricing": payload.include_internal_pricing,
                         "clahan_margin_percent": payload.clahan_margin_percent,
                         "storage_gb": payload.storage_gb,
-                        "disk_gb_per_node": payload.disk_gb_per_node,
+                        "disk_gb_per_node": (32 if provider == "azure" and "disk_gb_per_node" not in payload.model_fields_set else payload.disk_gb_per_node),
                         "egress_gb": payload.egress_gb,
                         "build_minutes": payload.build_minutes,
                         "monitoring_gb": payload.monitoring_gb,
