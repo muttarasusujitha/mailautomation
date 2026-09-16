@@ -45,7 +45,7 @@ def test_complete_upcoming_batch_is_confirmed():
 Training Start Date: 01 November 2026
 Duration: 20 Training Days
 Participants: 34
-Commercial Budget: â‚¹5,40,000
+Commercial Budget: ₹5,40,000
 """
     from app.routes.inbox import _extract_requirement_from_email
     extracted = _extract_requirement_from_email("DevOps requirement", text, "swayoraalbum3@gmail.com", "Swayora Album3")
@@ -67,10 +67,10 @@ def test_three_of_four_batch_details_remain_proposal():
 def test_parser_accepts_common_email_separators_and_bullets():
     from app.routes.inbox import _extract_requirement_from_email
     text = """Technology = DevOps
-- Training Start Date â€“ 01 November 2026
+- Training Start Date – 01 November 2026
 Duration - 20 Training Days
 Participants: 34
-Commercial Budget = â‚¹5,40,000
+Commercial Budget = ₹5,40,000
 """
     extracted = _extract_requirement_from_email("DevOps requirement", text, "client@example.com", "Client")
     assert extracted["training_dates"] == "01 November 2026"

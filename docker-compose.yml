@@ -1,9 +1,6 @@
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: trainersync/frontend:local
+    image: ghcr.io/muttarasusujitha/trainersync/frontend:latest
     restart: unless-stopped
     environment:
       VITE_API_BASE_URL: /api
