@@ -19,6 +19,20 @@ def _valid_timestamp(value):
 
 def validate_lab_cost_inputs(values):
     result = dict(values or {})
+    # Preserve explicit client/requirement inputs. When the lab assumptions are
+    # omitted, use the approved operational fallback: AWS Mumbai, one
+    # participant, and three lab hours per day for that participant.
+    if result.get("cloud_provider") in (None, ""):
+        result["cloud_provider"] = "aws"
+    if result.get("cloud_region") in (None, ""):
+        result["cloud_region"] = "ap-south-1"
+    if result.get("hours_per_day") in (None, ""):
+        result["hours_per_day"] = 3
+    if result.get("participant_count") in (None, ""):
+        result["participant_count"] = 1
+
+    # FX must still be explicit/fetched because silently defaulting an exchange
+    # rate can make a client-facing cost estimate stale or incorrect.
     required = ("cloud_provider", "cloud_region", "hours_per_day", "participant_count", "fx_rate")
     missing = [key for key in required if result.get(key) in (None, "")]
     if missing:
