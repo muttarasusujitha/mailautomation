@@ -8,12 +8,26 @@ class LabCostInputTests(unittest.TestCase):
         return dict(cloud_provider="aws", cloud_region="ap-south-1",
                     hours_per_day=3, participant_count=20, fx_rate=84, **changes)
 
-    def test_missing_values_are_not_defaulted(self):
-        for key in self.inputs():
-            values = self.inputs()
-            del values[key]
-            with self.subTest(key=key), self.assertRaises(ValueError):
-                validate_lab_cost_inputs(values)
+    def test_operational_defaults_are_used_when_lab_inputs_are_missing(self):
+        checked = validate_lab_cost_inputs({"fx_rate": 84})
+        self.assertEqual(checked["cloud_provider"], "aws")
+        self.assertEqual(checked["cloud_region"], "Mumbai")
+        self.assertEqual(checked["hours_per_day"], 3)
+        self.assertEqual(checked["participant_count"], 1)
+
+    def test_explicit_lab_inputs_override_defaults(self):
+        checked = validate_lab_cost_inputs(self.inputs(
+            cloud_provider="azure", cloud_region="centralindia",
+            hours_per_day=6, participant_count=25,
+        ))
+        self.assertEqual(checked["cloud_provider"], "azure")
+        self.assertEqual(checked["cloud_region"], "Central India")
+        self.assertEqual(checked["hours_per_day"], 6)
+        self.assertEqual(checked["participant_count"], 25)
+
+    def test_fx_rate_is_still_required(self):
+        with self.assertRaises(ValueError):
+            validate_lab_cost_inputs({})
 
     def test_supported_regions_roundtrip(self):
         for provider, region in (("aws", "ap-south-1"), ("azure", "centralindia"), ("gcp", "asia-south1")):
