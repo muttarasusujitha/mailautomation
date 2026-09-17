@@ -16,6 +16,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 from shared.database.service import get_db
+from shared.trainer_identity import linkedin_profile_url
 from app.config import get_settings
 from app.toc_pdf_template import build_toc_html
 
@@ -399,6 +400,7 @@ def _mail1_requested_items(requirement: Dict[str, Any]) -> List[str]:
             requirement.get("requirement_text"),
             requirement.get("description"),
             (requirement.get("metadata") or {}).get("original_body"),
+            " ".join(requirement.get("requested_details") or (requirement.get("extracted") or {}).get("requested_details") or []),
         )
         if _clean(value)
     )
@@ -414,7 +416,7 @@ def _mail1_requested_items(requirement: Dict[str, Any]) -> List[str]:
     )
     checks = [
         ("Updated trainer profile/CV", ("cv", "resume", "profile")),
-        ("LinkedIn profile", ("linkedin",)),
+        ("LinkedIn profile", ("linkedin", "linked in")),
         (f"Relevant {(_clean(requirement.get('domain')) or _clean(requirement.get('technology')) or 'technology')} corporate training experience", ("training experience", "relevant experience", "corporate training experience")),
         ("Availability for the specified dates and timings", ("availability", "available", "slots")),
         (toc_label, ("toc", "table of contents", "agenda", "course outline", "proposal")),
@@ -422,7 +424,15 @@ def _mail1_requested_items(requirement: Dict[str, Any]) -> List[str]:
         (commercial_label, ("commercial", "budget", "rate", "charges", "cost")),
         ("Relevant certifications", ("certification", "certifications", "certified")),
     ]
-    items = [label for label, needles in checks if any(needle in source for needle in needles)]
+    profile_source = re.sub(r"linked\s*in\s+profile", "linkedin", source)
+    items = [label for label, needles in checks if any(
+        needle in (profile_source if label == "Updated trainer profile/CV" else source)
+        for needle in needles
+    )]
+    # These deliverables belong to Clahan in both proposal and confirmed flows.
+    items = [item for item in items if not any(term in item.lower() for term in (
+        "toc", "course agenda", "day-wise", "commercial", "lab plan", "lab cost",
+    ))]
     toc_action = _clean(requirement.get("toc_action") or (requirement.get("extracted") or {}).get("toc_action")).lower()
     scope_attached = bool(requirement.get("scope_attached") or (requirement.get("extracted") or {}).get("scope_attached"))
     if toc_action == "generate_by_clahan" and not scope_attached:
@@ -468,7 +478,7 @@ def _trainer_has_verified_detail(trainer: Dict[str, Any], detail: str) -> bool:
             or _clean(trainer.get("source_file"))
         )
     if detail == "linkedin":
-        return bool(_clean(trainer.get("linkedin")) or _clean(trainer.get("linkedin_url")))
+        return any(linkedin_profile_url(trainer.get(key)) for key in ("linkedin", "linkedin_url", "linkedin_profile"))
     if detail == "experience":
         return bool(
             _safe_float(trainer.get("experience_years"), 0) > 0
@@ -503,12 +513,11 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
         if "availability" in label or "slot" in label:
             if not availability:
                 missing.append("Tentative availability for the proposed engagement" if _is_proposal_requirement(requirement) else "Availability for the specified training dates")
-        elif ("profile" in label or "cv" in label or "resume" in label) and not (
-            profile_text or _clean(trainer.get("resume_url")) or _clean(trainer.get("cv_url"))
-        ):
+        elif "linkedin" in label or "linked in" in label:
+            if not _trainer_has_verified_detail(trainer, "linkedin"):
+                missing.append("LinkedIn profile")
+        elif ("profile" in label or "cv" in label or "resume" in label) and not _trainer_has_verified_detail(trainer, "profile"):
             missing.append("Updated trainer profile/CV")
-        elif "linkedin" in label and not _trainer_has_verified_detail(trainer, "linkedin"):
-            missing.append("LinkedIn profile")
         elif "experience" in label and not _trainer_has_verified_detail(trainer, "experience"):
             missing.append("Relevant corporate training experience")
         # Commercials are platform-calculated and are never requested again.
@@ -616,6 +625,13 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         if ask else
         f"Please confirm your interest, delivery feasibility and {availability}.\n\n"
     )
+    commercial_offer = _trainer_mail1_commercial_section(requirement, trainer)
+    commercial_request = (
+        "Please confirm the offered trainer commercial and your availability. "
+        "If it does not work for you, let us know for review.\n\n"
+        if commercial_offer else
+        "Please share your expected commercial amount per day/session together with your availability.\n\n"
+    )
     slot_context = ""
     introduction = ("We are contacting you about a proposed corporate training engagement." if is_proposal else "We are contacting you about a confirmed client training requirement.")
     return (
@@ -625,7 +641,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         "Requirement details noted:\n\n"
         f"{chr(10).join(details)}\n\n"
         f"{request_line}"
-        "Please confirm the offered engagement amount and your availability. If it does not work for you, let us know for review.\n\n"
+        f"{commercial_request}"
         f"Please also share three convenient interview/discussion slots{slot_context}, with the date, time, and time zone.\n"
         "Example:\n"
         "- 01 November 2026, 10:00 AM IST\n"
@@ -1158,10 +1174,7 @@ def _requested_trainer_details_for_client(
         return cleaned
 
     def linkedin_link(text: str) -> str:
-        for link in extract_links(text):
-            if "linkedin.com" in link.lower():
-                return link
-        return ""
+        return linkedin_profile_url(text)
 
     def reply_lines(*needles: str, limit: int = 3) -> str:
         matches: List[str] = []
@@ -1197,7 +1210,8 @@ def _requested_trainer_details_for_client(
             if resume_line not in lines:
                 lines.append(resume_line)
     if wanted("linkedin", "linked in"):
-        linkedin = first_value("linkedin", "linkedin_url", "linkedin_profile") or linkedin_link(reply_detail_text)
+        linkedin = next((link for key in ("linkedin", "linkedin_url", "linkedin_profile")
+                         if (link := linkedin_profile_url(trainer.get(key)))), "") or linkedin_link(reply_detail_text)
         if linkedin:
             lines.append(f"- LinkedIn profile: {linkedin}")
     if wanted("availability", "available", "slot"):
@@ -1714,7 +1728,7 @@ async def _ai_trainer_mail1(
         return {"subject": _clean(subject_match.group(1) if subject_match else fallback_subject) or fallback_subject, "body": body}
     except Exception as exc:
         logger.warning("AI Mail 1 generation failed: %s", exc)
-        raise HTTPException(502, "AI Mail 1 generation failed. Retry or select Template mode explicitly.") from exc
+        return None
 
 
 def _ensure_mail1_slot_examples(body: str) -> str:
@@ -2283,7 +2297,7 @@ def _workflow_summary(doc: Dict[str, Any]) -> Dict[str, Any]:
         trainer for trainer in trainers
         if trainer.get("client_slots_sent") is True
         and _clean(trainer.get("client_slots_email_id"))
-        and _clean(trainer.get("slot_status")).lower() in {"sent_to_client", "confirmed_by_client"}
+        and _clean(trainer.get("slot_status")).lower() in {"sent_to_client", "confirmed_by_client", "selected_by_client", "interview_link_sent", "client_interview_send_failed"}
     ]
     handoff_retry_pending = [
         trainer for trainer in trainers
@@ -3625,30 +3639,35 @@ async def send_client_slots(
 
     lab_cost_attachments: List[Tuple[str, bytes]] = []
     lab_error = ""
-    # FX is a system input for the lab workbook, so fetch it automatically
-    # when the client did not provide one. Store the rate and provenance on
-    # the requirement so retries use the same confirmed value.
-    if wants_lab_cost and _safe_float(req.get("fx_rate"), 0) <= 0:
-        try:
-            async with httpx.AsyncClient(timeout=10, follow_redirects=True) as fx_client:
-                fx_response = await fx_client.get("https://api.frankfurter.dev/v1/latest?from=USD&to=INR")
-                fx_response.raise_for_status()
-                fx_rate = _safe_float((fx_response.json().get("rates") or {}).get("INR"), 0)
-            if fx_rate > 0:
-                req["fx_rate"] = fx_rate
-                req["fx_rate_source"] = "frankfurter.dev"
-                req["fx_rate_fetched_at"] = datetime.utcnow()
-                await db["requirements"].update_one(
-                    {"requirement_id": payload.requirement_id},
-                    {"$set": {
-                        "fx_rate": fx_rate,
-                        "fx_rate_source": "frankfurter.dev",
-                        "fx_rate_fetched_at": req["fx_rate_fetched_at"],
-                        "updated_at": datetime.utcnow(),
-                    }},
-                )
-        except Exception as exc:
-            logger.warning("Automatic USD/INR lookup failed for %s: %s", payload.requirement_id, exc)
+    # The document service refreshes FX and cloud prices for each new quote.
+    # Missing provider/region use the approved AWS Mumbai estimate baseline.
+    if wants_lab_cost:
+        req = dict(req)
+        default_regions = {"aws": "ap-south-1", "azure": "centralindia", "gcp": "asia-south1"}
+        update_defaults = {}
+        supplied_provider = _clean(req.get("cloud_provider"))
+        req["cloud_provider"] = supplied_provider or "aws"
+        if not supplied_provider:
+            update_defaults["cloud_provider"] = "aws"
+        providers = [provider for provider in default_regions
+                     if re.search(rf"\b{provider}\b", req["cloud_provider"].lower())]
+        if len(providers) > 1:
+            saved_regions = dict(req.get("cloud_regions") or {})
+            regions = dict(saved_regions)
+            for provider in providers:
+                regions.setdefault(provider, default_regions[provider])
+            req["cloud_regions"] = regions
+            if regions != saved_regions:
+                update_defaults["cloud_regions"] = regions
+        elif not _clean(req.get("cloud_region")):
+            region = default_regions.get((providers or ["aws"])[0], "ap-south-1")
+            req["cloud_region"] = region
+            update_defaults["cloud_region"] = region
+        if update_defaults:
+            await db["requirements"].update_one(
+                {"requirement_id": payload.requirement_id},
+                {"$set": {**update_defaults, "updated_at": datetime.utcnow()}},
+            )
     raw_participants = req.get("participant_count")
     if raw_participants in (None, ""):
         raw_participants = req.get("participants")
@@ -3689,12 +3708,11 @@ async def send_client_slots(
             # A single-provider request must name its region. Multi-cloud
             # requests use the provider-specific rate-card defaults above.
             "cloud_region": _clean(req.get("cloud_region")) if len(requested_providers) == 1 else "multi-provider",
-            "fx_rate": _safe_float(req.get("fx_rate"), 0),
         }
         missing_lab_inputs = [name for name, value in required_lab_inputs.items() if not value]
         if missing_lab_inputs:
             raise HTTPException(422, detail={
-                "message": "Lab-cost estimate needs valid provider, region, FX and usage inputs",
+                "message": "Lab-cost estimate needs valid provider, region and usage inputs",
                 "missing_inputs": missing_lab_inputs,
             })
         from shared.lab_cost_inputs import validate_lab_cost_inputs
@@ -3704,10 +3722,9 @@ async def send_client_slots(
                 checked_provider_inputs.append(validate_lab_cost_inputs({
                     "cloud_provider": provider,
                     "cloud_region": region,
-                    "fx_rate": req.get("fx_rate"),
                     "hours_per_day": supplied_lab_hours,
                     "participant_count": supplied_participant_count,
-                }))
+                }, require_fx=False))
         except (ValueError, TypeError) as exc:
             raise HTTPException(422, detail=str(exc)) from exc
         participant_count = checked_provider_inputs[0]["participant_count"]
@@ -3731,13 +3748,16 @@ async def send_client_slots(
             if str(mode_setting.get("value") or "").lower() == "ai":
                 from openai import AsyncOpenAI
                 from shared.lab_planning import plan_resources
-                async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY) as planner:
-                    for checked in checked_provider_inputs:
-                        lab_mappings[checked["cloud_provider"]] = await plan_resources('ai', toc_data, {
-                            "participant_count": participant_count,
-                            "hours_per_day": lab_hours_per_day,
-                            "cloud_provider": checked["cloud_provider"],
-                        }, planner, settings.OPENAI_MODEL)
+                try:
+                    async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY) as planner:
+                        for checked in checked_provider_inputs:
+                            lab_mappings[checked["cloud_provider"]] = await plan_resources('ai', toc_data, {
+                                "participant_count": participant_count,
+                                "hours_per_day": lab_hours_per_day,
+                                "cloud_provider": checked["cloud_provider"],
+                            }, planner, settings.OPENAI_MODEL)
+                except Exception as exc:
+                    logger.warning("AI lab planning failed; using the approved baseline mapping: %s", exc)
             async with httpx.AsyncClient(timeout=180) as client:
                 for checked in checked_provider_inputs:
                     # Resolve the saved catalog and refresh its public prices.
@@ -3749,7 +3769,6 @@ async def send_client_slots(
                             "assumptions": {
                                 "cloud_provider": checked["cloud_provider"],
                                 "cloud_region": checked["cloud_region"],
-                                "fx_rate": required_lab_inputs["fx_rate"],
                                 "hours_per_day": lab_hours_per_day,
                                 "participant_count": participant_count,
                             "include_default_hour_options": False,
@@ -3774,18 +3793,24 @@ async def send_client_slots(
         except Exception:
             logger.exception("Failed to generate lab-cost workbook for client handoff")
     if wants_lab_cost and lab_cost_attachments and len(lab_cost_attachments) == len(requested_providers):
-        async with httpx.AsyncClient(timeout=180) as client:
-            combined = await _post_with_local_fallback(client,
-                f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost/combine",
-                json={"estimates": [
-                    {"provider": provider, "content_base64": base64.b64encode(content).decode()}
-                    for provider, content in lab_cost_attachments
-                ]})
-        if combined.status_code != 200 or not combined.content:
-            raise HTTPException(502, 'Could not prepare the single-sheet lab estimate')
+        # Keep an already client-ready one-cloud workbook intact. Flattening it
+        # into the combined layout exposed collapsed technical sections.
+        if len(lab_cost_attachments) == 1:
+            lab_cost_content = lab_cost_attachments[0][1]
+        else:
+            async with httpx.AsyncClient(timeout=180) as client:
+                combined = await _post_with_local_fallback(client,
+                    f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost/combine",
+                    json={"estimates": [
+                        {"provider": provider, "content_base64": base64.b64encode(content).decode()}
+                        for provider, content in lab_cost_attachments
+                    ]})
+            if combined.status_code != 200 or not combined.content:
+                raise HTTPException(502, 'Could not prepare the combined lab estimate')
+            lab_cost_content = combined.content
         attachments.append({
             "filename": f"{technology} - Lab Cost Estimate.xlsx",
-            "content_base64": base64.b64encode(combined.content).decode(),
+            "content_base64": base64.b64encode(lab_cost_content).decode(),
             "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         })
     # Do not mark the handoff delivered with an incomplete attachment set.

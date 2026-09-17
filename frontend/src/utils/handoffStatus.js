@@ -1,7 +1,7 @@
 export function isClientHandoffDelivered(trainer) {
   return trainer?.client_slots_sent === true &&
     Boolean(String(trainer?.client_slots_email_id || '').trim()) &&
-    ['sent_to_client', 'confirmed_by_client'].includes(String(trainer?.slot_status || '').toLowerCase())
+    ['sent_to_client', 'confirmed_by_client', 'selected_by_client', 'interview_link_sent', 'client_interview_send_failed'].includes(String(trainer?.slot_status || '').toLowerCase())
 }
 
 export function pipelineStepComplete(step, currentStep, trainer) {

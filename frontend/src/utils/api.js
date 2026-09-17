@@ -14,6 +14,7 @@ function shouldRetryRequest(err) {
   const config = err.config || {}
   const method = String(config.method || 'get').toLowerCase()
   const status = err.response?.status
+  if (err.code === 'ERR_CANCELED') return false
   if (!RETRYABLE_METHODS.has(method)) return false
   if (config.__retryCount >= 1) return false
   return !status || RETRYABLE_STATUSES.has(status)
@@ -131,7 +132,7 @@ export const createRequirement = (data)   => api.post('/requirements', data)
 export const updateRequirement = (id, data) => api.patch(`/requirements/${id}`, data)
 export const deleteRequirement = (id)     => api.delete(`/requirements/${id}`)
 export const shortlistOnly     = (data)   => api.post('/requirements/shortlist-only', data)
-export const getShortlist      = (id)     => api.get(`/shortlists/${id}`)
+export const getShortlist      = (id)     => api.get(`/shortlists/${id}`, { timeout: 20000 })
 export const getEmails         = (params) => api.get('/emails', { params })
 export const checkReplies      = (payload = {}) => api.post('/emails/check-replies', { since_days: 7, max_messages: 100, ...payload })
 export const retryEmail        = (id)     => api.post(`/emails/${id}/retry`)

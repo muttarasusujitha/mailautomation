@@ -109,6 +109,9 @@ def combine_lab_estimates(estimates):
             source_height = source.row_dimensions[number].height or 20
             sheet.row_dimensions[number + offset].height = max(source_height, 20)
         if detail:
+            # The title must collapse with its technical section; a visible
+            # title above hidden rows reads as a large blank band to clients.
+            sheet.row_dimensions[offset].hidden = True
             sheet.row_dimensions.group(offset + 1, offset + source.max_row, hidden=True)
     widths = {'A': 34, 'B': 18, 'C': 16, 'D': 16, 'E': 18,
               'F': 14, 'G': 38, 'H': 18, 'I': 14, 'J': 18, 'K': 12}

@@ -31,6 +31,7 @@ from app.calendar_client import (
     create_google_meet_event,
 )
 from shared.database.service import get_db
+from shared.trainer_identity import linkedin_profile_url
 from app.gmail_client import check_gmail_api_replies, check_imap_replies, generate_message_id, send_email_async
 from app.routes.templates import (
     GenericSimpleRequest,
@@ -3159,10 +3160,7 @@ def _requested_trainer_details_for_client(requirement: Dict[str, Any], trainer: 
         return cleaned
 
     def linkedin_link(text: str) -> str:
-        for link in extract_links(text):
-            if "linkedin.com" in link.lower():
-                return link
-        return ""
+        return linkedin_profile_url(text)
 
     def reply_lines(*needles: str, limit: int = 3) -> str:
         matches: List[str] = []
@@ -3194,7 +3192,8 @@ def _requested_trainer_details_for_client(requirement: Dict[str, Any], trainer: 
             if resume_line not in lines:
                 lines.append(resume_line)
     if wanted("linkedin", "linked in"):
-        linkedin = first_value("linkedin", "linkedin_url", "linkedin_profile") or linkedin_link(reply_detail_text)
+        linkedin = next((link for key in ("linkedin", "linkedin_url", "linkedin_profile")
+                         if (link := linkedin_profile_url(trainer.get(key)))), "") or linkedin_link(reply_detail_text)
         if linkedin:
             lines.append(f"- LinkedIn profile: {linkedin}")
     if wanted("availability", "available", "slot"):
@@ -3820,13 +3819,8 @@ def _trainer_detail_evidence_doc(
 
 
 def _linkedin_profile_url(value: Any) -> str:
-    """Return a real LinkedIn profile URL, never a bare LinkedIn mention."""
-    match = re.search(
-        r"https?://(?:[a-z]{2,3}\.)?(?:www\.)?linkedin\.com/(?:in|pub|company)/[^\s<>)]+",
-        str(value or ""),
-        flags=re.IGNORECASE,
-    )
-    return match.group(0).rstrip(".,;:") if match else ""
+    """Return a supplied personal LinkedIn URL, never a bare mention."""
+    return linkedin_profile_url(value)
 
 
 def _trainer_has_linkedin_profile(reply_text: Any, email_doc: Optional[Dict[str, Any]] = None) -> bool:
@@ -7756,7 +7750,10 @@ async def _handle_client_selection_reply(
         or email_doc.get("body")
         or ""
     )
-    text = (subject + "\n" + body).lower()
+    # A carried-over subject is not a new client decision.
+    text = (body or subject).lower()
+    if re.search(r"\b(?:not|never)\s+(?:been\s+)?selected\b|\b(?:if|whether)\s+(?:he|she|the trainer)\s+is\s+selected\b", text):
+        return {"attempted": False}
     # Accept the normal confirmation wording and the common accidental
     # ``selectedslove`` suffix (for example, "he is selectedslove").  A
     # strict word boundary after "selected" made that otherwise unambiguous
@@ -7770,6 +7767,8 @@ async def _handle_client_selection_reply(
         r"\bselected the trainer\b",
         r"\byou have been selected\b",
         r"\btrainer selected\b",
+        r"\b(?:he|she|(?:the\s+)?trainer)\s+has\s+been\s+selected\b",
+        r"^\s*(?:selected|approved)[.!\s]*(?:please\s+)?(?:proceed[.!\s]*)?$",
         r"\bfinali[sz]ed\s+(?:this|the)?\s*trainer\b",
         r"\bgo\s+ahead\s+with\s+(?:this|the)?\s*trainer\b",
     ]
@@ -9337,6 +9336,31 @@ async def _update_existing_requirement_from_extracted(
     if not requirement_id:
         return
 
+    # A reply often contains only a short decision such as "he is selected".
+    # It is not a replacement for the original intake and must never move a
+    # confirmed engagement back into the proposal pipeline.  Replies may
+    # promote an earlier proposal when they explicitly confirm it, but the
+    # existing confirmed classification remains authoritative otherwise.
+    existing_requirement = await db["requirements"].find_one(
+        {"requirement_id": requirement_id},
+        {
+            "_id": 0,
+            "batch_flow": 1,
+            "batch_type": 1,
+            "requirement_type": 1,
+            "training_status": 1,
+            "pipeline_target": 1,
+            "pipeline_page": 1,
+        },
+    ) or {}
+    existing_flow = " ".join(
+        _clean(existing_requirement.get(field)).lower()
+        for field in (
+            "batch_flow", "batch_type", "requirement_type",
+            "training_status", "pipeline_target", "pipeline_page",
+        )
+    )
+
     update: Dict[str, Any] = {"updated_at": _now()}
     technology = _clean(
         extracted.get("technology_needed")
@@ -9399,7 +9423,11 @@ async def _update_existing_requirement_from_extracted(
         if value not in (None, "", []):
             update[field] = value
 
-    flow_type = _requirement_flow_from_email(extracted, extracted.get("client_requirement_text") or "")
+    extracted_flow = _requirement_flow_from_email(
+        extracted,
+        extracted.get("client_requirement_text") or "",
+    )
+    flow_type = "confirmed" if "confirmed" in existing_flow or "shortlist1" in existing_flow else extracted_flow
     update.update({
         "batch_flow": flow_type,
         "batch_type": flow_type,
@@ -9916,16 +9944,29 @@ async def _recover_client_slot_reply_context(
         or email_doc.get("body")
         or ""
     )
-    if not sender_email or _slot_confirmation_intent(reply_text) not in {
+    slot_selection = _slot_confirmation_intent(reply_text) in {
         "selected_slot_number", "selected_slot_details", "selected_slot",
-    }:
+    }
+    # Mobile and webmail replies regularly omit In-Reply-To/References. A
+    # clear trainer-selection response needs the same handoff recovery as a
+    # slot response; otherwise the selection parser sees no requirement or
+    # trainer ID and leaves the pipeline unchanged.
+    trainer_selection = bool(re.search(
+        r"\b(?:we\s+(?:have\s+)?selected|he\s+is\s+selected|she\s+is\s+selected|"
+        r"trainer\s+is\s+selected|selected\s+the\s+trainer|you\s+have\s+been\s+selected|"
+        r"trainer\s+selected|finali[sz]ed\s+(?:this|the)?\s*trainer|"
+        r"go\s+ahead\s+with\s+(?:this|the)?\s*trainer)\b",
+        _strip_quoted_email_history(reply_text),
+        flags=re.IGNORECASE,
+    ))
+    if not sender_email or not (slot_selection or trainer_selection):
         return email_doc
 
     candidate = await db["email_logs"].find_one(
         {
             "direction": "outbound",
             "status": "sent",
-            "mail_type": "client_slots",
+        "mail_type": "client_slots",
             "requirement_id": {"$exists": True, "$nin": ["", None]},
             "trainer_id": {"$exists": True, "$nin": ["", None]},
             "$or": [
@@ -9951,7 +9992,7 @@ async def _recover_client_slot_reply_context(
         await db["client_emails"].update_one({"email_id": email_doc["email_id"]}, {"$set": recovered})
         await db["email_logs"].update_one({"email_id": email_doc["email_id"]}, {"$set": recovered})
     logger.info(
-        "Recovered client-slot handoff context for %s: %s/%s",
+        "Recovered client handoff context for %s: %s/%s",
         sender_email,
         recovered["requirement_id"],
         recovered["trainer_id"],

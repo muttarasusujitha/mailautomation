@@ -131,3 +131,38 @@ class LivePricingTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+def test_fx_refresh_replaces_saved_rate_and_records_source():
+    import io, json
+    from datetime import datetime, timezone
+    from shared.live_lab_pricing import refresh_exchange_rate
+    data = {'base': 'USD', 'date': datetime.now(timezone.utc).date().isoformat(), 'rates': {'INR': 95.25}}
+    with patch('shared.live_lab_pricing.urlopen', side_effect=lambda *a, **k: io.BytesIO(json.dumps(data).encode())) as get:
+        first = refresh_exchange_rate({'fx_rate': 84})
+        second = refresh_exchange_rate(first)
+    assert get.call_count == 2
+    assert second['fx_rate'] == 95.25
+    assert second['fx_rate_source'].startswith('https://')
+    assert second['fx_rate_date'].startswith(data['date'])
+    assert second['fx_rate_fetched_at']
+
+
+def test_fx_outage_does_not_reuse_saved_rate():
+    import pytest
+    from shared.live_lab_pricing import refresh_exchange_rate
+    with patch('shared.live_lab_pricing.urlopen', side_effect=TimeoutError):
+        with pytest.raises(PricingUnavailable):
+            refresh_exchange_rate({'fx_rate': 84})
+
+
+def test_fx_uses_dated_live_alternative_when_primary_is_unavailable():
+    import io, json
+    from datetime import datetime, timezone
+    from shared.live_lab_pricing import refresh_exchange_rate
+    data = {'result': 'success', 'base_code': 'USD',
+            'time_last_update_unix': datetime.now(timezone.utc).timestamp(), 'rates': {'INR': 96.12}}
+    with patch('shared.live_lab_pricing.urlopen', side_effect=[OSError('403'), io.BytesIO(json.dumps(data).encode())]):
+        result = refresh_exchange_rate({'fx_rate': 84})
+    assert result['fx_rate'] == 96.12
+    assert result['fx_rate_source'] == 'https://open.er-api.com/v6/latest/USD'

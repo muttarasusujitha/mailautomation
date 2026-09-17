@@ -79,6 +79,9 @@ export default function VoiceAIAssistant() {
   const [saving, setSaving] = useState('')
   const [error, setError] = useState('')
   const recognitionRef = useRef(null)
+  const utteranceRef = useRef(null)
+  const speechTimerRef = useRef(null)
+  const [speaking, setSpeaking] = useState(false)
   const draft = useMemo(() => {
     if (!analysis) return responseDraft(transcript)
     if (outputMode === 'script' && analysis.call_script) return analysis.call_script
@@ -110,6 +113,11 @@ export default function VoiceAIAssistant() {
 
   useEffect(() => {
     loadHistory()
+    return () => {
+      recognitionRef.current?.abort()
+      clearTimeout(speechTimerRef.current)
+      if (utteranceRef.current) window.speechSynthesis?.cancel()
+    }
   }, [])
 
   const runAnalysis = async () => {
@@ -181,7 +189,12 @@ export default function VoiceAIAssistant() {
     recognitionRef.current = recognition
     setError('')
     setListening(true)
-    recognition.start()
+    try {
+      recognition.start()
+    } catch (error) {
+      setListening(false)
+      setError(error.message || 'Could not start the microphone. Please try again.')
+    }
   }
 
   const stopListening = () => {
@@ -190,12 +203,55 @@ export default function VoiceAIAssistant() {
   }
 
   const speakDraft = () => {
-    if (!window.speechSynthesis) {
+    if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
       toast.error('Voice playback is not supported in this browser')
       return
     }
+    clearTimeout(speechTimerRef.current)
     window.speechSynthesis.cancel()
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(draft))
+    if (speaking) {
+      utteranceRef.current = null
+      setSpeaking(false)
+      return
+    }
+    recognitionRef.current?.stop()
+    setListening(false)
+    setError('')
+    const utterance = new window.SpeechSynthesisUtterance(draft)
+    utterance.lang = 'en-IN'
+    const voices = window.speechSynthesis.getVoices()
+    const voice = voices.find(item => item.lang === 'en-IN') || voices.find(item => item.lang.startsWith('en'))
+    if (voice) utterance.voice = voice
+    utteranceRef.current = utterance
+    const finish = () => {
+      if (utteranceRef.current !== utterance) return
+      clearTimeout(speechTimerRef.current)
+      utteranceRef.current = null
+      setSpeaking(false)
+    }
+    utterance.onstart = () => clearTimeout(speechTimerRef.current)
+    utterance.onend = finish
+    utterance.onerror = event => {
+      if (utteranceRef.current !== utterance) return
+      finish()
+      if (!['canceled', 'interrupted'].includes(event.error)) {
+        setError(`Voice playback failed (${event.error || 'unknown error'}). Check browser audio permissions and try Speak again.`)
+      }
+    }
+    setSpeaking(true)
+    speechTimerRef.current = setTimeout(() => {
+      if (utteranceRef.current !== utterance) return
+      finish()
+      window.speechSynthesis.cancel()
+      setError('Voice playback did not start. Check browser audio permissions and installed speech voices, then try Speak again.')
+    }, 10000)
+    try {
+      window.speechSynthesis.resume()
+      window.speechSynthesis.speak(utterance)
+    } catch (error) {
+      finish()
+      setError(error.message || 'Voice playback failed')
+    }
   }
 
   const copyDraft = async () => {
@@ -338,7 +394,7 @@ export default function VoiceAIAssistant() {
                 Analyze
               </button>
               <button type="button" onClick={copyDraft} className="btn-secondary"><Copy className="h-4 w-4" />Copy</button>
-              <button type="button" onClick={speakDraft} className="btn-secondary"><Volume2 className="h-4 w-4" />Speak</button>
+              <button type="button" onClick={speakDraft} className="btn-secondary"><Volume2 className="h-4 w-4" />{speaking ? 'Stop Speaking' : 'Speak'}</button>
             </div>
           </div>
           <pre className="min-h-96 whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-4 font-sans text-sm leading-6 text-slate-700">{draft}</pre>

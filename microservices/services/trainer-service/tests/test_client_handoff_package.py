@@ -119,7 +119,7 @@ def test_client_gets_profile_toc_lab_and_three_slots(monkeypatch):
     assert db["shortlists"].update_one.await_count == 1
 
 
-@pytest.mark.parametrize("failure", ["profile", "toc", "lab", "combine"])
+@pytest.mark.parametrize("failure", ["profile", "toc", "lab"])
 def test_missing_required_document_prevents_send_and_completion(monkeypatch, failure):
     db, requests = prepare(monkeypatch, failure)
     with pytest.raises(HTTPException) as error:
@@ -170,18 +170,17 @@ def test_lab_hours_use_confirmed_lab_input(monkeypatch, lab_hours, expected):
     assert lab_request['assumptions']['hours_per_day'] == expected
 
 
-@pytest.mark.parametrize("missing", [
-    "cloud_provider", "cloud_region", "fx_rate",
-])
-def test_missing_confirmed_lab_input_blocks_package(monkeypatch, missing):
-    db, requests = prepare(monkeypatch, requirement_overrides={missing: None})
-    with pytest.raises(HTTPException) as error:
-        asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
-            requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
-        ), db))
-    assert error.value.status_code == 422
-    assert missing in error.value.detail["missing_inputs"]
-    assert not any(path.endswith("/email/send") for path, _ in requests)
+@pytest.mark.parametrize("batch", ["confirmed", "proposal"])
+@pytest.mark.parametrize("missing", ["cloud_provider", "cloud_region", "fx_rate"])
+def test_missing_system_input_is_resolved_automatically(monkeypatch, missing, batch):
+    db, requests = prepare(monkeypatch, requirement_overrides={missing: None, 'batch_flow': batch})
+    asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id="REQ-TEST", trainer_id="T-TEST", slot_text=SLOTS,
+    ), db))
+    lab = next(body for path, body in requests if path.endswith('/lab-cost'))['assumptions']
+    assert lab['cloud_provider'] == 'aws'
+    assert lab['cloud_region'] == 'Mumbai'
+    assert 'fx_rate' not in lab
 
 
 def test_missing_usage_uses_approved_one_person_three_hour_baseline(monkeypatch):
@@ -205,6 +204,14 @@ def test_aws_and_azure_produce_one_client_attachment(monkeypatch):
     assert [item['provider'] for item in merge['estimates']] == ['aws', 'azure']
     mail = next(body for path, body in requests if path.endswith('/email/send'))
     assert len([a for a in mail['attachments'] if 'Lab Cost' in a['filename']]) == 1
+
+
+def test_single_cloud_uses_the_client_first_workbook_without_flattening(monkeypatch):
+    db, requests = prepare(monkeypatch)
+    asyncio.run(shortlists.send_client_slots(shortlists.SendClientSlotsRequest(
+        requirement_id='REQ-TEST', trainer_id='T-TEST', slot_text=SLOTS,
+    ), db))
+    assert not any(path.endswith('/combine') for path, _ in requests)
 
 
 def test_unverified_lab_workbook_blocks_package(monkeypatch):

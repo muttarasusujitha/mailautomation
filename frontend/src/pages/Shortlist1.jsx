@@ -16,6 +16,7 @@ import { useLiveShortlist } from '../utils/useLiveShortlist'
 import { formatRequirementSchedule } from '../utils/requirementDates'
 import ClientHandoffReview from '../components/ClientHandoffReview'
 import { batchEmailRules } from '../utils/batchEmailRules'
+import { linkedinProfileUrl, trainerOwnedDetails } from '../utils/trainerIdentity'
 
 // Some legacy pipeline strings were saved with their UTF-8 bytes decoded as
 // Latin-1. Repair them at the UI boundary so no mojibake reaches the screen.
@@ -163,7 +164,7 @@ function cleanTrainerReplyForClient(text = '') {
 
 function trainerClientSummaryForHandoff(text = '') {
   const clean = stripQuotedEmail(String(text || ''))
-  const linkedin = (clean.match(/https?:\/\/[^\s<>)]+linkedin\.com[^\s<>)]+/i) || [])[0]
+  const linkedin = linkedinProfileUrl(clean)
   const lines = ['- Trainer profile/CV: attached/shared for review']
   if (linkedin) lines.push(`- LinkedIn profile: ${linkedin.replace(/[.,;:]$/, '')}`)
   return lines.join('\n')
@@ -610,10 +611,10 @@ function backendAuthoritativeStage(trainer, req) {
   if (selectedId && trainerId && trainerId !== selectedId) return 'stopped_selected'
   if (selectedId && trainerId === selectedId) {
     if (commercialStage) return commercialStage
-    if (trainerStage && trainerStage !== 'stopped_selected') return trainerStage
     if (['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(requirementStage)) {
       return requirementStage
     }
+    if (trainerStage && trainerStage !== 'stopped_selected') return trainerStage
     return 'selected'
   }
   // Handoff delivery is stronger evidence than a stale/replayed trainer
@@ -778,7 +779,7 @@ function requestedTrainerDetailItems(req = {}) {
   if (/\b(certification|certifications|certificate|certified)\b/.test(source)) add('certification', 'Relevant certifications')
   if (!tocGeneratedByClahan && /\b(toc|table of contents|course agenda|agenda|day[-\s]?wise)\b/.test(source)) add('toc', 'ToC/course agenda')
   if (!labManagedByClahan && /\b(lab|hands[-\s]?on|environment|setup)\b/.test(source)) add('lab', 'Lab/support details')
-  return items
+  return trainerOwnedDetails(items)
 }
 
 function trainerReplyDetailPresence(text = '') {
@@ -788,7 +789,7 @@ function trainerReplyDetailPresence(text = '') {
   return {
     profile: /\b(profile|trainer profile|brief profile)\b/.test(t) || hasAttachment,
     cv: /\b(cv|resume|curriculum vitae)\b/.test(t) || hasAttachment,
-    linkedin: /linkedin\.com|linkedin profile|linkedin\b/.test(t),
+    linkedin: Boolean(linkedinProfileUrl(clean)),
     commercial: /\b(inr|rs\.?|\u20b9|rate|charges?|commercial|fee|fees|per day|per session|cost)\b/i.test(t),
     certification: /\b(certification|certifications|certificate|certified|not certified|no certification|none)\b/i.test(t),
     toc: /\b(toc|table of contents|course agenda|agenda|day[-\s]?wise|module|topics covered)\b/i.test(t),
@@ -805,12 +806,7 @@ function missingTrainerDetailItems(text = '', req = {}) {
 function hasCompleteRequestedTrainerDetails(text = '', req = {}) {
   const clean = stripQuotedEmail(text)
   if (!clean) return false
-  if (acceptsSameCommercial(clean)) return true
-  const required = requestedTrainerDetailItems(req)
-  const missing = missingTrainerDetailItems(clean, req)
-  const presentCount = required.length - missing.length
-  if (!missing.length) return true
-  return presentCount >= Math.max(3, required.length - 1) && trainerReplyDetailPresence(clean).commercial
+  return missingTrainerDetailItems(clean, req).length === 0
 }
 
 function hasRequestedTrainerDetails(text = '', req = {}) {
@@ -4934,15 +4930,15 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 }
 
 // â”€â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function hasRequirementWorkflowChanged(current = {}, incoming = {}) {
+  return [
+    'status', 'batch_flow', 'batch_type', 'requirement_type', 'pipeline_page',
+    'selection_status', 'selected_trainer_id', 'selected_trainer_name',
+    'client_po_requested', 'client_po_received', 'batch_confirmed', 'invoice_sent',
+  ].some(field => current?.[field] !== incoming?.[field])
+}
+
 export default function Shortlist1() {
-  useEffect(() => {
-    const root = document.getElementById('root')
-    if (!root) return undefined
-    normalizeVisibleText(root)
-    const observer = new MutationObserver(() => normalizeVisibleText(root))
-    observer.observe(root, { childList: true, subtree: true, characterData: true })
-    return () => observer.disconnect()
-  }, [])
   const rawReqParam = new URLSearchParams(globalThis.location.search).get('requirement_id') || ''
   // If the query param contains surrounding text (copied content), extract canonical REQ-XXXX token
   const reqMatch = (rawReqParam || '').match(/(REQ-[A-Z0-9]+)/i)
@@ -5197,8 +5193,24 @@ export default function Shortlist1() {
     await syncInboxReplies()
 
     try {
-      const res = await api.get('/emails', {
+      const [requirementRes, res] = await Promise.all([
+        getRequirement(selectedReq.requirement_id),
+        api.get('/emails', {
         params: { requirement_id: selectedReq.requirement_id, page: 1, limit: 1000, _ts: Date.now() },
+        }),
+      ])
+      const refreshedRequirement = requirementRes.data || selectedReq
+      setSelectedReq(previous => (
+        hasRequirementWorkflowChanged(previous, refreshedRequirement) ? refreshedRequirement : previous
+      ))
+      setReqs(previous => {
+        let changed = false
+        const next = previous.map(item => {
+          if (item.requirement_id !== refreshedRequirement.requirement_id || !hasRequirementWorkflowChanged(item, refreshedRequirement)) return item
+          changed = true
+          return refreshedRequirement
+        })
+        return changed ? next : previous
       })
       const logsByTrainer = {}
       for (const email of (res.data.emails || [])) {
@@ -5209,8 +5221,8 @@ export default function Shortlist1() {
       }
       const threadResults = trainers.map(trainer => ({
         trainerId: trainer.trainer_id,
-        inferred: backendAuthoritativeStage(trainer, selectedReq)
-          ? { status: backendAuthoritativeStage(trainer, selectedReq) }
+        inferred: backendAuthoritativeStage(trainer, refreshedRequirement)
+          ? { status: backendAuthoritativeStage(trainer, refreshedRequirement) }
           : inferPipelineStateFromEmailLogs(logsByTrainer[String(trainer.trainer_id)] || []),
       }))
 

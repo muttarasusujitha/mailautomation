@@ -1,4 +1,30 @@
-from app.routes.inbox import _requirement_flow_from_email
+import asyncio
+
+from app.routes.inbox import (
+    _requirement_flow_from_email,
+    _update_existing_requirement_from_extracted,
+)
+
+
+class _FakeRequirementsCollection:
+    def __init__(self, existing):
+        self.existing = existing
+        self.update = None
+
+    async def find_one(self, _query, _projection):
+        return self.existing
+
+    async def update_one(self, _query, update):
+        self.update = update
+
+
+class _FakeDatabase:
+    def __init__(self, existing):
+        self.requirements = _FakeRequirementsCollection(existing)
+
+    def __getitem__(self, name):
+        assert name == "requirements"
+        return self.requirements
 
 
 def test_unconfirmed_sourcing_requirement_uses_proposal_flow():
@@ -81,6 +107,24 @@ Commercial Budget = ₹5,40,000
 
 def test_confirmation_must_come_from_client_text():
     assert _requirement_flow_from_email({"batch_type": "confirmed batch"}, "Please share commercials") == "proposal"
+
+
+def test_reply_cannot_downgrade_a_confirmed_requirement_to_proposal():
+    db = _FakeDatabase({
+        "batch_flow": "confirmed",
+        "batch_type": "confirmed",
+        "pipeline_page": "shortlist1",
+    })
+
+    asyncio.run(_update_existing_requirement_from_extracted(
+        db,
+        "REQ-TEST",
+        {"client_requirement_text": "He is selected."},
+    ))
+
+    update = db.requirements.update["$set"]
+    assert update["batch_flow"] == "confirmed"
+    assert update["pipeline_page"] == "shortlist1"
 
 
 def test_confirmation_examples_and_non_confirmation():

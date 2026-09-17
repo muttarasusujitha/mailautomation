@@ -478,6 +478,7 @@ export default function ClientRequests() {
   const [clientUpdates, setClientUpdates] = useState([])
   const [stats, setStats] = useState({})
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [syncing, setSyncing] = useState(false)
   const [processingId, setProcessingId] = useState('')
   const [deletingId, setDeletingId] = useState('')
@@ -489,25 +490,49 @@ export default function ClientRequests() {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
   const autoSyncRunningRef = useRef(false)
+  const requestLoadRunningRef = useRef(false)
+  const requestAbortRef = useRef(null)
 
   const loadRequests = async (silent = false) => {
+    if (requestLoadRunningRef.current) return
+    requestLoadRunningRef.current = true
     if (!silent) setLoading(true)
+    if (!silent) setLoadError('')
+    requestAbortRef.current?.abort()
+    const controller = new AbortController()
+    requestAbortRef.current = controller
     try {
-      const [requestsRes, updatesRes] = await Promise.all([
+      const [requestsResult, updatesResult] = await Promise.allSettled([
         api.get('/inbox', {
           params: { status: filter === 'all' ? '' : filter, include_hidden: false, limit: 80 },
+          timeout: 20000,
+          signal: controller.signal,
         }),
-        api.get('/client-updates', { params: { limit: 25 } }),
+        api.get('/client-updates', { params: { limit: 25 }, timeout: 20000, signal: controller.signal }),
       ])
-      setRequests(requestsRes.data.emails || [])
-      setStats({ ...(requestsRes.data.stats || {}), visible_total: requestsRes.data.total || 0 })
-      setClientUpdates(updatesRes.data.updates || [])
-    } catch (e) {
-      if (!silent) {
-        toast.error(e.message || 'Could not load client requests')
+      if (controller.signal.aborted) return
+      const errors = []
+      if (requestsResult.status === 'fulfilled') {
+        const requestsRes = requestsResult.value
+        setRequests(requestsRes.data.emails || [])
+        setStats({ ...(requestsRes.data.stats || {}), visible_total: requestsRes.data.total || 0 })
+      } else {
+        errors.push('client requests')
+      }
+      if (updatesResult.status === 'fulfilled') {
+        setClientUpdates(updatesResult.value.data.updates || [])
+      } else {
+        errors.push('client updates')
+      }
+      if (errors.length) {
+        const message = `Could not load ${errors.join(' and ')}. Check the connection and retry.`
+        setLoadError(message)
+        if (!silent) toast.error(message)
       }
     } finally {
-      if (!silent) setLoading(false)
+      if (requestAbortRef.current === controller) requestAbortRef.current = null
+      requestLoadRunningRef.current = false
+      if (!silent && !controller.signal.aborted) setLoading(false)
     }
   }
 
@@ -521,6 +546,7 @@ export default function ClientRequests() {
         window.clearInterval(refreshInterval.current)
         refreshInterval.current = null
       }
+      requestAbortRef.current?.abort()
     }
   }, [filter])
 
@@ -775,6 +801,12 @@ export default function ClientRequests() {
       </div>
 
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        {loadError && !loading && (
+          <div className="m-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900" role="alert">
+            <span>{loadError}</span>
+            <button type="button" onClick={() => loadRequests()} className="btn-secondary text-xs"><RefreshCw className="h-3.5 w-3.5" /> Retry</button>
+          </div>
+        )}
         {loading ? (
           <div className="flex items-center justify-center py-16 text-slate-400">
             <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading client requests

@@ -6,15 +6,15 @@ from app.routes import toc as toc_route
 from app.routes import toc_extended
 
 
-def test_ai_failure_is_not_silently_saved_as_template(monkeypatch):
+def test_ai_failure_uses_approved_curriculum_baseline(monkeypatch):
     async def unavailable(payload):
         return None
     monkeypatch.setattr(toc_route, '_generate_ai_toc', unavailable)
     db = _Db()
-    with pytest.raises(HTTPException) as error:
-        asyncio.run(toc_route.generate_toc(toc_route.TocRequest(domain='Python', generation_mode='ai'), db))
-    assert error.value.status_code == 502
-    assert db['toc_generations'].inserted == []
+    result = asyncio.run(toc_route.generate_toc(toc_route.TocRequest(domain='Python', generation_mode='ai'), db))
+    assert result['toc_data']['generation_mode'] == 'template_ai_unavailable'
+    assert 'AI generation was unavailable' in result['toc_data']['generation_warning']
+    assert len(db['toc_generations'].inserted) == 1
 
 
 class _Collection:

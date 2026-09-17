@@ -1,4 +1,5 @@
 // Shared wording for both shortlist screens. Only confirmed facts enter messages.
+import { linkedinProfileUrl } from './trainerIdentity.js'
 const text = value => value == null ? '' : String(value).trim()
 const known = value => !!text(value) && !/^(to be confirmed|tbc|tbd|unknown|n\/a)(\b|$)/i.test(text(value))
 const number = value => Number.isFinite(Number(value)) && Number(value) > 0 ? Number(value) : 0
@@ -39,7 +40,7 @@ export function trainerOffer(req = {}, trainer = {}) {
 function missingProfile(trainer) {
   const items = []
   if (![trainer.resume, trainer.resume_text, trainer.resume_url, trainer.cv_url, trainer.upload_id].some(Boolean)) items.push('Updated trainer profile/CV')
-  if (!(trainer.linkedin || trainer.linkedin_url)) items.push('LinkedIn profile')
+  if (![trainer.linkedin, trainer.linkedin_url, trainer.linkedin_profile].some(value => linkedinProfileUrl(value))) items.push('LinkedIn profile')
   if (!(trainer.experience_years || trainer.experience || trainer.summary)) items.push('Relevant implementation and training experience')
   return items
 }
@@ -68,8 +69,9 @@ export function mail1Template(trainer, req, hasDetails, details = {}, isReminder
     'Please identify any scope changes or lab prerequisites needed for delivery. Clahan will coordinate the ToC and any requested lab estimate for review.',
   ])
 }
-export function mail2FollowupTemplate(trainer, req, missingItems = []) {
-  const items = Array.isArray(missingItems) ? missingItems : []
+export function mail2FollowupTemplate(trainer, req, missingItems = null) {
+  const items = (Array.isArray(missingItems) ? missingItems : missingProfile(trainer))
+    .filter(item => !/\b(toc|agenda|commercials?|lab cost|lab support)\b/i.test(item))
   return compose(trainer, `Re: Training Requirement - ${domain(req)} | Outstanding Details`, [
     'Thank you for your response.',
     items.length ? 'Please share only these outstanding details:\n' + items.map(item => `- ${item}`).join('\n') : 'Please confirm your current availability so we can coordinate the next discussion.',

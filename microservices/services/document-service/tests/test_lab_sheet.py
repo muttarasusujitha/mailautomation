@@ -41,3 +41,15 @@ def test_real_provider_templates_combine_with_local_formulas_only():
         offset = labels.index(provider + ' — Assumptions') + 1
         assert sheet.cell(offset + 7, 2).value == 3
         assert sheet.cell(offset + 9, 2).value == 1
+
+
+def test_single_provider_workbook_opens_on_client_estimate_and_uses_gb_months():
+    content = _lab_cost_to_excel({'title': 'DevOps', 'days': [{'focus_area': 'Docker'}]}, {
+        'cloud_provider': 'aws', 'cloud_region': 'ap-south-1',
+        'participant_count': 1, 'hours_per_day': 3, 'fx_rate': 90,
+    })
+    workbook = openpyxl.load_workbook(io.BytesIO(content))
+    assert workbook.active.title == 'Client Estimate'
+    breakdown = workbook['Resource Cost Breakdown']
+    assert '/30' in breakdown['B7'].value
+    assert breakdown['H7'].value == '=B7*D7'

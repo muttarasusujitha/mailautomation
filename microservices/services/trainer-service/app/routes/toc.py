@@ -553,8 +553,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     requested_mode = (payload.generation_mode or "ai").lower()
     used_generation_mode = "template"
     toc = await _generate_ai_toc(payload) if requested_mode == "ai" else None
-    if requested_mode == "ai" and not toc:
-        raise HTTPException(502, "AI TOC generation did not produce usable content. Retry or select Template mode explicitly.")
+    ai_unavailable = requested_mode == "ai" and not toc
     if toc:
         used_generation_mode = "ai"
         if "ai_enriched_days" in toc and toc["ai_enriched_days"] < len(toc.get("days") or []):
@@ -605,6 +604,9 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         "requested_generation_mode": requested_mode,
         "technology_allocations": _inferred_technology_allocations(payload),
     })
+    if ai_unavailable:
+        toc["generation_warning"] = "AI generation was unavailable; this ToC uses the approved curriculum baseline."
+        toc["generation_mode"] = "template_ai_unavailable"
     if payload.training_dates:
         toc["training_dates"] = payload.training_dates
     if payload.timing:

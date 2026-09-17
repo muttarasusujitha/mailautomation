@@ -1004,6 +1004,7 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                 "Content-Disposition": f"attachment; filename={filename}",
                 "X-Lab-Cost-Quote-ID": quote_id,
                 "X-Lab-Cost-Quote-Valid-Until": valid_until.isoformat(),
+                "X-Lab-Cost-Pricing-Status": pricing_status,
             },
         )
     except HTTPException:

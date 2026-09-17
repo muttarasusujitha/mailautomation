@@ -18,9 +18,9 @@ def _valid_timestamp(value):
         return False
 
 
-def validate_lab_cost_inputs(values):
+def validate_lab_cost_inputs(values, *, require_fx=True):
     result = dict(values or {})
-    required = ("cloud_provider", "cloud_region", "hours_per_day", "participant_count", "fx_rate")
+    required = ("cloud_provider", "cloud_region", "hours_per_day", "participant_count") + (("fx_rate",) if require_fx else ())
     missing = [key for key in required if result.get(key) in (None, "")]
     if missing:
         raise ValueError("Confirm lab-cost inputs: " + ", ".join(missing))
@@ -33,7 +33,7 @@ def validate_lab_cost_inputs(values):
     region = str(result["cloud_region"]).strip().lower()
     if provider not in regions or region not in regions[provider]:
         raise ValueError("Unsupported provider/region pair; a matching rate card is required")
-    for key in ("hours_per_day", "participant_count", "fx_rate"):
+    for key in ("hours_per_day", "participant_count") + (("fx_rate",) if require_fx else ()):
         if isinstance(result[key], bool):
             raise ValueError(key + " must be a number, not a boolean")
         number = float(result[key])

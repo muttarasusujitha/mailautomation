@@ -298,6 +298,13 @@ def _profile_score(profile: Dict[str, Any]) -> int:
 
 def _normalise_profile(profile: Dict[str, Any], raw_text: str) -> Dict[str, Any]:
     result = dict(profile or {})
+    from shared.trainer_identity import linkedin_profile_url
+    # Identity URLs are extracted from source evidence, never accepted from AI.
+    source_text = re.sub(r"(?<![\w/.-])((?:www\.)?linkedin\.com/(?:in|pub)/)", r"https://\1", raw_text, flags=re.I)
+    result["linkedin"] = linkedin_profile_url(source_text)
+    for key in ("linkedin_url", "linkedin_profile"):
+        if key in result:
+            result[key] = result["linkedin"]
     name, title = _split_name_title(result.get("name"))
     if name:
         result["name"] = name
@@ -412,6 +419,36 @@ def _regex_profile(text: str, filename: str) -> Dict[str, Any]:
     }
 
 
+def _profile_prompt(text: str) -> str:
+    return (
+        "Extract from this resume. Return ONLY valid JSON with keys: "
+        "name, email, phone, location, experience_years (number), role_designation, linkedin, "
+        "education, skills (list), certifications (list), past_clients (list), "
+        "training_count (int or null), day_rate (number or null), "
+        "technology_category, secondary_categories (list), summary. "
+        "Extract only facts explicitly present in the resume. Leave missing fields empty; "
+        "never invent identity links, clients, qualifications or experience.\n\n"
+        f"Resume:\n{text[:50000]}"
+    )
+
+
+async def _openai_profile(text: str) -> Dict[str, Any]:
+    key = settings.OPENAI_API_KEY.strip()
+    if not key:
+        return {}
+    try:
+        from openai import AsyncOpenAI
+        response = await AsyncOpenAI(api_key=key).responses.create(
+            model=settings.OPENAI_MODEL or "gpt-5.5",
+            input=_profile_prompt(text),
+            text={"format": {"type": "json_object"}},
+        )
+        return json.loads((response.output_text or "").strip())
+    except Exception as exc:
+        logger.warning("OpenAI resume extraction failed: %s", exc)
+        return {}
+
+
 async def _gemini_profile(text: str) -> Dict[str, Any]:
     try:
         import google.generativeai as genai
@@ -423,14 +460,7 @@ async def _gemini_profile(text: str) -> Dict[str, Any]:
             settings.GEMINI_MODEL,
             generation_config={"temperature": 0, "max_output_tokens": 1600, "response_mime_type": "application/json"},
         )
-        prompt = (
-            "Extract from this resume. Return ONLY valid JSON with keys: "
-            "name, email, phone, location, experience_years (number), role_designation, linkedin, "
-            "education, skills (list), certifications (list), past_clients (list), "
-            "training_count (int or null), day_rate (number or null), "
-            "technology_category, secondary_categories (list), summary.\n\n"
-            f"Resume:\n{text[:50000]}"
-        )
+        prompt = _profile_prompt(text)
         loop = asyncio.get_event_loop()
         resp = await loop.run_in_executor(None, model.generate_content, prompt)
         raw = getattr(resp, "text", "") or ""
@@ -454,11 +484,15 @@ async def upload_resume(
         raise HTTPException(413, "File too large (max 10 MB)")
 
     raw_text = extract_text(file_bytes, file.filename or "resume")
-    profile = await _gemini_profile(raw_text)
+    profile = await _openai_profile(raw_text)
+    extraction_method = "openai" if profile.get("name") else ""
+    if not profile.get("name"):
+        profile = await _gemini_profile(raw_text)
+        extraction_method = "gemini" if profile.get("name") else ""
     if not profile.get("name"):
         profile = _regex_profile(raw_text, file.filename or "resume")
     else:
-        profile["extraction_method"] = "gemini"
+        profile["extraction_method"] = extraction_method
         profile["needs_review"] = False
     profile = _normalise_profile(profile, raw_text)
 

@@ -843,10 +843,12 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     assumptions_ws["D20"] = "Explicit sizing assumption; replace with lab-template node sizing when supplied"
     for column in range(1, 5):
         assumptions_ws.cell(20, column)._style = copy(assumptions_ws.cell(19, column)._style)
-    breakdown_ws["B7"] = f"=SUMPRODUCT(({mapping_ranges['vm']}+{mapping_ranges['worker']}),{mapping_ranges['days']})*'Assumptions'!$B$20"
+    # This is billed at a monthly rate, so display the GB-month equivalent
+    # instead of a GB-node-days intermediate in the client workbook.
+    breakdown_ws["B7"] = f"=SUMPRODUCT(({mapping_ranges['vm']}+{mapping_ranges['worker']}),{mapping_ranges['days']})*'Assumptions'!$B$20/30"
     breakdown_ws["F7"] = 1
     breakdown_ws["G7"] = "GB-node-days × monthly rate / 30"
-    breakdown_ws["H7"] = "=B7*D7/30"
+    breakdown_ws["H7"] = "=B7*D7"
     breakdown_ws["B8"] = f"=SUMPRODUCT({mapping_ranges['storage']},{mapping_ranges['days']})"
     breakdown_ws["F8"] = 1
     breakdown_ws["G8"] = "GB-days × monthly rate / 30"
@@ -893,12 +895,16 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     provenance_rows = [
         ("Rate snapshot ID", values.get("rate_snapshot_id") or "Not recorded", "audit ID", "Use this ID to retrieve the rate snapshot and calculation record"),
         ("Pricing status", values.get("pricing_status") or "template_fallback_review_required", "status", "Live SKU rates and official source URLs are required before final client approval"),
+        ("FX attribution", values.get("fx_rate_attribution") or "Not supplied", "URL", "Exchange-rate data provider"),
+        ("USD/INR source", values.get("fx_rate_source") or "Not supplied", "URL", "Published exchange-rate source"),
+        ("USD/INR observation date", values.get("fx_rate_date") or "Not supplied", "date", "Provider observation date"),
+        ("USD/INR checked at", values.get("fx_rate_fetched_at") or "Not supplied", "timestamp", "Lookup for this quote"),
         ("Rate source", values.get("rate_snapshot_source") or "Not supplied", "URL", "Official provider pricing page or approved pricing-export URL"),
         ("Rates checked at (UTC)", values.get("rate_checked_at") or "Not recorded", "timestamp", "Rate snapshot timestamp"),
         ("Quote valid until (UTC)", values.get("quote_valid_until") or "Not recorded", "timestamp", "Recalculate from current rates after this time"),
         ("Price-change review threshold", as_number("price_change_review_threshold_percent", 5, 0), "%", "Escalate for review when refreshed pricing changes beyond this threshold"),
         ("Lab architecture", values.get('architecture_note') or 'Caller-supplied per-day resource mapping', 'assumption', 'Quantities are total resources; learner VMs scale with participants, shared services do not'),
-        ("FX status", 'User-supplied assumption', 'status', 'USD/INR is not verified by the cloud price lookup; confirm before approval'),
+        ("FX status", 'Published rate fetched for quote' if values.get('fx_rate_source') else 'Unverified', 'status', 'Latest published observation; see FX date and source'),
         ("Support pricing status", 'Configured' if support > 0 or values.get('advanced_support_per_participant_day') else 'Unconfigured / zero charge', 'status', 'No support price is invented. Confirm the applied tier rate before client approval'),
         ("Quote approval status", 'Draft — commercial review required', 'status', 'Provider verification covers selected resource rates only; confirm architecture, access hours, support, FX, taxes and exclusions'),
     ]
@@ -968,6 +974,18 @@ def _lab_cost_template_to_excel(toc: Dict[str, Any], assumptions: Optional[Dict[
     workbook.calculation.calcMode = "auto"
     workbook.calculation.fullCalcOnLoad = True
     workbook.calculation.forceFullCalc = True
+    # Open the client quote first for a single-cloud attachment.
+    client_sheet_index = workbook.sheetnames.index("Client Estimate")
+    workbook.active = client_sheet_index
+    from openpyxl.workbook.views import BookView
+    if not workbook.views:
+        workbook.views.append(BookView(activeTab=client_sheet_index))
+    else:
+        workbook.views[0].activeTab = client_sheet_index
+    # Some approved templates retain a stale selected tab. Clear every sheet
+    # view first so Excel, Google Drive, and LibreOffice open the quote.
+    for sheet_index, sheet in enumerate(workbook.worksheets):
+        sheet.sheet_view.tabSelected = sheet_index == client_sheet_index
     output = io.BytesIO()
     workbook.save(output)
     return output.getvalue()
@@ -1483,7 +1501,7 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         raise HTTPException(422, error)
     assumptions = payload.get("assumptions") if isinstance(payload.get("assumptions"), dict) else {}
     from shared.lab_cost_inputs import validate_lab_cost_inputs, validate_lab_pricing_coverage
-    from shared.live_lab_pricing import refresh_rates
+    from shared.live_lab_pricing import refresh_rates, refresh_exchange_rate, automatic_pricing_selections
     from starlette.concurrency import run_in_threadpool
     import hashlib
     import json
@@ -1492,7 +1510,15 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         assumptions = dict(assumptions)
         for key in ('rate_snapshot_id', 'rate_snapshot_source', 'rate_checked_at', 'quote_valid_until'):
             assumptions.pop(key, None)
-        assumptions = validate_lab_cost_inputs(assumptions)
+        for key, default in (("cloud_provider", "aws"), ("hours_per_day", 3), ("participant_count", 1)):
+            if assumptions.get(key) in (None, ""):
+                assumptions[key] = default
+        if assumptions.get("cloud_region") in (None, ""):
+            assumptions["cloud_region"] = {"aws": "ap-south-1", "azure": "centralindia", "gcp": "asia-south1"}.get(assumptions["cloud_provider"], "")
+        # Caller-supplied FX, including old saved values, is never production evidence.
+        for key in ("fx_rate", "fx_rate_source", "fx_rate_date", "fx_rate_fetched_at"):
+            assumptions.pop(key, None)
+        assumptions = validate_lab_cost_inputs(assumptions, require_fx=False)
         if not assumptions.get('lab_day_mapping'):
             from shared.lab_planning import default_cloud_mapping
             assumptions['lab_day_mapping'] = default_cloud_mapping(toc, assumptions)
@@ -1515,10 +1541,7 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
             }, {'_id': 0})
             assumptions['pricing_selections'] = (config or {}).get('selections', {})
         if not assumptions.get('pricing_selections'):
-            raise ValueError(
-                'No approved pricing architecture is configured for this provider and region; '
-                'configure exact SKUs before generating a client lab-cost workbook'
-            )
+            assumptions['pricing_selections'] = automatic_pricing_selections(toc, assumptions)
         validate_lab_pricing_coverage(toc, assumptions)
     except (ValueError, TypeError) as exc:
         raise HTTPException(422, str(exc)) from exc
@@ -1529,7 +1552,9 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
     previous = await db['lab_cost_rate_snapshots'].find_one(
         {'selection_key': selection_key}, sort=[('rate_checked_at', -1)])
     try:
-        # Every workbook requires a fresh provider lookup.
+        # Both observations are refreshed for this quote and saved in its snapshot.
+        assumptions = await run_in_threadpool(refresh_exchange_rate, assumptions)
+        assumptions = validate_lab_cost_inputs(assumptions)
         assumptions = await run_in_threadpool(refresh_rates, assumptions)
     except ValueError as exc:
         # Invalid SKU, billing units, or architecture cannot use old rates.
@@ -1538,7 +1563,7 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         logger.exception('Fresh provider price refresh failed; client workbook is blocked')
         raise HTTPException(
             503,
-            'Fresh public provider pricing is temporarily unavailable; client workbook generation is blocked',
+            'Fresh cloud or USD/INR pricing is temporarily unavailable; client workbook generation is blocked',
         ) from exc
     if ai_usage:
         from shared.ai_pricing import resolve_ai_cost

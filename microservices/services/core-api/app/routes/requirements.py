@@ -86,14 +86,16 @@ async def _latest_client_commercial(
     ) or {}
     for key in ("training_commercial_amount", "training_commercial", "client_budget", "budget_total", "budget_per_day", "commercials", "commercial"):
         value = requirement_doc.get(key)
-        if isinstance(value, (int, float)) and value > 0:
+        if isinstance(value, (int, float)) and value >= 1000:
             return value
         amounts = _amounts_from_text(value)
-        if amounts:
-            return max(amounts)
+        valid_amounts = [amount for amount in amounts if amount >= 1000]
+        if valid_amounts:
+            return max(valid_amounts)
     source_amounts = _amounts_from_text(requirement_doc.get("requirement_source_text"))
-    if source_amounts:
-        return max(source_amounts)
+    valid_source_amounts = [amount for amount in source_amounts if amount >= 1000]
+    if valid_source_amounts:
+        return max(valid_source_amounts)
     shortlist = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0, "top_trainers": 1})
     selected_trainer: Dict[str, Any] = {}
     for trainer in (shortlist or {}).get("top_trainers", []):
@@ -119,11 +121,12 @@ async def _latest_client_commercial(
         "commercial_text",
     ):
         value = selected_trainer.get(key)
-        if isinstance(value, (int, float)) and value > 0:
+        if isinstance(value, (int, float)) and value >= 1000:
             return value
         amounts = _amounts_from_text(value)
-        if amounts:
-            return max(amounts)
+        valid_amounts = [amount for amount in amounts if amount >= 1000]
+        if valid_amounts:
+            return max(valid_amounts)
 
     query: Dict[str, Any] = {
         "requirement_id": req_id,
@@ -147,8 +150,9 @@ async def _latest_client_commercial(
         amounts = _amounts_from_text(
             "\n".join(str(log.get(key) or "") for key in ("subject", "body", "body_snippet"))
         )
-        if amounts:
-            return max(amounts)
+        valid_amounts = [amount for amount in amounts if amount >= 1000]
+        if valid_amounts:
+            return max(valid_amounts)
     return None
 
 
@@ -1386,11 +1390,9 @@ async def request_client_po(
             except (TypeError, ValueError):
                 day_rate = f"{commercial_value} per day/session"
         else:
-            day_rate = 'To be confirmed'
-        if not latest_commercial_value and day_rate == 'To be confirmed':
             raise HTTPException(
                 400,
-                "Latest approved commercial is missing. PO request was not sent.",
+                "Client commercial amount is required before the PO request can be sent.",
             )
         body = (
             f"Dear {payload.client_name or doc.get('client_name') or doc.get('client_company') or 'Client'},\n\n"
@@ -1423,9 +1425,11 @@ async def request_client_po(
                     # A network retry after the mail service accepted the
                     # request must not send a second PO request to the client.
                     "idempotency_key": f"client-po-request:{req_id}",
-                    # The email service checks the global wording switch. The
-                    # verified PO facts above remain the safe fallback.
-                    "ai_generate": True,
+                    # PO requests are operational messages. Use the verified
+                    # wording above so an unavailable AI account can never
+                    # block a client-confirmed selection from reaching the
+                    # PO stage.
+                    "ai_generate": False,
                     "ai_context": {
                         "workflow": "client_po_request",
                         "batch_type": "proposal" if "proposal" in str(doc.get("batch_flow") or doc.get("batch_type") or doc.get("requirement_type") or "").lower() else "confirmed",

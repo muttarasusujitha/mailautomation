@@ -16,6 +16,7 @@ import { useLiveShortlist } from '../utils/useLiveShortlist'
 import { formatRequirementSchedule } from '../utils/requirementDates'
 import ClientHandoffReview from '../components/ClientHandoffReview'
 import { batchEmailRules } from '../utils/batchEmailRules'
+import { linkedinProfileUrl, trainerOwnedDetails } from '../utils/trainerIdentity'
 
 // Some legacy pipeline strings were saved with their UTF-8 bytes decoded as
 // Latin-1. Repair them at the UI boundary so no mojibake reaches the screen.
@@ -423,10 +424,10 @@ function backendAuthoritativeStage(trainer, req) {
   if (selectedId && trainerId && trainerId !== selectedId) return 'stopped_selected'
   if (selectedId && trainerId === selectedId) {
     if (commercialStage) return commercialStage
-    if (trainerStage && trainerStage !== 'stopped_selected') return trainerStage
     if (['selected', 'toc_requested', 'toc_received_pending', 'training_confirmed', 'po_requested', 'client_po_received', 'invoice_generated', 'invoice_sent'].includes(requirementStage)) {
       return requirementStage
     }
+    if (trainerStage && trainerStage !== 'stopped_selected') return trainerStage
     return 'selected'
   }
   return trainerStage
@@ -736,15 +737,15 @@ function requestedTrainerDetailItems(req = {}) {
     { key: 'lab', label: 'Lab support availability and cost, if applicable', required: !labManagedByClahan && /lab support|lab availability|lab cost|labs?\b/.test(source) },
     { key: 'toc', label: 'ToC/course agenda', required: !tocGeneratedByClahan && /\b(toc|table of contents|course agenda|agenda|day[-\s]?wise)\b/.test(source) },
   ]
-  if (!source) return items
-  return items.filter(item => item.required || source.includes(item.key) || source.includes(item.label.toLowerCase().split(' ')[0]))
+  if (!source) return trainerOwnedDetails(items)
+  return trainerOwnedDetails(items.filter(item => item.required || source.includes(item.key) || source.includes(item.label.toLowerCase().split(' ')[0])))
 }
 
 function providedTrainerDetailMap(text = '') {
   const t = stripQuotedEmail(text).toLowerCase()
   return {
     cv: /\b(cv|resume|trainer profile|profile attached|attached profile|attached my profile|updated profile|attachment|attached)\b/i.test(t),
-    linkedin: /linkedin\.com|linked\s*in|linkedin profile|linkedin/i.test(t),
+    linkedin: Boolean(linkedinProfileUrl(t)),
     experience: /\b(experience|implementation|hands[-\s]?on|training experience|trained|delivered|worked on|years?|yrs?)\b/i.test(t),
     certifications: /\b(certification|certifications|certified|certificate|not certified|no certification|none)\b/i.test(t),
     availability: /\b(available|availability|slots?|dates?|timings?|schedule|free|can join|can take|from|to|weekdays|weekends|morning|afternoon|evening)\b/i.test(t),
@@ -3605,15 +3606,15 @@ function TrainerCard({ trainer, rank, state, req, onStatusUpdate, onRequirementP
 }
 
 // â”€â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function hasRequirementWorkflowChanged(current = {}, incoming = {}) {
+  return [
+    'status', 'batch_flow', 'batch_type', 'requirement_type', 'pipeline_page',
+    'selection_status', 'selected_trainer_id', 'selected_trainer_name',
+    'client_po_requested', 'client_po_received', 'batch_confirmed', 'invoice_sent',
+  ].some(field => current?.[field] !== incoming?.[field])
+}
+
 export default function Shortlist() {
-  useEffect(() => {
-    const root = document.getElementById('root')
-    if (!root) return undefined
-    normalizeVisibleText(root)
-    const observer = new MutationObserver(() => normalizeVisibleText(root))
-    observer.observe(root, { childList: true, subtree: true, characterData: true })
-    return () => observer.disconnect()
-  }, [])
   const targetRequirementId = new URLSearchParams(window.location.search).get('requirement_id') || ''
   const [reqs, setReqs]               = useState([])
   const [selectedReq, setSelectedReq] = useState(null)
@@ -3832,12 +3833,28 @@ export default function Shortlist() {
   }
 
   const syncReplyStates = async () => {
-    if (!selectedReq || autoMode) return
+    if (!selectedReq) return
     await syncShortlistRepliesIfDue()
 
     try {
-      const res = await api.get('/emails', {
+      const [requirementRes, res] = await Promise.all([
+        getRequirement(selectedReq.requirement_id),
+        api.get('/emails', {
         params: { requirement_id: selectedReq.requirement_id, page: 1, limit: 200 },
+        }),
+      ])
+      const refreshedRequirement = requirementRes.data || selectedReq
+      setSelectedReq(previous => (
+        hasRequirementWorkflowChanged(previous, refreshedRequirement) ? refreshedRequirement : previous
+      ))
+      setReqs(previous => {
+        let changed = false
+        const next = previous.map(item => {
+          if (item.requirement_id !== refreshedRequirement.requirement_id || !hasRequirementWorkflowChanged(item, refreshedRequirement)) return item
+          changed = true
+          return refreshedRequirement
+        })
+        return changed ? next : previous
       })
       const replied = (res.data.emails || []).filter(e => e.reply_received && e.trainer_id)
       if (!replied.length) return
@@ -3849,7 +3866,7 @@ export default function Shortlist() {
         for (const email of replied) {
           const trainerId = email.trainer_id
           const trainer = trainers.find(item => String(item.trainer_id) === String(trainerId))
-          const backendStage = backendAuthoritativeStage(trainer, selectedReq)
+          const backendStage = backendAuthoritativeStage(trainer, refreshedRequirement)
           if (backendStage) {
             if (next[trainerId]?.status !== backendStage) {
               next[trainerId] = { ...(next[trainerId] || {}), status: backendStage }

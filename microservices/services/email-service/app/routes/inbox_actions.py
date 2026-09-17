@@ -288,10 +288,22 @@ async def create_requirement_from_inbox_email(
     # request must clear that stale trainer context, otherwise the client
     # acknowledgement is (correctly) blocked as a trainer-thread reply.
     extracted = doc.get("extracted") or {}
+    reply_text = str(
+        doc.get("classification_body") or doc.get("clean_body") or
+        doc.get("raw_body") or doc.get("body") or ""
+    )
+    is_client_selection = bool(re.search(
+        r"\b(?:we\s+(?:have\s+)?selected|he\s+is\s+selected|she\s+is\s+selected|"
+        r"trainer\s+is\s+selected|selected\s+the\s+trainer|you\s+have\s+been\s+selected|"
+        r"trainer\s+selected|finali[sz]ed\s+(?:this|the)?\s*trainer|"
+        r"go\s+ahead\s+with\s+(?:this|the)?\s*trainer)\b",
+        reply_text,
+        flags=re.IGNORECASE,
+    ))
     is_new_client_request = bool(
         extracted.get("is_training_request")
         or str(doc.get("office_mail_category") or "").lower() == "new_training_requirement"
-    )
+    ) and not is_client_selection
     if is_new_client_request:
         await db["client_emails"].update_one(
             {"email_id": email_id},

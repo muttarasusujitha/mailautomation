@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
+import { isClientHandoffDelivered } from '../utils/handoffStatus'
 
 function errorText(error) {
   const detail = error.response?.data?.detail
@@ -24,12 +25,12 @@ export default function ClientHandoffReview({ requirementId, trainer, onDelivere
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState('')
   const path = `/shortlists/handoff/${encodeURIComponent(requirementId)}/${encodeURIComponent(trainer.trainer_id)}`
-  const delivered = trainer.client_slots_sent && trainer.client_slots_email_id
+  const delivered = isClientHandoffDelivered(trainer) || review?.status === 'sent'
   const labCostAttached = review?.lab_cost_attached ?? false
   const needsInput = review?.status === 'needs_input' || trainer.slot_status === 'client_handoff_needs_input'
 
   async function loadReview() {
-    const { data } = await api.get(path)
+    const { data } = await api.get(path, { timeout: 20000 })
     setReview(data)
   }
 
@@ -41,16 +42,7 @@ export default function ClientHandoffReview({ requirementId, trainer, onDelivere
         await loadReview()
       } catch (error) {
         if (error.response?.status !== 404) throw error
-        const { data } = await api.post('/shortlists/send-client-slots', {
-          requirement_id: requirementId, trainer_id: trainer.trainer_id,
-          slot_text: trainer.slot_reply_text || '',
-        }, { timeout: 300000 })
-        if (data.already_sent) {
-          toast.success('The client handoff has already been sent')
-          onDelivered?.(data)
-        } else {
-          await loadReview()
-        }
+        setActionError('No saved client package is available yet. Check the trainer details and delivery error before retrying from the pipeline.')
       }
     } catch (error) {
       setActionError(errorText(error))
@@ -82,9 +74,9 @@ export default function ClientHandoffReview({ requirementId, trainer, onDelivere
 
   return <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
     <p className="text-sm font-semibold text-slate-900">
-      {delivered ? 'Client package delivered' : needsInput ? 'Client handoff needs client input' : 'Client handoff is being sent automatically'}
+      {delivered ? 'Client package delivered' : needsInput ? 'Client handoff needs client input' : 'Client package delivery pending'}
     </p>
-    <p className="mt-1 text-xs text-slate-600">{needsInput ? 'The package is prepared, but a required lab-cost input must be confirmed before delivery.' : 'The email, commercials, documents, and three interview slots are delivered automatically. Retries run automatically if needed.'}</p>
+    <p className="mt-1 text-xs text-slate-600">{delivered ? 'Delivery is recorded. The pipeline can continue with the client response.' : needsInput ? 'Required inputs must be confirmed before delivery.' : trainer.last_mail_error || 'Delivery has not been confirmed. Open the saved package to check its status.'}</p>
     <button type="button" disabled={busy} onClick={openReview} className="mt-2 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">
       {busy ? 'Please wait…' : 'View client package'}
     </button>
@@ -106,7 +98,7 @@ export default function ClientHandoffReview({ requirementId, trainer, onDelivere
         </div>
         <pre className="my-4 whitespace-pre-wrap rounded-lg bg-slate-50 p-4 font-sans text-sm text-slate-800">{review.body}</pre>
         <h3 className="text-sm font-bold">Documents</h3>
-        <ul className="my-2 space-y-2">{review.attachments.map(attachment => <li key={attachment.filename}><button type="button" onClick={() => downloadAttachment(attachment)} className="text-sm text-blue-700 underline">Download {attachment.filename}</button></li>)}</ul>
+        <ul className="my-2 space-y-2">{(review.attachments || []).map(attachment => <li key={attachment.filename}><button type="button" onClick={() => downloadAttachment(attachment)} className="text-sm text-blue-700 underline">Download {attachment.filename}</button></li>)}</ul>
         {review.last_error && <p role="alert" className="my-3 rounded bg-amber-50 p-3 text-sm text-amber-900">{review.status === 'needs_input' ? 'Action required: ' : 'Delivery delayed: '}{review.last_error}</p>}
       </div>
     </div>}

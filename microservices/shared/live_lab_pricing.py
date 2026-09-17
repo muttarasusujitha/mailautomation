@@ -284,3 +284,37 @@ def refresh_rates(values):
         quote_valid_until=(checked + timedelta(days=validity)).isoformat(),
         pricing_status='provider_api_verified_public_retail')
     return result
+
+
+def refresh_exchange_rate(values):
+    """Fetch a fresh published observation; never fall back to a saved number."""
+    sources = ('https://api.frankfurter.dev/v1/latest?from=USD&to=INR',
+               'https://open.er-api.com/v6/latest/USD')
+    last_error = None
+    for url in sources:
+        try:
+            with urlopen(url, timeout=20) as response:
+                data = json.load(response)
+            checked = datetime.now(timezone.utc)
+            if 'base_code' in data:
+                if data.get('result') != 'success':
+                    raise PricingUnavailable('FX provider reported failure')
+                base = data['base_code']
+                observed = datetime.fromtimestamp(data['time_last_update_unix'], timezone.utc)
+                attribution = 'https://www.exchangerate-api.com'
+            else:
+                base = data.get('base')
+                observed = datetime.fromisoformat(data['date']).replace(tzinfo=timezone.utc)
+                attribution = 'https://frankfurter.dev'
+            raw_rate = data.get('rates', {}).get('INR', 0)
+            if isinstance(raw_rate, bool):
+                raise PricingUnavailable('Invalid exchange rate')
+            rate = _amount(raw_rate)
+            if base != 'USD' or rate <= 0 or not 0 <= (checked - observed).total_seconds() <= 7 * 86400:
+                raise PricingUnavailable('FX provider returned invalid or stale USD/INR pricing')
+            return dict(values, fx_rate=rate, fx_rate_source=url,
+                        fx_rate_date=observed.isoformat(), fx_rate_fetched_at=checked.isoformat(),
+                        fx_rate_attribution=attribution)
+        except Exception as exc:
+            last_error = exc
+    raise PricingUnavailable('Current USD/INR pricing unavailable from all sources') from last_error
