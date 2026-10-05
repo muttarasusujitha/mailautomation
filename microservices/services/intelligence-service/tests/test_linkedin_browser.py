@@ -208,6 +208,26 @@ def test_people_search_keeps_paging_until_the_fifty_profile_target():
     assert all('page=' in call.args[0] for call in page.goto.await_args_list)
 
 
+def test_blank_people_page_is_reread_before_the_search_stops():
+    from app.clients.linkedin_browser import collect_trainer_profiles
+    page = MagicMock()
+    page.goto = AsyncMock(return_value=MagicMock(status=200))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    page.get_by_role.side_effect = AssertionError('next page is not needed')
+    snapshots = [
+        [],
+        [{'url': 'https://www.linkedin.com/in/ada', 'text': 'Ada\nSAP trainer\nHyderabad'}],
+    ]
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(side_effect=snapshots + [[]])
+    page.locator.return_value = people
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'SAP', '', 50))
+    assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada']
+
+
 def test_joined_domain_words_still_match_trainer_profiles():
     item = {'url': 'https://www.linkedin.com/in/ada', 'title': 'Ada', 'content': 'SoftSkills corporate trainer'}
     lead = _normalize_result(item, 'soft skills', 'trainer')

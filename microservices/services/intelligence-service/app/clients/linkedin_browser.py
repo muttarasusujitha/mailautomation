@@ -203,10 +203,10 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     from app.routes.linkedin_leads import _normalize_result
     results = [] if collected is None else collected
     seen, visited = {row.get('url') for row in results}, set()
-    # About ten visible profiles per page. Keep paging until the requested
-    # target is filled; a one-minute cutoff was returning the first handful.
-    page_cap = min(20, max(10, (max(limit, 1) + 2) // 2))
-    deadline = asyncio.get_running_loop().time() + min(150, 25 + page_cap * 7)
+    # About ten profiles per LinkedIn page. Page until the target is filled,
+    # and finish inside the helper's request so a slow page cannot erase them.
+    page_cap = min(15, max(8, (max(limit, 1) + 3) // 4))
+    deadline = asyncio.get_running_loop().time() + min(110, 20 + page_cap * 7)
 
     def timed_out():
         return asyncio.get_running_loop().time() >= deadline
@@ -239,7 +239,23 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 results.append(candidate)
                 if len(results) >= limit:
                     break
-        return new_urls
+        return new_urls, len(links or [])
+
+    async def open_people_page(keywords, page_number):
+        """Return (response, opened). A failed navigation must not end the search."""
+        if page_number > 1:
+            try:
+                button = page.get_by_role('button', name='Next')
+                if await button.count():
+                    await button.click(timeout=5000)
+                    await page.wait_for_timeout(800)
+                    return None, True
+            except Exception:
+                pass
+        try:
+            return await page.goto(_people_search_url(keywords, page_number), wait_until='commit', timeout=12000), True
+        except Exception:
+            return None, False
 
     queries = [trainer_keywords(domain, location)]
     instructor = f'{domain} {location} instructor'.strip()
@@ -254,10 +270,9 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 if len(results) >= limit or page_loads >= page_cap or timed_out():
                     break
                 page_loads += 1
-                try:
-                    response = await page.goto(_people_search_url(keywords, page_number), wait_until='commit', timeout=12000)
-                except Exception:
-                    response = None
+                response, opened = await open_people_page(keywords, page_number)
+                if not opened:
+                    continue
                 if response and response.status in (403, 429):
                     raise ValueError('LinkedIn limited this session. Fetching stopped.')
                 try:
@@ -265,13 +280,16 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 except Exception:
                     pass
                 await require_session(page)
-                try:
-                    for _ in range(3):
-                        await page.mouse.wheel(0, 1800)
-                        await page.wait_for_timeout(350)
-                except Exception:
-                    pass
-                if await read_people() == 0:
+                new_urls, raw_count = await read_people()
+                if new_urls == 0 and raw_count == 0:
+                    # The result list often paints after the first lookup.
+                    try:
+                        await page.mouse.wheel(0, 1600)
+                        await page.wait_for_timeout(500)
+                    except Exception:
+                        pass
+                    new_urls, raw_count = await read_people()
+                if new_urls == 0:
                     break
                 if len(results) >= limit:
                     return results
@@ -284,10 +302,11 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         raise PartialSearchError('Trainer search reached its time limit.', results)
     except Exception:
         # People layouts vary; continue with the content search below.
-        pass
-    if results or timed_out():
         if results:
             return results
+    if results:
+        return results
+    if timed_out():
         raise PartialSearchError('Trainer search reached its time limit.', results)
     phrases = ('"corporate trainer"', '"trainer" "I am"', '"technical trainer"',
                '"instructor"', '"freelance trainer"',

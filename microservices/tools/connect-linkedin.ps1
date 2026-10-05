@@ -61,7 +61,7 @@ except Exception:
     Write-Output 'Checking the actual application search once. No messages or emails are sent.'
     $checkSearch = @'
 import httpx,json,sys
-response=httpx.post('http://127.0.0.1:8005/api/v1/linkedin-leads/search',json={'domain':sys.argv[1],'mode':sys.argv[2],'search_provider':'linkedin_account','max_results':50,'save':True},timeout=240)
+response=httpx.post('http://127.0.0.1:8005/api/v1/linkedin-leads/search',json={'domain':sys.argv[1],'mode':sys.argv[2],'search_provider':'linkedin_account','max_results':50,'save':True},timeout=300)
 response.raise_for_status()
 result=response.json()
 print(json.dumps({key:result.get(key) for key in ['success','found','saved_count','skipped_count','search_error','auto_sent_count']}))
