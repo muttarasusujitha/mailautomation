@@ -52,7 +52,6 @@ build/
 .vscode/
 .DS_Store
 Thumbs.db
-<<<<<<< HEAD
 .runlogs/
 .scannerwork/
 *.log
@@ -71,11 +70,12 @@ Thumbs.db
 !/frontend/src/utils/pipelineRecords.js
 !/frontend/src/utils/pipelineRecords.test.js
 !/frontend/src/utils/usePipelineRecords.js
+!/frontend/src/utils/requestPolicy.js
+!/frontend/src/utils/leadSearchFeedback.js
 !/frontend/src/components/
 /frontend/src/components/*
 !/frontend/src/components/ClientHandoffReview.jsx
 !/frontend/src/components/LeadBot.jsx
-!/frontend/src/utils/leadSearchFeedback.js
 !/frontend/src/pages/
 /frontend/src/pages/*
 !/frontend/src/pages/PurchaseOrders.jsx
@@ -84,8 +84,3 @@ Thumbs.db
 .scannerwork/
 .coverage
 htmlcov/
-=======
-
-# Ignore sensitive email service OAuth token config
-microservices/services/email-service/config/token.json
->>>>>>> 884f222 (Remove OAuth token file from history and ignore it)

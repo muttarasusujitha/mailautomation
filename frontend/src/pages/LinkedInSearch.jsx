@@ -63,48 +63,6 @@ function leadSearchText(lead) {
   ].join(' ').toLowerCase()
 }
 
-function trainerProfileText(lead) {
-  return [
-    lead?.trainer_name,
-    lead?.headline,
-    lead?.profile_text,
-    lead?.snippet,
-  ].join(' ').toLowerCase()
-}
-
-function domainTerms(domain) {
-  const generic = new Set([
-    'trainer',
-    'training',
-    'corporate',
-    'freelance',
-    'technical',
-    'online',
-    'instructor',
-    'consultant',
-    'developer',
-    'india',
-    'indian',
-  ])
-  const terms = String(domain || '').toLowerCase().match(/[a-z0-9+#.]+/g) || []
-  return terms.filter(term => term.length > 1 && !generic.has(term))
-}
-
-function isTrainerProviderProfile(lead) {
-  const text = trainerProfileText(lead)
-  const terms = domainTerms(lead?.domain)
-  const hasSkillMatch = !terms.length || terms.some(term => text.includes(term))
-  const hasTrainerUrl = lead?.source_url?.includes('linkedin.com/in/')
-    || lead?.source_url?.includes('linkedin.com/posts/')
-    || lead?.source_url?.includes('linkedin.com/feed/update')
-    || lead?.lead_type === 'resume_trainer_post'
-  return Boolean(
-    hasTrainerUrl
-    && /trainer|instructor|corporate training|training consultant|facilitator|coach/i.test(text)
-    && hasSkillMatch,
-  )
-}
-
 function leadEmail(lead) {
   return String(lead?.email || lead?.contact_email || '').trim()
 }
@@ -137,8 +95,7 @@ export default function LinkedInSearch() {
       const params = { q: query.trim(), limit: 150 }
       if (statusFilter !== 'all') params.status = statusFilter
       const res = await api.get(endpoint, { params })
-      const rows = res.data.leads || []
-      setLeads(isTrainer ? rows.filter(isTrainerProviderProfile) : rows)
+      setLeads(res.data.leads || [])
     } catch (e) {
       toast.error(e.message)
     } finally {
