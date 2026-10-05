@@ -35,13 +35,28 @@ try {
     }
     & docker restart $Container | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Could not restart the service after installing the trainer search.' }
+    Write-Output 'Waiting for the service to finish restarting.'
+    $probe = @'
+import sys, urllib.request
+try:
+    urllib.request.urlopen('http://127.0.0.1:8005/health', timeout=3).read()
+except Exception:
+    sys.exit(1)
+'@
     $serviceReady = $false
-    foreach ($attempt in 1..30) {
-        Start-Sleep -Seconds 2
-        & docker exec $Container python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8005/health', timeout=3)"
-        if ($LASTEXITCODE -eq 0) { $serviceReady = $true; break }
+    $previousNative = $PSNativeCommandUseErrorActionPreference
+    $PSNativeCommandUseErrorActionPreference = $false
+    try {
+        foreach ($attempt in 1..30) {
+            Start-Sleep -Seconds 2
+            & docker exec $Container python -c $probe 2>$null | Out-Null
+            if ($LASTEXITCODE -eq 0) { $serviceReady = $true; break }
+        }
+    } finally {
+        $PSNativeCommandUseErrorActionPreference = $previousNative
     }
     if (-not $serviceReady) { throw 'The service did not become ready after the trainer search was installed.' }
+    Write-Output 'Service is ready.'
 
     Write-Output 'Checking the actual application search once. No messages or emails are sent.'
     $checkSearch = @'
