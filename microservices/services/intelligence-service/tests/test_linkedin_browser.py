@@ -191,6 +191,15 @@ def test_people_checkpoint_does_not_start_post_search():
     page.goto.assert_awaited_once()
 
 
+def test_account_time_limit_without_profiles_stays_an_error():
+    from app.clients.linkedin_browser import PartialSearchError
+    with patch('app.clients.linkedin_browser.search_linkedin_account', AsyncMock(side_effect=PartialSearchError('Trainer search reached its time limit.', []))):
+        result = asyncio.run(search_linkedin_leads(LinkedInLeadSearchRequest(domain='Python', search_provider='linkedin_account'), {}))
+    assert result['success'] is False
+    assert result['found'] == 0
+    assert result['search_error'] == 'Trainer search reached its time limit.'
+
+
 def test_direct_account_search_saves_matches_before_later_timeout():
     from app.clients.linkedin_browser import PartialSearchError
     db = {'trainer_profile_leads': AsyncMock()}
@@ -200,7 +209,8 @@ def test_direct_account_search_saves_matches_before_later_timeout():
         result = asyncio.run(search_linkedin_leads(LinkedInLeadSearchRequest(domain='Python', search_provider='linkedin_account'), db))
     assert result['saved_count'] == 1
     assert result['found'] == 1
-    assert result['search_error'] == 'Search time limit'
+    assert result['success'] is True
+    assert result['search_error'] is None
 
 
 @pytest.mark.parametrize('mode,table,url,text', [

@@ -285,7 +285,9 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         if results:
             return results
         raise PartialSearchError('Trainer search reached its time limit.', results)
-    if len(results) >= limit:
+    if results:
+        # Post search is only for an empty people search. Running it after a hit
+        # burns the request budget and turns a usable result into a time-limit error.
         return results
     phrases = ('"corporate trainer"', '"trainer" "I am"', '"technical trainer"',
                '"instructor"', '"freelance trainer"',
@@ -341,7 +343,9 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
             return results
         raise PartialSearchError('Trainer search reached its time limit.', results)
     except Exception as exc:
-        raise PartialSearchError(str(exc), results) from exc
+        if results:
+            return results
+        raise PartialSearchError(str(exc) or 'Trainer search reached its time limit.', results) from exc
     return results
 
 

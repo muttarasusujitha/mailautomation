@@ -547,10 +547,15 @@ async def search_linkedin_leads(
                 else:
                     raw_results.extend(await _plain_tavily_search(query, min(20, target_results)))
             except Exception as exc:
-                if payload.search_provider == 'linkedin_account':
-                    raw_results.extend(getattr(exc, 'results', []))
+                message = str(exc) or 'Search timed out'
+                partial = list(getattr(exc, 'results', []) or [])
+                if payload.search_provider == 'linkedin_account' and partial:
+                    raw_results.extend(partial)
                 logger.warning("LinkedIn search failed for %s: %s", domain, exc)
-                search_errors.append({'domain': domain, 'error': str(exc) or 'Search timed out'})
+                # A time limit that already collected profiles is a finished search.
+                # The connect helper treats any search_error as "not ready".
+                if not (partial and 'time limit' in message.lower()):
+                    search_errors.append({'domain': domain, 'error': message})
                 break
 
         for item in raw_results:
