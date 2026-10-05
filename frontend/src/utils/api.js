@@ -1,5 +1,23 @@
 import axios from 'axios'
-import { requestTimeout, shouldRetryRequest } from './requestPolicy'
+
+const RETRYABLE_METHODS = new Set(['get', 'head', 'options'])
+const RETRYABLE_STATUSES = new Set([408, 429, 500, 502, 503, 504])
+
+function requestTimeout() {
+  // Profile search reads public results and a signed-in browser session.
+  // Keep the five-minute budget so Find Profiles is not aborted mid-search.
+  return 300000
+}
+
+function shouldRetryRequest(err) {
+  const config = err?.config || {}
+  const method = String(config.method || 'get').toLowerCase()
+  const status = err?.response?.status
+  if (err?.code === 'ERR_CANCELED') return false
+  if (!RETRYABLE_METHODS.has(method)) return false
+  if (config.__retryCount >= 1) return false
+  return !status || RETRYABLE_STATUSES.has(status)
+}
 
 const apiBaseURL = import.meta.env.VITE_API_BASE_URL || '/api'
 
