@@ -9264,7 +9264,7 @@ def _requirement_payload_from_email(email_doc: Dict[str, Any], extracted: Dict[s
         # enquiries remain on the regular Shortlist workflow.
         "pipeline_target": "shortlist1" if flow_type == "confirmed" else "shortlist",
         "pipeline_page": "shortlist1" if flow_type == "confirmed" else "shortlist",
-        "top_n": 5,
+        "top_n": 50,
         "send_emails": True,
         "status": "active",
         "priority": "high" if extracted.get("urgency") == "urgent" else "medium",
@@ -9749,7 +9749,7 @@ async def _send_initial_trainer_mail(
 
 async def _call_intelligence_search(
     extracted: Dict[str, Any],
-    max_results: int = 20,
+    max_results: int = 50,
 ) -> Dict[str, Any]:
     """Call the intelligence service free-search and return results.
 

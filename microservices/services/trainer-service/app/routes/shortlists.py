@@ -2293,10 +2293,9 @@ async def _sync_shortlist_with_trainers(
         reverse=True,
     )
 
-    # Keep shortlist state aligned with the system-wide one-trainer policy.
-    # A stale requirement may still carry an older top_n value, so do not use
-    # it to expand the active shortlist.
-    top_n = 1
+    # Keep the same 50-trainer result used by the other services.
+    from shared.trainer_targets import TRAINER_RESULT_TARGET
+    top_n = TRAINER_RESULT_TARGET
     existing = existing or {}
     old_trainers = existing.get("top_trainers", []) or []
     old_by_id = {

@@ -78,7 +78,7 @@ class SearchPublicRequest(BaseModel):
     queries: Optional[List[Dict[str, Any]]] = None
     source: Optional[str] = "linkedin"
     location: Optional[str] = ""
-    max_results: int = 10
+    max_results: int = 50
     max_queries: Optional[int] = None
 
 

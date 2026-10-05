@@ -198,9 +198,7 @@ def _people_search_url(keywords, page_number):
     return 'https://www.linkedin.com/search/results/people/?' + urlencode({'keywords': keywords, 'page': page_number})
 
 
-# A full trainer fetch looks through 200 people and keeps 50 matches.
-TRAINER_RESULT_TARGET = 50
-TRAINER_SCAN_LIMIT = 200
+from shared.trainer_targets import TRAINER_RESULT_TARGET, TRAINER_SCAN_LIMIT
 
 
 async def collect_trainer_profiles(page, domain, location, limit, collected=None):

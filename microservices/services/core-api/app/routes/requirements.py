@@ -673,10 +673,9 @@ def _normalise_requirement_payload(payload: Dict[str, Any], existing: Optional[D
     data["timeline_end"] = _clean(data.get("timeline_end"))
     data["timing"] = _clean(data.get("timing"))
     data["preferred_location"] = _clean(data.get("preferred_location") or data.get("location"))
-    # The workflow deliberately contacts the single best matched trainer.
-    # Ignore caller-provided shortlist sizes so every creation path follows
-    # the same one-trainer policy.
-    data["top_n"] = 1
+    # Every service keeps the same trainer result size.
+    from shared.trainer_targets import TRAINER_RESULT_TARGET
+    data["top_n"] = TRAINER_RESULT_TARGET
     data["min_experience_years"] = _safe_int(data.get("min_experience_years"), 0)
     data["send_emails"] = bool(data.get("send_emails", False))
     source_text = " ".join(
@@ -834,7 +833,8 @@ async def _build_shortlist_for_requirement(
         reverse=True,
     )
 
-    top_trainers = scored[:1]
+    from shared.trainer_targets import TRAINER_RESULT_TARGET
+    top_trainers = scored[:TRAINER_RESULT_TARGET]
     existing = await db["shortlists"].find_one({"requirement_id": req_id}, {"_id": 0}) or {}
     old_by_id = {
         _clean(trainer.get("trainer_id")): trainer
@@ -1149,9 +1149,8 @@ async def update_requirement(
             raise HTTPException(422, "generation_mode must be 'ai' or 'template'")
         data["generation_mode"] = generation_mode
     if "top_n" in data:
-        # Preserve the system-wide single-trainer policy on partial updates
-        # too, not just during requirement creation.
-        data["top_n"] = 1
+        from shared.trainer_targets import TRAINER_RESULT_TARGET
+        data["top_n"] = TRAINER_RESULT_TARGET
     if any(key in data for key in ("technology_needed", "domain", "title", "job_title")):
         data = _normalise_requirement_payload(data, current)
     data.pop("_id", None)

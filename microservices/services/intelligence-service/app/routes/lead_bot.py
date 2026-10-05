@@ -97,7 +97,7 @@ async def collect_due(db, mode):
         else:
             result = await asyncio.wait_for(search_linkedin_leads(LinkedInLeadSearchRequest(
                 mode=mode, domains=domains, search_provider='auto',
-                save=True, max_results=20, max_queries=2), db), timeout=800)
+                save=True, max_results=50, max_queries=2), db), timeout=800)
         error = result.get('error') or result.get('search_error') or ''
         outcome = {'status': 'error' if error else 'completed' if result.get('found') else 'no_results',
                    'last_error': str(error)[:500], 'found': result.get('found', 0),

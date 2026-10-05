@@ -87,7 +87,7 @@ class SearchPublicRequest(BaseModel):
     domains: Optional[List[str]] = None
     domain: Optional[str] = ""
     location: Optional[str] = ""
-    max_results: int = 10
+    max_results: int = 50
     max_queries: Optional[int] = None
 
 
