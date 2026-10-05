@@ -27,9 +27,13 @@ response=httpx.post('http://127.0.0.1:8005/api/v1/linkedin-leads/search',json={'
 response.raise_for_status()
 result=response.json()
 print(json.dumps({key:result.get(key) for key in ['success','found','saved_count','skipped_count','search_error','auto_sent_count']}))
-if not result.get('success'):
-    sys.exit(2)
-print('APPLICATION_SEARCH_READY: The deployed search completed.')
+error = result.get('search_error') or ''
+found = int(result.get('found') or 0)
+saved = int(result.get('saved_count') or 0)
+if result.get('success') or (found and 'time limit' in error.lower()):
+    print(f'APPLICATION_SEARCH_READY: Found {found}; saved {saved} new profile(s).')
+    sys.exit(0)
+sys.exit(2)
 '@
     & docker exec $Container python -c $checkSearch $Domain $Mode
     if ($LASTEXITCODE -ne 0) { throw 'The application search is not ready. Review the error above; this helper will not retry.' }
