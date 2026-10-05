@@ -101,6 +101,23 @@ def test_reference_scenarios_keep_individual_evidence():
     assert wb["Scenarios"]["F3"].value == "Schema report"
 
 
+def test_workbook_header_uses_the_premium_palette():
+    toc = {"excel_layout": "execution_plan", "title": "Python for analysts", "hours_per_day": 4,
+           "days": [{"day": 1, "focus_area": "CSV validation", "subtopics": ["pandas"], "lab": "Clean a sales CSV"}]}
+    wb = openpyxl.load_workbook(io.BytesIO(_toc_to_excel(toc)))
+    header = wb["Day-wise Plan"]["A1"]
+    assert header.font.bold is True
+    assert header.font.color.rgb.endswith("FFFFFF")
+    assert header.fill.fgColor.rgb.endswith("10243E")
+    assert header.border.bottom.color.rgb.endswith("C4A46A")
+    assert wb["Day-wise Plan"].sheet_properties.tabColor.rgb.endswith("C4A46A")
+    assert wb["Program Overview"]["A2"].font.bold is True
+    assert wb["Program Overview"]["A2"].font.color.rgb.endswith("10243E")
+    assert wb["Program Overview"].oddHeader.left.text.startswith("Python for analysts")
+    assert wb.properties.title.startswith("Python for analysts")
+    assert all(sheet.freeze_panes == "A2" for sheet in wb.worksheets)
+
+
 def test_long_lab_is_visible_in_continuation_rows_without_duplicating_hours():
     long_lab = "\n".join(f"Lab step {index}: inspect input and capture results." for index in range(100))
     toc = {"excel_layout": "execution_plan", "days": [{"day": 1, "minutes": 240, "focus_area": "Long lab", "lab": long_lab}]}
