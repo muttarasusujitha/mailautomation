@@ -173,6 +173,41 @@ def test_people_pages_collect_multiword_trainer_profiles():
                for call in page.goto.await_args_list)
 
 
+def test_people_search_keeps_paging_until_the_fifty_profile_target():
+    from app.clients.linkedin_browser import collect_trainer_profiles
+    page = MagicMock()
+    page.goto = AsyncMock(return_value=MagicMock(status=200))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    pages = [
+        [{'url': f'https://www.linkedin.com/in/trainer-{index}', 'text': f'Trainer {index}\nSAP trainer\nHyderabad'}]
+        for index in range(6)
+    ]
+    calls = {'count': 0}
+
+    async def evaluate(_script):
+        calls['count'] += 1
+        if calls['count'] <= len(pages):
+            return pages[calls['count'] - 1]
+        return []
+
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(side_effect=evaluate)
+
+    def locate(selector):
+        if 'listitem' in selector:
+            raise AssertionError('content fallback started before people pages were exhausted')
+        return people
+
+    page.locator.side_effect = locate
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'SAP trainer', '', 50))
+    assert len(rows) == 6
+    assert page.goto.await_count > 6
+    assert all('page=' in call.args[0] for call in page.goto.await_args_list)
+
+
 def test_joined_domain_words_still_match_trainer_profiles():
     item = {'url': 'https://www.linkedin.com/in/ada', 'title': 'Ada', 'content': 'SoftSkills corporate trainer'}
     lead = _normalize_result(item, 'soft skills', 'trainer')
