@@ -1760,8 +1760,9 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
                         'change_percent': delta, 'review_required': review})
     assumptions['price_changes'] = changes
     workbook = _lab_cost_to_excel(toc, assumptions)
-    from app.lab_recalculation import recalculate_lab_workbook
+    from app.lab_recalculation import final_estimated_cost, recalculate_lab_workbook
     workbook = await run_in_threadpool(recalculate_lab_workbook, workbook)
+    final_inr = final_estimated_cost(workbook)
     await db['lab_cost_rate_snapshots'].insert_one({
         'quote_id': assumptions['rate_snapshot_id'], 'selection_key': selection_key,
         'rate_checked_at': assumptions['rate_checked_at'],
@@ -1772,13 +1773,18 @@ async def export_toc_lab_cost_workbook(payload: Dict[str, Any] = Body(...), db=D
         'workbook_sha256': hashlib.sha256(workbook).hexdigest(),
     })
     provider = str(assumptions.get("cloud_provider") or "aws").lower()
+    headers = {
+        "Content-Disposition": f"attachment; filename={provider}_lab_cost.xlsx",
+        "X-Lab-Cost-Quote-ID": assumptions["rate_snapshot_id"],
+        "X-Lab-Cost-Quote-Valid-Until": assumptions["quote_valid_until"],
+        "X-Lab-Cost-Pricing-Status": assumptions["pricing_status"],
+    }
+    if final_inr is not None:
+        headers["X-Lab-Cost-Final-INR"] = f"{final_inr:.2f}"
     return Response(
         content=workbook,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={provider}_lab_cost.xlsx",
-                 'X-Lab-Cost-Quote-ID': assumptions['rate_snapshot_id'],
-                 'X-Lab-Cost-Quote-Valid-Until': assumptions['quote_valid_until'],
-                 'X-Lab-Cost-Pricing-Status': assumptions['pricing_status']},
+        headers=headers,
     )
 
 
