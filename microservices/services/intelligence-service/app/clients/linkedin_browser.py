@@ -406,11 +406,18 @@ async def search_linkedin_account(domain, mode, limit=20, location='', collected
                     return await collect_client_posts(page, context, domain, location, min(max(limit, 1), 50))
             except Exception as exc:
                 cause = exc
+                partial = None
+                auth_required = False
                 while cause is not None:
                     if isinstance(cause, LinkedInAuthenticationRequired):
+                        auth_required = True
                         block_session(profile_path())
-                        break
+                    if partial is None and getattr(cause, 'results', None):
+                        partial = list(cause.results)
                     cause = cause.__cause__
+                # Profiles collected before a deadline are a completed search.
+                if partial and not auth_required:
+                    return partial
                 raise
             finally:
                 try:

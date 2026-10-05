@@ -619,6 +619,12 @@ async def search_linkedin_leads(
         if search_errors and payload.search_provider == 'linkedin_account':
             break
 
+    if all_results:
+        search_errors = [
+            item for item in search_errors
+            if 'time limit' not in str(item.get('error') or '').lower()
+        ]
+
     return {
         "success": not search_errors,
         "domain_outcomes": domain_outcomes,

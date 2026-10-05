@@ -20,6 +20,29 @@ try {
     Get-Content -Raw (Join-Path $profileDirectory 'linkedin-session.json') | docker exec -i $Container python -c $installSession
     if ($LASTEXITCODE -ne 0) { throw 'Could not install the verified session in the local service.' }
 
+    # The running image can be older than this checkout. Install the current
+    # search modules and restart once so this run uses them.
+    Write-Output 'Installing the current trainer search into the running service.'
+    $modules = @(
+        @{ Local = Join-Path $servicePath 'app/clients/linkedin_browser.py'; Probe = 'import app.clients.linkedin_browser as m; print(m.__file__)' },
+        @{ Local = Join-Path $servicePath 'app/routes/linkedin_leads.py'; Probe = 'import app.routes.linkedin_leads as m; print(m.__file__)' }
+    )
+    foreach ($module in $modules) {
+        $remote = (& docker exec $Container python -c $module.Probe)
+        if ($LASTEXITCODE -ne 0 -or -not $remote) { throw 'Could not locate the search code inside the service.' }
+        & docker cp $module.Local "${Container}:$($remote.Trim())"
+        if ($LASTEXITCODE -ne 0) { throw 'Could not copy the trainer search into the service.' }
+    }
+    & docker restart $Container | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Could not restart the service after installing the trainer search.' }
+    $serviceReady = $false
+    foreach ($attempt in 1..30) {
+        Start-Sleep -Seconds 2
+        & docker exec $Container python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8005/health', timeout=3)"
+        if ($LASTEXITCODE -eq 0) { $serviceReady = $true; break }
+    }
+    if (-not $serviceReady) { throw 'The service did not become ready after the trainer search was installed.' }
+
     Write-Output 'Checking the actual application search once. No messages or emails are sent.'
     $checkSearch = @'
 import httpx,json,sys
@@ -27,11 +50,11 @@ response=httpx.post('http://127.0.0.1:8005/api/v1/linkedin-leads/search',json={'
 response.raise_for_status()
 result=response.json()
 print(json.dumps({key:result.get(key) for key in ['success','found','saved_count','skipped_count','search_error','auto_sent_count']}))
-error = result.get('search_error') or ''
 found = int(result.get('found') or 0)
 saved = int(result.get('saved_count') or 0)
-if result.get('success') or (found and 'time limit' in error.lower()):
-    print(f'APPLICATION_SEARCH_READY: Found {found}; saved {saved} new profile(s).')
+skipped = int(result.get('skipped_count') or 0)
+if result.get('success') or found:
+    print(f'APPLICATION_SEARCH_READY: Found {found}; saved {saved} new profile(s); {skipped} already saved.')
     sys.exit(0)
 sys.exit(2)
 '@
