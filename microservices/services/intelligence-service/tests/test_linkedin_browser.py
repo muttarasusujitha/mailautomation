@@ -208,6 +208,35 @@ def test_people_search_keeps_paging_until_the_fifty_profile_target():
     assert all('page=' in call.args[0] for call in page.goto.await_args_list)
 
 
+def test_scanning_two_hundred_people_returns_fifty_trainers():
+    from app.clients.linkedin_browser import collect_trainer_profiles
+    page = MagicMock()
+    page.goto = AsyncMock(return_value=MagicMock(status=200))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    page.get_by_role.side_effect = AssertionError('page links are used')
+    pages = []
+    for page_index in range(12):
+        cards = []
+        for slot in range(10):
+            number = page_index * 10 + slot
+            if slot % 2 == 0:
+                cards.append({'url': f'https://www.linkedin.com/in/trainer-{number}', 'text': f'Trainer {number}\nSAP trainer'})
+            else:
+                cards.append({'url': f'https://www.linkedin.com/in/other-{number}', 'text': f'Person {number}\nSAP consultant'})
+        pages.append(cards)
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(side_effect=pages)
+    page.locator.return_value = people
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'SAP', '', 50))
+    assert len(rows) == 50
+    assert len({row['url'] for row in rows}) == 50
+    assert all('trainer-' in row['url'] for row in rows)
+    assert page.goto.await_count == 10
+
+
 def test_blank_people_page_is_reread_before_the_search_stops():
     from app.clients.linkedin_browser import collect_trainer_profiles
     page = MagicMock()

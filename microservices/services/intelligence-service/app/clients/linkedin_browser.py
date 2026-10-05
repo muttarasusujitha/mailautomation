@@ -198,15 +198,21 @@ def _people_search_url(keywords, page_number):
     return 'https://www.linkedin.com/search/results/people/?' + urlencode({'keywords': keywords, 'page': page_number})
 
 
+# A full trainer fetch looks through 200 people and keeps 50 matches.
+TRAINER_RESULT_TARGET = 50
+TRAINER_SCAN_LIMIT = 200
+
+
 async def collect_trainer_profiles(page, domain, location, limit, collected=None):
-    """Count distinct qualified people, paging through search results before posts."""
+    """Page through people search until the qualified target or the scan limit is met."""
     from app.routes.linkedin_leads import _normalize_result
     results = [] if collected is None else collected
     seen, visited = {row.get('url') for row in results}, set()
-    # About ten profiles per LinkedIn page. Page until the target is filled,
-    # and finish inside the helper's request so a slow page cannot erase them.
-    page_cap = min(15, max(8, (max(limit, 1) + 3) // 4))
-    deadline = asyncio.get_running_loop().time() + min(110, 20 + page_cap * 7)
+    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_TARGET)
+    scan_limit = TRAINER_SCAN_LIMIT if limit >= TRAINER_RESULT_TARGET else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
+    # LinkedIn shows about ten people per page, so 200 profiles is 20 pages.
+    page_cap = 20 if limit >= TRAINER_RESULT_TARGET else min(20, max(limit, 2))
+    deadline = asyncio.get_running_loop().time() + (180 if limit >= TRAINER_RESULT_TARGET else 65)
 
     def timed_out():
         return asyncio.get_running_loop().time() >= deadline
@@ -226,7 +232,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         for item in links or []:
             url = canonical_url((item or {}).get('url', ''))
             text = (item or {}).get('text', '') or ''
-            if not url or url in visited:
+            if not url or url in visited or len(visited) >= scan_limit:
                 continue
             visited.add(url)
             new_urls += 1
@@ -264,10 +270,10 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     try:
         page_loads = 0
         for keywords in queries:
-            if len(results) >= limit or timed_out():
+            if len(results) >= limit or len(visited) >= scan_limit or timed_out():
                 break
             for page_number in range(1, page_cap + 1):
-                if len(results) >= limit or page_loads >= page_cap or timed_out():
+                if len(results) >= limit or len(visited) >= scan_limit or page_loads >= page_cap or timed_out():
                     break
                 page_loads += 1
                 response, opened = await open_people_page(keywords, page_number)
@@ -291,7 +297,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                     new_urls, raw_count = await read_people()
                 if new_urls == 0:
                     break
-                if len(results) >= limit:
+                if len(results) >= limit or len(visited) >= scan_limit:
                     return results
     except ValueError:
         # Verification and rate limits require human action, not another search.

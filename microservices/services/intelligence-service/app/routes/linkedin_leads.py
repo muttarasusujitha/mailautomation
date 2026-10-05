@@ -539,8 +539,10 @@ async def search_linkedin_leads(
                 break
             try:
                 if payload.search_provider == 'linkedin_account':
-                    from app.clients.linkedin_browser import search_linkedin_account
-                    raw_results.extend(await search_linkedin_account(domain, mode, min(50, target_results), payload.location or ''))
+                    from app.clients.linkedin_browser import TRAINER_RESULT_TARGET, search_linkedin_account
+                    # Trainer fetches keep 50 matches from a 200-person scan.
+                    fetch_limit = min(TRAINER_RESULT_TARGET, target_results)
+                    raw_results.extend(await search_linkedin_account(domain, mode, fetch_limit, payload.location or ''))
                 elif payload.search_provider == 'public':
                     from app.clients.public_search import search_public
                     raw_results.extend(await search_public(query, min(20, target_results)))
