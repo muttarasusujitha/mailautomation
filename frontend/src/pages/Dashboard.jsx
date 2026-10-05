@@ -400,7 +400,7 @@ export default function Dashboard() {
           </span>
           <div>
             <p className="font-bold text-slate-900">AI generation for supported workflows</p>
-            <p className="mt-1 text-sm text-slate-600">Controls AI wording and drafts in Shortlist, Shortlist1, and Client Requests.</p>
+            <p className="mt-1 text-sm text-slate-600">When this is on, Shortlist, Shortlist 1, client replies, TOC generation, and the application agent use the configured LLM.</p>
           </div>
         </div>
         <div className="flex items-center gap-3">

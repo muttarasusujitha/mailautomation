@@ -3,6 +3,7 @@ import hashlib
 import json
 import logging
 import math
+import re
 import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -37,6 +38,12 @@ SAFE_AUTO_ACTIONS = {
     "log_decision",
     "send_reminder",
     "sync_inbox",
+}
+
+AGENTIC_LLM_ROLES = {
+    "client_requirement_agent",
+    "trainer_matching_agent",
+    "outreach_agent",
 }
 
 
@@ -374,9 +381,12 @@ async def run_agent_orchestrator(
                 )
             decisions.append(decision)
 
+    await _attach_agentic_wording(db, decisions, dry_run)
+
     return {
         "success": True,
         "dry_run": dry_run,
+        "generation_mode": await _generation_mode(db),
         "created": len(decisions) if not dry_run else 0,
         "previewed": len(decisions) if dry_run else 0,
         "would_queue": sum(
@@ -385,6 +395,117 @@ async def run_agent_orchestrator(
         ) if dry_run else 0,
         "decisions": decisions,
     }
+
+
+async def _generation_mode(db: AsyncIOMotorDatabase) -> str:
+    try:
+        setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
+    except Exception:
+        return "template"
+    mode = _clean(setting.get("value")).lower()
+    return mode if mode in {"ai", "template"} else "template"
+
+
+async def _pending_llm_decisions(db: AsyncIOMotorDatabase) -> List[Dict[str, Any]]:
+    try:
+        cursor = db["agent_decisions"].find(
+            {"agent_role": {"$in": list(AGENTIC_LLM_ROLES)}, "metadata.llm": {"$exists": False}},
+            {"_id": 0},
+        ).sort("created_at", -1).limit(8)
+        return await cursor.to_list(8)
+    except Exception:
+        logger.warning("Could not load agent decisions that still need AI wording")
+        return []
+
+
+async def _fetch_agentic_wording(decisions: List[Dict[str, Any]]) -> Dict[tuple, Dict[str, str]]:
+    """Ask the application LLM for client, shortlist, and TOC notes."""
+    compact = []
+    for item in decisions[:8]:
+        compact.append({
+            "agent_role": item.get("agent_role"),
+            "entity_id": item.get("entity_id"),
+            "observation": item.get("observation"),
+            "decision": item.get("decision"),
+            "reason": item.get("reason"),
+            "metadata": item.get("metadata") or {},
+        })
+    prompt = (
+        "For each decision, write short operational notes from the supplied facts only. "
+        "Return a JSON array. Each item must include agent_role, entity_id, client_text, "
+        "shortlist_note, and toc_note. client_text is one client-facing sentence. "
+        "shortlist_note explains the trainer shortlist. toc_note says whether a table of "
+        "contents should be drafted from the known scope. Do not invent prices, dates, "
+        "trainer names, selections, or attachments. Use an empty string when a note does not apply.\n"
+        + json.dumps(compact, default=str)
+    )
+    url = settings.INTELLIGENCE_SERVICE_URL.rstrip("/") + "/api/v1/assistant/chat"
+    try:
+        async with httpx.AsyncClient(timeout=40) as client:
+            response = await client.post(url, json={
+                "messages": [{"role": "user", "content": prompt}],
+                "system_prompt": "You draft grounded training-workflow notes. Return JSON only.",
+                "max_tokens": 900,
+                "temperature": 0.2,
+            })
+            response.raise_for_status()
+            payload = response.json()
+    except Exception as exc:
+        logger.warning("Agentic AI wording unavailable: %s", exc)
+        return {}
+    if not payload.get("success"):
+        return {}
+    reply = str(payload.get("reply") or "")
+    match = re.search(r"\[[\s\S]*\]", reply)
+    if not match:
+        return {}
+    try:
+        rows = json.loads(match.group(0))
+    except json.JSONDecodeError:
+        return {}
+    mapped: Dict[tuple, Dict[str, str]] = {}
+    for row in rows if isinstance(rows, list) else []:
+        if not isinstance(row, dict):
+            continue
+        mapped[(_clean(row.get("agent_role")), _clean(row.get("entity_id")))] = {
+            "client_text": _clean(row.get("client_text"))[:1200],
+            "shortlist_note": _clean(row.get("shortlist_note"))[:1200],
+            "toc_note": _clean(row.get("toc_note"))[:1200],
+            "provider": "llm",
+        }
+    return mapped
+
+
+async def _attach_agentic_wording(db: AsyncIOMotorDatabase, decisions: List[Dict[str, Any]], dry_run: bool) -> None:
+    """Use the LLM for client, shortlist, and TOC notes only when AI generation is on."""
+    if await _generation_mode(db) != "ai":
+        return
+    targets = [item for item in decisions if item.get("agent_role") in AGENTIC_LLM_ROLES and not (item.get("metadata") or {}).get("llm")]
+    if not dry_run:
+        seen = {(item.get("agent_role"), item.get("entity_id"), item.get("decision_id")) for item in targets}
+        for item in await _pending_llm_decisions(db):
+            key = (item.get("agent_role"), item.get("entity_id"), item.get("decision_id"))
+            if key not in seen and not (item.get("metadata") or {}).get("llm"):
+                targets.append(item)
+                seen.add(key)
+    targets = targets[:8]
+    if not targets:
+        return
+    wording = await _fetch_agentic_wording(targets)
+    for item in targets:
+        note = wording.get((_clean(item.get("agent_role")), _clean(item.get("entity_id"))))
+        metadata = dict(item.get("metadata") or {})
+        if note:
+            metadata["llm"] = note
+            item["metadata"] = metadata
+            if not dry_run and item.get("decision_id"):
+                await db["agent_decisions"].update_one(
+                    {"decision_id": item["decision_id"]},
+                    {"$set": {"metadata": metadata, "updated_at": _now()}},
+                )
+        else:
+            metadata["llm_status"] = "unavailable"
+            item["metadata"] = metadata
 
 
 async def _queue_interview_notice(candidate: AgentDecisionCreate) -> Dict[str, Any]:

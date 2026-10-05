@@ -65,6 +65,53 @@ def _generated(domain="New Platform"):
     }
 
 
+def test_saved_ai_switch_uses_the_model_even_if_the_request_says_template(monkeypatch):
+    db = _Db()
+
+    class Settings:
+        async def find_one(self, *args, **kwargs):
+            return {"value": "ai"}
+
+    db.collections["automation_settings"] = Settings()
+
+    async def generate_ai(payload):
+        return _generated("AI Platform")
+
+    def manual_generator(*args, **kwargs):
+        raise AssertionError("The saved AI switch must call the model")
+
+    monkeypatch.setattr(toc_route, "_generate_ai_toc", generate_ai)
+    monkeypatch.setattr(toc_route, "generate_toc_from_dataset", manual_generator)
+    result = asyncio.run(toc_route.generate_toc(toc_route.TocRequest(
+        domain="New Platform", duration_days=1, generation_mode="template",
+    ), db))
+    assert result["toc_data"]["generation_mode"] == "ai"
+
+
+def test_saved_template_switch_stays_offline(monkeypatch):
+    db = _Db()
+
+    class Settings:
+        async def find_one(self, *args, **kwargs):
+            return {"value": "template"}
+
+    db.collections["automation_settings"] = Settings()
+    called = {}
+
+    async def generate_ai(payload):
+        called["yes"] = True
+        return None
+
+    monkeypatch.setattr(toc_route, "_generate_ai_toc", generate_ai)
+    monkeypatch.setattr(toc_route, "generate_toc_from_dataset", lambda *args, **kwargs: _generated())
+    monkeypatch.setattr(toc_route, "validate_toc", lambda value, days: value)
+    result = asyncio.run(toc_route.generate_toc(toc_route.TocRequest(
+        domain="New Platform", duration_days=1, generation_mode="ai",
+    ), db))
+    assert "yes" not in called
+    assert result["toc_data"]["generation_mode"] == "template"
+
+
 def test_template_mode_uses_saved_toc_knowledge(monkeypatch):
     knowledge = {
         "key": "new_platform",

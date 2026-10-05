@@ -1799,13 +1799,8 @@ async def _humanize_verified_client_reply(
 ) -> Dict[str, str]:
     """Let the configured provider phrase verified facts naturally."""
     try:
-        from app.config import get_settings
-
         setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
-        if (
-            _clean(setting.get("value")).lower() != "ai"
-            or not bool(getattr(get_settings(), "USE_LLM_FOR_EMAILS", False))
-        ):
+        if _clean(setting.get("value")).lower() != "ai":
             return {**verified_reply, "generation_source": "template"}
     except Exception:
         return {**verified_reply, "generation_source": "template"}

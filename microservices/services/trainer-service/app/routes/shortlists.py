@@ -123,6 +123,15 @@ class SendMailRequest(BaseModel):
     smtp_config: Optional[Dict[str, Any]] = None
 
 
+class GenerateAiMailRequest(BaseModel):
+    requirement_id: str
+    trainer_id: Optional[str] = ""
+    trainer_name: Optional[str] = ""
+    mail_type: str = "mail1"
+    subject: Optional[str] = ""
+    body: Optional[str] = ""
+
+
 class SendInterviewLinkRequest(BaseModel):
     requirement_id: str
     trainer_id: str
@@ -1731,6 +1740,81 @@ def _all_mail_batch_rules(requirement: Dict[str, Any]) -> str:
     )
 
 
+def _subject_body_from_model(text: str, fallback_subject: str) -> Dict[str, str]:
+    subject_match = re.search(r"SUBJECT:\s*(.+)", text, flags=re.IGNORECASE)
+    body_match = re.search(r"BODY:\s*([\s\S]+)", text, flags=re.IGNORECASE)
+    body = _clean(body_match.group(1) if body_match else text)
+    if not body:
+        raise ValueError("AI returned an empty email")
+    subject = _clean(subject_match.group(1) if subject_match else fallback_subject) or fallback_subject
+    return {"subject": subject, "body": body}
+
+
+async def _invoke_mail_model(instructions: str, prompt: str) -> str:
+    """Call the configured mail model. AI generation must already be enabled."""
+    ai_provider = str(getattr(settings, "AI_PROVIDER", "openai") or "openai").strip().lower()
+    if ai_provider == "ollama":
+        if not _clean(getattr(settings, "OLLAMA_URL", "")) or not _clean(getattr(settings, "OLLAMA_MODEL", "")):
+            raise HTTPException(502, "Ollama email generation is not configured. Select Template mode or configure Ollama.")
+        from app.ollama_client import OllamaClient
+        response = await OllamaClient(settings.OLLAMA_URL).responses.create(
+            model=settings.OLLAMA_MODEL,
+            instructions=instructions,
+            input=prompt,
+            max_output_tokens=650,
+        )
+    elif ai_provider == "openai":
+        if not _clean(settings.OPENAI_API_KEY):
+            raise HTTPException(502, "AI email generation is not configured. Select Template mode or configure AI.")
+        from openai import AsyncOpenAI
+        response = await AsyncOpenAI(api_key=settings.OPENAI_API_KEY).responses.create(
+            model=settings.OPENAI_MODEL or "gpt-5.5",
+            reasoning={"effort": "low"},
+            text={"verbosity": "low"},
+            instructions=instructions,
+            input=prompt,
+            max_output_tokens=650,
+        )
+    else:
+        raise HTTPException(502, f"Unsupported trainer-service AI provider: {ai_provider}")
+    text = _clean(getattr(response, "output_text", ""))
+    if not text:
+        raise ValueError("AI returned an empty email")
+    return text
+
+
+async def _ai_stage_mail(
+    *,
+    trainer_name: str,
+    domain: str,
+    mail_type: str,
+    fallback_subject: str,
+    fallback_body: str,
+    batch_rules: str = "",
+) -> Dict[str, str]:
+    """Write a later-stage trainer email from the approved reference facts."""
+    instructions = (
+        "Write one concise professional trainer email for Clahan Technologies for the stated workflow stage. "
+        "Use the reference only for verified facts and required actions. Do not copy it as a script and do not "
+        "mention that a template exists. Do not invent dates, rates, links, attachments, approvals, selections, "
+        "or completion status. Address the trainer by name and finish with exactly: Regards, Clahan Technologies. "
+        "Return exactly: SUBJECT: <subject> followed by BODY: <body>."
+    )
+    prompt = (
+        f"Stage: {mail_type}\nTrainer: {trainer_name}\nDomain: {domain}\n"
+        f"Batch rules: {batch_rules}\n"
+        f"Reference subject: {fallback_subject}\nReference body:\n{fallback_body}"
+    )
+    try:
+        text = await _invoke_mail_model(instructions, prompt)
+        return _subject_body_from_model(text, fallback_subject)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.warning("AI %s generation failed: %s", mail_type, exc)
+        raise HTTPException(502, "AI email generation failed. No template was substituted. Retry or select Template mode explicitly.") from exc
+
+
 async def _ai_trainer_mail1(
     db: AsyncIOMotorDatabase,
     *,
@@ -1744,15 +1828,6 @@ async def _ai_trainer_mail1(
     setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
     if _clean(setting.get("value")).lower() != "ai":
         return None
-    ai_provider = str(getattr(settings, "AI_PROVIDER", "openai") or "openai").strip().lower()
-    if ai_provider == "ollama":
-        if not _clean(getattr(settings, "OLLAMA_URL", "")) or not _clean(getattr(settings, "OLLAMA_MODEL", "")):
-            raise HTTPException(502, "Ollama email generation is not configured. Select Template mode or configure Ollama.")
-    elif ai_provider == "openai":
-        if not _clean(settings.OPENAI_API_KEY):
-            raise HTTPException(502, "AI email generation is not configured. Select Template mode or configure AI.")
-    else:
-        raise HTTPException(502, f"Unsupported trainer-service AI provider: {ai_provider}")
     # Keep Mail 1 grounded in the complete client scope.  The deterministic
     # parser may not have extracted every item from a naturally-written mail,
     # so include the original client request as an authoritative fact too.
@@ -1827,34 +1902,13 @@ async def _ai_trainer_mail1(
         "- [Your available date 3], [time], [time zone]"
     )
     try:
-        if ai_provider == "ollama":
-            from app.ollama_client import OllamaClient
-            response = await OllamaClient(settings.OLLAMA_URL).responses.create(
-                model=settings.OLLAMA_MODEL,
-                instructions=instructions,
-                input=prompt,
-                max_output_tokens=650,
-            )
-        else:
-            from openai import AsyncOpenAI
-            response = await AsyncOpenAI(api_key=settings.OPENAI_API_KEY).responses.create(
-                model=settings.OPENAI_MODEL or "gpt-5.5",
-                reasoning={"effort": "low"},
-                text={"verbosity": "low"},
-                instructions=instructions,
-                input=prompt,
-                max_output_tokens=650,
-            )
-        text = _clean(response.output_text)
-        subject_match = re.search(r"SUBJECT:\s*(.+)", text, flags=re.IGNORECASE)
-        body_match = re.search(r"BODY:\s*([\s\S]+)", text, flags=re.IGNORECASE)
-        body = _clean(body_match.group(1) if body_match else text)
-        if not body:
-            raise ValueError("AI returned an empty email")
-        return {"subject": _clean(subject_match.group(1) if subject_match else fallback_subject) or fallback_subject, "body": body}
+        text = await _invoke_mail_model(instructions, prompt)
+        return _subject_body_from_model(text, fallback_subject)
+    except HTTPException:
+        raise
     except Exception as exc:
         logger.warning("AI Mail 1 generation failed: %s", exc)
-        return None
+        raise HTTPException(502, "AI Mail 1 generation failed. No email was sent; retry or select Template mode explicitly.") from exc
 
 
 def _ensure_mail1_slot_examples(body: str) -> str:
@@ -2828,6 +2882,59 @@ async def get_shortlist(requirement_id: str, db: AsyncIOMotorDatabase = Depends(
         )
 
     return _shortlist_response(doc)
+
+
+@router.post("/generate-ai-mail")
+async def generate_ai_mail(payload: GenerateAiMailRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+    """Draft Shortlist or Shortlist 1 email text with the LLM when AI generation is on."""
+    setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
+    if _clean(setting.get("value")).lower() != "ai":
+        raise HTTPException(409, "AI generation is off. Enable AI text generation first.")
+    requirement = await db["requirements"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
+    domain = _clean(
+        requirement.get("technology_needed")
+        or requirement.get("domain")
+        or requirement.get("title")
+        or "Training"
+    )
+    trainer_name = _clean(payload.trainer_name) or "Trainer"
+    mail_type = _clean(payload.mail_type) or "mail1"
+    fallback_subject = _clean(payload.subject) or f"Training Opportunity - {domain}"
+    fallback_body = _clean(payload.body)
+    if mail_type in {"mail1", "first"}:
+        trainer = {}
+        if payload.trainer_id:
+            shortlist = await db["shortlists"].find_one({"requirement_id": payload.requirement_id}, {"_id": 0}) or {}
+            trainer = next(
+                (item for item in shortlist.get("top_trainers") or [] if str(item.get("trainer_id") or "") == str(payload.trainer_id)),
+                {},
+            )
+        draft = await _ai_trainer_mail1(
+            db,
+            trainer_name=trainer_name,
+            domain=domain,
+            requirement={**requirement, **{key: trainer[key] for key in ("clahan_offer_per_day", "clahan_skill_tier") if trainer.get(key) is not None}},
+            fallback_subject=fallback_subject,
+            fallback_body=fallback_body or _clean_confirmed_mail1_body(trainer_name, requirement, domain, trainer),
+        )
+    else:
+        draft = await _ai_stage_mail(
+            trainer_name=trainer_name,
+            domain=domain,
+            mail_type=mail_type,
+            fallback_subject=fallback_subject,
+            fallback_body=fallback_body,
+            batch_rules=_all_mail_batch_rules(requirement),
+        )
+    if not draft or not _clean(draft.get("body")):
+        raise HTTPException(502, "AI email generation failed. No template was substituted. Retry or select Template mode explicitly.")
+    return {
+        "success": True,
+        "generation_mode": "ai",
+        "mail_type": mail_type,
+        "subject": draft["subject"],
+        "body": draft["body"],
+    }
 
 
 @router.post("/send-mail")

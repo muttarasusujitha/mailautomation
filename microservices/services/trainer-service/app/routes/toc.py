@@ -541,13 +541,28 @@ async def _generate_ai_toc(payload: TocRequest) -> Optional[dict]:
         return None
 
 
+async def _stored_generation_mode(db: AsyncIOMotorDatabase) -> str:
+    """The Dashboard switch is the authority when it has been saved."""
+    try:
+        collection = db["automation_settings"]
+        find_one = getattr(collection, "find_one", None)
+        if not find_one:
+            return ""
+        setting = await find_one({"key": "generation_mode"}, {"_id": 0}) or {}
+    except Exception:
+        return ""
+    mode = str(setting.get("value") or "").strip().lower()
+    return mode if mode in {"ai", "template"} else ""
+
+
 @router.post("/generate")
 async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     """
     Generate a structured TOC for a training programme.
     Uses the richer TOC generator with curriculum dataset support.
     """
-    requested_mode = (payload.generation_mode or "ai").lower()
+    stored_mode = await _stored_generation_mode(db)
+    requested_mode = stored_mode or (payload.generation_mode or "ai").lower()
     used_generation_mode = "template"
     payload._knowledge_db = db
     toc = await _generate_ai_toc(payload) if requested_mode == "ai" else None

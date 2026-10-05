@@ -1,6 +1,6 @@
 ﻿import { mail1Template, mail2FollowupTemplate, mail3Template, mail3SlotClarificationTemplate, mail3TooManySlotsTemplate, mail4Template, mail5SelectedTemplate, mail5RejectedTemplate, mailTrainingConfirmedTemplate } from '../utils/workflowTemplates'
 import { useState, useEffect, useRef } from 'react'
-import { deleteRequirement, getRequirement, getRequirements, getShortlist, updateRequirement } from '../utils/api'
+import { deleteRequirement, generateWorkflowMail, getRequirement, getRequirements, getShortlist, updateRequirement } from '../utils/api'
 import api from '../utils/api'
 import toast from 'react-hot-toast'
 import {
@@ -616,12 +616,29 @@ function MailModal({ trainer, req, mailType, onClose, onSent, generationMode = '
   useEffect(() => {
     if (generationMode !== 'ai') {
       setAiMail(null)
+      setAiGenerating(false)
       return undefined
     }
+    let cancelled = false
+    const fallback = getPreview()
     setAiGenerating(true)
     setAiMail(null)
-    setAiGenerating(false)
-  }, [generationMode, mailType, trainer.trainer_id, req.requirement_id, req.batch_flow, req.batch_type, req.pipeline_target, req.pipeline_page])
+    generateWorkflowMail({
+      requirementId: req.requirement_id,
+      trainerId: trainer.trainer_id,
+      trainerName: trainer.name,
+      mailType,
+      subject: fallback.subject,
+      body: fallback.body,
+    }).then(result => {
+      if (!cancelled) setAiMail(result)
+    }).catch(error => {
+      if (!cancelled) toast.error(error.response?.data?.detail || error.message || 'AI email generation failed')
+    }).finally(() => {
+      if (!cancelled) setAiGenerating(false)
+    })
+    return () => { cancelled = true }
+  }, [generationMode, mailType, trainer.trainer_id, trainer.name, req.requirement_id, req.batch_flow, req.batch_type, req.pipeline_target, req.pipeline_page, hasDetails, details.domain, details.duration, details.mode, details.participants, trainerDates, interviewLink, platform, dateTime, trainingDate, venue, contactName, contactPhone, contactEmail])
 
   const TITLES = {
     mail1:         'Ã°Å¸â€œÂ§ Send Shortlist Mail',
@@ -841,7 +858,7 @@ function MailModal({ trainer, req, mailType, onClose, onSent, generationMode = '
         </div>
 
         <div className="flex gap-3 p-5 border-t border-slate-100 sticky bottom-0 bg-white">
-          <button onClick={handleSend} disabled={loading || aiGenerating}
+          <button onClick={handleSend} disabled={loading || aiGenerating || (generationMode === 'ai' && !aiMail)}
             className="flex items-center gap-2 justify-center flex-1 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all disabled:opacity-60">
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</> : <><Send className="w-4 h-4" /> Send Email</>}
           </button>

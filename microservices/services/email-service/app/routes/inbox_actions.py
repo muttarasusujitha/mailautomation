@@ -1254,14 +1254,18 @@ async def _ai_draft_reply(
     require_openai: bool = False,
     _variation_retry: bool = False,
 ) -> str:
-    """Generate a client reply when LLM email drafting is enabled; otherwise use template."""
+    """Generate a client reply when AI generation is on; otherwise keep the reference text."""
     from app.config import get_settings
     cfg = get_settings()
 
     template = _client_auto_reply_template()
     grounded_reference = (reference_reply or {}).get("body") or template
-    if not bool(getattr(cfg, "USE_LLM_FOR_EMAILS", False)):
-        return "" if require_openai else grounded_reference
+    # Callers that already checked the Dashboard AI switch pass require_openai.
+    # That switch is enough to call the configured model. The env flag remains
+    # the gate for automatic callers that did not select AI generation.
+    llm_requested = bool(require_openai) or bool(getattr(cfg, "USE_LLM_FOR_EMAILS", False))
+    if not llm_requested:
+        return grounded_reference
 
     # Keep the thread visible even when the business record reaches its limit.
     # Old global style samples encourage the same boilerplate across recipients.
@@ -1346,8 +1350,12 @@ async def _ai_draft_reply(
             logger.warning("Ollama email generation failed: %s", exc)
             return "" if require_openai else grounded_reference
 
-    openai_key = cfg.OPENAI_API_KEY.strip()
-    if bool(getattr(cfg, "USE_OPENAI_FOR_EMAILS", False)) and openai_key:
+    openai_key = str(getattr(cfg, "OPENAI_API_KEY", "") or "").strip()
+    provider = str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower()
+    openai_selected = provider == "openai" and bool(openai_key) and (
+        bool(require_openai) or bool(getattr(cfg, "USE_OPENAI_FOR_EMAILS", False))
+    )
+    if openai_selected:
         try:
             from openai import AsyncOpenAI
 
