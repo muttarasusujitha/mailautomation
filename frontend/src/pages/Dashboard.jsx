@@ -4,7 +4,7 @@ import api, { getDashboardStats, getDashboardAnalytics, clearDatabase } from '..
 import {
   Users, Mail, TrendingUp, RefreshCw, BarChart2, Activity,
   Trash2, AlertTriangle, Star, ArrowUpRight, Database, Send,
-  BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings,
+  BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings, Sparkles,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -171,6 +171,8 @@ export default function Dashboard() {
   const [loading, setLoading]       = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [syncingInbox, setSyncingInbox] = useState(false)
+  const [generationMode, setGenerationMode] = useState('template')
+  const [savingGenerationMode, setSavingGenerationMode] = useState(false)
   const [showClear, setShowClear]   = useState(false)
   const [clearing, setClearing]     = useState(false)
   const navigate = useNavigate()
@@ -180,11 +182,12 @@ export default function Dashboard() {
     try {
       // BUG-009: Promise.allSettled already handles rejections per-request;
       // each settled result is checked individually so no rejection goes unhandled.
-      const [statsRes, inboxRes, gmailRes, analyticsRes] = await Promise.allSettled([
+      const [statsRes, inboxRes, gmailRes, analyticsRes, generationModeRes] = await Promise.allSettled([
         getDashboardStats(),
         api.get('/inbox', { params: { limit: 5, include_stats: false, include_total: false } }),
         api.get('/gmail/auth-status'),
         getDashboardAnalytics({ preset: 'week' }),
+        api.get('/requirements/generation-mode'),
       ])
       if (statsRes.status === 'fulfilled') {
         setStats(statsRes.value.data)
@@ -205,6 +208,9 @@ export default function Dashboard() {
         gmailRes.status === 'fulfilled' ? normalizeGmailStatus(gmailRes.value.data) : normalizeGmailStatus({ connected: false })
       )
       setDashboardAnalytics(analyticsRes.status === 'fulfilled' ? analyticsRes.value.data : null)
+      if (generationModeRes.status === 'fulfilled') {
+        setGenerationMode(generationModeRes.value.data?.generation_mode === 'ai' ? 'ai' : 'template')
+      }
     } catch (err) {
       toast.error(err?.message || 'Failed to load dashboard data')
     } finally {
@@ -215,6 +221,21 @@ export default function Dashboard() {
 
   // BUG-008: empty dependency array [] is intentional — load once on mount only
   useEffect(() => { load() }, [])
+
+  const updateGenerationMode = async mode => {
+    if (savingGenerationMode) return
+    setSavingGenerationMode(true)
+    try {
+      const res = await api.put('/requirements/generation-mode', { generation_mode: mode })
+      const savedMode = res.data?.generation_mode === 'ai' ? 'ai' : 'template'
+      setGenerationMode(savedMode)
+      toast.success(savedMode === 'ai' ? 'AI generation enabled across supported workflows' : 'Approved templates enabled across supported workflows')
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not update AI generation mode')
+    } finally {
+      setSavingGenerationMode(false)
+    }
+  }
 
   const handleClear = async () => {
     setClearing(true)
@@ -371,7 +392,35 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Clear DB warning ───────────────────────────────── */}
+      {/* Shared AI generation setting */}
+      <section className={clsx('flex flex-wrap items-center justify-between gap-4 rounded-2xl border px-5 py-4', generationMode === 'ai' ? 'border-violet-200 bg-violet-50' : 'border-slate-200 bg-white')}>
+        <div className="flex items-start gap-3">
+          <span className={clsx('mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl', generationMode === 'ai' ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-500')}>
+            <Sparkles className="h-4 w-4" />
+          </span>
+          <div>
+            <p className="font-bold text-slate-900">AI generation for supported workflows</p>
+            <p className="mt-1 text-sm text-slate-600">Controls AI wording and drafts in Shortlist, Shortlist1, and Client Requests.</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className={clsx('text-xs font-bold uppercase tracking-wide', generationMode === 'ai' ? 'text-violet-800' : 'text-slate-600')}>
+            {generationMode === 'ai' ? 'AI is on' : 'Approved templates'}
+          </span>
+          <button
+            type="button"
+            role="switch"
+            aria-label="AI generation for supported workflows"
+            aria-checked={generationMode === 'ai'}
+            onClick={() => updateGenerationMode(generationMode === 'ai' ? 'template' : 'ai')}
+            disabled={savingGenerationMode}
+            className={clsx('relative h-7 w-14 rounded-full transition-colors disabled:opacity-50', generationMode === 'ai' ? 'bg-violet-600' : 'bg-slate-400')}
+          >
+            <span className={clsx('absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform', generationMode === 'ai' ? 'translate-x-8' : 'translate-x-1')} />
+          </button>
+        </div>
+      </section>
+
       <div className="grid gap-3 md:grid-cols-4">
         {[
           ['Automation score', formatPercent(automationScore), automationScore == null ? 'No data' : automationScore >= 80 ? 'Strong' : automationScore >= 55 ? 'Watch' : 'Needs action', automationScore == null ? 'badge-slate' : automationScore >= 80 ? 'badge-green' : automationScore >= 55 ? 'badge-amber' : 'badge-red'],

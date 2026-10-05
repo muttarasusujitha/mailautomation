@@ -2603,7 +2603,6 @@ export default function Shortlist() {
   const [deletingReqId, setDeletingReqId] = useState('')
   const [allowAutoReminders, setAllowAutoReminders] = useState(false)
   const [generationMode, setGenerationMode] = useState('template')
-  const [savingGenerationMode, setSavingGenerationMode] = useState(false)
 
   useEffect(() => {
     setLoadingReqs(true)
@@ -2663,21 +2662,6 @@ export default function Shortlist() {
       .then(res => setGenerationMode(res.data?.generation_mode === 'ai' ? 'ai' : 'template'))
       .catch(() => setGenerationMode('template'))
   }, [])
-
-  const updateGlobalGenerationMode = async mode => {
-    if (savingGenerationMode) return
-    setSavingGenerationMode(true)
-    try {
-      const res = await api.put('/requirements/generation-mode', { generation_mode: mode })
-      const savedMode = res.data?.generation_mode === 'ai' ? 'ai' : 'template'
-      setGenerationMode(savedMode)
-      toast.success(savedMode === 'ai' ? 'AI generation ON for all pipeline mails' : 'Approved templates ON for all pipeline mails')
-    } catch (error) {
-      toast.error(error.message || 'Could not update AI generation mode')
-    } finally {
-      setSavingGenerationMode(false)
-    }
-  }
 
   useEffect(() => {
     if (!selectedReq) return
@@ -2964,7 +2948,7 @@ export default function Shortlist() {
           <Users className="w-6 h-6 text-blue-500" /> Shortlist Proposal Pipeline
         </h1>
         <p className="text-sm text-slate-500 mt-0.5">
-          Choose how outbound email wording is produced. The workflow reviews trainer replies, permits one needed follow-up, completes the client handoff, schedules the Meet, and tracks PO, confirmation, and invoice.
+          AI wording is controlled from Dashboard. The workflow reviews trainer replies, permits one needed follow-up, completes the client handoff, schedules the Meet, and tracks PO, confirmation, and invoice.
         </p>
       </div>
 
@@ -2975,15 +2959,9 @@ export default function Shortlist() {
 
       <div className="flex flex-wrap items-center gap-4">
         <ModeToggle autoMode={autoMode} onChange={handleAutoToggle} />
-        <div className={clsx('flex items-center gap-3 rounded-2xl border px-4 py-3', generationMode === 'ai' ? 'border-violet-300 bg-violet-50' : 'border-slate-300 bg-slate-50')}>
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-700">Email wording</span>
-          <button type="button" role="switch" aria-checked={generationMode === 'ai'} onClick={() => updateGlobalGenerationMode(generationMode === 'ai' ? 'template' : 'ai')} disabled={savingGenerationMode}
-            className={clsx('relative h-7 w-14 rounded-full transition-colors disabled:opacity-50', generationMode === 'ai' ? 'bg-violet-600' : 'bg-slate-400')}>
-            <span className={clsx('absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform', generationMode === 'ai' ? 'translate-x-8' : 'translate-x-1')} />
-          </button>
-          <span className={clsx('text-xs font-bold', generationMode === 'ai' ? 'text-violet-800' : 'text-slate-700')}>
-            {generationMode === 'ai' ? 'ON - AI GENERATED WORDING' : 'OFF - APPROVED WORDING'}
-          </span>
+        <div className={clsx('flex items-center gap-2 rounded-2xl border px-4 py-3 text-xs font-bold uppercase tracking-wide', generationMode === 'ai' ? 'border-violet-300 bg-violet-50 text-violet-800' : 'border-slate-300 bg-slate-50 text-slate-700')}>
+          {generationMode === 'ai' ? 'AI wording on' : 'Approved wording'}
+          <span className="font-medium normal-case tracking-normal text-slate-500">(managed from Dashboard)</span>
         </div>
         <div className={clsx('flex-1 rounded-2xl border px-4 py-3 text-sm transition-all',
           autoMode ? 'bg-violet-50 border-violet-200 text-violet-700' : 'bg-slate-50 border-slate-200 text-slate-600'

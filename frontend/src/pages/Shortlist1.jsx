@@ -3542,7 +3542,6 @@ export default function Shortlist1() {
   const [missingRequirement, setMissingRequirement] = useState(false)
   const [autoMode, setAutoMode] = useState(true)
   const [allowAutoReminders, setAllowAutoReminders] = useState(false)
-  const [savingGenerationMode, setSavingGenerationMode] = useState(false)
   const [generationMode, setGenerationModeState] = useState('template')
 
   useEffect(() => {
@@ -3706,21 +3705,6 @@ export default function Shortlist1() {
       toast.error(e.message || 'Could not save client email')
     } finally {
       setSavingClientContact(false)
-    }
-  }
-
-  const setGenerationMode = async mode => {
-    if (savingGenerationMode || !['ai', 'template'].includes(mode)) return
-    setSavingGenerationMode(true)
-    try {
-      const res = await api.put('/requirements/generation-mode', { generation_mode: mode })
-      const savedMode = res.data?.generation_mode === 'ai' ? 'ai' : 'template'
-      setGenerationModeState(savedMode)
-      toast.success(savedMode === 'ai' ? 'AI generation enabled for all pipeline requirements' : 'Approved templates enabled for all pipeline requirements')
-    } catch (e) {
-      toast.error(e.message || 'Could not save generation mode')
-    } finally {
-      setSavingGenerationMode(false)
     }
   }
 
@@ -3922,7 +3906,7 @@ export default function Shortlist1() {
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Shortlist AI Pipeline</h1>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
-                Choose how outbound email wording is produced. The workflow reviews trainer replies, permits one needed follow-up, completes the client handoff, schedules the Meet, and tracks PO, confirmation, and invoice.
+                AI wording is controlled from Dashboard. The workflow reviews trainer replies, permits one needed follow-up, completes the client handoff, schedules the Meet, and tracks PO, confirmation, and invoice.
               </p>
             </div>
           </div>
@@ -3943,22 +3927,15 @@ export default function Shortlist1() {
         <div className="border-t border-slate-100 bg-violet-50 px-5 py-3">
           <div className="flex flex-wrap items-center gap-2 text-sm text-violet-800">
             <Sparkles className="h-4 w-4" />
-            <span className="font-semibold">This choice changes email wording only; it does not change the workflow rules.</span>
+            <span className="font-semibold">The Dashboard AI setting changes email wording only; it does not change workflow rules.</span>
             <span className="text-violet-700">AI writes from current request facts. Approved wording follows the same current workflow.</span>
           </div>
           <div className={clsx('mt-3 flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2.5', generationMode === 'ai' ? 'border-violet-300 bg-white' : 'border-slate-300 bg-slate-50')}>
             <span className="text-xs font-bold uppercase tracking-wide text-slate-700">AI text generation</span>
-            <button type="button" role="switch" aria-checked={generationMode === 'ai'} onClick={() => setGenerationMode(generationMode === 'ai' ? 'template' : 'ai')} disabled={savingGenerationMode}
-              className={clsx('relative h-7 w-14 rounded-full transition-colors disabled:opacity-50', generationMode === 'ai' ? 'bg-violet-600' : 'bg-slate-400')}>
-              <span className={clsx('absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform', generationMode === 'ai' ? 'translate-x-8' : 'translate-x-1')} />
-            </button>
-            <span className={clsx('relative rounded-full px-3 py-1 text-xs font-bold text-transparent', generationMode === 'ai' ? 'bg-violet-100' : 'bg-slate-200')}>
-              <span className={clsx('absolute inset-0 flex items-center justify-center rounded-full', generationMode === 'ai' ? 'text-violet-800' : 'text-slate-700')}>
-                {generationMode === 'ai' ? 'ON - AI GENERATED WORDING' : 'OFF - APPROVED WORDING'}
-              </span>
-              {generationMode === 'ai' ? 'ON â€” AI WRITES EMAIL TEXT' : 'OFF â€” APPROVED TEMPLATES'}
+            <span className={clsx('rounded-full px-3 py-1 text-xs font-bold', generationMode === 'ai' ? 'bg-violet-100 text-violet-800' : 'bg-slate-200 text-slate-700')}>
+              {generationMode === 'ai' ? 'ON - AI WRITES EMAIL TEXT' : 'OFF - APPROVED TEMPLATES'}
             </span>
-            <span className="text-xs text-slate-600">{generationMode === 'ai' ? 'AI uses the current requirement, mail thread, and workflow facts.' : 'No AI calls. Current approved workflow wording is used.'}</span>
+            <span className="text-xs text-slate-600">{generationMode === 'ai' ? 'AI uses the current requirement, mail thread, and workflow facts.' : 'Current approved workflow wording is used.'} Controlled from Dashboard.</span>
           </div>
         </div>
       </div>

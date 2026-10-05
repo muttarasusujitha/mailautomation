@@ -520,7 +520,6 @@ export default function ClientRequests() {
   const [retryingUpdateId, setRetryingUpdateId] = useState('')
   const [regeneratingId, setRegeneratingId] = useState('')
   const [generationMode, setGenerationMode] = useState('template')
-  const [savingGenerationMode, setSavingGenerationMode] = useState(false)
   const [filter, setFilter] = useState('all')
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
@@ -659,21 +658,6 @@ export default function ClientRequests() {
     }
   }
 
-  const setClientGenerationMode = async mode => {
-    if (savingGenerationMode || !['ai', 'template'].includes(mode)) return
-    setSavingGenerationMode(true)
-    try {
-      const res = await api.put('/requirements/generation-mode', { generation_mode: mode })
-      const savedMode = res.data?.generation_mode === 'ai' ? 'ai' : 'template'
-      setGenerationMode(savedMode)
-      toast.success(savedMode === 'ai' ? 'AI text generation enabled for Client Requests and Shortlist' : 'Approved templates enabled')
-    } catch (e) {
-      toast.error(e.response?.data?.detail || e.message || 'Could not save AI generation mode')
-    } finally {
-      setSavingGenerationMode(false)
-    }
-  }
-
   const regenerateClientReply = async item => {
     if (!item?.email_id || regeneratingId || generationMode !== 'ai') return
     setRegeneratingId(item.email_id)
@@ -763,13 +747,10 @@ export default function ClientRequests() {
           <div className={clsx('mt-3 flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2.5 text-sm', generationMode === 'ai' ? 'border-violet-300 bg-violet-50/60' : 'border-slate-300 bg-slate-50')}>
             <Sparkles className={clsx('h-4 w-4', generationMode === 'ai' ? 'text-violet-700' : 'text-slate-500')} />
             <span className="text-xs font-bold uppercase tracking-wide text-slate-700">AI reply generation</span>
-            <button type="button" role="switch" aria-checked={generationMode === 'ai'} onClick={() => setClientGenerationMode(generationMode === 'ai' ? 'template' : 'ai')} disabled={savingGenerationMode}
-              className={clsx('relative h-7 w-14 rounded-full transition-colors disabled:opacity-50', generationMode === 'ai' ? 'bg-violet-600' : 'bg-slate-400')}>
-              <span className={clsx('absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform', generationMode === 'ai' ? 'translate-x-8' : 'translate-x-1')} />
-            </button>
             <span className={clsx('rounded-full px-2.5 py-1 text-xs font-bold', generationMode === 'ai' ? 'bg-violet-100 text-violet-800' : 'bg-slate-200 text-slate-700')}>
               {generationMode === 'ai' ? 'ON — AI WRITES DRAFTS' : 'OFF — APPROVED TEMPLATES'}
             </span>
+            <span className="text-xs text-slate-500">Controlled from Dashboard.</span>
           </div>
         </div>
 
