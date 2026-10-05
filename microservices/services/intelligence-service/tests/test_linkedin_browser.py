@@ -214,7 +214,8 @@ def test_scanning_two_hundred_people_returns_fifty_trainers():
     page.goto = AsyncMock(return_value=MagicMock(status=200))
     page.wait_for_timeout = AsyncMock()
     page.mouse.wheel = AsyncMock()
-    page.get_by_role.side_effect = AssertionError('page links are used')
+    page.get_by_role.return_value.count = AsyncMock(return_value=1)
+    page.get_by_role.return_value.click = AsyncMock()
     pages = []
     for page_index in range(12):
         cards = []
@@ -235,6 +236,8 @@ def test_scanning_two_hundred_people_returns_fifty_trainers():
     assert len({row['url'] for row in rows}) == 50
     assert all('trainer-' in row['url'] for row in rows)
     assert page.goto.await_count == 10
+    assert any('page=10' in call.args[0] for call in page.goto.await_args_list)
+    page.get_by_role.return_value.click.assert_not_awaited()
 
 
 def test_blank_people_page_is_reread_before_the_search_stops():

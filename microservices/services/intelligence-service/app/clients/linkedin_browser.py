@@ -248,16 +248,7 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
         return new_urls, len(links or [])
 
     async def open_people_page(keywords, page_number):
-        """Return (response, opened). A failed navigation must not end the search."""
-        if page_number > 1:
-            try:
-                button = page.get_by_role('button', name='Next')
-                if await button.count():
-                    await button.click(timeout=5000)
-                    await page.wait_for_timeout(800)
-                    return None, True
-            except Exception:
-                pass
+        """Open one numbered people-search page. The page URL is the scan position."""
         try:
             return await page.goto(_people_search_url(keywords, page_number), wait_until='commit', timeout=12000), True
         except Exception:
