@@ -986,6 +986,7 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
         trainer_email: trainer.email,
         technology: req.technology_needed,
         duration_days: Number(form.duration_days),
+        level: form.audience_level,
         audience_level: form.audience_level,
         mode: form.mode,
         training_dates: form.training_dates,

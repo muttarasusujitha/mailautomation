@@ -21,6 +21,9 @@ GROUP_RULES = [
 ]
 
 
+CONTENT_LEVELS = {"beginner", "intermediate", "advanced", "mixed"}
+
+
 def _normalize_level(level: str) -> str:
     value = str(level or "").strip().lower()
     aliases = {
@@ -30,8 +33,32 @@ def _normalize_level(level: str) -> str:
         "intermidate": "intermediate",
         "advance": "advanced",
         "expert": "advanced",
+        "mix": "mixed",
+        "mixed": "mixed",
+        "basic + intermediate + advanced": "mixed",
+        "basic + intermediate + advanced mix": "mixed",
     }
     return aliases.get(value, value or "intermediate")
+
+
+def _content_band(value: str) -> str:
+    """Return a curriculum band only when the text names one."""
+    text = str(value or "").strip().lower()
+    if not text:
+        return ""
+    normalized = _normalize_level(text)
+    return normalized if normalized in CONTENT_LEVELS else ""
+
+
+def resolve_content_level(level: str, audience_level: str = "") -> str:
+    """Let a named audience band replace a level that was left at the default."""
+    chosen = _normalize_level(level) if str(level or "").strip() else ""
+    audience_band = _content_band(audience_level)
+    if audience_band and (not chosen or chosen == "intermediate"):
+        return audience_band
+    if chosen in CONTENT_LEVELS:
+        return chosen
+    return audience_band or "intermediate"
 
 
 def _generic_domain(name: str) -> dict:
@@ -104,14 +131,22 @@ def _ordered_unique_topics(domain: dict, level: str = "") -> list:
     selected = []
     seen = set()
     normalized_level = _normalize_level(level)
-    if normalized_level == "intermediate":
-        groups = ("foundation", "core", "advanced", "observability")
+    if normalized_level == "beginner":
+        groups = ("foundation",)
+    elif normalized_level == "mixed":
+        groups = ("foundation", "core", "advanced")
     elif normalized_level == "advanced":
         groups = ("foundation", "core", "advanced", "observability", "security", "projects")
     else:
-        groups = ("foundation", "core", "advanced", "observability", "security", "projects")
+        groups = ("foundation", "core", "advanced", "observability")
     for group in groups:
         for item in level_map.get(group) or []:
+            name = str(item.get("topic") or "").strip().lower()
+            if name and name not in seen:
+                selected.append(deepcopy(item))
+                seen.add(name)
+    if normalized_level == "beginner" and not selected:
+        for item in level_map.get("core") or []:
             name = str(item.get("topic") or "").strip().lower()
             if name and name not in seen:
                 selected.append(deepcopy(item))
@@ -140,6 +175,38 @@ def _sample_progressive(items: list, count: int) -> list:
         cursor += 1
     indexes.sort()
     return [deepcopy(items[index]) for index in indexes[:count]]
+
+
+def _sample_across_bands(items: list, count: int) -> list:
+    """Keep topics from the early, middle, and late parts of an ordered curriculum."""
+    if count <= 0 or not items:
+        return []
+    if count >= len(items):
+        return deepcopy(items)
+    size = len(items)
+    bounds = [0, size // 3, (2 * size) // 3, size]
+    thirds = [items[start:end] for start, end in zip(bounds, bounds[1:]) if items[start:end]]
+    if not thirds:
+        return deepcopy(items[:count])
+    base, extra = divmod(count, len(thirds))
+    selected = []
+    seen = set()
+    for index, chunk in enumerate(thirds):
+        take = base + (1 if index < extra else 0)
+        for item in _sample_progressive(chunk, min(take, len(chunk))):
+            name = str(item.get("topic") or "").strip().lower()
+            if name and name not in seen:
+                selected.append(item)
+                seen.add(name)
+    if len(selected) < count:
+        for item in items:
+            name = str(item.get("topic") or "").strip().lower()
+            if name and name not in seen:
+                selected.append(deepcopy(item))
+                seen.add(name)
+            if len(selected) >= count:
+                break
+    return selected[:count]
 
 
 def _sample_cumulative(items: list, count: int, foundation_anchors: int = 2) -> list:
@@ -242,13 +309,15 @@ def _select_topics(domain: dict, duration: int, level: str = "") -> list:
         # level-specific titles or filling gaps with synthetic project days.
         if normalized_level == "intermediate":
             start, end = 0, max(int(total * 0.80), slots)
-        elif normalized_level == "advanced":
+        elif normalized_level in {"advanced", "mixed"}:
             start, end = 0, total
         else:
             start, end = 0, max(int(total * 0.45), slots)
         level_band = curriculum[start:end]
         if normalized_level == "beginner":
             compact_source = deepcopy(level_band[:min(slots, len(level_band))])
+        elif normalized_level == "mixed":
+            compact_source = _sample_across_bands(level_band, min(slots, len(level_band)))
         else:
             compact_source = _sample_cumulative(level_band, min(slots, len(level_band)))
         if capstones and duration >= 5:
@@ -275,7 +344,10 @@ def _select_topics(domain: dict, duration: int, level: str = "") -> list:
 
     slots_before_capstone = duration - 1
     ordered = _ordered_unique_topics(domain, level)
-    selected = _sample_progressive(ordered, min(slots_before_capstone, len(ordered)))
+    if _normalize_level(level) == "mixed":
+        selected = _sample_across_bands(ordered, min(slots_before_capstone, len(ordered)))
+    else:
+        selected = _sample_progressive(ordered, min(slots_before_capstone, len(ordered)))
 
     project_index = 1
     revision_index = 1
@@ -984,6 +1056,19 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
             "Diagnose complex failures and design automation and governance controls",
             "Lead architecture reviews and scenario-based technical evaluations",
             "Deliver and defend an enterprise-grade capstone architecture",
+        ]
+    elif normalized_level == "mixed":
+        prerequisites = [
+            "The cohort includes basic, intermediate, and advanced participants",
+            "Foundations are taught before later practice so no single experience level is assumed",
+            "Laptop with administrator access and the required lab software/accounts",
+        ]
+        learning_outcomes = [
+            f"Explain the foundations of {domain.get('name')} and complete the guided setup labs",
+            f"Implement intermediate {domain.get('name')} workflows with validation",
+            f"Apply advanced {domain.get('name')} practice for scale, security, and troubleshooting",
+            "Compare basic, intermediate, and advanced approaches for the same client scenario",
+            "Complete a capstone that uses foundation, implementation, and advanced topics",
         ]
     else:
         prerequisites = [

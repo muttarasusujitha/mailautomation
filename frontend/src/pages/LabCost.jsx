@@ -212,6 +212,7 @@ export default function LabCost() {
         requirement_id: selected.requirement_id || selected.id,
         technology,
         duration_days: durationDays,
+        level: selected.level || selected.audience_level || 'intermediate',
         audience_level: selected.audience_level || selected.level || 'intermediate',
         mode: selected.mode || selected.training_mode || 'Online',
         training_dates: selected.training_dates || selected.preferred_dates || '',

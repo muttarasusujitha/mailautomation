@@ -220,3 +220,20 @@ def test_new_post_deployment_technology_can_be_saved_then_used_by_manual_generat
     assert captured["override"]["name"] == "Future Quantum SDK"
     assert captured["override"]["level_map"]["foundation"][0]["topic"] == "Quantum SDK Foundations"
     assert result["toc_data"]["generation_mode"] == "template_knowledge"
+
+
+def test_audience_level_selects_the_curriculum_level(monkeypatch):
+    captured = {}
+
+    def generate(*args, **kwargs):
+        captured["level"] = kwargs.get("level")
+        return _generated("Python")
+
+    monkeypatch.setattr(toc_route, "generate_toc_from_dataset", generate)
+    monkeypatch.setattr(toc_route, "validate_toc", lambda value, days: value)
+    result = asyncio.run(toc_route.generate_toc(toc_route.TocRequest(
+        domain="Python", duration_days=3, audience_level="beginner", generation_mode="template",
+    ), _Db()))
+
+    assert captured["level"] == "beginner"
+    assert result["toc_data"]["level"] == "beginner"

@@ -1,4 +1,4 @@
-from app.toc_generation_agent import _subtopic_target, generate_toc_from_dataset
+from app.toc_generation_agent import _subtopic_target, generate_toc_from_dataset, resolve_content_level
 from app.toc_domain_dataset import COMPACT_DOMAINS, _load_compact_domains
 
 
@@ -83,6 +83,76 @@ def test_all_compact_courses_generate_at_every_level():
             assert len(toc["days"]) == 10
             assert all(day["focus_area"] for day in toc["days"])
             assert all(len(day["subtopics"]) >= _subtopic_target(day["focus_area"]) for day in toc["days"])
+
+
+def _knowledge_domain():
+    def topic(name):
+        return {
+            "topic": name,
+            "subtopics": ["Terms", "Workflow", "Check"],
+            "tools": ["Sample"],
+            "lab": f"Configure, validate, and troubleshoot {name} in the sample workspace",
+        }
+    return {
+        "name": "Sample",
+        "level_map": {
+            "foundation": [topic("Orientation")],
+            "core": [topic("Core Build")],
+            "advanced": [topic("Scale Architecture")],
+            "security": [topic("Security Hardening")],
+            "capstone": [topic("Sample Capstone")],
+        },
+    }
+
+
+def test_knowledge_beginner_stays_in_foundation():
+    toc = generate_toc_from_dataset("Sample", 4, level="beginner", domain_override=_knowledge_domain())
+    titles = [day["focus_area"] for day in toc["days"]]
+    assert "Orientation" in titles
+    assert "Core Build" not in titles
+    assert "Scale Architecture" not in titles
+    assert "Security Hardening" not in titles
+
+
+def test_knowledge_mixed_includes_foundation_core_and_advanced():
+    domain = _knowledge_domain()
+    domain["level_map"]["foundation"].append({
+        "topic": "Setup Practice",
+        "subtopics": ["Install", "Access", "Check"],
+        "tools": ["Sample"],
+        "lab": "Install the sample tools and confirm access",
+    })
+    toc = generate_toc_from_dataset("Sample", 7, level="mixed", domain_override=domain)
+    titles = [day["focus_area"] for day in toc["days"]]
+    assert toc["level"] == "mixed"
+    assert "Orientation" in titles
+    assert "Core Build" in titles
+    assert "Scale Architecture" in titles
+    assert "Security Hardening" not in titles
+
+
+def test_mixed_compact_track_spans_early_and_later_days():
+    mixed = generate_toc_from_dataset("DevOps", 10, level="mixed")
+    beginner = generate_toc_from_dataset("DevOps", 10, level="beginner")
+    intermediate = generate_toc_from_dataset("DevOps", 10, level="intermediate")
+    advanced = generate_toc_from_dataset("DevOps", 10, level="advanced")
+    mixed_titles = [day["focus_area"] for day in mixed["days"]]
+    assert mixed["level"] == "mixed"
+    assert mixed_titles[0] == "DevOps Orientation, SDLC and Agile Delivery"
+    assert mixed_titles != [day["focus_area"] for day in beginner["days"]]
+    assert mixed_titles != [day["focus_area"] for day in intermediate["days"]]
+    assert mixed_titles != [day["focus_area"] for day in advanced["days"]]
+    later = {"Kubernetes Architecture", "Terraform Infrastructure as Code", "DevSecOps and Quality Gates", "End-to-End DevOps Project Sprint"}
+    assert any(title in later for title in mixed_titles)
+
+
+def test_audience_band_replaces_the_default_level():
+    assert resolve_content_level("intermediate", "beginner") == "beginner"
+    assert resolve_content_level("intermediate", "mixed") == "mixed"
+    assert resolve_content_level("intermediate", "Basic + Intermediate + Advanced Mix") == "mixed"
+    assert resolve_content_level("advanced", "finance analysts") == "advanced"
+    assert resolve_content_level("beginner", "advanced") == "beginner"
+    assert resolve_content_level("", "expert") == "advanced"
 
 
 def test_common_level_aliases_are_canonicalized():

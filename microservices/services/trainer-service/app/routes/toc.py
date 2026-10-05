@@ -15,8 +15,10 @@ from shared.database.service import get_db
 from app.config import get_settings
 from app.toc_generation_agent import (
     _enrich_programme_pack,
+    _normalize_level,
     generate_combined_toc_from_datasets,
     generate_toc_from_dataset,
+    resolve_content_level,
     validate_toc,
 )
 
@@ -208,17 +210,22 @@ def _inferred_technology_allocations(payload: TocRequest) -> List[dict]:
 
 
 def _ai_level_contract(level: str) -> str:
-    normalized = str(level or "intermediate").strip().lower()
-    if normalized in {"basic", "beginner", "foundation", "foundational"}:
+    normalized = _normalize_level(level)
+    if normalized == "beginner":
         return (
             "BEGINNER: assume no prior product experience. Establish terminology and prerequisites, then use guided "
-            "configuration and small labs. Avoid production-scale architecture until the final integrated exercise."
+            "configuration and small labs. Stay with foundation topics. Avoid production-scale architecture until the final integrated exercise."
         )
-    if normalized in {"advanced", "advance", "expert"}:
+    if normalized == "advanced":
         return (
             "ADVANCED CUMULATIVE PATH: include a concise but meaningful foundation, then intermediate implementation, "
             "then advanced architecture trade-offs, scale, security, performance, failure diagnosis, governance, optimization, "
             "and production-grade scenario labs. Never produce an advanced-only fragment without its prerequisite roadmap."
+        )
+    if normalized == "mixed":
+        return (
+            "MIXED COHORT: the same programme must include a basic foundation, intermediate implementation, and advanced practice. "
+            "Keep prerequisites before later topics. Do not stay on introductions only, and do not skip the foundation to start at advanced architecture."
         )
     return (
         "INTERMEDIATE CUMULATIVE PATH: include the essential basic foundation and then progress into implementation, "
@@ -561,6 +568,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     Generate a structured TOC for a training programme.
     Uses the richer TOC generator with curriculum dataset support.
     """
+    payload.level = resolve_content_level(payload.level, payload.audience_level)
     stored_mode = await _stored_generation_mode(db)
     requested_mode = stored_mode or (payload.generation_mode or "ai").lower()
     used_generation_mode = "template"
