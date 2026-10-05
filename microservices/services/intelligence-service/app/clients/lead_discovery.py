@@ -54,11 +54,14 @@ async def discover(domain, mode, target, location=''):
             break
     if len(results) < target:
         attempts += 1
+        collected = []
         try:
-            # Let the people search and bounded fallback return partial matches.
-            accept(await asyncio.wait_for(search_linkedin_account(domain, mode, target, location), timeout=100), 'linkedin_account')
+            # People search paginates inside this budget. Keep every profile
+            # appended before a timeout, including when the browser is cancelled.
+            accept(await asyncio.wait_for(
+                search_linkedin_account(domain, mode, target, location, collected), timeout=120), 'linkedin_account')
         except Exception as exc:
-            accept(getattr(exc, 'results', []), 'linkedin_account')
+            accept(getattr(exc, 'results', None) or collected, 'linkedin_account')
             # Account verification is the actionable blocker. Put it first for
             # the domain message and use the same warning for the route error.
             warnings.insert(0, search_warning('linkedin_account', exc))

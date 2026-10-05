@@ -158,6 +158,25 @@ def _looks_like_resume_trainer_post(text: str) -> bool:
     )
 
 
+def _text_has_domain(combined_text: str, terms: List[str]) -> bool:
+    required = [term for term in terms if term != "full stack"]
+    if not required:
+        return True
+    if all(re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", combined_text) for term in required):
+        return True
+    folded = re.sub(r"\bdev[\s\-]*ops\b", "devops", combined_text)
+    if folded != combined_text and all(
+        re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", folded) for term in required
+    ):
+        return True
+    # "SoftSkills" has no word boundary between the domain words.
+    if len(required) < 2:
+        return False
+    compact = re.sub(r"[^a-z0-9+#]+", "", combined_text)
+    phrase = re.sub(r"[^a-z0-9+#]+", "", "".join(required))
+    return bool(phrase) and phrase in compact
+
+
 def _looks_like_client_requirement_post(text: str) -> bool:
     return bool(
         re.search(r"\b(need|needs|needed|looking (?:out )?for|require|requires|required|requirements?|hiring|seeking)\b", text)
@@ -268,7 +287,7 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
     snippet = raw_text or title
     combined_text = raw_text.lower()
     terms = _domain_terms(domain)
-    if terms and not all(re.search(r'(?<!\w)' + re.escape(term) + r'(?!\w)', combined_text) for term in terms if term != 'full stack'):
+    if terms and not _text_has_domain(combined_text, terms):
         return None
     if mode == 'trainer' and _looks_like_client_requirement_post(combined_text):
         return None
@@ -285,7 +304,7 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
         if source == "linkedin" and not re.search(r"\b(trainer|instructor|corporate training|training consultant|facilitator|coach)\b", combined_text):
             return None
         terms = _domain_terms(domain)
-        if terms and not any(term in combined_text for term in terms):
+        if terms and not _text_has_domain(combined_text, terms):
             return None
     slug = _slug_from_url(url)
     if mode == "client":
