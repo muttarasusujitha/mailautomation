@@ -44,9 +44,19 @@ def canonical_url(value):
     return urlunsplit(('https', 'www.linkedin.com', parts.path.rstrip('/'), '', ''))
 
 
-def search_url(domain, mode, location='', page=1):
+def trainer_keywords(domain, location=''):
+    """Plain people-search keywords. LinkedIn treats parenthetical OR as literal text."""
     keywords = f'{domain} {location}'.strip()
-    keywords += ' (trainer OR instructor OR facilitator)' if mode == 'trainer' else ' ("trainer required" OR "looking for trainer" OR "need trainer" OR "seeking trainer")'
+    if not re.search(r'\b(?:trainer|instructor|facilitator|coach)\b', keywords, re.IGNORECASE):
+        keywords = f'{keywords} trainer'
+    return keywords
+
+
+def search_url(domain, mode, location='', page=1):
+    if mode == 'trainer':
+        keywords = trainer_keywords(domain, location)
+    else:
+        keywords = f'{domain} {location}'.strip() + ' ("trainer required" OR "looking for trainer" OR "need trainer" OR "seeking trainer")'
     kind = 'people' if mode == 'trainer' else 'content'
     params = {'keywords': keywords, 'page': page}
     if mode == 'client':
@@ -173,51 +183,118 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
     return results
 
 
-async def collect_trainer_profiles(page, domain, location, limit):
-    """Count distinct qualified authors, not raw posts, toward the target."""
+# Result-card text, not the name link alone. Header/profile-menu links stay out.
+PEOPLE_CARDS = """els => els.flatMap(a => {
+  const card = a.closest('[data-view-name="search-entity-result-universal-template"], li.reusable-search__result-container, .entity-result, [role="listitem"], article, li')
+    || (a.closest('main, [role="main"], .search-results-container') ? (a.parentElement?.parentElement?.parentElement || a.parentElement || a) : null);
+  if (!card) return [];
+  const text = (card.innerText || a.innerText || '').trim();
+  if (!text) return [];
+  return [{url: a.href, text: text.slice(0, 4000)}];
+})"""
+
+
+def _people_search_url(keywords, page_number):
+    return 'https://www.linkedin.com/search/results/people/?' + urlencode({'keywords': keywords, 'page': page_number})
+
+
+async def collect_trainer_profiles(page, domain, location, limit, collected=None):
+    """Count distinct qualified people, paging through search results before posts."""
     from app.routes.linkedin_leads import _normalize_result
-    results, seen = [], set()
-    # People search is the primary source; post search is only a fallback.
-    people_url = search_url(domain, 'trainer', location)
-    try:
-        try:
-            response = await page.goto(people_url, wait_until='commit', timeout=20000)
-        except Exception:
-            response = None
-        if response and response.status in (403, 429):
-            raise ValueError('LinkedIn limited this session. Fetching stopped.')
-        await page.wait_for_timeout(2500)
-        await require_session(page)
-        links = await page.locator('a[href*="/in/"]').evaluate_all('''els => els.map(a => ({
-          url: a.href, text: (a.closest('[role="listitem"]') || a.parentElement?.parentElement || a).innerText || a.innerText
-        }))''')
-        # Some LinkedIn accounts render results without reusable card classes;
-        # anchor text remains available and is sufficient for profile discovery.
+    results = [] if collected is None else collected
+    seen, visited = {row.get('url') for row in results}, set()
+    deadline = asyncio.get_running_loop().time() + 65
+
+    def timed_out():
+        return asyncio.get_running_loop().time() >= deadline
+
+    def profile_title(text):
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        for line in lines:
+            if not re.fullmatch(r'(?i)(?:connect|follow|message|pending)', line):
+                return line[:200]
+        return (lines[0] if lines else '')[:200]
+
+    async def read_people():
+        links = await page.locator('a[href*="/in/"]').evaluate_all(PEOPLE_CARDS)
         if not links:
-            links = await page.locator('a[href*="linkedin.com/in/"]').evaluate_all('''els => els.map(a => ({url:a.href, text:a.parentElement?.parentElement?.innerText || a.innerText}))''')
-        for item in links:
-            url = canonical_url(item.get('url', ''))
-            text = item.get('text', '')
-            if not url or url in seen or not text.strip():
+            links = await page.locator('a[href*="linkedin.com/in/"]').evaluate_all(PEOPLE_CARDS)
+        new_urls = 0
+        for item in links or []:
+            url = canonical_url((item or {}).get('url', ''))
+            text = (item or {}).get('text', '') or ''
+            if not url or url in visited:
                 continue
-            candidate = {'url': url, 'title': text.split('\n')[0].strip(), 'content': text[:5000]}
-            if _normalize_result(candidate, domain, 'trainer') or (
-                domain.lower() in text.lower() and any(word in text.lower() for word in ('trainer', 'instructor', 'facilitator', 'training'))
-            ):
-                seen.add(url); results.append(candidate)
+            visited.add(url)
+            new_urls += 1
+            if url in seen or not text.strip():
+                continue
+            candidate = {'url': url, 'title': profile_title(text), 'content': text[:5000]}
+            # The save path uses this same check, so rejected cards are not reported as found.
+            if _normalize_result(candidate, domain, 'trainer'):
+                seen.add(url)
+                results.append(candidate)
+                if len(results) >= limit:
+                    break
+        return new_urls
+
+    queries = [trainer_keywords(domain, location)]
+    instructor = f'{domain} {location} instructor'.strip()
+    if instructor.lower() != queries[0].lower():
+        queries.append(instructor)
+    try:
+        page_loads = 0
+        for keywords in queries:
+            if len(results) >= limit or timed_out():
+                break
+            for page_number in range(1, 9):
+                if len(results) >= limit or page_loads >= 8 or timed_out():
+                    break
+                page_loads += 1
+                try:
+                    response = await page.goto(_people_search_url(keywords, page_number), wait_until='commit', timeout=12000)
+                except Exception:
+                    response = None
+                if response and response.status in (403, 429):
+                    raise ValueError('LinkedIn limited this session. Fetching stopped.')
+                try:
+                    await page.locator('a[href*="/in/"]').first.wait_for(timeout=8000)
+                except Exception:
+                    pass
+                await require_session(page)
+                try:
+                    await page.mouse.wheel(0, 1600)
+                    await page.wait_for_timeout(500)
+                except Exception:
+                    pass
+                if await read_people() == 0:
+                    break
                 if len(results) >= limit:
                     return results
     except ValueError:
         # Verification and rate limits require human action, not another search.
         raise
+    except TimeoutError:
+        if results:
+            return results
+        raise PartialSearchError('Trainer search reached its time limit.', results)
     except Exception:
         # People layouts vary; continue with the content search below.
         pass
+    if timed_out():
+        if results:
+            return results
+        raise PartialSearchError('Trainer search reached its time limit.', results)
+    if len(results) >= limit:
+        return results
     phrases = ('"corporate trainer"', '"trainer" "I am"', '"technical trainer"',
                '"instructor"', '"freelance trainer"',
                '"training consultant"', '"trainer" "delivered"', '"trainer" "workshop"')
+    remaining = deadline - asyncio.get_running_loop().time()
+    if remaining < 8:
+        return results
     try:
-        async with asyncio.timeout(50):
+        async with asyncio.timeout(min(40, remaining)):
             for phrase in phrases:
                 url = 'https://www.linkedin.com/search/results/content/?' + urlencode({
                     'keywords': f'{domain} {location} {phrase}'.strip(), 'sortBy': '"relevance"'})
@@ -260,6 +337,8 @@ async def collect_trainer_profiles(page, domain, location, limit):
                     await scroll_results(page, cards)
                     await require_session(page)
     except TimeoutError:
+        if results:
+            return results
         raise PartialSearchError('Trainer search reached its time limit.', results)
     except Exception as exc:
         raise PartialSearchError(str(exc), results) from exc
@@ -299,7 +378,7 @@ async def collect_client_posts(page, context, domain, location, limit):
     return qualified()
 
 
-async def search_linkedin_account(domain, mode, limit=20, location=''):
+async def search_linkedin_account(domain, mode, limit=20, location='', collected=None):
     if bot_option('LINKEDIN_BOT_ENABLED', 'false').lower() != 'true':
         raise ValueError('LinkedIn bot is not enabled. Connect the dedicated account and set LINKEDIN_BOT_ENABLED=true.')
     if _lock.locked():
@@ -318,7 +397,7 @@ async def search_linkedin_account(domain, mode, limit=20, location=''):
                     await context.add_cookies(saved)
                 page = await context.new_page()
                 if mode == 'trainer':
-                    return await collect_trainer_profiles(page, domain, location, min(max(limit, 1), 50))
+                    return await collect_trainer_profiles(page, domain, location, min(max(limit, 1), 50), collected)
                 if mode == 'client':
                     return await collect_client_posts(page, context, domain, location, min(max(limit, 1), 50))
             except Exception as exc:

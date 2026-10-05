@@ -53,6 +53,19 @@ def test_public_timeouts_and_paused_login_report_same_primary_error():
     assert result['saved_count'] == 0
 
 
+def test_cancelled_account_search_keeps_profiles_already_collected():
+    async def boom(domain, mode, target, location, collected=None):
+        collected.append({'url': 'https://www.linkedin.com/in/ada', 'title': 'Ada', 'content': 'Soft skills corporate trainer'})
+        raise TimeoutError()
+
+    with patch('app.clients.public_search.search_public', AsyncMock(return_value=[])), \
+            patch('app.clients.linkedin_browser.search_linkedin_account', side_effect=boom):
+        results, outcome = asyncio.run(discover('soft skills', 'trainer', 20))
+    assert [row['url'] for row in results] == ['https://www.linkedin.com/in/ada']
+    assert outcome['status'] == 'partial'
+    assert outcome['primary_error'].startswith('LinkedIn account search timed out.')
+
+
 def test_timeout_keeps_public_matches_and_uses_readable_error():
     rows = [{'url': 'https://www.linkedin.com/in/alice', 'title': 'SAP corporate trainer'}]
     with patch('app.clients.public_search.search_public', AsyncMock(return_value=rows)), \

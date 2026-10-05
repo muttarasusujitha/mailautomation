@@ -74,6 +74,8 @@ Thumbs.db
 !/frontend/src/components/
 /frontend/src/components/*
 !/frontend/src/components/ClientHandoffReview.jsx
+!/frontend/src/components/LeadBot.jsx
+!/frontend/src/utils/leadSearchFeedback.js
 !/frontend/src/pages/
 /frontend/src/pages/*
 !/frontend/src/pages/PurchaseOrders.jsx

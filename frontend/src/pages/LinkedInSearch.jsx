@@ -190,7 +190,7 @@ export default function LinkedInSearch() {
       const autoSentCount = res.data.auto_sent_count || 0
       const warnings = leadSearchWarnings(res.data)
       setSearchReport({ ...res.data, warnings })
-      setShowSearchMatches(true)
+      setShowSearchMatches((res.data.results || []).length > 0)
       if (savedCount) {
         const savedText = `Saved ${savedCount} LinkedIn result${savedCount === 1 ? '' : 's'}`
         toast.success(autoSentCount ? `${savedText}; auto-sent Mail 1 to ${autoSentCount}` : savedText)
@@ -304,7 +304,10 @@ export default function LinkedInSearch() {
   }, [leads])
 
   const visibleLeads = useMemo(() => {
-    if (showSearchMatches && searchReport) return matchingSavedLeads(leads, searchReport.results)
+    if (showSearchMatches && searchReport?.results?.length) {
+      const matched = matchingSavedLeads(leads, searchReport.results)
+      if (matched.length) return matched
+    }
     if (selectedDomain === 'all') return leads
     const selected = selectedDomain.toLowerCase()
     return leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))

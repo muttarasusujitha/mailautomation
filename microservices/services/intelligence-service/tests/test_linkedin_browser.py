@@ -86,6 +86,9 @@ def test_urls_only_accept_linkedin_results():
     assert not canonical_url('https://linkedin.com.evil.test/in/alice')
     assert not canonical_url('https://www.linkedin.com/jobs/123')
     assert '/people/' in search_url('Python', 'trainer')
+    assert 'Python+trainer' in search_url('Python', 'trainer')
+    assert 'OR' not in search_url('Python', 'trainer')
+    assert 'Devops+trainer' in search_url('Devops trainer', 'trainer')
     assert '/content/' in search_url('Python', 'client')
 
 
@@ -134,6 +137,47 @@ def test_disabled_bot_does_not_launch_browser():
     with patch.dict('os.environ', {'LINKEDIN_BOT_ENABLED': 'false'}):
         with pytest.raises(ValueError, match='not enabled'):
             asyncio.run(search_linkedin_account('Python', 'trainer'))
+
+
+def test_people_pages_collect_multiword_trainer_profiles():
+    from app.clients.linkedin_browser import collect_trainer_profiles
+    page = MagicMock()
+    page.goto = AsyncMock(return_value=MagicMock(status=200))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    pages = [
+        [
+            {'url': 'https://www.linkedin.com/in/recruiter', 'text': 'Recruiter\nHR manager\nHyderabad'},
+            {'url': 'https://www.linkedin.com/in/ada', 'text': 'Ada\nSoft Skills Trainer\nHyderabad'},
+        ],
+        [{'url': 'https://www.linkedin.com/in/ben', 'text': 'Ben\nCorporate facilitator for soft skills'}],
+    ]
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(side_effect=pages)
+
+    def locate(selector):
+        if 'listitem' in selector:
+            raise AssertionError('content fallback started before people pages filled the target')
+        return people
+
+    page.locator.side_effect = locate
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'soft skills', '', 2))
+    assert [row['url'] for row in rows] == [
+        'https://www.linkedin.com/in/ada',
+        'https://www.linkedin.com/in/ben',
+    ]
+    assert page.goto.await_count == 2
+    assert all('/search/results/people/' in call.args[0] and 'soft+skills+trainer' in call.args[0]
+               for call in page.goto.await_args_list)
+
+
+def test_joined_domain_words_still_match_trainer_profiles():
+    item = {'url': 'https://www.linkedin.com/in/ada', 'title': 'Ada', 'content': 'SoftSkills corporate trainer'}
+    lead = _normalize_result(item, 'soft skills', 'trainer')
+    assert lead['source_url'] == 'https://www.linkedin.com/in/ada'
+    assert _normalize_result({**item, 'url': 'https://www.linkedin.com/in/js', 'content': 'JavaScript trainer'}, 'Java', 'trainer') is None
 
 
 def test_people_checkpoint_does_not_start_post_search():

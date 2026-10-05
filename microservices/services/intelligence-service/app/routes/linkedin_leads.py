@@ -165,6 +165,18 @@ def _looks_like_client_requirement_post(text: str) -> bool:
     )
 
 
+def _text_has_domain(combined_text: str, terms: List[str]) -> bool:
+    required = [term for term in terms if term != "full stack"]
+    if all(re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", combined_text) for term in required):
+        return True
+    # "SoftSkills" has no word boundary between the domain words.
+    if len(required) < 2:
+        return False
+    compact = re.sub(r"[^a-z0-9+#]+", "", combined_text)
+    phrase = re.sub(r"[^a-z0-9+#]+", "", "".join(required))
+    return bool(phrase) and phrase in compact
+
+
 def _result_text(item: Dict[str, Any]) -> str:
     parts: List[str] = []
     for key in (
@@ -268,7 +280,7 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
     snippet = raw_text or title
     combined_text = raw_text.lower()
     terms = _domain_terms(domain)
-    if terms and not all(re.search(r'(?<!\w)' + re.escape(term) + r'(?!\w)', combined_text) for term in terms if term != 'full stack'):
+    if terms and not _text_has_domain(combined_text, terms):
         return None
     if mode == 'trainer' and _looks_like_client_requirement_post(combined_text):
         return None
