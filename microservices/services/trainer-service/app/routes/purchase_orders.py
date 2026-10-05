@@ -227,13 +227,28 @@ async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, 
 
     inv_id = f"INV-{uuid.uuid4().hex[:10].upper()}"
     now = datetime.utcnow()
-    items = po.get("items", [])
+    items = list(po.get("items") or [])
     subtotal = sum(
         float(item.get("amount") or (float(item.get("quantity") or 0) * float(item.get("rate") or 0)))
         for item in items
     )
     if subtotal <= 0:
         subtotal = float(po.get("total_amount") or 0)
+    if subtotal <= 0:
+        try:
+            days = float(po.get("duration") or 0)
+            rate = float(po.get("day_rate") or 0)
+        except (TypeError, ValueError):
+            days, rate = 0.0, 0.0
+        if days > 0 and rate > 0:
+            subtotal = round(days * rate, 2)
+            items = [{
+                "description": f"{po.get('training_domain') or 'Training'} Training",
+                "hsn_sac": "999293",
+                "quantity": days,
+                "rate": rate,
+                "amount": subtotal,
+            }]
     gst_rate = payload.gst_rate if payload.gst_rate is not None else float(po.get("gst_rate") or 18)
     gst_amount = round(subtotal * gst_rate / 100, 2)
     grand_total = round(subtotal + gst_amount, 2)

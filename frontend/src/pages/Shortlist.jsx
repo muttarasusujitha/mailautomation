@@ -136,9 +136,9 @@ Object.assign(STAGES, {
   slot_booked: { ...STAGES.slot_booked, label: 'Slots Received' },
   selected: { ...STAGES.selected, label: 'Selected' },
   rejected: { ...STAGES.rejected, label: 'Not Selected' },
-  training_confirmed: { ...STAGES.training_confirmed, label: 'Training Confirmed' },
-  po_requested: { ...STAGES.po_requested, step: 6 },
-  client_po_received: { ...STAGES.client_po_received, step: 6 },
+  training_confirmed: { ...STAGES.training_confirmed, label: 'Training Confirmed', step: 6 },
+  po_requested: { ...STAGES.po_requested, step: 7 },
+  client_po_received: { ...STAGES.client_po_received, step: 7 },
   invoice_generated: { ...STAGES.invoice_generated, label: 'Invoice Ready', step: 8 },
   invoice_sent: { ...STAGES.invoice_sent, label: 'Invoice Sent to Client', step: 8 },
   toc_requested: { ...STAGES.toc_requested, label: 'ToC Shared', step: 5 },
@@ -1368,8 +1368,10 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
   const dayRate = Number(form.day_rate || 0)
   const overrideTotal = Number(form.total_amount || 0)
   const subtotal = overrideTotal > 0 ? overrideTotal : durationDays * dayRate
-  const gst = subtotal * 0.18
+  const gstRate = Number(form.gst_rate || 0)
+  const gst = subtotal * gstRate / 100
   const grandTotal = subtotal + gst
+  const lineRate = dayRate || (durationDays ? subtotal / durationDays : subtotal)
 
   const payload = () => ({
     trainer_id: trainer.trainer_id,
@@ -1377,11 +1379,24 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
     client_name: form.client_name,
     client_email: req.client_email,
     training_dates: form.training_dates,
-    duration_days: Number(form.duration_days || 1),
+    duration: String(form.duration_days || ''),
     mode: form.mode,
-    day_rate: Number(form.day_rate || 0),
-    total_amount: Number(form.total_amount || 0),
+    day_rate: dayRate,
+    total_amount: subtotal,
+    gst_rate: gstRate,
+    client_po_number: form.client_po_number.trim(),
+    client_po_date: form.client_po_date,
+    client_billing_address: form.client_billing_address,
+    client_gstin: form.client_gstin,
     payment_terms: form.payment_terms,
+    notes: form.client_po_notes,
+    items: [{
+      description: `${req.technology_needed || 'Training'} Training`,
+      hsn_sac: '999293',
+      quantity: durationDays || 1,
+      rate: lineRate,
+      amount: subtotal,
+    }],
   })
 
   const createPo = async () => {
@@ -1426,17 +1441,17 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
           client_billing_address: form.client_billing_address,
           client_gstin: form.client_gstin,
           training_dates: form.training_dates,
-          duration_days: Number(form.duration_days || 1),
+          duration_days: durationDays || 1,
           mode: form.mode,
-          day_rate: Number(form.day_rate || 0),
-          total_amount: Number(form.total_amount || subtotal),
-          gst_rate: Number(form.gst_rate || 18),
+          day_rate: dayRate,
+          total_amount: subtotal,
+          gst_rate: gstRate,
           payment_terms: form.payment_terms,
           client_po_notes: form.client_po_notes,
+          items: payload().items,
         })
       : await api.post(`/purchase-orders/${current.po_id}/generate-invoice`, {
-          client_email: req.client_email,
-          client_name: req.client_company || req.client_name || form.client_name,
+          gst_rate: gstRate,
         })
     const generated = res.data.invoice
     setInvoice(generated)
@@ -1605,7 +1620,7 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
                 <p className="font-bold text-slate-900">{money(subtotal)}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400 font-semibold uppercase">GST 18%</p>
+                <p className="text-xs text-slate-400 font-semibold uppercase">GST {gstRate}%</p>
                 <p className="font-bold text-slate-900">{money(gst)}</p>
               </div>
               <div>
@@ -1800,7 +1815,7 @@ function ThreadModal({ trainer, req, onClose, onThreadUpdate }) {
 
 // Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Pipeline Step Bar Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function StepBar({ stage, trainer }) {
-  const steps = ['Trainer request', 'Trainer reply', 'Client handoff', 'Meet scheduled', 'Client decision', 'PO', 'Confirmed', 'Invoice sent']
+  const steps = ['Trainer request', 'Trainer reply', 'Client handoff', 'Meet scheduled', 'Client decision', 'Confirmed', 'PO', 'Invoice sent']
   const stepIndex = STAGES[stage]?.step ?? 0
   const isRejected = stage === 'rejected'
   const isDone     = stage === 'invoice_sent'
@@ -2941,7 +2956,7 @@ export default function Shortlist() {
     { step: '01', label: 'Trainer request', note: 'Mail 1 sends the available requirement details, ToC, availability request, and exactly three dated interview slots.', color: 'bg-blue-600' },
     { step: '02', label: 'Trainer reply review', note: 'The system checks the reply and sends one follow-up only when a genuinely required item is missing.', color: 'bg-violet-600' },
     { step: '03', label: 'Client handoff and Meet', note: 'The client receives the profile/CV, ToC, requested lab cost, availability, and slots. A Meet link is sent only after a slot is chosen.', color: 'bg-emerald-600' },
-    { step: '04', label: 'PO, confirmation, and invoice', note: 'After the client decision, receive the PO, confirm the batch, then send the invoice to the saved client email.', color: 'bg-amber-500' },
+    { step: '04', label: 'Confirmation, PO, and invoice', note: 'After the client decision, confirm the batch, request the PO, then send the invoice to the saved client email.', color: 'bg-amber-500' },
   ]
 
   return (

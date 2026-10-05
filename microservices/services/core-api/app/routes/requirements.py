@@ -1300,7 +1300,7 @@ class InvoiceFromPORequest(_BaseModel):
     client_gstin: str = ""
     client_pan: str = ""
     training_dates: str = ""
-    duration_days: int = 0
+    duration_days: float = 0
     mode: str = ""
     day_rate: float = 0.0
     total_amount: float = 0.0
@@ -1507,15 +1507,20 @@ async def generate_invoice_from_requirement_po(
         items = payload.items or []
         if not items:
             amount = float(payload.total_amount or 0.0)
-            duration = payload.duration_days or doc.get("duration_days") or 1
+            try:
+                duration = float(payload.duration_days or doc.get("duration_days") or 1)
+            except (TypeError, ValueError):
+                duration = 1
+            if duration <= 0:
+                duration = 1
             if amount <= 0:
                 raise HTTPException(400, "Invoice items or total_amount are required when no linked purchase order exists")
 
             items = [{
                 "description": f"{payload.course_name or payload.technology or doc.get('technology_needed') or 'Training'} Training",
                 "hsn_sac": "999293",
-                "quantity": int(duration) if duration else 1,
-                "rate": round(amount / (int(duration) if duration else 1)) if duration else amount,
+                "quantity": duration,
+                "rate": round(amount / duration, 2),
                 "amount": amount,
             }]
 
