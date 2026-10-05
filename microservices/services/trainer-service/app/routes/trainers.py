@@ -591,7 +591,8 @@ def _upload_result(filename: str, response_data: Dict[str, Any]) -> Dict[str, An
         "action": response_data.get("action"),
         "duplicate": bool(response_data.get("duplicate", False)),
         "extraction_source": profile.get("extraction_method") or response_data.get("extraction_source") or "document_service",
-        "confidence_score": profile.get("confidence_score", 0.95 if profile else 0),
+        # Do not present a model/regex extraction as 95% accurate by default.
+        "confidence_score": profile.get("confidence_score"),
         **profile,
     })
 
@@ -985,11 +986,12 @@ async def upload_resume_alias(
             response_data = await _post_to_document_service(part)
             result = _upload_result(part.filename, response_data)
             if confirm and result.get("upload_id"):
-                now = datetime.utcnow()
-                await db["resume_uploads"].update_one(
-                    {"upload_id": result["upload_id"]},
-                    {"$set": {"processing_status": "confirmed", "confirmed_at": now, "updated_at": now}},
-                )
+                from app.routes.resume_uploads import ConfirmResumeRequest, confirm_resume
+                result.update(await confirm_resume(
+                    result["upload_id"],
+                    ConfirmResumeRequest(upload_id=result["upload_id"]),
+                    db,
+                ))
             results.append(result)
         except Exception as exc:
             results.append({
@@ -1048,15 +1050,9 @@ async def confirm_resume_alias(
     upload_id: str,
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    """Alias: POST /resume-uploads/confirm-resume/{upload_id} (no corrections body)."""
-    from datetime import datetime
-    result = await db["resume_uploads"].update_one(
-        {"upload_id": upload_id},
-        {"$set": {"processing_status": "confirmed", "confirmed_at": datetime.utcnow(), "updated_at": datetime.utcnow()}},
-    )
-    if result.matched_count == 0:
-        raise HTTPException(404, "Upload not found")
-    return {"success": True, "upload_id": upload_id, "status": "confirmed"}
+    """Apply the extracted preview and confirm it in one operation."""
+    from app.routes.resume_uploads import ConfirmResumeRequest, confirm_resume
+    return await confirm_resume(upload_id, ConfirmResumeRequest(upload_id=upload_id), db)
 
 
 @router.post("/confirm-resumes")
@@ -1066,39 +1062,29 @@ async def confirm_resumes_alias(
 ):
     """Alias: POST /resume-uploads/confirm-resumes."""
     confirmed = 0
-    missing = 0
-    now = datetime.utcnow()
+    failed = []
+    inserted = updated = 0
     corrections = payload.corrections or {}
     for uid in payload.upload_ids:
-        upload = await db["resume_uploads"].find_one({"upload_id": uid}, {"_id": 0, "trainer_id": 1})
-        if not upload:
-            missing += 1
-            continue
-        update_fields: Dict[str, Any] = {
-            "processing_status": "confirmed",
-            "confirmed_at": now,
-            "updated_at": now,
-        }
-        if corrections.get(uid):
-            update_fields["corrections_applied"] = corrections[uid]
-        result = await db["resume_uploads"].update_one(
-            {"upload_id": uid},
-            {"$set": update_fields},
-        )
-        if result.matched_count:
-            confirmed += 1
-        trainer_id = upload.get("trainer_id")
-        if trainer_id and corrections.get(uid):
-            await db["trainers"].update_one(
-                {"trainer_id": trainer_id},
-                {"$set": {**corrections[uid], "updated_at": now}},
+        from app.routes.resume_uploads import ConfirmResumeRequest, confirm_resume
+        try:
+            result = await confirm_resume(
+                uid,
+                ConfirmResumeRequest(upload_id=uid, corrections=corrections.get(uid) or None),
+                db,
             )
+            confirmed += 1
+            inserted += result.get("action") == "inserted"
+            updated += result.get("action") == "updated"
+        except HTTPException as exc:
+            failed.append({"upload_id": uid, "error": str(exc.detail)})
     return {
-        "success": missing == 0,
+        "success": not failed,
         "confirmed": confirmed,
         "total": len(payload.upload_ids),
         "saved_count": confirmed,
-        "inserted": confirmed,
-        "updated": 0,
-        "error_count": missing,
+        "inserted": inserted,
+        "updated": updated,
+        "failed": failed,
+        "error_count": len(failed),
     }

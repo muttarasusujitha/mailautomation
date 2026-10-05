@@ -86,7 +86,26 @@ def _extract_pdf_text(file_bytes: bytes) -> str:
         with fitz.open(stream=file_bytes, filetype="pdf") as doc:
             if doc.needs_pass:
                 raise HTTPException(400, "PDF is password-protected. Remove the password and re-upload.")
-            return "\n".join(page.get_text("text") for page in doc).strip()
+            if len(doc) > 50:
+                raise HTTPException(400, "Resume PDF exceeds the 50-page processing limit.")
+            page_text = []
+            ocr_unavailable = False
+            for page in doc:
+                text = page.get_text("text").strip()
+                # Scanned resumes have no embedded text. OCR only those pages
+                # to keep ordinary PDFs quick and avoid duplicating extracted text.
+                if len(text) < 50 and page.get_images(full=True):
+                    try:
+                        ocr_page = page.get_textpage_ocr(language="eng", dpi=180, full=True)
+                        text = page.get_text("text", textpage=ocr_page).strip() or text
+                    except Exception as exc:
+                        logger.warning("Resume PDF OCR unavailable: %s", exc)
+                        ocr_unavailable = True
+                page_text.append(text)
+            extracted = "\n".join(page_text).strip()
+            if len(extracted) < 50 and ocr_unavailable:
+                raise HTTPException(422, "This appears to be a scanned PDF, but OCR could not read it. Upload a searchable PDF or DOCX.")
+            return extracted
     except HTTPException:
         raise
     except Exception as exc:
@@ -358,7 +377,8 @@ def _normalise_profile(profile: Dict[str, Any], raw_text: str) -> Dict[str, Any]
         if summary:
             result["summary"] = summary
 
-    score = max(_profile_score(result), round(_safe_float(result.get("profile_score"))))
+    # Ranking is computed locally; a provider cannot promote its own output.
+    score = max(0, min(100, _profile_score(result)))
     result["score_breakdown"] = _profile_breakdown(result)
     result["profile_score"] = score
     result["resume_rank_score"] = score
@@ -493,7 +513,7 @@ async def upload_resume(
         profile = _regex_profile(raw_text, file.filename or "resume")
     else:
         profile["extraction_method"] = extraction_method
-        profile["needs_review"] = False
+        profile["needs_review"] = True
     profile = _normalise_profile(profile, raw_text)
 
     trainer_id = f"TR-{uuid.uuid4().hex[:8].upper()}"
@@ -511,22 +531,8 @@ async def upload_resume(
     if existing:
         trainer_id = existing["trainer_id"]
         action = "updated"
-        await db.trainers.update_one(
-            {"trainer_id": trainer_id},
-            {"$set": {**profile, "updated_at": now}},
-        )
     else:
         action = "inserted"
-        trainer_doc = {
-            **profile,
-            "trainer_id": trainer_id,
-            "source": "resume_upload",
-            "status": "new",
-            "resume": raw_text[:50000],
-            "created_at": now,
-            "updated_at": now,
-        }
-        await db.trainers.insert_one(trainer_doc)
 
     await db.resume_uploads.insert_one({
         "upload_id": upload_id,
@@ -536,7 +542,9 @@ async def upload_resume(
         "original_file": Binary(file_bytes),
         "original_file_size": len(file_bytes),
         "original_file_preserved": True,
-        "processing_status": "completed",
+        "processing_status": "extracted",
+        "needs_review": True,
+        "matched_existing_trainer": existing is not None,
         "extracted_data": profile,
         "extracted_text": raw_text[:50000],
         "created_at": now,
@@ -548,6 +556,7 @@ async def upload_resume(
         "trainer_id": trainer_id,
         "upload_id": upload_id,
         "duplicate": existing is not None,
+        "processing_status": "extracted",
         "profile": {k: v for k, v in profile.items() if k not in {"resume", "combined_text"}},
     }
 

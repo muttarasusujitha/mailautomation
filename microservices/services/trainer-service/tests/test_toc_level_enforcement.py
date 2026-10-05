@@ -13,6 +13,40 @@ def test_intermediate_toc_is_cumulative_and_keeps_foundations():
     assert any("production-oriented" in outcome.lower() for outcome in toc["learning_outcomes"])
 
 
+def test_intermediate_ten_day_devops_path_is_ordered_and_does_not_add_azure():
+    toc = generate_toc_from_dataset("DevOps", 10, level="intermediate")
+    titles = [day["focus_area"] for day in toc["days"]]
+
+    assert titles == [
+        "DevOps Orientation, SDLC and Agile Delivery",
+        "Linux Fundamentals for DevOps",
+        "Git and GitHub Collaboration",
+        "Jenkins Fundamentals",
+        "Docker Fundamentals",
+        "Kubernetes Architecture",
+        "AWS DevOps Foundations",
+        "Terraform Infrastructure as Code",
+        "DevSecOps and Quality Gates",
+        "Capstone Demo and Certification Roadmap",
+    ]
+    assert all("azure" not in title.lower() for title in titles)
+
+
+def test_devops_toc_supports_every_duration_from_one_to_thirty_without_azure_scope():
+    for duration in (1, 2, 10, 16, 20, 30):
+        toc = generate_toc_from_dataset("DevOps", duration, level="intermediate")
+        curriculum = " ".join(
+            " ".join([
+                day["focus_area"],
+                " ".join(day.get("subtopics") or []),
+                day.get("lab") or "",
+            ])
+            for day in toc["days"]
+        ).lower()
+        assert len(toc["days"]) == duration
+        assert "azure" not in curriculum
+
+
 def test_beginner_toc_retains_progressive_foundations():
     toc = generate_toc_from_dataset("DevOps", 10, level="beginner")
 

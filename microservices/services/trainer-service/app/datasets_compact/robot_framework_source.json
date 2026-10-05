@@ -1,371 +1,720 @@
 {
-    "domain":  "Robot Framework",
-    "name":  "Robot Framework â€“ Comprehensive Fundamentals to Advanced Curriculum",
-    "aliases":  [
-                    "Robot",
-                    "Keyword-Driven Test Automation"
-                ],
-    "tools":  [
-                  "Robot Framework",
-                  "SeleniumLibrary",
-                  "RequestsLibrary",
-                  "Python"
-              ],
-    "certifications":  [
-                           "Robot Framework official/vendor learning path or relevant professional certification"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "Framework Fundamentals",
-                     "subtopics":  [
-                                       "Purpose and use cases",
-                                       "Architecture",
-                                       "Installation",
-                                       "Project structure",
-                                       "Core syntax/API",
-                                       "First test",
-                                       "Test lifecycle",
-                                       "Robot Framework terminology and feature mapping for this topic",
-                                       "Robot Framework configuration and implementation considerations",
-                                       "Robot Framework best practices and common mistakes for this topic",
-                                       "test cases",
-                                       "keywords",
-                                       "resource files",
-                                       "variables",
-                                       "libraries",
-                                       "SeleniumLibrary",
-                                       "RequestsLibrary",
-                                       "tags",
-                                       "setup/teardown",
-                                       "data-driven tests",
-                                       "reports",
-                                       "logs"
-                                   ],
-                     "tools":  [
-                                   "Robot Framework",
-                                   "SeleniumLibrary",
-                                   "RequestsLibrary"
-                               ],
-                     "lab_task":  "Set up Robot Framework and execute the first automated test.",
-                     "technology":  "Robot Framework",
-                     "technology_id":  "robot-framework",
-                     "learning_objectives":  [
-                                                 "Explain the Framework Fundamentals concepts in the context of Robot Framework.",
-                                                 "Configure or implement the key Robot Framework features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Framework Fundamentals practically using Robot Framework.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Test Design",
-                     "subtopics":  [
-                                       "Test cases",
-                                       "Test data",
-                                       "Assertions",
-                                       "Positive/negative tests",
-                                       "Boundary tests",
-                                       "Reusable test components",
-                                       "Naming conventions",
-                                       "Robot Framework terminology and feature mapping for this topic",
-                                       "Robot Framework configuration and implementation considerations",
-                                       "Robot Framework best practices and common mistakes for this topic",
-                                       "keywords",
-                                       "resource files",
-                                       "variables",
-                                       "libraries",
-                                       "SeleniumLibrary",
-                                       "RequestsLibrary",
-                                       "tags",
-                                       "setup/teardown",
-                                       "data-driven tests",
-                                       "reports",
-                                       "logs"
-                                   ],
-                     "tools":  [
-                                   "Robot Framework",
-                                   "SeleniumLibrary",
-                                   "RequestsLibrary"
-                               ],
-                     "lab_task":  "Design a maintainable test suite.",
-                     "technology":  "Robot Framework",
-                     "technology_id":  "robot-framework",
-                     "learning_objectives":  [
-                                                 "Explain the Test Design concepts in the context of Robot Framework.",
-                                                 "Configure or implement the key Robot Framework features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Test Design practically using Robot Framework.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Selectors, Inputs and Data",
-                     "subtopics":  [
-                                       "Test inputs",
-                                       "Parameterization",
-                                       "Data-driven testing",
-                                       "Fixtures",
-                                       "Environment configuration",
-                                       "Secrets handling",
-                                       "Test isolation",
-                                       "Robot Framework terminology and feature mapping for this topic",
-                                       "Robot Framework configuration and implementation considerations",
-                                       "Robot Framework best practices and common mistakes for this topic",
-                                       "test cases",
-                                       "keywords",
-                                       "resource files",
-                                       "variables",
-                                       "libraries",
-                                       "SeleniumLibrary",
-                                       "RequestsLibrary",
-                                       "tags",
-                                       "setup/teardown",
-                                       "data-driven tests",
-                                       "reports",
-                                       "logs"
-                                   ],
-                     "tools":  [
-                                   "Robot Framework",
-                                   "SeleniumLibrary",
-                                   "RequestsLibrary"
-                               ],
-                     "lab_task":  "Create parameterized/data-driven tests.",
-                     "technology":  "Robot Framework",
-                     "technology_id":  "robot-framework",
-                     "learning_objectives":  [
-                                                 "Explain the Selectors, Inputs and Data concepts in the context of Robot Framework.",
-                                                 "Configure or implement the key Robot Framework features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Selectors, Inputs and Data practically using Robot Framework.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Advanced Automation",
-                     "subtopics":  [
-                                       "Hooks",
-                                       "Suites",
-                                       "Parallel execution",
-                                       "Retries",
-                                       "Tagging/grouping",
-                                       "Mocks/stubs concepts",
-                                       "Reusable libraries",
-                                       "Robot Framework terminology and feature mapping for this topic",
-                                       "Robot Framework configuration and implementation considerations",
-                                       "Robot Framework best practices and common mistakes for this topic",
-                                       "test cases",
-                                       "keywords",
-                                       "resource files",
-                                       "variables",
-                                       "libraries",
-                                       "SeleniumLibrary",
-                                       "RequestsLibrary",
-                                       "tags",
-                                       "setup/teardown",
-                                       "data-driven tests",
-                                       "reports",
-                                       "logs"
-                                   ],
-                     "tools":  [
-                                   "Robot Framework",
-                                   "SeleniumLibrary",
-                                   "RequestsLibrary"
-                               ],
-                     "lab_task":  "Implement advanced automation patterns.",
-                     "technology":  "Robot Framework",
-                     "technology_id":  "robot-framework",
-                     "learning_objectives":  [
-                                                 "Explain the Advanced Automation concepts in the context of Robot Framework.",
-                                                 "Configure or implement the key Robot Framework features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Advanced Automation practically using Robot Framework.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Reporting and Debugging",
-                     "subtopics":  [
-                                       "Logs",
-                                       "Screenshots/traces where applicable",
-                                       "Reports",
-                                       "Failure diagnostics",
-                                       "Flaky test handling",
-                                       "Root-cause analysis",
-                                       "Robot Framework terminology and feature mapping for this topic",
-                                       "Robot Framework configuration and implementation considerations",
-                                       "Robot Framework best practices and common mistakes for this topic",
-                                       "test cases",
-                                       "keywords",
-                                       "resource files",
-                                       "variables",
-                                       "libraries",
-                                       "SeleniumLibrary",
-                                       "RequestsLibrary",
-                                       "tags",
-                                       "setup/teardown",
-                                       "data-driven tests"
-                                   ],
-                     "tools":  [
-                                   "Robot Framework",
-                                   "SeleniumLibrary",
-                                   "RequestsLibrary"
-                               ],
-                     "lab_task":  "Diagnose failures and generate test reports.",
-                     "technology":  "Robot Framework",
-                     "technology_id":  "robot-framework",
-                     "learning_objectives":  [
-                                                 "Explain the Reporting and Debugging concepts in the context of Robot Framework.",
-                                                 "Configure or implement the key Robot Framework features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Reporting and Debugging practically using Robot Framework.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "CI/CD Integration",
-                     "subtopics":  [
-                                       "Pipeline execution",
-                                       "Headless mode",
-                                       "Artifacts",
-                                       "Environment variables",
-                                       "Test reports",
-                                       "Quality gates",
-                                       "Scheduled runs",
-                                       "Robot Framework terminology and feature mapping for this topic",
-                                       "Robot Framework configuration and implementation considerations",
-                                       "Robot Framework best practices and common mistakes for this topic",
-                                       "test cases",
-                                       "keywords",
-                                       "resource files",
-                                       "variables",
-                                       "libraries",
-                                       "SeleniumLibrary",
-                                       "RequestsLibrary",
-                                       "tags",
-                                       "setup/teardown",
-                                       "data-driven tests",
-                                       "reports",
-                                       "logs"
-                                   ],
-                     "tools":  [
-                                   "Robot Framework",
-                                   "SeleniumLibrary",
-                                   "RequestsLibrary",
-                                   "Python"
-                               ],
-                     "lab_task":  "Run the test suite in CI.",
-                     "technology":  "Robot Framework",
-                     "technology_id":  "robot-framework",
-                     "learning_objectives":  [
-                                                 "Explain the CI/CD Integration concepts in the context of Robot Framework.",
-                                                 "Configure or implement the key Robot Framework features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply CI/CD Integration practically using Robot Framework.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "Performance and Maintainability",
-                     "subtopics":  [
-                                       "Execution optimization",
-                                       "Parallelization",
-                                       "Test pyramid",
-                                       "Coverage concepts",
-                                       "Refactoring",
-                                       "Coding standards",
-                                       "Reliability",
-                                       "Robot Framework terminology and feature mapping for this topic",
-                                       "Robot Framework configuration and implementation considerations",
-                                       "Robot Framework best practices and common mistakes for this topic",
-                                       "test cases",
-                                       "keywords",
-                                       "resource files",
-                                       "variables",
-                                       "libraries",
-                                       "SeleniumLibrary",
-                                       "RequestsLibrary",
-                                       "tags",
-                                       "setup/teardown",
-                                       "data-driven tests",
-                                       "reports",
-                                       "logs"
-                                   ],
-                     "tools":  [
-                                   "Robot Framework",
-                                   "SeleniumLibrary",
-                                   "RequestsLibrary"
-                               ],
-                     "lab_task":  "Optimize and refactor the suite.",
-                     "technology":  "Robot Framework",
-                     "technology_id":  "robot-framework",
-                     "learning_objectives":  [
-                                                 "Explain the Performance and Maintainability concepts in the context of Robot Framework.",
-                                                 "Configure or implement the key Robot Framework features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Performance and Maintainability practically using Robot Framework.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "Capstone Testing Project",
-                     "subtopics":  [
-                                       "Test strategy",
-                                       "Automation design",
-                                       "Data",
-                                       "Execution",
-                                       "Reporting",
-                                       "CI integration",
-                                       "Defect workflow",
-                                       "Documentation",
-                                       "Robot Framework terminology and feature mapping for this topic",
-                                       "Robot Framework configuration and implementation considerations",
-                                       "Robot Framework best practices and common mistakes for this topic",
-                                       "test cases",
-                                       "keywords",
-                                       "resource files",
-                                       "variables",
-                                       "libraries",
-                                       "SeleniumLibrary",
-                                       "RequestsLibrary",
-                                       "tags",
-                                       "setup/teardown",
-                                       "data-driven tests",
-                                       "reports",
-                                       "logs"
-                                   ],
-                     "tools":  [
-                                   "Robot Framework",
-                                   "SeleniumLibrary",
-                                   "RequestsLibrary",
-                                   "Python"
-                               ],
-                     "lab_task":  "Build an end-to-end automation project with Robot Framework.",
-                     "technology":  "Robot Framework",
-                     "technology_id":  "robot-framework",
-                     "learning_objectives":  [
-                                                 "Explain the Capstone Testing Project concepts in the context of Robot Framework.",
-                                                 "Configure or implement the key Robot Framework features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Capstone Testing Project practically using Robot Framework.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "robot-framework"
+  "domain": "Robot Framework",
+  "name": "Robot Framework â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "aliases": [
+    "Robot",
+    "Keyword-Driven Test Automation"
+  ],
+  "tools": [
+    "Robot Framework",
+    "SeleniumLibrary",
+    "RequestsLibrary",
+    "Python"
+  ],
+  "certifications": [
+    "Robot Framework official/vendor learning path or relevant professional certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Framework Fundamentals",
+      "subtopics": [
+        "Purpose and use cases",
+        "Architecture",
+        "Installation",
+        "Project structure",
+        "Core syntax/API",
+        "First test",
+        "Test lifecycle",
+        "Robot Framework terminology and feature mapping for this topic",
+        "Robot Framework configuration and implementation considerations",
+        "Robot Framework best practices and common mistakes for this topic",
+        "test cases",
+        "keywords",
+        "resource files",
+        "variables",
+        "libraries",
+        "SeleniumLibrary",
+        "RequestsLibrary",
+        "tags",
+        "setup/teardown",
+        "data-driven tests",
+        "reports",
+        "logs"
+      ],
+      "tools": [
+        "Robot Framework",
+        "SeleniumLibrary",
+        "RequestsLibrary"
+      ],
+      "lab_task": "Set up Robot Framework and execute the first automated test.",
+      "technology": "Robot Framework",
+      "technology_id": "robot-framework",
+      "learning_objectives": [
+        "Explain the Framework Fundamentals concepts in the context of Robot Framework.",
+        "Configure or implement the key Robot Framework features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Framework Fundamentals practically using Robot Framework.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Framework Fundamentals': Set up Robot Framework and execute the first automated test.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Robot Framework and execute the first automated test.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Purpose and use cases; Architecture; Installation; Project structure; Core syntax/API; First test; Test lifecycle; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Framework Fundamentals' on a prepared training sample through this task: Set up Robot Framework and execute the first automated test..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Robot Framework and execute the first automated test.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Purpose and use cases; Architecture; Installation; Project structure; Core syntax/API; First test; Test lifecycle; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs) and demonstrate the starting sample for: Set up Robot Framework and execute the first automated test.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Robot Framework and execute the first automated test.",
+          "evidence": "Participant submission for 'Framework Fundamentals': Set up Robot Framework and execute the first automated test.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Robot Framework and execute the first automated test.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Robot Framework and execute the first automated test.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Purpose and use cases; Architecture; Installation; Project structure; Core syntax/API; First test; Test lifecycle; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Test Design",
+      "subtopics": [
+        "Test cases",
+        "Test data",
+        "Assertions",
+        "Positive/negative tests",
+        "Boundary tests",
+        "Reusable test components",
+        "Naming conventions",
+        "Robot Framework terminology and feature mapping for this topic",
+        "Robot Framework configuration and implementation considerations",
+        "Robot Framework best practices and common mistakes for this topic",
+        "keywords",
+        "resource files",
+        "variables",
+        "libraries",
+        "SeleniumLibrary",
+        "RequestsLibrary",
+        "tags",
+        "setup/teardown",
+        "data-driven tests",
+        "reports",
+        "logs"
+      ],
+      "tools": [
+        "Robot Framework",
+        "SeleniumLibrary",
+        "RequestsLibrary"
+      ],
+      "lab_task": "Design a maintainable test suite.",
+      "technology": "Robot Framework",
+      "technology_id": "robot-framework",
+      "learning_objectives": [
+        "Explain the Test Design concepts in the context of Robot Framework.",
+        "Configure or implement the key Robot Framework features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Test Design practically using Robot Framework.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Test Design': Design a maintainable test suite.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a maintainable test suite.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test cases; Test data; Assertions; Positive/negative tests; Boundary tests; Reusable test components; Naming conventions; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Test Design' on a prepared training sample through this task: Design a maintainable test suite..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a maintainable test suite.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Test cases; Test data; Assertions; Positive/negative tests; Boundary tests; Reusable test components; Naming conventions; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs) and demonstrate the starting sample for: Design a maintainable test suite.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a maintainable test suite.",
+          "evidence": "Participant submission for 'Test Design': Design a maintainable test suite.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a maintainable test suite.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a maintainable test suite.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test cases; Test data; Assertions; Positive/negative tests; Boundary tests; Reusable test components; Naming conventions; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Selectors, Inputs and Data",
+      "subtopics": [
+        "Test inputs",
+        "Parameterization",
+        "Data-driven testing",
+        "Fixtures",
+        "Environment configuration",
+        "Secrets handling",
+        "Test isolation",
+        "Robot Framework terminology and feature mapping for this topic",
+        "Robot Framework configuration and implementation considerations",
+        "Robot Framework best practices and common mistakes for this topic",
+        "test cases",
+        "keywords",
+        "resource files",
+        "variables",
+        "libraries",
+        "SeleniumLibrary",
+        "RequestsLibrary",
+        "tags",
+        "setup/teardown",
+        "data-driven tests",
+        "reports",
+        "logs"
+      ],
+      "tools": [
+        "Robot Framework",
+        "SeleniumLibrary",
+        "RequestsLibrary"
+      ],
+      "lab_task": "Create parameterized/data-driven tests.",
+      "technology": "Robot Framework",
+      "technology_id": "robot-framework",
+      "learning_objectives": [
+        "Explain the Selectors, Inputs and Data concepts in the context of Robot Framework.",
+        "Configure or implement the key Robot Framework features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Selectors, Inputs and Data practically using Robot Framework.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Selectors, Inputs and Data': Create parameterized/data-driven tests.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create parameterized/data-driven tests.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test inputs; Parameterization; Data-driven testing; Fixtures; Environment configuration; Secrets handling; Test isolation; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Selectors, Inputs and Data' on a prepared training sample through this task: Create parameterized/data-driven tests..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create parameterized/data-driven tests.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Test inputs; Parameterization; Data-driven testing; Fixtures; Environment configuration; Secrets handling; Test isolation; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs) and demonstrate the starting sample for: Create parameterized/data-driven tests.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create parameterized/data-driven tests.",
+          "evidence": "Participant submission for 'Selectors, Inputs and Data': Create parameterized/data-driven tests.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create parameterized/data-driven tests.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create parameterized/data-driven tests.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test inputs; Parameterization; Data-driven testing; Fixtures; Environment configuration; Secrets handling; Test isolation; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Advanced Automation",
+      "subtopics": [
+        "Hooks",
+        "Suites",
+        "Parallel execution",
+        "Retries",
+        "Tagging/grouping",
+        "Mocks/stubs concepts",
+        "Reusable libraries",
+        "Robot Framework terminology and feature mapping for this topic",
+        "Robot Framework configuration and implementation considerations",
+        "Robot Framework best practices and common mistakes for this topic",
+        "test cases",
+        "keywords",
+        "resource files",
+        "variables",
+        "libraries",
+        "SeleniumLibrary",
+        "RequestsLibrary",
+        "tags",
+        "setup/teardown",
+        "data-driven tests",
+        "reports",
+        "logs"
+      ],
+      "tools": [
+        "Robot Framework",
+        "SeleniumLibrary",
+        "RequestsLibrary"
+      ],
+      "lab_task": "Implement advanced automation patterns.",
+      "technology": "Robot Framework",
+      "technology_id": "robot-framework",
+      "learning_objectives": [
+        "Explain the Advanced Automation concepts in the context of Robot Framework.",
+        "Configure or implement the key Robot Framework features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Advanced Automation practically using Robot Framework.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Advanced Automation': Implement advanced automation patterns.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement advanced automation patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Hooks; Suites; Parallel execution; Retries; Tagging/grouping; Mocks/stubs concepts; Reusable libraries; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Advanced Automation' on a prepared training sample through this task: Implement advanced automation patterns..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement advanced automation patterns.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Hooks; Suites; Parallel execution; Retries; Tagging/grouping; Mocks/stubs concepts; Reusable libraries; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs) and demonstrate the starting sample for: Implement advanced automation patterns.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement advanced automation patterns.",
+          "evidence": "Participant submission for 'Advanced Automation': Implement advanced automation patterns.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement advanced automation patterns.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement advanced automation patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Hooks; Suites; Parallel execution; Retries; Tagging/grouping; Mocks/stubs concepts; Reusable libraries; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Reporting and Debugging",
+      "subtopics": [
+        "Logs",
+        "Screenshots/traces where applicable",
+        "Reports",
+        "Failure diagnostics",
+        "Flaky test handling",
+        "Root-cause analysis",
+        "Robot Framework terminology and feature mapping for this topic",
+        "Robot Framework configuration and implementation considerations",
+        "Robot Framework best practices and common mistakes for this topic",
+        "test cases",
+        "keywords",
+        "resource files",
+        "variables",
+        "libraries",
+        "SeleniumLibrary",
+        "RequestsLibrary",
+        "tags",
+        "setup/teardown",
+        "data-driven tests"
+      ],
+      "tools": [
+        "Robot Framework",
+        "SeleniumLibrary",
+        "RequestsLibrary"
+      ],
+      "lab_task": "Diagnose failures and generate test reports.",
+      "technology": "Robot Framework",
+      "technology_id": "robot-framework",
+      "learning_objectives": [
+        "Explain the Reporting and Debugging concepts in the context of Robot Framework.",
+        "Configure or implement the key Robot Framework features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Reporting and Debugging practically using Robot Framework.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Reporting and Debugging': Diagnose failures and generate test reports.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Diagnose failures and generate test reports.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Screenshots/traces where applicable; Reports; Failure diagnostics; Flaky test handling; Root-cause analysis; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Reporting and Debugging' on a prepared training sample through this task: Diagnose failures and generate test reports..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Diagnose failures and generate test reports.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Logs; Screenshots/traces where applicable; Reports; Failure diagnostics; Flaky test handling; Root-cause analysis; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests) and demonstrate the starting sample for: Diagnose failures and generate test reports.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Diagnose failures and generate test reports.",
+          "evidence": "Participant submission for 'Reporting and Debugging': Diagnose failures and generate test reports.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Diagnose failures and generate test reports.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Diagnose failures and generate test reports.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Screenshots/traces where applicable; Reports; Failure diagnostics; Flaky test handling; Root-cause analysis; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "CI/CD Integration",
+      "subtopics": [
+        "Pipeline execution",
+        "Headless mode",
+        "Artifacts",
+        "Environment variables",
+        "Test reports",
+        "Quality gates",
+        "Scheduled runs",
+        "Robot Framework terminology and feature mapping for this topic",
+        "Robot Framework configuration and implementation considerations",
+        "Robot Framework best practices and common mistakes for this topic",
+        "test cases",
+        "keywords",
+        "resource files",
+        "variables",
+        "libraries",
+        "SeleniumLibrary",
+        "RequestsLibrary",
+        "tags",
+        "setup/teardown",
+        "data-driven tests",
+        "reports",
+        "logs"
+      ],
+      "tools": [
+        "Robot Framework",
+        "SeleniumLibrary",
+        "RequestsLibrary",
+        "Python"
+      ],
+      "lab_task": "Run the test suite in CI.",
+      "technology": "Robot Framework",
+      "technology_id": "robot-framework",
+      "learning_objectives": [
+        "Explain the CI/CD Integration concepts in the context of Robot Framework.",
+        "Configure or implement the key Robot Framework features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply CI/CD Integration practically using Robot Framework.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'CI/CD Integration': Run the test suite in CI.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Run the test suite in CI.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Pipeline execution; Headless mode; Artifacts; Environment variables; Test reports; Quality gates; Scheduled runs; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'CI/CD Integration' on a prepared training sample through this task: Run the test suite in CI..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Run the test suite in CI.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Pipeline execution; Headless mode; Artifacts; Environment variables; Test reports; Quality gates; Scheduled runs; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs) and demonstrate the starting sample for: Run the test suite in CI.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Run the test suite in CI.",
+          "evidence": "Participant submission for 'CI/CD Integration': Run the test suite in CI.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Run the test suite in CI.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Run the test suite in CI.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Pipeline execution; Headless mode; Artifacts; Environment variables; Test reports; Quality gates; Scheduled runs; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Performance and Maintainability",
+      "subtopics": [
+        "Execution optimization",
+        "Parallelization",
+        "Test pyramid",
+        "Coverage concepts",
+        "Refactoring",
+        "Coding standards",
+        "Reliability",
+        "Robot Framework terminology and feature mapping for this topic",
+        "Robot Framework configuration and implementation considerations",
+        "Robot Framework best practices and common mistakes for this topic",
+        "test cases",
+        "keywords",
+        "resource files",
+        "variables",
+        "libraries",
+        "SeleniumLibrary",
+        "RequestsLibrary",
+        "tags",
+        "setup/teardown",
+        "data-driven tests",
+        "reports",
+        "logs"
+      ],
+      "tools": [
+        "Robot Framework",
+        "SeleniumLibrary",
+        "RequestsLibrary"
+      ],
+      "lab_task": "Optimize and refactor the suite.",
+      "technology": "Robot Framework",
+      "technology_id": "robot-framework",
+      "learning_objectives": [
+        "Explain the Performance and Maintainability concepts in the context of Robot Framework.",
+        "Configure or implement the key Robot Framework features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Performance and Maintainability practically using Robot Framework.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Performance and Maintainability': Optimize and refactor the suite.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Optimize and refactor the suite.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Execution optimization; Parallelization; Test pyramid; Coverage concepts; Refactoring; Coding standards; Reliability; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Performance and Maintainability' on a prepared training sample through this task: Optimize and refactor the suite..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Optimize and refactor the suite.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Execution optimization; Parallelization; Test pyramid; Coverage concepts; Refactoring; Coding standards; Reliability; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs) and demonstrate the starting sample for: Optimize and refactor the suite.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Optimize and refactor the suite.",
+          "evidence": "Participant submission for 'Performance and Maintainability': Optimize and refactor the suite.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Optimize and refactor the suite.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Optimize and refactor the suite.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Execution optimization; Parallelization; Test pyramid; Coverage concepts; Refactoring; Coding standards; Reliability; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Capstone Testing Project",
+      "subtopics": [
+        "Test strategy",
+        "Automation design",
+        "Data",
+        "Execution",
+        "Reporting",
+        "CI integration",
+        "Defect workflow",
+        "Documentation",
+        "Robot Framework terminology and feature mapping for this topic",
+        "Robot Framework configuration and implementation considerations",
+        "Robot Framework best practices and common mistakes for this topic",
+        "test cases",
+        "keywords",
+        "resource files",
+        "variables",
+        "libraries",
+        "SeleniumLibrary",
+        "RequestsLibrary",
+        "tags",
+        "setup/teardown",
+        "data-driven tests",
+        "reports",
+        "logs"
+      ],
+      "tools": [
+        "Robot Framework",
+        "SeleniumLibrary",
+        "RequestsLibrary",
+        "Python"
+      ],
+      "lab_task": "Build an end-to-end automation project with Robot Framework.",
+      "technology": "Robot Framework",
+      "technology_id": "robot-framework",
+      "learning_objectives": [
+        "Explain the Capstone Testing Project concepts in the context of Robot Framework.",
+        "Configure or implement the key Robot Framework features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Capstone Testing Project practically using Robot Framework.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Capstone Testing Project': Build an end-to-end automation project with Robot Framework.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an end-to-end automation project with Robot Framework.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test strategy; Automation design; Data; Execution; Reporting; CI integration; Defect workflow; Documentation; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Capstone Testing Project' on a prepared training sample through this task: Build an end-to-end automation project with Robot Framework..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an end-to-end automation project with Robot Framework.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Test strategy; Automation design; Data; Execution; Reporting; CI integration; Defect workflow; Documentation; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs) and demonstrate the starting sample for: Build an end-to-end automation project with Robot Framework.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an end-to-end automation project with Robot Framework.",
+          "evidence": "Participant submission for 'Capstone Testing Project': Build an end-to-end automation project with Robot Framework.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an end-to-end automation project with Robot Framework.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an end-to-end automation project with Robot Framework.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test strategy; Automation design; Data; Execution; Reporting; CI integration; Defect workflow; Documentation; Robot Framework terminology and feature mapping for this topic; Robot Framework configuration and implementation considerations; Robot Framework best practices and common mistakes for this topic; test cases; keywords; resource files; variables; libraries; SeleniumLibrary; RequestsLibrary; tags; setup/teardown; data-driven tests; reports; logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "robot-framework",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

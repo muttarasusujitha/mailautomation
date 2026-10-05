@@ -18,57 +18,312 @@ logger = logging.getLogger(__name__)
 
 
 def _render_html_template(context: Dict[str, Any]) -> str:
-    """Build a basic Purchase Order HTML from context dict."""
+    """Render a compact, print-ready purchase order."""
     items_rows = ""
     total = 0.0
     for i, item in enumerate(context.get("items") or [], 1):
-        desc = item.get("description", "")
-        qty = item.get("quantity", 1)
-        rate = item.get("rate", 0)
+        desc = _html(item.get("description", ""))
+        try:
+            qty = float(item.get("quantity", 1) or 0)
+            rate = float(item.get("rate", 0) or 0)
+        except (TypeError, ValueError):
+            qty, rate = 0.0, 0.0
         amount = qty * rate
         total += amount
+        quantity_text = f"{qty:g}"
         items_rows += (
-            f"<tr><td>{i}</td><td>{desc}</td><td>{qty}</td>"
-            f"<td>{rate:,.2f}</td><td>{amount:,.2f}</td></tr>"
+            f"<tr><td class=\"row-number\">{i:02d}</td><td class=\"description\">{desc}</td>"
+            f"<td class=\"numeric\">{quantity_text}</td>"
+            f"<td class=\"numeric\">{rate:,.2f}</td><td class=\"numeric amount\">{amount:,.2f}</td></tr>"
         )
+    if not context.get("items") and context.get("total_amount"):
+        try:
+            total = float(context.get("total_amount") or 0)
+        except (TypeError, ValueError):
+            total = 0.0
+
+    po_number = _html(context.get("po_number") or "PO-XXXX")
+    issue_date = _html(context.get("date", ""))
+    vendor_name = _html(context.get("vendor_name", "")) or "—"
+    client_name = _html(context.get("client_name", "")) or "—"
+    client_email = _html(context.get("client_email", ""))
+    billing_address = _html(context.get("client_billing_address", "")).replace("\n", "<br>")
+    gstin = _html(context.get("client_gstin", ""))
+    domain = _html(context.get("training_domain", "")) or "—"
+    training_dates = _html(context.get("training_dates", "")) or "—"
+    duration = _html(context.get("duration", "")) or "—"
+    mode = _html(context.get("mode", "")) or "—"
+    payment_terms = _html(context.get("payment_terms", "")) or "As agreed"
+    notes = _html(context.get("notes", "")).replace("\n", "<br>")
+    total_amount = f"{total:,.2f}"
 
     return f"""<!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8">
+<head><meta charset="UTF-8"><title>Purchase Order {po_number}</title>
 <style>
-  body {{ font-family: Arial, sans-serif; margin: 40px; color: #1e293b; }}
-  h1 {{ color: #2563eb; }}
-  table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
-  th {{ background: #2563eb; color: white; padding: 8px; text-align: left; }}
-  td {{ padding: 8px; border-bottom: 1px solid #e2e8f0; }}
-  .total {{ font-weight: bold; font-size: 1.1em; }}
-  .header-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }}
-  .label {{ color: #64748b; font-size: 0.85em; }}
+  @page {{ size: A4; margin: 17mm 16mm 18mm; }}
+  * {{ box-sizing: border-box; }}
+  body {{ margin: 0; color: #172033; font-family: Arial, Helvetica, sans-serif; font-size: 10pt; line-height: 1.45; }}
+  .topline {{ height: 5px; background: #173b65; margin: -17mm -16mm 22px; }}
+  .masthead {{ display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-bottom: 17px; border-bottom: 1px solid #d8e0ea; }}
+  .company {{ color: #173b65; font-size: 14pt; font-weight: 700; letter-spacing: .08em; }}
+  .document-label {{ color: #64748b; font-size: 8pt; font-weight: 700; letter-spacing: .17em; text-align: right; }}
+  h1 {{ margin: 4px 0 0; color: #173b65; font-size: 22pt; letter-spacing: .035em; text-align: right; }}
+  .order-meta {{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0 22px; }}
+  .meta-card {{ border: 1px solid #dbe3ed; border-radius: 6px; padding: 11px 13px; }}
+  .label {{ display: block; margin-bottom: 4px; color: #64748b; font-size: 7.5pt; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }}
+  .meta-value {{ color: #172033; font-size: 11pt; font-weight: 700; }}
+  .section-title {{ margin: 0 0 10px; color: #173b65; font-size: 9pt; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }}
+  .parties {{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 19px; }}
+  .party-card {{ min-height: 120px; border: 1px solid #dbe3ed; border-radius: 6px; padding: 13px 14px; break-inside: avoid; }}
+  .party-name {{ margin: 0 0 5px; color: #172033; font-size: 12pt; font-weight: 700; }}
+  .party-detail {{ margin: 2px 0; color: #475569; font-size: 9pt; overflow-wrap: anywhere; }}
+  .training {{ margin-bottom: 20px; padding: 13px 14px; background: #f3f6fa; border-left: 3px solid #2b628f; break-inside: avoid; }}
+  .training-grid {{ display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 12px; }}
+  .training-value {{ color: #172033; font-size: 9pt; font-weight: 600; overflow-wrap: anywhere; }}
+  table {{ width: 100%; border-collapse: collapse; margin: 0 0 12px; }}
+  thead {{ display: table-header-group; }}
+  th {{ padding: 9px 8px; background: #173b65; color: #fff; font-size: 7.5pt; font-weight: 700; letter-spacing: .08em; text-align: left; text-transform: uppercase; }}
+  th.numeric, td.numeric {{ text-align: right; white-space: nowrap; }}
+  td {{ padding: 9px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }}
+  tr {{ break-inside: avoid; }}
+  .row-number {{ width: 34px; color: #64748b; font-size: 8pt; }}
+  .description {{ width: 48%; }}
+  .amount {{ color: #172033; font-weight: 700; }}
+  .totals {{ display: flex; justify-content: flex-end; margin: 8px 0 20px; break-inside: avoid; }}
+  .total-box {{ min-width: 230px; padding: 12px 14px; background: #f3f6fa; border: 1px solid #dbe3ed; border-radius: 6px; }}
+  .total-label {{ color: #475569; font-size: 9pt; font-weight: 700; }}
+  .total-value {{ float: right; color: #173b65; font-size: 13pt; font-weight: 700; }}
+  .terms {{ display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 3px; }}
+  .terms-block {{ min-height: 48px; padding-top: 10px; border-top: 1px solid #dbe3ed; break-inside: avoid; }}
+  .terms-text {{ margin: 3px 0 0; color: #475569; font-size: 9pt; }}
+  .signature {{ margin-top: 32px; text-align: right; break-inside: avoid; }}
+  .signature-line {{ display: inline-block; width: 210px; padding-top: 7px; border-top: 1px solid #94a3b8; color: #475569; font-size: 8pt; text-align: center; }}
+  .footer {{ margin-top: 22px; padding-top: 8px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 7.5pt; text-align: center; }}
 </style>
 </head>
 <body>
-<h1>PURCHASE ORDER</h1>
-<div class="header-grid">
-  <div>
-    <p class="label">PO Number</p><p><b>{context.get('po_number', 'PO-XXXX')}</b></p>
-    <p class="label">Date</p><p>{context.get('date', '')}</p>
+<div class="topline"></div>
+<header class="masthead">
+  <div><div class="company">CLAHAN TECHNOLOGIES</div></div>
+  <div><div class="document-label">OFFICIAL DOCUMENT</div><h1>PURCHASE ORDER</h1></div>
+</header>
+<section class="order-meta">
+  <div class="meta-card"><span class="label">Purchase order number</span><div class="meta-value">{po_number}</div></div>
+  <div class="meta-card"><span class="label">Issue date</span><div class="meta-value">{issue_date or '—'}</div></div>
+</section>
+<section class="parties">
+  <div class="party-card"><h2 class="section-title">Vendor / Trainer</h2><p class="party-name">{vendor_name}</p></div>
+  <div class="party-card"><h2 class="section-title">Client / Bill to</h2><p class="party-name">{client_name}</p>
+    {f'<p class="party-detail">{client_email}</p>' if client_email else ''}
+    {f'<p class="party-detail">{billing_address}</p>' if billing_address else ''}
+    {f'<p class="party-detail"><b>GSTIN:</b> {gstin}</p>' if gstin else ''}
   </div>
-  <div>
-    <p class="label">Vendor / Trainer</p><p><b>{context.get('vendor_name', '')}</b></p>
-    <p class="label">Client</p><p>{context.get('client_name', '')}</p>
+</section>
+<section class="training">
+  <h2 class="section-title">Order scope</h2>
+  <div class="training-grid">
+    <div><span class="label">Course / domain</span><div class="training-value">{domain}</div></div>
+    <div><span class="label">Training dates</span><div class="training-value">{training_dates}</div></div>
+    <div><span class="label">Duration</span><div class="training-value">{duration}</div></div>
+    <div><span class="label">Delivery mode</span><div class="training-value">{mode}</div></div>
   </div>
-</div>
-<p><b>Training:</b> {context.get('training_domain', '')} | <b>Duration:</b> {context.get('duration', '')}</p>
+</section>
 <table>
-  <tr><th>#</th><th>Description</th><th>Qty</th><th>Rate (INR)</th><th>Amount (INR)</th></tr>
+  <thead><tr><th>#</th><th>Description</th><th class="numeric">Qty</th><th class="numeric">Rate (INR)</th><th class="numeric">Amount (INR)</th></tr></thead>
+  <tbody>
   {items_rows}
-  <tr class="total"><td colspan="4" style="text-align:right">Total</td><td>{total:,.2f}</td></tr>
+  </tbody>
 </table>
-<br><p>{context.get('notes', '')}</p>
+<div class="totals"><div class="total-box"><span class="total-label">Order total (INR)</span><span class="total-value">{total_amount}</span></div></div>
+<section class="terms">
+  <div class="terms-block"><span class="label">Payment terms</span><p class="terms-text">{payment_terms}</p></div>
+  <div class="terms-block"><span class="label">Notes / delivery instructions</span><p class="terms-text">{notes or '—'}</p></div>
+</section>
+<div class="signature"><div class="signature-line">Authorized signatory</div></div>
+<footer class="footer">Clahan Technologies · Purchase Order {po_number}</footer>
 </body></html>"""
 
 
-async def _html_to_pdf(html: str) -> bytes:
+def _render_purchase_order_pdf_reportlab(context: Dict[str, Any]) -> bytes:
+    """ReportLab fallback matching the print-ready HTML purchase order."""
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_RIGHT
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.units import mm
+    from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+
+    navy = colors.HexColor("#173b65")
+    ink = colors.HexColor("#172033")
+    muted = colors.HexColor("#64748b")
+    border = colors.HexColor("#dbe3ed")
+    pale = colors.HexColor("#f3f6fa")
+    buffer = BytesIO()
+    po_number = str(context.get("po_number") or "PO-XXXX")
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4, leftMargin=16 * mm, rightMargin=16 * mm,
+        topMargin=17 * mm, bottomMargin=19 * mm, title=f"Purchase Order {po_number}",
+    )
+    base = getSampleStyleSheet()
+    company_style = ParagraphStyle("POCompany", parent=base["Normal"], fontName="Helvetica-Bold", fontSize=14, leading=17, textColor=navy)
+    document_style = ParagraphStyle("PODocument", parent=base["Normal"], fontName="Helvetica-Bold", fontSize=18, leading=21, alignment=TA_RIGHT, textColor=navy)
+    label_style = ParagraphStyle("POLabel", parent=base["Normal"], fontName="Helvetica-Bold", fontSize=7.5, leading=9, textColor=muted, spaceAfter=3)
+    heading_style = ParagraphStyle("POSection", parent=base["Normal"], fontName="Helvetica-Bold", fontSize=8, leading=10, textColor=navy, spaceAfter=5)
+    body_style = ParagraphStyle("POBody", parent=base["Normal"], fontName="Helvetica", fontSize=9, leading=12, textColor=ink, wordWrap="CJK")
+    strong_style = ParagraphStyle("POStrong", parent=body_style, fontName="Helvetica-Bold", fontSize=10, leading=13)
+    right_style = ParagraphStyle("PORight", parent=body_style, alignment=TA_RIGHT)
+    small_style = ParagraphStyle("POSmall", parent=body_style, fontSize=8, leading=10, textColor=muted)
+
+    def para(value: Any, style=body_style) -> Paragraph:
+        text = str(value or "").replace("—", "-").replace("–", "-").replace("·", "|").replace("₹", "INR")
+        return Paragraph(_html(text).replace("\n", "<br/>") or "-", style)
+
+    def label_value(label: str, value: Any, value_style=strong_style):
+        return [Paragraph(_html(label.upper()), label_style), para(value, value_style)]
+
+    story = []
+    masthead = Table([[
+        Paragraph("CLAHAN TECHNOLOGIES", company_style),
+        Paragraph("PURCHASE ORDER", document_style),
+    ]], colWidths=[89 * mm, 89 * mm])
+    masthead.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LINEABOVE", (0, 0), (-1, 0), 5, navy),
+        ("LINEBELOW", (0, 0), (-1, 0), 0.7, border),
+        ("TOPPADDING", (0, 0), (-1, -1), 12),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+    ]))
+    story.extend([masthead, Spacer(1, 5 * mm)])
+
+    meta = Table([[
+        label_value("Purchase order number", po_number),
+        label_value("Issue date", context.get("date") or "-"),
+    ]], colWidths=[89 * mm, 89 * mm])
+    meta.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 0.7, border),
+        ("INNERGRID", (0, 0), (-1, -1), 0.5, border),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 10), ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ("TOPPADDING", (0, 0), (-1, -1), 9), ("BOTTOMPADDING", (0, 0), (-1, -1), 9),
+    ]))
+    story.extend([meta, Spacer(1, 6 * mm)])
+
+    vendor = [Paragraph("VENDOR / TRAINER", heading_style), para(context.get("vendor_name") or "-", strong_style)]
+    client = [Paragraph("CLIENT / BILL TO", heading_style), para(context.get("client_name") or "-", strong_style)]
+    for value in (context.get("client_email"), context.get("client_billing_address")):
+        if value:
+            client.append(para(value, small_style))
+    if context.get("client_gstin"):
+        client.append(para(f"GSTIN: {context['client_gstin']}", small_style))
+    parties = Table([[vendor, client]], colWidths=[89 * mm, 89 * mm])
+    parties.setStyle(TableStyle([
+        ("BOX", (0, 0), (-1, -1), 0.7, border), ("INNERGRID", (0, 0), (-1, -1), 0.5, border),
+        ("BACKGROUND", (0, 0), (-1, -1), colors.white), ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 10), ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ("TOPPADDING", (0, 0), (-1, -1), 10), ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+    ]))
+    story.extend([parties, Spacer(1, 5 * mm), Paragraph("ORDER SCOPE", heading_style)])
+
+    scope_values = [
+        ("Course / domain", context.get("training_domain")),
+        ("Training dates", context.get("training_dates")),
+        ("Duration", context.get("duration")),
+        ("Delivery mode", context.get("mode")),
+    ]
+    scope = Table([[
+        label_value(label, value or "-", body_style) for label, value in scope_values
+    ]], colWidths=[44.5 * mm] * 4)
+    scope.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), pale), ("LINEBEFORE", (0, 0), (0, 0), 3, navy),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8), ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 8), ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    story.extend([scope, Spacer(1, 6 * mm)])
+
+    table_header_style = ParagraphStyle("POTableHeader", parent=label_style, textColor=colors.white)
+    table_data = [[
+        Paragraph("#", table_header_style), Paragraph("DESCRIPTION", table_header_style),
+        Paragraph("QTY", ParagraphStyle("POHeadQty", parent=table_header_style, alignment=TA_RIGHT)),
+        Paragraph("RATE (INR)", ParagraphStyle("POHeadRate", parent=table_header_style, alignment=TA_RIGHT)),
+        Paragraph("AMOUNT (INR)", ParagraphStyle("POHeadAmount", parent=table_header_style, alignment=TA_RIGHT)),
+    ]]
+    total = 0.0
+    for index, item in enumerate(context.get("items") or [], 1):
+        try:
+            quantity = float(item.get("quantity", 1) or 0)
+            rate = float(item.get("rate", 0) or 0)
+        except (TypeError, ValueError):
+            quantity, rate = 0.0, 0.0
+        amount = quantity * rate
+        total += amount
+        table_data.append([
+            para(f"{index:02d}", small_style), para(item.get("description") or "-"),
+            Paragraph(f"{quantity:g}", right_style), Paragraph(f"{rate:,.2f}", right_style),
+            Paragraph(f"{amount:,.2f}", ParagraphStyle("POAmount", parent=right_style, fontName="Helvetica-Bold")),
+        ])
+    if not context.get("items"):
+        try:
+            total = float(context.get("total_amount") or 0)
+        except (TypeError, ValueError):
+            total = 0.0
+    line_items = Table(table_data, colWidths=[11 * mm, 75 * mm, 20 * mm, 34 * mm, 38 * mm], repeatRows=1)
+    line_items.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), navy), ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("LINEBELOW", (0, 0), (-1, 0), 0.6, navy), ("LINEBELOW", (0, 1), (-1, -1), 0.45, border),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 7), ("RIGHTPADDING", (0, 0), (-1, -1), 7),
+        ("TOPPADDING", (0, 0), (-1, -1), 8), ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+    ]))
+    story.extend([line_items, Spacer(1, 3 * mm)])
+    total_box = Table([[
+        Paragraph("ORDER TOTAL (INR)", ParagraphStyle("POTotalLabel", parent=body_style, fontName="Helvetica-Bold", textColor=navy)),
+        Paragraph(f"{total:,.2f}", ParagraphStyle("POTotalValue", parent=body_style, fontName="Helvetica-Bold", fontSize=12, alignment=TA_RIGHT, textColor=navy)),
+    ]], colWidths=[69 * mm, 37 * mm])
+    total_box.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), pale), ("BOX", (0, 0), (-1, -1), 0.7, border),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"), ("LEFTPADDING", (0, 0), (-1, -1), 9),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 9), ("TOPPADDING", (0, 0), (-1, -1), 9),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 9),
+    ]))
+    totals_row = Table([["", total_box]], colWidths=[72 * mm, 106 * mm])
+    totals_row.setStyle(TableStyle([("ALIGN", (1, 0), (1, 0), "RIGHT"), ("VALIGN", (0, 0), (-1, -1), "TOP")]))
+    story.extend([totals_row, Spacer(1, 6 * mm)])
+
+    terms_data = [[
+        [Paragraph("PAYMENT TERMS", label_style), para(context.get("payment_terms") or "As agreed", small_style)],
+        [Paragraph("NOTES / DELIVERY INSTRUCTIONS", label_style), para(context.get("notes") or "-", small_style)],
+    ]]
+    terms = Table(terms_data, colWidths=[89 * mm, 89 * mm])
+    terms.setStyle(TableStyle([
+        ("LINEABOVE", (0, 0), (-1, -1), 0.6, border), ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 2), ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8), ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]))
+    story.extend([terms, Spacer(1, 15 * mm)])
+    signature = Table([["", Paragraph("Authorized signatory", small_style)]], colWidths=[120 * mm, 58 * mm])
+    signature.setStyle(TableStyle([
+        ("LINEABOVE", (1, 0), (1, 0), 0.7, muted), ("ALIGN", (1, 0), (1, 0), "CENTER"),
+        ("TOPPADDING", (1, 0), (1, 0), 5),
+    ]))
+    story.append(signature)
+
+    def draw_footer(canvas, document):
+        canvas.saveState()
+        canvas.setStrokeColor(border)
+        canvas.line(16 * mm, 13 * mm, A4[0] - 16 * mm, 13 * mm)
+        canvas.setFont("Helvetica", 7)
+        canvas.setFillColor(muted)
+        canvas.drawString(16 * mm, 9 * mm, f"Clahan Technologies  |  Purchase Order {po_number}")
+        canvas.drawRightString(A4[0] - 16 * mm, 9 * mm, f"Page {document.page}")
+        canvas.restoreState()
+
+    doc.build(story, onFirstPage=draw_footer, onLaterPages=draw_footer)
+    return buffer.getvalue()
+
+
+async def _html_to_pdf(html: str, purchase_order_context: Optional[Dict[str, Any]] = None) -> bytes:
     """Convert HTML to PDF bytes using weasyprint."""
     try:
         from weasyprint import HTML
@@ -78,6 +333,9 @@ async def _html_to_pdf(html: str) -> bytes:
     except Exception as exc:
         # If WeasyPrint fails (commonly due to missing native libs on Windows), fall back to ReportLab
         try:
+            if purchase_order_context is not None:
+                return _render_purchase_order_pdf_reportlab(purchase_order_context)
+
             from reportlab.lib.pagesizes import A4
             from reportlab.lib.units import mm
             from reportlab.pdfgen import canvas
@@ -728,8 +986,15 @@ class PORequest(BaseModel):
     date: str = ""
     vendor_name: str = ""
     client_name: str = ""
+    client_email: str = ""
+    client_billing_address: str = ""
+    client_gstin: str = ""
     training_domain: str = ""
+    training_dates: str = ""
     duration: str = ""
+    mode: str = ""
+    payment_terms: str = ""
+    total_amount: float = 0.0
     items: list = []
     notes: Optional[str] = ""
 
@@ -746,7 +1011,7 @@ async def generate_purchase_order(
     if format == "html":
         return Response(content=html, media_type="text/html")
 
-    pdf_bytes = await _html_to_pdf(html)
+    pdf_bytes = await _html_to_pdf(html, purchase_order_context=context)
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

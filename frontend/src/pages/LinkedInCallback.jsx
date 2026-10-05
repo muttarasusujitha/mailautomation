@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Linkedin, AlertTriangle, CheckCircle2, ArrowLeft } from 'lucide-react'
-import api from '../utils/api'
+import api, { acceptSession } from '../utils/api'
 import { parseLinkedInCallbackUrl } from '../utils/linkedinOAuth'
 
-export default function LinkedInCallback() {
+export default function LinkedInCallback({ onLogin }) {
+  const handled = useRef(false)
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const [status, setStatus] = useState({
@@ -15,7 +16,8 @@ export default function LinkedInCallback() {
 
   useEffect(() => {
     const { code, error, errorDescription, state } = parseLinkedInCallbackUrl(window.location.search)
-    const storedState = sessionStorage.getItem('ts_linkedin_oauth_state') || ''
+    if (handled.current) return
+    handled.current = true
 
     if (error) {
       setStatus({
@@ -35,7 +37,7 @@ export default function LinkedInCallback() {
       return
     }
 
-    if (!state || state !== storedState) {
+    if (!state) {
       setStatus({
         type: 'error',
         title: 'LinkedIn state validation failed',
@@ -50,16 +52,11 @@ export default function LinkedInCallback() {
       try {
         const response = await api.post('/auth/linkedin/oauth-callback', {
           code,
-          redirect_uri: `${window.location.origin}/auth/linkedin/callback`,
+          state,
         })
 
-        sessionStorage.setItem('ts_auth', JSON.stringify({
-          name: response.data.name,
-          email: response.data.email,
-          provider: 'linkedin',
-          provider_id: response.data.provider_id,
-          loggedIn: true,
-        }))
+        acceptSession(response.data)
+        if (onLogin) await onLogin()
 
         setStatus({
           type: 'success',

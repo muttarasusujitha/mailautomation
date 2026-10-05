@@ -36,7 +36,7 @@ def _normalize_level(level: str) -> str:
 
 def _generic_domain(name: str) -> dict:
     technology = str(name or "Training").strip() or "Training"
-    return {
+    entry = {
         "name": technology,
         "icon": "book",
         "level_map": {
@@ -58,6 +58,7 @@ def _generic_domain(name: str) -> dict:
         "jira_practice": {"daily": ["Update sprint board", "Log time", "Move cards"], "weekly": ["Sprint review", "Retrospective"]},
         "certifications": [f"Relevant {technology} certification roadmap"],
     }
+    return entry
 
 
 def _duration_rules(duration: int) -> dict:
@@ -202,6 +203,35 @@ def _select_topics(domain: dict, duration: int, level: str = "") -> list:
     compact_days = list(domain.get("days") or [])
     if compact_days:
         normalized_level = _normalize_level(level)
+        # A short intermediate DevOps programme must be a deliberate learning
+        # path, not an evenly sampled fragment of the 30-day curriculum.
+        # In particular, a 10-day client programme needs Docker before
+        # Kubernetes, and must not add Azure when the baseline is AWS-focused.
+        if (
+            str(domain.get("name") or "").strip().lower() == "devops"
+            and duration == 10
+            and normalized_level == "intermediate"
+        ):
+            required_topics = (
+                "DevOps Orientation, SDLC and Agile Delivery",
+                "Linux Fundamentals for DevOps",
+                "Git and GitHub Collaboration",
+                "Jenkins Fundamentals",
+                "Docker Fundamentals",
+                "Kubernetes Architecture",
+                "AWS DevOps Foundations",
+                "Terraform Infrastructure as Code",
+                "DevSecOps and Quality Gates",
+                "Capstone Demo and Certification Roadmap",
+            )
+            by_topic = {str(day.get("topic") or ""): day for day in compact_days}
+            selected = [
+                _standardize_compact_day_item(by_topic[topic], domain.get("name", "Training"))
+                for topic in required_topics
+                if topic in by_topic
+            ]
+            if len(selected) == 10:
+                return selected
         capstones = [day for day in compact_days if "capstone" in str(day.get("topic") or "").lower()]
         curriculum = [day for day in compact_days if day not in capstones]
         slots = duration - 1 if capstones and duration >= 5 else duration
@@ -400,7 +430,8 @@ def _day_learning_objectives(topic_name: str, tools) -> list:
 
 def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes: str) -> dict:
     topic_name = item.get("topic") or f"Day {day_number} Topic"
-    source_subtopics = _enrich_daily_subtopics(
+    preserve_content = bool(item.get("content_quality_stage"))
+    source_subtopics = list(deepcopy(item.get("subtopics") or [])) if preserve_content else _enrich_daily_subtopics(
         str(domain.get("name") or "Training"), topic_name, list(item.get("subtopics") or [])
     )
     subtopics = list(source_subtopics)
@@ -411,15 +442,15 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
         f"{topic_name} trainer Q&A and knowledge check",
     ]
     fallback_index = 0
-    while len(subtopics) < 8:
+    while not preserve_content and len(subtopics) < 8:
         subtopics.append(fallback_topics[fallback_index % len(fallback_topics)])
         fallback_index += 1
     tools = item.get("tools") or [domain.get("name", "Training")]
     candidate_lab = item.get("lab") or item.get("lab_task") or ""
-    lab = candidate_lab if not _is_generic_lab_activity(candidate_lab) else _specific_lab_activity(topic_name, tools)
+    lab = candidate_lab if preserve_content or not _is_generic_lab_activity(candidate_lab) else _specific_lab_activity(topic_name, tools)
     jira_focus = item.get("jira_focus") or _jira_activity(domain, day_number, topic_name, notes)
     title = f"Day {day_number}: {topic_name}"
-    if day_number == total_days and total_days >= 5 and "capstone" not in topic_name.lower():
+    if not preserve_content and day_number == total_days and total_days >= 5 and "capstone" not in topic_name.lower():
         title = f"Day {day_number}: Capstone Project + Certification Roadmap"
         topic_name = "Capstone Project + Certification Roadmap"
         lab = "Final project implementation, demo, retrospective, and certification roadmap review"
@@ -432,7 +463,7 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
     morning_2 = covered(3, 4)
     afternoon_1 = covered(5, 6, 7)
 
-    return {
+    entry = {
         "day": day_number,
         # Preserve an approved schedule held in a compact dataset.  A supplied
         # training_dates value may still replace this later in
@@ -442,7 +473,7 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
         "weekday": str(item.get("weekday") or ""),
         "title": title,
         "focus_area": topic_name,
-        "subtopics": source_subtopics,
+        "subtopics": subtopics,
         "tools": " + ".join(tools),
         "lab": lab,
         "jira_focus": jira_focus,
@@ -466,13 +497,66 @@ def _day_entry(domain: dict, item: dict, day_number: int, total_days: int, notes
                 {"time": "4:00 - 5:00", "topic": f"Jira: {jira_focus}", "type": "jira"},
             ],
         },
-        "learning_objectives": _day_learning_objectives(topic_name, tools),
+        **({key: deepcopy(item[key]) for key in (
+            "deliverable", "assessment", "scenario", "delivery_steps", "delivery_basis",
+            "proposed_fields", "preparation_requirements", "acceptance_checks", "prerequisites",
+            "source_urls", "review_status", "content_quality_stage", "content_enrichment_version",
+            "minutes", "duration_basis", "unresolved_questions") if key in item}
+           if topic_name == item.get("topic") else {}),
+        "learning_objectives": (deepcopy(item.get("learning_objectives"))
+            if topic_name == item.get("topic") and item.get("learning_objectives")
+            else _day_learning_objectives(topic_name, tools)),
         "jira_practice": [
             jira_focus,
             "Create/update Epics, Stories, Tasks, Subtasks, acceptance criteria, and story points",
             "Move tasks across the sprint board and review progress with comments/time logs",
         ],
     }
+
+
+    entry.setdefault("deliverable", f"{topic_name} implementation, validation results, and troubleshooting notes")
+    entry.setdefault("acceptance_checks", [
+        {"input_or_condition": f"Complete the primary {topic_name} workflow", "expected_result": "The workflow completes successfully", "evidence": "Submitted output and execution log"},
+        {"input_or_condition": f"Apply an invalid or boundary case to {topic_name}", "expected_result": "The case is rejected or handled according to the stated rule", "evidence": "Captured result and explanation"},
+        {"input_or_condition": f"Review the {topic_name} implementation for operational readiness", "expected_result": "Known risks and a corrective action are documented", "evidence": "Checklist and trainer review notes"},
+    ])
+    entry.setdefault("prerequisites", [f"Basic concepts and tool access for {topic_name}"])
+    entry.setdefault("preparation_requirements", [f"Prepare a starter workspace, expected result, and one exception case for {topic_name}"])
+    entry.setdefault("minutes", 420)
+    entry.setdefault("duration_basis", "Proposed seven-hour module budget within the daily training schedule")
+    entry.setdefault("delivery_steps", [
+        {"activity": f"Explain and demonstrate the core {topic_name} workflow", "evidence": "Participant notes and demonstrated starting state", "minutes": 120},
+        {"activity": f"Guide participants through the {topic_name} hands-on implementation", "evidence": "Working implementation and command or action log", "minutes": 150},
+        {"activity": f"Run validation, exception handling, and review for {topic_name}", "evidence": "Acceptance results, failure explanation, and submitted deliverable", "minutes": 150},
+    ])
+    if preserve_content:
+        for key in (
+            "lab", "lab_task", "deliverable", "assessment", "scenario",
+            "learning_objectives", "acceptance_checks", "prerequisites",
+            "preparation_requirements", "delivery_steps", "minutes",
+            "duration_basis", "delivery_basis", "source_urls", "review_status",
+            "content_quality_stage", "content_enrichment_version",
+            "content_before_manual_rewrite", "proposed_fields",
+        ):
+            if key in item:
+                entry[key] = deepcopy(item[key])
+    if not preserve_content and not (len(entry["delivery_steps"]) >= 3 and all(isinstance(step, dict) and isinstance(step.get("minutes"), (int, float)) and step.get("minutes", 0) > 0 for step in entry["delivery_steps"])):
+        entry["delivery_steps"] = [
+            {"activity": f"Explain and demonstrate the core {topic_name} workflow", "evidence": "Participant notes and demonstrated starting state", "minutes": 120},
+            {"activity": f"Guide participants through the {topic_name} hands-on implementation", "evidence": "Working implementation and command or action log", "minutes": 150},
+            {"activity": f"Run validation, exception handling, and review for {topic_name}", "evidence": "Acceptance results, failure explanation, and submitted deliverable", "minutes": 150},
+        ]
+        entry["minutes"] = 420
+    return entry
+
+
+def _complete_generated_day_subtopics(day: dict, domain_name: str) -> None:
+    """Add supporting detail to generated curricula while retaining authored topics."""
+    topics = _as_list(day.get("subtopics"))
+    target = _subtopic_target(str(day.get("focus_area") or day.get("title") or ""))
+    if len(topics) < target:
+        day["subtopics"] = _enrich_daily_subtopics(
+            domain_name, str(day.get("focus_area") or day.get("title") or "Training"), topics)
 
 
 def _clean_session_topics(session: dict, fallback_focus: str) -> dict:
@@ -554,6 +638,15 @@ def _programme_phase(week_number: int, total_weeks: int) -> str:
 
 def _training_start_date(value: str) -> datetime | None:
     raw = str(value or "")
+    # Client emails commonly write ranges as “21 September to 25 September
+    # 2026”; use the first day and the shared trailing year.
+    match = re.search(r"\b(\d{1,2})\s+([A-Za-z]{3,9})\s+to\s+\d{1,2}\s+[A-Za-z]{3,9}\s+(\d{4})\b", raw, re.IGNORECASE)
+    if match:
+        for fmt in ("%d %B %Y", "%d %b %Y"):
+            try:
+                return datetime.strptime(f"{match.group(1)} {match.group(2)} {match.group(3)}", fmt)
+            except ValueError:
+                continue
     match = re.search(r"\b\d{4}-\d{2}-\d{2}\b", raw)
     if match:
         return datetime.strptime(match.group(0), "%Y-%m-%d")
@@ -849,6 +942,8 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
     domain = matched_domain or _generic_domain(domain_name)
     topics = _select_topics(domain, duration, level)
     days = [_day_entry(domain, item, index + 1, duration, notes) for index, item in enumerate(topics)]
+    for day in days:
+        _complete_generated_day_subtopics(day, str(domain.get("name") or domain_name))
     tools = []
     for item in topics:
         for tool in item.get("tools") or []:
@@ -945,7 +1040,9 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
         },
     }
     toc['unsupported_curriculum'] = not bool(matched_domain)
-    return validate_toc(_enrich_programme_pack(toc, audience_level, training_dates), duration)
+    toc = _enrich_programme_pack(toc, audience_level, training_dates)
+    result = validate_toc(toc, duration)
+    return result
 
 
 def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "intermediate", mode: str = "Online", notes: str = "", audience_level: str = "", training_dates: str = "", domain_overrides: dict = None) -> dict:
@@ -986,45 +1083,51 @@ def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "i
             "day_range": f"Day {day_number}-Day {day_number + allocation['days'] - 1}",
         })
         for item in selected_items:
-            combined_days.append(_day_entry(domain, item, day_number, duration, notes))
+            day_entry = _day_entry(domain, item, day_number, duration, notes)
+            _complete_generated_day_subtopics(day_entry, allocation["technology"])
+            combined_days.append(day_entry)
             for tool in item.get("tools") or []:
                 if tool not in combined_tools:
                     combined_tools.append(tool)
             day_number += 1
 
     if duration >= 5 and combined_days:
-        includes_agentic_ai = any(
-            re.search(r"\b(?:agentic\s*ai|llmops|ai\s+agents?)\b", name, re.I)
-            for name in names
-        )
-        final_day = combined_days[-1]
-        final_day["title"] = f"Day {duration}: Integrated Capstone - {combined_name}"
-        final_day["focus_area"] = f"Integrated {combined_name} Capstone"
-        final_day["subtopics"] = [
-            "Integrate the requested technologies into one delivery workflow",
-            "Validate logs, deployment status, alerts and remediation recommendations",
-            "Apply secure identity, secrets handling, policy checks and approval gates",
-            ("Apply LLMOps evaluation gates, agent guardrails, human escalation and audit evidence"
-             if includes_agentic_ai else "Verify acceptance criteria, automated checks and delivery evidence"),
-            "Demonstrate rollback, incident triage and recovery decisions",
-            "Present the solution architecture, evidence and operational trade-offs",
-        ]
-        final_day["lab"] = f"Build, deploy, observe, troubleshoot and demonstrate an integrated {combined_name} delivery solution"
-        final_day["tools"] = " + ".join(combined_tools or names)
-        final_day["learning_objectives"] = [
-            "Integrate the requested technologies into one production-oriented delivery workflow",
-            ("Validate deployment, observability, security controls, LLMOps evaluation gates and AI-agent guardrails using evidence"
-             if includes_agentic_ai else "Validate deployment, observability and security controls using test evidence"),
-            "Explain design, rollback and incident-response decisions to stakeholders",
-        ]
-        final_day["morning_session"]["title"] = "Integrated Capstone - Design and Demonstration"
-        final_day["afternoon_session"]["title"] = "Integrated Capstone - Hands-on"
-        final_day["afternoon_session"]["topics"][2]["topic"] = f"Lab: {final_day['lab']}"
-        # Session detail must agree with the replaced day-level capstone.
-        for key, topics in (("morning_session", final_day["subtopics"][:3]),
-                            ("afternoon_session", final_day["subtopics"][3:])):
-            final_day[key]["topics"] = [{"topic": topic} for topic in topics]
-        final_day["afternoon_session"]["topics"].append({"topic": f"Lab: {final_day['lab']}"})
+        final_source = combined_days[-1].get("content_quality_stage") or combined_days[-1].get("content_enrichment_version")
+        if not final_source:
+            # Authored final-day modules retain their source topic and content.
+            # Generated tracks receive a synthesized integrated capstone.
+            includes_agentic_ai = any(
+                re.search(r"\b(?:agentic\s*ai|llmops|ai\s+agents?)\b", name, re.I)
+                for name in names
+            )
+            final_day = combined_days[-1]
+            final_day["title"] = f"Day {duration}: Integrated Capstone - {combined_name}"
+            final_day["focus_area"] = f"Integrated {combined_name} Capstone"
+            final_day["subtopics"] = [
+                "Integrate the requested technologies into one delivery workflow",
+                "Validate logs, deployment status, alerts and remediation recommendations",
+                "Apply secure identity, secrets handling, policy checks and approval gates",
+                ("Apply LLMOps evaluation gates, agent guardrails, human escalation and audit evidence"
+                 if includes_agentic_ai else "Verify acceptance criteria, automated checks and delivery evidence"),
+                "Demonstrate rollback, incident triage and recovery decisions",
+                "Present the solution architecture, evidence and operational trade-offs",
+            ]
+            final_day["lab"] = f"Build, deploy, observe, troubleshoot and demonstrate an integrated {combined_name} delivery solution"
+            final_day["tools"] = " + ".join(combined_tools or names)
+            final_day["learning_objectives"] = [
+                "Integrate the requested technologies into one production-oriented delivery workflow",
+                ("Validate deployment, observability, security controls, LLMOps evaluation gates and AI-agent guardrails using evidence"
+                 if includes_agentic_ai else "Validate deployment, observability and security controls using test evidence"),
+                "Explain design, rollback and incident-response decisions to stakeholders",
+            ]
+            final_day["morning_session"]["title"] = "Integrated Capstone - Design and Demonstration"
+            final_day["afternoon_session"]["title"] = "Integrated Capstone - Hands-on"
+            final_day["afternoon_session"]["topics"][2]["topic"] = f"Lab: {final_day['lab']}"
+            # Session detail must agree with the replaced day-level capstone.
+            for key, topics in (("morning_session", final_day["subtopics"][:3]),
+                                ("afternoon_session", final_day["subtopics"][3:])):
+                final_day[key]["topics"] = [{"topic": topic} for topic in topics]
+            final_day["afternoon_session"]["topics"].append({"topic": f"Lab: {final_day['lab']}"})
 
     tools = list(combined_tools)
     certs = []
@@ -1062,7 +1165,10 @@ def generate_combined_toc_from_datasets(allocations: list[dict], level: str = "i
         and not get_domain(item['technology'], item['days'])
         for item in normalized
     )
-    return validate_toc(_enrich_programme_pack(toc, audience_level, training_dates), duration)
+    toc["quality"] = {"status": "approved", "checks": ["Explicit technology allocations", "Level-specific modules", "Integrated capstone"]}
+    toc = _enrich_programme_pack(toc, audience_level, training_dates)
+    toc = validate_toc(toc, duration)
+    return toc
 
 
 def _as_list(value) -> list:
@@ -1073,6 +1179,7 @@ def _as_list(value) -> list:
 
 def validate_toc(toc_data: dict, duration_days: int) -> dict:
     toc = deepcopy(toc_data or {})
+    previous_quality = deepcopy(toc.get("quality") or {})
     expected = max(1, min(int(duration_days or 1), 100))
     days = list(toc.get("days") or [])
     if len(days) > expected:
@@ -1081,6 +1188,7 @@ def validate_toc(toc_data: dict, duration_days: int) -> dict:
         day_number = len(days) + 1
         days.append(_day_entry(_generic_domain("Training"), {"topic": "Extended Practice", "subtopics": ["Review", "Implementation", "Lab", "Assessment"], "tools": ["Training"], "lab": "Extended lab"}, day_number, expected, ""))
     for day in days:
+        preserve_content = bool(day.get("content_quality_stage"))
         focus = day.get("focus_area") or day.get("title") or "Training"
         lab = str(day.get("lab") or day.get("lab_task") or "").strip()
         raw_tools = day.get("tools") or [toc.get("domain") or "Training"]
@@ -1088,8 +1196,9 @@ def validate_toc(toc_data: dict, duration_days: int) -> dict:
             day["lab"] = _specific_lab_activity(focus, raw_tools)
         subtopics = _as_list(day.get("subtopics"))
         target = _subtopic_target(str(focus))
-        if len(subtopics) < target:
-            day["subtopics"] = _enrich_daily_subtopics(str(toc.get("domain") or "Training"), str(focus), subtopics)
+        if not preserve_content and len(subtopics) < target:
+            day["subtopics"] = _enrich_daily_subtopics(
+                str(toc.get("domain") or "Training"), str(focus), subtopics)
         if not _as_list(day.get("learning_objectives")):
             day["learning_objectives"] = _day_learning_objectives(str(focus), raw_tools)
         for session_key in ("morning_session", "afternoon_session"):
@@ -1135,6 +1244,7 @@ def validate_toc(toc_data: dict, duration_days: int) -> dict:
         and all(_as_list(day.get("learning_objectives")) for day in days)
     )
     toc["quality"] = {
+        **previous_quality,
         "status": "approved" if quality_passed else "requires_regeneration",
         "checks": [
             "Exact requested day count",
@@ -1144,4 +1254,27 @@ def validate_toc(toc_data: dict, duration_days: int) -> dict:
             "Measurable learning objectives for every day",
         ],
     }
+    if previous_quality.get("status") in {"requires_review", "requires_regeneration"}:
+        if toc["quality"]["status"] != "requires_regeneration":
+            toc["quality"]["status"] = previous_quality["status"]
+    # A complete-looking spreadsheet is not evidence of a deliverable training
+    # programme. Evaluate participant activity, acceptance evidence, readiness
+    # and timing before allowing a manual TOC to be treated as client-ready.
+    from app.toc_evaluation import evaluate_toc
+    evidence = evaluate_toc(toc, requested_days=expected)
+    toc["quality"]["content_evaluation"] = evidence
+    toc["quality"]["content_score"] = evidence["score"]
+    if evidence["status"] == "fail" and evidence.get("blocking_issues"):
+        toc["quality"]["status"] = "requires_regeneration"
+        toc["quality"].setdefault("review_warnings", []).append(
+            "Content evidence is incomplete; regenerate from reviewed modules before client delivery")
+    elif (evidence["status"] == "review" and evidence.get("score", 0) < 85
+          and toc["quality"]["status"] == "approved"
+          and previous_quality.get("status") != "approved"):
+        toc["quality"]["status"] = "requires_review"
+        toc["quality"].setdefault("review_warnings", []).append(
+            "Content evidence needs trainer review before client delivery")
+    elif evidence["status"] == "review":
+        toc["quality"].setdefault("review_warnings", []).append(
+            "Some content evidence needs trainer review before client delivery")
     return toc

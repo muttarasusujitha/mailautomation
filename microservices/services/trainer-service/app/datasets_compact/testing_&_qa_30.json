@@ -27,7 +27,55 @@
         "Jira"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "QA basics"
+      "lab_task": "QA basics",
+      "deliverable": "Participant submission for 'QA Fundamentals': QA basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: QA basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Testing Types; Test Plan; Test Cases; Defect Management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: QA basics.",
+        "Explain how the lab applies QA Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'QA Fundamentals' on a prepared training sample through this task: QA basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: QA basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Testing Types; Test Plan; Test Cases; Defect Management) and demonstrate the starting sample for: QA basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "QA basics",
+          "evidence": "Participant submission for 'QA Fundamentals': QA basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'QA basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: QA basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Testing Types; Test Plan; Test Cases; Defect Management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 2,
@@ -43,7 +91,55 @@
         "Jira"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: QA basics"
+      "lab_task": "Part 2 hands-on: QA basics",
+      "deliverable": "Participant submission for 'QA Fundamentals - Part 2': Part 2 hands-on: QA basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: QA basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Testing Types; Part 2: Test Plan; Part 2: Test Cases; Part 2: Defect Management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: QA basics.",
+        "Explain how the lab applies QA Fundamentals - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'QA Fundamentals - Part 2' on a prepared training sample through this task: Part 2 hands-on: QA basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: QA basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Testing Types; Part 2: Test Plan; Part 2: Test Cases; Part 2: Defect Management) and demonstrate the starting sample for: Part 2 hands-on: QA basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: QA basics",
+          "evidence": "Participant submission for 'QA Fundamentals - Part 2': Part 2 hands-on: QA basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: QA basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: QA basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Testing Types; Part 2: Test Plan; Part 2: Test Cases; Part 2: Defect Management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 3,
@@ -58,7 +154,55 @@
         "TestLink"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Manual test execution"
+      "lab_task": "Manual test execution",
+      "deliverable": "Participant submission for 'Manual Testing': Manual test execution. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Manual test execution. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test Design; Test Execution; Bug Reporting; Regression Testing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Manual test execution.",
+        "Explain how the lab applies Manual Testing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Manual Testing' on a prepared training sample through this task: Manual test execution.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Manual test execution",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Test Design; Test Execution; Bug Reporting; Regression Testing) and demonstrate the starting sample for: Manual test execution",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Manual test execution",
+          "evidence": "Participant submission for 'Manual Testing': Manual test execution. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Manual test execution' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Manual test execution. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test Design; Test Execution; Bug Reporting; Regression Testing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 4,
@@ -73,7 +217,55 @@
         "TestLink"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Manual test execution"
+      "lab_task": "Part 2 hands-on: Manual test execution",
+      "deliverable": "Participant submission for 'Manual Testing - Part 2': Part 2 hands-on: Manual test execution. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Manual test execution. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Test Design; Part 2: Test Execution; Part 2: Bug Reporting; Part 2: Regression Testing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Manual test execution.",
+        "Explain how the lab applies Manual Testing - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Manual Testing - Part 2' on a prepared training sample through this task: Part 2 hands-on: Manual test execution.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Manual test execution",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Test Design; Part 2: Test Execution; Part 2: Bug Reporting; Part 2: Regression Testing) and demonstrate the starting sample for: Part 2 hands-on: Manual test execution",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Manual test execution",
+          "evidence": "Participant submission for 'Manual Testing - Part 2': Part 2 hands-on: Manual test execution. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Manual test execution' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Manual test execution. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Test Design; Part 2: Test Execution; Part 2: Bug Reporting; Part 2: Regression Testing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 5,
@@ -88,7 +280,55 @@
         "Selenium"
       ],
       "jira_focus": "Sprint planning; review progress for Web Testing",
-      "lab_task": "Web app testing"
+      "lab_task": "Web app testing",
+      "deliverable": "Participant submission for 'Web Testing': Web app testing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Web app testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Web Elements; Locators; Navigation; Form Testing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Web app testing.",
+        "Explain how the lab applies Web Testing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Web Testing' on a prepared training sample through this task: Web app testing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Web app testing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Web Elements; Locators; Navigation; Form Testing) and demonstrate the starting sample for: Web app testing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Web app testing",
+          "evidence": "Participant submission for 'Web Testing': Web app testing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Web app testing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Web app testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Web Elements; Locators; Navigation; Form Testing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 6,
@@ -103,7 +343,55 @@
         "Selenium"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Web app testing"
+      "lab_task": "Part 2 hands-on: Web app testing",
+      "deliverable": "Participant submission for 'Web Testing - Part 2': Part 2 hands-on: Web app testing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Web app testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Web Elements; Part 2: Locators; Part 2: Navigation; Part 2: Form Testing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Web app testing.",
+        "Explain how the lab applies Web Testing - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Web Testing - Part 2' on a prepared training sample through this task: Part 2 hands-on: Web app testing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Web app testing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Web Elements; Part 2: Locators; Part 2: Navigation; Part 2: Form Testing) and demonstrate the starting sample for: Part 2 hands-on: Web app testing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Web app testing",
+          "evidence": "Participant submission for 'Web Testing - Part 2': Part 2 hands-on: Web app testing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Web app testing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Web app testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Web Elements; Part 2: Locators; Part 2: Navigation; Part 2: Form Testing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 7,
@@ -118,7 +406,55 @@
         "Selenium"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Selenium fundamentals"
+      "lab_task": "Selenium fundamentals",
+      "deliverable": "Participant submission for 'Selenium Basics': Selenium fundamentals. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Selenium fundamentals. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WebDriver; Locators; Actions; Waits). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Selenium fundamentals.",
+        "Explain how the lab applies Selenium Basics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Selenium Basics' on a prepared training sample through this task: Selenium fundamentals.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Selenium fundamentals",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (WebDriver; Locators; Actions; Waits) and demonstrate the starting sample for: Selenium fundamentals",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Selenium fundamentals",
+          "evidence": "Participant submission for 'Selenium Basics': Selenium fundamentals. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Selenium fundamentals' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Selenium fundamentals. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WebDriver; Locators; Actions; Waits). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 8,
@@ -133,7 +469,55 @@
         "Selenium"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Selenium fundamentals"
+      "lab_task": "Part 2 hands-on: Selenium fundamentals",
+      "deliverable": "Participant submission for 'Selenium Basics - Part 2': Part 2 hands-on: Selenium fundamentals. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Selenium fundamentals. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: WebDriver; Part 2: Locators; Part 2: Actions; Part 2: Waits). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Selenium fundamentals.",
+        "Explain how the lab applies Selenium Basics - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Selenium Basics - Part 2' on a prepared training sample through this task: Part 2 hands-on: Selenium fundamentals.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Selenium fundamentals",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: WebDriver; Part 2: Locators; Part 2: Actions; Part 2: Waits) and demonstrate the starting sample for: Part 2 hands-on: Selenium fundamentals",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Selenium fundamentals",
+          "evidence": "Participant submission for 'Selenium Basics - Part 2': Part 2 hands-on: Selenium fundamentals. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Selenium fundamentals' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Selenium fundamentals. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: WebDriver; Part 2: Locators; Part 2: Actions; Part 2: Waits). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 9,
@@ -147,7 +531,55 @@
         "Selenium"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Advanced Selenium"
+      "lab_task": "Advanced Selenium",
+      "deliverable": "Participant submission for 'Selenium Advanced': Advanced Selenium. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Advanced Selenium. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Page Object Model; Data-Driven Testing; Framework). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Advanced Selenium.",
+        "Explain how the lab applies Selenium Advanced and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Selenium Advanced' on a prepared training sample through this task: Advanced Selenium.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Advanced Selenium",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Page Object Model; Data-Driven Testing; Framework) and demonstrate the starting sample for: Advanced Selenium",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Advanced Selenium",
+          "evidence": "Participant submission for 'Selenium Advanced': Advanced Selenium. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Advanced Selenium' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Advanced Selenium. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Page Object Model; Data-Driven Testing; Framework). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 10,
@@ -161,7 +593,55 @@
         "Selenium"
       ],
       "jira_focus": "Sprint planning; review progress for Selenium Advanced",
-      "lab_task": "Part 2 hands-on: Advanced Selenium"
+      "lab_task": "Part 2 hands-on: Advanced Selenium",
+      "deliverable": "Participant submission for 'Selenium Advanced - Part 2': Part 2 hands-on: Advanced Selenium. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Advanced Selenium. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Page Object Model; Part 2: Data-Driven Testing; Part 2: Framework). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Advanced Selenium.",
+        "Explain how the lab applies Selenium Advanced - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Selenium Advanced - Part 2' on a prepared training sample through this task: Part 2 hands-on: Advanced Selenium.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Advanced Selenium",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Page Object Model; Part 2: Data-Driven Testing; Part 2: Framework) and demonstrate the starting sample for: Part 2 hands-on: Advanced Selenium",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Advanced Selenium",
+          "evidence": "Participant submission for 'Selenium Advanced - Part 2': Part 2 hands-on: Advanced Selenium. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Advanced Selenium' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Advanced Selenium. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Page Object Model; Part 2: Data-Driven Testing; Part 2: Framework). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 11,
@@ -176,7 +656,55 @@
         "Postman"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "API testing"
+      "lab_task": "API testing",
+      "deliverable": "Participant submission for 'API Testing with Postman': API testing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: API testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (REST API; Request/Response; Assertions; Collections). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: API testing.",
+        "Explain how the lab applies API Testing with Postman and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'API Testing with Postman' on a prepared training sample through this task: API testing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: API testing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (REST API; Request/Response; Assertions; Collections) and demonstrate the starting sample for: API testing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "API testing",
+          "evidence": "Participant submission for 'API Testing with Postman': API testing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'API testing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: API testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (REST API; Request/Response; Assertions; Collections). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 12,
@@ -191,7 +719,55 @@
         "Postman"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: API testing"
+      "lab_task": "Part 2 hands-on: API testing",
+      "deliverable": "Participant submission for 'API Testing with Postman - Part 2': Part 2 hands-on: API testing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: API testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: REST API; Part 2: Request/Response; Part 2: Assertions; Part 2: Collections). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: API testing.",
+        "Explain how the lab applies API Testing with Postman - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'API Testing with Postman - Part 2' on a prepared training sample through this task: Part 2 hands-on: API testing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: API testing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: REST API; Part 2: Request/Response; Part 2: Assertions; Part 2: Collections) and demonstrate the starting sample for: Part 2 hands-on: API testing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: API testing",
+          "evidence": "Participant submission for 'API Testing with Postman - Part 2': Part 2 hands-on: API testing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: API testing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: API testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: REST API; Part 2: Request/Response; Part 2: Assertions; Part 2: Collections). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 13,
@@ -206,7 +782,55 @@
         "Cucumber"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "API automation"
+      "lab_task": "API automation",
+      "deliverable": "Participant submission for 'API Testing with RestAssured': API automation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: API automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Java REST Client; BDD; Assertions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: API automation.",
+        "Explain how the lab applies API Testing with RestAssured and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'API Testing with RestAssured' on a prepared training sample through this task: API automation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: API automation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Java REST Client; BDD; Assertions) and demonstrate the starting sample for: API automation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "API automation",
+          "evidence": "Participant submission for 'API Testing with RestAssured': API automation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'API automation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: API automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Java REST Client; BDD; Assertions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 14,
@@ -221,7 +845,55 @@
         "Cucumber"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: API automation"
+      "lab_task": "Part 2 hands-on: API automation",
+      "deliverable": "Participant submission for 'API Testing with RestAssured - Part 2': Part 2 hands-on: API automation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: API automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Java REST Client; Part 2: BDD; Part 2: Assertions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: API automation.",
+        "Explain how the lab applies API Testing with RestAssured - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'API Testing with RestAssured - Part 2' on a prepared training sample through this task: Part 2 hands-on: API automation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: API automation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Java REST Client; Part 2: BDD; Part 2: Assertions) and demonstrate the starting sample for: Part 2 hands-on: API automation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: API automation",
+          "evidence": "Participant submission for 'API Testing with RestAssured - Part 2': Part 2 hands-on: API automation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: API automation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: API automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Java REST Client; Part 2: BDD; Part 2: Assertions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 15,
@@ -236,7 +908,55 @@
         "Gatling"
       ],
       "jira_focus": "Sprint planning; review progress for Performance Testing",
-      "lab_task": "Performance testing"
+      "lab_task": "Performance testing",
+      "deliverable": "Participant submission for 'Performance Testing': Performance testing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Performance testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Load Testing; Stress Testing; JMeter). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Performance testing.",
+        "Explain how the lab applies Performance Testing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance Testing' on a prepared training sample through this task: Performance testing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Performance testing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Load Testing; Stress Testing; JMeter) and demonstrate the starting sample for: Performance testing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Performance testing",
+          "evidence": "Participant submission for 'Performance Testing': Performance testing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Performance testing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Performance testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Load Testing; Stress Testing; JMeter). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 16,
@@ -251,7 +971,55 @@
         "Gatling"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Performance testing"
+      "lab_task": "Part 2 hands-on: Performance testing",
+      "deliverable": "Participant submission for 'Performance Testing - Part 2': Part 2 hands-on: Performance testing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Performance testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Load Testing; Part 2: Stress Testing; Part 2: JMeter). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Performance testing.",
+        "Explain how the lab applies Performance Testing - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance Testing - Part 2' on a prepared training sample through this task: Part 2 hands-on: Performance testing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Performance testing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Load Testing; Part 2: Stress Testing; Part 2: JMeter) and demonstrate the starting sample for: Part 2 hands-on: Performance testing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Performance testing",
+          "evidence": "Participant submission for 'Performance Testing - Part 2': Part 2 hands-on: Performance testing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Performance testing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Performance testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Load Testing; Part 2: Stress Testing; Part 2: JMeter). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 17,
@@ -265,7 +1033,55 @@
         "Appium"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Mobile automation"
+      "lab_task": "Mobile automation",
+      "deliverable": "Participant submission for 'Mobile Testing': Mobile automation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Mobile automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (AppiumBasics; iOS/Android; Native/Hybrid). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Mobile automation.",
+        "Explain how the lab applies Mobile Testing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Mobile Testing' on a prepared training sample through this task: Mobile automation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Mobile automation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (AppiumBasics; iOS/Android; Native/Hybrid) and demonstrate the starting sample for: Mobile automation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Mobile automation",
+          "evidence": "Participant submission for 'Mobile Testing': Mobile automation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Mobile automation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Mobile automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (AppiumBasics; iOS/Android; Native/Hybrid). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 18,
@@ -279,7 +1095,55 @@
         "Appium"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Mobile automation"
+      "lab_task": "Part 2 hands-on: Mobile automation",
+      "deliverable": "Participant submission for 'Mobile Testing - Part 2': Part 2 hands-on: Mobile automation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Mobile automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: AppiumBasics; Part 2: iOS/Android; Part 2: Native/Hybrid). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Mobile automation.",
+        "Explain how the lab applies Mobile Testing - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Mobile Testing - Part 2' on a prepared training sample through this task: Part 2 hands-on: Mobile automation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Mobile automation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: AppiumBasics; Part 2: iOS/Android; Part 2: Native/Hybrid) and demonstrate the starting sample for: Part 2 hands-on: Mobile automation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Mobile automation",
+          "evidence": "Participant submission for 'Mobile Testing - Part 2': Part 2 hands-on: Mobile automation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Mobile automation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Mobile automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: AppiumBasics; Part 2: iOS/Android; Part 2: Native/Hybrid). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 19,
@@ -293,7 +1157,55 @@
         "GitHub Actions"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Testing in CI/CD"
+      "lab_task": "Testing in CI/CD",
+      "deliverable": "Participant submission for 'CI/CD Integration': Testing in CI/CD. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Testing in CI/CD. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Jenkins; GitLab CI; GitHub Actions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Testing in CI/CD.",
+        "Explain how the lab applies CI/CD Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CI/CD Integration' on a prepared training sample through this task: Testing in CI/CD.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Testing in CI/CD",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Jenkins; GitLab CI; GitHub Actions) and demonstrate the starting sample for: Testing in CI/CD",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Testing in CI/CD",
+          "evidence": "Participant submission for 'CI/CD Integration': Testing in CI/CD. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Testing in CI/CD' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Testing in CI/CD. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Jenkins; GitLab CI; GitHub Actions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 20,
@@ -307,7 +1219,55 @@
         "GitHub Actions"
       ],
       "jira_focus": "Sprint planning; review progress for CI/CD Integration",
-      "lab_task": "Part 2 hands-on: Testing in CI/CD"
+      "lab_task": "Part 2 hands-on: Testing in CI/CD",
+      "deliverable": "Participant submission for 'CI/CD Integration - Part 2': Part 2 hands-on: Testing in CI/CD. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Testing in CI/CD. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Jenkins; Part 2: GitLab CI; Part 2: GitHub Actions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Testing in CI/CD.",
+        "Explain how the lab applies CI/CD Integration - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CI/CD Integration - Part 2' on a prepared training sample through this task: Part 2 hands-on: Testing in CI/CD.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Testing in CI/CD",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Jenkins; Part 2: GitLab CI; Part 2: GitHub Actions) and demonstrate the starting sample for: Part 2 hands-on: Testing in CI/CD",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Testing in CI/CD",
+          "evidence": "Participant submission for 'CI/CD Integration - Part 2': Part 2 hands-on: Testing in CI/CD. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Testing in CI/CD' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Testing in CI/CD. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Jenkins; Part 2: GitLab CI; Part 2: GitHub Actions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 21,
@@ -322,7 +1282,55 @@
         "Selenium"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Behavior-driven testing"
+      "lab_task": "Behavior-driven testing",
+      "deliverable": "Participant submission for 'BDD & Cucumber': Behavior-driven testing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Behavior-driven testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Gherkin; Feature Files; Step Definitions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Behavior-driven testing.",
+        "Explain how the lab applies BDD & Cucumber and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'BDD & Cucumber' on a prepared training sample through this task: Behavior-driven testing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Behavior-driven testing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Gherkin; Feature Files; Step Definitions) and demonstrate the starting sample for: Behavior-driven testing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Behavior-driven testing",
+          "evidence": "Participant submission for 'BDD & Cucumber': Behavior-driven testing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Behavior-driven testing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Behavior-driven testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Gherkin; Feature Files; Step Definitions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 22,
@@ -337,7 +1345,55 @@
         "Selenium"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Behavior-driven testing"
+      "lab_task": "Part 2 hands-on: Behavior-driven testing",
+      "deliverable": "Participant submission for 'BDD & Cucumber - Part 2': Part 2 hands-on: Behavior-driven testing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Behavior-driven testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Gherkin; Part 2: Feature Files; Part 2: Step Definitions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Behavior-driven testing.",
+        "Explain how the lab applies BDD & Cucumber - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'BDD & Cucumber - Part 2' on a prepared training sample through this task: Part 2 hands-on: Behavior-driven testing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Behavior-driven testing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Gherkin; Part 2: Feature Files; Part 2: Step Definitions) and demonstrate the starting sample for: Part 2 hands-on: Behavior-driven testing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Behavior-driven testing",
+          "evidence": "Participant submission for 'BDD & Cucumber - Part 2': Part 2 hands-on: Behavior-driven testing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Behavior-driven testing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Behavior-driven testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Gherkin; Part 2: Feature Files; Part 2: Step Definitions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 23,
@@ -351,7 +1407,55 @@
         "TestNG"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Java test frameworks"
+      "lab_task": "Java test frameworks",
+      "deliverable": "Participant submission for 'Test Frameworks': Java test frameworks. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Java test frameworks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (TestNG; Junit; Fixture Management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Java test frameworks.",
+        "Explain how the lab applies Test Frameworks and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Test Frameworks' on a prepared training sample through this task: Java test frameworks.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Java test frameworks",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (TestNG; Junit; Fixture Management) and demonstrate the starting sample for: Java test frameworks",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Java test frameworks",
+          "evidence": "Participant submission for 'Test Frameworks': Java test frameworks. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Java test frameworks' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Java test frameworks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (TestNG; Junit; Fixture Management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 24,
@@ -365,7 +1469,55 @@
         "TestNG"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Java test frameworks"
+      "lab_task": "Part 2 hands-on: Java test frameworks",
+      "deliverable": "Participant submission for 'Test Frameworks - Part 2': Part 2 hands-on: Java test frameworks. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Java test frameworks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: TestNG; Part 2: Junit; Part 2: Fixture Management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Java test frameworks.",
+        "Explain how the lab applies Test Frameworks - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Test Frameworks - Part 2' on a prepared training sample through this task: Part 2 hands-on: Java test frameworks.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Java test frameworks",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: TestNG; Part 2: Junit; Part 2: Fixture Management) and demonstrate the starting sample for: Part 2 hands-on: Java test frameworks",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Java test frameworks",
+          "evidence": "Participant submission for 'Test Frameworks - Part 2': Part 2 hands-on: Java test frameworks. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Java test frameworks' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Java test frameworks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: TestNG; Part 2: Junit; Part 2: Fixture Management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 25,
@@ -380,7 +1532,55 @@
         "SLF4J"
       ],
       "jira_focus": "Sprint planning; review progress for Debugging & Logging",
-      "lab_task": "Debugging failures"
+      "lab_task": "Debugging failures",
+      "deliverable": "Participant submission for 'Debugging & Logging': Debugging failures. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Debugging failures. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs Analysis; Screenshots; Video Capture). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Debugging failures.",
+        "Explain how the lab applies Debugging & Logging and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Debugging & Logging' on a prepared training sample through this task: Debugging failures.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Debugging failures",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Logs Analysis; Screenshots; Video Capture) and demonstrate the starting sample for: Debugging failures",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Debugging failures",
+          "evidence": "Participant submission for 'Debugging & Logging': Debugging failures. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Debugging failures' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Debugging failures. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs Analysis; Screenshots; Video Capture). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 26,
@@ -395,7 +1595,55 @@
         "SLF4J"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Debugging failures"
+      "lab_task": "Part 2 hands-on: Debugging failures",
+      "deliverable": "Participant submission for 'Debugging & Logging - Part 2': Part 2 hands-on: Debugging failures. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Debugging failures. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Logs Analysis; Part 2: Screenshots; Part 2: Video Capture). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Debugging failures.",
+        "Explain how the lab applies Debugging & Logging - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Debugging & Logging - Part 2' on a prepared training sample through this task: Part 2 hands-on: Debugging failures.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Debugging failures",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Logs Analysis; Part 2: Screenshots; Part 2: Video Capture) and demonstrate the starting sample for: Part 2 hands-on: Debugging failures",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Debugging failures",
+          "evidence": "Participant submission for 'Debugging & Logging - Part 2': Part 2 hands-on: Debugging failures. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Debugging failures' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Debugging failures. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Logs Analysis; Part 2: Screenshots; Part 2: Video Capture). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 27,
@@ -410,7 +1658,55 @@
         "JDBC"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Database test automation"
+      "lab_task": "Database test automation",
+      "deliverable": "Participant submission for 'Database Testing': Database test automation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Database test automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL Queries; Data Validation; JDBC). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Database test automation.",
+        "Explain how the lab applies Database Testing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Database Testing' on a prepared training sample through this task: Database test automation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Database test automation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SQL Queries; Data Validation; JDBC) and demonstrate the starting sample for: Database test automation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Database test automation",
+          "evidence": "Participant submission for 'Database Testing': Database test automation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Database test automation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Database test automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL Queries; Data Validation; JDBC). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 28,
@@ -425,7 +1721,55 @@
         "JDBC"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Database test automation"
+      "lab_task": "Part 2 hands-on: Database test automation",
+      "deliverable": "Participant submission for 'Database Testing - Part 2': Part 2 hands-on: Database test automation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Database test automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: SQL Queries; Part 2: Data Validation; Part 2: JDBC). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Database test automation.",
+        "Explain how the lab applies Database Testing - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Database Testing - Part 2' on a prepared training sample through this task: Part 2 hands-on: Database test automation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Database test automation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: SQL Queries; Part 2: Data Validation; Part 2: JDBC) and demonstrate the starting sample for: Part 2 hands-on: Database test automation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Database test automation",
+          "evidence": "Participant submission for 'Database Testing - Part 2': Part 2 hands-on: Database test automation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Database test automation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Database test automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: SQL Queries; Part 2: Data Validation; Part 2: JDBC). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 29,
@@ -439,7 +1783,55 @@
         "ExtentReports"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Advanced testing"
+      "lab_task": "Advanced testing",
+      "deliverable": "Participant submission for 'Advanced Topics': Advanced testing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Advanced testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test Optimization; Parallel Execution; Reporting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Advanced testing.",
+        "Explain how the lab applies Advanced Topics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Topics' on a prepared training sample through this task: Advanced testing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Advanced testing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Test Optimization; Parallel Execution; Reporting) and demonstrate the starting sample for: Advanced testing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Advanced testing",
+          "evidence": "Participant submission for 'Advanced Topics': Advanced testing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Advanced testing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Advanced testing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test Optimization; Parallel Execution; Reporting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 30,
@@ -453,7 +1845,55 @@
         "ExtentReports"
       ],
       "jira_focus": "Sprint planning; review progress for Advanced Topics",
-      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review",
+      "deliverable": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test Optimization; Parallel Execution; Reporting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Final project implementation, demo, retrospective, and certification roadmap review.",
+        "Explain how the lab applies Capstone Project - Part 2 + Certification Roadmap and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Capstone Project - Part 2 + Certification Roadmap' on a prepared training sample through this task: Final project implementation, demo, retrospective, and certification roadmap review.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Final project implementation, demo, retrospective, and certification roadmap review",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Test Optimization; Parallel Execution; Reporting) and demonstrate the starting sample for: Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Final project implementation, demo, retrospective, and certification roadmap review' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Test Optimization; Parallel Execution; Reporting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     }
   ],
   "aliases": [
@@ -470,5 +1910,10 @@
   "official_sources": [
     "https://www.istqb.org/certifications/certified-tester-foundation-level"
   ],
-  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits.",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

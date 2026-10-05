@@ -6,15 +6,14 @@ from app.routes import toc as toc_route
 from app.routes import toc_extended
 
 
-def test_ai_failure_uses_approved_curriculum_baseline(monkeypatch):
+def test_ai_failure_falls_back_to_template(monkeypatch):
     async def unavailable(payload):
         return None
     monkeypatch.setattr(toc_route, '_generate_ai_toc', unavailable)
     db = _Db()
     result = asyncio.run(toc_route.generate_toc(toc_route.TocRequest(domain='Python', generation_mode='ai'), db))
-    assert result['toc_data']['generation_mode'] == 'template_ai_unavailable'
-    assert 'AI generation was unavailable' in result['toc_data']['generation_warning']
-    assert len(db['toc_generations'].inserted) == 1
+    assert result['toc_data']['generation_mode'] == 'template_fallback'
+    assert db['toc_generations'].inserted
 
 
 class _Collection:

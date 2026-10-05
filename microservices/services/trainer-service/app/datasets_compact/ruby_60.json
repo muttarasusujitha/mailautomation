@@ -5,41 +5,2212 @@
   "program_title": "Ruby Programming - Fundamentals to Advanced Application Development",
   "level": "Beginner to Advanced",
   "mode": "Online",
-  "aliases": ["Ruby", "Ruby Programming", "Ruby Language", "Advanced Ruby"],
-  "tools": ["Ruby", "IRB", "Visual Studio Code", "RubyGems", "Bundler", "Rake", "Git", "GitHub", "RSpec", "Pry"],
-  "certifications": ["Ruby Association Certified Ruby Programmer Silver", "Ruby Association Certified Ruby Programmer Gold"],
+  "aliases": [
+    "Ruby",
+    "Ruby Programming",
+    "Ruby Language",
+    "Advanced Ruby"
+  ],
+  "tools": [
+    "Ruby",
+    "IRB",
+    "Visual Studio Code",
+    "RubyGems",
+    "Bundler",
+    "Rake",
+    "Git",
+    "GitHub",
+    "RSpec",
+    "Pry"
+  ],
+  "certifications": [
+    "Ruby Association Certified Ruby Programmer Silver",
+    "Ruby Association Certified Ruby Programmer Gold"
+  ],
   "days": [
-    {"day":1,"topic":"Ruby Introduction and Environment Setup","subtopics":["Ruby philosophy and use cases","installation/version check","IRB","Ruby files","syntax/comments","puts/print/p/gets","program structure"],"tools":["Ruby","IRB","Visual Studio Code"],"lab_task":"Set up Ruby and create interactive input/output programs"},
-    {"day":2,"topic":"Variables, Constants and Data Types","subtopics":["local/instance/class/global variables","constants","dynamic typing","Integer/Float/String/Symbol","booleans and nil","Array/Hash/Range","conversion","object identity","everything is an object"],"tools":["Ruby","IRB"],"lab_task":"Create programs using Ruby variables, types, and conversions"},
-    {"day":3,"topic":"Operators and Expressions","subtopics":["arithmetic/assignment/comparison/logical/bitwise operators","range and spaceship operators","precedence","parallel assignment","conditional assignment","short-circuiting","truthiness","nil/false"],"tools":["Ruby","IRB"],"lab_task":"Build calculator and comparison programs"},
-    {"day":4,"topic":"Conditional Statements and Control Flow","subtopics":["if/elsif/else/unless","modifier conditions","case/when","range conditions","pattern matching awareness","ternary","nested conditions","conditional returns"],"tools":["Ruby"],"lab_task":"Create grading, eligibility, and menu-driven applications"},
-    {"day":5,"topic":"Loops and Iteration","subtopics":["while/until/for","loop do","times/upto/downto/step","each/each_with_index","break/next/redo","nested loops","ranges and collection iteration"],"tools":["Ruby"],"lab_task":"Develop series, patterns, and collection iteration programs"},
-    {"day":6,"topic":"Strings and Symbols","subtopics":["quoted/multiline/Heredoc strings","interpolation","concatenation/repetition","index/slice/compare","string methods","split/join/replace/search","regex basics","symbols","String versus Symbol"],"tools":["Ruby","IRB"],"lab_task":"Build palindrome, word-frequency, and text-transformation programs"},
-    {"day":7,"topic":"Arrays, Hashes and Ranges","subtopics":["array indexing/slicing/update/removal","nested arrays","hash keys/values","symbol keys/default values","hash updates/deletion/iteration","inclusive/exclusive ranges"],"tools":["Ruby"],"lab_task":"Create a student-record manager using arrays, hashes, and ranges"},
-    {"day":8,"topic":"Enumerable and Collection Processing","subtopics":["Enumerable","each/map/collect","select/filter/reject","find/detect","reduce/inject","any/all/none/one","count/min/max","sort/sort_by","group_by","partition","each_slice/each_cons"],"tools":["Ruby"],"lab_task":"Analyze data with filtering, grouping, sorting, and aggregation"},
-    {"day":9,"topic":"Methods and Parameters","subtopics":["definition/invocation/returns","implicit/explicit return","positional/default/keyword parameters","required keywords","splat/double splat","method scope","predicate/bang methods","aliasing","visibility"],"tools":["Ruby"],"lab_task":"Build reusable methods with optional, keyword, and variable parameters"},
-    {"day":10,"topic":"Blocks, Procs and Lambdas","subtopics":["do-end and brace blocks","yield/block_given","passing blocks","Proc","lambdas","Proc versus lambda","arity","closures","captured variables","symbol-to-proc","higher-order programming"],"tools":["Ruby","IRB"],"lab_task":"Create data processors using blocks, Procs, and lambdas"},
-    {"day":11,"topic":"Object-Oriented Programming","subtopics":["classes/objects","instance variables/methods","initialize","attributes","attr_reader/writer/accessor","class variables/methods","self","encapsulation","object collaboration"],"tools":["Ruby"],"lab_task":"Develop an employee management system with classes and encapsulation"},
-    {"day":12,"topic":"Inheritance, Polymorphism and Visibility","subtopics":["superclass/subclass","super","overriding","constructor inheritance","polymorphism","duck typing","public/protected/private","method lookup","class hierarchy","is_a/kind_of/respond_to"],"tools":["Ruby"],"lab_task":"Create a payment hierarchy using inheritance and duck typing"},
-    {"day":13,"topic":"Modules and Mixins","subtopics":["modules","module methods","namespacing","mixins","include/extend/prepend","constants","nesting","composition versus inheritance","lookup","module_function","dependency organization"],"tools":["Ruby"],"lab_task":"Create reusable authentication and logging mixins"},
-    {"day":14,"topic":"Exception Handling","subtopics":["Exception hierarchy","StandardError","begin/rescue/else/ensure","raise","custom errors","multiple rescue","exception objects/backtrace","retry awareness","propagation","best practices"],"tools":["Ruby"],"lab_task":"Build validation with built-in and custom exceptions"},
-    {"day":15,"topic":"File and Directory Handling","subtopics":["File open/read/write/append","file modes","readlines/foreach","existence/metadata","Directory","create/list paths","delete","resource blocks"],"tools":["Ruby"],"lab_task":"Build a command-line file management application"},
-    {"day":16,"topic":"Regular Expressions","subtopics":["Regexp","literals","classes/quantifiers/anchors/groups/alternation","captures and MatchData","match/scan/grep","sub/gsub/split","email validation","data extraction"],"tools":["Ruby","IRB"],"lab_task":"Validate and extract structured text using regular expressions"},
-    {"day":17,"topic":"RubyGems, Bundler and Dependencies","subtopics":["RubyGems","gem commands","versions","Gemfile","Bundler","bundle install/update","Gemfile.lock","semantic versioning","dependency resolution","simple gems","gemspec"],"tools":["RubyGems","Bundler"],"lab_task":"Manage dependencies and package a utility as a gem"},
-    {"day":18,"topic":"JSON, YAML and Data Serialization","subtopics":["serialization","JSON parse/generate","hash mapping","YAML read/write","configuration","CSV parse/generate","structured data","serialization safety"],"tools":["Ruby JSON Library","YAML","CSV"],"lab_task":"Read, transform, and write JSON, YAML, and CSV datasets"},
-    {"day":19,"topic":"HTTP and REST API Integration","subtopics":["HTTP/HTTPS","REST and URI","Net::HTTP","GET/POST/PUT/PATCH/DELETE","headers/bodies/status codes","JSON responses","Bearer auth","API errors/timeouts"],"tools":["Net::HTTP","Postman"],"lab_task":"Build a Ruby REST client with CRUD operations"},
-    {"day":20,"topic":"Database Programming","subtopics":["relational database/SQL","SQLite integration","connections","CRUD","parameterized queries","transactions","database errors","ORM/Active Record awareness","validation","connection management"],"tools":["SQLite","Ruby SQLite3 Gem"],"lab_task":"Build a Ruby CRUD application with SQLite"},
-    {"day":21,"topic":"Metaprogramming and Reflection","subtopics":["reflection","introspection","methods/instance_variables/class","send/public_send","define_method","method_missing/respond_to_missing","class_eval/instance_eval","dynamic methods","open classes","DSLs","risks"],"tools":["Ruby","IRB"],"lab_task":"Build a small internal DSL with dynamic methods and reflection"},
-    {"day":22,"topic":"Advanced Ruby Object Model","subtopics":["Object/BasicObject/Class/Module","eigenclasses","singleton methods","lookup chain/ancestors","dup/clone/freeze","identity","equal/eql/==/hash"],"tools":["Ruby","IRB"],"lab_task":"Inspect object model and implement custom equality/hashing"},
-    {"day":23,"topic":"Threads and Concurrency","subtopics":["threads/lifecycle/join/value","shared state/races","Mutex","synchronization","Queue","thread-safe communication","deadlocks","Global VM Lock","CPU/I/O tasks","thread errors"],"tools":["Ruby Thread API"],"lab_task":"Build a concurrent job processor using threads and queues"},
-    {"day":24,"topic":"Fibers and Asynchronous Programming","subtopics":["Fibers","yield/resume","cooperative concurrency","Fibers versus threads","Fiber Scheduler","non-blocking I/O awareness","event-driven design","task coordination"],"tools":["Ruby Fiber API"],"lab_task":"Create cooperative concurrent tasks with Ruby Fibers"},
-    {"day":25,"topic":"Testing with Minitest and RSpec","subtopics":["unit testing/TDD","Minitest","assertions/setup/teardown","RSpec describe/context/it/expect","matchers/hooks/shared examples","doubles/mocks/stubs/spies","exception tests","coverage"],"tools":["RSpec","Minitest"],"lab_task":"Write an automated test suite in RSpec and Minitest"},
-    {"day":26,"topic":"Debugging and Logging","subtopics":["debugging strategy","IRB/Pry","breakpoints","inspection/call stack","exception debugging","Logger","log levels","structured logs","diagnostics","error reporting","performance troubleshooting"],"tools":["Pry","Ruby Debug","Logger"],"lab_task":"Debug a faulty app and add structured logging"},
-    {"day":27,"topic":"Performance and Memory Optimization","subtopics":["memory model","allocations","garbage collection","retention/leaks","CPU/memory profiling","Benchmark","collection/string optimization","frozen strings","complexity","caching","measurement"],"tools":["Benchmark","Ruby Profiler Tools"],"lab_task":"Benchmark and optimize execution time and memory allocation"},
-    {"day":28,"topic":"Rake and Task Automation","subtopics":["Rakefile","tasks/dependencies/namespaces","default/file/environment tasks","arguments","automation scripts","build/database tasks","scheduled automation"],"tools":["Rake"],"lab_task":"Automate setup, tests, and data-processing tasks"},
-    {"day":29,"topic":"Security and Secure Ruby Programming","subtopics":["validation/sanitization","SQL/command/path injection awareness","sensitive data","password hashing","environment/secrets","HTTPS","auth/authz","dependency vulnerabilities","safe serialization","updates"],"tools":["Bundler Audit","RubyGems"],"lab_task":"Review and harden a Ruby application"},
-    {"day":30,"topic":"Design Patterns and Clean Ruby","subtopics":["SOLID","DRY/KISS/YAGNI","composition","dependency injection","Factory/Strategy/Observer/Decorator/Adapter/Command","service objects","clean code"],"tools":["Ruby"],"lab_task":"Refactor an app using patterns and SOLID"},
-    {"day":31,"topic":"Git, Code Quality and Project Workflow","subtopics":["Git/GitHub","commits/branches/PRs","reviews","Ruby Style Guide","linting","RuboCop","formatting","README","semantic versioning","release workflow"],"tools":["Git","GitHub","RuboCop"],"lab_task":"Version-control, lint, review, and document a Ruby project"},
-    {"day":32,"topic":"Ruby Capstone Project","subtopics":["requirements/design","classes/modules","Enumerable","files","JSON/CSV","REST APIs","database","exceptions","concurrency","tests","logging","security","performance","Bundler","Git","documentation","packaging"],"tools":["Ruby","RubyGems","Bundler","RSpec","SQLite","Postman","Git","GitHub"],"lab_task":"Deliver a complete tested and packaged Ruby application"}
-  ]
+    {
+      "day": 1,
+      "topic": "Ruby Introduction and Environment Setup",
+      "subtopics": [
+        "Ruby philosophy and use cases",
+        "installation/version check",
+        "IRB",
+        "Ruby files",
+        "syntax/comments",
+        "puts/print/p/gets",
+        "program structure"
+      ],
+      "tools": [
+        "Ruby",
+        "IRB",
+        "Visual Studio Code"
+      ],
+      "lab_task": "Set up Ruby and create interactive input/output programs",
+      "deliverable": "Participant submission for 'Ruby Introduction and Environment Setup': Set up Ruby and create interactive input/output programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Ruby and create interactive input/output programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Ruby philosophy and use cases; installation/version check; IRB; Ruby files; syntax/comments; puts/print/p/gets; program structure). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Set up Ruby and create interactive input/output programs.",
+        "Explain how the lab applies Ruby Introduction and Environment Setup and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Ruby Introduction and Environment Setup' on a prepared training sample through this task: Set up Ruby and create interactive input/output programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Ruby and create interactive input/output programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Ruby philosophy and use cases; installation/version check; IRB; Ruby files; syntax/comments; puts/print/p/gets; program structure) and demonstrate the starting sample for: Set up Ruby and create interactive input/output programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Ruby and create interactive input/output programs",
+          "evidence": "Participant submission for 'Ruby Introduction and Environment Setup': Set up Ruby and create interactive input/output programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Ruby and create interactive input/output programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Ruby and create interactive input/output programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Ruby philosophy and use cases; installation/version check; IRB; Ruby files; syntax/comments; puts/print/p/gets; program structure). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Variables, Constants and Data Types",
+      "subtopics": [
+        "local/instance/class/global variables",
+        "constants",
+        "dynamic typing",
+        "Integer/Float/String/Symbol",
+        "booleans and nil",
+        "Array/Hash/Range",
+        "conversion",
+        "object identity",
+        "everything is an object"
+      ],
+      "tools": [
+        "Ruby",
+        "IRB"
+      ],
+      "lab_task": "Create programs using Ruby variables, types, and conversions",
+      "deliverable": "Participant submission for 'Variables, Constants and Data Types': Create programs using Ruby variables, types, and conversions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create programs using Ruby variables, types, and conversions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (local/instance/class/global variables; constants; dynamic typing; Integer/Float/String/Symbol; booleans and nil; Array/Hash/Range; conversion; object identity; everything is an object). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create programs using Ruby variables, types, and conversions.",
+        "Explain how the lab applies Variables, Constants and Data Types and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Variables, Constants and Data Types' on a prepared training sample through this task: Create programs using Ruby variables, types, and conversions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create programs using Ruby variables, types, and conversions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (local/instance/class/global variables; constants; dynamic typing; Integer/Float/String/Symbol; booleans and nil; Array/Hash/Range; conversion; object identity; everything is an object) and demonstrate the starting sample for: Create programs using Ruby variables, types, and conversions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create programs using Ruby variables, types, and conversions",
+          "evidence": "Participant submission for 'Variables, Constants and Data Types': Create programs using Ruby variables, types, and conversions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create programs using Ruby variables, types, and conversions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create programs using Ruby variables, types, and conversions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (local/instance/class/global variables; constants; dynamic typing; Integer/Float/String/Symbol; booleans and nil; Array/Hash/Range; conversion; object identity; everything is an object). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Operators and Expressions",
+      "subtopics": [
+        "arithmetic/assignment/comparison/logical/bitwise operators",
+        "range and spaceship operators",
+        "precedence",
+        "parallel assignment",
+        "conditional assignment",
+        "short-circuiting",
+        "truthiness",
+        "nil/false"
+      ],
+      "tools": [
+        "Ruby",
+        "IRB"
+      ],
+      "lab_task": "Build calculator and comparison programs",
+      "deliverable": "Participant submission for 'Operators and Expressions': Build calculator and comparison programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build calculator and comparison programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (arithmetic/assignment/comparison/logical/bitwise operators; range and spaceship operators; precedence; parallel assignment; conditional assignment; short-circuiting; truthiness; nil/false). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build calculator and comparison programs.",
+        "Explain how the lab applies Operators and Expressions and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Operators and Expressions' on a prepared training sample through this task: Build calculator and comparison programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build calculator and comparison programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (arithmetic/assignment/comparison/logical/bitwise operators; range and spaceship operators; precedence; parallel assignment; conditional assignment; short-circuiting; truthiness; nil/false) and demonstrate the starting sample for: Build calculator and comparison programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build calculator and comparison programs",
+          "evidence": "Participant submission for 'Operators and Expressions': Build calculator and comparison programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build calculator and comparison programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build calculator and comparison programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (arithmetic/assignment/comparison/logical/bitwise operators; range and spaceship operators; precedence; parallel assignment; conditional assignment; short-circuiting; truthiness; nil/false). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Conditional Statements and Control Flow",
+      "subtopics": [
+        "if/elsif/else/unless",
+        "modifier conditions",
+        "case/when",
+        "range conditions",
+        "pattern matching awareness",
+        "ternary",
+        "nested conditions",
+        "conditional returns"
+      ],
+      "tools": [
+        "Ruby"
+      ],
+      "lab_task": "Create grading, eligibility, and menu-driven applications",
+      "deliverable": "Participant submission for 'Conditional Statements and Control Flow': Create grading, eligibility, and menu-driven applications. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create grading, eligibility, and menu-driven applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if/elsif/else/unless; modifier conditions; case/when; range conditions; pattern matching awareness; ternary; nested conditions; conditional returns). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create grading, eligibility, and menu-driven applications.",
+        "Explain how the lab applies Conditional Statements and Control Flow and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Conditional Statements and Control Flow' on a prepared training sample through this task: Create grading, eligibility, and menu-driven applications.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create grading, eligibility, and menu-driven applications",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (if/elsif/else/unless; modifier conditions; case/when; range conditions; pattern matching awareness; ternary; nested conditions; conditional returns) and demonstrate the starting sample for: Create grading, eligibility, and menu-driven applications",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create grading, eligibility, and menu-driven applications",
+          "evidence": "Participant submission for 'Conditional Statements and Control Flow': Create grading, eligibility, and menu-driven applications. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create grading, eligibility, and menu-driven applications' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create grading, eligibility, and menu-driven applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if/elsif/else/unless; modifier conditions; case/when; range conditions; pattern matching awareness; ternary; nested conditions; conditional returns). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Loops and Iteration",
+      "subtopics": [
+        "while/until/for",
+        "loop do",
+        "times/upto/downto/step",
+        "each/each_with_index",
+        "break/next/redo",
+        "nested loops",
+        "ranges and collection iteration"
+      ],
+      "tools": [
+        "Ruby"
+      ],
+      "lab_task": "Develop series, patterns, and collection iteration programs",
+      "deliverable": "Participant submission for 'Loops and Iteration': Develop series, patterns, and collection iteration programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop series, patterns, and collection iteration programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (while/until/for; loop do; times/upto/downto/step; each/each_with_index; break/next/redo; nested loops; ranges and collection iteration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop series, patterns, and collection iteration programs.",
+        "Explain how the lab applies Loops and Iteration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Loops and Iteration' on a prepared training sample through this task: Develop series, patterns, and collection iteration programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop series, patterns, and collection iteration programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (while/until/for; loop do; times/upto/downto/step; each/each_with_index; break/next/redo; nested loops; ranges and collection iteration) and demonstrate the starting sample for: Develop series, patterns, and collection iteration programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop series, patterns, and collection iteration programs",
+          "evidence": "Participant submission for 'Loops and Iteration': Develop series, patterns, and collection iteration programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop series, patterns, and collection iteration programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop series, patterns, and collection iteration programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (while/until/for; loop do; times/upto/downto/step; each/each_with_index; break/next/redo; nested loops; ranges and collection iteration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Strings and Symbols",
+      "subtopics": [
+        "quoted/multiline/Heredoc strings",
+        "interpolation",
+        "concatenation/repetition",
+        "index/slice/compare",
+        "string methods",
+        "split/join/replace/search",
+        "regex basics",
+        "symbols",
+        "String versus Symbol"
+      ],
+      "tools": [
+        "Ruby",
+        "IRB"
+      ],
+      "lab_task": "Build palindrome, word-frequency, and text-transformation programs",
+      "deliverable": "Participant submission for 'Strings and Symbols': Build palindrome, word-frequency, and text-transformation programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build palindrome, word-frequency, and text-transformation programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (quoted/multiline/Heredoc strings; interpolation; concatenation/repetition; index/slice/compare; string methods; split/join/replace/search; regex basics; symbols; String versus Symbol). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build palindrome, word-frequency, and text-transformation programs.",
+        "Explain how the lab applies Strings and Symbols and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Strings and Symbols' on a prepared training sample through this task: Build palindrome, word-frequency, and text-transformation programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build palindrome, word-frequency, and text-transformation programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (quoted/multiline/Heredoc strings; interpolation; concatenation/repetition; index/slice/compare; string methods; split/join/replace/search; regex basics; symbols; String versus Symbol) and demonstrate the starting sample for: Build palindrome, word-frequency, and text-transformation programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build palindrome, word-frequency, and text-transformation programs",
+          "evidence": "Participant submission for 'Strings and Symbols': Build palindrome, word-frequency, and text-transformation programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build palindrome, word-frequency, and text-transformation programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build palindrome, word-frequency, and text-transformation programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (quoted/multiline/Heredoc strings; interpolation; concatenation/repetition; index/slice/compare; string methods; split/join/replace/search; regex basics; symbols; String versus Symbol). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Arrays, Hashes and Ranges",
+      "subtopics": [
+        "array indexing/slicing/update/removal",
+        "nested arrays",
+        "hash keys/values",
+        "symbol keys/default values",
+        "hash updates/deletion/iteration",
+        "inclusive/exclusive ranges"
+      ],
+      "tools": [
+        "Ruby"
+      ],
+      "lab_task": "Create a student-record manager using arrays, hashes, and ranges",
+      "deliverable": "Participant submission for 'Arrays, Hashes and Ranges': Create a student-record manager using arrays, hashes, and ranges. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a student-record manager using arrays, hashes, and ranges. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (array indexing/slicing/update/removal; nested arrays; hash keys/values; symbol keys/default values; hash updates/deletion/iteration; inclusive/exclusive ranges). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a student-record manager using arrays, hashes, and ranges.",
+        "Explain how the lab applies Arrays, Hashes and Ranges and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Arrays, Hashes and Ranges' on a prepared training sample through this task: Create a student-record manager using arrays, hashes, and ranges.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a student-record manager using arrays, hashes, and ranges",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (array indexing/slicing/update/removal; nested arrays; hash keys/values; symbol keys/default values; hash updates/deletion/iteration; inclusive/exclusive ranges) and demonstrate the starting sample for: Create a student-record manager using arrays, hashes, and ranges",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a student-record manager using arrays, hashes, and ranges",
+          "evidence": "Participant submission for 'Arrays, Hashes and Ranges': Create a student-record manager using arrays, hashes, and ranges. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a student-record manager using arrays, hashes, and ranges' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a student-record manager using arrays, hashes, and ranges. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (array indexing/slicing/update/removal; nested arrays; hash keys/values; symbol keys/default values; hash updates/deletion/iteration; inclusive/exclusive ranges). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Enumerable and Collection Processing",
+      "subtopics": [
+        "Enumerable",
+        "each/map/collect",
+        "select/filter/reject",
+        "find/detect",
+        "reduce/inject",
+        "any/all/none/one",
+        "count/min/max",
+        "sort/sort_by",
+        "group_by",
+        "partition",
+        "each_slice/each_cons"
+      ],
+      "tools": [
+        "Ruby"
+      ],
+      "lab_task": "Analyze data with filtering, grouping, sorting, and aggregation",
+      "deliverable": "Participant submission for 'Enumerable and Collection Processing': Analyze data with filtering, grouping, sorting, and aggregation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Analyze data with filtering, grouping, sorting, and aggregation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Enumerable; each/map/collect; select/filter/reject; find/detect; reduce/inject; any/all/none/one; count/min/max; sort/sort_by; group_by; partition; each_slice/each_cons). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Analyze data with filtering, grouping, sorting, and aggregation.",
+        "Explain how the lab applies Enumerable and Collection Processing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Enumerable and Collection Processing' on a prepared training sample through this task: Analyze data with filtering, grouping, sorting, and aggregation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Analyze data with filtering, grouping, sorting, and aggregation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Enumerable; each/map/collect; select/filter/reject; find/detect; reduce/inject; any/all/none/one; count/min/max; sort/sort_by; group_by; partition; each_slice/each_cons) and demonstrate the starting sample for: Analyze data with filtering, grouping, sorting, and aggregation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Analyze data with filtering, grouping, sorting, and aggregation",
+          "evidence": "Participant submission for 'Enumerable and Collection Processing': Analyze data with filtering, grouping, sorting, and aggregation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Analyze data with filtering, grouping, sorting, and aggregation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Analyze data with filtering, grouping, sorting, and aggregation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Enumerable; each/map/collect; select/filter/reject; find/detect; reduce/inject; any/all/none/one; count/min/max; sort/sort_by; group_by; partition; each_slice/each_cons). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Methods and Parameters",
+      "subtopics": [
+        "definition/invocation/returns",
+        "implicit/explicit return",
+        "positional/default/keyword parameters",
+        "required keywords",
+        "splat/double splat",
+        "method scope",
+        "predicate/bang methods",
+        "aliasing",
+        "visibility"
+      ],
+      "tools": [
+        "Ruby"
+      ],
+      "lab_task": "Build reusable methods with optional, keyword, and variable parameters",
+      "deliverable": "Participant submission for 'Methods and Parameters': Build reusable methods with optional, keyword, and variable parameters. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build reusable methods with optional, keyword, and variable parameters. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (definition/invocation/returns; implicit/explicit return; positional/default/keyword parameters; required keywords; splat/double splat; method scope; predicate/bang methods; aliasing; visibility). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build reusable methods with optional, keyword, and variable parameters.",
+        "Explain how the lab applies Methods and Parameters and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Methods and Parameters' on a prepared training sample through this task: Build reusable methods with optional, keyword, and variable parameters.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build reusable methods with optional, keyword, and variable parameters",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (definition/invocation/returns; implicit/explicit return; positional/default/keyword parameters; required keywords; splat/double splat; method scope; predicate/bang methods; aliasing; visibility) and demonstrate the starting sample for: Build reusable methods with optional, keyword, and variable parameters",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build reusable methods with optional, keyword, and variable parameters",
+          "evidence": "Participant submission for 'Methods and Parameters': Build reusable methods with optional, keyword, and variable parameters. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build reusable methods with optional, keyword, and variable parameters' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build reusable methods with optional, keyword, and variable parameters. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (definition/invocation/returns; implicit/explicit return; positional/default/keyword parameters; required keywords; splat/double splat; method scope; predicate/bang methods; aliasing; visibility). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Blocks, Procs and Lambdas",
+      "subtopics": [
+        "do-end and brace blocks",
+        "yield/block_given",
+        "passing blocks",
+        "Proc",
+        "lambdas",
+        "Proc versus lambda",
+        "arity",
+        "closures",
+        "captured variables",
+        "symbol-to-proc",
+        "higher-order programming"
+      ],
+      "tools": [
+        "Ruby",
+        "IRB"
+      ],
+      "lab_task": "Create data processors using blocks, Procs, and lambdas",
+      "deliverable": "Participant submission for 'Blocks, Procs and Lambdas': Create data processors using blocks, Procs, and lambdas. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create data processors using blocks, Procs, and lambdas. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (do-end and brace blocks; yield/block_given; passing blocks; Proc; lambdas; Proc versus lambda; arity; closures; captured variables; symbol-to-proc; higher-order programming). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create data processors using blocks, Procs, and lambdas.",
+        "Explain how the lab applies Blocks, Procs and Lambdas and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Blocks, Procs and Lambdas' on a prepared training sample through this task: Create data processors using blocks, Procs, and lambdas.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create data processors using blocks, Procs, and lambdas",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (do-end and brace blocks; yield/block_given; passing blocks; Proc; lambdas; Proc versus lambda; arity; closures; captured variables; symbol-to-proc; higher-order programming) and demonstrate the starting sample for: Create data processors using blocks, Procs, and lambdas",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create data processors using blocks, Procs, and lambdas",
+          "evidence": "Participant submission for 'Blocks, Procs and Lambdas': Create data processors using blocks, Procs, and lambdas. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create data processors using blocks, Procs, and lambdas' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create data processors using blocks, Procs, and lambdas. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (do-end and brace blocks; yield/block_given; passing blocks; Proc; lambdas; Proc versus lambda; arity; closures; captured variables; symbol-to-proc; higher-order programming). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Object-Oriented Programming",
+      "subtopics": [
+        "classes/objects",
+        "instance variables/methods",
+        "initialize",
+        "attributes",
+        "attr_reader/writer/accessor",
+        "class variables/methods",
+        "self",
+        "encapsulation",
+        "object collaboration"
+      ],
+      "tools": [
+        "Ruby"
+      ],
+      "lab_task": "Develop an employee management system with classes and encapsulation",
+      "deliverable": "Participant submission for 'Object-Oriented Programming': Develop an employee management system with classes and encapsulation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop an employee management system with classes and encapsulation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes/objects; instance variables/methods; initialize; attributes; attr_reader/writer/accessor; class variables/methods; self; encapsulation; object collaboration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop an employee management system with classes and encapsulation.",
+        "Explain how the lab applies Object-Oriented Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Object-Oriented Programming' on a prepared training sample through this task: Develop an employee management system with classes and encapsulation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop an employee management system with classes and encapsulation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (classes/objects; instance variables/methods; initialize; attributes; attr_reader/writer/accessor; class variables/methods; self; encapsulation; object collaboration) and demonstrate the starting sample for: Develop an employee management system with classes and encapsulation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop an employee management system with classes and encapsulation",
+          "evidence": "Participant submission for 'Object-Oriented Programming': Develop an employee management system with classes and encapsulation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop an employee management system with classes and encapsulation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop an employee management system with classes and encapsulation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes/objects; instance variables/methods; initialize; attributes; attr_reader/writer/accessor; class variables/methods; self; encapsulation; object collaboration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Inheritance, Polymorphism and Visibility",
+      "subtopics": [
+        "superclass/subclass",
+        "super",
+        "overriding",
+        "constructor inheritance",
+        "polymorphism",
+        "duck typing",
+        "public/protected/private",
+        "method lookup",
+        "class hierarchy",
+        "is_a/kind_of/respond_to"
+      ],
+      "tools": [
+        "Ruby"
+      ],
+      "lab_task": "Create a payment hierarchy using inheritance and duck typing",
+      "deliverable": "Participant submission for 'Inheritance, Polymorphism and Visibility': Create a payment hierarchy using inheritance and duck typing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a payment hierarchy using inheritance and duck typing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (superclass/subclass; super; overriding; constructor inheritance; polymorphism; duck typing; public/protected/private; method lookup; class hierarchy; is_a/kind_of/respond_to). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a payment hierarchy using inheritance and duck typing.",
+        "Explain how the lab applies Inheritance, Polymorphism and Visibility and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Inheritance, Polymorphism and Visibility' on a prepared training sample through this task: Create a payment hierarchy using inheritance and duck typing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a payment hierarchy using inheritance and duck typing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (superclass/subclass; super; overriding; constructor inheritance; polymorphism; duck typing; public/protected/private; method lookup; class hierarchy; is_a/kind_of/respond_to) and demonstrate the starting sample for: Create a payment hierarchy using inheritance and duck typing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a payment hierarchy using inheritance and duck typing",
+          "evidence": "Participant submission for 'Inheritance, Polymorphism and Visibility': Create a payment hierarchy using inheritance and duck typing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a payment hierarchy using inheritance and duck typing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a payment hierarchy using inheritance and duck typing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (superclass/subclass; super; overriding; constructor inheritance; polymorphism; duck typing; public/protected/private; method lookup; class hierarchy; is_a/kind_of/respond_to). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Modules and Mixins",
+      "subtopics": [
+        "modules",
+        "module methods",
+        "namespacing",
+        "mixins",
+        "include/extend/prepend",
+        "constants",
+        "nesting",
+        "composition versus inheritance",
+        "lookup",
+        "module_function",
+        "dependency organization"
+      ],
+      "tools": [
+        "Ruby"
+      ],
+      "lab_task": "Create reusable authentication and logging mixins",
+      "deliverable": "Participant submission for 'Modules and Mixins': Create reusable authentication and logging mixins. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable authentication and logging mixins. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (modules; module methods; namespacing; mixins; include/extend/prepend; constants; nesting; composition versus inheritance; lookup; module_function; dependency organization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create reusable authentication and logging mixins.",
+        "Explain how the lab applies Modules and Mixins and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Modules and Mixins' on a prepared training sample through this task: Create reusable authentication and logging mixins.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable authentication and logging mixins",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (modules; module methods; namespacing; mixins; include/extend/prepend; constants; nesting; composition versus inheritance; lookup; module_function; dependency organization) and demonstrate the starting sample for: Create reusable authentication and logging mixins",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable authentication and logging mixins",
+          "evidence": "Participant submission for 'Modules and Mixins': Create reusable authentication and logging mixins. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable authentication and logging mixins' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable authentication and logging mixins. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (modules; module methods; namespacing; mixins; include/extend/prepend; constants; nesting; composition versus inheritance; lookup; module_function; dependency organization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Exception Handling",
+      "subtopics": [
+        "Exception hierarchy",
+        "StandardError",
+        "begin/rescue/else/ensure",
+        "raise",
+        "custom errors",
+        "multiple rescue",
+        "exception objects/backtrace",
+        "retry awareness",
+        "propagation",
+        "best practices"
+      ],
+      "tools": [
+        "Ruby"
+      ],
+      "lab_task": "Build validation with built-in and custom exceptions",
+      "deliverable": "Participant submission for 'Exception Handling': Build validation with built-in and custom exceptions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build validation with built-in and custom exceptions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Exception hierarchy; StandardError; begin/rescue/else/ensure; raise; custom errors; multiple rescue; exception objects/backtrace; retry awareness; propagation; best practices). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build validation with built-in and custom exceptions.",
+        "Explain how the lab applies Exception Handling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Exception Handling' on a prepared training sample through this task: Build validation with built-in and custom exceptions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build validation with built-in and custom exceptions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Exception hierarchy; StandardError; begin/rescue/else/ensure; raise; custom errors; multiple rescue; exception objects/backtrace; retry awareness; propagation; best practices) and demonstrate the starting sample for: Build validation with built-in and custom exceptions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build validation with built-in and custom exceptions",
+          "evidence": "Participant submission for 'Exception Handling': Build validation with built-in and custom exceptions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build validation with built-in and custom exceptions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build validation with built-in and custom exceptions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Exception hierarchy; StandardError; begin/rescue/else/ensure; raise; custom errors; multiple rescue; exception objects/backtrace; retry awareness; propagation; best practices). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "File and Directory Handling",
+      "subtopics": [
+        "File open/read/write/append",
+        "file modes",
+        "readlines/foreach",
+        "existence/metadata",
+        "Directory",
+        "create/list paths",
+        "delete",
+        "resource blocks"
+      ],
+      "tools": [
+        "Ruby"
+      ],
+      "lab_task": "Build a command-line file management application",
+      "deliverable": "Participant submission for 'File and Directory Handling': Build a command-line file management application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a command-line file management application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (File open/read/write/append; file modes; readlines/foreach; existence/metadata; Directory; create/list paths; delete; resource blocks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a command-line file management application.",
+        "Explain how the lab applies File and Directory Handling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'File and Directory Handling' on a prepared training sample through this task: Build a command-line file management application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a command-line file management application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (File open/read/write/append; file modes; readlines/foreach; existence/metadata; Directory; create/list paths; delete; resource blocks) and demonstrate the starting sample for: Build a command-line file management application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a command-line file management application",
+          "evidence": "Participant submission for 'File and Directory Handling': Build a command-line file management application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a command-line file management application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a command-line file management application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (File open/read/write/append; file modes; readlines/foreach; existence/metadata; Directory; create/list paths; delete; resource blocks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Regular Expressions",
+      "subtopics": [
+        "Regexp",
+        "literals",
+        "classes/quantifiers/anchors/groups/alternation",
+        "captures and MatchData",
+        "match/scan/grep",
+        "sub/gsub/split",
+        "email validation",
+        "data extraction"
+      ],
+      "tools": [
+        "Ruby",
+        "IRB"
+      ],
+      "lab_task": "Validate and extract structured text using regular expressions",
+      "deliverable": "Participant submission for 'Regular Expressions': Validate and extract structured text using regular expressions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Validate and extract structured text using regular expressions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Regexp; literals; classes/quantifiers/anchors/groups/alternation; captures and MatchData; match/scan/grep; sub/gsub/split; email validation; data extraction). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Validate and extract structured text using regular expressions.",
+        "Explain how the lab applies Regular Expressions and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Regular Expressions' on a prepared training sample through this task: Validate and extract structured text using regular expressions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Validate and extract structured text using regular expressions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Regexp; literals; classes/quantifiers/anchors/groups/alternation; captures and MatchData; match/scan/grep; sub/gsub/split; email validation; data extraction) and demonstrate the starting sample for: Validate and extract structured text using regular expressions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Validate and extract structured text using regular expressions",
+          "evidence": "Participant submission for 'Regular Expressions': Validate and extract structured text using regular expressions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Validate and extract structured text using regular expressions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Validate and extract structured text using regular expressions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Regexp; literals; classes/quantifiers/anchors/groups/alternation; captures and MatchData; match/scan/grep; sub/gsub/split; email validation; data extraction). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "RubyGems, Bundler and Dependencies",
+      "subtopics": [
+        "RubyGems",
+        "gem commands",
+        "versions",
+        "Gemfile",
+        "Bundler",
+        "bundle install/update",
+        "Gemfile.lock",
+        "semantic versioning",
+        "dependency resolution",
+        "simple gems",
+        "gemspec"
+      ],
+      "tools": [
+        "RubyGems",
+        "Bundler"
+      ],
+      "lab_task": "Manage dependencies and package a utility as a gem",
+      "deliverable": "Participant submission for 'RubyGems, Bundler and Dependencies': Manage dependencies and package a utility as a gem. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Manage dependencies and package a utility as a gem. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RubyGems; gem commands; versions; Gemfile; Bundler; bundle install/update; Gemfile.lock; semantic versioning; dependency resolution; simple gems; gemspec). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Manage dependencies and package a utility as a gem.",
+        "Explain how the lab applies RubyGems, Bundler and Dependencies and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'RubyGems, Bundler and Dependencies' on a prepared training sample through this task: Manage dependencies and package a utility as a gem.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Manage dependencies and package a utility as a gem",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (RubyGems; gem commands; versions; Gemfile; Bundler; bundle install/update; Gemfile.lock; semantic versioning; dependency resolution; simple gems; gemspec) and demonstrate the starting sample for: Manage dependencies and package a utility as a gem",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Manage dependencies and package a utility as a gem",
+          "evidence": "Participant submission for 'RubyGems, Bundler and Dependencies': Manage dependencies and package a utility as a gem. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Manage dependencies and package a utility as a gem' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Manage dependencies and package a utility as a gem. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RubyGems; gem commands; versions; Gemfile; Bundler; bundle install/update; Gemfile.lock; semantic versioning; dependency resolution; simple gems; gemspec). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "JSON, YAML and Data Serialization",
+      "subtopics": [
+        "serialization",
+        "JSON parse/generate",
+        "hash mapping",
+        "YAML read/write",
+        "configuration",
+        "CSV parse/generate",
+        "structured data",
+        "serialization safety"
+      ],
+      "tools": [
+        "Ruby JSON Library",
+        "YAML",
+        "CSV"
+      ],
+      "lab_task": "Read, transform, and write JSON, YAML, and CSV datasets",
+      "deliverable": "Participant submission for 'JSON, YAML and Data Serialization': Read, transform, and write JSON, YAML, and CSV datasets. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Read, transform, and write JSON, YAML, and CSV datasets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (serialization; JSON parse/generate; hash mapping; YAML read/write; configuration; CSV parse/generate; structured data; serialization safety). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Read, transform, and write JSON, YAML, and CSV datasets.",
+        "Explain how the lab applies JSON, YAML and Data Serialization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'JSON, YAML and Data Serialization' on a prepared training sample through this task: Read, transform, and write JSON, YAML, and CSV datasets.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Read, transform, and write JSON, YAML, and CSV datasets",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (serialization; JSON parse/generate; hash mapping; YAML read/write; configuration; CSV parse/generate; structured data; serialization safety) and demonstrate the starting sample for: Read, transform, and write JSON, YAML, and CSV datasets",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Read, transform, and write JSON, YAML, and CSV datasets",
+          "evidence": "Participant submission for 'JSON, YAML and Data Serialization': Read, transform, and write JSON, YAML, and CSV datasets. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Read, transform, and write JSON, YAML, and CSV datasets' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Read, transform, and write JSON, YAML, and CSV datasets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (serialization; JSON parse/generate; hash mapping; YAML read/write; configuration; CSV parse/generate; structured data; serialization safety). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "HTTP and REST API Integration",
+      "subtopics": [
+        "HTTP/HTTPS",
+        "REST and URI",
+        "Net::HTTP",
+        "GET/POST/PUT/PATCH/DELETE",
+        "headers/bodies/status codes",
+        "JSON responses",
+        "Bearer auth",
+        "API errors/timeouts"
+      ],
+      "tools": [
+        "Net::HTTP",
+        "Postman"
+      ],
+      "lab_task": "Build a Ruby REST client with CRUD operations",
+      "deliverable": "Participant submission for 'HTTP and REST API Integration': Build a Ruby REST client with CRUD operations. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a Ruby REST client with CRUD operations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP/HTTPS; REST and URI; Net::HTTP; GET/POST/PUT/PATCH/DELETE; headers/bodies/status codes; JSON responses; Bearer auth; API errors/timeouts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a Ruby REST client with CRUD operations.",
+        "Explain how the lab applies HTTP and REST API Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'HTTP and REST API Integration' on a prepared training sample through this task: Build a Ruby REST client with CRUD operations.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a Ruby REST client with CRUD operations",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (HTTP/HTTPS; REST and URI; Net::HTTP; GET/POST/PUT/PATCH/DELETE; headers/bodies/status codes; JSON responses; Bearer auth; API errors/timeouts) and demonstrate the starting sample for: Build a Ruby REST client with CRUD operations",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a Ruby REST client with CRUD operations",
+          "evidence": "Participant submission for 'HTTP and REST API Integration': Build a Ruby REST client with CRUD operations. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a Ruby REST client with CRUD operations' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a Ruby REST client with CRUD operations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP/HTTPS; REST and URI; Net::HTTP; GET/POST/PUT/PATCH/DELETE; headers/bodies/status codes; JSON responses; Bearer auth; API errors/timeouts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "Database Programming",
+      "subtopics": [
+        "relational database/SQL",
+        "SQLite integration",
+        "connections",
+        "CRUD",
+        "parameterized queries",
+        "transactions",
+        "database errors",
+        "ORM/Active Record awareness",
+        "validation",
+        "connection management"
+      ],
+      "tools": [
+        "SQLite",
+        "Ruby SQLite3 Gem"
+      ],
+      "lab_task": "Build a Ruby CRUD application with SQLite",
+      "deliverable": "Participant submission for 'Database Programming': Build a Ruby CRUD application with SQLite. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a Ruby CRUD application with SQLite. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (relational database/SQL; SQLite integration; connections; CRUD; parameterized queries; transactions; database errors; ORM/Active Record awareness; validation; connection management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a Ruby CRUD application with SQLite.",
+        "Explain how the lab applies Database Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Database Programming' on a prepared training sample through this task: Build a Ruby CRUD application with SQLite.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a Ruby CRUD application with SQLite",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (relational database/SQL; SQLite integration; connections; CRUD; parameterized queries; transactions; database errors; ORM/Active Record awareness; validation; connection management) and demonstrate the starting sample for: Build a Ruby CRUD application with SQLite",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a Ruby CRUD application with SQLite",
+          "evidence": "Participant submission for 'Database Programming': Build a Ruby CRUD application with SQLite. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a Ruby CRUD application with SQLite' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a Ruby CRUD application with SQLite. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (relational database/SQL; SQLite integration; connections; CRUD; parameterized queries; transactions; database errors; ORM/Active Record awareness; validation; connection management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 21,
+      "topic": "Metaprogramming and Reflection",
+      "subtopics": [
+        "reflection",
+        "introspection",
+        "methods/instance_variables/class",
+        "send/public_send",
+        "define_method",
+        "method_missing/respond_to_missing",
+        "class_eval/instance_eval",
+        "dynamic methods",
+        "open classes",
+        "DSLs",
+        "risks"
+      ],
+      "tools": [
+        "Ruby",
+        "IRB"
+      ],
+      "lab_task": "Build a small internal DSL with dynamic methods and reflection",
+      "deliverable": "Participant submission for 'Metaprogramming and Reflection': Build a small internal DSL with dynamic methods and reflection. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a small internal DSL with dynamic methods and reflection. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (reflection; introspection; methods/instance_variables/class; send/public_send; define_method; method_missing/respond_to_missing; class_eval/instance_eval; dynamic methods; open classes; DSLs; risks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a small internal DSL with dynamic methods and reflection.",
+        "Explain how the lab applies Metaprogramming and Reflection and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Metaprogramming and Reflection' on a prepared training sample through this task: Build a small internal DSL with dynamic methods and reflection.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a small internal DSL with dynamic methods and reflection",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (reflection; introspection; methods/instance_variables/class; send/public_send; define_method; method_missing/respond_to_missing; class_eval/instance_eval; dynamic methods; open classes; DSLs; risks) and demonstrate the starting sample for: Build a small internal DSL with dynamic methods and reflection",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a small internal DSL with dynamic methods and reflection",
+          "evidence": "Participant submission for 'Metaprogramming and Reflection': Build a small internal DSL with dynamic methods and reflection. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a small internal DSL with dynamic methods and reflection' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a small internal DSL with dynamic methods and reflection. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (reflection; introspection; methods/instance_variables/class; send/public_send; define_method; method_missing/respond_to_missing; class_eval/instance_eval; dynamic methods; open classes; DSLs; risks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 22,
+      "topic": "Advanced Ruby Object Model",
+      "subtopics": [
+        "Object/BasicObject/Class/Module",
+        "eigenclasses",
+        "singleton methods",
+        "lookup chain/ancestors",
+        "dup/clone/freeze",
+        "identity",
+        "equal/eql/==/hash"
+      ],
+      "tools": [
+        "Ruby",
+        "IRB"
+      ],
+      "lab_task": "Inspect object model and implement custom equality/hashing",
+      "deliverable": "Participant submission for 'Advanced Ruby Object Model': Inspect object model and implement custom equality/hashing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Inspect object model and implement custom equality/hashing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Object/BasicObject/Class/Module; eigenclasses; singleton methods; lookup chain/ancestors; dup/clone/freeze; identity; equal/eql/==/hash). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Inspect object model and implement custom equality/hashing.",
+        "Explain how the lab applies Advanced Ruby Object Model and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Ruby Object Model' on a prepared training sample through this task: Inspect object model and implement custom equality/hashing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Inspect object model and implement custom equality/hashing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Object/BasicObject/Class/Module; eigenclasses; singleton methods; lookup chain/ancestors; dup/clone/freeze; identity; equal/eql/==/hash) and demonstrate the starting sample for: Inspect object model and implement custom equality/hashing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Inspect object model and implement custom equality/hashing",
+          "evidence": "Participant submission for 'Advanced Ruby Object Model': Inspect object model and implement custom equality/hashing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Inspect object model and implement custom equality/hashing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Inspect object model and implement custom equality/hashing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Object/BasicObject/Class/Module; eigenclasses; singleton methods; lookup chain/ancestors; dup/clone/freeze; identity; equal/eql/==/hash). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 23,
+      "topic": "Threads and Concurrency",
+      "subtopics": [
+        "threads/lifecycle/join/value",
+        "shared state/races",
+        "Mutex",
+        "synchronization",
+        "Queue",
+        "thread-safe communication",
+        "deadlocks",
+        "Global VM Lock",
+        "CPU/I/O tasks",
+        "thread errors"
+      ],
+      "tools": [
+        "Ruby Thread API"
+      ],
+      "lab_task": "Build a concurrent job processor using threads and queues",
+      "deliverable": "Participant submission for 'Threads and Concurrency': Build a concurrent job processor using threads and queues. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a concurrent job processor using threads and queues. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (threads/lifecycle/join/value; shared state/races; Mutex; synchronization; Queue; thread-safe communication; deadlocks; Global VM Lock; CPU/I/O tasks; thread errors). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a concurrent job processor using threads and queues.",
+        "Explain how the lab applies Threads and Concurrency and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Threads and Concurrency' on a prepared training sample through this task: Build a concurrent job processor using threads and queues.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a concurrent job processor using threads and queues",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (threads/lifecycle/join/value; shared state/races; Mutex; synchronization; Queue; thread-safe communication; deadlocks; Global VM Lock; CPU/I/O tasks; thread errors) and demonstrate the starting sample for: Build a concurrent job processor using threads and queues",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a concurrent job processor using threads and queues",
+          "evidence": "Participant submission for 'Threads and Concurrency': Build a concurrent job processor using threads and queues. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a concurrent job processor using threads and queues' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a concurrent job processor using threads and queues. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (threads/lifecycle/join/value; shared state/races; Mutex; synchronization; Queue; thread-safe communication; deadlocks; Global VM Lock; CPU/I/O tasks; thread errors). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 24,
+      "topic": "Fibers and Asynchronous Programming",
+      "subtopics": [
+        "Fibers",
+        "yield/resume",
+        "cooperative concurrency",
+        "Fibers versus threads",
+        "Fiber Scheduler",
+        "non-blocking I/O awareness",
+        "event-driven design",
+        "task coordination"
+      ],
+      "tools": [
+        "Ruby Fiber API"
+      ],
+      "lab_task": "Create cooperative concurrent tasks with Ruby Fibers",
+      "deliverable": "Participant submission for 'Fibers and Asynchronous Programming': Create cooperative concurrent tasks with Ruby Fibers. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create cooperative concurrent tasks with Ruby Fibers. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Fibers; yield/resume; cooperative concurrency; Fibers versus threads; Fiber Scheduler; non-blocking I/O awareness; event-driven design; task coordination). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create cooperative concurrent tasks with Ruby Fibers.",
+        "Explain how the lab applies Fibers and Asynchronous Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Fibers and Asynchronous Programming' on a prepared training sample through this task: Create cooperative concurrent tasks with Ruby Fibers.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create cooperative concurrent tasks with Ruby Fibers",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Fibers; yield/resume; cooperative concurrency; Fibers versus threads; Fiber Scheduler; non-blocking I/O awareness; event-driven design; task coordination) and demonstrate the starting sample for: Create cooperative concurrent tasks with Ruby Fibers",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create cooperative concurrent tasks with Ruby Fibers",
+          "evidence": "Participant submission for 'Fibers and Asynchronous Programming': Create cooperative concurrent tasks with Ruby Fibers. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create cooperative concurrent tasks with Ruby Fibers' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create cooperative concurrent tasks with Ruby Fibers. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Fibers; yield/resume; cooperative concurrency; Fibers versus threads; Fiber Scheduler; non-blocking I/O awareness; event-driven design; task coordination). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 25,
+      "topic": "Testing with Minitest and RSpec",
+      "subtopics": [
+        "unit testing/TDD",
+        "Minitest",
+        "assertions/setup/teardown",
+        "RSpec describe/context/it/expect",
+        "matchers/hooks/shared examples",
+        "doubles/mocks/stubs/spies",
+        "exception tests",
+        "coverage"
+      ],
+      "tools": [
+        "RSpec",
+        "Minitest"
+      ],
+      "lab_task": "Write an automated test suite in RSpec and Minitest",
+      "deliverable": "Participant submission for 'Testing with Minitest and RSpec': Write an automated test suite in RSpec and Minitest. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Write an automated test suite in RSpec and Minitest. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (unit testing/TDD; Minitest; assertions/setup/teardown; RSpec describe/context/it/expect; matchers/hooks/shared examples; doubles/mocks/stubs/spies; exception tests; coverage). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Write an automated test suite in RSpec and Minitest.",
+        "Explain how the lab applies Testing with Minitest and RSpec and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Testing with Minitest and RSpec' on a prepared training sample through this task: Write an automated test suite in RSpec and Minitest.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Write an automated test suite in RSpec and Minitest",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (unit testing/TDD; Minitest; assertions/setup/teardown; RSpec describe/context/it/expect; matchers/hooks/shared examples; doubles/mocks/stubs/spies; exception tests; coverage) and demonstrate the starting sample for: Write an automated test suite in RSpec and Minitest",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Write an automated test suite in RSpec and Minitest",
+          "evidence": "Participant submission for 'Testing with Minitest and RSpec': Write an automated test suite in RSpec and Minitest. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Write an automated test suite in RSpec and Minitest' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Write an automated test suite in RSpec and Minitest. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (unit testing/TDD; Minitest; assertions/setup/teardown; RSpec describe/context/it/expect; matchers/hooks/shared examples; doubles/mocks/stubs/spies; exception tests; coverage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 26,
+      "topic": "Debugging and Logging",
+      "subtopics": [
+        "debugging strategy",
+        "IRB/Pry",
+        "breakpoints",
+        "inspection/call stack",
+        "exception debugging",
+        "Logger",
+        "log levels",
+        "structured logs",
+        "diagnostics",
+        "error reporting",
+        "performance troubleshooting"
+      ],
+      "tools": [
+        "Pry",
+        "Ruby Debug",
+        "Logger"
+      ],
+      "lab_task": "Debug a faulty app and add structured logging",
+      "deliverable": "Participant submission for 'Debugging and Logging': Debug a faulty app and add structured logging. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Debug a faulty app and add structured logging. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (debugging strategy; IRB/Pry; breakpoints; inspection/call stack; exception debugging; Logger; log levels; structured logs; diagnostics; error reporting; performance troubleshooting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Debug a faulty app and add structured logging.",
+        "Explain how the lab applies Debugging and Logging and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Debugging and Logging' on a prepared training sample through this task: Debug a faulty app and add structured logging.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Debug a faulty app and add structured logging",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (debugging strategy; IRB/Pry; breakpoints; inspection/call stack; exception debugging; Logger; log levels; structured logs; diagnostics; error reporting; performance troubleshooting) and demonstrate the starting sample for: Debug a faulty app and add structured logging",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Debug a faulty app and add structured logging",
+          "evidence": "Participant submission for 'Debugging and Logging': Debug a faulty app and add structured logging. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Debug a faulty app and add structured logging' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Debug a faulty app and add structured logging. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (debugging strategy; IRB/Pry; breakpoints; inspection/call stack; exception debugging; Logger; log levels; structured logs; diagnostics; error reporting; performance troubleshooting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 27,
+      "topic": "Performance and Memory Optimization",
+      "subtopics": [
+        "memory model",
+        "allocations",
+        "garbage collection",
+        "retention/leaks",
+        "CPU/memory profiling",
+        "Benchmark",
+        "collection/string optimization",
+        "frozen strings",
+        "complexity",
+        "caching",
+        "measurement"
+      ],
+      "tools": [
+        "Benchmark",
+        "Ruby Profiler Tools"
+      ],
+      "lab_task": "Benchmark and optimize execution time and memory allocation",
+      "deliverable": "Participant submission for 'Performance and Memory Optimization': Benchmark and optimize execution time and memory allocation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Benchmark and optimize execution time and memory allocation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (memory model; allocations; garbage collection; retention/leaks; CPU/memory profiling; Benchmark; collection/string optimization; frozen strings; complexity; caching; measurement). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Benchmark and optimize execution time and memory allocation.",
+        "Explain how the lab applies Performance and Memory Optimization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance and Memory Optimization' on a prepared training sample through this task: Benchmark and optimize execution time and memory allocation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Benchmark and optimize execution time and memory allocation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (memory model; allocations; garbage collection; retention/leaks; CPU/memory profiling; Benchmark; collection/string optimization; frozen strings; complexity; caching; measurement) and demonstrate the starting sample for: Benchmark and optimize execution time and memory allocation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Benchmark and optimize execution time and memory allocation",
+          "evidence": "Participant submission for 'Performance and Memory Optimization': Benchmark and optimize execution time and memory allocation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Benchmark and optimize execution time and memory allocation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Benchmark and optimize execution time and memory allocation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (memory model; allocations; garbage collection; retention/leaks; CPU/memory profiling; Benchmark; collection/string optimization; frozen strings; complexity; caching; measurement). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 28,
+      "topic": "Rake and Task Automation",
+      "subtopics": [
+        "Rakefile",
+        "tasks/dependencies/namespaces",
+        "default/file/environment tasks",
+        "arguments",
+        "automation scripts",
+        "build/database tasks",
+        "scheduled automation"
+      ],
+      "tools": [
+        "Rake"
+      ],
+      "lab_task": "Automate setup, tests, and data-processing tasks",
+      "deliverable": "Participant submission for 'Rake and Task Automation': Automate setup, tests, and data-processing tasks. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Automate setup, tests, and data-processing tasks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Rakefile; tasks/dependencies/namespaces; default/file/environment tasks; arguments; automation scripts; build/database tasks; scheduled automation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Automate setup, tests, and data-processing tasks.",
+        "Explain how the lab applies Rake and Task Automation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Rake and Task Automation' on a prepared training sample through this task: Automate setup, tests, and data-processing tasks.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Automate setup, tests, and data-processing tasks",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Rakefile; tasks/dependencies/namespaces; default/file/environment tasks; arguments; automation scripts; build/database tasks; scheduled automation) and demonstrate the starting sample for: Automate setup, tests, and data-processing tasks",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Automate setup, tests, and data-processing tasks",
+          "evidence": "Participant submission for 'Rake and Task Automation': Automate setup, tests, and data-processing tasks. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Automate setup, tests, and data-processing tasks' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Automate setup, tests, and data-processing tasks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Rakefile; tasks/dependencies/namespaces; default/file/environment tasks; arguments; automation scripts; build/database tasks; scheduled automation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 29,
+      "topic": "Security and Secure Ruby Programming",
+      "subtopics": [
+        "validation/sanitization",
+        "SQL/command/path injection awareness",
+        "sensitive data",
+        "password hashing",
+        "environment/secrets",
+        "HTTPS",
+        "auth/authz",
+        "dependency vulnerabilities",
+        "safe serialization",
+        "updates"
+      ],
+      "tools": [
+        "Bundler Audit",
+        "RubyGems"
+      ],
+      "lab_task": "Review and harden a Ruby application",
+      "deliverable": "Participant submission for 'Security and Secure Ruby Programming': Review and harden a Ruby application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Review and harden a Ruby application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (validation/sanitization; SQL/command/path injection awareness; sensitive data; password hashing; environment/secrets; HTTPS; auth/authz; dependency vulnerabilities; safe serialization; updates). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Review and harden a Ruby application.",
+        "Explain how the lab applies Security and Secure Ruby Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Security and Secure Ruby Programming' on a prepared training sample through this task: Review and harden a Ruby application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Review and harden a Ruby application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (validation/sanitization; SQL/command/path injection awareness; sensitive data; password hashing; environment/secrets; HTTPS; auth/authz; dependency vulnerabilities; safe serialization; updates) and demonstrate the starting sample for: Review and harden a Ruby application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Review and harden a Ruby application",
+          "evidence": "Participant submission for 'Security and Secure Ruby Programming': Review and harden a Ruby application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Review and harden a Ruby application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Review and harden a Ruby application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (validation/sanitization; SQL/command/path injection awareness; sensitive data; password hashing; environment/secrets; HTTPS; auth/authz; dependency vulnerabilities; safe serialization; updates). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 30,
+      "topic": "Design Patterns and Clean Ruby",
+      "subtopics": [
+        "SOLID",
+        "DRY/KISS/YAGNI",
+        "composition",
+        "dependency injection",
+        "Factory/Strategy/Observer/Decorator/Adapter/Command",
+        "service objects",
+        "clean code"
+      ],
+      "tools": [
+        "Ruby"
+      ],
+      "lab_task": "Refactor an app using patterns and SOLID",
+      "deliverable": "Participant submission for 'Design Patterns and Clean Ruby': Refactor an app using patterns and SOLID. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Refactor an app using patterns and SOLID. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SOLID; DRY/KISS/YAGNI; composition; dependency injection; Factory/Strategy/Observer/Decorator/Adapter/Command; service objects; clean code). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Refactor an app using patterns and SOLID.",
+        "Explain how the lab applies Design Patterns and Clean Ruby and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Design Patterns and Clean Ruby' on a prepared training sample through this task: Refactor an app using patterns and SOLID.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Refactor an app using patterns and SOLID",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SOLID; DRY/KISS/YAGNI; composition; dependency injection; Factory/Strategy/Observer/Decorator/Adapter/Command; service objects; clean code) and demonstrate the starting sample for: Refactor an app using patterns and SOLID",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Refactor an app using patterns and SOLID",
+          "evidence": "Participant submission for 'Design Patterns and Clean Ruby': Refactor an app using patterns and SOLID. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Refactor an app using patterns and SOLID' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Refactor an app using patterns and SOLID. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SOLID; DRY/KISS/YAGNI; composition; dependency injection; Factory/Strategy/Observer/Decorator/Adapter/Command; service objects; clean code). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 31,
+      "topic": "Git, Code Quality and Project Workflow",
+      "subtopics": [
+        "Git/GitHub",
+        "commits/branches/PRs",
+        "reviews",
+        "Ruby Style Guide",
+        "linting",
+        "RuboCop",
+        "formatting",
+        "README",
+        "semantic versioning",
+        "release workflow"
+      ],
+      "tools": [
+        "Git",
+        "GitHub",
+        "RuboCop"
+      ],
+      "lab_task": "Version-control, lint, review, and document a Ruby project",
+      "deliverable": "Participant submission for 'Git, Code Quality and Project Workflow': Version-control, lint, review, and document a Ruby project. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Version-control, lint, review, and document a Ruby project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git/GitHub; commits/branches/PRs; reviews; Ruby Style Guide; linting; RuboCop; formatting; README; semantic versioning; release workflow). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Version-control, lint, review, and document a Ruby project.",
+        "Explain how the lab applies Git, Code Quality and Project Workflow and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Git, Code Quality and Project Workflow' on a prepared training sample through this task: Version-control, lint, review, and document a Ruby project.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Version-control, lint, review, and document a Ruby project",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Git/GitHub; commits/branches/PRs; reviews; Ruby Style Guide; linting; RuboCop; formatting; README; semantic versioning; release workflow) and demonstrate the starting sample for: Version-control, lint, review, and document a Ruby project",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Version-control, lint, review, and document a Ruby project",
+          "evidence": "Participant submission for 'Git, Code Quality and Project Workflow': Version-control, lint, review, and document a Ruby project. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Version-control, lint, review, and document a Ruby project' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Version-control, lint, review, and document a Ruby project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git/GitHub; commits/branches/PRs; reviews; Ruby Style Guide; linting; RuboCop; formatting; README; semantic versioning; release workflow). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 32,
+      "topic": "Ruby Capstone Project",
+      "subtopics": [
+        "requirements/design",
+        "classes/modules",
+        "Enumerable",
+        "files",
+        "JSON/CSV",
+        "REST APIs",
+        "database",
+        "exceptions",
+        "concurrency",
+        "tests",
+        "logging",
+        "security",
+        "performance",
+        "Bundler",
+        "Git",
+        "documentation",
+        "packaging"
+      ],
+      "tools": [
+        "Ruby",
+        "RubyGems",
+        "Bundler",
+        "RSpec",
+        "SQLite",
+        "Postman",
+        "Git",
+        "GitHub"
+      ],
+      "lab_task": "Deliver a complete tested and packaged Ruby application",
+      "deliverable": "Participant submission for 'Ruby Capstone Project': Deliver a complete tested and packaged Ruby application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deliver a complete tested and packaged Ruby application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements/design; classes/modules; Enumerable; files; JSON/CSV; REST APIs; database; exceptions; concurrency; tests; logging; security; performance; Bundler; Git; documentation; packaging). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deliver a complete tested and packaged Ruby application.",
+        "Explain how the lab applies Ruby Capstone Project and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Ruby Capstone Project' on a prepared training sample through this task: Deliver a complete tested and packaged Ruby application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver a complete tested and packaged Ruby application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (requirements/design; classes/modules; Enumerable; files; JSON/CSV; REST APIs; database; exceptions; concurrency; tests; logging; security; performance; Bundler; Git; documentation; packaging) and demonstrate the starting sample for: Deliver a complete tested and packaged Ruby application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deliver a complete tested and packaged Ruby application",
+          "evidence": "Participant submission for 'Ruby Capstone Project': Deliver a complete tested and packaged Ruby application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deliver a complete tested and packaged Ruby application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deliver a complete tested and packaged Ruby application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements/design; classes/modules; Enumerable; files; JSON/CSV; REST APIs; database; exceptions; concurrency; tests; logging; security; performance; Bundler; Git; documentation; packaging). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

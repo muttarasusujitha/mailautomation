@@ -5,41 +5,2295 @@
   "program_title": "React Native - Fundamentals to Advanced Cross-Platform Mobile Application Development",
   "level": "Beginner to Advanced",
   "mode": "Online",
-  "aliases": ["React Native", "React Native Development", "RN", "React Native Mobile Development", "React Native App Development"],
-  "tools": ["Node.js", "npm", "Yarn", "React Native", "Expo", "Visual Studio Code", "Android Studio", "Xcode", "Postman", "Firebase", "Git", "GitHub"],
-  "certifications": ["Meta React Native Learning Resources", "Meta Front-End Developer Professional Certificate"],
+  "aliases": [
+    "React Native",
+    "React Native Development",
+    "RN",
+    "React Native Mobile Development",
+    "React Native App Development"
+  ],
+  "tools": [
+    "Node.js",
+    "npm",
+    "Yarn",
+    "React Native",
+    "Expo",
+    "Visual Studio Code",
+    "Android Studio",
+    "Xcode",
+    "Postman",
+    "Firebase",
+    "Git",
+    "GitHub"
+  ],
+  "certifications": [
+    "Meta React Native Learning Resources",
+    "Meta Front-End Developer Professional Certificate"
+  ],
   "days": [
-    {"day": 1, "topic": "React Native Introduction and Environment Setup", "subtopics": ["cross-platform development", "React versus React Native", "native components", "New Architecture", "Fabric", "TurboModules", "JSI", "Node/npm/Yarn", "Expo/CLI", "Android/iOS setup", "project structure", "Fast Refresh"], "tools": ["Node.js", "React Native", "Expo", "Android Studio", "Xcode"], "lab_task": "Configure React Native and run the first cross-platform application"},
-    {"day": 2, "topic": "JavaScript and TypeScript Essentials", "subtopics": ["variables", "objects and arrays", "arrow functions", "destructuring", "spread/rest", "array methods", "modules", "Promises", "async/await", "TypeScript interfaces", "type aliases", "unions", "generics"], "tools": ["Visual Studio Code", "Node.js", "TypeScript"], "lab_task": "Create JavaScript and TypeScript utility modules"},
-    {"day": 3, "topic": "React Fundamentals", "subtopics": ["components", "functional components", "JSX", "props", "composition", "children", "conditional rendering", "lists and keys", "events", "state", "immutability", "one-way data flow"], "tools": ["React", "React Native"], "lab_task": "Build reusable components with props, state, and conditional rendering"},
-    {"day": 4, "topic": "Core React Native Components", "subtopics": ["View, Text and Image", "ScrollView", "TextInput", "Pressable", "Switch", "ActivityIndicator", "SafeAreaView", "StatusBar", "Modal", "RefreshControl", "platform components", "reusable UI"], "tools": ["React Native", "Expo"], "lab_task": "Build a profile screen using core native components"},
-    {"day": 5, "topic": "Styling and Layout", "subtopics": ["StyleSheet", "inline/style arrays", "Flexbox", "alignment", "wrapping", "positioning", "dimensions", "spacing", "borders", "colors", "typography", "shadows", "platform styles"], "tools": ["React Native", "React Native DevTools"], "lab_task": "Create a responsive dashboard with Flexbox"},
-    {"day": 6, "topic": "Responsive and Adaptive Mobile Design", "subtopics": ["Dimensions", "useWindowDimensions", "orientation", "pixel density", "Platform API", "iOS/Android differences", "safe areas", "keyboard-aware layouts", "tablet layouts", "accessibility sizing", "adaptive patterns"], "tools": ["React Native", "Android Emulator", "iOS Simulator"], "lab_task": "Build a phone/tablet adaptive screen for Android and iOS"},
-    {"day": 7, "topic": "React Hooks", "subtopics": ["Rules of Hooks", "useState", "useEffect", "dependencies and cleanup", "useRef", "useMemo", "useCallback", "useContext", "useReducer", "custom hooks", "hook composition"], "tools": ["React", "React Native"], "lab_task": "Build reusable hooks for data loading, state, and forms"},
-    {"day": 8, "topic": "Lists and Data Rendering", "subtopics": ["FlatList", "SectionList", "VirtualizedList", "renderItem", "keyExtractor", "headers/footers", "empty/separator components", "pull-to-refresh", "pagination", "infinite scroll", "list optimization", "memoized items"], "tools": ["React Native"], "lab_task": "Create a paginated product list with refresh and optimized rendering"},
-    {"day": 9, "topic": "Forms and User Input", "subtopics": ["controlled inputs", "form state", "validation", "email/password", "keyboard and focus", "submission", "React Hook Form", "schema validation", "errors", "reusable fields"], "tools": ["React Hook Form", "React Native"], "lab_task": "Build registration and login forms with validation"},
-    {"day": 10, "topic": "Navigation Fundamentals", "subtopics": ["React Navigation", "NavigationContainer", "stack/native stack", "tabs", "drawer", "nested navigators", "navigation/route objects", "parameters", "headers", "lifecycle", "authentication flows"], "tools": ["React Navigation"], "lab_task": "Create a stack, tab, and drawer multi-screen application"},
-    {"day": 11, "topic": "Advanced Navigation and Deep Linking", "subtopics": ["nested navigation architecture", "navigation state", "conditional/protected navigation", "deep links", "URL schemes", "universal/app links", "linking config", "route parsing", "notification navigation", "persistence", "back button"], "tools": ["React Navigation", "Expo Linking"], "lab_task": "Implement authenticated screens and deep links"},
-    {"day": 12, "topic": "State Management with Context and Reducers", "subtopics": ["local/global state", "Context", "providers", "useReducer", "actions and reducers", "immutable updates", "context with reducers", "normalization", "state separation", "global state design"], "tools": ["React Context API"], "lab_task": "Create global authentication and cart state"},
-    {"day": 13, "topic": "Redux and Modern State Management", "subtopics": ["Redux principles", "store/actions/reducers", "selectors", "Redux Toolkit", "configureStore", "createSlice", "async thunks", "React Redux", "useSelector/useDispatch", "async states", "DevTools", "Zustand awareness"], "tools": ["Redux Toolkit", "React Redux"], "lab_task": "Build centralized state with Redux Toolkit"},
-    {"day": 14, "topic": "REST API Integration", "subtopics": ["HTTP and REST", "fetch and Axios", "GET/POST/PUT/PATCH/DELETE", "headers and query parameters", "JSON", "status codes", "loading/errors/timeouts", "API abstraction"], "tools": ["Axios", "Postman"], "lab_task": "Develop REST API CRUD functionality"},
-    {"day": 15, "topic": "Advanced API and Server-State Management", "subtopics": ["server versus client state", "TanStack Query", "queries and mutations", "keys and caching", "invalidation", "background refetch", "pagination", "infinite queries", "optimistic updates", "retry/cancellation", "offline", "interceptors/token refresh"], "tools": ["TanStack Query", "Axios", "Postman"], "lab_task": "Implement cached API state with mutations and pagination"},
-    {"day": 16, "topic": "Authentication and Authorization", "subtopics": ["login/registration", "JWT", "access/refresh tokens", "Bearer auth", "SecureStore", "session restore", "expiration and refresh", "logout", "OAuth/social login", "protected routes", "roles", "biometrics"], "tools": ["Expo SecureStore", "Axios", "Firebase Authentication"], "lab_task": "Build secure login, session management, and protected screens"},
-    {"day": 17, "topic": "Local Storage and Offline Data", "subtopics": ["AsyncStorage", "read/write/remove", "JSON persistence", "secure storage", "SQLite", "CRUD", "caching", "offline-first", "sync", "conflict resolution"], "tools": ["AsyncStorage", "SQLite", "Expo SecureStore"], "lab_task": "Develop an offline-capable app with local persistence and sync"},
-    {"day": 18, "topic": "Firebase Integration", "subtopics": ["Firebase setup", "Auth", "Firestore", "collections/documents", "CRUD", "real-time listeners", "Storage/file uploads", "FCM awareness", "Analytics", "Crashlytics", "security rules"], "tools": ["Firebase", "Cloud Firestore"], "lab_task": "Create a real-time Firebase-authenticated application"},
-    {"day": 19, "topic": "Device APIs and Native Features", "subtopics": ["camera/image picker", "location/maps", "contacts", "file system", "clipboard/sharing", "haptics", "device data", "sensors", "permissions", "Android/iOS configuration"], "tools": ["Expo SDK", "React Native APIs"], "lab_task": "Use camera, location, files, and permissions in an app"},
-    {"day": 20, "topic": "Push and Local Notifications", "subtopics": ["local/push notifications", "device registration/tokens", "FCM", "Expo Notifications", "foreground/background/terminated behavior", "payloads", "channels", "permissions", "notification navigation"], "tools": ["Expo Notifications", "Firebase Cloud Messaging"], "lab_task": "Implement notifications and notification-based navigation"},
-    {"day": 21, "topic": "Animations and Gestures", "subtopics": ["Animated API", "Animated.Value", "timing/spring", "interpolation", "parallel/sequential animations", "Gesture Handler", "pan/tap/swipe", "Reanimated", "shared values", "animated styles", "UI thread"], "tools": ["React Native Reanimated", "React Native Gesture Handler"], "lab_task": "Build an animated gesture-driven interface"},
-    {"day": 22, "topic": "Native Modules and Platform Integration", "subtopics": ["JS/native communication", "Native Modules", "Native Components", "Android/Kotlin integration", "iOS/Swift integration", "TurboModules", "Fabric components", "Codegen", "platform files", "native SDK bridging"], "tools": ["Android Studio", "Xcode", "React Native"], "lab_task": "Expose a native Android or iOS capability to JavaScript"},
-    {"day": 23, "topic": "React Native New Architecture", "subtopics": ["legacy versus new architecture", "JSI", "Fabric", "TurboModules", "Codegen", "sync native access", "concurrent rendering", "migration", "library compatibility", "performance"], "tools": ["React Native", "Android Studio", "Xcode"], "lab_task": "Analyze a New Architecture React Native project"},
-    {"day": 24, "topic": "Performance Optimization", "subtopics": ["frame rate", "UI and JavaScript threads", "rendering", "unnecessary re-renders", "React.memo", "useMemo/useCallback", "virtualized lists", "images", "network/cache", "bundle size", "memory", "profiling"], "tools": ["React Native DevTools", "Android Studio Profiler", "Xcode Instruments"], "lab_task": "Profile and optimize rendering, lists, images, and API work"},
-    {"day": 25, "topic": "Testing", "subtopics": ["Jest", "test suites/assertions", "mock functions", "React Native Testing Library", "component/user-event testing", "hooks", "API mocking", "async tests", "snapshots", "integration/E2E concepts", "coverage"], "tools": ["Jest", "React Native Testing Library"], "lab_task": "Test forms, state logic, and API-connected components"},
-    {"day": 26, "topic": "Debugging, Logging and Error Handling", "subtopics": ["DevTools", "console/breakpoints", "network/component inspection", "error boundaries", "global/API errors", "Android Logcat", "Xcode logs", "Crashlytics", "production logging", "debug/release behavior"], "tools": ["React Native DevTools", "Android Logcat", "Xcode", "Firebase Crashlytics"], "lab_task": "Debug UI, JavaScript, network, and native errors"},
-    {"day": 27, "topic": "Application Architecture and Design Patterns", "subtopics": ["feature organization", "presentation/domain/data", "Clean Architecture", "repository/service layers", "dependency injection", "SOLID", "reusable components", "custom hooks", "state/API separation", "scalable folders"], "tools": ["React Native", "TypeScript"], "lab_task": "Refactor an app into feature-based Clean Architecture"},
-    {"day": 28, "topic": "Mobile Security", "subtopics": ["secure storage", "sensitive data", "token protection", "HTTPS/TLS", "API security", "input validation", "auth checks", "deep-link security", "permissions", "secrets/env", "obfuscation", "OWASP mobile awareness"], "tools": ["Expo SecureStore", "Android Keystore", "iOS Keychain"], "lab_task": "Harden storage, authentication, and API communication"},
-    {"day": 29, "topic": "Build Configuration and Release Management", "subtopics": ["dev/debug/release builds", "environments", "APK/AAB", "Android signing", "iOS certificates/profiles", "app identifiers", "versions/builds", "icons/splash", "EAS"], "tools": ["Android Studio", "Xcode", "Expo Application Services"], "lab_task": "Configure environments and generate a release build"},
-    {"day": 30, "topic": "CI/CD and Deployment", "subtopics": ["CI/CD", "Git workflows", "automated lint/test/build", "GitHub Actions", "secrets", "artifacts", "EAS Build/Submit", "Play/App Store deployment", "OTA updates", "release monitoring"], "tools": ["Git", "GitHub", "GitHub Actions", "Expo Application Services"], "lab_task": "Create a release pipeline that tests and builds the app"},
-    {"day": 31, "topic": "Accessibility, Localization and Production Quality", "subtopics": ["accessibility labels/roles", "screen readers", "touch targets", "contrast", "dynamic text", "internationalization", "locale/translation", "date/number formatting", "RTL", "analytics", "crash/performance monitoring", "quality checklist"], "tools": ["React Native", "Firebase Analytics", "Firebase Crashlytics"], "lab_task": "Add accessibility, localization, and production monitoring"},
-    {"day": 32, "topic": "React Native Capstone Project", "subtopics": ["requirements and UX", "TypeScript architecture", "components/navigation/forms", "state/API/auth", "local/Firebase data", "device APIs", "notifications", "testing", "security", "performance", "Git/CI-CD", "release build", "documentation"], "tools": ["React Native", "TypeScript", "Expo", "Firebase", "Postman", "GitHub Actions"], "lab_task": "Deliver a production-style React Native application ready for release"}
-  ]
+    {
+      "day": 1,
+      "topic": "React Native Introduction and Environment Setup",
+      "subtopics": [
+        "cross-platform development",
+        "React versus React Native",
+        "native components",
+        "New Architecture",
+        "Fabric",
+        "TurboModules",
+        "JSI",
+        "Node/npm/Yarn",
+        "Expo/CLI",
+        "Android/iOS setup",
+        "project structure",
+        "Fast Refresh"
+      ],
+      "tools": [
+        "Node.js",
+        "React Native",
+        "Expo",
+        "Android Studio",
+        "Xcode"
+      ],
+      "lab_task": "Configure React Native and run the first cross-platform application",
+      "deliverable": "Participant submission for 'React Native Introduction and Environment Setup': Configure React Native and run the first cross-platform application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Configure React Native and run the first cross-platform application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (cross-platform development; React versus React Native; native components; New Architecture; Fabric; TurboModules; JSI; Node/npm/Yarn; Expo/CLI; Android/iOS setup; project structure; Fast Refresh). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Configure React Native and run the first cross-platform application.",
+        "Explain how the lab applies React Native Introduction and Environment Setup and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'React Native Introduction and Environment Setup' on a prepared training sample through this task: Configure React Native and run the first cross-platform application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Configure React Native and run the first cross-platform application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (cross-platform development; React versus React Native; native components; New Architecture; Fabric; TurboModules; JSI; Node/npm/Yarn; Expo/CLI; Android/iOS setup; project structure; Fast Refresh) and demonstrate the starting sample for: Configure React Native and run the first cross-platform application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Configure React Native and run the first cross-platform application",
+          "evidence": "Participant submission for 'React Native Introduction and Environment Setup': Configure React Native and run the first cross-platform application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Configure React Native and run the first cross-platform application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Configure React Native and run the first cross-platform application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (cross-platform development; React versus React Native; native components; New Architecture; Fabric; TurboModules; JSI; Node/npm/Yarn; Expo/CLI; Android/iOS setup; project structure; Fast Refresh). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "JavaScript and TypeScript Essentials",
+      "subtopics": [
+        "variables",
+        "objects and arrays",
+        "arrow functions",
+        "destructuring",
+        "spread/rest",
+        "array methods",
+        "modules",
+        "Promises",
+        "async/await",
+        "TypeScript interfaces",
+        "type aliases",
+        "unions",
+        "generics"
+      ],
+      "tools": [
+        "Visual Studio Code",
+        "Node.js",
+        "TypeScript"
+      ],
+      "lab_task": "Create JavaScript and TypeScript utility modules",
+      "deliverable": "Participant submission for 'JavaScript and TypeScript Essentials': Create JavaScript and TypeScript utility modules. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create JavaScript and TypeScript utility modules. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables; objects and arrays; arrow functions; destructuring; spread/rest; array methods; modules; Promises; async/await; TypeScript interfaces; type aliases; unions; generics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create JavaScript and TypeScript utility modules.",
+        "Explain how the lab applies JavaScript and TypeScript Essentials and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'JavaScript and TypeScript Essentials' on a prepared training sample through this task: Create JavaScript and TypeScript utility modules.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create JavaScript and TypeScript utility modules",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (variables; objects and arrays; arrow functions; destructuring; spread/rest; array methods; modules; Promises; async/await; TypeScript interfaces; type aliases; unions; generics) and demonstrate the starting sample for: Create JavaScript and TypeScript utility modules",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create JavaScript and TypeScript utility modules",
+          "evidence": "Participant submission for 'JavaScript and TypeScript Essentials': Create JavaScript and TypeScript utility modules. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create JavaScript and TypeScript utility modules' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create JavaScript and TypeScript utility modules. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables; objects and arrays; arrow functions; destructuring; spread/rest; array methods; modules; Promises; async/await; TypeScript interfaces; type aliases; unions; generics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "React Fundamentals",
+      "subtopics": [
+        "components",
+        "functional components",
+        "JSX",
+        "props",
+        "composition",
+        "children",
+        "conditional rendering",
+        "lists and keys",
+        "events",
+        "state",
+        "immutability",
+        "one-way data flow"
+      ],
+      "tools": [
+        "React",
+        "React Native"
+      ],
+      "lab_task": "Build reusable components with props, state, and conditional rendering",
+      "deliverable": "Participant submission for 'React Fundamentals': Build reusable components with props, state, and conditional rendering. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build reusable components with props, state, and conditional rendering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (components; functional components; JSX; props; composition; children; conditional rendering; lists and keys; events; state; immutability; one-way data flow). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build reusable components with props, state, and conditional rendering.",
+        "Explain how the lab applies React Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'React Fundamentals' on a prepared training sample through this task: Build reusable components with props, state, and conditional rendering.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build reusable components with props, state, and conditional rendering",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (components; functional components; JSX; props; composition; children; conditional rendering; lists and keys; events; state; immutability; one-way data flow) and demonstrate the starting sample for: Build reusable components with props, state, and conditional rendering",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build reusable components with props, state, and conditional rendering",
+          "evidence": "Participant submission for 'React Fundamentals': Build reusable components with props, state, and conditional rendering. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build reusable components with props, state, and conditional rendering' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build reusable components with props, state, and conditional rendering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (components; functional components; JSX; props; composition; children; conditional rendering; lists and keys; events; state; immutability; one-way data flow). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Core React Native Components",
+      "subtopics": [
+        "View, Text and Image",
+        "ScrollView",
+        "TextInput",
+        "Pressable",
+        "Switch",
+        "ActivityIndicator",
+        "SafeAreaView",
+        "StatusBar",
+        "Modal",
+        "RefreshControl",
+        "platform components",
+        "reusable UI"
+      ],
+      "tools": [
+        "React Native",
+        "Expo"
+      ],
+      "lab_task": "Build a profile screen using core native components",
+      "deliverable": "Participant submission for 'Core React Native Components': Build a profile screen using core native components. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a profile screen using core native components. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (View, Text and Image; ScrollView; TextInput; Pressable; Switch; ActivityIndicator; SafeAreaView; StatusBar; Modal; RefreshControl; platform components; reusable UI). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a profile screen using core native components.",
+        "Explain how the lab applies Core React Native Components and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Core React Native Components' on a prepared training sample through this task: Build a profile screen using core native components.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a profile screen using core native components",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (View, Text and Image; ScrollView; TextInput; Pressable; Switch; ActivityIndicator; SafeAreaView; StatusBar; Modal; RefreshControl; platform components; reusable UI) and demonstrate the starting sample for: Build a profile screen using core native components",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a profile screen using core native components",
+          "evidence": "Participant submission for 'Core React Native Components': Build a profile screen using core native components. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a profile screen using core native components' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a profile screen using core native components. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (View, Text and Image; ScrollView; TextInput; Pressable; Switch; ActivityIndicator; SafeAreaView; StatusBar; Modal; RefreshControl; platform components; reusable UI). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Styling and Layout",
+      "subtopics": [
+        "StyleSheet",
+        "inline/style arrays",
+        "Flexbox",
+        "alignment",
+        "wrapping",
+        "positioning",
+        "dimensions",
+        "spacing",
+        "borders",
+        "colors",
+        "typography",
+        "shadows",
+        "platform styles"
+      ],
+      "tools": [
+        "React Native",
+        "React Native DevTools"
+      ],
+      "lab_task": "Create a responsive dashboard with Flexbox",
+      "deliverable": "Participant submission for 'Styling and Layout': Create a responsive dashboard with Flexbox. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a responsive dashboard with Flexbox. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (StyleSheet; inline/style arrays; Flexbox; alignment; wrapping; positioning; dimensions; spacing; borders; colors; typography; shadows; platform styles). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a responsive dashboard with Flexbox.",
+        "Explain how the lab applies Styling and Layout and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Styling and Layout' on a prepared training sample through this task: Create a responsive dashboard with Flexbox.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a responsive dashboard with Flexbox",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (StyleSheet; inline/style arrays; Flexbox; alignment; wrapping; positioning; dimensions; spacing; borders; colors; typography; shadows; platform styles) and demonstrate the starting sample for: Create a responsive dashboard with Flexbox",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a responsive dashboard with Flexbox",
+          "evidence": "Participant submission for 'Styling and Layout': Create a responsive dashboard with Flexbox. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a responsive dashboard with Flexbox' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a responsive dashboard with Flexbox. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (StyleSheet; inline/style arrays; Flexbox; alignment; wrapping; positioning; dimensions; spacing; borders; colors; typography; shadows; platform styles). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Responsive and Adaptive Mobile Design",
+      "subtopics": [
+        "Dimensions",
+        "useWindowDimensions",
+        "orientation",
+        "pixel density",
+        "Platform API",
+        "iOS/Android differences",
+        "safe areas",
+        "keyboard-aware layouts",
+        "tablet layouts",
+        "accessibility sizing",
+        "adaptive patterns"
+      ],
+      "tools": [
+        "React Native",
+        "Android Emulator",
+        "iOS Simulator"
+      ],
+      "lab_task": "Build a phone/tablet adaptive screen for Android and iOS",
+      "deliverable": "Participant submission for 'Responsive and Adaptive Mobile Design': Build a phone/tablet adaptive screen for Android and iOS. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a phone/tablet adaptive screen for Android and iOS. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dimensions; useWindowDimensions; orientation; pixel density; Platform API; iOS/Android differences; safe areas; keyboard-aware layouts; tablet layouts; accessibility sizing; adaptive patterns). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a phone/tablet adaptive screen for Android and iOS.",
+        "Explain how the lab applies Responsive and Adaptive Mobile Design and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Responsive and Adaptive Mobile Design' on a prepared training sample through this task: Build a phone/tablet adaptive screen for Android and iOS.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a phone/tablet adaptive screen for Android and iOS",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Dimensions; useWindowDimensions; orientation; pixel density; Platform API; iOS/Android differences; safe areas; keyboard-aware layouts; tablet layouts; accessibility sizing; adaptive patterns) and demonstrate the starting sample for: Build a phone/tablet adaptive screen for Android and iOS",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a phone/tablet adaptive screen for Android and iOS",
+          "evidence": "Participant submission for 'Responsive and Adaptive Mobile Design': Build a phone/tablet adaptive screen for Android and iOS. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a phone/tablet adaptive screen for Android and iOS' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a phone/tablet adaptive screen for Android and iOS. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dimensions; useWindowDimensions; orientation; pixel density; Platform API; iOS/Android differences; safe areas; keyboard-aware layouts; tablet layouts; accessibility sizing; adaptive patterns). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "React Hooks",
+      "subtopics": [
+        "Rules of Hooks",
+        "useState",
+        "useEffect",
+        "dependencies and cleanup",
+        "useRef",
+        "useMemo",
+        "useCallback",
+        "useContext",
+        "useReducer",
+        "custom hooks",
+        "hook composition"
+      ],
+      "tools": [
+        "React",
+        "React Native"
+      ],
+      "lab_task": "Build reusable hooks for data loading, state, and forms",
+      "deliverable": "Participant submission for 'React Hooks': Build reusable hooks for data loading, state, and forms. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build reusable hooks for data loading, state, and forms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Rules of Hooks; useState; useEffect; dependencies and cleanup; useRef; useMemo; useCallback; useContext; useReducer; custom hooks; hook composition). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build reusable hooks for data loading, state, and forms.",
+        "Explain how the lab applies React Hooks and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'React Hooks' on a prepared training sample through this task: Build reusable hooks for data loading, state, and forms.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build reusable hooks for data loading, state, and forms",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Rules of Hooks; useState; useEffect; dependencies and cleanup; useRef; useMemo; useCallback; useContext; useReducer; custom hooks; hook composition) and demonstrate the starting sample for: Build reusable hooks for data loading, state, and forms",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build reusable hooks for data loading, state, and forms",
+          "evidence": "Participant submission for 'React Hooks': Build reusable hooks for data loading, state, and forms. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build reusable hooks for data loading, state, and forms' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build reusable hooks for data loading, state, and forms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Rules of Hooks; useState; useEffect; dependencies and cleanup; useRef; useMemo; useCallback; useContext; useReducer; custom hooks; hook composition). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Lists and Data Rendering",
+      "subtopics": [
+        "FlatList",
+        "SectionList",
+        "VirtualizedList",
+        "renderItem",
+        "keyExtractor",
+        "headers/footers",
+        "empty/separator components",
+        "pull-to-refresh",
+        "pagination",
+        "infinite scroll",
+        "list optimization",
+        "memoized items"
+      ],
+      "tools": [
+        "React Native"
+      ],
+      "lab_task": "Create a paginated product list with refresh and optimized rendering",
+      "deliverable": "Participant submission for 'Lists and Data Rendering': Create a paginated product list with refresh and optimized rendering. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a paginated product list with refresh and optimized rendering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (FlatList; SectionList; VirtualizedList; renderItem; keyExtractor; headers/footers; empty/separator components; pull-to-refresh; pagination; infinite scroll; list optimization; memoized items). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a paginated product list with refresh and optimized rendering.",
+        "Explain how the lab applies Lists and Data Rendering and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Lists and Data Rendering' on a prepared training sample through this task: Create a paginated product list with refresh and optimized rendering.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a paginated product list with refresh and optimized rendering",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (FlatList; SectionList; VirtualizedList; renderItem; keyExtractor; headers/footers; empty/separator components; pull-to-refresh; pagination; infinite scroll; list optimization; memoized items) and demonstrate the starting sample for: Create a paginated product list with refresh and optimized rendering",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a paginated product list with refresh and optimized rendering",
+          "evidence": "Participant submission for 'Lists and Data Rendering': Create a paginated product list with refresh and optimized rendering. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a paginated product list with refresh and optimized rendering' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a paginated product list with refresh and optimized rendering. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (FlatList; SectionList; VirtualizedList; renderItem; keyExtractor; headers/footers; empty/separator components; pull-to-refresh; pagination; infinite scroll; list optimization; memoized items). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Forms and User Input",
+      "subtopics": [
+        "controlled inputs",
+        "form state",
+        "validation",
+        "email/password",
+        "keyboard and focus",
+        "submission",
+        "React Hook Form",
+        "schema validation",
+        "errors",
+        "reusable fields"
+      ],
+      "tools": [
+        "React Hook Form",
+        "React Native"
+      ],
+      "lab_task": "Build registration and login forms with validation",
+      "deliverable": "Participant submission for 'Forms and User Input': Build registration and login forms with validation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build registration and login forms with validation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (controlled inputs; form state; validation; email/password; keyboard and focus; submission; React Hook Form; schema validation; errors; reusable fields). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build registration and login forms with validation.",
+        "Explain how the lab applies Forms and User Input and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Forms and User Input' on a prepared training sample through this task: Build registration and login forms with validation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build registration and login forms with validation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (controlled inputs; form state; validation; email/password; keyboard and focus; submission; React Hook Form; schema validation; errors; reusable fields) and demonstrate the starting sample for: Build registration and login forms with validation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build registration and login forms with validation",
+          "evidence": "Participant submission for 'Forms and User Input': Build registration and login forms with validation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build registration and login forms with validation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build registration and login forms with validation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (controlled inputs; form state; validation; email/password; keyboard and focus; submission; React Hook Form; schema validation; errors; reusable fields). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Navigation Fundamentals",
+      "subtopics": [
+        "React Navigation",
+        "NavigationContainer",
+        "stack/native stack",
+        "tabs",
+        "drawer",
+        "nested navigators",
+        "navigation/route objects",
+        "parameters",
+        "headers",
+        "lifecycle",
+        "authentication flows"
+      ],
+      "tools": [
+        "React Navigation"
+      ],
+      "lab_task": "Create a stack, tab, and drawer multi-screen application",
+      "deliverable": "Participant submission for 'Navigation Fundamentals': Create a stack, tab, and drawer multi-screen application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a stack, tab, and drawer multi-screen application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (React Navigation; NavigationContainer; stack/native stack; tabs; drawer; nested navigators; navigation/route objects; parameters; headers; lifecycle; authentication flows). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a stack, tab, and drawer multi-screen application.",
+        "Explain how the lab applies Navigation Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Navigation Fundamentals' on a prepared training sample through this task: Create a stack, tab, and drawer multi-screen application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a stack, tab, and drawer multi-screen application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (React Navigation; NavigationContainer; stack/native stack; tabs; drawer; nested navigators; navigation/route objects; parameters; headers; lifecycle; authentication flows) and demonstrate the starting sample for: Create a stack, tab, and drawer multi-screen application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a stack, tab, and drawer multi-screen application",
+          "evidence": "Participant submission for 'Navigation Fundamentals': Create a stack, tab, and drawer multi-screen application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a stack, tab, and drawer multi-screen application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a stack, tab, and drawer multi-screen application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (React Navigation; NavigationContainer; stack/native stack; tabs; drawer; nested navigators; navigation/route objects; parameters; headers; lifecycle; authentication flows). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Advanced Navigation and Deep Linking",
+      "subtopics": [
+        "nested navigation architecture",
+        "navigation state",
+        "conditional/protected navigation",
+        "deep links",
+        "URL schemes",
+        "universal/app links",
+        "linking config",
+        "route parsing",
+        "notification navigation",
+        "persistence",
+        "back button"
+      ],
+      "tools": [
+        "React Navigation",
+        "Expo Linking"
+      ],
+      "lab_task": "Implement authenticated screens and deep links",
+      "deliverable": "Participant submission for 'Advanced Navigation and Deep Linking': Implement authenticated screens and deep links. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement authenticated screens and deep links. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (nested navigation architecture; navigation state; conditional/protected navigation; deep links; URL schemes; universal/app links; linking config; route parsing; notification navigation; persistence; back button). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement authenticated screens and deep links.",
+        "Explain how the lab applies Advanced Navigation and Deep Linking and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Navigation and Deep Linking' on a prepared training sample through this task: Implement authenticated screens and deep links.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement authenticated screens and deep links",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (nested navigation architecture; navigation state; conditional/protected navigation; deep links; URL schemes; universal/app links; linking config; route parsing; notification navigation; persistence; back button) and demonstrate the starting sample for: Implement authenticated screens and deep links",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement authenticated screens and deep links",
+          "evidence": "Participant submission for 'Advanced Navigation and Deep Linking': Implement authenticated screens and deep links. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement authenticated screens and deep links' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement authenticated screens and deep links. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (nested navigation architecture; navigation state; conditional/protected navigation; deep links; URL schemes; universal/app links; linking config; route parsing; notification navigation; persistence; back button). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "State Management with Context and Reducers",
+      "subtopics": [
+        "local/global state",
+        "Context",
+        "providers",
+        "useReducer",
+        "actions and reducers",
+        "immutable updates",
+        "context with reducers",
+        "normalization",
+        "state separation",
+        "global state design"
+      ],
+      "tools": [
+        "React Context API"
+      ],
+      "lab_task": "Create global authentication and cart state",
+      "deliverable": "Participant submission for 'State Management with Context and Reducers': Create global authentication and cart state. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create global authentication and cart state. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (local/global state; Context; providers; useReducer; actions and reducers; immutable updates; context with reducers; normalization; state separation; global state design). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create global authentication and cart state.",
+        "Explain how the lab applies State Management with Context and Reducers and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'State Management with Context and Reducers' on a prepared training sample through this task: Create global authentication and cart state.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create global authentication and cart state",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (local/global state; Context; providers; useReducer; actions and reducers; immutable updates; context with reducers; normalization; state separation; global state design) and demonstrate the starting sample for: Create global authentication and cart state",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create global authentication and cart state",
+          "evidence": "Participant submission for 'State Management with Context and Reducers': Create global authentication and cart state. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create global authentication and cart state' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create global authentication and cart state. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (local/global state; Context; providers; useReducer; actions and reducers; immutable updates; context with reducers; normalization; state separation; global state design). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Redux and Modern State Management",
+      "subtopics": [
+        "Redux principles",
+        "store/actions/reducers",
+        "selectors",
+        "Redux Toolkit",
+        "configureStore",
+        "createSlice",
+        "async thunks",
+        "React Redux",
+        "useSelector/useDispatch",
+        "async states",
+        "DevTools",
+        "Zustand awareness"
+      ],
+      "tools": [
+        "Redux Toolkit",
+        "React Redux"
+      ],
+      "lab_task": "Build centralized state with Redux Toolkit",
+      "deliverable": "Participant submission for 'Redux and Modern State Management': Build centralized state with Redux Toolkit. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build centralized state with Redux Toolkit. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Redux principles; store/actions/reducers; selectors; Redux Toolkit; configureStore; createSlice; async thunks; React Redux; useSelector/useDispatch; async states; DevTools; Zustand awareness). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build centralized state with Redux Toolkit.",
+        "Explain how the lab applies Redux and Modern State Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Redux and Modern State Management' on a prepared training sample through this task: Build centralized state with Redux Toolkit.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build centralized state with Redux Toolkit",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Redux principles; store/actions/reducers; selectors; Redux Toolkit; configureStore; createSlice; async thunks; React Redux; useSelector/useDispatch; async states; DevTools; Zustand awareness) and demonstrate the starting sample for: Build centralized state with Redux Toolkit",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build centralized state with Redux Toolkit",
+          "evidence": "Participant submission for 'Redux and Modern State Management': Build centralized state with Redux Toolkit. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build centralized state with Redux Toolkit' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build centralized state with Redux Toolkit. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Redux principles; store/actions/reducers; selectors; Redux Toolkit; configureStore; createSlice; async thunks; React Redux; useSelector/useDispatch; async states; DevTools; Zustand awareness). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "REST API Integration",
+      "subtopics": [
+        "HTTP and REST",
+        "fetch and Axios",
+        "GET/POST/PUT/PATCH/DELETE",
+        "headers and query parameters",
+        "JSON",
+        "status codes",
+        "loading/errors/timeouts",
+        "API abstraction"
+      ],
+      "tools": [
+        "Axios",
+        "Postman"
+      ],
+      "lab_task": "Develop REST API CRUD functionality",
+      "deliverable": "Participant submission for 'REST API Integration': Develop REST API CRUD functionality. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop REST API CRUD functionality. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP and REST; fetch and Axios; GET/POST/PUT/PATCH/DELETE; headers and query parameters; JSON; status codes; loading/errors/timeouts; API abstraction). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop REST API CRUD functionality.",
+        "Explain how the lab applies REST API Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'REST API Integration' on a prepared training sample through this task: Develop REST API CRUD functionality.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop REST API CRUD functionality",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (HTTP and REST; fetch and Axios; GET/POST/PUT/PATCH/DELETE; headers and query parameters; JSON; status codes; loading/errors/timeouts; API abstraction) and demonstrate the starting sample for: Develop REST API CRUD functionality",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop REST API CRUD functionality",
+          "evidence": "Participant submission for 'REST API Integration': Develop REST API CRUD functionality. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop REST API CRUD functionality' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop REST API CRUD functionality. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP and REST; fetch and Axios; GET/POST/PUT/PATCH/DELETE; headers and query parameters; JSON; status codes; loading/errors/timeouts; API abstraction). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Advanced API and Server-State Management",
+      "subtopics": [
+        "server versus client state",
+        "TanStack Query",
+        "queries and mutations",
+        "keys and caching",
+        "invalidation",
+        "background refetch",
+        "pagination",
+        "infinite queries",
+        "optimistic updates",
+        "retry/cancellation",
+        "offline",
+        "interceptors/token refresh"
+      ],
+      "tools": [
+        "TanStack Query",
+        "Axios",
+        "Postman"
+      ],
+      "lab_task": "Implement cached API state with mutations and pagination",
+      "deliverable": "Participant submission for 'Advanced API and Server-State Management': Implement cached API state with mutations and pagination. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement cached API state with mutations and pagination. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (server versus client state; TanStack Query; queries and mutations; keys and caching; invalidation; background refetch; pagination; infinite queries; optimistic updates; retry/cancellation; offline; interceptors/token refresh). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement cached API state with mutations and pagination.",
+        "Explain how the lab applies Advanced API and Server-State Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced API and Server-State Management' on a prepared training sample through this task: Implement cached API state with mutations and pagination.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement cached API state with mutations and pagination",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (server versus client state; TanStack Query; queries and mutations; keys and caching; invalidation; background refetch; pagination; infinite queries; optimistic updates; retry/cancellation; offline; interceptors/token refresh) and demonstrate the starting sample for: Implement cached API state with mutations and pagination",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement cached API state with mutations and pagination",
+          "evidence": "Participant submission for 'Advanced API and Server-State Management': Implement cached API state with mutations and pagination. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement cached API state with mutations and pagination' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement cached API state with mutations and pagination. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (server versus client state; TanStack Query; queries and mutations; keys and caching; invalidation; background refetch; pagination; infinite queries; optimistic updates; retry/cancellation; offline; interceptors/token refresh). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Authentication and Authorization",
+      "subtopics": [
+        "login/registration",
+        "JWT",
+        "access/refresh tokens",
+        "Bearer auth",
+        "SecureStore",
+        "session restore",
+        "expiration and refresh",
+        "logout",
+        "OAuth/social login",
+        "protected routes",
+        "roles",
+        "biometrics"
+      ],
+      "tools": [
+        "Expo SecureStore",
+        "Axios",
+        "Firebase Authentication"
+      ],
+      "lab_task": "Build secure login, session management, and protected screens",
+      "deliverable": "Participant submission for 'Authentication and Authorization': Build secure login, session management, and protected screens. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build secure login, session management, and protected screens. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (login/registration; JWT; access/refresh tokens; Bearer auth; SecureStore; session restore; expiration and refresh; logout; OAuth/social login; protected routes; roles; biometrics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build secure login, session management, and protected screens.",
+        "Explain how the lab applies Authentication and Authorization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Authentication and Authorization' on a prepared training sample through this task: Build secure login, session management, and protected screens.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build secure login, session management, and protected screens",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (login/registration; JWT; access/refresh tokens; Bearer auth; SecureStore; session restore; expiration and refresh; logout; OAuth/social login; protected routes; roles; biometrics) and demonstrate the starting sample for: Build secure login, session management, and protected screens",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build secure login, session management, and protected screens",
+          "evidence": "Participant submission for 'Authentication and Authorization': Build secure login, session management, and protected screens. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build secure login, session management, and protected screens' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build secure login, session management, and protected screens. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (login/registration; JWT; access/refresh tokens; Bearer auth; SecureStore; session restore; expiration and refresh; logout; OAuth/social login; protected routes; roles; biometrics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "Local Storage and Offline Data",
+      "subtopics": [
+        "AsyncStorage",
+        "read/write/remove",
+        "JSON persistence",
+        "secure storage",
+        "SQLite",
+        "CRUD",
+        "caching",
+        "offline-first",
+        "sync",
+        "conflict resolution"
+      ],
+      "tools": [
+        "AsyncStorage",
+        "SQLite",
+        "Expo SecureStore"
+      ],
+      "lab_task": "Develop an offline-capable app with local persistence and sync",
+      "deliverable": "Participant submission for 'Local Storage and Offline Data': Develop an offline-capable app with local persistence and sync. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop an offline-capable app with local persistence and sync. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (AsyncStorage; read/write/remove; JSON persistence; secure storage; SQLite; CRUD; caching; offline-first; sync; conflict resolution). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop an offline-capable app with local persistence and sync.",
+        "Explain how the lab applies Local Storage and Offline Data and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Local Storage and Offline Data' on a prepared training sample through this task: Develop an offline-capable app with local persistence and sync.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop an offline-capable app with local persistence and sync",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (AsyncStorage; read/write/remove; JSON persistence; secure storage; SQLite; CRUD; caching; offline-first; sync; conflict resolution) and demonstrate the starting sample for: Develop an offline-capable app with local persistence and sync",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop an offline-capable app with local persistence and sync",
+          "evidence": "Participant submission for 'Local Storage and Offline Data': Develop an offline-capable app with local persistence and sync. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop an offline-capable app with local persistence and sync' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop an offline-capable app with local persistence and sync. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (AsyncStorage; read/write/remove; JSON persistence; secure storage; SQLite; CRUD; caching; offline-first; sync; conflict resolution). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "Firebase Integration",
+      "subtopics": [
+        "Firebase setup",
+        "Auth",
+        "Firestore",
+        "collections/documents",
+        "CRUD",
+        "real-time listeners",
+        "Storage/file uploads",
+        "FCM awareness",
+        "Analytics",
+        "Crashlytics",
+        "security rules"
+      ],
+      "tools": [
+        "Firebase",
+        "Cloud Firestore"
+      ],
+      "lab_task": "Create a real-time Firebase-authenticated application",
+      "deliverable": "Participant submission for 'Firebase Integration': Create a real-time Firebase-authenticated application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a real-time Firebase-authenticated application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Firebase setup; Auth; Firestore; collections/documents; CRUD; real-time listeners; Storage/file uploads; FCM awareness; Analytics; Crashlytics; security rules). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a real-time Firebase-authenticated application.",
+        "Explain how the lab applies Firebase Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Firebase Integration' on a prepared training sample through this task: Create a real-time Firebase-authenticated application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a real-time Firebase-authenticated application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Firebase setup; Auth; Firestore; collections/documents; CRUD; real-time listeners; Storage/file uploads; FCM awareness; Analytics; Crashlytics; security rules) and demonstrate the starting sample for: Create a real-time Firebase-authenticated application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a real-time Firebase-authenticated application",
+          "evidence": "Participant submission for 'Firebase Integration': Create a real-time Firebase-authenticated application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a real-time Firebase-authenticated application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a real-time Firebase-authenticated application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Firebase setup; Auth; Firestore; collections/documents; CRUD; real-time listeners; Storage/file uploads; FCM awareness; Analytics; Crashlytics; security rules). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "Device APIs and Native Features",
+      "subtopics": [
+        "camera/image picker",
+        "location/maps",
+        "contacts",
+        "file system",
+        "clipboard/sharing",
+        "haptics",
+        "device data",
+        "sensors",
+        "permissions",
+        "Android/iOS configuration"
+      ],
+      "tools": [
+        "Expo SDK",
+        "React Native APIs"
+      ],
+      "lab_task": "Use camera, location, files, and permissions in an app",
+      "deliverable": "Participant submission for 'Device APIs and Native Features': Use camera, location, files, and permissions in an app. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Use camera, location, files, and permissions in an app. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (camera/image picker; location/maps; contacts; file system; clipboard/sharing; haptics; device data; sensors; permissions; Android/iOS configuration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Use camera, location, files, and permissions in an app.",
+        "Explain how the lab applies Device APIs and Native Features and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Device APIs and Native Features' on a prepared training sample through this task: Use camera, location, files, and permissions in an app.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Use camera, location, files, and permissions in an app",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (camera/image picker; location/maps; contacts; file system; clipboard/sharing; haptics; device data; sensors; permissions; Android/iOS configuration) and demonstrate the starting sample for: Use camera, location, files, and permissions in an app",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Use camera, location, files, and permissions in an app",
+          "evidence": "Participant submission for 'Device APIs and Native Features': Use camera, location, files, and permissions in an app. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Use camera, location, files, and permissions in an app' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Use camera, location, files, and permissions in an app. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (camera/image picker; location/maps; contacts; file system; clipboard/sharing; haptics; device data; sensors; permissions; Android/iOS configuration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "Push and Local Notifications",
+      "subtopics": [
+        "local/push notifications",
+        "device registration/tokens",
+        "FCM",
+        "Expo Notifications",
+        "foreground/background/terminated behavior",
+        "payloads",
+        "channels",
+        "permissions",
+        "notification navigation"
+      ],
+      "tools": [
+        "Expo Notifications",
+        "Firebase Cloud Messaging"
+      ],
+      "lab_task": "Implement notifications and notification-based navigation",
+      "deliverable": "Participant submission for 'Push and Local Notifications': Implement notifications and notification-based navigation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement notifications and notification-based navigation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (local/push notifications; device registration/tokens; FCM; Expo Notifications; foreground/background/terminated behavior; payloads; channels; permissions; notification navigation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement notifications and notification-based navigation.",
+        "Explain how the lab applies Push and Local Notifications and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Push and Local Notifications' on a prepared training sample through this task: Implement notifications and notification-based navigation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement notifications and notification-based navigation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (local/push notifications; device registration/tokens; FCM; Expo Notifications; foreground/background/terminated behavior; payloads; channels; permissions; notification navigation) and demonstrate the starting sample for: Implement notifications and notification-based navigation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement notifications and notification-based navigation",
+          "evidence": "Participant submission for 'Push and Local Notifications': Implement notifications and notification-based navigation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement notifications and notification-based navigation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement notifications and notification-based navigation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (local/push notifications; device registration/tokens; FCM; Expo Notifications; foreground/background/terminated behavior; payloads; channels; permissions; notification navigation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 21,
+      "topic": "Animations and Gestures",
+      "subtopics": [
+        "Animated API",
+        "Animated.Value",
+        "timing/spring",
+        "interpolation",
+        "parallel/sequential animations",
+        "Gesture Handler",
+        "pan/tap/swipe",
+        "Reanimated",
+        "shared values",
+        "animated styles",
+        "UI thread"
+      ],
+      "tools": [
+        "React Native Reanimated",
+        "React Native Gesture Handler"
+      ],
+      "lab_task": "Build an animated gesture-driven interface",
+      "deliverable": "Participant submission for 'Animations and Gestures': Build an animated gesture-driven interface. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an animated gesture-driven interface. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Animated API; Animated.Value; timing/spring; interpolation; parallel/sequential animations; Gesture Handler; pan/tap/swipe; Reanimated; shared values; animated styles; UI thread). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an animated gesture-driven interface.",
+        "Explain how the lab applies Animations and Gestures and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Animations and Gestures' on a prepared training sample through this task: Build an animated gesture-driven interface.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an animated gesture-driven interface",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Animated API; Animated.Value; timing/spring; interpolation; parallel/sequential animations; Gesture Handler; pan/tap/swipe; Reanimated; shared values; animated styles; UI thread) and demonstrate the starting sample for: Build an animated gesture-driven interface",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an animated gesture-driven interface",
+          "evidence": "Participant submission for 'Animations and Gestures': Build an animated gesture-driven interface. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an animated gesture-driven interface' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an animated gesture-driven interface. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Animated API; Animated.Value; timing/spring; interpolation; parallel/sequential animations; Gesture Handler; pan/tap/swipe; Reanimated; shared values; animated styles; UI thread). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 22,
+      "topic": "Native Modules and Platform Integration",
+      "subtopics": [
+        "JS/native communication",
+        "Native Modules",
+        "Native Components",
+        "Android/Kotlin integration",
+        "iOS/Swift integration",
+        "TurboModules",
+        "Fabric components",
+        "Codegen",
+        "platform files",
+        "native SDK bridging"
+      ],
+      "tools": [
+        "Android Studio",
+        "Xcode",
+        "React Native"
+      ],
+      "lab_task": "Expose a native Android or iOS capability to JavaScript",
+      "deliverable": "Participant submission for 'Native Modules and Platform Integration': Expose a native Android or iOS capability to JavaScript. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Expose a native Android or iOS capability to JavaScript. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JS/native communication; Native Modules; Native Components; Android/Kotlin integration; iOS/Swift integration; TurboModules; Fabric components; Codegen; platform files; native SDK bridging). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Expose a native Android or iOS capability to JavaScript.",
+        "Explain how the lab applies Native Modules and Platform Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Native Modules and Platform Integration' on a prepared training sample through this task: Expose a native Android or iOS capability to JavaScript.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Expose a native Android or iOS capability to JavaScript",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (JS/native communication; Native Modules; Native Components; Android/Kotlin integration; iOS/Swift integration; TurboModules; Fabric components; Codegen; platform files; native SDK bridging) and demonstrate the starting sample for: Expose a native Android or iOS capability to JavaScript",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Expose a native Android or iOS capability to JavaScript",
+          "evidence": "Participant submission for 'Native Modules and Platform Integration': Expose a native Android or iOS capability to JavaScript. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Expose a native Android or iOS capability to JavaScript' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Expose a native Android or iOS capability to JavaScript. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JS/native communication; Native Modules; Native Components; Android/Kotlin integration; iOS/Swift integration; TurboModules; Fabric components; Codegen; platform files; native SDK bridging). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 23,
+      "topic": "React Native New Architecture",
+      "subtopics": [
+        "legacy versus new architecture",
+        "JSI",
+        "Fabric",
+        "TurboModules",
+        "Codegen",
+        "sync native access",
+        "concurrent rendering",
+        "migration",
+        "library compatibility",
+        "performance"
+      ],
+      "tools": [
+        "React Native",
+        "Android Studio",
+        "Xcode"
+      ],
+      "lab_task": "Analyze a New Architecture React Native project",
+      "deliverable": "Participant submission for 'React Native New Architecture': Analyze a New Architecture React Native project. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Analyze a New Architecture React Native project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (legacy versus new architecture; JSI; Fabric; TurboModules; Codegen; sync native access; concurrent rendering; migration; library compatibility; performance). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Analyze a New Architecture React Native project.",
+        "Explain how the lab applies React Native New Architecture and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'React Native New Architecture' on a prepared training sample through this task: Analyze a New Architecture React Native project.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Analyze a New Architecture React Native project",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (legacy versus new architecture; JSI; Fabric; TurboModules; Codegen; sync native access; concurrent rendering; migration; library compatibility; performance) and demonstrate the starting sample for: Analyze a New Architecture React Native project",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Analyze a New Architecture React Native project",
+          "evidence": "Participant submission for 'React Native New Architecture': Analyze a New Architecture React Native project. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Analyze a New Architecture React Native project' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Analyze a New Architecture React Native project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (legacy versus new architecture; JSI; Fabric; TurboModules; Codegen; sync native access; concurrent rendering; migration; library compatibility; performance). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 24,
+      "topic": "Performance Optimization",
+      "subtopics": [
+        "frame rate",
+        "UI and JavaScript threads",
+        "rendering",
+        "unnecessary re-renders",
+        "React.memo",
+        "useMemo/useCallback",
+        "virtualized lists",
+        "images",
+        "network/cache",
+        "bundle size",
+        "memory",
+        "profiling"
+      ],
+      "tools": [
+        "React Native DevTools",
+        "Android Studio Profiler",
+        "Xcode Instruments"
+      ],
+      "lab_task": "Profile and optimize rendering, lists, images, and API work",
+      "deliverable": "Participant submission for 'Performance Optimization': Profile and optimize rendering, lists, images, and API work. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Profile and optimize rendering, lists, images, and API work. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (frame rate; UI and JavaScript threads; rendering; unnecessary re-renders; React.memo; useMemo/useCallback; virtualized lists; images; network/cache; bundle size; memory; profiling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Profile and optimize rendering, lists, images, and API work.",
+        "Explain how the lab applies Performance Optimization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance Optimization' on a prepared training sample through this task: Profile and optimize rendering, lists, images, and API work.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Profile and optimize rendering, lists, images, and API work",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (frame rate; UI and JavaScript threads; rendering; unnecessary re-renders; React.memo; useMemo/useCallback; virtualized lists; images; network/cache; bundle size; memory; profiling) and demonstrate the starting sample for: Profile and optimize rendering, lists, images, and API work",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Profile and optimize rendering, lists, images, and API work",
+          "evidence": "Participant submission for 'Performance Optimization': Profile and optimize rendering, lists, images, and API work. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Profile and optimize rendering, lists, images, and API work' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Profile and optimize rendering, lists, images, and API work. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (frame rate; UI and JavaScript threads; rendering; unnecessary re-renders; React.memo; useMemo/useCallback; virtualized lists; images; network/cache; bundle size; memory; profiling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 25,
+      "topic": "Testing",
+      "subtopics": [
+        "Jest",
+        "test suites/assertions",
+        "mock functions",
+        "React Native Testing Library",
+        "component/user-event testing",
+        "hooks",
+        "API mocking",
+        "async tests",
+        "snapshots",
+        "integration/E2E concepts",
+        "coverage"
+      ],
+      "tools": [
+        "Jest",
+        "React Native Testing Library"
+      ],
+      "lab_task": "Test forms, state logic, and API-connected components",
+      "deliverable": "Participant submission for 'Testing': Test forms, state logic, and API-connected components. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Test forms, state logic, and API-connected components. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Jest; test suites/assertions; mock functions; React Native Testing Library; component/user-event testing; hooks; API mocking; async tests; snapshots; integration/E2E concepts; coverage). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Test forms, state logic, and API-connected components.",
+        "Explain how the lab applies Testing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Testing' on a prepared training sample through this task: Test forms, state logic, and API-connected components.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Test forms, state logic, and API-connected components",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Jest; test suites/assertions; mock functions; React Native Testing Library; component/user-event testing; hooks; API mocking; async tests; snapshots; integration/E2E concepts; coverage) and demonstrate the starting sample for: Test forms, state logic, and API-connected components",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Test forms, state logic, and API-connected components",
+          "evidence": "Participant submission for 'Testing': Test forms, state logic, and API-connected components. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Test forms, state logic, and API-connected components' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Test forms, state logic, and API-connected components. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Jest; test suites/assertions; mock functions; React Native Testing Library; component/user-event testing; hooks; API mocking; async tests; snapshots; integration/E2E concepts; coverage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 26,
+      "topic": "Debugging, Logging and Error Handling",
+      "subtopics": [
+        "DevTools",
+        "console/breakpoints",
+        "network/component inspection",
+        "error boundaries",
+        "global/API errors",
+        "Android Logcat",
+        "Xcode logs",
+        "Crashlytics",
+        "production logging",
+        "debug/release behavior"
+      ],
+      "tools": [
+        "React Native DevTools",
+        "Android Logcat",
+        "Xcode",
+        "Firebase Crashlytics"
+      ],
+      "lab_task": "Debug UI, JavaScript, network, and native errors",
+      "deliverable": "Participant submission for 'Debugging, Logging and Error Handling': Debug UI, JavaScript, network, and native errors. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Debug UI, JavaScript, network, and native errors. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DevTools; console/breakpoints; network/component inspection; error boundaries; global/API errors; Android Logcat; Xcode logs; Crashlytics; production logging; debug/release behavior). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Debug UI, JavaScript, network, and native errors.",
+        "Explain how the lab applies Debugging, Logging and Error Handling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Debugging, Logging and Error Handling' on a prepared training sample through this task: Debug UI, JavaScript, network, and native errors.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Debug UI, JavaScript, network, and native errors",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (DevTools; console/breakpoints; network/component inspection; error boundaries; global/API errors; Android Logcat; Xcode logs; Crashlytics; production logging; debug/release behavior) and demonstrate the starting sample for: Debug UI, JavaScript, network, and native errors",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Debug UI, JavaScript, network, and native errors",
+          "evidence": "Participant submission for 'Debugging, Logging and Error Handling': Debug UI, JavaScript, network, and native errors. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Debug UI, JavaScript, network, and native errors' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Debug UI, JavaScript, network, and native errors. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DevTools; console/breakpoints; network/component inspection; error boundaries; global/API errors; Android Logcat; Xcode logs; Crashlytics; production logging; debug/release behavior). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 27,
+      "topic": "Application Architecture and Design Patterns",
+      "subtopics": [
+        "feature organization",
+        "presentation/domain/data",
+        "Clean Architecture",
+        "repository/service layers",
+        "dependency injection",
+        "SOLID",
+        "reusable components",
+        "custom hooks",
+        "state/API separation",
+        "scalable folders"
+      ],
+      "tools": [
+        "React Native",
+        "TypeScript"
+      ],
+      "lab_task": "Refactor an app into feature-based Clean Architecture",
+      "deliverable": "Participant submission for 'Application Architecture and Design Patterns': Refactor an app into feature-based Clean Architecture. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Refactor an app into feature-based Clean Architecture. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (feature organization; presentation/domain/data; Clean Architecture; repository/service layers; dependency injection; SOLID; reusable components; custom hooks; state/API separation; scalable folders). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Refactor an app into feature-based Clean Architecture.",
+        "Explain how the lab applies Application Architecture and Design Patterns and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Application Architecture and Design Patterns' on a prepared training sample through this task: Refactor an app into feature-based Clean Architecture.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Refactor an app into feature-based Clean Architecture",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (feature organization; presentation/domain/data; Clean Architecture; repository/service layers; dependency injection; SOLID; reusable components; custom hooks; state/API separation; scalable folders) and demonstrate the starting sample for: Refactor an app into feature-based Clean Architecture",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Refactor an app into feature-based Clean Architecture",
+          "evidence": "Participant submission for 'Application Architecture and Design Patterns': Refactor an app into feature-based Clean Architecture. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Refactor an app into feature-based Clean Architecture' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Refactor an app into feature-based Clean Architecture. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (feature organization; presentation/domain/data; Clean Architecture; repository/service layers; dependency injection; SOLID; reusable components; custom hooks; state/API separation; scalable folders). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 28,
+      "topic": "Mobile Security",
+      "subtopics": [
+        "secure storage",
+        "sensitive data",
+        "token protection",
+        "HTTPS/TLS",
+        "API security",
+        "input validation",
+        "auth checks",
+        "deep-link security",
+        "permissions",
+        "secrets/env",
+        "obfuscation",
+        "OWASP mobile awareness"
+      ],
+      "tools": [
+        "Expo SecureStore",
+        "Android Keystore",
+        "iOS Keychain"
+      ],
+      "lab_task": "Harden storage, authentication, and API communication",
+      "deliverable": "Participant submission for 'Mobile Security': Harden storage, authentication, and API communication. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Harden storage, authentication, and API communication. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (secure storage; sensitive data; token protection; HTTPS/TLS; API security; input validation; auth checks; deep-link security; permissions; secrets/env; obfuscation; OWASP mobile awareness). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Harden storage, authentication, and API communication.",
+        "Explain how the lab applies Mobile Security and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Mobile Security' on a prepared training sample through this task: Harden storage, authentication, and API communication.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Harden storage, authentication, and API communication",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (secure storage; sensitive data; token protection; HTTPS/TLS; API security; input validation; auth checks; deep-link security; permissions; secrets/env; obfuscation; OWASP mobile awareness) and demonstrate the starting sample for: Harden storage, authentication, and API communication",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Harden storage, authentication, and API communication",
+          "evidence": "Participant submission for 'Mobile Security': Harden storage, authentication, and API communication. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Harden storage, authentication, and API communication' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Harden storage, authentication, and API communication. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (secure storage; sensitive data; token protection; HTTPS/TLS; API security; input validation; auth checks; deep-link security; permissions; secrets/env; obfuscation; OWASP mobile awareness). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 29,
+      "topic": "Build Configuration and Release Management",
+      "subtopics": [
+        "dev/debug/release builds",
+        "environments",
+        "APK/AAB",
+        "Android signing",
+        "iOS certificates/profiles",
+        "app identifiers",
+        "versions/builds",
+        "icons/splash",
+        "EAS"
+      ],
+      "tools": [
+        "Android Studio",
+        "Xcode",
+        "Expo Application Services"
+      ],
+      "lab_task": "Configure environments and generate a release build",
+      "deliverable": "Participant submission for 'Build Configuration and Release Management': Configure environments and generate a release build. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Configure environments and generate a release build. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (dev/debug/release builds; environments; APK/AAB; Android signing; iOS certificates/profiles; app identifiers; versions/builds; icons/splash; EAS). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Configure environments and generate a release build.",
+        "Explain how the lab applies Build Configuration and Release Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Build Configuration and Release Management' on a prepared training sample through this task: Configure environments and generate a release build.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Configure environments and generate a release build",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (dev/debug/release builds; environments; APK/AAB; Android signing; iOS certificates/profiles; app identifiers; versions/builds; icons/splash; EAS) and demonstrate the starting sample for: Configure environments and generate a release build",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Configure environments and generate a release build",
+          "evidence": "Participant submission for 'Build Configuration and Release Management': Configure environments and generate a release build. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Configure environments and generate a release build' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Configure environments and generate a release build. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (dev/debug/release builds; environments; APK/AAB; Android signing; iOS certificates/profiles; app identifiers; versions/builds; icons/splash; EAS). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 30,
+      "topic": "CI/CD and Deployment",
+      "subtopics": [
+        "CI/CD",
+        "Git workflows",
+        "automated lint/test/build",
+        "GitHub Actions",
+        "secrets",
+        "artifacts",
+        "EAS Build/Submit",
+        "Play/App Store deployment",
+        "OTA updates",
+        "release monitoring"
+      ],
+      "tools": [
+        "Git",
+        "GitHub",
+        "GitHub Actions",
+        "Expo Application Services"
+      ],
+      "lab_task": "Create a release pipeline that tests and builds the app",
+      "deliverable": "Participant submission for 'CI/CD and Deployment': Create a release pipeline that tests and builds the app. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a release pipeline that tests and builds the app. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CI/CD; Git workflows; automated lint/test/build; GitHub Actions; secrets; artifacts; EAS Build/Submit; Play/App Store deployment; OTA updates; release monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a release pipeline that tests and builds the app.",
+        "Explain how the lab applies CI/CD and Deployment and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CI/CD and Deployment' on a prepared training sample through this task: Create a release pipeline that tests and builds the app.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a release pipeline that tests and builds the app",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (CI/CD; Git workflows; automated lint/test/build; GitHub Actions; secrets; artifacts; EAS Build/Submit; Play/App Store deployment; OTA updates; release monitoring) and demonstrate the starting sample for: Create a release pipeline that tests and builds the app",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a release pipeline that tests and builds the app",
+          "evidence": "Participant submission for 'CI/CD and Deployment': Create a release pipeline that tests and builds the app. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a release pipeline that tests and builds the app' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a release pipeline that tests and builds the app. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CI/CD; Git workflows; automated lint/test/build; GitHub Actions; secrets; artifacts; EAS Build/Submit; Play/App Store deployment; OTA updates; release monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 31,
+      "topic": "Accessibility, Localization and Production Quality",
+      "subtopics": [
+        "accessibility labels/roles",
+        "screen readers",
+        "touch targets",
+        "contrast",
+        "dynamic text",
+        "internationalization",
+        "locale/translation",
+        "date/number formatting",
+        "RTL",
+        "analytics",
+        "crash/performance monitoring",
+        "quality checklist"
+      ],
+      "tools": [
+        "React Native",
+        "Firebase Analytics",
+        "Firebase Crashlytics"
+      ],
+      "lab_task": "Add accessibility, localization, and production monitoring",
+      "deliverable": "Participant submission for 'Accessibility, Localization and Production Quality': Add accessibility, localization, and production monitoring. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Add accessibility, localization, and production monitoring. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (accessibility labels/roles; screen readers; touch targets; contrast; dynamic text; internationalization; locale/translation; date/number formatting; RTL; analytics; crash/performance monitoring; quality checklist). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Add accessibility, localization, and production monitoring.",
+        "Explain how the lab applies Accessibility, Localization and Production Quality and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Accessibility, Localization and Production Quality' on a prepared training sample through this task: Add accessibility, localization, and production monitoring.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Add accessibility, localization, and production monitoring",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (accessibility labels/roles; screen readers; touch targets; contrast; dynamic text; internationalization; locale/translation; date/number formatting; RTL; analytics; crash/performance monitoring; quality checklist) and demonstrate the starting sample for: Add accessibility, localization, and production monitoring",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Add accessibility, localization, and production monitoring",
+          "evidence": "Participant submission for 'Accessibility, Localization and Production Quality': Add accessibility, localization, and production monitoring. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Add accessibility, localization, and production monitoring' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Add accessibility, localization, and production monitoring. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (accessibility labels/roles; screen readers; touch targets; contrast; dynamic text; internationalization; locale/translation; date/number formatting; RTL; analytics; crash/performance monitoring; quality checklist). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 32,
+      "topic": "React Native Capstone Project",
+      "subtopics": [
+        "requirements and UX",
+        "TypeScript architecture",
+        "components/navigation/forms",
+        "state/API/auth",
+        "local/Firebase data",
+        "device APIs",
+        "notifications",
+        "testing",
+        "security",
+        "performance",
+        "Git/CI-CD",
+        "release build",
+        "documentation"
+      ],
+      "tools": [
+        "React Native",
+        "TypeScript",
+        "Expo",
+        "Firebase",
+        "Postman",
+        "GitHub Actions"
+      ],
+      "lab_task": "Deliver a production-style React Native application ready for release",
+      "deliverable": "Participant submission for 'React Native Capstone Project': Deliver a production-style React Native application ready for release. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deliver a production-style React Native application ready for release. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements and UX; TypeScript architecture; components/navigation/forms; state/API/auth; local/Firebase data; device APIs; notifications; testing; security; performance; Git/CI-CD; release build; documentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deliver a production-style React Native application ready for release.",
+        "Explain how the lab applies React Native Capstone Project and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'React Native Capstone Project' on a prepared training sample through this task: Deliver a production-style React Native application ready for release.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver a production-style React Native application ready for release",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (requirements and UX; TypeScript architecture; components/navigation/forms; state/API/auth; local/Firebase data; device APIs; notifications; testing; security; performance; Git/CI-CD; release build; documentation) and demonstrate the starting sample for: Deliver a production-style React Native application ready for release",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deliver a production-style React Native application ready for release",
+          "evidence": "Participant submission for 'React Native Capstone Project': Deliver a production-style React Native application ready for release. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deliver a production-style React Native application ready for release' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deliver a production-style React Native application ready for release. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements and UX; TypeScript architecture; components/navigation/forms; state/API/auth; local/Firebase data; device APIs; notifications; testing; security; performance; Git/CI-CD; release build; documentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

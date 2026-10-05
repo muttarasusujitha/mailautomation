@@ -12,6 +12,7 @@ def test_mail1_ai_receives_batch_rules_and_reference(monkeypatch, flow, expected
     create = AsyncMock(return_value=SimpleNamespace(output_text='SUBJECT: Training\nBODY: Dear Trainer, please confirm feasibility.'))
     monkeypatch.setattr(openai, 'AsyncOpenAI', lambda **kwargs: SimpleNamespace(responses=SimpleNamespace(create=create)), raising=False)
     monkeypatch.setattr(shortlists.settings, 'OPENAI_API_KEY', 'test-key')
+    monkeypatch.setattr(shortlists.settings, 'AI_PROVIDER', 'openai')
     db = {'automation_settings': SimpleNamespace(find_one=AsyncMock(return_value={'value': 'ai'}))}
     asyncio.run(shortlists._ai_trainer_mail1(db, trainer_name='Trainer', domain='Python',
         requirement={'batch_flow': flow}, fallback_subject='Reference', fallback_body='Verified scope: five days.'))

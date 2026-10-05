@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     MONGODB_URL: str = "mongodb://127.0.0.1:27017"
     MONGODB_DB_NAME: str = "trainersync"
     REDIS_URL: str = "redis://127.0.0.1:6379"
+    SCHEDULER_SERVICE_URL: str = "http://scheduler-service:8007"
+    INTERNAL_SERVICE_TOKEN: str = ""
     SECRET_KEY: str = "change-me-in-production"
 
     ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,http://0.0.0.0:5174,http://*:5174,https://localhost:3000,https://localhost:8080"

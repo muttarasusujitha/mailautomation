@@ -540,6 +540,8 @@ def _term_matches(terms: List[str], text: str) -> List[str]:
 
 
 def _score_trainer(trainer: Dict[str, Any], requirement: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    if trainer.get("needs_review") is True:
+        return None
     if requirement.get("must_have_linkedin") and not trainer.get("linkedin"):
         return None
     if requirement.get("must_have_resume") and not _has_resume(trainer):
@@ -1127,31 +1129,6 @@ async def _requirement_analysis(db: AsyncIOMotorDatabase, requirement: Dict[str,
     }
 
 
-@router.get("/analysis/commercial")
-async def list_commercial_analysis(
-    status: Optional[str] = None,
-    limit: int = Query(50, ge=1, le=200),
-    db: AsyncIOMotorDatabase = Depends(get_db),
-):
-    query: dict = {}
-    if status and status != "all":
-        query["status"] = status
-    cursor = db.requirements.find(query, {"_id": 0}).sort("created_at", -1).limit(limit)
-    items = [await _requirement_analysis(db, requirement) async for requirement in cursor]
-    return {"items": items, "total": len(items)}
-
-
-@router.get("/{req_id}/commercial-analysis")
-async def get_commercial_analysis(
-    req_id: str,
-    db: AsyncIOMotorDatabase = Depends(get_db),
-):
-    doc = await db.requirements.find_one(_requirement_query(req_id), {"_id": 0})
-    if not doc:
-        raise HTTPException(404, "Requirement not found")
-    return await _requirement_analysis(db, doc)
-
-
 @router.patch("/{req_id}")
 async def update_requirement(
     req_id: str,
@@ -1450,7 +1427,13 @@ async def request_client_po(
     now = datetime.utcnow()
     await db.requirements.update_one(
         {"requirement_id": req_id},
-        {"$set": {"client_po_requested": True, "client_po_requested_at": now, "updated_at": now}},
+        {"$set": {
+            "client_po_requested": True,
+            "client_po_requested_at": now,
+            "po_request_status": "requested",
+            "po_requested_at": now,
+            "updated_at": now,
+        }},
     )
     return {"success": True, "requirement_id": req_id, "sent_to": client_email}
 

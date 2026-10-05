@@ -120,7 +120,8 @@ def test_lab_cost_is_recorded_for_clahan_without_requesting_it_from_trainers():
     }.intersection(extracted["requested_details"])
     body = _client_proceed_ack_reply(extracted)["body"]
     assert "prepare the lab estimate" in body
-    assert "3 lab-access hours per day for 1 participant" in body
+    assert "after confirming the participant count and required lab-access hours per day and preferred cloud provider (AWS, Azure, or GCP)" in body
+    assert "not treated as the participant count" in body
 
 
 def test_client_supplied_lab_inputs_are_acknowledged_without_default_disclaimer():
@@ -148,7 +149,7 @@ def test_client_supplied_lab_inputs_are_acknowledged_without_default_disclaimer(
     body = _client_proceed_ack_reply(extracted)["body"]
     assert "20 training days, Offline, 34 participants, Advanced level, AWS & Azure platforms" in body
     assert "34 participants, 20 lab-access days, and 3 lab-access hours per day" in body
-    assert "3 lab-access hours per day for 1 participant" not in body
+    assert "not treated as the participant count" not in body
     assert "Please share the participant count" not in body
     assert "commercials for your review" not in body
     trainer_body = _trainer_mail_for_requirement(extracted, "REQ-001")["body"]
@@ -429,6 +430,10 @@ def test_auto_reply_profile_request_does_not_ask_for_unrelated_fields():
     assert "CV and LinkedIn profile" in reply["body"]
     assert "To help us refine the shortlist" not in reply["body"]
     assert "Budget or expected commercial range" not in reply["body"]
+    assert "lab plan" not in reply["body"]
+    assert "day-wise agenda" not in reply["body"]
+    assert "shortly" not in reply["body"]
+    assert len(reply["body"].split()) < 65
 
 
 def test_shared_tech_call_link_uses_forward_to_trainer_template():

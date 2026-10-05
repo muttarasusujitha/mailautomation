@@ -1,28 +1,1336 @@
 {
-  "domain":"MATLAB","name":"MATLAB Scientific Computing","icon":"code","program_title":"MATLAB - Scientific Computing, Numerical Analysis and Engineering Applications","level":"Beginner to Advanced","mode":"Online",
-  "aliases":["MATLAB","MATLAB Programming","Matrix Laboratory","MATLAB Scientific Computing"],
-  "tools":["MATLAB","MATLAB Online","Simulink","Live Editor","App Designer","Git"],
-  "certifications":["MathWorks Certified MATLAB Associate","MathWorks Certified MATLAB Professional"],
-  "days":[
-    {"day":1,"topic":"MATLAB Introduction and Environment","subtopics":["desktop","Command Window","Workspace","Current Folder","history","scripts/Live Scripts","help","basic commands"],"tools":["MATLAB","Live Editor"],"lab_task":"Explore MATLAB and create basic scripts"},
-    {"day":2,"topic":"Variables, Data Types and Operators","subtopics":["numeric/logical/character/string/complex data","constants","arithmetic/relational/logical operators","precedence","formatted output"],"tools":["MATLAB"],"lab_task":"Develop mathematical programs using variables and operators"},
-    {"day":3,"topic":"Vectors and Matrices","subtopics":["row/column vectors","matrix creation","colon/linspace","indexing/slicing","dimensions/reshape/transpose/concatenation","zeros/ones/eye/rand"],"tools":["MATLAB"],"lab_task":"Create and manipulate vectors and matrices"},
-    {"day":4,"topic":"Matrix Operations and Linear Algebra","subtopics":["matrix/element-wise operations","division","determinant/inverse/rank","eigenvalues/eigenvectors","linear systems","LU/QR/SVD"],"tools":["MATLAB"],"lab_task":"Solve linear algebra problems using decompositions"},
-    {"day":5,"topic":"Control Flow and Vectorization","subtopics":["if/elseif/else","switch/case","for/while","break/continue","nested loops","logical indexing","vectorization"],"tools":["MATLAB"],"lab_task":"Implement iterative numerical algorithms"},
-    {"day":6,"topic":"Functions and Scripts","subtopics":["scripts/functions","input/output/multiple outputs","anonymous/nested/local functions","function handles","scope","reusable design"],"tools":["MATLAB","Live Editor"],"lab_task":"Create reusable mathematical and engineering functions"},
-    {"day":7,"topic":"MATLAB Data Structures","subtopics":["cell arrays","structures","tables/timetables","categorical arrays","strings","datetime","nested fields","conversion"],"tools":["MATLAB"],"lab_task":"Organize heterogeneous experiment data"},
-    {"day":8,"topic":"Data Import, Cleaning and Export","subtopics":["CSV/Excel/text","readtable/writetable","missing values","cleaning/conversion","sorting/filtering/grouping","summaries"],"tools":["MATLAB"],"lab_task":"Import and clean a real-world dataset"},
-    {"day":9,"topic":"2D Visualization","subtopics":["plot/scatter/bar/histogram/pie","subplots","titles/labels/legends/grid/axes","multiple and customized plots"],"tools":["MATLAB"],"lab_task":"Create analytical 2D plots"},
-    {"day":10,"topic":"3D Visualization","subtopics":["plot3/mesh/surf/contour","3D axes","colormap","lighting","view control","scientific surface visualization"],"tools":["MATLAB"],"lab_task":"Visualize mathematical and engineering data in 3D"},
-    {"day":11,"topic":"Numerical Methods","subtopics":["root finding/fzero","interpolation","polynomial fitting","numerical differentiation/integration","optimization","nonlinear equations","error analysis"],"tools":["MATLAB"],"lab_task":"Solve root, interpolation, and integration problems"},
-    {"day":12,"topic":"Differential Equations","subtopics":["ODEs","initial value problems","ode45/ode23","systems","numerical solutions","visualization","boundary concepts","solver selection"],"tools":["MATLAB"],"lab_task":"Model a dynamic system using ODEs"},
-    {"day":13,"topic":"Statistics and Data Analysis","subtopics":["mean/median/variance/std","correlation/covariance","distributions","hypothesis testing","regression/curve fitting","outlier detection"],"tools":["MATLAB","Statistics and Machine Learning Toolbox"],"lab_task":"Perform statistics and regression on experiment data"},
-    {"day":14,"topic":"Signal Processing Fundamentals","subtopics":["signals/sampling","time/frequency domains","FFT","filtering/noise removal","spectral analysis","digital filters","visualization"],"tools":["Signal Processing Toolbox"],"lab_task":"Analyze and filter a noisy signal"},
-    {"day":15,"topic":"Image Processing Fundamentals","subtopics":["image read/display","image matrices/color spaces","grayscale","filtering","thresholding","edge detection","segmentation","morphology"],"tools":["Image Processing Toolbox"],"lab_task":"Build image enhancement and edge detection workflow"},
-    {"day":16,"topic":"Machine Learning with MATLAB","subtopics":["supervised learning","classification/regression","decision trees/SVM/KNN/ensembles","clustering","evaluation","cross-validation"],"tools":["Statistics and Machine Learning Toolbox"],"lab_task":"Train and evaluate a classification model"},
-    {"day":17,"topic":"Simulink Fundamentals","subtopics":["block diagrams","sources/sinks","continuous/discrete blocks","signals","settings","scopes","subsystems","simulation"],"tools":["Simulink"],"lab_task":"Build and simulate a dynamic system"},
-    {"day":18,"topic":"App Designer","subtopics":["App Designer","UI components","buttons/fields/tables/axes","callbacks","properties","state","interactive applications"],"tools":["MATLAB App Designer"],"lab_task":"Build an interactive engineering calculator"},
-    {"day":19,"topic":"Performance, Debugging and Code Quality","subtopics":["debugger/breakpoints","Code Analyzer","vectorization/preallocation","memory","Profiler","timing","function organization","documentation"],"tools":["MATLAB Profiler","Code Analyzer"],"lab_task":"Profile and optimize a slow MATLAB script"},
-    {"day":20,"topic":"MATLAB Engineering Capstone","subtopics":["requirements","data processing","numerical computation","visualization","statistics","simulation","algorithm design","testing","optimization","documentation"],"tools":["MATLAB","Simulink","Git"],"lab_task":"Build an end-to-end scientific or engineering project"}
-  ]
+  "domain": "MATLAB",
+  "name": "MATLAB Scientific Computing",
+  "icon": "code",
+  "program_title": "MATLAB - Scientific Computing, Numerical Analysis and Engineering Applications",
+  "level": "Beginner to Advanced",
+  "mode": "Online",
+  "aliases": [
+    "MATLAB",
+    "MATLAB Programming",
+    "Matrix Laboratory",
+    "MATLAB Scientific Computing"
+  ],
+  "tools": [
+    "MATLAB",
+    "MATLAB Online",
+    "Simulink",
+    "Live Editor",
+    "App Designer",
+    "Git"
+  ],
+  "certifications": [
+    "MathWorks Certified MATLAB Associate",
+    "MathWorks Certified MATLAB Professional"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "MATLAB Introduction and Environment",
+      "subtopics": [
+        "desktop",
+        "Command Window",
+        "Workspace",
+        "Current Folder",
+        "history",
+        "scripts/Live Scripts",
+        "help",
+        "basic commands"
+      ],
+      "tools": [
+        "MATLAB",
+        "Live Editor"
+      ],
+      "lab_task": "Explore MATLAB and create basic scripts",
+      "deliverable": "Participant submission for 'MATLAB Introduction and Environment': Explore MATLAB and create basic scripts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Explore MATLAB and create basic scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (desktop; Command Window; Workspace; Current Folder; history; scripts/Live Scripts; help; basic commands). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Explore MATLAB and create basic scripts.",
+        "Explain how the lab applies MATLAB Introduction and Environment and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'MATLAB Introduction and Environment' on a prepared training sample through this task: Explore MATLAB and create basic scripts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Explore MATLAB and create basic scripts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (desktop; Command Window; Workspace; Current Folder; history; scripts/Live Scripts; help; basic commands) and demonstrate the starting sample for: Explore MATLAB and create basic scripts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Explore MATLAB and create basic scripts",
+          "evidence": "Participant submission for 'MATLAB Introduction and Environment': Explore MATLAB and create basic scripts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Explore MATLAB and create basic scripts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Explore MATLAB and create basic scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (desktop; Command Window; Workspace; Current Folder; history; scripts/Live Scripts; help; basic commands). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Variables, Data Types and Operators",
+      "subtopics": [
+        "numeric/logical/character/string/complex data",
+        "constants",
+        "arithmetic/relational/logical operators",
+        "precedence",
+        "formatted output"
+      ],
+      "tools": [
+        "MATLAB"
+      ],
+      "lab_task": "Develop mathematical programs using variables and operators",
+      "deliverable": "Participant submission for 'Variables, Data Types and Operators': Develop mathematical programs using variables and operators. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop mathematical programs using variables and operators. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (numeric/logical/character/string/complex data; constants; arithmetic/relational/logical operators; precedence; formatted output). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop mathematical programs using variables and operators.",
+        "Explain how the lab applies Variables, Data Types and Operators and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Variables, Data Types and Operators' on a prepared training sample through this task: Develop mathematical programs using variables and operators.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop mathematical programs using variables and operators",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (numeric/logical/character/string/complex data; constants; arithmetic/relational/logical operators; precedence; formatted output) and demonstrate the starting sample for: Develop mathematical programs using variables and operators",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop mathematical programs using variables and operators",
+          "evidence": "Participant submission for 'Variables, Data Types and Operators': Develop mathematical programs using variables and operators. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop mathematical programs using variables and operators' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop mathematical programs using variables and operators. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (numeric/logical/character/string/complex data; constants; arithmetic/relational/logical operators; precedence; formatted output). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Vectors and Matrices",
+      "subtopics": [
+        "row/column vectors",
+        "matrix creation",
+        "colon/linspace",
+        "indexing/slicing",
+        "dimensions/reshape/transpose/concatenation",
+        "zeros/ones/eye/rand"
+      ],
+      "tools": [
+        "MATLAB"
+      ],
+      "lab_task": "Create and manipulate vectors and matrices",
+      "deliverable": "Participant submission for 'Vectors and Matrices': Create and manipulate vectors and matrices. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create and manipulate vectors and matrices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (row/column vectors; matrix creation; colon/linspace; indexing/slicing; dimensions/reshape/transpose/concatenation; zeros/ones/eye/rand). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create and manipulate vectors and matrices.",
+        "Explain how the lab applies Vectors and Matrices and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Vectors and Matrices' on a prepared training sample through this task: Create and manipulate vectors and matrices.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create and manipulate vectors and matrices",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (row/column vectors; matrix creation; colon/linspace; indexing/slicing; dimensions/reshape/transpose/concatenation; zeros/ones/eye/rand) and demonstrate the starting sample for: Create and manipulate vectors and matrices",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create and manipulate vectors and matrices",
+          "evidence": "Participant submission for 'Vectors and Matrices': Create and manipulate vectors and matrices. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create and manipulate vectors and matrices' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create and manipulate vectors and matrices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (row/column vectors; matrix creation; colon/linspace; indexing/slicing; dimensions/reshape/transpose/concatenation; zeros/ones/eye/rand). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Matrix Operations and Linear Algebra",
+      "subtopics": [
+        "matrix/element-wise operations",
+        "division",
+        "determinant/inverse/rank",
+        "eigenvalues/eigenvectors",
+        "linear systems",
+        "LU/QR/SVD"
+      ],
+      "tools": [
+        "MATLAB"
+      ],
+      "lab_task": "Solve linear algebra problems using decompositions",
+      "deliverable": "Participant submission for 'Matrix Operations and Linear Algebra': Solve linear algebra problems using decompositions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve linear algebra problems using decompositions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (matrix/element-wise operations; division; determinant/inverse/rank; eigenvalues/eigenvectors; linear systems; LU/QR/SVD). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve linear algebra problems using decompositions.",
+        "Explain how the lab applies Matrix Operations and Linear Algebra and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Matrix Operations and Linear Algebra' on a prepared training sample through this task: Solve linear algebra problems using decompositions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve linear algebra problems using decompositions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (matrix/element-wise operations; division; determinant/inverse/rank; eigenvalues/eigenvectors; linear systems; LU/QR/SVD) and demonstrate the starting sample for: Solve linear algebra problems using decompositions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve linear algebra problems using decompositions",
+          "evidence": "Participant submission for 'Matrix Operations and Linear Algebra': Solve linear algebra problems using decompositions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve linear algebra problems using decompositions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve linear algebra problems using decompositions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (matrix/element-wise operations; division; determinant/inverse/rank; eigenvalues/eigenvectors; linear systems; LU/QR/SVD). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Control Flow and Vectorization",
+      "subtopics": [
+        "if/elseif/else",
+        "switch/case",
+        "for/while",
+        "break/continue",
+        "nested loops",
+        "logical indexing",
+        "vectorization"
+      ],
+      "tools": [
+        "MATLAB"
+      ],
+      "lab_task": "Implement iterative numerical algorithms",
+      "deliverable": "Participant submission for 'Control Flow and Vectorization': Implement iterative numerical algorithms. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement iterative numerical algorithms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if/elseif/else; switch/case; for/while; break/continue; nested loops; logical indexing; vectorization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement iterative numerical algorithms.",
+        "Explain how the lab applies Control Flow and Vectorization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Control Flow and Vectorization' on a prepared training sample through this task: Implement iterative numerical algorithms.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement iterative numerical algorithms",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (if/elseif/else; switch/case; for/while; break/continue; nested loops; logical indexing; vectorization) and demonstrate the starting sample for: Implement iterative numerical algorithms",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement iterative numerical algorithms",
+          "evidence": "Participant submission for 'Control Flow and Vectorization': Implement iterative numerical algorithms. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement iterative numerical algorithms' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement iterative numerical algorithms. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if/elseif/else; switch/case; for/while; break/continue; nested loops; logical indexing; vectorization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Functions and Scripts",
+      "subtopics": [
+        "scripts/functions",
+        "input/output/multiple outputs",
+        "anonymous/nested/local functions",
+        "function handles",
+        "scope",
+        "reusable design"
+      ],
+      "tools": [
+        "MATLAB",
+        "Live Editor"
+      ],
+      "lab_task": "Create reusable mathematical and engineering functions",
+      "deliverable": "Participant submission for 'Functions and Scripts': Create reusable mathematical and engineering functions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable mathematical and engineering functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (scripts/functions; input/output/multiple outputs; anonymous/nested/local functions; function handles; scope; reusable design). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create reusable mathematical and engineering functions.",
+        "Explain how the lab applies Functions and Scripts and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Functions and Scripts' on a prepared training sample through this task: Create reusable mathematical and engineering functions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable mathematical and engineering functions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (scripts/functions; input/output/multiple outputs; anonymous/nested/local functions; function handles; scope; reusable design) and demonstrate the starting sample for: Create reusable mathematical and engineering functions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable mathematical and engineering functions",
+          "evidence": "Participant submission for 'Functions and Scripts': Create reusable mathematical and engineering functions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable mathematical and engineering functions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable mathematical and engineering functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (scripts/functions; input/output/multiple outputs; anonymous/nested/local functions; function handles; scope; reusable design). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "MATLAB Data Structures",
+      "subtopics": [
+        "cell arrays",
+        "structures",
+        "tables/timetables",
+        "categorical arrays",
+        "strings",
+        "datetime",
+        "nested fields",
+        "conversion"
+      ],
+      "tools": [
+        "MATLAB"
+      ],
+      "lab_task": "Organize heterogeneous experiment data",
+      "deliverable": "Participant submission for 'MATLAB Data Structures': Organize heterogeneous experiment data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Organize heterogeneous experiment data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (cell arrays; structures; tables/timetables; categorical arrays; strings; datetime; nested fields; conversion). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Organize heterogeneous experiment data.",
+        "Explain how the lab applies MATLAB Data Structures and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'MATLAB Data Structures' on a prepared training sample through this task: Organize heterogeneous experiment data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Organize heterogeneous experiment data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (cell arrays; structures; tables/timetables; categorical arrays; strings; datetime; nested fields; conversion) and demonstrate the starting sample for: Organize heterogeneous experiment data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Organize heterogeneous experiment data",
+          "evidence": "Participant submission for 'MATLAB Data Structures': Organize heterogeneous experiment data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Organize heterogeneous experiment data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Organize heterogeneous experiment data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (cell arrays; structures; tables/timetables; categorical arrays; strings; datetime; nested fields; conversion). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Data Import, Cleaning and Export",
+      "subtopics": [
+        "CSV/Excel/text",
+        "readtable/writetable",
+        "missing values",
+        "cleaning/conversion",
+        "sorting/filtering/grouping",
+        "summaries"
+      ],
+      "tools": [
+        "MATLAB"
+      ],
+      "lab_task": "Import and clean a real-world dataset",
+      "deliverable": "Participant submission for 'Data Import, Cleaning and Export': Import and clean a real-world dataset. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Import and clean a real-world dataset. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CSV/Excel/text; readtable/writetable; missing values; cleaning/conversion; sorting/filtering/grouping; summaries). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Import and clean a real-world dataset.",
+        "Explain how the lab applies Data Import, Cleaning and Export and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Import, Cleaning and Export' on a prepared training sample through this task: Import and clean a real-world dataset.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Import and clean a real-world dataset",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (CSV/Excel/text; readtable/writetable; missing values; cleaning/conversion; sorting/filtering/grouping; summaries) and demonstrate the starting sample for: Import and clean a real-world dataset",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Import and clean a real-world dataset",
+          "evidence": "Participant submission for 'Data Import, Cleaning and Export': Import and clean a real-world dataset. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Import and clean a real-world dataset' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Import and clean a real-world dataset. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CSV/Excel/text; readtable/writetable; missing values; cleaning/conversion; sorting/filtering/grouping; summaries). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "2D Visualization",
+      "subtopics": [
+        "plot/scatter/bar/histogram/pie",
+        "subplots",
+        "titles/labels/legends/grid/axes",
+        "multiple and customized plots"
+      ],
+      "tools": [
+        "MATLAB"
+      ],
+      "lab_task": "Create analytical 2D plots",
+      "deliverable": "Participant submission for '2D Visualization': Create analytical 2D plots. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create analytical 2D plots. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (plot/scatter/bar/histogram/pie; subplots; titles/labels/legends/grid/axes; multiple and customized plots). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create analytical 2D plots.",
+        "Explain how the lab applies 2D Visualization and justify the observed result."
+      ],
+      "scenario": "Demonstrate '2D Visualization' on a prepared training sample through this task: Create analytical 2D plots.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create analytical 2D plots",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (plot/scatter/bar/histogram/pie; subplots; titles/labels/legends/grid/axes; multiple and customized plots) and demonstrate the starting sample for: Create analytical 2D plots",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create analytical 2D plots",
+          "evidence": "Participant submission for '2D Visualization': Create analytical 2D plots. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create analytical 2D plots' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create analytical 2D plots. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (plot/scatter/bar/histogram/pie; subplots; titles/labels/legends/grid/axes; multiple and customized plots). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "3D Visualization",
+      "subtopics": [
+        "plot3/mesh/surf/contour",
+        "3D axes",
+        "colormap",
+        "lighting",
+        "view control",
+        "scientific surface visualization"
+      ],
+      "tools": [
+        "MATLAB"
+      ],
+      "lab_task": "Visualize mathematical and engineering data in 3D",
+      "deliverable": "Participant submission for '3D Visualization': Visualize mathematical and engineering data in 3D. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Visualize mathematical and engineering data in 3D. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (plot3/mesh/surf/contour; 3D axes; colormap; lighting; view control; scientific surface visualization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Visualize mathematical and engineering data in 3D.",
+        "Explain how the lab applies 3D Visualization and justify the observed result."
+      ],
+      "scenario": "Demonstrate '3D Visualization' on a prepared training sample through this task: Visualize mathematical and engineering data in 3D.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Visualize mathematical and engineering data in 3D",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (plot3/mesh/surf/contour; 3D axes; colormap; lighting; view control; scientific surface visualization) and demonstrate the starting sample for: Visualize mathematical and engineering data in 3D",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Visualize mathematical and engineering data in 3D",
+          "evidence": "Participant submission for '3D Visualization': Visualize mathematical and engineering data in 3D. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Visualize mathematical and engineering data in 3D' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Visualize mathematical and engineering data in 3D. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (plot3/mesh/surf/contour; 3D axes; colormap; lighting; view control; scientific surface visualization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Numerical Methods",
+      "subtopics": [
+        "root finding/fzero",
+        "interpolation",
+        "polynomial fitting",
+        "numerical differentiation/integration",
+        "optimization",
+        "nonlinear equations",
+        "error analysis"
+      ],
+      "tools": [
+        "MATLAB"
+      ],
+      "lab_task": "Solve root, interpolation, and integration problems",
+      "deliverable": "Participant submission for 'Numerical Methods': Solve root, interpolation, and integration problems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Solve root, interpolation, and integration problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (root finding/fzero; interpolation; polynomial fitting; numerical differentiation/integration; optimization; nonlinear equations; error analysis). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Solve root, interpolation, and integration problems.",
+        "Explain how the lab applies Numerical Methods and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Numerical Methods' on a prepared training sample through this task: Solve root, interpolation, and integration problems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Solve root, interpolation, and integration problems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (root finding/fzero; interpolation; polynomial fitting; numerical differentiation/integration; optimization; nonlinear equations; error analysis) and demonstrate the starting sample for: Solve root, interpolation, and integration problems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Solve root, interpolation, and integration problems",
+          "evidence": "Participant submission for 'Numerical Methods': Solve root, interpolation, and integration problems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Solve root, interpolation, and integration problems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Solve root, interpolation, and integration problems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (root finding/fzero; interpolation; polynomial fitting; numerical differentiation/integration; optimization; nonlinear equations; error analysis). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Differential Equations",
+      "subtopics": [
+        "ODEs",
+        "initial value problems",
+        "ode45/ode23",
+        "systems",
+        "numerical solutions",
+        "visualization",
+        "boundary concepts",
+        "solver selection"
+      ],
+      "tools": [
+        "MATLAB"
+      ],
+      "lab_task": "Model a dynamic system using ODEs",
+      "deliverable": "Participant submission for 'Differential Equations': Model a dynamic system using ODEs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Model a dynamic system using ODEs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ODEs; initial value problems; ode45/ode23; systems; numerical solutions; visualization; boundary concepts; solver selection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Model a dynamic system using ODEs.",
+        "Explain how the lab applies Differential Equations and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Differential Equations' on a prepared training sample through this task: Model a dynamic system using ODEs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model a dynamic system using ODEs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (ODEs; initial value problems; ode45/ode23; systems; numerical solutions; visualization; boundary concepts; solver selection) and demonstrate the starting sample for: Model a dynamic system using ODEs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Model a dynamic system using ODEs",
+          "evidence": "Participant submission for 'Differential Equations': Model a dynamic system using ODEs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Model a dynamic system using ODEs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Model a dynamic system using ODEs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ODEs; initial value problems; ode45/ode23; systems; numerical solutions; visualization; boundary concepts; solver selection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Statistics and Data Analysis",
+      "subtopics": [
+        "mean/median/variance/std",
+        "correlation/covariance",
+        "distributions",
+        "hypothesis testing",
+        "regression/curve fitting",
+        "outlier detection"
+      ],
+      "tools": [
+        "MATLAB",
+        "Statistics and Machine Learning Toolbox"
+      ],
+      "lab_task": "Perform statistics and regression on experiment data",
+      "deliverable": "Participant submission for 'Statistics and Data Analysis': Perform statistics and regression on experiment data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Perform statistics and regression on experiment data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (mean/median/variance/std; correlation/covariance; distributions; hypothesis testing; regression/curve fitting; outlier detection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Perform statistics and regression on experiment data.",
+        "Explain how the lab applies Statistics and Data Analysis and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Statistics and Data Analysis' on a prepared training sample through this task: Perform statistics and regression on experiment data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Perform statistics and regression on experiment data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (mean/median/variance/std; correlation/covariance; distributions; hypothesis testing; regression/curve fitting; outlier detection) and demonstrate the starting sample for: Perform statistics and regression on experiment data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Perform statistics and regression on experiment data",
+          "evidence": "Participant submission for 'Statistics and Data Analysis': Perform statistics and regression on experiment data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Perform statistics and regression on experiment data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Perform statistics and regression on experiment data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (mean/median/variance/std; correlation/covariance; distributions; hypothesis testing; regression/curve fitting; outlier detection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Signal Processing Fundamentals",
+      "subtopics": [
+        "signals/sampling",
+        "time/frequency domains",
+        "FFT",
+        "filtering/noise removal",
+        "spectral analysis",
+        "digital filters",
+        "visualization"
+      ],
+      "tools": [
+        "Signal Processing Toolbox"
+      ],
+      "lab_task": "Analyze and filter a noisy signal",
+      "deliverable": "Participant submission for 'Signal Processing Fundamentals': Analyze and filter a noisy signal. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Analyze and filter a noisy signal. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (signals/sampling; time/frequency domains; FFT; filtering/noise removal; spectral analysis; digital filters; visualization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Analyze and filter a noisy signal.",
+        "Explain how the lab applies Signal Processing Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Signal Processing Fundamentals' on a prepared training sample through this task: Analyze and filter a noisy signal.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Analyze and filter a noisy signal",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (signals/sampling; time/frequency domains; FFT; filtering/noise removal; spectral analysis; digital filters; visualization) and demonstrate the starting sample for: Analyze and filter a noisy signal",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Analyze and filter a noisy signal",
+          "evidence": "Participant submission for 'Signal Processing Fundamentals': Analyze and filter a noisy signal. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Analyze and filter a noisy signal' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Analyze and filter a noisy signal. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (signals/sampling; time/frequency domains; FFT; filtering/noise removal; spectral analysis; digital filters; visualization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Image Processing Fundamentals",
+      "subtopics": [
+        "image read/display",
+        "image matrices/color spaces",
+        "grayscale",
+        "filtering",
+        "thresholding",
+        "edge detection",
+        "segmentation",
+        "morphology"
+      ],
+      "tools": [
+        "Image Processing Toolbox"
+      ],
+      "lab_task": "Build image enhancement and edge detection workflow",
+      "deliverable": "Participant submission for 'Image Processing Fundamentals': Build image enhancement and edge detection workflow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build image enhancement and edge detection workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (image read/display; image matrices/color spaces; grayscale; filtering; thresholding; edge detection; segmentation; morphology). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build image enhancement and edge detection workflow.",
+        "Explain how the lab applies Image Processing Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Image Processing Fundamentals' on a prepared training sample through this task: Build image enhancement and edge detection workflow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build image enhancement and edge detection workflow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (image read/display; image matrices/color spaces; grayscale; filtering; thresholding; edge detection; segmentation; morphology) and demonstrate the starting sample for: Build image enhancement and edge detection workflow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build image enhancement and edge detection workflow",
+          "evidence": "Participant submission for 'Image Processing Fundamentals': Build image enhancement and edge detection workflow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build image enhancement and edge detection workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build image enhancement and edge detection workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (image read/display; image matrices/color spaces; grayscale; filtering; thresholding; edge detection; segmentation; morphology). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Machine Learning with MATLAB",
+      "subtopics": [
+        "supervised learning",
+        "classification/regression",
+        "decision trees/SVM/KNN/ensembles",
+        "clustering",
+        "evaluation",
+        "cross-validation"
+      ],
+      "tools": [
+        "Statistics and Machine Learning Toolbox"
+      ],
+      "lab_task": "Train and evaluate a classification model",
+      "deliverable": "Participant submission for 'Machine Learning with MATLAB': Train and evaluate a classification model. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Train and evaluate a classification model. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (supervised learning; classification/regression; decision trees/SVM/KNN/ensembles; clustering; evaluation; cross-validation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Train and evaluate a classification model.",
+        "Explain how the lab applies Machine Learning with MATLAB and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Machine Learning with MATLAB' on a prepared training sample through this task: Train and evaluate a classification model.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Train and evaluate a classification model",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (supervised learning; classification/regression; decision trees/SVM/KNN/ensembles; clustering; evaluation; cross-validation) and demonstrate the starting sample for: Train and evaluate a classification model",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Train and evaluate a classification model",
+          "evidence": "Participant submission for 'Machine Learning with MATLAB': Train and evaluate a classification model. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Train and evaluate a classification model' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Train and evaluate a classification model. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (supervised learning; classification/regression; decision trees/SVM/KNN/ensembles; clustering; evaluation; cross-validation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "Simulink Fundamentals",
+      "subtopics": [
+        "block diagrams",
+        "sources/sinks",
+        "continuous/discrete blocks",
+        "signals",
+        "settings",
+        "scopes",
+        "subsystems",
+        "simulation"
+      ],
+      "tools": [
+        "Simulink"
+      ],
+      "lab_task": "Build and simulate a dynamic system",
+      "deliverable": "Participant submission for 'Simulink Fundamentals': Build and simulate a dynamic system. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build and simulate a dynamic system. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (block diagrams; sources/sinks; continuous/discrete blocks; signals; settings; scopes; subsystems; simulation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build and simulate a dynamic system.",
+        "Explain how the lab applies Simulink Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Simulink Fundamentals' on a prepared training sample through this task: Build and simulate a dynamic system.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build and simulate a dynamic system",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (block diagrams; sources/sinks; continuous/discrete blocks; signals; settings; scopes; subsystems; simulation) and demonstrate the starting sample for: Build and simulate a dynamic system",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build and simulate a dynamic system",
+          "evidence": "Participant submission for 'Simulink Fundamentals': Build and simulate a dynamic system. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build and simulate a dynamic system' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build and simulate a dynamic system. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (block diagrams; sources/sinks; continuous/discrete blocks; signals; settings; scopes; subsystems; simulation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "App Designer",
+      "subtopics": [
+        "App Designer",
+        "UI components",
+        "buttons/fields/tables/axes",
+        "callbacks",
+        "properties",
+        "state",
+        "interactive applications"
+      ],
+      "tools": [
+        "MATLAB App Designer"
+      ],
+      "lab_task": "Build an interactive engineering calculator",
+      "deliverable": "Participant submission for 'App Designer': Build an interactive engineering calculator. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an interactive engineering calculator. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (App Designer; UI components; buttons/fields/tables/axes; callbacks; properties; state; interactive applications). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an interactive engineering calculator.",
+        "Explain how the lab applies App Designer and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'App Designer' on a prepared training sample through this task: Build an interactive engineering calculator.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an interactive engineering calculator",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (App Designer; UI components; buttons/fields/tables/axes; callbacks; properties; state; interactive applications) and demonstrate the starting sample for: Build an interactive engineering calculator",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an interactive engineering calculator",
+          "evidence": "Participant submission for 'App Designer': Build an interactive engineering calculator. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an interactive engineering calculator' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an interactive engineering calculator. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (App Designer; UI components; buttons/fields/tables/axes; callbacks; properties; state; interactive applications). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "Performance, Debugging and Code Quality",
+      "subtopics": [
+        "debugger/breakpoints",
+        "Code Analyzer",
+        "vectorization/preallocation",
+        "memory",
+        "Profiler",
+        "timing",
+        "function organization",
+        "documentation"
+      ],
+      "tools": [
+        "MATLAB Profiler",
+        "Code Analyzer"
+      ],
+      "lab_task": "Profile and optimize a slow MATLAB script",
+      "deliverable": "Participant submission for 'Performance, Debugging and Code Quality': Profile and optimize a slow MATLAB script. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Profile and optimize a slow MATLAB script. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (debugger/breakpoints; Code Analyzer; vectorization/preallocation; memory; Profiler; timing; function organization; documentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Profile and optimize a slow MATLAB script.",
+        "Explain how the lab applies Performance, Debugging and Code Quality and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance, Debugging and Code Quality' on a prepared training sample through this task: Profile and optimize a slow MATLAB script.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Profile and optimize a slow MATLAB script",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (debugger/breakpoints; Code Analyzer; vectorization/preallocation; memory; Profiler; timing; function organization; documentation) and demonstrate the starting sample for: Profile and optimize a slow MATLAB script",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Profile and optimize a slow MATLAB script",
+          "evidence": "Participant submission for 'Performance, Debugging and Code Quality': Profile and optimize a slow MATLAB script. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Profile and optimize a slow MATLAB script' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Profile and optimize a slow MATLAB script. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (debugger/breakpoints; Code Analyzer; vectorization/preallocation; memory; Profiler; timing; function organization; documentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "MATLAB Engineering Capstone",
+      "subtopics": [
+        "requirements",
+        "data processing",
+        "numerical computation",
+        "visualization",
+        "statistics",
+        "simulation",
+        "algorithm design",
+        "testing",
+        "optimization",
+        "documentation"
+      ],
+      "tools": [
+        "MATLAB",
+        "Simulink",
+        "Git"
+      ],
+      "lab_task": "Build an end-to-end scientific or engineering project",
+      "deliverable": "Participant submission for 'MATLAB Engineering Capstone': Build an end-to-end scientific or engineering project. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an end-to-end scientific or engineering project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements; data processing; numerical computation; visualization; statistics; simulation; algorithm design; testing; optimization; documentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an end-to-end scientific or engineering project.",
+        "Explain how the lab applies MATLAB Engineering Capstone and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'MATLAB Engineering Capstone' on a prepared training sample through this task: Build an end-to-end scientific or engineering project.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an end-to-end scientific or engineering project",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (requirements; data processing; numerical computation; visualization; statistics; simulation; algorithm design; testing; optimization; documentation) and demonstrate the starting sample for: Build an end-to-end scientific or engineering project",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an end-to-end scientific or engineering project",
+          "evidence": "Participant submission for 'MATLAB Engineering Capstone': Build an end-to-end scientific or engineering project. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an end-to-end scientific or engineering project' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an end-to-end scientific or engineering project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements; data processing; numerical computation; visualization; statistics; simulation; algorithm design; testing; optimization; documentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

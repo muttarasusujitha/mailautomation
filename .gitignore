@@ -14,6 +14,7 @@ microservices/services/email-service/config/token.json
 microservices/gmail_config/token.json
 
 # Databases and browser state
+linkedin-bot-profile/
 *.db
 *.db-journal
 .chrome-diagnostic*
@@ -67,9 +68,15 @@ Thumbs.db
 !/frontend/src/utils/interviewAlarm.js
 !/frontend/src/utils/handoffStatus.test.js
 !/frontend/src/utils/useLiveShortlist.js
+!/frontend/src/utils/pipelineRecords.js
+!/frontend/src/utils/pipelineRecords.test.js
+!/frontend/src/utils/usePipelineRecords.js
 !/frontend/src/components/
 /frontend/src/components/*
 !/frontend/src/components/ClientHandoffReview.jsx
+!/frontend/src/pages/
+/frontend/src/pages/*
+!/frontend/src/pages/PurchaseOrders.jsx
 
 # Logs and runtime
 .scannerwork/

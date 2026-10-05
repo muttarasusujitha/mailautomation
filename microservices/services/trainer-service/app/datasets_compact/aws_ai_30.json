@@ -26,7 +26,55 @@
         "AWS"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "AWS basics"
+      "lab_task": "AWS basics",
+      "deliverable": "Participant submission for 'AWS Fundamentals': AWS basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: AWS basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Services; Regions; IAM; Console). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: AWS basics.",
+        "Explain how the lab applies AWS Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'AWS Fundamentals' on a prepared training sample through this task: AWS basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: AWS basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Services; Regions; IAM; Console) and demonstrate the starting sample for: AWS basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "AWS basics",
+          "evidence": "Participant submission for 'AWS Fundamentals': AWS basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'AWS basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: AWS basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Services; Regions; IAM; Console). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 2,
@@ -41,7 +89,55 @@
         "AWS"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: AWS basics"
+      "lab_task": "Part 2 hands-on: AWS basics",
+      "deliverable": "Participant submission for 'AWS Fundamentals - Part 2': Part 2 hands-on: AWS basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: AWS basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Services; Part 2: Regions; Part 2: IAM; Part 2: Console). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: AWS basics.",
+        "Explain how the lab applies AWS Fundamentals - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'AWS Fundamentals - Part 2' on a prepared training sample through this task: Part 2 hands-on: AWS basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: AWS basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Services; Part 2: Regions; Part 2: IAM; Part 2: Console) and demonstrate the starting sample for: Part 2 hands-on: AWS basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: AWS basics",
+          "evidence": "Participant submission for 'AWS Fundamentals - Part 2': Part 2 hands-on: AWS basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: AWS basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: AWS basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Services; Part 2: Regions; Part 2: IAM; Part 2: Console). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 3,
@@ -56,7 +152,55 @@
         "AWS"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "AWS AI overview"
+      "lab_task": "AWS AI overview",
+      "deliverable": "Participant submission for 'AWS AI Services Overview': AWS AI overview. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: AWS AI overview. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SageMaker; Lex; Polly; Rekognition). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: AWS AI overview.",
+        "Explain how the lab applies AWS AI Services Overview and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'AWS AI Services Overview' on a prepared training sample through this task: AWS AI overview.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: AWS AI overview",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SageMaker; Lex; Polly; Rekognition) and demonstrate the starting sample for: AWS AI overview",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "AWS AI overview",
+          "evidence": "Participant submission for 'AWS AI Services Overview': AWS AI overview. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'AWS AI overview' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: AWS AI overview. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SageMaker; Lex; Polly; Rekognition). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 4,
@@ -71,7 +215,55 @@
         "AWS"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: AWS AI overview"
+      "lab_task": "Part 2 hands-on: AWS AI overview",
+      "deliverable": "Participant submission for 'AWS AI Services Overview - Part 2': Part 2 hands-on: AWS AI overview. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: AWS AI overview. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: SageMaker; Part 2: Lex; Part 2: Polly; Part 2: Rekognition). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: AWS AI overview.",
+        "Explain how the lab applies AWS AI Services Overview - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'AWS AI Services Overview - Part 2' on a prepared training sample through this task: Part 2 hands-on: AWS AI overview.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: AWS AI overview",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: SageMaker; Part 2: Lex; Part 2: Polly; Part 2: Rekognition) and demonstrate the starting sample for: Part 2 hands-on: AWS AI overview",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: AWS AI overview",
+          "evidence": "Participant submission for 'AWS AI Services Overview - Part 2': Part 2 hands-on: AWS AI overview. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: AWS AI overview' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: AWS AI overview. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: SageMaker; Part 2: Lex; Part 2: Polly; Part 2: Rekognition). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 5,
@@ -85,7 +277,55 @@
         "SageMaker"
       ],
       "jira_focus": "Sprint planning; review progress for Amazon SageMaker Basics",
-      "lab_task": "SageMaker setup"
+      "lab_task": "SageMaker setup",
+      "deliverable": "Participant submission for 'Amazon SageMaker Basics': SageMaker setup. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: SageMaker setup. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Notebooks; Datasets; Instances). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: SageMaker setup.",
+        "Explain how the lab applies Amazon SageMaker Basics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon SageMaker Basics' on a prepared training sample through this task: SageMaker setup.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: SageMaker setup",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Notebooks; Datasets; Instances) and demonstrate the starting sample for: SageMaker setup",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "SageMaker setup",
+          "evidence": "Participant submission for 'Amazon SageMaker Basics': SageMaker setup. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'SageMaker setup' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: SageMaker setup. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Notebooks; Datasets; Instances). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 6,
@@ -99,7 +339,55 @@
         "SageMaker"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: SageMaker setup"
+      "lab_task": "Part 2 hands-on: SageMaker setup",
+      "deliverable": "Participant submission for 'Amazon SageMaker Basics - Part 2': Part 2 hands-on: SageMaker setup. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: SageMaker setup. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Notebooks; Part 2: Datasets; Part 2: Instances). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: SageMaker setup.",
+        "Explain how the lab applies Amazon SageMaker Basics - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon SageMaker Basics - Part 2' on a prepared training sample through this task: Part 2 hands-on: SageMaker setup.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: SageMaker setup",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Notebooks; Part 2: Datasets; Part 2: Instances) and demonstrate the starting sample for: Part 2 hands-on: SageMaker setup",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: SageMaker setup",
+          "evidence": "Participant submission for 'Amazon SageMaker Basics - Part 2': Part 2 hands-on: SageMaker setup. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: SageMaker setup' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: SageMaker setup. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Notebooks; Part 2: Datasets; Part 2: Instances). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 7,
@@ -113,7 +401,55 @@
         "SageMaker"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Model development"
+      "lab_task": "Model development",
+      "deliverable": "Participant submission for 'SageMaker Model Development': Model development. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Model development. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Training; Hyperparameter Tuning; Evaluation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Model development.",
+        "Explain how the lab applies SageMaker Model Development and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SageMaker Model Development' on a prepared training sample through this task: Model development.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model development",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Training; Hyperparameter Tuning; Evaluation) and demonstrate the starting sample for: Model development",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Model development",
+          "evidence": "Participant submission for 'SageMaker Model Development': Model development. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Model development' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Model development. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Training; Hyperparameter Tuning; Evaluation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 8,
@@ -127,7 +463,55 @@
         "SageMaker"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Model development"
+      "lab_task": "Part 2 hands-on: Model development",
+      "deliverable": "Participant submission for 'SageMaker Model Development - Part 2': Part 2 hands-on: Model development. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Model development. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Training; Part 2: Hyperparameter Tuning; Part 2: Evaluation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Model development.",
+        "Explain how the lab applies SageMaker Model Development - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SageMaker Model Development - Part 2' on a prepared training sample through this task: Part 2 hands-on: Model development.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Model development",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Training; Part 2: Hyperparameter Tuning; Part 2: Evaluation) and demonstrate the starting sample for: Part 2 hands-on: Model development",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Model development",
+          "evidence": "Participant submission for 'SageMaker Model Development - Part 2': Part 2 hands-on: Model development. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Model development' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Model development. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Training; Part 2: Hyperparameter Tuning; Part 2: Evaluation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 9,
@@ -141,7 +525,55 @@
         "SageMaker"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Model deployment"
+      "lab_task": "Model deployment",
+      "deliverable": "Participant submission for 'SageMaker Deployment': Model deployment. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Model deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Endpoints; Batch Transform; Auto Scaling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Model deployment.",
+        "Explain how the lab applies SageMaker Deployment and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SageMaker Deployment' on a prepared training sample through this task: Model deployment.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model deployment",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Endpoints; Batch Transform; Auto Scaling) and demonstrate the starting sample for: Model deployment",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Model deployment",
+          "evidence": "Participant submission for 'SageMaker Deployment': Model deployment. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Model deployment' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Model deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Endpoints; Batch Transform; Auto Scaling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 10,
@@ -155,7 +587,55 @@
         "SageMaker"
       ],
       "jira_focus": "Sprint planning; review progress for SageMaker Deployment",
-      "lab_task": "Part 2 hands-on: Model deployment"
+      "lab_task": "Part 2 hands-on: Model deployment",
+      "deliverable": "Participant submission for 'SageMaker Deployment - Part 2': Part 2 hands-on: Model deployment. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Model deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Endpoints; Part 2: Batch Transform; Part 2: Auto Scaling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Model deployment.",
+        "Explain how the lab applies SageMaker Deployment - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SageMaker Deployment - Part 2' on a prepared training sample through this task: Part 2 hands-on: Model deployment.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Model deployment",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Endpoints; Part 2: Batch Transform; Part 2: Auto Scaling) and demonstrate the starting sample for: Part 2 hands-on: Model deployment",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Model deployment",
+          "evidence": "Participant submission for 'SageMaker Deployment - Part 2': Part 2 hands-on: Model deployment. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Model deployment' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Model deployment. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Endpoints; Part 2: Batch Transform; Part 2: Auto Scaling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 11,
@@ -169,7 +649,55 @@
         "Rekognition"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Computer vision"
+      "lab_task": "Computer vision",
+      "deliverable": "Participant submission for 'Amazon Rekognition': Computer vision. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Computer vision. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Image Analysis; Video Analysis; Face Detection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Computer vision.",
+        "Explain how the lab applies Amazon Rekognition and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Rekognition' on a prepared training sample through this task: Computer vision.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Computer vision",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Image Analysis; Video Analysis; Face Detection) and demonstrate the starting sample for: Computer vision",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Computer vision",
+          "evidence": "Participant submission for 'Amazon Rekognition': Computer vision. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Computer vision' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Computer vision. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Image Analysis; Video Analysis; Face Detection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 12,
@@ -183,7 +711,55 @@
         "Rekognition"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Computer vision"
+      "lab_task": "Part 2 hands-on: Computer vision",
+      "deliverable": "Participant submission for 'Amazon Rekognition - Part 2': Part 2 hands-on: Computer vision. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Computer vision. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Image Analysis; Part 2: Video Analysis; Part 2: Face Detection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Computer vision.",
+        "Explain how the lab applies Amazon Rekognition - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Rekognition - Part 2' on a prepared training sample through this task: Part 2 hands-on: Computer vision.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Computer vision",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Image Analysis; Part 2: Video Analysis; Part 2: Face Detection) and demonstrate the starting sample for: Part 2 hands-on: Computer vision",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Computer vision",
+          "evidence": "Participant submission for 'Amazon Rekognition - Part 2': Part 2 hands-on: Computer vision. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Computer vision' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Computer vision. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Image Analysis; Part 2: Video Analysis; Part 2: Face Detection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 13,
@@ -197,7 +773,55 @@
         "Textract"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Document processing"
+      "lab_task": "Document processing",
+      "deliverable": "Participant submission for 'Amazon Textract': Document processing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Document processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Document Analysis; OCR; Form Recognition). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Document processing.",
+        "Explain how the lab applies Amazon Textract and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Textract' on a prepared training sample through this task: Document processing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Document processing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Document Analysis; OCR; Form Recognition) and demonstrate the starting sample for: Document processing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Document processing",
+          "evidence": "Participant submission for 'Amazon Textract': Document processing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Document processing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Document processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Document Analysis; OCR; Form Recognition). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 14,
@@ -211,7 +835,55 @@
         "Textract"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Document processing"
+      "lab_task": "Part 2 hands-on: Document processing",
+      "deliverable": "Participant submission for 'Amazon Textract - Part 2': Part 2 hands-on: Document processing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Document processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Document Analysis; Part 2: OCR; Part 2: Form Recognition). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Document processing.",
+        "Explain how the lab applies Amazon Textract - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Textract - Part 2' on a prepared training sample through this task: Part 2 hands-on: Document processing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Document processing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Document Analysis; Part 2: OCR; Part 2: Form Recognition) and demonstrate the starting sample for: Part 2 hands-on: Document processing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Document processing",
+          "evidence": "Participant submission for 'Amazon Textract - Part 2': Part 2 hands-on: Document processing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Document processing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Document processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Document Analysis; Part 2: OCR; Part 2: Form Recognition). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 15,
@@ -226,7 +898,55 @@
         "Lex"
       ],
       "jira_focus": "Sprint planning; review progress for Amazon Lex",
-      "lab_task": "Chatbot building"
+      "lab_task": "Chatbot building",
+      "deliverable": "Participant submission for 'Amazon Lex': Chatbot building. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Chatbot building. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Chatbots; Intents; Slots; Integration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Chatbot building.",
+        "Explain how the lab applies Amazon Lex and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Lex' on a prepared training sample through this task: Chatbot building.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Chatbot building",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Chatbots; Intents; Slots; Integration) and demonstrate the starting sample for: Chatbot building",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Chatbot building",
+          "evidence": "Participant submission for 'Amazon Lex': Chatbot building. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Chatbot building' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Chatbot building. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Chatbots; Intents; Slots; Integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 16,
@@ -241,7 +961,55 @@
         "Lex"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Chatbot building"
+      "lab_task": "Part 2 hands-on: Chatbot building",
+      "deliverable": "Participant submission for 'Amazon Lex - Part 2': Part 2 hands-on: Chatbot building. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Chatbot building. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Chatbots; Part 2: Intents; Part 2: Slots; Part 2: Integration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Chatbot building.",
+        "Explain how the lab applies Amazon Lex - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Lex - Part 2' on a prepared training sample through this task: Part 2 hands-on: Chatbot building.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Chatbot building",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Chatbots; Part 2: Intents; Part 2: Slots; Part 2: Integration) and demonstrate the starting sample for: Part 2 hands-on: Chatbot building",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Chatbot building",
+          "evidence": "Participant submission for 'Amazon Lex - Part 2': Part 2 hands-on: Chatbot building. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Chatbot building' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Chatbot building. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Chatbots; Part 2: Intents; Part 2: Slots; Part 2: Integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 17,
@@ -255,7 +1023,55 @@
         "Polly"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Text-to-speech"
+      "lab_task": "Text-to-speech",
+      "deliverable": "Participant submission for 'Amazon Polly': Text-to-speech. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Text-to-speech. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Text-to-Speech; Neural Voices; SSML). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Text-to-speech.",
+        "Explain how the lab applies Amazon Polly and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Polly' on a prepared training sample through this task: Text-to-speech.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Text-to-speech",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Text-to-Speech; Neural Voices; SSML) and demonstrate the starting sample for: Text-to-speech",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Text-to-speech",
+          "evidence": "Participant submission for 'Amazon Polly': Text-to-speech. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Text-to-speech' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Text-to-speech. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Text-to-Speech; Neural Voices; SSML). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 18,
@@ -269,7 +1085,55 @@
         "Polly"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Text-to-speech"
+      "lab_task": "Part 2 hands-on: Text-to-speech",
+      "deliverable": "Participant submission for 'Amazon Polly - Part 2': Part 2 hands-on: Text-to-speech. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Text-to-speech. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Text-to-Speech; Part 2: Neural Voices; Part 2: SSML). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Text-to-speech.",
+        "Explain how the lab applies Amazon Polly - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Polly - Part 2' on a prepared training sample through this task: Part 2 hands-on: Text-to-speech.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Text-to-speech",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Text-to-Speech; Part 2: Neural Voices; Part 2: SSML) and demonstrate the starting sample for: Part 2 hands-on: Text-to-speech",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Text-to-speech",
+          "evidence": "Participant submission for 'Amazon Polly - Part 2': Part 2 hands-on: Text-to-speech. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Text-to-speech' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Text-to-speech. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Text-to-Speech; Part 2: Neural Voices; Part 2: SSML). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 19,
@@ -284,7 +1148,55 @@
         "Comprehend"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "NLP services"
+      "lab_task": "NLP services",
+      "deliverable": "Participant submission for 'Amazon Comprehend': NLP services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: NLP services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (NLP; Sentiment; Entities; Key Phrases). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: NLP services.",
+        "Explain how the lab applies Amazon Comprehend and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Comprehend' on a prepared training sample through this task: NLP services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: NLP services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (NLP; Sentiment; Entities; Key Phrases) and demonstrate the starting sample for: NLP services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "NLP services",
+          "evidence": "Participant submission for 'Amazon Comprehend': NLP services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'NLP services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: NLP services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (NLP; Sentiment; Entities; Key Phrases). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 20,
@@ -299,7 +1211,55 @@
         "Comprehend"
       ],
       "jira_focus": "Sprint planning; review progress for Amazon Comprehend",
-      "lab_task": "Part 2 hands-on: NLP services"
+      "lab_task": "Part 2 hands-on: NLP services",
+      "deliverable": "Participant submission for 'Amazon Comprehend - Part 2': Part 2 hands-on: NLP services. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: NLP services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: NLP; Part 2: Sentiment; Part 2: Entities; Part 2: Key Phrases). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: NLP services.",
+        "Explain how the lab applies Amazon Comprehend - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Comprehend - Part 2' on a prepared training sample through this task: Part 2 hands-on: NLP services.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: NLP services",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: NLP; Part 2: Sentiment; Part 2: Entities; Part 2: Key Phrases) and demonstrate the starting sample for: Part 2 hands-on: NLP services",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: NLP services",
+          "evidence": "Participant submission for 'Amazon Comprehend - Part 2': Part 2 hands-on: NLP services. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: NLP services' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: NLP services. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: NLP; Part 2: Sentiment; Part 2: Entities; Part 2: Key Phrases). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 21,
@@ -313,7 +1273,55 @@
         "Forecast"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Forecasting"
+      "lab_task": "Forecasting",
+      "deliverable": "Participant submission for 'Amazon Forecast': Forecasting. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Forecasting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Time Series; Predictions; Accuracy Metrics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Forecasting.",
+        "Explain how the lab applies Amazon Forecast and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Forecast' on a prepared training sample through this task: Forecasting.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Forecasting",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Time Series; Predictions; Accuracy Metrics) and demonstrate the starting sample for: Forecasting",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Forecasting",
+          "evidence": "Participant submission for 'Amazon Forecast': Forecasting. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Forecasting' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Forecasting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Time Series; Predictions; Accuracy Metrics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 22,
@@ -327,7 +1335,55 @@
         "Forecast"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Forecasting"
+      "lab_task": "Part 2 hands-on: Forecasting",
+      "deliverable": "Participant submission for 'Amazon Forecast - Part 2': Part 2 hands-on: Forecasting. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Forecasting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Time Series; Part 2: Predictions; Part 2: Accuracy Metrics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Forecasting.",
+        "Explain how the lab applies Amazon Forecast - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Forecast - Part 2' on a prepared training sample through this task: Part 2 hands-on: Forecasting.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Forecasting",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Time Series; Part 2: Predictions; Part 2: Accuracy Metrics) and demonstrate the starting sample for: Part 2 hands-on: Forecasting",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Forecasting",
+          "evidence": "Participant submission for 'Amazon Forecast - Part 2': Part 2 hands-on: Forecasting. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Forecasting' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Forecasting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Time Series; Part 2: Predictions; Part 2: Accuracy Metrics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 23,
@@ -340,7 +1396,55 @@
         "Lookout"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Anomaly detection"
+      "lab_task": "Anomaly detection",
+      "deliverable": "Participant submission for 'Amazon Lookout': Anomaly detection. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Anomaly detection. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Anomaly Detection; Equipment Monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Anomaly detection.",
+        "Explain how the lab applies Amazon Lookout and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Lookout' on a prepared training sample through this task: Anomaly detection.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Anomaly detection",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Anomaly Detection; Equipment Monitoring) and demonstrate the starting sample for: Anomaly detection",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Anomaly detection",
+          "evidence": "Participant submission for 'Amazon Lookout': Anomaly detection. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Anomaly detection' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Anomaly detection. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Anomaly Detection; Equipment Monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 24,
@@ -353,7 +1457,55 @@
         "Lookout"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Anomaly detection"
+      "lab_task": "Part 2 hands-on: Anomaly detection",
+      "deliverable": "Participant submission for 'Amazon Lookout - Part 2': Part 2 hands-on: Anomaly detection. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Anomaly detection. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Anomaly Detection; Part 2: Equipment Monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Anomaly detection.",
+        "Explain how the lab applies Amazon Lookout - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Amazon Lookout - Part 2' on a prepared training sample through this task: Part 2 hands-on: Anomaly detection.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Anomaly detection",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Anomaly Detection; Part 2: Equipment Monitoring) and demonstrate the starting sample for: Part 2 hands-on: Anomaly detection",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Anomaly detection",
+          "evidence": "Participant submission for 'Amazon Lookout - Part 2': Part 2 hands-on: Anomaly detection. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Anomaly detection' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Anomaly detection. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Anomaly Detection; Part 2: Equipment Monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 25,
@@ -367,7 +1519,55 @@
         "Data Wrangler"
       ],
       "jira_focus": "Sprint planning; review progress for Data Preparation",
-      "lab_task": "Data preparation"
+      "lab_task": "Data preparation",
+      "deliverable": "Participant submission for 'Data Preparation': Data preparation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Data preparation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Data Pipeline; ETL; Feature Engineering). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Data preparation.",
+        "Explain how the lab applies Data Preparation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Preparation' on a prepared training sample through this task: Data preparation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Data preparation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Data Pipeline; ETL; Feature Engineering) and demonstrate the starting sample for: Data preparation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Data preparation",
+          "evidence": "Participant submission for 'Data Preparation': Data preparation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Data preparation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Data preparation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Data Pipeline; ETL; Feature Engineering). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 26,
@@ -381,7 +1581,55 @@
         "Data Wrangler"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Data preparation"
+      "lab_task": "Part 2 hands-on: Data preparation",
+      "deliverable": "Participant submission for 'Data Preparation - Part 2': Part 2 hands-on: Data preparation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Data preparation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Data Pipeline; Part 2: ETL; Part 2: Feature Engineering). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Data preparation.",
+        "Explain how the lab applies Data Preparation - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Preparation - Part 2' on a prepared training sample through this task: Part 2 hands-on: Data preparation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Data preparation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Data Pipeline; Part 2: ETL; Part 2: Feature Engineering) and demonstrate the starting sample for: Part 2 hands-on: Data preparation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Data preparation",
+          "evidence": "Participant submission for 'Data Preparation - Part 2': Part 2 hands-on: Data preparation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Data preparation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Data preparation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Data Pipeline; Part 2: ETL; Part 2: Feature Engineering). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 27,
@@ -395,7 +1643,55 @@
         "AWS MLOps"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "MLOps practices"
+      "lab_task": "MLOps practices",
+      "deliverable": "Participant submission for 'MLOps on AWS': MLOps practices. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: MLOps practices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CI/CD; Monitoring; Automation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: MLOps practices.",
+        "Explain how the lab applies MLOps on AWS and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'MLOps on AWS' on a prepared training sample through this task: MLOps practices.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: MLOps practices",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (CI/CD; Monitoring; Automation) and demonstrate the starting sample for: MLOps practices",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "MLOps practices",
+          "evidence": "Participant submission for 'MLOps on AWS': MLOps practices. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'MLOps practices' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: MLOps practices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CI/CD; Monitoring; Automation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 28,
@@ -409,7 +1705,55 @@
         "AWS MLOps"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: MLOps practices"
+      "lab_task": "Part 2 hands-on: MLOps practices",
+      "deliverable": "Participant submission for 'MLOps on AWS - Part 2': Part 2 hands-on: MLOps practices. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: MLOps practices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: CI/CD; Part 2: Monitoring; Part 2: Automation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: MLOps practices.",
+        "Explain how the lab applies MLOps on AWS - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'MLOps on AWS - Part 2' on a prepared training sample through this task: Part 2 hands-on: MLOps practices.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: MLOps practices",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: CI/CD; Part 2: Monitoring; Part 2: Automation) and demonstrate the starting sample for: Part 2 hands-on: MLOps practices",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: MLOps practices",
+          "evidence": "Participant submission for 'MLOps on AWS - Part 2': Part 2 hands-on: MLOps practices. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: MLOps practices' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: MLOps practices. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: CI/CD; Part 2: Monitoring; Part 2: Automation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 29,
@@ -423,7 +1767,55 @@
         "AWS"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Production workflows"
+      "lab_task": "Production workflows",
+      "deliverable": "Participant submission for 'Production Deployment': Production workflows. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Production workflows. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Scalability; Cost Optimization; Monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Production workflows.",
+        "Explain how the lab applies Production Deployment and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Production Deployment' on a prepared training sample through this task: Production workflows.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Production workflows",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Scalability; Cost Optimization; Monitoring) and demonstrate the starting sample for: Production workflows",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Production workflows",
+          "evidence": "Participant submission for 'Production Deployment': Production workflows. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Production workflows' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Production workflows. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Scalability; Cost Optimization; Monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 30,
@@ -437,7 +1829,55 @@
         "AWS"
       ],
       "jira_focus": "Sprint planning; review progress for Production Deployment",
-      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review",
+      "deliverable": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Scalability; Cost Optimization; Monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Final project implementation, demo, retrospective, and certification roadmap review.",
+        "Explain how the lab applies Capstone Project - Part 2 + Certification Roadmap and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Capstone Project - Part 2 + Certification Roadmap' on a prepared training sample through this task: Final project implementation, demo, retrospective, and certification roadmap review.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Final project implementation, demo, retrospective, and certification roadmap review",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Scalability; Cost Optimization; Monitoring) and demonstrate the starting sample for: Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Final project implementation, demo, retrospective, and certification roadmap review' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Scalability; Cost Optimization; Monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     }
   ],
   "aliases": [
@@ -452,5 +1892,10 @@
   "official_sources": [
     "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html"
   ],
-  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits.",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

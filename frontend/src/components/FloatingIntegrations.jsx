@@ -1,4 +1,5 @@
-import { MessageSquare, Phone, Settings, User } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { MessageSquare, Phone, Settings, User, Zap } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 const EXTERNAL_APPS = {
@@ -18,37 +19,49 @@ const ACTIONS = [
     title: 'Open Microsoft Teams',
     externalApp: EXTERNAL_APPS.teams,
     Icon: MessageSquare,
-    className: 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/35',
-    bottom: '16.5rem',
+    className: 'text-indigo-700 hover:bg-indigo-50',
   },
   {
     label: 'WhatsApp',
     title: 'Open WhatsApp',
     externalApp: EXTERNAL_APPS.whatsapp,
     Icon: Phone,
-    className: 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/35',
-    bottom: '13rem',
+    className: 'text-emerald-700 hover:bg-emerald-50',
   },
   {
     label: 'Profile',
     title: 'Open user profile',
     path: '/profile',
     Icon: User,
-    className: 'bg-slate-700 hover:bg-slate-600 shadow-slate-700/30',
-    bottom: '9.5rem',
+    className: 'text-slate-700 hover:bg-slate-100',
   },
   {
     label: 'Admin',
     title: 'Open admin settings',
     path: '/admin',
     Icon: Settings,
-    className: 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/35',
-    bottom: '6rem',
+    className: 'text-blue-700 hover:bg-blue-50',
   },
 ]
 
 export default function FloatingIntegrations() {
   const navigate = useNavigate()
+  const menuRef = useRef(null)
+
+  useEffect(() => {
+    const dismiss = event => {
+      if (event.type === 'pointerdown' && menuRef.current?.contains(event.target)) return
+      if (event.type === 'keydown' && event.key !== 'Escape') return
+      menuRef.current?.removeAttribute('open')
+      if (event.type === 'keydown') menuRef.current?.querySelector('summary')?.focus()
+    }
+    document.addEventListener('pointerdown', dismiss)
+    document.addEventListener('keydown', dismiss)
+    return () => {
+      document.removeEventListener('pointerdown', dismiss)
+      document.removeEventListener('keydown', dismiss)
+    }
+  }, [])
 
   const openAction = (action) => {
     if (action.externalApp) {
@@ -64,26 +77,37 @@ export default function FloatingIntegrations() {
   }
 
   return (
-    <>
-      {ACTIONS.map((action) => {
-        const { label, title, Icon, className, bottom } = action
-        return (
-        <button
-          key={label}
-          type="button"
-          onClick={() => openAction(action)}
-          title={title}
-          aria-label={title}
-          style={{ bottom }}
-          className={`group fixed right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-xl transition-all duration-300 hover:scale-110 ${className}`}
-        >
-          <Icon className="h-5 w-5" />
-          <span className="pointer-events-none absolute right-14 rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-lg transition group-hover:opacity-100">
-            {label}
-          </span>
-        </button>
-        )
-      })}
-    </>
+    <details ref={menuRef} className="quick-links relative shrink-0">
+      <summary
+        aria-label="Open quick links"
+        title="Open quick links"
+        className="quick-links-trigger flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 [&::-webkit-details-marker]:hidden"
+      >
+        <Zap className="h-4 w-4 text-blue-600" />
+        <span className="hidden xl:inline">Quick links</span>
+      </summary>
+      <div className="quick-links-menu absolute right-0 top-full z-[90] mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl shadow-slate-900/10">
+        <p className="px-3 pb-1.5 pt-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Shortcuts</p>
+        {ACTIONS.map(action => {
+          const { label, title, Icon, className } = action
+          return (
+            <button
+              key={label}
+              type="button"
+              aria-label={title}
+              onClick={event => {
+                event.currentTarget.closest('details')?.removeAttribute('open')
+                openAction(action)
+              }}
+              title={title}
+              className={`flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition ${className}`}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </button>
+          )
+        })}
+      </div>
+    </details>
   )
 }

@@ -1,419 +1,811 @@
 {
-    "domain":  "Tomcat",
-    "name":  "Tomcat â€“ Comprehensive Fundamentals to Advanced Curriculum",
-    "aliases":  [
-                    "Apache Tomcat",
-                    "Java Servlet Container"
-                ],
-    "tools":  [
-                  "Apache Tomcat",
-                  "JDK",
-                  "Maven",
-                  "JMX"
-              ],
-    "certifications":  [
-                           "Tomcat official/vendor learning path or relevant professional certification"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "Introduction and Setup",
-                     "subtopics":  [
-                                       "Core purpose",
-                                       "Architecture",
-                                       "Installation/setup",
-                                       "Configuration files",
-                                       "CLI/UI",
-                                       "Typical workflows",
-                                       "Terminology",
-                                       "Tomcat terminology and feature mapping for this topic",
-                                       "Tomcat configuration and implementation considerations",
-                                       "Tomcat best practices and common mistakes for this topic",
-                                       "Catalina",
-                                       "webapps",
-                                       "WAR files",
-                                       "server.xml",
-                                       "context.xml",
-                                       "connectors",
-                                       "JVM options",
-                                       "JMX",
-                                       "sessions",
-                                       "realms",
-                                       "thread pools",
-                                       "access logs"
-                                   ],
-                     "tools":  [
-                                   "Apache Tomcat",
-                                   "JDK",
-                                   "Maven"
-                               ],
-                     "lab_task":  "Set up Tomcat and run a basic workflow.",
-                     "technology":  "Tomcat",
-                     "technology_id":  "tomcat",
-                     "learning_objectives":  [
-                                                 "Explain the Introduction and Setup concepts in the context of Tomcat.",
-                                                 "Configure or implement the key Tomcat features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Tomcat.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Core Configuration",
-                     "subtopics":  [
-                                       "Configuration syntax",
-                                       "Resources/components",
-                                       "Variables",
-                                       "Parameters",
-                                       "Secrets",
-                                       "Environment-specific configuration",
-                                       "Validation",
-                                       "Tomcat terminology and feature mapping for this topic",
-                                       "Tomcat configuration and implementation considerations",
-                                       "Tomcat best practices and common mistakes for this topic",
-                                       "Catalina",
-                                       "webapps",
-                                       "WAR files",
-                                       "server.xml",
-                                       "context.xml",
-                                       "connectors",
-                                       "JVM options",
-                                       "JMX",
-                                       "sessions",
-                                       "realms",
-                                       "thread pools",
-                                       "access logs"
-                                   ],
-                     "tools":  [
-                                   "Apache Tomcat",
-                                   "JDK",
-                                   "Maven"
-                               ],
-                     "lab_task":  "Create reusable Tomcat configuration for development.",
-                     "technology":  "Tomcat",
-                     "technology_id":  "tomcat",
-                     "learning_objectives":  [
-                                                 "Explain the Core Configuration concepts in the context of Tomcat.",
-                                                 "Configure or implement the key Tomcat features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Core Configuration practically using Tomcat.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Automation Workflow",
-                     "subtopics":  [
-                                       "Triggers",
-                                       "Stages/steps",
-                                       "Dependencies",
-                                       "Artifacts",
-                                       "Caching",
-                                       "Retries",
-                                       "Failure handling",
-                                       "Notifications",
-                                       "Tomcat terminology and feature mapping for this topic",
-                                       "Tomcat configuration and implementation considerations",
-                                       "Tomcat best practices and common mistakes for this topic",
-                                       "Catalina",
-                                       "webapps",
-                                       "WAR files",
-                                       "server.xml",
-                                       "context.xml",
-                                       "connectors",
-                                       "JVM options",
-                                       "JMX",
-                                       "sessions",
-                                       "realms",
-                                       "thread pools",
-                                       "access logs"
-                                   ],
-                     "tools":  [
-                                   "Apache Tomcat",
-                                   "JDK",
-                                   "Maven"
-                               ],
-                     "lab_task":  "Build an automated workflow using Tomcat.",
-                     "technology":  "Tomcat",
-                     "technology_id":  "tomcat",
-                     "learning_objectives":  [
-                                                 "Explain the Automation Workflow concepts in the context of Tomcat.",
-                                                 "Configure or implement the key Tomcat features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Automation Workflow practically using Tomcat.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Integration",
-                     "subtopics":  [
-                                       "Git integration",
-                                       "Container integration",
-                                       "Cloud integration",
-                                       "API/webhook integration",
-                                       "Credential management",
-                                       "Third-party plugins",
-                                       "Tomcat terminology and feature mapping for this topic",
-                                       "Tomcat configuration and implementation considerations",
-                                       "Tomcat best practices and common mistakes for this topic",
-                                       "Catalina",
-                                       "webapps",
-                                       "WAR files",
-                                       "server.xml",
-                                       "context.xml",
-                                       "connectors",
-                                       "JVM options",
-                                       "JMX",
-                                       "sessions",
-                                       "realms",
-                                       "thread pools",
-                                       "access logs"
-                                   ],
-                     "tools":  [
-                                   "Apache Tomcat",
-                                   "JDK",
-                                   "Maven",
-                                   "JMX"
-                               ],
-                     "lab_task":  "Integrate Tomcat with source control and external services.",
-                     "technology":  "Tomcat",
-                     "technology_id":  "tomcat",
-                     "learning_objectives":  [
-                                                 "Explain the Integration concepts in the context of Tomcat.",
-                                                 "Configure or implement the key Tomcat features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Integration practically using Tomcat.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Security",
-                     "subtopics":  [
-                                       "Authentication",
-                                       "Authorization",
-                                       "Secrets",
-                                       "Least privilege",
-                                       "Supply-chain concerns",
-                                       "Audit logs",
-                                       "Policy controls",
-                                       "Tomcat terminology and feature mapping for this topic",
-                                       "Tomcat configuration and implementation considerations",
-                                       "Tomcat best practices and common mistakes for this topic",
-                                       "Catalina",
-                                       "webapps",
-                                       "WAR files",
-                                       "server.xml",
-                                       "context.xml",
-                                       "connectors",
-                                       "JVM options",
-                                       "JMX",
-                                       "sessions",
-                                       "realms",
-                                       "thread pools",
-                                       "access logs"
-                                   ],
-                     "tools":  [
-                                   "Apache Tomcat",
-                                   "JDK",
-                                   "Maven"
-                               ],
-                     "lab_task":  "Harden a Tomcat setup.",
-                     "technology":  "Tomcat",
-                     "technology_id":  "tomcat",
-                     "learning_objectives":  [
-                                                 "Explain the Security concepts in the context of Tomcat.",
-                                                 "Configure or implement the key Tomcat features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Security practically using Tomcat.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "Scaling and Reliability",
-                     "subtopics":  [
-                                       "Agents/runners/nodes",
-                                       "Parallel execution",
-                                       "High availability",
-                                       "State management",
-                                       "Backups",
-                                       "Failure recovery",
-                                       "Capacity planning",
-                                       "Tomcat terminology and feature mapping for this topic",
-                                       "Tomcat configuration and implementation considerations",
-                                       "Tomcat best practices and common mistakes for this topic",
-                                       "Catalina",
-                                       "webapps",
-                                       "WAR files",
-                                       "server.xml",
-                                       "context.xml",
-                                       "connectors",
-                                       "JVM options",
-                                       "JMX",
-                                       "sessions",
-                                       "realms",
-                                       "thread pools",
-                                       "access logs"
-                                   ],
-                     "tools":  [
-                                   "Apache Tomcat",
-                                   "JDK",
-                                   "Maven"
-                               ],
-                     "lab_task":  "Design a scalable and resilient Tomcat setup.",
-                     "technology":  "Tomcat",
-                     "technology_id":  "tomcat",
-                     "learning_objectives":  [
-                                                 "Explain the Scaling and Reliability concepts in the context of Tomcat.",
-                                                 "Configure or implement the key Tomcat features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Tomcat.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "Observability and Troubleshooting",
-                     "subtopics":  [
-                                       "Logs",
-                                       "Metrics",
-                                       "Debugging",
-                                       "Failure diagnosis",
-                                       "Performance bottlenecks",
-                                       "Alerting",
-                                       "Operational runbooks",
-                                       "Tomcat terminology and feature mapping for this topic",
-                                       "Tomcat configuration and implementation considerations",
-                                       "Tomcat best practices and common mistakes for this topic",
-                                       "Catalina",
-                                       "webapps",
-                                       "WAR files",
-                                       "server.xml",
-                                       "context.xml",
-                                       "connectors",
-                                       "JVM options",
-                                       "JMX",
-                                       "sessions",
-                                       "realms",
-                                       "thread pools",
-                                       "access logs"
-                                   ],
-                     "tools":  [
-                                   "Apache Tomcat",
-                                   "JDK",
-                                   "Maven"
-                               ],
-                     "lab_task":  "Troubleshoot an intentionally failing Tomcat workflow.",
-                     "technology":  "Tomcat",
-                     "technology_id":  "tomcat",
-                     "learning_objectives":  [
-                                                 "Explain the Observability and Troubleshooting concepts in the context of Tomcat.",
-                                                 "Configure or implement the key Tomcat features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Tomcat.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "Advanced Patterns",
-                     "subtopics":  [
-                                       "Reusable modules/templates",
-                                       "Multi-environment strategy",
-                                       "Promotion strategy",
-                                       "Policy as code concepts",
-                                       "GitOps/IaC patterns",
-                                       "Best practices",
-                                       "Tomcat terminology and feature mapping for this topic",
-                                       "Tomcat configuration and implementation considerations",
-                                       "Tomcat best practices and common mistakes for this topic",
-                                       "Catalina",
-                                       "webapps",
-                                       "WAR files",
-                                       "server.xml",
-                                       "context.xml",
-                                       "connectors",
-                                       "JVM options",
-                                       "JMX",
-                                       "sessions",
-                                       "realms",
-                                       "thread pools",
-                                       "access logs"
-                                   ],
-                     "tools":  [
-                                   "Apache Tomcat",
-                                   "JDK",
-                                   "Maven",
-                                   "JMX"
-                               ],
-                     "lab_task":  "Create reusable production-grade patterns.",
-                     "technology":  "Tomcat",
-                     "technology_id":  "tomcat",
-                     "learning_objectives":  [
-                                                 "Explain the Advanced Patterns concepts in the context of Tomcat.",
-                                                 "Configure or implement the key Tomcat features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Tomcat.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  9,
-                     "topic":  "CI/CD or Deployment Project",
-                     "subtopics":  [
-                                       "Source control",
-                                       "Build",
-                                       "Test",
-                                       "Artifact",
-                                       "Deploy",
-                                       "Rollback",
-                                       "Approval gates",
-                                       "Documentation",
-                                       "Tomcat terminology and feature mapping for this topic",
-                                       "Tomcat configuration and implementation considerations",
-                                       "Tomcat best practices and common mistakes for this topic",
-                                       "Catalina",
-                                       "webapps",
-                                       "WAR files",
-                                       "server.xml",
-                                       "context.xml",
-                                       "connectors",
-                                       "JVM options",
-                                       "JMX",
-                                       "sessions",
-                                       "realms",
-                                       "thread pools",
-                                       "access logs"
-                                   ],
-                     "tools":  [
-                                   "Apache Tomcat",
-                                   "JDK",
-                                   "Maven",
-                                   "JMX"
-                               ],
-                     "lab_task":  "Implement a complete delivery workflow with Tomcat.",
-                     "technology":  "Tomcat",
-                     "technology_id":  "tomcat",
-                     "learning_objectives":  [
-                                                 "Explain the CI/CD or Deployment Project concepts in the context of Tomcat.",
-                                                 "Configure or implement the key Tomcat features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Tomcat.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "tomcat"
+  "domain": "Tomcat",
+  "name": "Tomcat â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "aliases": [
+    "Apache Tomcat",
+    "Java Servlet Container"
+  ],
+  "tools": [
+    "Apache Tomcat",
+    "JDK",
+    "Maven",
+    "JMX"
+  ],
+  "certifications": [
+    "Tomcat official/vendor learning path or relevant professional certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Introduction and Setup",
+      "subtopics": [
+        "Core purpose",
+        "Architecture",
+        "Installation/setup",
+        "Configuration files",
+        "CLI/UI",
+        "Typical workflows",
+        "Terminology",
+        "Tomcat terminology and feature mapping for this topic",
+        "Tomcat configuration and implementation considerations",
+        "Tomcat best practices and common mistakes for this topic",
+        "Catalina",
+        "webapps",
+        "WAR files",
+        "server.xml",
+        "context.xml",
+        "connectors",
+        "JVM options",
+        "JMX",
+        "sessions",
+        "realms",
+        "thread pools",
+        "access logs"
+      ],
+      "tools": [
+        "Apache Tomcat",
+        "JDK",
+        "Maven"
+      ],
+      "lab_task": "Set up Tomcat and run a basic workflow.",
+      "technology": "Tomcat",
+      "technology_id": "tomcat",
+      "learning_objectives": [
+        "Explain the Introduction and Setup concepts in the context of Tomcat.",
+        "Configure or implement the key Tomcat features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Introduction and Setup practically using Tomcat.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Introduction and Setup': Set up Tomcat and run a basic workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Tomcat and run a basic workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Introduction and Setup' on a prepared training sample through this task: Set up Tomcat and run a basic workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Tomcat and run a basic workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs) and demonstrate the starting sample for: Set up Tomcat and run a basic workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Tomcat and run a basic workflow.",
+          "evidence": "Participant submission for 'Introduction and Setup': Set up Tomcat and run a basic workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Tomcat and run a basic workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Tomcat and run a basic workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Core Configuration",
+      "subtopics": [
+        "Configuration syntax",
+        "Resources/components",
+        "Variables",
+        "Parameters",
+        "Secrets",
+        "Environment-specific configuration",
+        "Validation",
+        "Tomcat terminology and feature mapping for this topic",
+        "Tomcat configuration and implementation considerations",
+        "Tomcat best practices and common mistakes for this topic",
+        "Catalina",
+        "webapps",
+        "WAR files",
+        "server.xml",
+        "context.xml",
+        "connectors",
+        "JVM options",
+        "JMX",
+        "sessions",
+        "realms",
+        "thread pools",
+        "access logs"
+      ],
+      "tools": [
+        "Apache Tomcat",
+        "JDK",
+        "Maven"
+      ],
+      "lab_task": "Create reusable Tomcat configuration for development.",
+      "technology": "Tomcat",
+      "technology_id": "tomcat",
+      "learning_objectives": [
+        "Explain the Core Configuration concepts in the context of Tomcat.",
+        "Configure or implement the key Tomcat features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Core Configuration practically using Tomcat.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Core Configuration': Create reusable Tomcat configuration for development.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable Tomcat configuration for development.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Core Configuration' on a prepared training sample through this task: Create reusable Tomcat configuration for development..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable Tomcat configuration for development.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs) and demonstrate the starting sample for: Create reusable Tomcat configuration for development.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable Tomcat configuration for development.",
+          "evidence": "Participant submission for 'Core Configuration': Create reusable Tomcat configuration for development.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable Tomcat configuration for development.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable Tomcat configuration for development.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Automation Workflow",
+      "subtopics": [
+        "Triggers",
+        "Stages/steps",
+        "Dependencies",
+        "Artifacts",
+        "Caching",
+        "Retries",
+        "Failure handling",
+        "Notifications",
+        "Tomcat terminology and feature mapping for this topic",
+        "Tomcat configuration and implementation considerations",
+        "Tomcat best practices and common mistakes for this topic",
+        "Catalina",
+        "webapps",
+        "WAR files",
+        "server.xml",
+        "context.xml",
+        "connectors",
+        "JVM options",
+        "JMX",
+        "sessions",
+        "realms",
+        "thread pools",
+        "access logs"
+      ],
+      "tools": [
+        "Apache Tomcat",
+        "JDK",
+        "Maven"
+      ],
+      "lab_task": "Build an automated workflow using Tomcat.",
+      "technology": "Tomcat",
+      "technology_id": "tomcat",
+      "learning_objectives": [
+        "Explain the Automation Workflow concepts in the context of Tomcat.",
+        "Configure or implement the key Tomcat features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Automation Workflow practically using Tomcat.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Automation Workflow': Build an automated workflow using Tomcat.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an automated workflow using Tomcat.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Automation Workflow' on a prepared training sample through this task: Build an automated workflow using Tomcat..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an automated workflow using Tomcat.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs) and demonstrate the starting sample for: Build an automated workflow using Tomcat.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an automated workflow using Tomcat.",
+          "evidence": "Participant submission for 'Automation Workflow': Build an automated workflow using Tomcat.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an automated workflow using Tomcat.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an automated workflow using Tomcat.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Integration",
+      "subtopics": [
+        "Git integration",
+        "Container integration",
+        "Cloud integration",
+        "API/webhook integration",
+        "Credential management",
+        "Third-party plugins",
+        "Tomcat terminology and feature mapping for this topic",
+        "Tomcat configuration and implementation considerations",
+        "Tomcat best practices and common mistakes for this topic",
+        "Catalina",
+        "webapps",
+        "WAR files",
+        "server.xml",
+        "context.xml",
+        "connectors",
+        "JVM options",
+        "JMX",
+        "sessions",
+        "realms",
+        "thread pools",
+        "access logs"
+      ],
+      "tools": [
+        "Apache Tomcat",
+        "JDK",
+        "Maven",
+        "JMX"
+      ],
+      "lab_task": "Integrate Tomcat with source control and external services.",
+      "technology": "Tomcat",
+      "technology_id": "tomcat",
+      "learning_objectives": [
+        "Explain the Integration concepts in the context of Tomcat.",
+        "Configure or implement the key Tomcat features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Integration practically using Tomcat.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Integration': Integrate Tomcat with source control and external services.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Integrate Tomcat with source control and external services.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Integration' on a prepared training sample through this task: Integrate Tomcat with source control and external services..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Integrate Tomcat with source control and external services.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs) and demonstrate the starting sample for: Integrate Tomcat with source control and external services.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Integrate Tomcat with source control and external services.",
+          "evidence": "Participant submission for 'Integration': Integrate Tomcat with source control and external services.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Integrate Tomcat with source control and external services.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Integrate Tomcat with source control and external services.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Security",
+      "subtopics": [
+        "Authentication",
+        "Authorization",
+        "Secrets",
+        "Least privilege",
+        "Supply-chain concerns",
+        "Audit logs",
+        "Policy controls",
+        "Tomcat terminology and feature mapping for this topic",
+        "Tomcat configuration and implementation considerations",
+        "Tomcat best practices and common mistakes for this topic",
+        "Catalina",
+        "webapps",
+        "WAR files",
+        "server.xml",
+        "context.xml",
+        "connectors",
+        "JVM options",
+        "JMX",
+        "sessions",
+        "realms",
+        "thread pools",
+        "access logs"
+      ],
+      "tools": [
+        "Apache Tomcat",
+        "JDK",
+        "Maven"
+      ],
+      "lab_task": "Harden a Tomcat setup.",
+      "technology": "Tomcat",
+      "technology_id": "tomcat",
+      "learning_objectives": [
+        "Explain the Security concepts in the context of Tomcat.",
+        "Configure or implement the key Tomcat features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Security practically using Tomcat.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Security': Harden a Tomcat setup.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Harden a Tomcat setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Security' on a prepared training sample through this task: Harden a Tomcat setup..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Harden a Tomcat setup.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs) and demonstrate the starting sample for: Harden a Tomcat setup.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Harden a Tomcat setup.",
+          "evidence": "Participant submission for 'Security': Harden a Tomcat setup.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Harden a Tomcat setup.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Harden a Tomcat setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Scaling and Reliability",
+      "subtopics": [
+        "Agents/runners/nodes",
+        "Parallel execution",
+        "High availability",
+        "State management",
+        "Backups",
+        "Failure recovery",
+        "Capacity planning",
+        "Tomcat terminology and feature mapping for this topic",
+        "Tomcat configuration and implementation considerations",
+        "Tomcat best practices and common mistakes for this topic",
+        "Catalina",
+        "webapps",
+        "WAR files",
+        "server.xml",
+        "context.xml",
+        "connectors",
+        "JVM options",
+        "JMX",
+        "sessions",
+        "realms",
+        "thread pools",
+        "access logs"
+      ],
+      "tools": [
+        "Apache Tomcat",
+        "JDK",
+        "Maven"
+      ],
+      "lab_task": "Design a scalable and resilient Tomcat setup.",
+      "technology": "Tomcat",
+      "technology_id": "tomcat",
+      "learning_objectives": [
+        "Explain the Scaling and Reliability concepts in the context of Tomcat.",
+        "Configure or implement the key Tomcat features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Scaling and Reliability practically using Tomcat.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Scaling and Reliability': Design a scalable and resilient Tomcat setup.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a scalable and resilient Tomcat setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Scaling and Reliability' on a prepared training sample through this task: Design a scalable and resilient Tomcat setup..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a scalable and resilient Tomcat setup.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs) and demonstrate the starting sample for: Design a scalable and resilient Tomcat setup.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a scalable and resilient Tomcat setup.",
+          "evidence": "Participant submission for 'Scaling and Reliability': Design a scalable and resilient Tomcat setup.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a scalable and resilient Tomcat setup.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a scalable and resilient Tomcat setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Observability and Troubleshooting",
+      "subtopics": [
+        "Logs",
+        "Metrics",
+        "Debugging",
+        "Failure diagnosis",
+        "Performance bottlenecks",
+        "Alerting",
+        "Operational runbooks",
+        "Tomcat terminology and feature mapping for this topic",
+        "Tomcat configuration and implementation considerations",
+        "Tomcat best practices and common mistakes for this topic",
+        "Catalina",
+        "webapps",
+        "WAR files",
+        "server.xml",
+        "context.xml",
+        "connectors",
+        "JVM options",
+        "JMX",
+        "sessions",
+        "realms",
+        "thread pools",
+        "access logs"
+      ],
+      "tools": [
+        "Apache Tomcat",
+        "JDK",
+        "Maven"
+      ],
+      "lab_task": "Troubleshoot an intentionally failing Tomcat workflow.",
+      "technology": "Tomcat",
+      "technology_id": "tomcat",
+      "learning_objectives": [
+        "Explain the Observability and Troubleshooting concepts in the context of Tomcat.",
+        "Configure or implement the key Tomcat features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Observability and Troubleshooting practically using Tomcat.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Observability and Troubleshooting': Troubleshoot an intentionally failing Tomcat workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Troubleshoot an intentionally failing Tomcat workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Observability and Troubleshooting' on a prepared training sample through this task: Troubleshoot an intentionally failing Tomcat workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Troubleshoot an intentionally failing Tomcat workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs) and demonstrate the starting sample for: Troubleshoot an intentionally failing Tomcat workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Troubleshoot an intentionally failing Tomcat workflow.",
+          "evidence": "Participant submission for 'Observability and Troubleshooting': Troubleshoot an intentionally failing Tomcat workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Troubleshoot an intentionally failing Tomcat workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Troubleshoot an intentionally failing Tomcat workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Advanced Patterns",
+      "subtopics": [
+        "Reusable modules/templates",
+        "Multi-environment strategy",
+        "Promotion strategy",
+        "Policy as code concepts",
+        "GitOps/IaC patterns",
+        "Best practices",
+        "Tomcat terminology and feature mapping for this topic",
+        "Tomcat configuration and implementation considerations",
+        "Tomcat best practices and common mistakes for this topic",
+        "Catalina",
+        "webapps",
+        "WAR files",
+        "server.xml",
+        "context.xml",
+        "connectors",
+        "JVM options",
+        "JMX",
+        "sessions",
+        "realms",
+        "thread pools",
+        "access logs"
+      ],
+      "tools": [
+        "Apache Tomcat",
+        "JDK",
+        "Maven",
+        "JMX"
+      ],
+      "lab_task": "Create reusable production-grade patterns.",
+      "technology": "Tomcat",
+      "technology_id": "tomcat",
+      "learning_objectives": [
+        "Explain the Advanced Patterns concepts in the context of Tomcat.",
+        "Configure or implement the key Tomcat features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Advanced Patterns practically using Tomcat.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Advanced Patterns': Create reusable production-grade patterns.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable production-grade patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Advanced Patterns' on a prepared training sample through this task: Create reusable production-grade patterns..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable production-grade patterns.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs) and demonstrate the starting sample for: Create reusable production-grade patterns.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable production-grade patterns.",
+          "evidence": "Participant submission for 'Advanced Patterns': Create reusable production-grade patterns.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable production-grade patterns.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable production-grade patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "CI/CD or Deployment Project",
+      "subtopics": [
+        "Source control",
+        "Build",
+        "Test",
+        "Artifact",
+        "Deploy",
+        "Rollback",
+        "Approval gates",
+        "Documentation",
+        "Tomcat terminology and feature mapping for this topic",
+        "Tomcat configuration and implementation considerations",
+        "Tomcat best practices and common mistakes for this topic",
+        "Catalina",
+        "webapps",
+        "WAR files",
+        "server.xml",
+        "context.xml",
+        "connectors",
+        "JVM options",
+        "JMX",
+        "sessions",
+        "realms",
+        "thread pools",
+        "access logs"
+      ],
+      "tools": [
+        "Apache Tomcat",
+        "JDK",
+        "Maven",
+        "JMX"
+      ],
+      "lab_task": "Implement a complete delivery workflow with Tomcat.",
+      "technology": "Tomcat",
+      "technology_id": "tomcat",
+      "learning_objectives": [
+        "Explain the CI/CD or Deployment Project concepts in the context of Tomcat.",
+        "Configure or implement the key Tomcat features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply CI/CD or Deployment Project practically using Tomcat.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'CI/CD or Deployment Project': Implement a complete delivery workflow with Tomcat.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement a complete delivery workflow with Tomcat.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'CI/CD or Deployment Project' on a prepared training sample through this task: Implement a complete delivery workflow with Tomcat..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement a complete delivery workflow with Tomcat.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs) and demonstrate the starting sample for: Implement a complete delivery workflow with Tomcat.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement a complete delivery workflow with Tomcat.",
+          "evidence": "Participant submission for 'CI/CD or Deployment Project': Implement a complete delivery workflow with Tomcat.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement a complete delivery workflow with Tomcat.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement a complete delivery workflow with Tomcat.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Tomcat terminology and feature mapping for this topic; Tomcat configuration and implementation considerations; Tomcat best practices and common mistakes for this topic; Catalina; webapps; WAR files; server.xml; context.xml; connectors; JVM options; JMX; sessions; realms; thread pools; access logs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "tomcat",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

@@ -69,7 +69,136 @@
         "Git"
       ],
       "jira_focus": "Create epics, stories, tasks and move them on sprint board",
-      "lab_task": "Create a Jira sprint board and map a sample application delivery workflow"
+      "lab_task": "Map a supplied feature from backlog item through code review, automated checks, staging deployment and release decision. Define acceptance criteria, owner, evidence and rollback trigger for each stage.",
+      "deliverable": "Delivery workflow board, definition of done and release-evidence checklist",
+      "assessment": "Every workflow stage has an owner, input and evidence output\nA failed automated check prevents the release decision from being marked ready\nThe rollback trigger names a measurable operational condition rather than a vague concern",
+      "learning_objectives": [
+        "Distinguish deployment activity from evidence that a change is releasable",
+        "Identify missing approval and rollback information"
+      ],
+      "scenario": "A team has a production defect but no shared definition of done or release evidence.",
+      "preparation_requirements": [
+        "Prepare the stated lab fixture or training environment",
+        "Verify expected results: Every workflow stage has an owner, input and evidence output; A failed automated check prevents the release decision from being marked ready; The rollback trigger names a measurable operational condition rather than a vague concern"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Demonstration",
+          "minutes": null,
+          "activity": "A team has a production defect but no shared definition of done or release evidence.",
+          "evidence": "Baseline example and first expected result"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": null,
+          "activity": "Map a supplied feature from backlog item through code review, automated checks, staging deployment and release decision. Define acceptance criteria, owner, evidence and rollback trigger for each stage.",
+          "evidence": "Delivery workflow board, definition of done and release-evidence checklist"
+        },
+        {
+          "method": "Independent validation",
+          "minutes": null,
+          "activity": "A failed automated check prevents the release decision from being marked ready",
+          "evidence": "Recorded result"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "The rollback trigger names a measurable operational condition rather than a vague concern",
+          "evidence": "Participant explanation and evidence"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "scenario",
+        "lab",
+        "deliverable",
+        "learning_objectives",
+        "assessment",
+        "acceptance_checks",
+        "prerequisites",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "manual-priority-v1",
+      "review_status": "unreviewed",
+      "content_before_manual_rewrite": {
+        "day": 1,
+        "date": "10-Sep-2026",
+        "weekday": "Thursday",
+        "topic": "DevOps Orientation, SDLC and Agile Delivery",
+        "subtopics": [
+          "DevOps lifecycle",
+          "Agile vs DevOps",
+          "CI/CD overview",
+          "Jira workflow",
+          "delivery roles"
+        ],
+        "tools": [
+          "Jira",
+          "Git"
+        ],
+        "jira_focus": "Create epics, stories, tasks and move them on sprint board",
+        "lab_task": "Create a Jira sprint board and map a sample application delivery workflow",
+        "deliverable": "Participant submission for 'DevOps Orientation, SDLC and Agile Delivery': Create a Jira sprint board and map a sample application delivery workflow. Include the resulting artefact, reproducible steps and observed results.",
+        "assessment": "Reproduce the source lab: Create a Jira sprint board and map a sample application delivery workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DevOps lifecycle; Agile vs DevOps; CI/CD overview; Jira workflow; delivery roles). Require one changed-input or exception case and an explanation of its result.",
+        "learning_objectives": [
+          "Complete and demonstrate: Create a Jira sprint board and map a sample application delivery workflow.",
+          "Explain how the lab applies DevOps Orientation, SDLC and Agile Delivery and justify the observed result."
+        ],
+        "scenario": "Demonstrate 'DevOps Orientation, SDLC and Agile Delivery' on a prepared training sample through this task: Create a Jira sprint board and map a sample application delivery workflow.",
+        "preparation_requirements": [
+          "Prepare sample assets, expected results and an exception case for: Create a Jira sprint board and map a sample application delivery workflow",
+          "Confirm participant prerequisites, tool access and activity durations before delivery"
+        ],
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (DevOps lifecycle; Agile vs DevOps; CI/CD overview; Jira workflow; delivery roles) and demonstrate the starting sample for: Create a Jira sprint board and map a sample application delivery workflow",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Create a Jira sprint board and map a sample application delivery workflow",
+            "evidence": "Participant submission for 'DevOps Orientation, SDLC and Agile Delivery': Create a Jira sprint board and map a sample application delivery workflow. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Create a Jira sprint board and map a sample application delivery workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Create a Jira sprint board and map a sample application delivery workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DevOps lifecycle; Agile vs DevOps; CI/CD overview; Jira workflow; delivery roles). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ],
+        "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+        "proposed_fields": [
+          "deliverable",
+          "assessment",
+          "learning_objectives",
+          "scenario",
+          "preparation_requirements",
+          "delivery_steps"
+        ],
+        "content_enrichment_version": "catalog-delivery-v1",
+        "review_status": "unreviewed"
+      },
+      "lab": "Map a supplied feature from backlog item through code review, automated checks, staging deployment and release decision. Define acceptance criteria, owner, evidence and rollback trigger for each stage.",
+      "prerequisites": [
+        "Basic software delivery lifecycle"
+      ],
+      "acceptance_checks": [
+        "Every workflow stage has an owner, input and evidence output",
+        "A failed automated check prevents the release decision from being marked ready",
+        "The rollback trigger names a measurable operational condition rather than a vague concern"
+      ],
+      "content_quality_stage": "manually_authored_pending_lab_validation",
+      "source_verification": "Exercise is manually authored; technical and lab validation remain pending"
     },
     {
       "day": 2,
@@ -90,7 +219,138 @@
         "journalctl"
       ],
       "jira_focus": "Log Linux setup task evidence and update task status",
-      "lab_task": "Create users, manage permissions, install packages and inspect service logs"
+      "lab_task": "Use a disposable Linux training environment to inspect files, permissions, processes and disk use. Locate a supplied oversized log, compare its owner and permissions, and create a safe archival plan without deleting it.",
+      "deliverable": "Command transcript, disk-use report and reviewed archival plan",
+      "assessment": "The report identifies the seeded oversized file and its size\nThe participant explains why its permission bits allow or deny the named user action\nThe plan avoids deleting live files and states the verification step after archival",
+      "learning_objectives": [
+        "Interpret file ownership, permissions and disk usage",
+        "Collect evidence before proposing a change"
+      ],
+      "scenario": "A service is using disk space rapidly and its owner needs evidence before cleanup.",
+      "preparation_requirements": [
+        "Prepare the stated lab fixture or training environment",
+        "Verify expected results: The report identifies the seeded oversized file and its size; The participant explains why its permission bits allow or deny the named user action; The plan avoids deleting live files and states the verification step after archival"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Demonstration",
+          "minutes": null,
+          "activity": "A service is using disk space rapidly and its owner needs evidence before cleanup.",
+          "evidence": "Baseline example and first expected result"
+        },
+        {
+          "method": "Guided lab",
+          "minutes": null,
+          "activity": "Use a disposable Linux training environment to inspect files, permissions, processes and disk use. Locate a supplied oversized log, compare its owner and permissions, and create a safe archival plan without deleting it.",
+          "evidence": "Command transcript, disk-use report and reviewed archival plan"
+        },
+        {
+          "method": "Independent validation",
+          "minutes": null,
+          "activity": "The participant explains why its permission bits allow or deny the named user action",
+          "evidence": "Recorded result"
+        },
+        {
+          "method": "Assessment",
+          "minutes": null,
+          "activity": "The plan avoids deleting live files and states the verification step after archival",
+          "evidence": "Participant explanation and evidence"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "scenario",
+        "lab",
+        "deliverable",
+        "learning_objectives",
+        "assessment",
+        "acceptance_checks",
+        "prerequisites",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "manual-priority-v1",
+      "review_status": "unreviewed",
+      "content_before_manual_rewrite": {
+        "day": 2,
+        "date": "11-Sep-2026",
+        "weekday": "Friday",
+        "topic": "Linux Fundamentals for DevOps",
+        "subtopics": [
+          "Linux filesystem",
+          "permissions",
+          "users and groups",
+          "package managers",
+          "services and logs"
+        ],
+        "tools": [
+          "Ubuntu",
+          "Bash",
+          "systemctl",
+          "journalctl"
+        ],
+        "jira_focus": "Log Linux setup task evidence and update task status",
+        "lab_task": "Create users, manage permissions, install packages and inspect service logs",
+        "deliverable": "Participant submission for 'Linux Fundamentals for DevOps': Create users, manage permissions, install packages and inspect service logs. Include the resulting artefact, reproducible steps and observed results.",
+        "assessment": "Reproduce the source lab: Create users, manage permissions, install packages and inspect service logs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Linux filesystem; permissions; users and groups; package managers; services and logs). Require one changed-input or exception case and an explanation of its result.",
+        "learning_objectives": [
+          "Complete and demonstrate: Create users, manage permissions, install packages and inspect service logs.",
+          "Explain how the lab applies Linux Fundamentals for DevOps and justify the observed result."
+        ],
+        "scenario": "Demonstrate 'Linux Fundamentals for DevOps' on a prepared training sample through this task: Create users, manage permissions, install packages and inspect service logs.",
+        "preparation_requirements": [
+          "Prepare sample assets, expected results and an exception case for: Create users, manage permissions, install packages and inspect service logs",
+          "Confirm participant prerequisites, tool access and activity durations before delivery"
+        ],
+        "delivery_steps": [
+          {
+            "method": "Explanation and demonstration",
+            "minutes": null,
+            "activity": "Explain the applicable concepts (Linux filesystem; permissions; users and groups; package managers; services and logs) and demonstrate the starting sample for: Create users, manage permissions, install packages and inspect service logs",
+            "evidence": "Annotated sample with inputs and expected results"
+          },
+          {
+            "method": "Guided practice",
+            "minutes": null,
+            "activity": "Create users, manage permissions, install packages and inspect service logs",
+            "evidence": "Participant submission for 'Linux Fundamentals for DevOps': Create users, manage permissions, install packages and inspect service logs. Include the resulting artefact, reproducible steps and observed results."
+          },
+          {
+            "method": "Independent application",
+            "minutes": null,
+            "activity": "Repeat 'Create users, manage permissions, install packages and inspect service logs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+            "evidence": "Participant artefact and comparison of expected versus observed results"
+          },
+          {
+            "method": "Assessment and feedback",
+            "minutes": null,
+            "activity": "Reproduce the source lab: Create users, manage permissions, install packages and inspect service logs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Linux filesystem; permissions; users and groups; package managers; services and logs). Require one changed-input or exception case and an explanation of its result.",
+            "evidence": "Recorded checks, unresolved errors and trainer feedback"
+          }
+        ],
+        "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+        "proposed_fields": [
+          "deliverable",
+          "assessment",
+          "learning_objectives",
+          "scenario",
+          "preparation_requirements",
+          "delivery_steps"
+        ],
+        "content_enrichment_version": "catalog-delivery-v1",
+        "review_status": "unreviewed"
+      },
+      "lab": "Use a disposable Linux training environment to inspect files, permissions, processes and disk use. Locate a supplied oversized log, compare its owner and permissions, and create a safe archival plan without deleting it.",
+      "prerequisites": [
+        "Shell access and basic file concepts"
+      ],
+      "acceptance_checks": [
+        "The report identifies the seeded oversized file and its size",
+        "The participant explains why its permission bits allow or deny the named user action",
+        "The plan avoids deleting live files and states the verification step after archival"
+      ],
+      "content_quality_stage": "manually_authored_pending_lab_validation",
+      "source_verification": "Exercise is manually authored; technical and lab validation remain pending"
     },
     {
       "day": 3,
@@ -111,7 +371,55 @@
         "VS Code"
       ],
       "jira_focus": "Attach script output to Jira task and mark acceptance criteria",
-      "lab_task": "Write backup, health-check and log-cleanup shell scripts"
+      "lab_task": "Write backup, health-check and log-cleanup shell scripts",
+      "deliverable": "Participant submission for 'Shell Scripting and Automation': Write backup, health-check and log-cleanup shell scripts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Write backup, health-check and log-cleanup shell scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables; conditions; loops; functions; cron jobs; exit codes). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Write backup, health-check and log-cleanup shell scripts.",
+        "Explain how the lab applies Shell Scripting and Automation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Shell Scripting and Automation' on a prepared training sample through this task: Write backup, health-check and log-cleanup shell scripts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Write backup, health-check and log-cleanup shell scripts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (variables; conditions; loops; functions; cron jobs; exit codes) and demonstrate the starting sample for: Write backup, health-check and log-cleanup shell scripts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Write backup, health-check and log-cleanup shell scripts",
+          "evidence": "Participant submission for 'Shell Scripting and Automation': Write backup, health-check and log-cleanup shell scripts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Write backup, health-check and log-cleanup shell scripts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Write backup, health-check and log-cleanup shell scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables; conditions; loops; functions; cron jobs; exit codes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 4,
@@ -133,7 +441,55 @@
         "nslookup"
       ],
       "jira_focus": "Create troubleshooting sub-tasks for network incidents",
-      "lab_task": "Troubleshoot service connectivity using curl, ports and SSH"
+      "lab_task": "Troubleshoot service connectivity using curl, ports and SSH",
+      "deliverable": "Participant submission for 'Networking, SSH and Web Basics': Troubleshoot service connectivity using curl, ports and SSH. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Troubleshoot service connectivity using curl, ports and SSH. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (TCP/IP; DNS; HTTP/HTTPS; ports; SSH; curl troubleshooting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Troubleshoot service connectivity using curl, ports and SSH.",
+        "Explain how the lab applies Networking, SSH and Web Basics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Networking, SSH and Web Basics' on a prepared training sample through this task: Troubleshoot service connectivity using curl, ports and SSH.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Troubleshoot service connectivity using curl, ports and SSH",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (TCP/IP; DNS; HTTP/HTTPS; ports; SSH; curl troubleshooting) and demonstrate the starting sample for: Troubleshoot service connectivity using curl, ports and SSH",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Troubleshoot service connectivity using curl, ports and SSH",
+          "evidence": "Participant submission for 'Networking, SSH and Web Basics': Troubleshoot service connectivity using curl, ports and SSH. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Troubleshoot service connectivity using curl, ports and SSH' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Troubleshoot service connectivity using curl, ports and SSH. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (TCP/IP; DNS; HTTP/HTTPS; ports; SSH; curl troubleshooting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 5,
@@ -153,7 +509,55 @@
         "GitHub"
       ],
       "jira_focus": "Link commits and pull requests to Jira stories",
-      "lab_task": "Resolve merge conflict and complete pull-request review workflow"
+      "lab_task": "Resolve merge conflict and complete pull-request review workflow",
+      "deliverable": "Participant submission for 'Git and GitHub Collaboration': Resolve merge conflict and complete pull-request review workflow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Resolve merge conflict and complete pull-request review workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (clone; branching; merge; rebase; pull requests; merge conflicts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Resolve merge conflict and complete pull-request review workflow.",
+        "Explain how the lab applies Git and GitHub Collaboration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Git and GitHub Collaboration' on a prepared training sample through this task: Resolve merge conflict and complete pull-request review workflow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Resolve merge conflict and complete pull-request review workflow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (clone; branching; merge; rebase; pull requests; merge conflicts) and demonstrate the starting sample for: Resolve merge conflict and complete pull-request review workflow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Resolve merge conflict and complete pull-request review workflow",
+          "evidence": "Participant submission for 'Git and GitHub Collaboration': Resolve merge conflict and complete pull-request review workflow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Resolve merge conflict and complete pull-request review workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Resolve merge conflict and complete pull-request review workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (clone; branching; merge; rebase; pull requests; merge conflicts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 6,
@@ -173,7 +577,55 @@
         "Nexus"
       ],
       "jira_focus": "Add build artifact links and release notes to Jira",
-      "lab_task": "Build a sample app and publish artifact to a repository"
+      "lab_task": "Build a sample app and publish artifact to a repository",
+      "deliverable": "Participant submission for 'Build Tools and Artifact Management': Build a sample app and publish artifact to a repository. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a sample app and publish artifact to a repository. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Maven/Gradle/npm basics; build lifecycle; versioning; artifact repositories; release packages). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a sample app and publish artifact to a repository.",
+        "Explain how the lab applies Build Tools and Artifact Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Build Tools and Artifact Management' on a prepared training sample through this task: Build a sample app and publish artifact to a repository.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a sample app and publish artifact to a repository",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Maven/Gradle/npm basics; build lifecycle; versioning; artifact repositories; release packages) and demonstrate the starting sample for: Build a sample app and publish artifact to a repository",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a sample app and publish artifact to a repository",
+          "evidence": "Participant submission for 'Build Tools and Artifact Management': Build a sample app and publish artifact to a repository. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a sample app and publish artifact to a repository' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a sample app and publish artifact to a repository. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Maven/Gradle/npm basics; build lifecycle; versioning; artifact repositories; release packages). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 7,
@@ -194,7 +646,55 @@
         "Maven"
       ],
       "jira_focus": "Create CI task and record Jenkins build URL",
-      "lab_task": "Create Jenkins freestyle and pipeline jobs from Git repository"
+      "lab_task": "Create Jenkins freestyle and pipeline jobs from Git repository",
+      "deliverable": "Participant submission for 'Jenkins Fundamentals': Create Jenkins freestyle and pipeline jobs from Git repository. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create Jenkins freestyle and pipeline jobs from Git repository. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (installation; jobs; agents; credentials; plugins; build triggers). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create Jenkins freestyle and pipeline jobs from Git repository.",
+        "Explain how the lab applies Jenkins Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Jenkins Fundamentals' on a prepared training sample through this task: Create Jenkins freestyle and pipeline jobs from Git repository.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create Jenkins freestyle and pipeline jobs from Git repository",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (installation; jobs; agents; credentials; plugins; build triggers) and demonstrate the starting sample for: Create Jenkins freestyle and pipeline jobs from Git repository",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create Jenkins freestyle and pipeline jobs from Git repository",
+          "evidence": "Participant submission for 'Jenkins Fundamentals': Create Jenkins freestyle and pipeline jobs from Git repository. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create Jenkins freestyle and pipeline jobs from Git repository' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create Jenkins freestyle and pipeline jobs from Git repository. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (installation; jobs; agents; credentials; plugins; build triggers). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 8,
@@ -215,7 +715,55 @@
         "SonarQube"
       ],
       "jira_focus": "Update task status based on pipeline stage results",
-      "lab_task": "Build multi-stage Jenkins pipeline with test, scan and artifact stage"
+      "lab_task": "Build multi-stage Jenkins pipeline with test, scan and artifact stage",
+      "deliverable": "Participant submission for 'Jenkins Pipeline as Code': Build multi-stage Jenkins pipeline with test, scan and artifact stage. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build multi-stage Jenkins pipeline with test, scan and artifact stage. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Jenkinsfile; declarative pipeline; stages; environment; post actions; shared libraries). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build multi-stage Jenkins pipeline with test, scan and artifact stage.",
+        "Explain how the lab applies Jenkins Pipeline as Code and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Jenkins Pipeline as Code' on a prepared training sample through this task: Build multi-stage Jenkins pipeline with test, scan and artifact stage.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build multi-stage Jenkins pipeline with test, scan and artifact stage",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Jenkinsfile; declarative pipeline; stages; environment; post actions; shared libraries) and demonstrate the starting sample for: Build multi-stage Jenkins pipeline with test, scan and artifact stage",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build multi-stage Jenkins pipeline with test, scan and artifact stage",
+          "evidence": "Participant submission for 'Jenkins Pipeline as Code': Build multi-stage Jenkins pipeline with test, scan and artifact stage. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build multi-stage Jenkins pipeline with test, scan and artifact stage' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build multi-stage Jenkins pipeline with test, scan and artifact stage. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Jenkinsfile; declarative pipeline; stages; environment; post actions; shared libraries). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 9,
@@ -236,7 +784,55 @@
         "YAML"
       ],
       "jira_focus": "Link CI workflow evidence to user story",
-      "lab_task": "Create CI workflow to build, test and publish artifacts"
+      "lab_task": "Create CI workflow to build, test and publish artifacts",
+      "deliverable": "Participant submission for 'GitHub Actions and GitLab CI': Create CI workflow to build, test and publish artifacts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create CI workflow to build, test and publish artifacts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (workflow YAML; triggers; jobs; secrets; artifacts; matrix builds). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create CI workflow to build, test and publish artifacts.",
+        "Explain how the lab applies GitHub Actions and GitLab CI and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'GitHub Actions and GitLab CI' on a prepared training sample through this task: Create CI workflow to build, test and publish artifacts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create CI workflow to build, test and publish artifacts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (workflow YAML; triggers; jobs; secrets; artifacts; matrix builds) and demonstrate the starting sample for: Create CI workflow to build, test and publish artifacts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create CI workflow to build, test and publish artifacts",
+          "evidence": "Participant submission for 'GitHub Actions and GitLab CI': Create CI workflow to build, test and publish artifacts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create CI workflow to build, test and publish artifacts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create CI workflow to build, test and publish artifacts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (workflow YAML; triggers; jobs; secrets; artifacts; matrix builds). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 10,
@@ -256,7 +852,55 @@
         "Docker Hub"
       ],
       "jira_focus": "Create containerization task and document image tag",
-      "lab_task": "Dockerize a Python or Node application and push image to registry"
+      "lab_task": "Dockerize a Python or Node application and push image to registry",
+      "deliverable": "Participant submission for 'Docker Fundamentals': Dockerize a Python or Node application and push image to registry. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Dockerize a Python or Node application and push image to registry. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (images; containers; Dockerfile; layers; volumes; networks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Dockerize a Python or Node application and push image to registry.",
+        "Explain how the lab applies Docker Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Docker Fundamentals' on a prepared training sample through this task: Dockerize a Python or Node application and push image to registry.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Dockerize a Python or Node application and push image to registry",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (images; containers; Dockerfile; layers; volumes; networks) and demonstrate the starting sample for: Dockerize a Python or Node application and push image to registry",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Dockerize a Python or Node application and push image to registry",
+          "evidence": "Participant submission for 'Docker Fundamentals': Dockerize a Python or Node application and push image to registry. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Dockerize a Python or Node application and push image to registry' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Dockerize a Python or Node application and push image to registry. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (images; containers; Dockerfile; layers; volumes; networks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 11,
@@ -274,7 +918,55 @@
         "Docker Compose"
       ],
       "jira_focus": "Track compose setup issues and resolution comments",
-      "lab_task": "Run app, database and cache using Docker Compose"
+      "lab_task": "Run app, database and cache using Docker Compose",
+      "deliverable": "Participant submission for 'Docker Compose and Multi-Container Apps': Run app, database and cache using Docker Compose. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Run app, database and cache using Docker Compose. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (compose services; networks; volumes; environment variables; health checks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Run app, database and cache using Docker Compose.",
+        "Explain how the lab applies Docker Compose and Multi-Container Apps and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Docker Compose and Multi-Container Apps' on a prepared training sample through this task: Run app, database and cache using Docker Compose.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Run app, database and cache using Docker Compose",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (compose services; networks; volumes; environment variables; health checks) and demonstrate the starting sample for: Run app, database and cache using Docker Compose",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Run app, database and cache using Docker Compose",
+          "evidence": "Participant submission for 'Docker Compose and Multi-Container Apps': Run app, database and cache using Docker Compose. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Run app, database and cache using Docker Compose' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Run app, database and cache using Docker Compose. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (compose services; networks; volumes; environment variables; health checks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 12,
@@ -295,7 +987,55 @@
         "Trivy"
       ],
       "jira_focus": "Raise security findings as Jira defects",
-      "lab_task": "Scan Docker image, fix high-risk findings and republish image"
+      "lab_task": "Scan Docker image, fix high-risk findings and republish image",
+      "deliverable": "Participant submission for 'Container Registry and Image Security': Scan Docker image, fix high-risk findings and republish image. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Scan Docker image, fix high-risk findings and republish image. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tags; registry authentication; image scanning; base image hardening; SBOM basics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Scan Docker image, fix high-risk findings and republish image.",
+        "Explain how the lab applies Container Registry and Image Security and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Container Registry and Image Security' on a prepared training sample through this task: Scan Docker image, fix high-risk findings and republish image.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Scan Docker image, fix high-risk findings and republish image",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (tags; registry authentication; image scanning; base image hardening; SBOM basics) and demonstrate the starting sample for: Scan Docker image, fix high-risk findings and republish image",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Scan Docker image, fix high-risk findings and republish image",
+          "evidence": "Participant submission for 'Container Registry and Image Security': Scan Docker image, fix high-risk findings and republish image. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Scan Docker image, fix high-risk findings and republish image' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Scan Docker image, fix high-risk findings and republish image. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tags; registry authentication; image scanning; base image hardening; SBOM basics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 13,
@@ -316,7 +1056,55 @@
         "minikube"
       ],
       "jira_focus": "Create deployment checklist story for Kubernetes rollout",
-      "lab_task": "Create local Kubernetes cluster and deploy first workload"
+      "lab_task": "Create local Kubernetes cluster and deploy first workload",
+      "deliverable": "Participant submission for 'Kubernetes Architecture': Create local Kubernetes cluster and deploy first workload. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create local Kubernetes cluster and deploy first workload. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (control plane; worker nodes; pods; ReplicaSets; deployments; kubectl). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create local Kubernetes cluster and deploy first workload.",
+        "Explain how the lab applies Kubernetes Architecture and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Kubernetes Architecture' on a prepared training sample through this task: Create local Kubernetes cluster and deploy first workload.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create local Kubernetes cluster and deploy first workload",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (control plane; worker nodes; pods; ReplicaSets; deployments; kubectl) and demonstrate the starting sample for: Create local Kubernetes cluster and deploy first workload",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create local Kubernetes cluster and deploy first workload",
+          "evidence": "Participant submission for 'Kubernetes Architecture': Create local Kubernetes cluster and deploy first workload. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create local Kubernetes cluster and deploy first workload' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create local Kubernetes cluster and deploy first workload. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (control plane; worker nodes; pods; ReplicaSets; deployments; kubectl). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 14,
@@ -337,7 +1125,55 @@
         "Ingress Controller"
       ],
       "jira_focus": "Track service exposure and verification evidence",
-      "lab_task": "Deploy app with service, ingress, configmap and secret"
+      "lab_task": "Deploy app with service, ingress, configmap and secret",
+      "deliverable": "Participant submission for 'Kubernetes Workloads and Services': Deploy app with service, ingress, configmap and secret. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deploy app with service, ingress, configmap and secret. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (deployments; services; ingress; configmaps; secrets; namespaces). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deploy app with service, ingress, configmap and secret.",
+        "Explain how the lab applies Kubernetes Workloads and Services and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Kubernetes Workloads and Services' on a prepared training sample through this task: Deploy app with service, ingress, configmap and secret.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deploy app with service, ingress, configmap and secret",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (deployments; services; ingress; configmaps; secrets; namespaces) and demonstrate the starting sample for: Deploy app with service, ingress, configmap and secret",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deploy app with service, ingress, configmap and secret",
+          "evidence": "Participant submission for 'Kubernetes Workloads and Services': Deploy app with service, ingress, configmap and secret. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deploy app with service, ingress, configmap and secret' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deploy app with service, ingress, configmap and secret. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (deployments; services; ingress; configmaps; secrets; namespaces). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 15,
@@ -358,7 +1194,55 @@
         "k9s"
       ],
       "jira_focus": "Create incident tasks from pod and service failures",
-      "lab_task": "Troubleshoot failing pods and configure RBAC with persistent storage"
+      "lab_task": "Troubleshoot failing pods and configure RBAC with persistent storage",
+      "deliverable": "Participant submission for 'Kubernetes Storage, RBAC and Troubleshooting': Troubleshoot failing pods and configure RBAC with persistent storage. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Troubleshoot failing pods and configure RBAC with persistent storage. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (PV/PVC; storage classes; RBAC; logs; events; rollbacks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Troubleshoot failing pods and configure RBAC with persistent storage.",
+        "Explain how the lab applies Kubernetes Storage, RBAC and Troubleshooting and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Kubernetes Storage, RBAC and Troubleshooting' on a prepared training sample through this task: Troubleshoot failing pods and configure RBAC with persistent storage.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Troubleshoot failing pods and configure RBAC with persistent storage",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (PV/PVC; storage classes; RBAC; logs; events; rollbacks) and demonstrate the starting sample for: Troubleshoot failing pods and configure RBAC with persistent storage",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Troubleshoot failing pods and configure RBAC with persistent storage",
+          "evidence": "Participant submission for 'Kubernetes Storage, RBAC and Troubleshooting': Troubleshoot failing pods and configure RBAC with persistent storage. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Troubleshoot failing pods and configure RBAC with persistent storage' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Troubleshoot failing pods and configure RBAC with persistent storage. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (PV/PVC; storage classes; RBAC; logs; events; rollbacks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 16,
@@ -378,7 +1262,55 @@
         "Kubernetes"
       ],
       "jira_focus": "Document release version and rollback plan",
-      "lab_task": "Package application as Helm chart and perform upgrade/rollback"
+      "lab_task": "Package application as Helm chart and perform upgrade/rollback",
+      "deliverable": "Participant submission for 'Helm Package Management': Package application as Helm chart and perform upgrade/rollback. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Package application as Helm chart and perform upgrade/rollback. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (chart structure; values.yaml; templates; install; upgrade; rollback). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Package application as Helm chart and perform upgrade/rollback.",
+        "Explain how the lab applies Helm Package Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Helm Package Management' on a prepared training sample through this task: Package application as Helm chart and perform upgrade/rollback.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Package application as Helm chart and perform upgrade/rollback",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (chart structure; values.yaml; templates; install; upgrade; rollback) and demonstrate the starting sample for: Package application as Helm chart and perform upgrade/rollback",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Package application as Helm chart and perform upgrade/rollback",
+          "evidence": "Participant submission for 'Helm Package Management': Package application as Helm chart and perform upgrade/rollback. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Package application as Helm chart and perform upgrade/rollback' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Package application as Helm chart and perform upgrade/rollback. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (chart structure; values.yaml; templates; install; upgrade; rollback). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 17,
@@ -401,7 +1333,55 @@
         "S3"
       ],
       "jira_focus": "Create cloud provisioning tasks and add AWS evidence",
-      "lab_task": "Create IAM user, EC2 instance, S3 bucket and CloudWatch log check"
+      "lab_task": "Create IAM user, EC2 instance, S3 bucket and CloudWatch log check",
+      "deliverable": "Participant submission for 'AWS DevOps Foundations': Create IAM user, EC2 instance, S3 bucket and CloudWatch log check. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create IAM user, EC2 instance, S3 bucket and CloudWatch log check. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (IAM; EC2; S3; VPC; security groups; CloudWatch). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create IAM user, EC2 instance, S3 bucket and CloudWatch log check.",
+        "Explain how the lab applies AWS DevOps Foundations and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'AWS DevOps Foundations' on a prepared training sample through this task: Create IAM user, EC2 instance, S3 bucket and CloudWatch log check.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create IAM user, EC2 instance, S3 bucket and CloudWatch log check",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (IAM; EC2; S3; VPC; security groups; CloudWatch) and demonstrate the starting sample for: Create IAM user, EC2 instance, S3 bucket and CloudWatch log check",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create IAM user, EC2 instance, S3 bucket and CloudWatch log check",
+          "evidence": "Participant submission for 'AWS DevOps Foundations': Create IAM user, EC2 instance, S3 bucket and CloudWatch log check. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create IAM user, EC2 instance, S3 bucket and CloudWatch log check' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create IAM user, EC2 instance, S3 bucket and CloudWatch log check. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (IAM; EC2; S3; VPC; security groups; CloudWatch). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 18,
@@ -423,48 +1403,194 @@
         "CodePipeline"
       ],
       "jira_focus": "Track cloud deployment pipeline as release story",
-      "lab_task": "Push container image to ECR and deploy through AWS CI/CD flow"
+      "lab_task": "Push container image to ECR and deploy through AWS CI/CD flow",
+      "deliverable": "Participant submission for 'AWS CI/CD and Container Services': Push container image to ECR and deploy through AWS CI/CD flow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Push container image to ECR and deploy through AWS CI/CD flow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ECR; ECS; EKS; CodeBuild; CodePipeline; ALB). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Push container image to ECR and deploy through AWS CI/CD flow.",
+        "Explain how the lab applies AWS CI/CD and Container Services and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'AWS CI/CD and Container Services' on a prepared training sample through this task: Push container image to ECR and deploy through AWS CI/CD flow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Push container image to ECR and deploy through AWS CI/CD flow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (ECR; ECS; EKS; CodeBuild; CodePipeline; ALB) and demonstrate the starting sample for: Push container image to ECR and deploy through AWS CI/CD flow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Push container image to ECR and deploy through AWS CI/CD flow",
+          "evidence": "Participant submission for 'AWS CI/CD and Container Services': Push container image to ECR and deploy through AWS CI/CD flow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Push container image to ECR and deploy through AWS CI/CD flow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Push container image to ECR and deploy through AWS CI/CD flow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ECR; ECS; EKS; CodeBuild; CodePipeline; ALB). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 19,
       "date": "01-Oct-2026",
       "weekday": "Thursday",
-      "topic": "Azure DevOps Foundations",
+      "topic": "Kubernetes Networking, Scaling and Policy",
       "subtopics": [
-        "Azure subscriptions",
-        "resource groups",
-        "VMs",
-        "VNets",
-        "storage",
-        "monitoring"
+        "cluster networking",
+        "network policies",
+        "horizontal pod autoscaling",
+        "resource requests and limits",
+        "pod disruption budgets",
+        "operational checks"
       ],
       "tools": [
-        "Azure Portal",
-        "Azure CLI"
+        "Kubernetes",
+        "kubectl",
+        "Metrics Server"
       ],
-      "jira_focus": "Document Azure resource setup and deployment evidence",
-      "lab_task": "Create resource group, VM, storage account and monitor resource health"
+      "jira_focus": "Document scaling policy and network validation evidence",
+      "lab_task": "Apply network policy, configure autoscaling and validate workload resilience",
+      "deliverable": "Participant submission for 'Kubernetes Networking, Scaling and Policy': Apply network policy, configure autoscaling and validate workload resilience. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Apply network policy, configure autoscaling and validate workload resilience. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (cluster networking; network policies; horizontal pod autoscaling; resource requests and limits; pod disruption budgets; operational checks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Apply network policy, configure autoscaling and validate workload resilience.",
+        "Explain how the lab applies Kubernetes Networking, Scaling and Policy and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Kubernetes Networking, Scaling and Policy' on a prepared training sample through this task: Apply network policy, configure autoscaling and validate workload resilience.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Apply network policy, configure autoscaling and validate workload resilience",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (cluster networking; network policies; horizontal pod autoscaling; resource requests and limits; pod disruption budgets; operational checks) and demonstrate the starting sample for: Apply network policy, configure autoscaling and validate workload resilience",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Apply network policy, configure autoscaling and validate workload resilience",
+          "evidence": "Participant submission for 'Kubernetes Networking, Scaling and Policy': Apply network policy, configure autoscaling and validate workload resilience. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Apply network policy, configure autoscaling and validate workload resilience' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Apply network policy, configure autoscaling and validate workload resilience. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (cluster networking; network policies; horizontal pod autoscaling; resource requests and limits; pod disruption budgets; operational checks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 20,
       "date": "02-Oct-2026",
       "weekday": "Friday",
-      "topic": "Azure Pipelines and AKS",
+      "topic": "GitOps Deployment and Kubernetes Release Management",
       "subtopics": [
-        "Azure Repos",
-        "Azure Pipelines",
-        "service connections",
-        "ACR",
-        "AKS deployment"
+        "GitOps workflow",
+        "declarative deployments",
+        "environment promotion",
+        "release approvals",
+        "rollback strategy",
+        "deployment evidence"
       ],
       "tools": [
-        "Azure DevOps",
-        "Azure Pipelines",
-        "ACR",
-        "AKS"
+        "Argo CD",
+        "GitHub",
+        "Kubernetes",
+        "Helm"
       ],
-      "jira_focus": "Map Azure pipeline run to release task",
-      "lab_task": "Build image in Azure Pipeline, push to ACR and deploy to AKS"
+      "jira_focus": "Map deployment promotion and rollback evidence to release task",
+      "lab_task": "Deploy an application through a GitOps workflow and perform a controlled rollback",
+      "deliverable": "Participant submission for 'GitOps Deployment and Kubernetes Release Management': Deploy an application through a GitOps workflow and perform a controlled rollback. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deploy an application through a GitOps workflow and perform a controlled rollback. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (GitOps workflow; declarative deployments; environment promotion; release approvals; rollback strategy; deployment evidence). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deploy an application through a GitOps workflow and perform a controlled rollback.",
+        "Explain how the lab applies GitOps Deployment and Kubernetes Release Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'GitOps Deployment and Kubernetes Release Management' on a prepared training sample through this task: Deploy an application through a GitOps workflow and perform a controlled rollback.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deploy an application through a GitOps workflow and perform a controlled rollback",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (GitOps workflow; declarative deployments; environment promotion; release approvals; rollback strategy; deployment evidence) and demonstrate the starting sample for: Deploy an application through a GitOps workflow and perform a controlled rollback",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deploy an application through a GitOps workflow and perform a controlled rollback",
+          "evidence": "Participant submission for 'GitOps Deployment and Kubernetes Release Management': Deploy an application through a GitOps workflow and perform a controlled rollback. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deploy an application through a GitOps workflow and perform a controlled rollback' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deploy an application through a GitOps workflow and perform a controlled rollback. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (GitOps workflow; declarative deployments; environment promotion; release approvals; rollback strategy; deployment evidence). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 21,
@@ -482,10 +1608,58 @@
       "tools": [
         "Terraform",
         "AWS",
-        "Azure"
+        "S3 Backend"
       ],
       "jira_focus": "Attach terraform plan/apply output to infrastructure story",
-      "lab_task": "Provision compute, network and storage using Terraform modules"
+      "lab_task": "Provision compute, network and storage using Terraform modules",
+      "deliverable": "Participant submission for 'Terraform Infrastructure as Code': Provision compute, network and storage using Terraform modules. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Provision compute, network and storage using Terraform modules. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (providers; resources; variables; outputs; state; remote backend). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Provision compute, network and storage using Terraform modules.",
+        "Explain how the lab applies Terraform Infrastructure as Code and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Terraform Infrastructure as Code' on a prepared training sample through this task: Provision compute, network and storage using Terraform modules.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Provision compute, network and storage using Terraform modules",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (providers; resources; variables; outputs; state; remote backend) and demonstrate the starting sample for: Provision compute, network and storage using Terraform modules",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Provision compute, network and storage using Terraform modules",
+          "evidence": "Participant submission for 'Terraform Infrastructure as Code': Provision compute, network and storage using Terraform modules. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Provision compute, network and storage using Terraform modules' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Provision compute, network and storage using Terraform modules. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (providers; resources; variables; outputs; state; remote backend). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 22,
@@ -503,10 +1677,58 @@
       "tools": [
         "Terraform",
         "S3 Backend",
-        "Azure Storage Backend"
+        "DynamoDB Locking"
       ],
       "jira_focus": "Create environment promotion tasks and review plan diffs",
-      "lab_task": "Build reusable Terraform module for dev and prod environments"
+      "lab_task": "Build reusable Terraform module for dev and prod environments",
+      "deliverable": "Participant submission for 'Terraform Modules and Environments': Build reusable Terraform module for dev and prod environments. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build reusable Terraform module for dev and prod environments. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (modules; workspaces; tfvars; state locking; import; drift detection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build reusable Terraform module for dev and prod environments.",
+        "Explain how the lab applies Terraform Modules and Environments and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Terraform Modules and Environments' on a prepared training sample through this task: Build reusable Terraform module for dev and prod environments.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build reusable Terraform module for dev and prod environments",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (modules; workspaces; tfvars; state locking; import; drift detection) and demonstrate the starting sample for: Build reusable Terraform module for dev and prod environments",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build reusable Terraform module for dev and prod environments",
+          "evidence": "Participant submission for 'Terraform Modules and Environments': Build reusable Terraform module for dev and prod environments. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build reusable Terraform module for dev and prod environments' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build reusable Terraform module for dev and prod environments. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (modules; workspaces; tfvars; state locking; import; drift detection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 23,
@@ -527,7 +1749,55 @@
         "Linux"
       ],
       "jira_focus": "Track configuration automation tasks and run evidence",
-      "lab_task": "Automate web server installation and configuration using Ansible roles"
+      "lab_task": "Automate web server installation and configuration using Ansible roles",
+      "deliverable": "Participant submission for 'Ansible Configuration Management': Automate web server installation and configuration using Ansible roles. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Automate web server installation and configuration using Ansible roles. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (inventory; playbooks; roles; variables; templates; handlers). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Automate web server installation and configuration using Ansible roles.",
+        "Explain how the lab applies Ansible Configuration Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Ansible Configuration Management' on a prepared training sample through this task: Automate web server installation and configuration using Ansible roles.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Automate web server installation and configuration using Ansible roles",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (inventory; playbooks; roles; variables; templates; handlers) and demonstrate the starting sample for: Automate web server installation and configuration using Ansible roles",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Automate web server installation and configuration using Ansible roles",
+          "evidence": "Participant submission for 'Ansible Configuration Management': Automate web server installation and configuration using Ansible roles. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Automate web server installation and configuration using Ansible roles' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Automate web server installation and configuration using Ansible roles. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (inventory; playbooks; roles; variables; templates; handlers). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 24,
@@ -548,7 +1818,55 @@
         "GitHub Advanced Security"
       ],
       "jira_focus": "Convert scan findings into prioritized remediation tickets",
-      "lab_task": "Add SonarQube and Trivy stages to CI/CD pipeline"
+      "lab_task": "Add SonarQube and Trivy stages to CI/CD pipeline",
+      "deliverable": "Participant submission for 'DevSecOps and Quality Gates': Add SonarQube and Trivy stages to CI/CD pipeline. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Add SonarQube and Trivy stages to CI/CD pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SAST; dependency scanning; container scanning; secrets scanning; quality gates). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Add SonarQube and Trivy stages to CI/CD pipeline.",
+        "Explain how the lab applies DevSecOps and Quality Gates and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DevSecOps and Quality Gates' on a prepared training sample through this task: Add SonarQube and Trivy stages to CI/CD pipeline.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Add SonarQube and Trivy stages to CI/CD pipeline",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SAST; dependency scanning; container scanning; secrets scanning; quality gates) and demonstrate the starting sample for: Add SonarQube and Trivy stages to CI/CD pipeline",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Add SonarQube and Trivy stages to CI/CD pipeline",
+          "evidence": "Participant submission for 'DevSecOps and Quality Gates': Add SonarQube and Trivy stages to CI/CD pipeline. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Add SonarQube and Trivy stages to CI/CD pipeline' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Add SonarQube and Trivy stages to CI/CD pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SAST; dependency scanning; container scanning; secrets scanning; quality gates). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 25,
@@ -569,7 +1887,55 @@
         "Alertmanager"
       ],
       "jira_focus": "Create observability story and attach dashboard link",
-      "lab_task": "Monitor Kubernetes application and build Grafana dashboard"
+      "lab_task": "Monitor Kubernetes application and build Grafana dashboard",
+      "deliverable": "Participant submission for 'Monitoring with Prometheus and Grafana': Monitor Kubernetes application and build Grafana dashboard. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Monitor Kubernetes application and build Grafana dashboard. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (metrics; exporters; PromQL; dashboards; alerts; SLI/SLO basics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Monitor Kubernetes application and build Grafana dashboard.",
+        "Explain how the lab applies Monitoring with Prometheus and Grafana and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Monitoring with Prometheus and Grafana' on a prepared training sample through this task: Monitor Kubernetes application and build Grafana dashboard.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Monitor Kubernetes application and build Grafana dashboard",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (metrics; exporters; PromQL; dashboards; alerts; SLI/SLO basics) and demonstrate the starting sample for: Monitor Kubernetes application and build Grafana dashboard",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Monitor Kubernetes application and build Grafana dashboard",
+          "evidence": "Participant submission for 'Monitoring with Prometheus and Grafana': Monitor Kubernetes application and build Grafana dashboard. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Monitor Kubernetes application and build Grafana dashboard' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Monitor Kubernetes application and build Grafana dashboard. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (metrics; exporters; PromQL; dashboards; alerts; SLI/SLO basics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 26,
@@ -589,7 +1955,55 @@
         "Filebeat"
       ],
       "jira_focus": "Create incident evidence from application logs",
-      "lab_task": "Ship container logs to ELK and create Kibana visualization"
+      "lab_task": "Ship container logs to ELK and create Kibana visualization",
+      "deliverable": "Participant submission for 'Logging with ELK and Centralized Observability': Ship container logs to ELK and create Kibana visualization. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Ship container logs to ELK and create Kibana visualization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Elasticsearch; Logstash; Kibana; Filebeat; log pipelines; search). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Ship container logs to ELK and create Kibana visualization.",
+        "Explain how the lab applies Logging with ELK and Centralized Observability and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Logging with ELK and Centralized Observability' on a prepared training sample through this task: Ship container logs to ELK and create Kibana visualization.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Ship container logs to ELK and create Kibana visualization",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Elasticsearch; Logstash; Kibana; Filebeat; log pipelines; search) and demonstrate the starting sample for: Ship container logs to ELK and create Kibana visualization",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Ship container logs to ELK and create Kibana visualization",
+          "evidence": "Participant submission for 'Logging with ELK and Centralized Observability': Ship container logs to ELK and create Kibana visualization. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Ship container logs to ELK and create Kibana visualization' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Ship container logs to ELK and create Kibana visualization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Elasticsearch; Logstash; Kibana; Filebeat; log pipelines; search). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 27,
@@ -610,7 +2024,55 @@
         "Jenkins"
       ],
       "jira_focus": "Prepare release ticket, deployment checklist and rollback steps",
-      "lab_task": "Perform canary or blue-green deployment and rollback validation"
+      "lab_task": "Perform canary or blue-green deployment and rollback validation",
+      "deliverable": "Participant submission for 'Release Management and Blue-Green Deployments': Perform canary or blue-green deployment and rollback validation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Perform canary or blue-green deployment and rollback validation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (release strategy; blue-green; canary; rollback; feature flags; change control). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Perform canary or blue-green deployment and rollback validation.",
+        "Explain how the lab applies Release Management and Blue-Green Deployments and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Release Management and Blue-Green Deployments' on a prepared training sample through this task: Perform canary or blue-green deployment and rollback validation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Perform canary or blue-green deployment and rollback validation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (release strategy; blue-green; canary; rollback; feature flags; change control) and demonstrate the starting sample for: Perform canary or blue-green deployment and rollback validation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Perform canary or blue-green deployment and rollback validation",
+          "evidence": "Participant submission for 'Release Management and Blue-Green Deployments': Perform canary or blue-green deployment and rollback validation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Perform canary or blue-green deployment and rollback validation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Perform canary or blue-green deployment and rollback validation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (release strategy; blue-green; canary; rollback; feature flags; change control). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 28,
@@ -630,7 +2092,55 @@
         "Jira"
       ],
       "jira_focus": "Create incident, RCA and postmortem action items",
-      "lab_task": "Simulate production incident and complete RCA/postmortem workflow"
+      "lab_task": "Simulate production incident and complete RCA/postmortem workflow",
+      "deliverable": "Participant submission for 'SRE Practices and Incident Management': Simulate production incident and complete RCA/postmortem workflow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Simulate production incident and complete RCA/postmortem workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SLA/SLO/SLI; error budgets; runbooks; postmortems; on-call workflow). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Simulate production incident and complete RCA/postmortem workflow.",
+        "Explain how the lab applies SRE Practices and Incident Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SRE Practices and Incident Management' on a prepared training sample through this task: Simulate production incident and complete RCA/postmortem workflow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Simulate production incident and complete RCA/postmortem workflow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SLA/SLO/SLI; error budgets; runbooks; postmortems; on-call workflow) and demonstrate the starting sample for: Simulate production incident and complete RCA/postmortem workflow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Simulate production incident and complete RCA/postmortem workflow",
+          "evidence": "Participant submission for 'SRE Practices and Incident Management': Simulate production incident and complete RCA/postmortem workflow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Simulate production incident and complete RCA/postmortem workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Simulate production incident and complete RCA/postmortem workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SLA/SLO/SLI; error budgets; runbooks; postmortems; on-call workflow). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 29,
@@ -654,7 +2164,55 @@
         "Prometheus"
       ],
       "jira_focus": "Plan capstone sprint and assign stories/subtasks",
-      "lab_task": "Build end-to-end DevOps pipeline for a sample application"
+      "lab_task": "Build end-to-end DevOps pipeline for a sample application",
+      "deliverable": "Participant submission for 'End-to-End DevOps Project Sprint': Build end-to-end DevOps pipeline for a sample application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build end-to-end DevOps pipeline for a sample application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (architecture; IaC; CI/CD; containerization; Kubernetes deployment; monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build end-to-end DevOps pipeline for a sample application.",
+        "Explain how the lab applies End-to-End DevOps Project Sprint and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'End-to-End DevOps Project Sprint' on a prepared training sample through this task: Build end-to-end DevOps pipeline for a sample application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build end-to-end DevOps pipeline for a sample application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (architecture; IaC; CI/CD; containerization; Kubernetes deployment; monitoring) and demonstrate the starting sample for: Build end-to-end DevOps pipeline for a sample application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build end-to-end DevOps pipeline for a sample application",
+          "evidence": "Participant submission for 'End-to-End DevOps Project Sprint': Build end-to-end DevOps pipeline for a sample application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build end-to-end DevOps pipeline for a sample application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build end-to-end DevOps pipeline for a sample application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (architecture; IaC; CI/CD; containerization; Kubernetes deployment; monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 30,
@@ -673,7 +2231,55 @@
         "All DevOps Tools"
       ],
       "jira_focus": "Final sprint review, retrospective and release notes",
-      "lab_task": "Present capstone project, demo pipeline, review evidence and certification roadmap"
+      "lab_task": "Present capstone project, demo pipeline, review evidence and certification roadmap",
+      "deliverable": "Participant submission for 'Capstone Demo and Certification Roadmap': Present capstone project, demo pipeline, review evidence and certification roadmap. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Present capstone project, demo pipeline, review evidence and certification roadmap. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (final deployment; pipeline walkthrough; monitoring evidence; security report; demo; certification plan). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Present capstone project, demo pipeline, review evidence and certification roadmap.",
+        "Explain how the lab applies Capstone Demo and Certification Roadmap and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Capstone Demo and Certification Roadmap' on a prepared training sample through this task: Present capstone project, demo pipeline, review evidence and certification roadmap.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Present capstone project, demo pipeline, review evidence and certification roadmap",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (final deployment; pipeline walkthrough; monitoring evidence; security report; demo; certification plan) and demonstrate the starting sample for: Present capstone project, demo pipeline, review evidence and certification roadmap",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Present capstone project, demo pipeline, review evidence and certification roadmap",
+          "evidence": "Participant submission for 'Capstone Demo and Certification Roadmap': Present capstone project, demo pipeline, review evidence and certification roadmap. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Present capstone project, demo pipeline, review evidence and certification roadmap' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Present capstone project, demo pipeline, review evidence and certification roadmap. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (final deployment; pipeline walkthrough; monitoring evidence; security report; demo; certification plan). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     }
   ],
   "jira_practice": {
@@ -700,5 +2306,10 @@
     "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html",
     "https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/"
   ],
-  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits.",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

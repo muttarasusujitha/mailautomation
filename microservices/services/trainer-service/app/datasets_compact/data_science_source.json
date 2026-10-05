@@ -1,435 +1,956 @@
 {
-    "domain":  "Data Science",
-    "name":  "Data Science â€“ Statistics, Machine Learning, Analytics and Applied Projects",
-    "aliases":  [
-                    "Data Science and Analytics",
-                    "Applied Data Science"
-                ],
-    "tools":  [
-                  "Python",
-                  "Jupyter",
-                  "NumPy",
-                  "Pandas",
-                  "scikit-learn",
-                  "Matplotlib"
-              ],
-    "certifications":  [
-                           "IBM Data Science Professional Certificate",
-                           "Google Advanced Data Analytics Certificate"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "Data Science Foundations",
-                     "subtopics":  [
-                                       "Data science lifecycle",
-                                       "Problem framing",
-                                       "Types of analytics",
-                                       "Structured vs unstructured data",
-                                       "Environment setup",
-                                       "Reproducible notebooks",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy",
-                                   "Pandas"
-                               ],
-                     "lab_task":  "Set up a notebook environment and frame a business problem.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Data Science Foundations concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Data Science Foundations practically using Data Science.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Python for Data Analysis",
-                     "subtopics":  [
-                                       "NumPy arrays",
-                                       "Pandas Series/DataFrames",
-                                       "Indexing",
-                                       "Filtering",
-                                       "Grouping",
-                                       "Merging",
-                                       "Datetime handling",
-                                       "Vectorization",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy",
-                                   "Pandas"
-                               ],
-                     "lab_task":  "Clean and transform a multi-table dataset.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Python for Data Analysis concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Python for Data Analysis practically using Data Science.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Statistics and Probability",
-                     "subtopics":  [
-                                       "Descriptive statistics",
-                                       "Probability",
-                                       "Distributions",
-                                       "Sampling",
-                                       "Confidence intervals",
-                                       "Hypothesis testing",
-                                       "Correlation",
-                                       "ANOVA concepts",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy"
-                               ],
-                     "lab_task":  "Perform statistical analysis and interpret results.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Statistics and Probability concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Statistics and Probability practically using Data Science.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Data Cleaning and EDA",
-                     "subtopics":  [
-                                       "Missing data",
-                                       "Duplicates",
-                                       "Outliers",
-                                       "Univariate analysis",
-                                       "Bivariate analysis",
-                                       "Multivariate analysis",
-                                       "Visualization",
-                                       "Data quality checks",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy",
-                                   "Pandas",
-                                   "scikit-learn"
-                               ],
-                     "lab_task":  "Complete EDA on a real-world dataset.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Data Cleaning and EDA concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Data Cleaning and EDA practically using Data Science.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Feature Engineering",
-                     "subtopics":  [
-                                       "Encoding",
-                                       "Scaling",
-                                       "Transformations",
-                                       "Binning",
-                                       "Interactions",
-                                       "Feature selection",
-                                       "Leakage prevention",
-                                       "Pipelines",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy",
-                                   "Pandas",
-                                   "scikit-learn"
-                               ],
-                     "lab_task":  "Build a reusable preprocessing pipeline.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Feature Engineering concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Feature Engineering practically using Data Science.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "Supervised Learning",
-                     "subtopics":  [
-                                       "Linear regression",
-                                       "Logistic regression",
-                                       "Decision trees",
-                                       "Random forests",
-                                       "Gradient boosting concepts",
-                                       "KNN",
-                                       "SVM",
-                                       "Naive Bayes",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy",
-                                   "Pandas",
-                                   "scikit-learn"
-                               ],
-                     "lab_task":  "Train multiple supervised models.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Supervised Learning concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Supervised Learning practically using Data Science.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "Unsupervised Learning",
-                     "subtopics":  [
-                                       "K-means",
-                                       "Hierarchical clustering",
-                                       "DBSCAN concepts",
-                                       "PCA",
-                                       "Dimensionality reduction",
-                                       "Cluster evaluation",
-                                       "Anomaly detection concepts",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy",
-                                   "Pandas",
-                                   "scikit-learn"
-                               ],
-                     "lab_task":  "Cluster and visualize customer segments.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Unsupervised Learning concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Unsupervised Learning practically using Data Science.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "Model Evaluation and Tuning",
-                     "subtopics":  [
-                                       "Train/validation/test split",
-                                       "Cross-validation",
-                                       "Accuracy",
-                                       "Precision",
-                                       "Recall",
-                                       "F1",
-                                       "ROC-AUC",
-                                       "Regression metrics",
-                                       "Hyperparameter tuning",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy",
-                                   "Pandas",
-                                   "scikit-learn"
-                               ],
-                     "lab_task":  "Compare and tune models.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Model Evaluation and Tuning concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Model Evaluation and Tuning practically using Data Science.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  9,
-                     "topic":  "Time Series and Forecasting",
-                     "subtopics":  [
-                                       "Trend",
-                                       "Seasonality",
-                                       "Stationarity",
-                                       "Lag features",
-                                       "Rolling statistics",
-                                       "ARIMA concepts",
-                                       "Forecast validation",
-                                       "Time-aware splits",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy",
-                                   "Pandas",
-                                   "scikit-learn"
-                               ],
-                     "lab_task":  "Build a forecasting baseline.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Time Series and Forecasting concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Time Series and Forecasting practically using Data Science.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  10,
-                     "topic":  "Data Storytelling and Visualization",
-                     "subtopics":  [
-                                       "Matplotlib",
-                                       "Dashboard concepts",
-                                       "Chart selection",
-                                       "Uncertainty",
-                                       "Executive summaries",
-                                       "Data storytelling",
-                                       "Reproducible reports",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy",
-                                   "Pandas"
-                               ],
-                     "lab_task":  "Create a decision-focused analytical report.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Data Storytelling and Visualization concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Data Storytelling and Visualization practically using Data Science.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  11,
-                     "topic":  "Deployment and MLOps Basics",
-                     "subtopics":  [
-                                       "Model serialization",
-                                       "API serving concepts",
-                                       "Batch scoring",
-                                       "Monitoring",
-                                       "Drift",
-                                       "Experiment tracking",
-                                       "Versioning",
-                                       "CI concepts",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy",
-                                   "Pandas",
-                                   "scikit-learn"
-                               ],
-                     "lab_task":  "Package a model for deployment.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Deployment and MLOps Basics concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Deployment and MLOps Basics practically using Data Science.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  12,
-                     "topic":  "Capstone Data Science Project",
-                     "subtopics":  [
-                                       "Problem definition",
-                                       "Data collection",
-                                       "EDA",
-                                       "Feature engineering",
-                                       "Modeling",
-                                       "Evaluation",
-                                       "Interpretation",
-                                       "Deployment plan",
-                                       "Data Science terminology and feature mapping for this topic",
-                                       "Data Science configuration and implementation considerations",
-                                       "Data Science best practices and common mistakes for this topic"
-                                   ],
-                     "tools":  [
-                                   "Python",
-                                   "Jupyter",
-                                   "NumPy",
-                                   "Pandas",
-                                   "scikit-learn"
-                               ],
-                     "lab_task":  "Complete an end-to-end data science project.",
-                     "technology":  "Data Science",
-                     "technology_id":  "data-science",
-                     "learning_objectives":  [
-                                                 "Explain the Capstone Data Science Project concepts in the context of Data Science.",
-                                                 "Configure or implement the key Data Science features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Capstone Data Science Project practically using Data Science.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "data-science"
+  "domain": "Data Science",
+  "name": "Data Science â€“ Statistics, Machine Learning, Analytics and Applied Projects",
+  "aliases": [
+    "Data Science and Analytics",
+    "Applied Data Science"
+  ],
+  "tools": [
+    "Python",
+    "Jupyter",
+    "NumPy",
+    "Pandas",
+    "scikit-learn",
+    "Matplotlib"
+  ],
+  "certifications": [
+    "IBM Data Science Professional Certificate",
+    "Google Advanced Data Analytics Certificate"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Data Science Foundations",
+      "subtopics": [
+        "Data science lifecycle",
+        "Problem framing",
+        "Types of analytics",
+        "Structured vs unstructured data",
+        "Environment setup",
+        "Reproducible notebooks",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy",
+        "Pandas"
+      ],
+      "lab_task": "Set up a notebook environment and frame a business problem.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Data Science Foundations concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Data Science Foundations practically using Data Science.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Data Science Foundations': Set up a notebook environment and frame a business problem.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up a notebook environment and frame a business problem.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Data science lifecycle; Problem framing; Types of analytics; Structured vs unstructured data; Environment setup; Reproducible notebooks; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Data Science Foundations' on a prepared training sample through this task: Set up a notebook environment and frame a business problem..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up a notebook environment and frame a business problem.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Data science lifecycle; Problem framing; Types of analytics; Structured vs unstructured data; Environment setup; Reproducible notebooks; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Set up a notebook environment and frame a business problem.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up a notebook environment and frame a business problem.",
+          "evidence": "Participant submission for 'Data Science Foundations': Set up a notebook environment and frame a business problem.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up a notebook environment and frame a business problem.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up a notebook environment and frame a business problem.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Data science lifecycle; Problem framing; Types of analytics; Structured vs unstructured data; Environment setup; Reproducible notebooks; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Python for Data Analysis",
+      "subtopics": [
+        "NumPy arrays",
+        "Pandas Series/DataFrames",
+        "Indexing",
+        "Filtering",
+        "Grouping",
+        "Merging",
+        "Datetime handling",
+        "Vectorization",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy",
+        "Pandas"
+      ],
+      "lab_task": "Clean and transform a multi-table dataset.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Python for Data Analysis concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Python for Data Analysis practically using Data Science.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Python for Data Analysis': Clean and transform a multi-table dataset.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Clean and transform a multi-table dataset.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (NumPy arrays; Pandas Series/DataFrames; Indexing; Filtering; Grouping; Merging; Datetime handling; Vectorization; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Python for Data Analysis' on a prepared training sample through this task: Clean and transform a multi-table dataset..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Clean and transform a multi-table dataset.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (NumPy arrays; Pandas Series/DataFrames; Indexing; Filtering; Grouping; Merging; Datetime handling; Vectorization; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Clean and transform a multi-table dataset.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Clean and transform a multi-table dataset.",
+          "evidence": "Participant submission for 'Python for Data Analysis': Clean and transform a multi-table dataset.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Clean and transform a multi-table dataset.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Clean and transform a multi-table dataset.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (NumPy arrays; Pandas Series/DataFrames; Indexing; Filtering; Grouping; Merging; Datetime handling; Vectorization; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Statistics and Probability",
+      "subtopics": [
+        "Descriptive statistics",
+        "Probability",
+        "Distributions",
+        "Sampling",
+        "Confidence intervals",
+        "Hypothesis testing",
+        "Correlation",
+        "ANOVA concepts",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy"
+      ],
+      "lab_task": "Perform statistical analysis and interpret results.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Statistics and Probability concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Statistics and Probability practically using Data Science.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Statistics and Probability': Perform statistical analysis and interpret results.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Perform statistical analysis and interpret results.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Descriptive statistics; Probability; Distributions; Sampling; Confidence intervals; Hypothesis testing; Correlation; ANOVA concepts; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Statistics and Probability' on a prepared training sample through this task: Perform statistical analysis and interpret results..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Perform statistical analysis and interpret results.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Descriptive statistics; Probability; Distributions; Sampling; Confidence intervals; Hypothesis testing; Correlation; ANOVA concepts; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Perform statistical analysis and interpret results.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Perform statistical analysis and interpret results.",
+          "evidence": "Participant submission for 'Statistics and Probability': Perform statistical analysis and interpret results.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Perform statistical analysis and interpret results.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Perform statistical analysis and interpret results.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Descriptive statistics; Probability; Distributions; Sampling; Confidence intervals; Hypothesis testing; Correlation; ANOVA concepts; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Data Cleaning and EDA",
+      "subtopics": [
+        "Missing data",
+        "Duplicates",
+        "Outliers",
+        "Univariate analysis",
+        "Bivariate analysis",
+        "Multivariate analysis",
+        "Visualization",
+        "Data quality checks",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy",
+        "Pandas",
+        "scikit-learn"
+      ],
+      "lab_task": "Complete EDA on a real-world dataset.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Data Cleaning and EDA concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Data Cleaning and EDA practically using Data Science.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Data Cleaning and EDA': Complete EDA on a real-world dataset.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Complete EDA on a real-world dataset.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Missing data; Duplicates; Outliers; Univariate analysis; Bivariate analysis; Multivariate analysis; Visualization; Data quality checks; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Data Cleaning and EDA' on a prepared training sample through this task: Complete EDA on a real-world dataset..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Complete EDA on a real-world dataset.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Missing data; Duplicates; Outliers; Univariate analysis; Bivariate analysis; Multivariate analysis; Visualization; Data quality checks; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Complete EDA on a real-world dataset.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Complete EDA on a real-world dataset.",
+          "evidence": "Participant submission for 'Data Cleaning and EDA': Complete EDA on a real-world dataset.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Complete EDA on a real-world dataset.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Complete EDA on a real-world dataset.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Missing data; Duplicates; Outliers; Univariate analysis; Bivariate analysis; Multivariate analysis; Visualization; Data quality checks; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Feature Engineering",
+      "subtopics": [
+        "Encoding",
+        "Scaling",
+        "Transformations",
+        "Binning",
+        "Interactions",
+        "Feature selection",
+        "Leakage prevention",
+        "Pipelines",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy",
+        "Pandas",
+        "scikit-learn"
+      ],
+      "lab_task": "Build a reusable preprocessing pipeline.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Feature Engineering concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Feature Engineering practically using Data Science.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Feature Engineering': Build a reusable preprocessing pipeline.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a reusable preprocessing pipeline.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Encoding; Scaling; Transformations; Binning; Interactions; Feature selection; Leakage prevention; Pipelines; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Feature Engineering' on a prepared training sample through this task: Build a reusable preprocessing pipeline..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a reusable preprocessing pipeline.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Encoding; Scaling; Transformations; Binning; Interactions; Feature selection; Leakage prevention; Pipelines; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Build a reusable preprocessing pipeline.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a reusable preprocessing pipeline.",
+          "evidence": "Participant submission for 'Feature Engineering': Build a reusable preprocessing pipeline.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a reusable preprocessing pipeline.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a reusable preprocessing pipeline.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Encoding; Scaling; Transformations; Binning; Interactions; Feature selection; Leakage prevention; Pipelines; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Supervised Learning",
+      "subtopics": [
+        "Linear regression",
+        "Logistic regression",
+        "Decision trees",
+        "Random forests",
+        "Gradient boosting concepts",
+        "KNN",
+        "SVM",
+        "Naive Bayes",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy",
+        "Pandas",
+        "scikit-learn"
+      ],
+      "lab_task": "Train multiple supervised models.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Supervised Learning concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Supervised Learning practically using Data Science.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Supervised Learning': Train multiple supervised models.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Train multiple supervised models.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Linear regression; Logistic regression; Decision trees; Random forests; Gradient boosting concepts; KNN; SVM; Naive Bayes; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Supervised Learning' on a prepared training sample through this task: Train multiple supervised models..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Train multiple supervised models.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Linear regression; Logistic regression; Decision trees; Random forests; Gradient boosting concepts; KNN; SVM; Naive Bayes; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Train multiple supervised models.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Train multiple supervised models.",
+          "evidence": "Participant submission for 'Supervised Learning': Train multiple supervised models.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Train multiple supervised models.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Train multiple supervised models.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Linear regression; Logistic regression; Decision trees; Random forests; Gradient boosting concepts; KNN; SVM; Naive Bayes; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Unsupervised Learning",
+      "subtopics": [
+        "K-means",
+        "Hierarchical clustering",
+        "DBSCAN concepts",
+        "PCA",
+        "Dimensionality reduction",
+        "Cluster evaluation",
+        "Anomaly detection concepts",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy",
+        "Pandas",
+        "scikit-learn"
+      ],
+      "lab_task": "Cluster and visualize customer segments.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Unsupervised Learning concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Unsupervised Learning practically using Data Science.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Unsupervised Learning': Cluster and visualize customer segments.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Cluster and visualize customer segments.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (K-means; Hierarchical clustering; DBSCAN concepts; PCA; Dimensionality reduction; Cluster evaluation; Anomaly detection concepts; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Unsupervised Learning' on a prepared training sample through this task: Cluster and visualize customer segments..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Cluster and visualize customer segments.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (K-means; Hierarchical clustering; DBSCAN concepts; PCA; Dimensionality reduction; Cluster evaluation; Anomaly detection concepts; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Cluster and visualize customer segments.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Cluster and visualize customer segments.",
+          "evidence": "Participant submission for 'Unsupervised Learning': Cluster and visualize customer segments.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Cluster and visualize customer segments.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Cluster and visualize customer segments.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (K-means; Hierarchical clustering; DBSCAN concepts; PCA; Dimensionality reduction; Cluster evaluation; Anomaly detection concepts; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Model Evaluation and Tuning",
+      "subtopics": [
+        "Train/validation/test split",
+        "Cross-validation",
+        "Accuracy",
+        "Precision",
+        "Recall",
+        "F1",
+        "ROC-AUC",
+        "Regression metrics",
+        "Hyperparameter tuning",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy",
+        "Pandas",
+        "scikit-learn"
+      ],
+      "lab_task": "Compare and tune models.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Model Evaluation and Tuning concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Model Evaluation and Tuning practically using Data Science.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Model Evaluation and Tuning': Compare and tune models.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Compare and tune models.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Train/validation/test split; Cross-validation; Accuracy; Precision; Recall; F1; ROC-AUC; Regression metrics; Hyperparameter tuning; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Model Evaluation and Tuning' on a prepared training sample through this task: Compare and tune models..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Compare and tune models.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Train/validation/test split; Cross-validation; Accuracy; Precision; Recall; F1; ROC-AUC; Regression metrics; Hyperparameter tuning; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Compare and tune models.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Compare and tune models.",
+          "evidence": "Participant submission for 'Model Evaluation and Tuning': Compare and tune models.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Compare and tune models.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Compare and tune models.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Train/validation/test split; Cross-validation; Accuracy; Precision; Recall; F1; ROC-AUC; Regression metrics; Hyperparameter tuning; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Time Series and Forecasting",
+      "subtopics": [
+        "Trend",
+        "Seasonality",
+        "Stationarity",
+        "Lag features",
+        "Rolling statistics",
+        "ARIMA concepts",
+        "Forecast validation",
+        "Time-aware splits",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy",
+        "Pandas",
+        "scikit-learn"
+      ],
+      "lab_task": "Build a forecasting baseline.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Time Series and Forecasting concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Time Series and Forecasting practically using Data Science.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Time Series and Forecasting': Build a forecasting baseline.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a forecasting baseline.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Trend; Seasonality; Stationarity; Lag features; Rolling statistics; ARIMA concepts; Forecast validation; Time-aware splits; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Time Series and Forecasting' on a prepared training sample through this task: Build a forecasting baseline..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a forecasting baseline.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Trend; Seasonality; Stationarity; Lag features; Rolling statistics; ARIMA concepts; Forecast validation; Time-aware splits; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Build a forecasting baseline.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a forecasting baseline.",
+          "evidence": "Participant submission for 'Time Series and Forecasting': Build a forecasting baseline.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a forecasting baseline.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a forecasting baseline.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Trend; Seasonality; Stationarity; Lag features; Rolling statistics; ARIMA concepts; Forecast validation; Time-aware splits; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Data Storytelling and Visualization",
+      "subtopics": [
+        "Matplotlib",
+        "Dashboard concepts",
+        "Chart selection",
+        "Uncertainty",
+        "Executive summaries",
+        "Data storytelling",
+        "Reproducible reports",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy",
+        "Pandas"
+      ],
+      "lab_task": "Create a decision-focused analytical report.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Data Storytelling and Visualization concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Data Storytelling and Visualization practically using Data Science.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Data Storytelling and Visualization': Create a decision-focused analytical report.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a decision-focused analytical report.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Matplotlib; Dashboard concepts; Chart selection; Uncertainty; Executive summaries; Data storytelling; Reproducible reports; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Data Storytelling and Visualization' on a prepared training sample through this task: Create a decision-focused analytical report..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a decision-focused analytical report.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Matplotlib; Dashboard concepts; Chart selection; Uncertainty; Executive summaries; Data storytelling; Reproducible reports; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Create a decision-focused analytical report.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a decision-focused analytical report.",
+          "evidence": "Participant submission for 'Data Storytelling and Visualization': Create a decision-focused analytical report.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a decision-focused analytical report.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a decision-focused analytical report.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Matplotlib; Dashboard concepts; Chart selection; Uncertainty; Executive summaries; Data storytelling; Reproducible reports; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Deployment and MLOps Basics",
+      "subtopics": [
+        "Model serialization",
+        "API serving concepts",
+        "Batch scoring",
+        "Monitoring",
+        "Drift",
+        "Experiment tracking",
+        "Versioning",
+        "CI concepts",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy",
+        "Pandas",
+        "scikit-learn"
+      ],
+      "lab_task": "Package a model for deployment.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Deployment and MLOps Basics concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Deployment and MLOps Basics practically using Data Science.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Deployment and MLOps Basics': Package a model for deployment.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Package a model for deployment.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Model serialization; API serving concepts; Batch scoring; Monitoring; Drift; Experiment tracking; Versioning; CI concepts; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Deployment and MLOps Basics' on a prepared training sample through this task: Package a model for deployment..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Package a model for deployment.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Model serialization; API serving concepts; Batch scoring; Monitoring; Drift; Experiment tracking; Versioning; CI concepts; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Package a model for deployment.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Package a model for deployment.",
+          "evidence": "Participant submission for 'Deployment and MLOps Basics': Package a model for deployment.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Package a model for deployment.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Package a model for deployment.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Model serialization; API serving concepts; Batch scoring; Monitoring; Drift; Experiment tracking; Versioning; CI concepts; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Capstone Data Science Project",
+      "subtopics": [
+        "Problem definition",
+        "Data collection",
+        "EDA",
+        "Feature engineering",
+        "Modeling",
+        "Evaluation",
+        "Interpretation",
+        "Deployment plan",
+        "Data Science terminology and feature mapping for this topic",
+        "Data Science configuration and implementation considerations",
+        "Data Science best practices and common mistakes for this topic"
+      ],
+      "tools": [
+        "Python",
+        "Jupyter",
+        "NumPy",
+        "Pandas",
+        "scikit-learn"
+      ],
+      "lab_task": "Complete an end-to-end data science project.",
+      "technology": "Data Science",
+      "technology_id": "data-science",
+      "learning_objectives": [
+        "Explain the Capstone Data Science Project concepts in the context of Data Science.",
+        "Configure or implement the key Data Science features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Capstone Data Science Project practically using Data Science.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Capstone Data Science Project': Complete an end-to-end data science project.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Complete an end-to-end data science project.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Problem definition; Data collection; EDA; Feature engineering; Modeling; Evaluation; Interpretation; Deployment plan; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Capstone Data Science Project' on a prepared training sample through this task: Complete an end-to-end data science project..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Complete an end-to-end data science project.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Problem definition; Data collection; EDA; Feature engineering; Modeling; Evaluation; Interpretation; Deployment plan; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic) and demonstrate the starting sample for: Complete an end-to-end data science project.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Complete an end-to-end data science project.",
+          "evidence": "Participant submission for 'Capstone Data Science Project': Complete an end-to-end data science project.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Complete an end-to-end data science project.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Complete an end-to-end data science project.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Problem definition; Data collection; EDA; Feature engineering; Modeling; Evaluation; Interpretation; Deployment plan; Data Science terminology and feature mapping for this topic; Data Science configuration and implementation considerations; Data Science best practices and common mistakes for this topic). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "data-science",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

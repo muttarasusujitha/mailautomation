@@ -2,7 +2,7 @@ FROM python:3.11-slim
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
   curl libpango-1.0-0 libpangoft2-1.0-0 libcairo2 libgdk-pixbuf-xlib-2.0-0 \
-  libffi-dev shared-mime-info \
+  libffi-dev shared-mime-info tesseract-ocr tesseract-ocr-eng \
   && rm -rf /var/lib/apt/lists/*
 COPY microservices/shared /app/shared
 COPY microservices/services/document-service/requirements.txt .

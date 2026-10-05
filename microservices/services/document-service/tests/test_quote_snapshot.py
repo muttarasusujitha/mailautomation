@@ -28,6 +28,8 @@ def test_quote_refreshes_fx_and_saves_exact_snapshot(monkeypatch):
         assert values['participant_count'] == 29
         assert values['hours_per_day'] == 3
         assert values['lab_day_mapping'][0]['vm_qty'] == 29
+        assert 'VM' in values['pricing_selections']
+        assert 'VM Light' in values['pricing_selections']
         return dict(values, rate_snapshot_id='QUOTE-TEST', rate_checked_at='2026-09-16T09:00:00+00:00',
                     quote_valid_until='2026-09-23T09:00:00+00:00',
                     rate_card_overrides={}, pricing_status='provider_api_verified_public_retail')

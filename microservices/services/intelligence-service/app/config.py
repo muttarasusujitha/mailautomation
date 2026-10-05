@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     OPENAI_MODEL: str = "gpt-5.5"
 
+    # Optional Ollama HTTP API used by the assistant chat route.
+    OLLAMA_URL: str = ""
+    OLLAMA_MODEL: str = "qwen3:8b"
+
     # Local Ollama Sonnet model settings
     OLLAMA_BINARY: str = "ollama"
     OLLAMA_SONNET_MODEL: str = "claude-sonnet-4-20250514"
@@ -30,6 +34,8 @@ class Settings(BaseSettings):
     TAVILY_API_KEY: str = ""
     TAVILY_API_URL: str = "https://api.tavily.dev"
     TAVILY_SEARCH_DEPTH: str = "basic"
+    LINKEDIN_BOT_ENABLED: bool = False
+    LINKEDIN_BOT_PROFILE_PATH: str = ""
 
     ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,http://0.0.0.0:5174,http://*:5174,https://localhost:3000"
 

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 import base64
-from fastapi import APIRouter, Body, Depends, HTTPException, Response
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Response
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
@@ -46,11 +46,18 @@ class TocEmailRequest(BaseModel):
 class LabCostRequest(BaseModel):
     lab_generation_mode: Optional[str] = None
     lab_day_mapping: Optional[List[Dict[str, Any]]] = None
+    lab_setup: Optional[str] = None
+    lab_day_setups: Optional[List[str]] = None
+    local_costs_status: str = 'unverified'
+    license_costs_status: str = 'unverified'
+    required_unpriced_costs: Optional[List[str]] = None
     toc: Optional[Dict[str, Any]] = None
     toc_id: Optional[str] = None
     cloud_provider: Optional[str] = None
     cloud_region: Optional[str] = None
-    hours_per_day: Optional[float] = None
+    # Use the standard three-hour daily lab block when the requirement omits
+    # lab hours; participant count is still required for a priced total.
+    hours_per_day: Optional[float] = 3
     participant_count: Optional[int] = None
     fx_rate: Optional[float] = None
     contingency_percent: float = 10
@@ -59,12 +66,20 @@ class LabCostRequest(BaseModel):
     lab_support_per_participant: Optional[float] = None
     quote_validity_days: int = 7
     include_internal_pricing: bool = False
-    clahan_margin_percent: float = 0
+    # Client-facing lab estimates include Clahan's standard 30% margin.
+    # Internal pricing remains hidden unless explicitly requested.
+    clahan_margin_percent: float = 30
     storage_gb: float = 10
-    disk_gb_per_node: float = 20
-    egress_gb: float = 1
-    build_minutes: float = 60
-    monitoring_gb: float = 1
+    # Disk sizing is a system-owned resource-planning decision, not a client
+    # input. The request field remains accepted for backwards compatibility
+    # but is ignored when a quote is generated.
+    disk_gb_per_node: Optional[float] = None
+    # These are optional services. Price them only when the requested lab
+    # actually uses them; generic defaults must not invent CI, egress, or
+    # monitoring charges for an infrastructure fundamentals course.
+    egress_gb: float = 0
+    build_minutes: float = 0
+    monitoring_gb: float = 0
     k8s_worker_nodes: int = 1
     rate_card_overrides: Optional[Dict[str, Dict[str, Any]]] = None
     vm_profile_rates: Optional[Dict[str, float]] = None
@@ -73,6 +88,9 @@ class LabCostRequest(BaseModel):
     rate_checked_at: Optional[str] = None
     price_change_review_threshold_percent: float = 5
     pricing_selections: Optional[Dict[str, Dict[str, Any]]] = None
+    # Explicit quantities for configured provider-specific meters such as
+    # Lambda GB-seconds or DynamoDB request units.
+    additional_resource_usage: Optional[Dict[str, float]] = None
     ai_usage: Optional[Dict[str, Any]] = None
 
 
@@ -110,6 +128,21 @@ class LabPricingCatalogRequest(BaseModel):
     cloud_provider: str
     cloud_region: str
     selections: Dict[str, Dict[str, Any]]
+
+
+class LabQuoteInputPlanRequest(BaseModel):
+    toc: Dict[str, Any]
+    cloud_provider: str
+
+
+@router.post("/lab-cost/input-plan")
+async def plan_lab_quote_inputs(payload: LabQuoteInputPlanRequest):
+    """Describe topic-specific pricing choices and usage quantities to collect."""
+    provider = payload.cloud_provider.strip().lower()
+    if provider not in {"aws", "azure", "gcp"}:
+        raise HTTPException(422, "cloud_provider must be aws, azure, or gcp")
+    from shared.lab_cost_inputs import topic_quote_inputs
+    return topic_quote_inputs(payload.toc, provider)
 
 
 def _pricing_catalog_key(provider: str, region: str) -> tuple[str, str]:
@@ -191,6 +224,36 @@ async def get_lab_pricing_catalog(
     return catalog
 
 
+@router.get("/lab-cost/pricing-catalog/discover")
+async def discover_lab_price_selectors(
+    cloud_provider: str,
+    cloud_region: str,
+    search: str = Query(min_length=2, max_length=100),
+    service_code: Optional[str] = None,
+    service_name: Optional[str] = None,
+    service_id: Optional[str] = None,
+    unit: Optional[str] = None,
+    limit: int = Query(default=25, ge=1, le=100),
+):
+    """Find current exact catalog candidates; never choose or save one automatically."""
+    try:
+        provider, region = _pricing_catalog_key(cloud_provider, cloud_region)
+        from shared.live_lab_pricing import discover_price_selectors
+        from starlette.concurrency import run_in_threadpool
+        catalog_region = {"aws": "ap-south-1", "azure": "centralindia",
+                          "gcp": "asia-south1"}[provider]
+        return await run_in_threadpool(
+            discover_price_selectors, provider, catalog_region, search,
+            service_code=service_code, service_name=service_name,
+            service_id=service_id, unit=unit, limit=limit,
+        )
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except Exception as exc:
+        logger.exception("Live price selector discovery failed")
+        raise HTTPException(503, "Provider catalog discovery is temporarily unavailable") from exc
+
+
 @router.put("/lab-cost/pricing-catalog")
 async def save_lab_pricing_catalog(
     payload: LabPricingCatalogRequest,
@@ -209,6 +272,18 @@ async def save_lab_pricing_catalog(
             "fx_rate": 1,
             "quote_validity_days": 7,
             "pricing_selections": payload.selections,
+            "catalog_validation_only": True,
+            # Catalog validation checks selector/rate integrity only. Actual
+            # usage is supplied with each quote, never frozen in this catalog.
+            "additional_resource_usage": {
+                name: 0 for name in payload.selections if name not in {
+                    "VM", "VM Light", "VM Heavy", "Kubernetes control plane",
+                    "Kubernetes worker", "Disk", "Storage", "Egress",
+                    "Object storage PUT requests", "Object storage GET requests",
+                    "Build runner", "Managed database", "Managed database storage",
+                    "Monitoring",
+                }
+            },
         })
     except (TypeError, ValueError) as exc:
         raise HTTPException(422, str(exc)) from exc
@@ -308,6 +383,18 @@ def _normalise_toc_knowledge(payload: Dict[str, Any]) -> Dict[str, Any]:
         raise HTTPException(422, "Domain name is required")
     if not key:
         raise HTTPException(422, "Domain key is required")
+    if payload.get("review_status") == "approved":
+        sources = payload.get("source_urls") or payload.get("official_sources") or []
+        if not sources or not payload.get("reviewed_by") or not payload.get("reviewed_at") or not payload.get("version"):
+            raise HTTPException(422, "Reviewed curriculum requires source URLs, reviewer, review date and version")
+        if not isinstance(sources, list) or any(not isinstance(url, str) or not url.startswith("https://") for url in sources):
+            raise HTTPException(422, "Curriculum sources must be HTTPS URLs")
+        try:
+            reviewed = datetime.fromisoformat(str(payload["reviewed_at"]).replace("Z", "+00:00"))
+            if reviewed.date() > datetime.utcnow().date():
+                raise ValueError("future review")
+        except ValueError:
+            raise HTTPException(422, "Curriculum review date must be a valid date, not in the future")
 
     level_map = payload.get("level_map") if isinstance(payload.get("level_map"), dict) else {}
     toc = payload.get("toc") if isinstance(payload.get("toc"), dict) else {}
@@ -753,6 +840,7 @@ async def auto_generate_toc(payload: AutoGenerateRequest, db: AsyncIOMotorDataba
         duration_days=duration,
         level=payload.level or req.get("level") or req.get("audience_level") or req.get("participant_level") or "intermediate",
         requirement_id=payload.requirement_id,
+        client_email=req.get("client_email") or req.get("sender") or req.get("from_email"),
         mode=req.get("mode") or "Online",
         audience_level=req.get("audience_level") or req.get("participant_level") or "",
         training_dates=training_dates,
@@ -776,6 +864,7 @@ class TocIdRequest(BaseModel):
 
 
 TOC_METADATA_FIELDS = (
+    "excel_layout",
     "domain",
     "technology",
     "duration_days",
@@ -875,14 +964,17 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
         toc = _with_toc_metadata(doc["toc"], doc)
 
     try:
-        validate_lab_cost_inputs(payload.model_dump())
+        # USD/INR is refreshed by document-service at quote generation. Use
+        # a placeholder only for structural request validation; never require
+        # a manual FX value from the user.
+        validate_lab_cost_inputs({**payload.model_dump(), "fx_rate": 1})
     except (ValueError, TypeError) as exc:
         raise HTTPException(422, str(exc)) from exc
     provider = payload.cloud_provider.lower()
     if provider not in {"aws", "azure", "gcp"}:
         raise HTTPException(422, "cloud_provider must be aws, azure, or gcp")
-    if payload.hours_per_day <= 0 or payload.participant_count <= 0 or payload.fx_rate <= 0:
-        raise HTTPException(422, "hours_per_day, participant_count, and fx_rate must be positive")
+    if payload.hours_per_day <= 0 or payload.participant_count <= 0:
+        raise HTTPException(422, "hours_per_day and participant_count must be positive")
     if min(payload.storage_gb, payload.egress_gb, payload.build_minutes, payload.monitoring_gb) < 0 or payload.k8s_worker_nodes < 0:
         raise HTTPException(422, "usage quantities cannot be negative")
     if not 0 <= payload.contingency_percent <= 100 or not 0 <= payload.tax_percent <= 100:
@@ -896,24 +988,62 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
         raise HTTPException(422, "lab_package must be basic, standard, or advanced")
 
     issued_at = datetime.now(timezone.utc)
+    # The request model has conservative cloud-usage defaults for a cloud
+    # course.  They must not become charges when the client selected a fully
+    # local lab delivery.
+    from shared.lab_planning import default_cloud_mapping, local_only_delivery
+    costing_toc, is_local_only = local_only_delivery(toc, payload.model_dump())
+    if is_local_only:
+        payload.storage_gb = 0
+        payload.egress_gb = 0
+        payload.build_minutes = 0
+        payload.monitoring_gb = 0
+        payload.k8s_worker_nodes = 0
     resource_mapping = payload.lab_day_mapping
-    if payload.lab_generation_mode is None and toc.get("requested_generation_mode") == "ai":
-        payload.lab_generation_mode = "ai"
+    requested_generation_mode = payload.lab_generation_mode
+    if resource_mapping is None and requested_generation_mode in {None, 'template'}:
+        resource_mapping = default_cloud_mapping(costing_toc, payload.model_dump())
+    if requested_generation_mode is None:
+        # An automatically built mapping is a template, not a caller-authored
+        # manual map. Keep auto mode eligible for AI planning and its safe
+        # template fallback; reserve strict manual validation for explicit
+        # lab_generation_mode='manual' requests.
+        payload.lab_generation_mode = "template" if resource_mapping is not None else "ai"
     if payload.lab_generation_mode not in {None, "template"}:
         from shared.lab_planning import plan_resources
         try:
             if payload.lab_generation_mode == 'ai':
-                from openai import AsyncOpenAI
-                async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY) as planner:
+                if str(getattr(settings, 'AI_PROVIDER', 'openai')).strip().lower() == 'ollama':
+                    from app.ollama_client import OllamaClient
+                    planner = OllamaClient(settings.OLLAMA_URL, timeout=settings.OLLAMA_TOC_TIMEOUT_SECONDS)
                     resource_mapping = await plan_resources(
-                        'ai', toc, payload.model_dump(), planner, settings.OPENAI_MODEL)
+                        'ai', costing_toc, payload.model_dump(), planner, settings.OLLAMA_MODEL,
+                        native_schema=True)
+                else:
+                    from openai import AsyncOpenAI
+                    async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY) as planner:
+                        resource_mapping = await plan_resources(
+                            'ai', costing_toc, payload.model_dump(), planner, settings.OPENAI_MODEL)
             else:
                 resource_mapping = await plan_resources(
-                    payload.lab_generation_mode, toc, payload.model_dump())
-        except ValueError as exc:
-            raise HTTPException(422, str(exc)) from exc
+                    payload.lab_generation_mode, costing_toc, payload.model_dump())
         except Exception as exc:
-            raise HTTPException(502, "AI lab planning failed. Retry or select Template mode explicitly.") from exc
+            if payload.lab_generation_mode != "ai":
+                if isinstance(exc, ValueError):
+                    raise HTTPException(422, str(exc)) from exc
+                raise HTTPException(502, "Lab planning failed.") from exc
+            # AI only improves the resource mapping.  A temporary model or
+            # credential failure must not block a valid client lab quotation:
+            # use the deterministic template mapping instead.
+            logger.warning("AI lab planning failed; using template mapping: %s", exc)
+            try:
+                resource_mapping = await plan_resources(
+                    "template", costing_toc, payload.model_dump())
+                payload.lab_generation_mode = "template"
+            except ValueError as fallback_exc:
+                raise HTTPException(422, str(fallback_exc)) from fallback_exc
+            except Exception as fallback_exc:
+                raise HTTPException(502, "Template lab planning failed.") from fallback_exc
     quote_id = f"LCQ-{uuid.uuid4().hex[:12].upper()}"
     checked_at = payload.rate_checked_at or issued_at.isoformat()
     valid_until = issued_at + timedelta(days=payload.quote_validity_days)
@@ -930,7 +1060,7 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
             response = await client.post(
                 f"{DOC_SVC}/api/v1/documents/excel/toc/lab-cost",
                 json={
-                    "toc": toc,
+                    "toc": costing_toc,
                     "assumptions": {
                         "cloud_provider": provider,
                         "cloud_region": payload.cloud_region,
@@ -945,7 +1075,11 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                         "include_internal_pricing": payload.include_internal_pricing,
                         "clahan_margin_percent": payload.clahan_margin_percent,
                         "storage_gb": payload.storage_gb,
-                        "disk_gb_per_node": (32 if provider == "azure" and "disk_gb_per_node" not in payload.model_fields_set else payload.disk_gb_per_node),
+                        # Provider disk SKUs have fixed practical baselines:
+                        # Azure P4 is 32 GiB; AWS/GCP use the approved 20 GiB
+                        # baseline. Never ask the client to select or enter
+                        # zero for this technical allocation.
+                        "disk_gb_per_node": 32 if provider == "azure" else 20,
                         "egress_gb": payload.egress_gb,
                         "build_minutes": payload.build_minutes,
                         "monitoring_gb": payload.monitoring_gb,
@@ -960,9 +1094,15 @@ async def generate_toc_lab_cost(payload: LabCostRequest, db: AsyncIOMotorDatabas
                         "price_change_review_threshold_percent": payload.price_change_review_threshold_percent,
                         "pricing_status": pricing_status,
                         "pricing_selections": payload.pricing_selections,
+                        "additional_resource_usage": payload.additional_resource_usage,
                         "ai_usage": payload.ai_usage,
                         "lab_generation_mode": payload.lab_generation_mode,
                         "lab_day_mapping": resource_mapping,
+                        "lab_setup": payload.lab_setup,
+                        "lab_day_setups": payload.lab_day_setups,
+                        "local_costs_status": payload.local_costs_status,
+                        "license_costs_status": payload.license_costs_status,
+                        "required_unpriced_costs": payload.required_unpriced_costs,
                     },
                 },
             )

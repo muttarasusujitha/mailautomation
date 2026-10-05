@@ -105,12 +105,15 @@ async def list_client_leads(
     if status and status.lower() != "all":
         query["status"] = status
     if domain:
-        query["domain"] = {"$regex": domain, "$options": "i"}
+        query['$and'] = [{'$or': [
+            {field: {'$regex': re.escape(domain), '$options': 'i'}}
+            for field in ('domain', 'matched_domains')]}]
     if q:
         query["$or"] = [
             {"company_name": {"$regex": q, "$options": "i"}},
             {"contact_name": {"$regex": q, "$options": "i"}},
             {"domain": {"$regex": q, "$options": "i"}},
+            {"matched_domains": {"$regex": q, "$options": "i"}},
             {"notes": {"$regex": q, "$options": "i"}},
             {"source_url": {"$regex": q, "$options": "i"}},
         ]

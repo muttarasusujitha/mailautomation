@@ -1,23 +1,37 @@
 import axios from 'axios'
+import { requestTimeout, shouldRetryRequest } from './requestPolicy'
 
 const apiBaseURL = import.meta.env.VITE_API_BASE_URL || '/api'
 
-const api = axios.create({ baseURL: apiBaseURL, timeout: 300000 })
-const RETRYABLE_METHODS = new Set(['get', 'head', 'options'])
-const RETRYABLE_STATUSES = new Set([408, 429, 500, 502, 503, 504])
+const api = axios.create({ baseURL: apiBaseURL, withCredentials: true })
+let csrfToken = ''
+export function acceptSession(data) {
+  csrfToken = data?.csrf_token || ''
+  if (data?.user) sessionStorage.setItem('ts_auth', JSON.stringify({ ...data.user, loggedIn: true }))
+}
+export function clearSession() {
+  csrfToken = ''
+  sessionStorage.removeItem('ts_auth')
+  window.dispatchEvent(new Event('auth-expired'))
+}
+api.interceptors.request.use(config => {
+  config.timeout = requestTimeout(config)
+  if (csrfToken && !['get', 'head', 'options'].includes(String(config.method || 'get').toLowerCase())) {
+    config.headers['X-CSRF-Token'] = csrfToken
+  }
+  return config
+})
+export async function getSession() {
+  const result = await api.get('/auth/me')
+  acceptSession(result.data)
+  return result.data.user
+}
+export async function logoutSession() {
+  try { await api.post('/auth/logout') } finally { clearSession() }
+}
 
 function wait(ms) {
   return new Promise(resolve => window.setTimeout(resolve, ms))
-}
-
-function shouldRetryRequest(err) {
-  const config = err.config || {}
-  const method = String(config.method || 'get').toLowerCase()
-  const status = err.response?.status
-  if (err.code === 'ERR_CANCELED') return false
-  if (!RETRYABLE_METHODS.has(method)) return false
-  if (config.__retryCount >= 1) return false
-  return !status || RETRYABLE_STATUSES.has(status)
 }
 
 function stringifyApiError(value) {
@@ -53,22 +67,28 @@ function formatApiError(value) {
 api.interceptors.response.use(
   res => res,
   async err => {
+    if (axios.isCancel(err) || err.config?.signal?.aborted) return Promise.reject(err)
     if (shouldRetryRequest(err)) {
       err.config.__retryCount = (err.config.__retryCount || 0) + 1
       await wait(400 * err.config.__retryCount)
+      if (err.config.signal?.aborted) return Promise.reject(new axios.CanceledError())
       return api(err.config)
     }
 
     if (err.response?.status === 401) {
       try {
-        sessionStorage.removeItem('ts_auth')
+        clearSession()
       } catch {
         /* ignore */
       }
     }
 
     const data = err.response?.data
-    const message = formatApiError(data?.detail || data?.message || data?.error || data) || err.message || 'Error'
+    const timedOut = ['ECONNABORTED', 'ETIMEDOUT'].includes(err.code)
+    const isRead = ['get', 'head', 'options'].includes(String(err.config?.method || 'get').toLowerCase())
+    const message = timedOut
+      ? (isRead ? 'This request took too long. Please try loading again.' : 'The server has not confirmed completion yet. Check the current status before trying this action again.')
+      : formatApiError(data?.detail || data?.message || data?.error || data) || err.message || 'Error'
     const apiError = new Error(message)
     apiError.response = err.response
     apiError.status = err.response?.status
@@ -98,7 +118,7 @@ export const deleteResumeDataByDomain = (domain, includeLogs = false) =>
   api.delete('/resume-data/by-domain', { params: { domain, include_logs: includeLogs } })
 export const getResumeDomainSummary = () =>
   api.get('/resume-data/domain-summary')
-export const getTrainers       = (params) => api.get('/trainers', { params })
+export const getTrainers       = (params, config = {}) => api.get('/trainers', { ...config, params })
 export const getTrainer        = (id)     => api.get(`/trainers/${id}`)
 export const semanticTrainerSearch = (params) => api.get('/trainers/semantic-search', { params })
 export const getTrainerCategories = ()    => api.get('/trainers/categories')
@@ -132,7 +152,7 @@ export const createRequirement = (data)   => api.post('/requirements', data)
 export const updateRequirement = (id, data) => api.patch(`/requirements/${id}`, data)
 export const deleteRequirement = (id)     => api.delete(`/requirements/${id}`)
 export const shortlistOnly     = (data)   => api.post('/requirements/shortlist-only', data)
-export const getShortlist      = (id)     => api.get(`/shortlists/${id}`, { timeout: 20000 })
+export const getShortlist      = (id, config = {}) => api.get(`/shortlists/${id}`, { timeout: 20000, ...config })
 export const getEmails         = (params) => api.get('/emails', { params })
 export const checkReplies      = (payload = {}) => api.post('/emails/check-replies', { since_days: 7, max_messages: 100, ...payload })
 export const retryEmail        = (id)     => api.post(`/emails/${id}/retry`)

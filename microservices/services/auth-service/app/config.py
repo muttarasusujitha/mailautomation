@@ -16,6 +16,12 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: str = "http://localhost:5174,http://127.0.0.1:5174,http://0.0.0.0:5174,http://*:5174,https://localhost:3000"
     LINKEDIN_CLIENT_ID: str = ""
     LINKEDIN_CLIENT_SECRET: str = ""
+    LINKEDIN_REDIRECT_URI: str = ""
+    GOOGLE_CLIENT_ID: str = ""
+    FRONTEND_URL: str = "http://localhost:5174"
+    EMAIL_SERVICE_URL: str = "http://email-service:8002"
+    AUTH_COOKIE_SECURE: bool = True
+    AUTH_SESSION_HOURS: int = 12
 
     @property
     def allowed_origins_list(self) -> List[str]:

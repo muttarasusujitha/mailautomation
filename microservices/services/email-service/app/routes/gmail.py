@@ -138,6 +138,20 @@ async def gmail_auth_status(db: AsyncIOMotorDatabase = Depends(get_db)):
     """Check whether Gmail OAuth token is present and valid."""
     token_status = _read_token_status()
     connected = bool(token_status.get("connected"))
+    if connected and token_status.get("expired"):
+        creds, refresh_error = _load_creds()
+        if not creds:
+            return {
+                "connected": False,
+                "valid": False,
+                "token_valid": False,
+                "calendar_connected": False,
+                "error": "Gmail authorization expired or was revoked. Reconnect the client Gmail account.",
+                "expired": True,
+                "expiry": token_status.get("expiry", ""),
+            }
+        token_status = _read_token_status()
+        connected = bool(token_status.get("connected"))
     if not connected:
         return {
             "connected": False,
@@ -176,7 +190,16 @@ async def get_gmail_oauth_url(
     try:
         from google_auth_oauthlib.flow import Flow
         _ensure_oauth_configured()
-        redirect_uri = redirect_uri or request.query_params.get("redirect_uri") or _default_oauth_redirect(request)
+        # Keep the registered Gmail callback from configuration authoritative.
+        # An older frontend may still send its legacy /api/... callback as a
+        # query parameter; accepting it overrides GOOGLE_REDIRECT_URI and can
+        # cause redirect_uri_mismatch even when the correct URI is configured.
+        redirect_uri = (
+            settings.GOOGLE_REDIRECT_URI.strip()
+            or redirect_uri
+            or request.query_params.get("redirect_uri")
+            or _default_oauth_redirect(request)
+        )
         flow = Flow.from_client_config(
             _oauth_client_config(redirect_uri),
             scopes=GMAIL_SCOPES,
@@ -301,12 +324,17 @@ async def gmail_sync_now(
     limit: int = Query(100, ge=1, le=500),
     since_days: int = Query(3, ge=1, le=30),
     search_query: str = Query(""),
+    process: bool = Query(True),
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
-    """Queue an immediate inbox sync without making the UI wait for Gmail/automation."""
+    """Queue an immediate inbox sync; process=false stores requests for review without sending."""
     from app.routes.inbox import _poll_and_store, _process_pending_client_emails
 
     global GMAIL_SYNC_IN_PROGRESS, GMAIL_SYNC_LAST_RESULT
+
+    gmail_service, gmail_error = await _gmail_service()
+    if gmail_service is None:
+        raise HTTPException(503, f"Client Gmail is not connected. Reconnect Gmail and retry. ({gmail_error})")
 
     if GMAIL_SYNC_IN_PROGRESS:
         return {
@@ -338,8 +366,15 @@ async def gmail_sync_now(
                 since_days=since_days,
                 max_messages=limit,
                 search_query=search_query,
+                process_client_requests=process,
             )
-            pending = await _process_pending_client_emails(db, limit=limit)
+            pending = await _process_pending_client_emails(db, limit=limit) if process else {
+                "checked": stored,
+                "requirements_created": 0,
+                "auto_sent": 0,
+                "failed": 0,
+                "skipped": 0,
+            }
             GMAIL_SYNC_LAST_RESULT = {
                 "sync_id": sync_id,
                 "processed_count": stored,

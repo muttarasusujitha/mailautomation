@@ -8,9 +8,17 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
+import api from '../utils/api'
 import { normalizeGmailStatus, saveGmailOAuthPkce } from '../utils/gmailOAuth'
 
 const SETTINGS_STORAGE_KEY = 'admin_settings'
+
+function gmailErrorMessage(error) {
+  if (error?.status === 403) {
+    return 'Administrator access required to connect Gmail. Sign in with an admin account or ask your administrator.'
+  }
+  return error?.message || 'Google OAuth URL failed'
+}
 
 const Section = ({ id, icon: Icon, title, subtitle, children }) => (
   <div id={id} className="card p-5 mb-5 scroll-mt-24">
@@ -398,12 +406,12 @@ export default function Admin() {
         return
       }
       if (!gmailStatus.connected || !gmailStatus.calendar_connected) {
-        const redirectUri = `${window.location.protocol}//${window.location.hostname}:8002/api/v1/gmail/oauth-callback`
-        const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
-        const oauthData = await oauthRes.json().catch(() => ({}))
-        if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')
+        const oauthRes = await api.get('/gmail/oauth-url')
+        const oauthData = oauthRes.data || {}
+        const authUrl = oauthData.auth_url || oauthData.url
+        if (!authUrl) throw new Error('Google OAuth service returned no authorization URL')
         saveGmailOAuthPkce(oauthData)
-        globalThis.location.href = oauthData.auth_url || oauthData.url
+        globalThis.location.href = authUrl
         return
       }
 
@@ -413,7 +421,7 @@ export default function Admin() {
       setGmailStatus(prev => normalizeGmailStatus({ ...prev, connected: true, valid: true, ...data }))
       toast.success('Gmail connected and watch renewed!')
     } catch (e) {
-      toast.error(e.message || 'Run backend/scripts/gmail_auth.py first')
+      toast.error(gmailErrorMessage(e))
     } finally {
       setSaving(false)
     }
@@ -426,14 +434,14 @@ export default function Admin() {
         toast.success('SMTP/IMAP mode is active. Google OAuth skipped.')
         return
       }
-      const redirectUri = `${window.location.protocol}//${window.location.hostname}:8002/api/v1/gmail/oauth-callback`
-      const oauthRes = await fetch(`/api/gmail/oauth-url?redirect_uri=${encodeURIComponent(redirectUri)}`)
-      const oauthData = await oauthRes.json().catch(() => ({}))
-      if (!oauthRes.ok) throw new Error(oauthData.detail || oauthData.error || 'Google OAuth URL failed')
+      const oauthRes = await api.get('/gmail/oauth-url')
+      const oauthData = oauthRes.data || {}
+      const authUrl = oauthData.auth_url || oauthData.url
+      if (!authUrl) throw new Error('Google OAuth service returned no authorization URL')
       saveGmailOAuthPkce(oauthData)
-      globalThis.location.href = oauthData.auth_url || oauthData.url
+      globalThis.location.href = authUrl
     } catch (e) {
-      toast.error(e.message || 'Google OAuth URL failed')
+      toast.error(gmailErrorMessage(e))
     } finally {
       setSaving(false)
     }

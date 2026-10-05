@@ -159,6 +159,7 @@ async def list_trainer_leads(
     db: AsyncIOMotorDatabase = Depends(get_db),
 ):
     query: Dict[str, Any] = {}
+    q = ' '.join((q or '').split())
     if status and status.lower() != "all":
         query["status"] = status
     if domain:
@@ -166,12 +167,10 @@ async def list_trainer_leads(
     if requirement_id:
         query["requirement_id"] = requirement_id
     if q:
+        pattern = re.escape(q)
         query["$or"] = [
-            {"name": {"$regex": q, "$options": "i"}},
-            {"trainer_name": {"$regex": q, "$options": "i"}},
-            {"headline": {"$regex": q, "$options": "i"}},
-            {"domain": {"$regex": q, "$options": "i"}},
-            {"snippet": {"$regex": q, "$options": "i"}},
+            {field: {"$regex": pattern, "$options": "i"}}
+            for field in ('name', 'trainer_name', 'headline', 'domain', 'snippet', 'profile_text')
         ]
     total = await db["trainer_profile_leads"].count_documents(query)
     if limit is not None:

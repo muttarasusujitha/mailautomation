@@ -5,24 +5,1077 @@
   "program_title": "Kotlin Programming - Fundamentals to Advanced Application Development",
   "level": "Beginner to Advanced",
   "mode": "Online",
-  "aliases": ["Kotlin", "Kotlin Programming", "Kotlin JVM", "Advanced Kotlin"],
-  "tools": ["IntelliJ IDEA", "Android Studio", "Kotlin Compiler", "Gradle", "Git", "GitHub"],
-  "certifications": ["JetBrains Kotlin Training and Learning Resources", "Android Developer Certification Training Paths"],
+  "aliases": [
+    "Kotlin",
+    "Kotlin Programming",
+    "Kotlin JVM",
+    "Advanced Kotlin"
+  ],
+  "tools": [
+    "IntelliJ IDEA",
+    "Android Studio",
+    "Kotlin Compiler",
+    "Gradle",
+    "Git",
+    "GitHub"
+  ],
+  "certifications": [
+    "JetBrains Kotlin Training and Learning Resources",
+    "Android Developer Certification Training Paths"
+  ],
   "days": [
-    {"day": 1, "topic": "Kotlin Introduction and Environment Setup", "subtopics": ["Kotlin features", "Kotlin versus Java", "JVM and Kotlin", "JDK and IntelliJ installation", "project structure", "main function", "syntax", "comments", "compiling and running"], "tools": ["IntelliJ IDEA", "Kotlin Compiler"], "lab_task": "Set up Kotlin and create basic Kotlin programs"},
-    {"day": 2, "topic": "Variables, Data Types and Operators", "subtopics": ["var and val", "type inference", "numeric types", "Boolean, Char and String", "nullable types introduction", "type conversion", "arithmetic", "assignment", "comparison", "logical operators", "ranges"], "tools": ["IntelliJ IDEA"], "lab_task": "Develop programs using variables, data types, conversions, ranges, and operators"},
-    {"day": 3, "topic": "Control Flow and Loops", "subtopics": ["if expression", "nested conditions", "when expression", "ranges and progressions", "for", "while", "do-while", "break", "continue", "labels", "nested loops"], "tools": ["IntelliJ IDEA"], "lab_task": "Build number-checking, grading, menu-driven, and pattern-generation programs"},
-    {"day": 4, "topic": "Functions and Functional Programming Basics", "subtopics": ["function declarations", "parameters and return values", "single-expression functions", "default and named arguments", "varargs", "local functions", "extension and infix functions", "higher-order functions", "lambdas", "function references", "closures"], "tools": ["IntelliJ IDEA"], "lab_task": "Create reusable functions and higher-order utilities using lambdas"},
-    {"day": 5, "topic": "Strings, Arrays and Collections", "subtopics": ["string templates and methods", "StringBuilder", "arrays and primitive arrays", "List and MutableList", "Set and MutableSet", "Map and MutableMap", "collection iteration", "filter", "map", "sort", "group", "fold and reduce"], "tools": ["IntelliJ IDEA"], "lab_task": "Build a student-data processor using lists, sets, maps, and collection operations"},
-    {"day": 6, "topic": "Object-Oriented Programming", "subtopics": ["classes and objects", "properties and methods", "primary and secondary constructors", "initializer blocks", "visibility modifiers", "encapsulation", "inheritance", "open", "overriding", "polymorphism", "abstract classes", "interfaces"], "tools": ["IntelliJ IDEA"], "lab_task": "Develop an employee model using classes, inheritance, interfaces, and polymorphism"},
-    {"day": 7, "topic": "Advanced Kotlin Classes and Generics", "subtopics": ["data classes", "enum classes", "sealed classes", "nested and inner classes", "object declarations", "companion objects", "type aliases", "delegated properties", "class delegation", "generics", "variance", "in and out"], "tools": ["IntelliJ IDEA"], "lab_task": "Design a payment model using sealed classes, generics, delegation, and data classes"},
-    {"day": 8, "topic": "Null Safety and Exception Handling", "subtopics": ["nullable/non-null types", "safe call", "Elvis operator", "not-null assertion", "safe casts", "let", "run", "with", "apply", "also", "try-catch-finally", "custom exceptions"], "tools": ["IntelliJ IDEA"], "lab_task": "Develop a null-safe application with validation and custom exception handling"},
-    {"day": 9, "topic": "File Handling, Serialization and Data Processing", "subtopics": ["File and Path", "read/write/append files", "buffered reading/writing", "JSON fundamentals", "serialization", "deserialization", "Kotlin serialization", "data validation"], "tools": ["IntelliJ IDEA", "Gradle"], "lab_task": "Create a file-based application that stores and retrieves structured data"},
-    {"day": 10, "topic": "Coroutines and Asynchronous Programming", "subtopics": ["synchronous/asynchronous programming", "coroutines", "suspend functions", "scopes and contexts", "dispatchers", "launch", "async and await", "Jobs", "cancellation", "timeouts", "structured concurrency"], "tools": ["IntelliJ IDEA", "Kotlin Coroutines", "Gradle"], "lab_task": "Build an asynchronous application using multiple Kotlin coroutines"},
-    {"day": 11, "topic": "Flow and Reactive Programming", "subtopics": ["Flow", "Flow builders", "cold streams", "collecting flows", "operators", "transformations", "filtering", "combining flows", "StateFlow", "SharedFlow", "exception handling", "cancellation"], "tools": ["Kotlin Coroutines", "IntelliJ IDEA"], "lab_task": "Create a reactive data-processing pipeline with Kotlin Flow"},
-    {"day": 12, "topic": "REST API Integration", "subtopics": ["HTTP fundamentals", "REST architecture", "GET, POST, PUT, PATCH and DELETE", "status codes and headers", "JSON requests/responses", "Ktor client", "serialization", "error handling", "authentication concepts", "asynchronous calls"], "tools": ["Ktor Client", "Postman", "IntelliJ IDEA"], "lab_task": "Consume a REST API from Kotlin and process JSON responses"},
-    {"day": 13, "topic": "Database Programming", "subtopics": ["relational databases", "SQL basics", "database connections", "CRUD", "prepared statements", "transactions", "ORM concepts", "Exposed", "connection management", "exception handling"], "tools": ["IntelliJ IDEA", "MySQL", "Exposed"], "lab_task": "Build a Kotlin CRUD application connected to MySQL"},
-    {"day": 14, "topic": "Testing and Debugging", "subtopics": ["testing fundamentals", "unit testing", "test cases and assertions", "JUnit", "Kotlin test", "mocking", "MockK", "testing exceptions", "testing coroutines", "debugging", "breakpoints", "logging"], "tools": ["JUnit", "MockK", "IntelliJ IDEA"], "lab_task": "Write unit tests for a Kotlin application and debug identified defects"},
-    {"day": 15, "topic": "Gradle, Git and Kotlin Project Development", "subtopics": ["Gradle project structure", "dependencies and plugins", "build configuration", "Git repositories", "commits", "branches", "merging", "GitHub", "coding standards", "packaging", "final project integration"], "tools": ["Gradle", "Git", "GitHub", "IntelliJ IDEA"], "lab_task": "Build, test, version-control, package, and present a complete Kotlin application"}
-  ]
+    {
+      "day": 1,
+      "topic": "Kotlin Introduction and Environment Setup",
+      "subtopics": [
+        "Kotlin features",
+        "Kotlin versus Java",
+        "JVM and Kotlin",
+        "JDK and IntelliJ installation",
+        "project structure",
+        "main function",
+        "syntax",
+        "comments",
+        "compiling and running"
+      ],
+      "tools": [
+        "IntelliJ IDEA",
+        "Kotlin Compiler"
+      ],
+      "lab_task": "Set up Kotlin and create basic Kotlin programs",
+      "deliverable": "Participant submission for 'Kotlin Introduction and Environment Setup': Set up Kotlin and create basic Kotlin programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Kotlin and create basic Kotlin programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Kotlin features; Kotlin versus Java; JVM and Kotlin; JDK and IntelliJ installation; project structure; main function; syntax; comments; compiling and running). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Set up Kotlin and create basic Kotlin programs.",
+        "Explain how the lab applies Kotlin Introduction and Environment Setup and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Kotlin Introduction and Environment Setup' on a prepared training sample through this task: Set up Kotlin and create basic Kotlin programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Kotlin and create basic Kotlin programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Kotlin features; Kotlin versus Java; JVM and Kotlin; JDK and IntelliJ installation; project structure; main function; syntax; comments; compiling and running) and demonstrate the starting sample for: Set up Kotlin and create basic Kotlin programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Kotlin and create basic Kotlin programs",
+          "evidence": "Participant submission for 'Kotlin Introduction and Environment Setup': Set up Kotlin and create basic Kotlin programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Kotlin and create basic Kotlin programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Kotlin and create basic Kotlin programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Kotlin features; Kotlin versus Java; JVM and Kotlin; JDK and IntelliJ installation; project structure; main function; syntax; comments; compiling and running). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Variables, Data Types and Operators",
+      "subtopics": [
+        "var and val",
+        "type inference",
+        "numeric types",
+        "Boolean, Char and String",
+        "nullable types introduction",
+        "type conversion",
+        "arithmetic",
+        "assignment",
+        "comparison",
+        "logical operators",
+        "ranges"
+      ],
+      "tools": [
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Develop programs using variables, data types, conversions, ranges, and operators",
+      "deliverable": "Participant submission for 'Variables, Data Types and Operators': Develop programs using variables, data types, conversions, ranges, and operators. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop programs using variables, data types, conversions, ranges, and operators. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (var and val; type inference; numeric types; Boolean, Char and String; nullable types introduction; type conversion; arithmetic; assignment; comparison; logical operators; ranges). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop programs using variables, data types, conversions, ranges, and operators.",
+        "Explain how the lab applies Variables, Data Types and Operators and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Variables, Data Types and Operators' on a prepared training sample through this task: Develop programs using variables, data types, conversions, ranges, and operators.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop programs using variables, data types, conversions, ranges, and operators",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (var and val; type inference; numeric types; Boolean, Char and String; nullable types introduction; type conversion; arithmetic; assignment; comparison; logical operators; ranges) and demonstrate the starting sample for: Develop programs using variables, data types, conversions, ranges, and operators",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop programs using variables, data types, conversions, ranges, and operators",
+          "evidence": "Participant submission for 'Variables, Data Types and Operators': Develop programs using variables, data types, conversions, ranges, and operators. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop programs using variables, data types, conversions, ranges, and operators' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop programs using variables, data types, conversions, ranges, and operators. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (var and val; type inference; numeric types; Boolean, Char and String; nullable types introduction; type conversion; arithmetic; assignment; comparison; logical operators; ranges). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Control Flow and Loops",
+      "subtopics": [
+        "if expression",
+        "nested conditions",
+        "when expression",
+        "ranges and progressions",
+        "for",
+        "while",
+        "do-while",
+        "break",
+        "continue",
+        "labels",
+        "nested loops"
+      ],
+      "tools": [
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Build number-checking, grading, menu-driven, and pattern-generation programs",
+      "deliverable": "Participant submission for 'Control Flow and Loops': Build number-checking, grading, menu-driven, and pattern-generation programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build number-checking, grading, menu-driven, and pattern-generation programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if expression; nested conditions; when expression; ranges and progressions; for; while; do-while; break; continue; labels; nested loops). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build number-checking, grading, menu-driven, and pattern-generation programs.",
+        "Explain how the lab applies Control Flow and Loops and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Control Flow and Loops' on a prepared training sample through this task: Build number-checking, grading, menu-driven, and pattern-generation programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build number-checking, grading, menu-driven, and pattern-generation programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (if expression; nested conditions; when expression; ranges and progressions; for; while; do-while; break; continue; labels; nested loops) and demonstrate the starting sample for: Build number-checking, grading, menu-driven, and pattern-generation programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build number-checking, grading, menu-driven, and pattern-generation programs",
+          "evidence": "Participant submission for 'Control Flow and Loops': Build number-checking, grading, menu-driven, and pattern-generation programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build number-checking, grading, menu-driven, and pattern-generation programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build number-checking, grading, menu-driven, and pattern-generation programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if expression; nested conditions; when expression; ranges and progressions; for; while; do-while; break; continue; labels; nested loops). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Functions and Functional Programming Basics",
+      "subtopics": [
+        "function declarations",
+        "parameters and return values",
+        "single-expression functions",
+        "default and named arguments",
+        "varargs",
+        "local functions",
+        "extension and infix functions",
+        "higher-order functions",
+        "lambdas",
+        "function references",
+        "closures"
+      ],
+      "tools": [
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Create reusable functions and higher-order utilities using lambdas",
+      "deliverable": "Participant submission for 'Functions and Functional Programming Basics': Create reusable functions and higher-order utilities using lambdas. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable functions and higher-order utilities using lambdas. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (function declarations; parameters and return values; single-expression functions; default and named arguments; varargs; local functions; extension and infix functions; higher-order functions; lambdas; function references; closures). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create reusable functions and higher-order utilities using lambdas.",
+        "Explain how the lab applies Functions and Functional Programming Basics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Functions and Functional Programming Basics' on a prepared training sample through this task: Create reusable functions and higher-order utilities using lambdas.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable functions and higher-order utilities using lambdas",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (function declarations; parameters and return values; single-expression functions; default and named arguments; varargs; local functions; extension and infix functions; higher-order functions; lambdas; function references; closures) and demonstrate the starting sample for: Create reusable functions and higher-order utilities using lambdas",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable functions and higher-order utilities using lambdas",
+          "evidence": "Participant submission for 'Functions and Functional Programming Basics': Create reusable functions and higher-order utilities using lambdas. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable functions and higher-order utilities using lambdas' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable functions and higher-order utilities using lambdas. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (function declarations; parameters and return values; single-expression functions; default and named arguments; varargs; local functions; extension and infix functions; higher-order functions; lambdas; function references; closures). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Strings, Arrays and Collections",
+      "subtopics": [
+        "string templates and methods",
+        "StringBuilder",
+        "arrays and primitive arrays",
+        "List and MutableList",
+        "Set and MutableSet",
+        "Map and MutableMap",
+        "collection iteration",
+        "filter",
+        "map",
+        "sort",
+        "group",
+        "fold and reduce"
+      ],
+      "tools": [
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Build a student-data processor using lists, sets, maps, and collection operations",
+      "deliverable": "Participant submission for 'Strings, Arrays and Collections': Build a student-data processor using lists, sets, maps, and collection operations. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a student-data processor using lists, sets, maps, and collection operations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (string templates and methods; StringBuilder; arrays and primitive arrays; List and MutableList; Set and MutableSet; Map and MutableMap; collection iteration; filter; map; sort; group; fold and reduce). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a student-data processor using lists, sets, maps, and collection operations.",
+        "Explain how the lab applies Strings, Arrays and Collections and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Strings, Arrays and Collections' on a prepared training sample through this task: Build a student-data processor using lists, sets, maps, and collection operations.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a student-data processor using lists, sets, maps, and collection operations",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (string templates and methods; StringBuilder; arrays and primitive arrays; List and MutableList; Set and MutableSet; Map and MutableMap; collection iteration; filter; map; sort; group; fold and reduce) and demonstrate the starting sample for: Build a student-data processor using lists, sets, maps, and collection operations",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a student-data processor using lists, sets, maps, and collection operations",
+          "evidence": "Participant submission for 'Strings, Arrays and Collections': Build a student-data processor using lists, sets, maps, and collection operations. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a student-data processor using lists, sets, maps, and collection operations' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a student-data processor using lists, sets, maps, and collection operations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (string templates and methods; StringBuilder; arrays and primitive arrays; List and MutableList; Set and MutableSet; Map and MutableMap; collection iteration; filter; map; sort; group; fold and reduce). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Object-Oriented Programming",
+      "subtopics": [
+        "classes and objects",
+        "properties and methods",
+        "primary and secondary constructors",
+        "initializer blocks",
+        "visibility modifiers",
+        "encapsulation",
+        "inheritance",
+        "open",
+        "overriding",
+        "polymorphism",
+        "abstract classes",
+        "interfaces"
+      ],
+      "tools": [
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Develop an employee model using classes, inheritance, interfaces, and polymorphism",
+      "deliverable": "Participant submission for 'Object-Oriented Programming': Develop an employee model using classes, inheritance, interfaces, and polymorphism. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop an employee model using classes, inheritance, interfaces, and polymorphism. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes and objects; properties and methods; primary and secondary constructors; initializer blocks; visibility modifiers; encapsulation; inheritance; open; overriding; polymorphism; abstract classes; interfaces). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop an employee model using classes, inheritance, interfaces, and polymorphism.",
+        "Explain how the lab applies Object-Oriented Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Object-Oriented Programming' on a prepared training sample through this task: Develop an employee model using classes, inheritance, interfaces, and polymorphism.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop an employee model using classes, inheritance, interfaces, and polymorphism",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (classes and objects; properties and methods; primary and secondary constructors; initializer blocks; visibility modifiers; encapsulation; inheritance; open; overriding; polymorphism; abstract classes; interfaces) and demonstrate the starting sample for: Develop an employee model using classes, inheritance, interfaces, and polymorphism",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop an employee model using classes, inheritance, interfaces, and polymorphism",
+          "evidence": "Participant submission for 'Object-Oriented Programming': Develop an employee model using classes, inheritance, interfaces, and polymorphism. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop an employee model using classes, inheritance, interfaces, and polymorphism' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop an employee model using classes, inheritance, interfaces, and polymorphism. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes and objects; properties and methods; primary and secondary constructors; initializer blocks; visibility modifiers; encapsulation; inheritance; open; overriding; polymorphism; abstract classes; interfaces). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Advanced Kotlin Classes and Generics",
+      "subtopics": [
+        "data classes",
+        "enum classes",
+        "sealed classes",
+        "nested and inner classes",
+        "object declarations",
+        "companion objects",
+        "type aliases",
+        "delegated properties",
+        "class delegation",
+        "generics",
+        "variance",
+        "in and out"
+      ],
+      "tools": [
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Design a payment model using sealed classes, generics, delegation, and data classes",
+      "deliverable": "Participant submission for 'Advanced Kotlin Classes and Generics': Design a payment model using sealed classes, generics, delegation, and data classes. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a payment model using sealed classes, generics, delegation, and data classes. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (data classes; enum classes; sealed classes; nested and inner classes; object declarations; companion objects; type aliases; delegated properties; class delegation; generics; variance; in and out). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design a payment model using sealed classes, generics, delegation, and data classes.",
+        "Explain how the lab applies Advanced Kotlin Classes and Generics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Kotlin Classes and Generics' on a prepared training sample through this task: Design a payment model using sealed classes, generics, delegation, and data classes.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a payment model using sealed classes, generics, delegation, and data classes",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (data classes; enum classes; sealed classes; nested and inner classes; object declarations; companion objects; type aliases; delegated properties; class delegation; generics; variance; in and out) and demonstrate the starting sample for: Design a payment model using sealed classes, generics, delegation, and data classes",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a payment model using sealed classes, generics, delegation, and data classes",
+          "evidence": "Participant submission for 'Advanced Kotlin Classes and Generics': Design a payment model using sealed classes, generics, delegation, and data classes. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a payment model using sealed classes, generics, delegation, and data classes' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a payment model using sealed classes, generics, delegation, and data classes. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (data classes; enum classes; sealed classes; nested and inner classes; object declarations; companion objects; type aliases; delegated properties; class delegation; generics; variance; in and out). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Null Safety and Exception Handling",
+      "subtopics": [
+        "nullable/non-null types",
+        "safe call",
+        "Elvis operator",
+        "not-null assertion",
+        "safe casts",
+        "let",
+        "run",
+        "with",
+        "apply",
+        "also",
+        "try-catch-finally",
+        "custom exceptions"
+      ],
+      "tools": [
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Develop a null-safe application with validation and custom exception handling",
+      "deliverable": "Participant submission for 'Null Safety and Exception Handling': Develop a null-safe application with validation and custom exception handling. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop a null-safe application with validation and custom exception handling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (nullable/non-null types; safe call; Elvis operator; not-null assertion; safe casts; let; run; with; apply; also; try-catch-finally; custom exceptions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop a null-safe application with validation and custom exception handling.",
+        "Explain how the lab applies Null Safety and Exception Handling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Null Safety and Exception Handling' on a prepared training sample through this task: Develop a null-safe application with validation and custom exception handling.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop a null-safe application with validation and custom exception handling",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (nullable/non-null types; safe call; Elvis operator; not-null assertion; safe casts; let; run; with; apply; also; try-catch-finally; custom exceptions) and demonstrate the starting sample for: Develop a null-safe application with validation and custom exception handling",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop a null-safe application with validation and custom exception handling",
+          "evidence": "Participant submission for 'Null Safety and Exception Handling': Develop a null-safe application with validation and custom exception handling. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop a null-safe application with validation and custom exception handling' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop a null-safe application with validation and custom exception handling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (nullable/non-null types; safe call; Elvis operator; not-null assertion; safe casts; let; run; with; apply; also; try-catch-finally; custom exceptions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "File Handling, Serialization and Data Processing",
+      "subtopics": [
+        "File and Path",
+        "read/write/append files",
+        "buffered reading/writing",
+        "JSON fundamentals",
+        "serialization",
+        "deserialization",
+        "Kotlin serialization",
+        "data validation"
+      ],
+      "tools": [
+        "IntelliJ IDEA",
+        "Gradle"
+      ],
+      "lab_task": "Create a file-based application that stores and retrieves structured data",
+      "deliverable": "Participant submission for 'File Handling, Serialization and Data Processing': Create a file-based application that stores and retrieves structured data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a file-based application that stores and retrieves structured data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (File and Path; read/write/append files; buffered reading/writing; JSON fundamentals; serialization; deserialization; Kotlin serialization; data validation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a file-based application that stores and retrieves structured data.",
+        "Explain how the lab applies File Handling, Serialization and Data Processing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'File Handling, Serialization and Data Processing' on a prepared training sample through this task: Create a file-based application that stores and retrieves structured data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a file-based application that stores and retrieves structured data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (File and Path; read/write/append files; buffered reading/writing; JSON fundamentals; serialization; deserialization; Kotlin serialization; data validation) and demonstrate the starting sample for: Create a file-based application that stores and retrieves structured data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a file-based application that stores and retrieves structured data",
+          "evidence": "Participant submission for 'File Handling, Serialization and Data Processing': Create a file-based application that stores and retrieves structured data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a file-based application that stores and retrieves structured data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a file-based application that stores and retrieves structured data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (File and Path; read/write/append files; buffered reading/writing; JSON fundamentals; serialization; deserialization; Kotlin serialization; data validation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Coroutines and Asynchronous Programming",
+      "subtopics": [
+        "synchronous/asynchronous programming",
+        "coroutines",
+        "suspend functions",
+        "scopes and contexts",
+        "dispatchers",
+        "launch",
+        "async and await",
+        "Jobs",
+        "cancellation",
+        "timeouts",
+        "structured concurrency"
+      ],
+      "tools": [
+        "IntelliJ IDEA",
+        "Kotlin Coroutines",
+        "Gradle"
+      ],
+      "lab_task": "Build an asynchronous application using multiple Kotlin coroutines",
+      "deliverable": "Participant submission for 'Coroutines and Asynchronous Programming': Build an asynchronous application using multiple Kotlin coroutines. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an asynchronous application using multiple Kotlin coroutines. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (synchronous/asynchronous programming; coroutines; suspend functions; scopes and contexts; dispatchers; launch; async and await; Jobs; cancellation; timeouts; structured concurrency). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an asynchronous application using multiple Kotlin coroutines.",
+        "Explain how the lab applies Coroutines and Asynchronous Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Coroutines and Asynchronous Programming' on a prepared training sample through this task: Build an asynchronous application using multiple Kotlin coroutines.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an asynchronous application using multiple Kotlin coroutines",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (synchronous/asynchronous programming; coroutines; suspend functions; scopes and contexts; dispatchers; launch; async and await; Jobs; cancellation; timeouts; structured concurrency) and demonstrate the starting sample for: Build an asynchronous application using multiple Kotlin coroutines",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an asynchronous application using multiple Kotlin coroutines",
+          "evidence": "Participant submission for 'Coroutines and Asynchronous Programming': Build an asynchronous application using multiple Kotlin coroutines. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an asynchronous application using multiple Kotlin coroutines' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an asynchronous application using multiple Kotlin coroutines. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (synchronous/asynchronous programming; coroutines; suspend functions; scopes and contexts; dispatchers; launch; async and await; Jobs; cancellation; timeouts; structured concurrency). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Flow and Reactive Programming",
+      "subtopics": [
+        "Flow",
+        "Flow builders",
+        "cold streams",
+        "collecting flows",
+        "operators",
+        "transformations",
+        "filtering",
+        "combining flows",
+        "StateFlow",
+        "SharedFlow",
+        "exception handling",
+        "cancellation"
+      ],
+      "tools": [
+        "Kotlin Coroutines",
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Create a reactive data-processing pipeline with Kotlin Flow",
+      "deliverable": "Participant submission for 'Flow and Reactive Programming': Create a reactive data-processing pipeline with Kotlin Flow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a reactive data-processing pipeline with Kotlin Flow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Flow; Flow builders; cold streams; collecting flows; operators; transformations; filtering; combining flows; StateFlow; SharedFlow; exception handling; cancellation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a reactive data-processing pipeline with Kotlin Flow.",
+        "Explain how the lab applies Flow and Reactive Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Flow and Reactive Programming' on a prepared training sample through this task: Create a reactive data-processing pipeline with Kotlin Flow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a reactive data-processing pipeline with Kotlin Flow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Flow; Flow builders; cold streams; collecting flows; operators; transformations; filtering; combining flows; StateFlow; SharedFlow; exception handling; cancellation) and demonstrate the starting sample for: Create a reactive data-processing pipeline with Kotlin Flow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a reactive data-processing pipeline with Kotlin Flow",
+          "evidence": "Participant submission for 'Flow and Reactive Programming': Create a reactive data-processing pipeline with Kotlin Flow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a reactive data-processing pipeline with Kotlin Flow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a reactive data-processing pipeline with Kotlin Flow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Flow; Flow builders; cold streams; collecting flows; operators; transformations; filtering; combining flows; StateFlow; SharedFlow; exception handling; cancellation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "REST API Integration",
+      "subtopics": [
+        "HTTP fundamentals",
+        "REST architecture",
+        "GET, POST, PUT, PATCH and DELETE",
+        "status codes and headers",
+        "JSON requests/responses",
+        "Ktor client",
+        "serialization",
+        "error handling",
+        "authentication concepts",
+        "asynchronous calls"
+      ],
+      "tools": [
+        "Ktor Client",
+        "Postman",
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Consume a REST API from Kotlin and process JSON responses",
+      "deliverable": "Participant submission for 'REST API Integration': Consume a REST API from Kotlin and process JSON responses. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Consume a REST API from Kotlin and process JSON responses. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP fundamentals; REST architecture; GET, POST, PUT, PATCH and DELETE; status codes and headers; JSON requests/responses; Ktor client; serialization; error handling; authentication concepts; asynchronous calls). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Consume a REST API from Kotlin and process JSON responses.",
+        "Explain how the lab applies REST API Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'REST API Integration' on a prepared training sample through this task: Consume a REST API from Kotlin and process JSON responses.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Consume a REST API from Kotlin and process JSON responses",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (HTTP fundamentals; REST architecture; GET, POST, PUT, PATCH and DELETE; status codes and headers; JSON requests/responses; Ktor client; serialization; error handling; authentication concepts; asynchronous calls) and demonstrate the starting sample for: Consume a REST API from Kotlin and process JSON responses",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Consume a REST API from Kotlin and process JSON responses",
+          "evidence": "Participant submission for 'REST API Integration': Consume a REST API from Kotlin and process JSON responses. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Consume a REST API from Kotlin and process JSON responses' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Consume a REST API from Kotlin and process JSON responses. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP fundamentals; REST architecture; GET, POST, PUT, PATCH and DELETE; status codes and headers; JSON requests/responses; Ktor client; serialization; error handling; authentication concepts; asynchronous calls). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Database Programming",
+      "subtopics": [
+        "relational databases",
+        "SQL basics",
+        "database connections",
+        "CRUD",
+        "prepared statements",
+        "transactions",
+        "ORM concepts",
+        "Exposed",
+        "connection management",
+        "exception handling"
+      ],
+      "tools": [
+        "IntelliJ IDEA",
+        "MySQL",
+        "Exposed"
+      ],
+      "lab_task": "Build a Kotlin CRUD application connected to MySQL",
+      "deliverable": "Participant submission for 'Database Programming': Build a Kotlin CRUD application connected to MySQL. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a Kotlin CRUD application connected to MySQL. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (relational databases; SQL basics; database connections; CRUD; prepared statements; transactions; ORM concepts; Exposed; connection management; exception handling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a Kotlin CRUD application connected to MySQL.",
+        "Explain how the lab applies Database Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Database Programming' on a prepared training sample through this task: Build a Kotlin CRUD application connected to MySQL.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a Kotlin CRUD application connected to MySQL",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (relational databases; SQL basics; database connections; CRUD; prepared statements; transactions; ORM concepts; Exposed; connection management; exception handling) and demonstrate the starting sample for: Build a Kotlin CRUD application connected to MySQL",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a Kotlin CRUD application connected to MySQL",
+          "evidence": "Participant submission for 'Database Programming': Build a Kotlin CRUD application connected to MySQL. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a Kotlin CRUD application connected to MySQL' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a Kotlin CRUD application connected to MySQL. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (relational databases; SQL basics; database connections; CRUD; prepared statements; transactions; ORM concepts; Exposed; connection management; exception handling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Testing and Debugging",
+      "subtopics": [
+        "testing fundamentals",
+        "unit testing",
+        "test cases and assertions",
+        "JUnit",
+        "Kotlin test",
+        "mocking",
+        "MockK",
+        "testing exceptions",
+        "testing coroutines",
+        "debugging",
+        "breakpoints",
+        "logging"
+      ],
+      "tools": [
+        "JUnit",
+        "MockK",
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Write unit tests for a Kotlin application and debug identified defects",
+      "deliverable": "Participant submission for 'Testing and Debugging': Write unit tests for a Kotlin application and debug identified defects. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Write unit tests for a Kotlin application and debug identified defects. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (testing fundamentals; unit testing; test cases and assertions; JUnit; Kotlin test; mocking; MockK; testing exceptions; testing coroutines; debugging; breakpoints; logging). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Write unit tests for a Kotlin application and debug identified defects.",
+        "Explain how the lab applies Testing and Debugging and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Testing and Debugging' on a prepared training sample through this task: Write unit tests for a Kotlin application and debug identified defects.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Write unit tests for a Kotlin application and debug identified defects",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (testing fundamentals; unit testing; test cases and assertions; JUnit; Kotlin test; mocking; MockK; testing exceptions; testing coroutines; debugging; breakpoints; logging) and demonstrate the starting sample for: Write unit tests for a Kotlin application and debug identified defects",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Write unit tests for a Kotlin application and debug identified defects",
+          "evidence": "Participant submission for 'Testing and Debugging': Write unit tests for a Kotlin application and debug identified defects. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Write unit tests for a Kotlin application and debug identified defects' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Write unit tests for a Kotlin application and debug identified defects. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (testing fundamentals; unit testing; test cases and assertions; JUnit; Kotlin test; mocking; MockK; testing exceptions; testing coroutines; debugging; breakpoints; logging). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Gradle, Git and Kotlin Project Development",
+      "subtopics": [
+        "Gradle project structure",
+        "dependencies and plugins",
+        "build configuration",
+        "Git repositories",
+        "commits",
+        "branches",
+        "merging",
+        "GitHub",
+        "coding standards",
+        "packaging",
+        "final project integration"
+      ],
+      "tools": [
+        "Gradle",
+        "Git",
+        "GitHub",
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Build, test, version-control, package, and present a complete Kotlin application",
+      "deliverable": "Participant submission for 'Gradle, Git and Kotlin Project Development': Build, test, version-control, package, and present a complete Kotlin application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build, test, version-control, package, and present a complete Kotlin application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Gradle project structure; dependencies and plugins; build configuration; Git repositories; commits; branches; merging; GitHub; coding standards; packaging; final project integration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build, test, version-control, package, and present a complete Kotlin application.",
+        "Explain how the lab applies Gradle, Git and Kotlin Project Development and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Gradle, Git and Kotlin Project Development' on a prepared training sample through this task: Build, test, version-control, package, and present a complete Kotlin application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build, test, version-control, package, and present a complete Kotlin application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Gradle project structure; dependencies and plugins; build configuration; Git repositories; commits; branches; merging; GitHub; coding standards; packaging; final project integration) and demonstrate the starting sample for: Build, test, version-control, package, and present a complete Kotlin application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build, test, version-control, package, and present a complete Kotlin application",
+          "evidence": "Participant submission for 'Gradle, Git and Kotlin Project Development': Build, test, version-control, package, and present a complete Kotlin application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build, test, version-control, package, and present a complete Kotlin application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build, test, version-control, package, and present a complete Kotlin application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Gradle project structure; dependencies and plugins; build configuration; Git repositories; commits; branches; merging; GitHub; coding standards; packaging; final project integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

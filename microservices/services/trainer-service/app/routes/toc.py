@@ -6,10 +6,10 @@ import re
 import uuid
 from datetime import datetime
 from math import ceil
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Literal
 from fastapi import APIRouter, Depends, HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, PrivateAttr, root_validator
 
 from shared.database.service import get_db
 from app.config import get_settings
@@ -30,6 +30,7 @@ class TechnologyAllocation(BaseModel):
 
 
 class TocRequest(BaseModel):
+    _knowledge_db: Any = PrivateAttr(default=None)
     domain: Optional[str] = None
     technology: Optional[str] = None
     duration_days: float = 5.0
@@ -37,6 +38,8 @@ class TocRequest(BaseModel):
     mode: str = "Online"
     notes: Optional[str] = ""
     requirement_id: Optional[str] = None
+    client_email: Optional[str] = None
+    excel_layout: Literal["auto", "execution_plan", "technical_plan", "skills_matrix", "detailed_syllabus", "legacy"] = "auto"
     trainer_id: Optional[str] = None
     trainer_name: Optional[str] = None
     trainer_email: Optional[str] = None
@@ -69,8 +72,11 @@ class TocRequest(BaseModel):
     @root_validator(skip_on_failure=True)
     def validate_duration_days(cls, values):
         duration_days = values.get("duration_days")
-        if duration_days is None or duration_days <= 0:
-            raise ValueError("duration_days must be a positive number")
+        if duration_days is None or not 1 <= duration_days <= 30:
+            raise ValueError("duration_days must be between 1 and 30")
+        hours = values.get("hours_per_day")
+        if hours is not None and not 1 / 60 <= hours <= 24:
+            raise ValueError("hours_per_day must be between one minute and 24 hours")
         return values
 
     @root_validator(skip_on_failure=True)
@@ -317,6 +323,7 @@ Generate learning outcomes and a hands-on summary for this exact topic.
 
 1. learning_outcomes (3-4 bullets):
 - Each must name a specific tool, command, config, or artifact from the day data above
+- Each must describe a distinct, observable result; do not repeat an outcome with different punctuation or capitalization
 - At least one must connect to the jira_focus
 - No generic phrases like "explain the design choices" or "validate the implementation" unless naming exactly what is validated
 
@@ -368,13 +375,19 @@ def _normalise_daily_text(value: str) -> str:
 
 def _daily_enrichment_is_specific(result: dict, day: dict, prior_outcomes: list[str]) -> bool:
     """Reject generic or repeated AI copy without spending an extra model call."""
-    outcomes = [str(item).strip() for item in result.get("learning_outcomes") or [] if str(item).strip()]
-    summary = str(result.get("hands_on_summary") or "").strip()
-    if len(outcomes) not in (3, 4) or not summary:
+    if not isinstance(result, dict):
         return False
-    fields = list(day.get("tools") or []) + list(day.get("subtopics") or [])
-    if isinstance(day.get("tools"), str):
-        fields.extend(part.strip() for part in day["tools"].split("+") if part.strip())
+    raw_outcomes = result.get("learning_outcomes")
+    summary = result.get("hands_on_summary")
+    if (not isinstance(raw_outcomes, list) or len(raw_outcomes) not in (3, 4)
+            or not all(isinstance(item, str) and item.strip() for item in raw_outcomes)
+            or not isinstance(summary, str) or not _normalise_daily_text(summary)):
+        return False
+    outcomes = [item.strip() for item in raw_outcomes]
+    fields = []
+    for key in ("tools", "subtopics"):
+        value = day.get(key) or []
+        fields.extend([value] if isinstance(value, str) else value)
     fields.extend([day.get("jira_focus") or "", day.get("lab") or day.get("lab_task") or ""])
     keywords = {_normalise_daily_text(item) for item in fields if _normalise_daily_text(item)}
     keyword_terms = {term for keyword in keywords for term in keyword.split() if len(term) >= 3}
@@ -384,6 +397,8 @@ def _daily_enrichment_is_specific(result: dict, day: dict, prior_outcomes: list[
     if not any(term in _normalise_daily_text(text).split() for term in keyword_terms):
         return False
     normalised_outcomes = [_normalise_daily_text(item) for item in outcomes]
+    if not all(normalised_outcomes) or len(set(normalised_outcomes)) != len(normalised_outcomes):
+        return False
     if any(item in prior_outcomes for item in normalised_outcomes):
         return False
     return True
@@ -464,11 +479,11 @@ async def _enrich_toc_days_with_ai(client: Any, model: str, toc: dict) -> int:
     for day, result in zip(days, results):
         if not result:
             continue
-        outcomes = [str(item).strip() for item in result.get("learning_outcomes") or [] if str(item).strip()]
-        summary = str(result.get("hands_on_summary") or "").strip()
         if not _daily_enrichment_is_specific(result, day, prior_outcomes):
             logger.warning("AI day enrichment rejected quality checks for day %s", day.get("day"))
             continue
+        outcomes = [item.strip() for item in result["learning_outcomes"]]
+        summary = result["hands_on_summary"].strip()
         day["learning_objectives"] = outcomes
         day["lab"] = summary
         enriched_count += 1
@@ -480,67 +495,49 @@ async def _enrich_toc_days_with_ai(client: Any, model: str, toc: dict) -> int:
 async def _enrich_manual_toc_if_available(toc: dict) -> bool:
     """Apply the same daily enrichment to Manual/Template TOCs when AI is configured."""
     settings = get_settings()
-    api_key = str(getattr(settings, "OPENAI_API_KEY", "") or "").strip()
-    if not api_key:
-        return False
     try:
-        from openai import AsyncOpenAI
-        client = AsyncOpenAI(api_key=api_key)
-        enriched = await _enrich_toc_days_with_ai(
-            client, str(getattr(settings, "OPENAI_MODEL", "gpt-5.5") or "gpt-5.5"), toc,
-        )
-        return bool(enriched)
+        if str(getattr(settings, "AI_PROVIDER", "openai")).strip().lower() == "ollama":
+            from app.ollama_client import OllamaClient
+            client = OllamaClient(settings.OLLAMA_URL)
+            model = settings.OLLAMA_MODEL
+            enriched = await _enrich_toc_days_with_ai(client, model, toc)
+            return bool(enriched)
+        api_key = str(getattr(settings, "OPENAI_API_KEY", "") or "").strip()
+        if api_key:
+            from openai import AsyncOpenAI
+            async with AsyncOpenAI(api_key=api_key) as client:
+                enriched = await _enrich_toc_days_with_ai(
+                    client, str(getattr(settings, "OPENAI_MODEL", "gpt-5.5") or "gpt-5.5"), toc,
+                )
+                return bool(enriched)
+        return False
     except Exception:
         logger.exception("Manual TOC daily enrichment failed; retaining deterministic output")
         return False
 
 
+async def _generate_ollama_toc(payload: TocRequest, settings) -> dict:
+    """Let Ollama design the curriculum from the client's requirements."""
+    from app.ollama_curriculum import generate_client_curriculum
+    return await generate_client_curriculum(payload, settings)
+
+
 async def _generate_ai_toc(payload: TocRequest) -> Optional[dict]:
-    """Create a ToC from the approved backbone, enriching each day independently."""
+    """Plan scope and sequence from client requirements and retrieved evidence."""
     settings = get_settings()
-    api_key = str(getattr(settings, "OPENAI_API_KEY", "") or "").strip()
-    if not api_key:
-        return None
-    days = max(1, min(int(payload.duration_days), 100))
-    allocations = _inferred_technology_allocations(payload)
-    if allocations:
-        backbone = generate_combined_toc_from_datasets(
-            allocations, payload.level, payload.mode,
-            payload.notes or "", payload.audience_level or "", payload.training_dates or "",
-        )
-    else:
-        backbone = generate_toc_from_dataset(
-            payload.domain, days, payload.level, payload.mode, payload.notes or "",
-            audience_level=payload.audience_level or "", training_dates=payload.training_dates or "",
-        )
     try:
+        from app.curriculum_reasoning import generate_reasoned_toc
+        if str(getattr(settings, "AI_PROVIDER", "openai")).strip().lower() == "ollama":
+            return await _generate_ollama_toc(payload, settings)
+        if not str(settings.OPENAI_API_KEY or "").strip():
+            return None
         from openai import AsyncOpenAI
-        client = AsyncOpenAI(api_key=api_key)
-        for day in backbone.get("days") or []:
-            day["requirement_context"] = {
-                "audience": payload.audience_level, "level": payload.level,
-                "custom_topics": payload.custom_topics, "client_notes": payload.client_notes,
-                "notes": payload.notes, "hours_per_day": payload.hours_per_day,
-                "cloud_provider": payload.cloud_provider, "lab_type": payload.lab_type,
-            }
-        enriched = await _enrich_toc_days_with_ai(
-            client, str(getattr(settings, "OPENAI_MODEL", "gpt-5.5") or "gpt-5.5"), backbone,
-        )
-        if not enriched:
-            return None
-        for day in backbone.get("days") or []:
-            day.pop("requirement_context", None)
-        toc = validate_toc(backbone, days)
-        if not _ai_toc_passes_level_gate(toc, payload.level) or not _ai_toc_passes_requirement_gate(toc, payload, days):
-            logger.warning("AI ToC rejected because it violated level, duration, technology coverage, or uniqueness rules")
-            return None
-        # The AI contract must not invent dates, but the application owns the
-        # supplied schedule. Apply the same weekday-aware date enrichment used
-        # by the manual/dataset path after the AI content passes validation.
-        toc = _enrich_programme_pack(toc, payload.audience_level or "", payload.training_dates or "")
-        return toc
+        async with AsyncOpenAI(api_key=settings.OPENAI_API_KEY.strip(), timeout=60, max_retries=1) as client:
+            return await asyncio.wait_for(
+                generate_reasoned_toc(payload, client, settings, payload._knowledge_db), timeout=180,
+            )
     except Exception:
-        logger.exception("AI ToC generation failed; falling back to approved template generator")
+        logger.exception("Requirement-driven TOC generation unavailable; returning a review-only draft")
         return None
 
 
@@ -552,6 +549,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     """
     requested_mode = (payload.generation_mode or "ai").lower()
     used_generation_mode = "template"
+    payload._knowledge_db = db
     toc = await _generate_ai_toc(payload) if requested_mode == "ai" else None
     ai_unavailable = requested_mode == "ai" and not toc
     if toc:
@@ -559,12 +557,20 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         if "ai_enriched_days" in toc and toc["ai_enriched_days"] < len(toc.get("days") or []):
             used_generation_mode = "ai_partial"
             toc["generation_warning"] = "Some days retained reference content because AI enrichment failed. Review before sharing."
+    if toc is None and requested_mode != "ai":
+        from app.reference_planner import reference_draft
+        toc = reference_draft(payload)
+        if toc is not None:
+            used_generation_mode = "reference_draft"
     try:
         if toc is None:
             # Approved deterministic Template mode, and safe fallback when
             # an AI key is not configured or the AI response is invalid.
             allocations = _inferred_technology_allocations(payload)
-            use_manual_knowledge = requested_mode != "ai"
+            # AI is preferred when selected, but an unavailable/invalid AI
+            # result must fall back to the approved template generator rather
+            # than block a valid ToC request.
+            use_manual_knowledge = requested_mode != "ai" or ai_unavailable
             if allocations:
                 knowledge_overrides = (
                     await _load_toc_knowledge_overrides(db, allocations)
@@ -579,21 +585,38 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
                     used_generation_mode = "template_knowledge"
             else:
                 knowledge = await _load_toc_knowledge(db, payload.domain) if use_manual_knowledge else None
+                source_knowledge = knowledge
+                if use_manual_knowledge and payload.custom_topics:
+                    from app.scoped_curriculum import select_requested_curriculum
+                    knowledge = select_requested_curriculum(payload.domain, payload.custom_topics, knowledge)
                 toc = generate_toc_from_dataset(
                     domain_name=payload.domain, duration_days=int(payload.duration_days), level=payload.level,
                     mode=payload.mode, notes=payload.notes or "", audience_level=payload.audience_level or "",
                     training_dates=payload.training_dates or "",
                     domain_override=knowledge,
                 )
-                if knowledge:
+                if source_knowledge:
                     used_generation_mode = "template_knowledge"
+            if ai_unavailable and used_generation_mode == "template":
+                used_generation_mode = "template_fallback"
+            elif ai_unavailable and used_generation_mode == "template_knowledge":
+                used_generation_mode = "template_knowledge_fallback"
             toc = validate_toc(toc, int(payload.duration_days))
-            if requested_mode != "ai" and payload.allow_ai_enrichment and await _enrich_manual_toc_if_available(toc):
-                toc = validate_toc(toc, int(payload.duration_days))
-                used_generation_mode = "template_ai_enriched"
+            # AI OFF must remain offline even if an older caller sends the
+            # legacy enrichment flag. Model planning requires AI ON.
     except Exception:
         # Fallback to minimal if generator fails
         toc = _minimal_toc(payload.domain, payload.duration_days)
+
+    if ai_unavailable:
+        quality = toc.setdefault("quality", {})
+        if quality.get("status") != "requires_regeneration":
+            quality["status"] = "requires_review"
+        quality.setdefault("review_warnings", []).append("AI requirement planning unavailable; this template draft is not verified against the client proposal")
+
+    if used_generation_mode != "ai":
+        from app.offline_programme import complete_offline_programme
+        toc = complete_offline_programme(toc, payload)
 
     toc.update({
         "domain": payload.domain,
@@ -602,11 +625,9 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
         "mode": payload.mode,
         "generation_mode": used_generation_mode,
         "requested_generation_mode": requested_mode,
-        "technology_allocations": _inferred_technology_allocations(payload),
+        "participant_count": payload.participant_count,
+        "technology_allocations": ([item.model_dump() for item in payload.technology_allocations] if toc.get("planning_method") else _inferred_technology_allocations(payload)),
     })
-    if ai_unavailable:
-        toc["generation_warning"] = "AI generation was unavailable; this ToC uses the approved curriculum baseline."
-        toc["generation_mode"] = "template_ai_unavailable"
     if payload.training_dates:
         toc["training_dates"] = payload.training_dates
     if payload.timing:
@@ -614,12 +635,35 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
     if payload.trainer_name:
         toc["trainer_name"] = payload.trainer_name
     _apply_requirement_quality(toc, payload)
+    from app.toc_evaluation import evaluate_toc
+    brief = toc.get("requirement_brief") or {}
+    evaluation = evaluate_toc(toc,
+        required_topics=brief.get("required_topics") or [t.strip() for t in re.split(r"[;,\n]+", payload.custom_topics or "") if t.strip()],
+        excluded_topics=brief.get("excluded_topics") or [],
+        requested_days=int(payload.duration_days), hours_per_day=payload.hours_per_day)
+    quality = toc.setdefault("quality", {})
+    quality["content_evaluation"] = evaluation
+    quality["content_score"] = evaluation["score"]
+    if evaluation["status"] != "pass":
+        if evaluation.get("blocking_issues"):
+            quality["status"] = "requires_regeneration"
+        elif quality.get("status") != "requires_regeneration":
+            quality["status"] = "requires_review"
+        quality["review_warnings"] = list(dict.fromkeys([
+            *quality.get("review_warnings", []), *evaluation["issues"]]))
     _attach_ai_generation_templates(toc, payload)
 
     toc_id = payload.toc_id or f"TOC-{uuid.uuid4().hex[:10].upper()}"
+    from shared.toc_layouts import normalize_client_email, select_toc_layout
+    client_email = normalize_client_email(payload.client_email)
+    if not client_email and payload.requirement_id:
+        requirement = await db["requirements"].find_one({"requirement_id": payload.requirement_id}) or {}
+        client_email = normalize_client_email(requirement.get("client_email") or requirement.get("sender") or requirement.get("from_email"))
+    toc["excel_layout"] = await select_toc_layout(db, payload.excel_layout, client_email, payload.toc_id)
 
     await db.toc_generations.insert_one({
         "toc_id": toc_id,
+        "client_email": client_email,
         "requirement_id": payload.requirement_id,
         "trainer_id": payload.trainer_id,
         "trainer_name": payload.trainer_name,
@@ -643,7 +687,7 @@ async def generate_toc(payload: TocRequest, db: AsyncIOMotorDatabase = Depends(g
 
 def _apply_requirement_quality(toc: dict, payload: TocRequest) -> None:
     """Do not mistake structural completeness for client scope approval."""
-    warnings = []
+    warnings = list((toc.get("quality") or {}).get("review_warnings") or [])
     hours = payload.hours_per_day
     if hours is not None and not 0 < hours <= 24:
         raise HTTPException(422, "Training hours per day must be greater than zero and at most 24")
@@ -711,7 +755,8 @@ def _apply_requirement_quality(toc: dict, payload: TocRequest) -> None:
     quality = toc.setdefault("quality", {})
     quality["missing_requested_topics"] = missing
     quality["review_warnings"] = warnings
-    if warnings and quality.get("status") != "requires_regeneration":
+    scope_needs_review = not hours or (bool(overloaded) if hours else False) or bool(missing)
+    if scope_needs_review and quality.get("status") != "requires_regeneration":
         quality["status"] = "requires_review"
 
 

@@ -26,7 +26,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "ML basics"
+      "lab_task": "ML basics",
+      "deliverable": "Participant submission for 'ML Fundamentals': ML basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: ML basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Supervised Learning; Unsupervised Learning; Reinforcement Learning; Model Types). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: ML basics.",
+        "Explain how the lab applies ML Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'ML Fundamentals' on a prepared training sample through this task: ML basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: ML basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Supervised Learning; Unsupervised Learning; Reinforcement Learning; Model Types) and demonstrate the starting sample for: ML basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "ML basics",
+          "evidence": "Participant submission for 'ML Fundamentals': ML basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'ML basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: ML basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Supervised Learning; Unsupervised Learning; Reinforcement Learning; Model Types). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 2,
@@ -41,7 +89,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: ML basics"
+      "lab_task": "Part 2 hands-on: ML basics",
+      "deliverable": "Participant submission for 'ML Fundamentals - Part 2': Part 2 hands-on: ML basics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: ML basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Supervised Learning; Part 2: Unsupervised Learning; Part 2: Reinforcement Learning; Part 2: Model Types). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: ML basics.",
+        "Explain how the lab applies ML Fundamentals - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'ML Fundamentals - Part 2' on a prepared training sample through this task: Part 2 hands-on: ML basics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: ML basics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Supervised Learning; Part 2: Unsupervised Learning; Part 2: Reinforcement Learning; Part 2: Model Types) and demonstrate the starting sample for: Part 2 hands-on: ML basics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: ML basics",
+          "evidence": "Participant submission for 'ML Fundamentals - Part 2': Part 2 hands-on: ML basics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: ML basics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: ML basics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Supervised Learning; Part 2: Unsupervised Learning; Part 2: Reinforcement Learning; Part 2: Model Types). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 3,
@@ -57,7 +153,55 @@
         "NumPy"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Data preparation"
+      "lab_task": "Data preparation",
+      "deliverable": "Participant submission for 'Data Preprocessing': Data preparation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Data preparation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cleaning; Normalization; Feature Scaling; Handling Missing Values). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Data preparation.",
+        "Explain how the lab applies Data Preprocessing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Preprocessing' on a prepared training sample through this task: Data preparation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Data preparation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Cleaning; Normalization; Feature Scaling; Handling Missing Values) and demonstrate the starting sample for: Data preparation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Data preparation",
+          "evidence": "Participant submission for 'Data Preprocessing': Data preparation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Data preparation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Data preparation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cleaning; Normalization; Feature Scaling; Handling Missing Values). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 4,
@@ -73,7 +217,55 @@
         "NumPy"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Data preparation"
+      "lab_task": "Part 2 hands-on: Data preparation",
+      "deliverable": "Participant submission for 'Data Preprocessing - Part 2': Part 2 hands-on: Data preparation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Data preparation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Cleaning; Part 2: Normalization; Part 2: Feature Scaling; Part 2: Handling Missing Values). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Data preparation.",
+        "Explain how the lab applies Data Preprocessing - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Preprocessing - Part 2' on a prepared training sample through this task: Part 2 hands-on: Data preparation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Data preparation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Cleaning; Part 2: Normalization; Part 2: Feature Scaling; Part 2: Handling Missing Values) and demonstrate the starting sample for: Part 2 hands-on: Data preparation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Data preparation",
+          "evidence": "Participant submission for 'Data Preprocessing - Part 2': Part 2 hands-on: Data preparation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Data preparation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Data preparation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Cleaning; Part 2: Normalization; Part 2: Feature Scaling; Part 2: Handling Missing Values). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 5,
@@ -88,7 +280,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Sprint planning; review progress for Feature Engineering",
-      "lab_task": "Build features"
+      "lab_task": "Build features",
+      "deliverable": "Participant submission for 'Feature Engineering': Build features. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build features. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Feature Selection; Feature Creation; Encoding; Scaling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build features.",
+        "Explain how the lab applies Feature Engineering and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Feature Engineering' on a prepared training sample through this task: Build features.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build features",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Feature Selection; Feature Creation; Encoding; Scaling) and demonstrate the starting sample for: Build features",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build features",
+          "evidence": "Participant submission for 'Feature Engineering': Build features. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build features' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build features. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Feature Selection; Feature Creation; Encoding; Scaling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 6,
@@ -103,7 +343,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Build features"
+      "lab_task": "Part 2 hands-on: Build features",
+      "deliverable": "Participant submission for 'Feature Engineering - Part 2': Part 2 hands-on: Build features. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Build features. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Feature Selection; Part 2: Feature Creation; Part 2: Encoding; Part 2: Scaling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Build features.",
+        "Explain how the lab applies Feature Engineering - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Feature Engineering - Part 2' on a prepared training sample through this task: Part 2 hands-on: Build features.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Build features",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Feature Selection; Part 2: Feature Creation; Part 2: Encoding; Part 2: Scaling) and demonstrate the starting sample for: Part 2 hands-on: Build features",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Build features",
+          "evidence": "Participant submission for 'Feature Engineering - Part 2': Part 2 hands-on: Build features. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Build features' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Build features. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Feature Selection; Part 2: Feature Creation; Part 2: Encoding; Part 2: Scaling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 7,
@@ -117,7 +405,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Regression models"
+      "lab_task": "Regression models",
+      "deliverable": "Participant submission for 'Linear Regression': Regression models. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Regression models. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Simple/Multiple Regression; Regularization; Evaluation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Regression models.",
+        "Explain how the lab applies Linear Regression and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Linear Regression' on a prepared training sample through this task: Regression models.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Regression models",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Simple/Multiple Regression; Regularization; Evaluation) and demonstrate the starting sample for: Regression models",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Regression models",
+          "evidence": "Participant submission for 'Linear Regression': Regression models. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Regression models' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Regression models. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Simple/Multiple Regression; Regularization; Evaluation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 8,
@@ -131,7 +467,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Regression models"
+      "lab_task": "Part 2 hands-on: Regression models",
+      "deliverable": "Participant submission for 'Linear Regression - Part 2': Part 2 hands-on: Regression models. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Regression models. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Simple/Multiple Regression; Part 2: Regularization; Part 2: Evaluation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Regression models.",
+        "Explain how the lab applies Linear Regression - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Linear Regression - Part 2' on a prepared training sample through this task: Part 2 hands-on: Regression models.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Regression models",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Simple/Multiple Regression; Part 2: Regularization; Part 2: Evaluation) and demonstrate the starting sample for: Part 2 hands-on: Regression models",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Regression models",
+          "evidence": "Participant submission for 'Linear Regression - Part 2': Part 2 hands-on: Regression models. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Regression models' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Regression models. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Simple/Multiple Regression; Part 2: Regularization; Part 2: Evaluation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 9,
@@ -145,7 +529,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Binary classification"
+      "lab_task": "Binary classification",
+      "deliverable": "Participant submission for 'Logistic Regression': Binary classification. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Binary classification. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Classification; Decision Boundary; Probability). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Binary classification.",
+        "Explain how the lab applies Logistic Regression and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Logistic Regression' on a prepared training sample through this task: Binary classification.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Binary classification",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Classification; Decision Boundary; Probability) and demonstrate the starting sample for: Binary classification",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Binary classification",
+          "evidence": "Participant submission for 'Logistic Regression': Binary classification. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Binary classification' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Binary classification. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Classification; Decision Boundary; Probability). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 10,
@@ -159,7 +591,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Sprint planning; review progress for Logistic Regression",
-      "lab_task": "Part 2 hands-on: Binary classification"
+      "lab_task": "Part 2 hands-on: Binary classification",
+      "deliverable": "Participant submission for 'Logistic Regression - Part 2': Part 2 hands-on: Binary classification. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Binary classification. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Classification; Part 2: Decision Boundary; Part 2: Probability). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Binary classification.",
+        "Explain how the lab applies Logistic Regression - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Logistic Regression - Part 2' on a prepared training sample through this task: Part 2 hands-on: Binary classification.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Binary classification",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Classification; Part 2: Decision Boundary; Part 2: Probability) and demonstrate the starting sample for: Part 2 hands-on: Binary classification",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Binary classification",
+          "evidence": "Participant submission for 'Logistic Regression - Part 2': Part 2 hands-on: Binary classification. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Binary classification' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Binary classification. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Classification; Part 2: Decision Boundary; Part 2: Probability). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 11,
@@ -174,7 +654,55 @@
         "LightGBM"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Ensemble methods"
+      "lab_task": "Ensemble methods",
+      "deliverable": "Participant submission for 'Decision Trees & Ensemble': Ensemble methods. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Ensemble methods. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Decision Trees; Random Forest; Gradient Boosting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Ensemble methods.",
+        "Explain how the lab applies Decision Trees & Ensemble and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Decision Trees & Ensemble' on a prepared training sample through this task: Ensemble methods.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Ensemble methods",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Decision Trees; Random Forest; Gradient Boosting) and demonstrate the starting sample for: Ensemble methods",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Ensemble methods",
+          "evidence": "Participant submission for 'Decision Trees & Ensemble': Ensemble methods. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Ensemble methods' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Ensemble methods. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Decision Trees; Random Forest; Gradient Boosting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 12,
@@ -189,7 +717,55 @@
         "LightGBM"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Ensemble methods"
+      "lab_task": "Part 2 hands-on: Ensemble methods",
+      "deliverable": "Participant submission for 'Decision Trees & Ensemble - Part 2': Part 2 hands-on: Ensemble methods. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Ensemble methods. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Decision Trees; Part 2: Random Forest; Part 2: Gradient Boosting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Ensemble methods.",
+        "Explain how the lab applies Decision Trees & Ensemble - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Decision Trees & Ensemble - Part 2' on a prepared training sample through this task: Part 2 hands-on: Ensemble methods.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Ensemble methods",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Decision Trees; Part 2: Random Forest; Part 2: Gradient Boosting) and demonstrate the starting sample for: Part 2 hands-on: Ensemble methods",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Ensemble methods",
+          "evidence": "Participant submission for 'Decision Trees & Ensemble - Part 2': Part 2 hands-on: Ensemble methods. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Ensemble methods' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Ensemble methods. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Decision Trees; Part 2: Random Forest; Part 2: Gradient Boosting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 13,
@@ -203,7 +779,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "SVM and KNN"
+      "lab_task": "SVM and KNN",
+      "deliverable": "Participant submission for 'SVM & KNN': SVM and KNN. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: SVM and KNN. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Support Vector Machines; K-Nearest Neighbors; Kernel Tricks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: SVM and KNN.",
+        "Explain how the lab applies SVM & KNN and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SVM & KNN' on a prepared training sample through this task: SVM and KNN.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: SVM and KNN",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Support Vector Machines; K-Nearest Neighbors; Kernel Tricks) and demonstrate the starting sample for: SVM and KNN",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "SVM and KNN",
+          "evidence": "Participant submission for 'SVM & KNN': SVM and KNN. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'SVM and KNN' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: SVM and KNN. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Support Vector Machines; K-Nearest Neighbors; Kernel Tricks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 14,
@@ -217,7 +841,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: SVM and KNN"
+      "lab_task": "Part 2 hands-on: SVM and KNN",
+      "deliverable": "Participant submission for 'SVM & KNN - Part 2': Part 2 hands-on: SVM and KNN. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: SVM and KNN. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Support Vector Machines; Part 2: K-Nearest Neighbors; Part 2: Kernel Tricks). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: SVM and KNN.",
+        "Explain how the lab applies SVM & KNN - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SVM & KNN - Part 2' on a prepared training sample through this task: Part 2 hands-on: SVM and KNN.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: SVM and KNN",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Support Vector Machines; Part 2: K-Nearest Neighbors; Part 2: Kernel Tricks) and demonstrate the starting sample for: Part 2 hands-on: SVM and KNN",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: SVM and KNN",
+          "evidence": "Participant submission for 'SVM & KNN - Part 2': Part 2 hands-on: SVM and KNN. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: SVM and KNN' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: SVM and KNN. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Support Vector Machines; Part 2: K-Nearest Neighbors; Part 2: Kernel Tricks). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 15,
@@ -232,7 +904,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Sprint planning; review progress for Clustering",
-      "lab_task": "Unsupervised learning"
+      "lab_task": "Unsupervised learning",
+      "deliverable": "Participant submission for 'Clustering': Unsupervised learning. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Unsupervised learning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (K-Means; Hierarchical; DBSCAN; Evaluation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Unsupervised learning.",
+        "Explain how the lab applies Clustering and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Clustering' on a prepared training sample through this task: Unsupervised learning.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Unsupervised learning",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (K-Means; Hierarchical; DBSCAN; Evaluation) and demonstrate the starting sample for: Unsupervised learning",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Unsupervised learning",
+          "evidence": "Participant submission for 'Clustering': Unsupervised learning. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Unsupervised learning' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Unsupervised learning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (K-Means; Hierarchical; DBSCAN; Evaluation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 16,
@@ -247,7 +967,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Unsupervised learning"
+      "lab_task": "Part 2 hands-on: Unsupervised learning",
+      "deliverable": "Participant submission for 'Clustering - Part 2': Part 2 hands-on: Unsupervised learning. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Unsupervised learning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: K-Means; Part 2: Hierarchical; Part 2: DBSCAN; Part 2: Evaluation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Unsupervised learning.",
+        "Explain how the lab applies Clustering - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Clustering - Part 2' on a prepared training sample through this task: Part 2 hands-on: Unsupervised learning.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Unsupervised learning",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: K-Means; Part 2: Hierarchical; Part 2: DBSCAN; Part 2: Evaluation) and demonstrate the starting sample for: Part 2 hands-on: Unsupervised learning",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Unsupervised learning",
+          "evidence": "Participant submission for 'Clustering - Part 2': Part 2 hands-on: Unsupervised learning. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Unsupervised learning' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Unsupervised learning. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: K-Means; Part 2: Hierarchical; Part 2: DBSCAN; Part 2: Evaluation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 17,
@@ -262,7 +1030,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Dimensionality reduction"
+      "lab_task": "Dimensionality reduction",
+      "deliverable": "Participant submission for 'Dimensionality Reduction': Dimensionality reduction. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Dimensionality reduction. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (PCA; t-SNE; UMAP; Feature Selection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Dimensionality reduction.",
+        "Explain how the lab applies Dimensionality Reduction and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Dimensionality Reduction' on a prepared training sample through this task: Dimensionality reduction.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Dimensionality reduction",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (PCA; t-SNE; UMAP; Feature Selection) and demonstrate the starting sample for: Dimensionality reduction",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Dimensionality reduction",
+          "evidence": "Participant submission for 'Dimensionality Reduction': Dimensionality reduction. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Dimensionality reduction' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Dimensionality reduction. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (PCA; t-SNE; UMAP; Feature Selection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 18,
@@ -277,7 +1093,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Dimensionality reduction"
+      "lab_task": "Part 2 hands-on: Dimensionality reduction",
+      "deliverable": "Participant submission for 'Dimensionality Reduction - Part 2': Part 2 hands-on: Dimensionality reduction. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Dimensionality reduction. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: PCA; Part 2: t-SNE; Part 2: UMAP; Part 2: Feature Selection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Dimensionality reduction.",
+        "Explain how the lab applies Dimensionality Reduction - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Dimensionality Reduction - Part 2' on a prepared training sample through this task: Part 2 hands-on: Dimensionality reduction.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Dimensionality reduction",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: PCA; Part 2: t-SNE; Part 2: UMAP; Part 2: Feature Selection) and demonstrate the starting sample for: Part 2 hands-on: Dimensionality reduction",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Dimensionality reduction",
+          "evidence": "Participant submission for 'Dimensionality Reduction - Part 2': Part 2 hands-on: Dimensionality reduction. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Dimensionality reduction' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Dimensionality reduction. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: PCA; Part 2: t-SNE; Part 2: UMAP; Part 2: Feature Selection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 19,
@@ -293,7 +1157,55 @@
         "Keras"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Build neural networks"
+      "lab_task": "Build neural networks",
+      "deliverable": "Participant submission for 'Neural Networks': Build neural networks. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build neural networks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Perceptrons; Backpropagation; Activation Functions; Layers). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build neural networks.",
+        "Explain how the lab applies Neural Networks and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Neural Networks' on a prepared training sample through this task: Build neural networks.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build neural networks",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Perceptrons; Backpropagation; Activation Functions; Layers) and demonstrate the starting sample for: Build neural networks",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build neural networks",
+          "evidence": "Participant submission for 'Neural Networks': Build neural networks. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build neural networks' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build neural networks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Perceptrons; Backpropagation; Activation Functions; Layers). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 20,
@@ -309,7 +1221,55 @@
         "Keras"
       ],
       "jira_focus": "Sprint planning; review progress for Neural Networks",
-      "lab_task": "Part 2 hands-on: Build neural networks"
+      "lab_task": "Part 2 hands-on: Build neural networks",
+      "deliverable": "Participant submission for 'Neural Networks - Part 2': Part 2 hands-on: Build neural networks. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Build neural networks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Perceptrons; Part 2: Backpropagation; Part 2: Activation Functions; Part 2: Layers). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Build neural networks.",
+        "Explain how the lab applies Neural Networks - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Neural Networks - Part 2' on a prepared training sample through this task: Part 2 hands-on: Build neural networks.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Build neural networks",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Perceptrons; Part 2: Backpropagation; Part 2: Activation Functions; Part 2: Layers) and demonstrate the starting sample for: Part 2 hands-on: Build neural networks",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Build neural networks",
+          "evidence": "Participant submission for 'Neural Networks - Part 2': Part 2 hands-on: Build neural networks. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Build neural networks' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Build neural networks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Perceptrons; Part 2: Backpropagation; Part 2: Activation Functions; Part 2: Layers). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 21,
@@ -324,7 +1284,55 @@
         "PyTorch"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Image classification"
+      "lab_task": "Image classification",
+      "deliverable": "Participant submission for 'CNN for Images': Image classification. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Image classification. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Convolutional Layers; Pooling; Architecture). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Image classification.",
+        "Explain how the lab applies CNN for Images and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CNN for Images' on a prepared training sample through this task: Image classification.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Image classification",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Convolutional Layers; Pooling; Architecture) and demonstrate the starting sample for: Image classification",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Image classification",
+          "evidence": "Participant submission for 'CNN for Images': Image classification. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Image classification' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Image classification. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Convolutional Layers; Pooling; Architecture). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 22,
@@ -339,7 +1347,55 @@
         "PyTorch"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Image classification"
+      "lab_task": "Part 2 hands-on: Image classification",
+      "deliverable": "Participant submission for 'CNN for Images - Part 2': Part 2 hands-on: Image classification. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Image classification. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Convolutional Layers; Part 2: Pooling; Part 2: Architecture). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Image classification.",
+        "Explain how the lab applies CNN for Images - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CNN for Images - Part 2' on a prepared training sample through this task: Part 2 hands-on: Image classification.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Image classification",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Convolutional Layers; Part 2: Pooling; Part 2: Architecture) and demonstrate the starting sample for: Part 2 hands-on: Image classification",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Image classification",
+          "evidence": "Participant submission for 'CNN for Images - Part 2': Part 2 hands-on: Image classification. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Image classification' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Image classification. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Convolutional Layers; Part 2: Pooling; Part 2: Architecture). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 23,
@@ -355,7 +1411,55 @@
         "NLTK"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Natural language processing"
+      "lab_task": "Natural language processing",
+      "deliverable": "Participant submission for 'RNN & NLP': Natural language processing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Natural language processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RNN; LSTM; Transformers; Text Processing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Natural language processing.",
+        "Explain how the lab applies RNN & NLP and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'RNN & NLP' on a prepared training sample through this task: Natural language processing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Natural language processing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (RNN; LSTM; Transformers; Text Processing) and demonstrate the starting sample for: Natural language processing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Natural language processing",
+          "evidence": "Participant submission for 'RNN & NLP': Natural language processing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Natural language processing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Natural language processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RNN; LSTM; Transformers; Text Processing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 24,
@@ -371,7 +1475,55 @@
         "NLTK"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Natural language processing"
+      "lab_task": "Part 2 hands-on: Natural language processing",
+      "deliverable": "Participant submission for 'RNN & NLP - Part 2': Part 2 hands-on: Natural language processing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Natural language processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: RNN; Part 2: LSTM; Part 2: Transformers; Part 2: Text Processing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Natural language processing.",
+        "Explain how the lab applies RNN & NLP - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'RNN & NLP - Part 2' on a prepared training sample through this task: Part 2 hands-on: Natural language processing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Natural language processing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: RNN; Part 2: LSTM; Part 2: Transformers; Part 2: Text Processing) and demonstrate the starting sample for: Part 2 hands-on: Natural language processing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Natural language processing",
+          "evidence": "Participant submission for 'RNN & NLP - Part 2': Part 2 hands-on: Natural language processing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Natural language processing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Natural language processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: RNN; Part 2: LSTM; Part 2: Transformers; Part 2: Text Processing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 25,
@@ -386,7 +1538,55 @@
         "Ray"
       ],
       "jira_focus": "Sprint planning; review progress for Hyperparameter Tuning",
-      "lab_task": "Model optimization"
+      "lab_task": "Model optimization",
+      "deliverable": "Participant submission for 'Hyperparameter Tuning': Model optimization. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Model optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Grid Search; Random Search; Bayesian Optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Model optimization.",
+        "Explain how the lab applies Hyperparameter Tuning and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Hyperparameter Tuning' on a prepared training sample through this task: Model optimization.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model optimization",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Grid Search; Random Search; Bayesian Optimization) and demonstrate the starting sample for: Model optimization",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Model optimization",
+          "evidence": "Participant submission for 'Hyperparameter Tuning': Model optimization. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Model optimization' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Model optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Grid Search; Random Search; Bayesian Optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 26,
@@ -401,7 +1601,55 @@
         "Ray"
       ],
       "jira_focus": "Log time on stories",
-      "lab_task": "Part 2 hands-on: Model optimization"
+      "lab_task": "Part 2 hands-on: Model optimization",
+      "deliverable": "Participant submission for 'Hyperparameter Tuning - Part 2': Part 2 hands-on: Model optimization. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Model optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Grid Search; Part 2: Random Search; Part 2: Bayesian Optimization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Model optimization.",
+        "Explain how the lab applies Hyperparameter Tuning - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Hyperparameter Tuning - Part 2' on a prepared training sample through this task: Part 2 hands-on: Model optimization.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Model optimization",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Grid Search; Part 2: Random Search; Part 2: Bayesian Optimization) and demonstrate the starting sample for: Part 2 hands-on: Model optimization",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Model optimization",
+          "evidence": "Participant submission for 'Hyperparameter Tuning - Part 2': Part 2 hands-on: Model optimization. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Model optimization' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Model optimization. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Grid Search; Part 2: Random Search; Part 2: Bayesian Optimization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 27,
@@ -417,7 +1665,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Move cards to In Progress/Done",
-      "lab_task": "Model evaluation"
+      "lab_task": "Model evaluation",
+      "deliverable": "Participant submission for 'Model Evaluation & Metrics': Model evaluation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Model evaluation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Precision; Recall; F1; ROC-AUC; Cross-validation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Model evaluation.",
+        "Explain how the lab applies Model Evaluation & Metrics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Model Evaluation & Metrics' on a prepared training sample through this task: Model evaluation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model evaluation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Precision; Recall; F1; ROC-AUC; Cross-validation) and demonstrate the starting sample for: Model evaluation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Model evaluation",
+          "evidence": "Participant submission for 'Model Evaluation & Metrics': Model evaluation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Model evaluation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Model evaluation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Precision; Recall; F1; ROC-AUC; Cross-validation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 28,
@@ -433,7 +1729,55 @@
         "Scikit-learn"
       ],
       "jira_focus": "Add comments with build links",
-      "lab_task": "Part 2 hands-on: Model evaluation"
+      "lab_task": "Part 2 hands-on: Model evaluation",
+      "deliverable": "Participant submission for 'Model Evaluation & Metrics - Part 2': Part 2 hands-on: Model evaluation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Part 2 hands-on: Model evaluation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Precision; Part 2: Recall; Part 2: F1; Part 2: ROC-AUC; Part 2: Cross-validation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Part 2 hands-on: Model evaluation.",
+        "Explain how the lab applies Model Evaluation & Metrics - Part 2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Model Evaluation & Metrics - Part 2' on a prepared training sample through this task: Part 2 hands-on: Model evaluation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Part 2 hands-on: Model evaluation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Part 2: Precision; Part 2: Recall; Part 2: F1; Part 2: ROC-AUC; Part 2: Cross-validation) and demonstrate the starting sample for: Part 2 hands-on: Model evaluation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Part 2 hands-on: Model evaluation",
+          "evidence": "Participant submission for 'Model Evaluation & Metrics - Part 2': Part 2 hands-on: Model evaluation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Part 2 hands-on: Model evaluation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Part 2 hands-on: Model evaluation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Part 2: Precision; Part 2: Recall; Part 2: F1; Part 2: ROC-AUC; Part 2: Cross-validation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 29,
@@ -449,7 +1793,55 @@
         "Docker"
       ],
       "jira_focus": "Update sprint board",
-      "lab_task": "Production models"
+      "lab_task": "Production models",
+      "deliverable": "Participant submission for 'Deployment & MLOps': Production models. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Production models. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Model Serving; Containers; Monitoring; Retraining). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Production models.",
+        "Explain how the lab applies Deployment & MLOps and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Deployment & MLOps' on a prepared training sample through this task: Production models.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Production models",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Model Serving; Containers; Monitoring; Retraining) and demonstrate the starting sample for: Production models",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Production models",
+          "evidence": "Participant submission for 'Deployment & MLOps': Production models. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Production models' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Production models. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Model Serving; Containers; Monitoring; Retraining). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     },
     {
       "day": 30,
@@ -465,7 +1857,55 @@
         "Docker"
       ],
       "jira_focus": "Sprint planning; review progress for Deployment & MLOps",
-      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review"
+      "lab_task": "Final project implementation, demo, retrospective, and certification roadmap review",
+      "deliverable": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Model Serving; Containers; Monitoring; Retraining). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Final project implementation, demo, retrospective, and certification roadmap review.",
+        "Explain how the lab applies Capstone Project - Part 2 + Certification Roadmap and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Capstone Project - Part 2 + Certification Roadmap' on a prepared training sample through this task: Final project implementation, demo, retrospective, and certification roadmap review.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Final project implementation, demo, retrospective, and certification roadmap review",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Model Serving; Containers; Monitoring; Retraining) and demonstrate the starting sample for: Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Final project implementation, demo, retrospective, and certification roadmap review",
+          "evidence": "Participant submission for 'Capstone Project - Part 2 + Certification Roadmap': Final project implementation, demo, retrospective, and certification roadmap review. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Final project implementation, demo, retrospective, and certification roadmap review' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Final project implementation, demo, retrospective, and certification roadmap review. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Model Serving; Containers; Monitoring; Retraining). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
     }
   ],
   "aliases": [
@@ -482,5 +1922,10 @@
     "https://scikit-learn.org/stable/model_selection",
     "https://pandas.pydata.org/docs/user_guide/"
   ],
-  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits."
+  "official_alignment_note": "Topics were aligned against official/vendor documentation anchors where available; use these URLs for future syllabus audits.",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

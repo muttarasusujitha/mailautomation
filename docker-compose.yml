@@ -13,6 +13,14 @@ services:
       VITE_API_PROXY_REWRITE_TO_V1: "true"
     ports:
       - "5174:5174"
+    volumes:
+      - ./frontend/src/pages/Admin.jsx:/app/src/pages/Admin.jsx:ro
+      - ./frontend/src/pages/Inbox.jsx:/app/src/pages/Inbox.jsx:ro
+      - ./frontend/src/pages/GmailCallback.jsx:/app/src/pages/GmailCallback.jsx:ro
+      - ./frontend/src/pages/LinkedInSearch.jsx:/app/src/pages/LinkedInSearch.jsx:ro
+      - ./frontend/src/pages/ClientRequests.jsx:/app/src/pages/ClientRequests.jsx:ro
+      - ./frontend/src/components/LeadBot.jsx:/app/src/components/LeadBot.jsx:ro
+      - ./frontend/src/utils/leadSearchFeedback.js:/app/src/utils/leadSearchFeedback.js:ro
     networks:
       - trainersync
 

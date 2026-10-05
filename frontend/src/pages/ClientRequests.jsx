@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createRequestGate } from '../utils/requestPolicy'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
@@ -20,8 +21,7 @@ const FILTERS = [
   { key: 'spam', label: 'Spam' },
 ]
 
-const REQUEST_REFRESH_INTERVAL_MS = 5000
-const INBOX_AUTO_SYNC_INTERVAL_MS = 30000
+const REQUEST_REFRESH_INTERVAL_MS = 15000
 
 const STATUS_META = {
   pending_approval: { label: 'Pending Approval', tone: 'amber' },
@@ -230,6 +230,7 @@ function DetailModal({
 }) {
   const [trainerMails, setTrainerMails] = useState([])
   const [loadingMails, setLoadingMails] = useState(false)
+  const detailScrollRef = useRef(null)
 
   useEffect(() => {
     let cancelled = false
@@ -262,6 +263,7 @@ function DetailModal({
   if (!request) return null
   const extracted = request.extracted || {}
   const reply = request.generated_reply || {}
+  const replyAnalysis = request.reply_analysis || reply.reply_analysis || {}
   const status = STATUS_META[request.status] || { label: request.status || 'Unknown', tone: 'slate' }
   const originalBody = firstText(
     request.clean_body,
@@ -292,8 +294,18 @@ function DetailModal({
   ].filter(Boolean).join('\n')
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[90vh] w-full max-w-5xl flex-col rounded-xl bg-white shadow-xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      onWheelCapture={(event) => {
+        const scrollArea = detailScrollRef.current
+        if (!event.deltaY || !scrollArea || scrollArea.scrollHeight <= scrollArea.clientHeight) return
+        event.preventDefault()
+        const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? scrollArea.clientHeight : 1
+        const nextScrollTop = scrollArea.scrollTop + event.deltaY * unit
+        scrollArea.scrollTop = Math.max(0, Math.min(nextScrollTop, scrollArea.scrollHeight - scrollArea.clientHeight))
+      }}
+    >
+      <div className="flex h-[90dvh] max-h-[90vh] w-full max-w-5xl flex-col rounded-xl bg-white shadow-xl">
         <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-5">
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -309,7 +321,7 @@ function DetailModal({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5">
+        <div ref={detailScrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-5">
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Requirement</p>
@@ -327,9 +339,9 @@ function DetailModal({
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 md:col-span-2">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Original Email</p>
               <p className="mt-2 text-sm font-semibold text-slate-900">{request.subject}</p>
-              <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-white p-3 text-sm leading-6 text-slate-700">
+              <div className="mt-3 max-w-full overflow-visible whitespace-pre-wrap break-words rounded-lg bg-white p-3 font-mono text-sm leading-6 text-slate-700">
                 {originalBody || capturedSummary || 'No email body captured in this stored email record.'}
-              </pre>
+              </div>
             </div>
           </div>
 
@@ -357,6 +369,29 @@ function DetailModal({
             <pre className="mt-3 whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-700">
               {reply.body || 'No generated reply available.'}
             </pre>
+            {replyAnalysis.sender_intent && (
+              <details className="mt-3 rounded-lg border border-violet-100 bg-violet-50/60 p-3">
+                <summary className="cursor-pointer text-xs font-semibold text-violet-800">Why this reply</summary>
+                <div className="mt-3 grid gap-3 text-sm text-slate-700 md:grid-cols-2">
+                  <p><strong>Sender intent:</strong> {replyAnalysis.sender_intent}</p>
+                  <p><strong>Observed tone:</strong> {replyAnalysis.observed_tone}</p>
+                  <p><strong>Conversation stage:</strong> {replyAnalysis.communication_stage}</p>
+                  <p><strong>Reply strategy:</strong> {replyAnalysis.reply_strategy}</p>
+                  {replyAnalysis.needs_human_review && (
+                    <p className="font-semibold text-amber-800 md:col-span-2">Manual review: {replyAnalysis.human_review_reason || 'The message needs a human review before sending.'}</p>
+                  )}
+                  {Array.isArray(replyAnalysis.verified_facts) && replyAnalysis.verified_facts.length > 0 && (
+                    <div><strong>Facts used:</strong><ul className="mt-1 list-disc pl-5">{replyAnalysis.verified_facts.map((fact, i) => <li key={`fact-${i}`}>{fact}</li>)}</ul></div>
+                  )}
+                  {Array.isArray(replyAnalysis.unresolved_questions) && replyAnalysis.unresolved_questions.length > 0 && (
+                    <div><strong>Still needs confirmation:</strong><ul className="mt-1 list-disc pl-5">{replyAnalysis.unresolved_questions.map((item, i) => <li key={`question-${i}`}>{item}</li>)}</ul></div>
+                  )}
+                  {Array.isArray(replyAnalysis.commitments_to_avoid) && replyAnalysis.commitments_to_avoid.length > 0 && (
+                    <div className="md:col-span-2"><strong>Guardrails:</strong><ul className="mt-1 list-disc pl-5">{replyAnalysis.commitments_to_avoid.map((item, i) => <li key={`guard-${i}`}>{item}</li>)}</ul></div>
+                  )}
+                </div>
+              </details>
+            )}
           </div>
 
           <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
@@ -490,27 +525,25 @@ export default function ClientRequests() {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
   const autoSyncRunningRef = useRef(false)
-  const requestLoadRunningRef = useRef(false)
-  const requestAbortRef = useRef(null)
+  const requestGate = useRef(createRequestGate())
 
   const loadRequests = async (silent = false) => {
-    if (requestLoadRunningRef.current) return
-    requestLoadRunningRef.current = true
+    if (silent && document.hidden) return
+    const request = requestGate.current.start({ supersede: !silent })
+    if (!request) return
     if (!silent) setLoading(true)
     if (!silent) setLoadError('')
-    requestAbortRef.current?.abort()
-    const controller = new AbortController()
-    requestAbortRef.current = controller
     try {
       const [requestsResult, updatesResult] = await Promise.allSettled([
         api.get('/inbox', {
           params: { status: filter === 'all' ? '' : filter, include_hidden: false, limit: 80 },
           timeout: 20000,
-          signal: controller.signal,
+          signal: request.signal,
+          retry: false,
         }),
-        api.get('/client-updates', { params: { limit: 25 }, timeout: 20000, signal: controller.signal }),
+        api.get('/client-updates', { params: { limit: 25 }, timeout: 20000, signal: request.signal, retry: false }),
       ])
-      if (controller.signal.aborted) return
+      if (!request.isCurrent()) return
       const errors = []
       if (requestsResult.status === 'fulfilled') {
         const requestsRes = requestsResult.value
@@ -528,11 +561,11 @@ export default function ClientRequests() {
         const message = `Could not load ${errors.join(' and ')}. Check the connection and retry.`
         setLoadError(message)
         if (!silent) toast.error(message)
+      } else {
+        setLoadError('')
       }
     } finally {
-      if (requestAbortRef.current === controller) requestAbortRef.current = null
-      requestLoadRunningRef.current = false
-      if (!silent && !controller.signal.aborted) setLoading(false)
+      if (request.isCurrent()) { if (!silent) setLoading(false); request.finish() }
     }
   }
 
@@ -546,7 +579,7 @@ export default function ClientRequests() {
         window.clearInterval(refreshInterval.current)
         refreshInterval.current = null
       }
-      requestAbortRef.current?.abort()
+      requestGate.current.cancel()
     }
   }, [filter])
 
@@ -579,12 +612,9 @@ export default function ClientRequests() {
     }
   }
 
-  useEffect(() => {
-    const runAutoSync = () => syncNow(true)
-    runAutoSync()
-    const interval = window.setInterval(runAutoSync, INBOX_AUTO_SYNC_INTERVAL_MS)
-    return () => window.clearInterval(interval)
-  }, [])
+  // Gmail sync is manual so clearing the workspace does not immediately
+  // repopulate it from the connected mailbox. Use “Check Inbox Now” when a
+  // deliberate sync is needed.
 
   const retryClientUpdate = async item => {
     if (!item?.email_id || retryingUpdateId) return
@@ -651,10 +681,10 @@ export default function ClientRequests() {
       const res = await api.post(`/inbox/${item.email_id}/regenerate-reply`, {})
       const generatedReply = res.data?.generated_reply || {}
       setSelected(current => current?.email_id === item.email_id
-        ? { ...current, generated_reply: generatedReply, ai_reply: res.data?.reply || generatedReply.body, status: 'pending_approval' }
+        ? { ...current, generated_reply: generatedReply, reply_analysis: res.data?.reply_analysis || generatedReply.reply_analysis, ai_reply: res.data?.reply || generatedReply.body, status: 'pending_approval' }
         : current)
       setRequests(current => current.map(request => request.email_id === item.email_id
-        ? { ...request, generated_reply: generatedReply, ai_reply: res.data?.reply || generatedReply.body, status: 'pending_approval' }
+        ? { ...request, generated_reply: generatedReply, reply_analysis: res.data?.reply_analysis || generatedReply.reply_analysis, ai_reply: res.data?.reply || generatedReply.body, status: 'pending_approval' }
         : request))
       toast.success('AI reply draft generated. Review it before sending.')
     } catch (e) {

@@ -184,9 +184,9 @@ def _client_short_requirement_ack(
     missing = "" if has_profile_request else (_missing_lines(extracted) or extra_text.strip())
     opening = _clean(
         intro,
-        "Thank you for the detailed brief."
+        "Thank you for sharing the requirement."
         if missing
-        else f"Thank you for outlining the {tech} requirement so clearly.",
+        else f"Thank you for sharing the {tech} requirement.",
     )
     if missing:
         body = (
@@ -199,9 +199,8 @@ def _client_short_requirement_ack(
     else:
         body = (
             f"Dear {greeting},\n\n"
-            f"{opening} We are reviewing suitable {tech} trainers for the engagement and will share the most relevant options shortly. "
-            f"Our response will include the requested {items}, together with a day-wise agenda and practical lab plan.\n\n"
-            "We will ensure that the recommendations are aligned to your schedule and delivery format before sending them across.\n\n"
+            f"{opening}\n\n"
+            f"We will review suitable {tech} trainers and share the requested {items}.\n\n"
             f"{CLIENT_SIGNATURE}"
         )
     return _reply(f"Re: {tech} Trainer Requirement", body, template_key)
@@ -799,8 +798,7 @@ def build_auto_reply(
 
     if scenario == "client_thanks":
         return _client_simple_reply(client, tech, subject, [
-            "Thank you for the confirmation.",
-            "We have noted your message and will proceed with the next steps as applicable.",
+            "You're welcome.",
         ], "client_thanks_ack")
 
     if scenario in CONSULTANCY_REPLY_LINES:
