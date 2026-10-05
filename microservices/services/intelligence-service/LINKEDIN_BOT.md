@@ -101,7 +101,11 @@ scheduling (up to 30 seconds of polling delay). Trainer collection stays hourly.
 
 Trainer discovery reads people search across result pages, using plain keywords
 such as "DevOps trainer", then a short content fallback when more profiles are
-still needed. Matches already collected are kept if a later page slows down.
+still needed. A match is taken from the whole profile card, including the
+headline, not from the name link alone. Two people-search pages that do not
+open switch to that fallback instead of waiting until the time limit.
+Client posts keep the activity link when the copy-link menu is missing, so one
+card cannot abort the scan. Matches already collected are kept if a later page slows down.
 The account request allows about 110 seconds including browser startup and cleanup.
 It saves at most 50 cards per domain within the requested total. Only one fetch uses the
 profile at once. Login, checkpoints, rate limits and unrecognized result layouts
