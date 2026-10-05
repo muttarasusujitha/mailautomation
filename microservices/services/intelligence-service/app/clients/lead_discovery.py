@@ -41,7 +41,7 @@ async def discover(domain, mode, target, location=''):
     queries = public_queries(domain, mode, location)
     for start in range(0, len(queries), 2):
         batch = queries[start:start + 2]
-        outcomes = await asyncio.gather(*(asyncio.wait_for(search_public(q, 20), timeout=5) for q in batch), return_exceptions=True)
+        outcomes = await asyncio.gather(*(asyncio.wait_for(search_public(q, 20), timeout=12) for q in batch), return_exceptions=True)
         attempts += len(batch)
         for outcome in outcomes:
             if isinstance(outcome, BaseException):
@@ -59,7 +59,7 @@ async def discover(domain, mode, target, location=''):
             # People search paginates inside this budget. Keep every profile
             # appended before a timeout, including when the browser is cancelled.
             accept(await asyncio.wait_for(
-                search_linkedin_account(domain, mode, target, location, collected), timeout=260), 'linkedin_account')
+                search_linkedin_account(domain, mode, target, location, collected), timeout=300), 'linkedin_account')
         except Exception as exc:
             accept(getattr(exc, 'results', None) or collected, 'linkedin_account')
             # Account verification is the actionable blocker. Put it first for
