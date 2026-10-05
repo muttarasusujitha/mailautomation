@@ -99,8 +99,11 @@ paused bots. Runs use a lease
 to prevent overlap and a 240-second scan timeout, with ten-minute start-to-start
 scheduling (up to 30 seconds of polling delay). Trainer collection stays hourly.
 
-Trainer discovery reads people search, then a content fallback with a 50-second
-budget; the outer browser request allows 100 seconds for navigation and cleanup.
+Trainer discovery reads people search across result pages, using plain keywords
+such as "DevOps trainer" or "soft skills trainer", then a short post fallback only
+when that search contributed no profiles. Matches already collected are kept if a
+later page slows down. The account request allows about 120 seconds including
+browser startup and cleanup.
 It saves at most 50 cards per domain within the requested total. Only one fetch uses the
 profile at once. Login, checkpoints, rate limits and unrecognized result layouts
 produce explicit errors. The bot does not bypass them or switch to a paid API.
