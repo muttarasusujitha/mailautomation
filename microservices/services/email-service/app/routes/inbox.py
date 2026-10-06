@@ -24,6 +24,7 @@ from pymongo.errors import DuplicateKeyError
 
 from app.config import get_settings
 from app.agents.email_classifier import SAFETY_SCENARIOS, classify_email
+from app.agents.murali_voice import SIGNATURE, apply_murali_voice
 from app.agents.reply_templates import build_auto_reply
 from app.calendar_client import (
     add_google_calendar_attendees,
@@ -1815,8 +1816,8 @@ async def _humanize_verified_client_reply(
             subject=subject,
             body=body,
             hint=(
-                "Rewrite the verified reference as a natural human-to-human email from Clahan Technologies, using "
-                "the concise Clahan/Hostinger sent-mail style. "
+                "Rewrite the verified reference as a natural human-to-human email in Murali Mohan M's voice. "
+                "Use Hello, short sentences, Thanks for or Please share, and sign Thanks and Regards, Murali Mohan M. "
                 "Preserve every business fact and restriction. Answer directly, choose vocabulary appropriate to "
                 "the sender, and make the length proportional to the incoming message. Do not make it sound like "
                 "a fixed template and do not add facts or promises."
@@ -1855,13 +1856,13 @@ async def _technology_catalogue_reply(db: AsyncIOMotorDatabase, subject: str) ->
     return {
         "subject": f"Re: {subject}" if subject else "Available Training Technologies",
         "body": (
-            "Dear Sujitha,\n\n"
-            "Thank you for your enquiry. Our primary corporate training capabilities include:\n\n"
+            "Hello Sujitha,\n\n"
+            "Thanks for your enquiry. Our primary corporate training capabilities include:\n\n"
             f"{technology_lines}\n\n"
             "We can also arrange customized corporate training based on your required technology, audience level, "
             "duration, delivery mode, and preferred dates. Please share the technology you are interested in, and "
             "we will provide the relevant course outline, trainer profile, availability, and commercials.\n\n"
-            "Best Regards,\nClahan Technologies"
+            f"{SIGNATURE}"
         ),
     }
 
@@ -2484,7 +2485,7 @@ def _client_time_greeting(name: str) -> str:
 
 
 def _reply_signature() -> str:
-    return "Best Regards,\nClahan Technologies"
+    return SIGNATURE
 
 
 def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
@@ -2627,16 +2628,16 @@ def _client_short_requirement_ack(
     technology = extracted.get("technology_needed") or "training"
     missing = _format_missing_details(extracted) if ask_missing else ""
     opening = _clean(intro) or (
-        "Thank you for sharing your training requirement."
+        "Thanks for sharing your training requirement."
         if missing
-        else f"Thank you for sharing the {technology} training requirement."
+        else f"Thanks for sharing the {technology} training requirement."
     )
     clahan_note = _lab_estimate_acknowledgement(extracted)
     if missing:
         body = (
-            "Dear Team\n\n"
+            "Hello,\n\n"
             f"{opening}\n\n"
-            "To help us refine the shortlist, please share:\n"
+            "Please share:\n"
             f"{missing}{clahan_note}\n\n"
             + _reply_signature()
         )
@@ -2647,13 +2648,13 @@ def _client_short_requirement_ack(
             else "We will check suitable trainer availability and share suitable trainer profiles with "
         )
         body = (
-            "Dear Team,\n\n"
+            "Hello,\n\n"
             f"{opening}{_confirmed_requirement_scope_acknowledgement(extracted)}\n\n"
             f"{profile_action}"
             f"{_client_requested_items_for_reply(extracted)} for your review.{clahan_note}\n\n"
             + _reply_signature()
         )
-    return {"subject": f"Re: {technology} Trainer Requirement", "body": body}
+    return {"subject": f"Re: {technology} Trainer Requirement", "body": apply_murali_voice(body)}
 
 
 def _format_missing_details(extracted: Dict[str, Any]) -> str:
@@ -2797,7 +2798,7 @@ def _trainer_mail2_details_reply(email_doc: Dict[str, Any]) -> Dict[str, str]:
         "Regards,\n"
         "Clahan Technologies"
     )
-    return {"subject": f"Training Requirement - {domain} | Additional Details Required", "body": body}
+    return {"subject": f"Training Requirement - {domain} | Additional Details Required", "body": apply_murali_voice(body)}
 
 
 def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str) -> Dict[str, str]:
@@ -2843,7 +2844,7 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         f"Reference: {requirement_id}\n\n"
         + _reply_signature()
     )
-    return {"subject": f"Corporate Training Requirement - {tech}", "body": body}
+    return {"subject": f"Corporate Training Requirement - {tech}", "body": apply_murali_voice(body)}
 
 
 def _client_email_status_for_reply(reply: dict) -> dict:

@@ -33,7 +33,10 @@ def test_missing_syllabus_preserves_actual_reply_and_review_requirement(monkeypa
         "Azure syllabus", "Can you send the Azure syllabus?", workflow_context=context,
         require_openai=True,
     ))
-    assert result == draft
+    assert result == (
+        "Hello Mira,\n\nThe Azure syllabus still needs confirmation.\n\n"
+        "Thanks and Regards,\nMurali Mohan M\nClahan Technologies"
+    )
     assert "Python" not in result
     assert "confirming the dates" not in result
     assert context["reply_analysis"]["needs_human_review"] is True
@@ -45,7 +48,7 @@ def test_brief_acknowledgement_is_not_padded_with_default_template(monkeypatch):
     result = asyncio.run(inbox_actions._ai_draft_reply(
         "Re: Schedule", "Received, thank you.", require_openai=True,
     ))
-    assert result == "Hi Team,\n\nThanks, Mira. Noted.\n\nRegards,\nClahan Technologies"
+    assert result == "Hello,\n\nThanks, Mira. Noted.\n\nThanks and Regards,\nMurali Mohan M\nClahan Technologies"
     prompt = writer.call_args.args[1]
     assert "kindly provide the following details" not in prompt
     assert "initial trainer search" not in prompt
@@ -84,7 +87,7 @@ def test_stock_closing_removed_but_substantive_answer_preserved(monkeypatch):
     result = asyncio.run(inbox_actions._ai_draft_reply(
         "Re: Invite", "Received, thank you.", require_openai=True,
     ))
-    assert result == "Hi Team,\n\nYou're welcome, Mira.\n\nRegards,\nClahan Technologies"
+    assert result == "Hello,\n\nYou're welcome, Mira.\n\nThanks and Regards,\nMurali Mohan M\nClahan Technologies"
 
 
 def test_cleanup_preserves_specific_requests_and_verified_details():
@@ -128,7 +131,7 @@ def test_repeated_ai_draft_gets_one_rewrite(monkeypatch):
         "Availability", "Any news?", require_openai=True,
         workflow_context={"recent_replies_to_this_sender": [repeated]},
     ))
-    assert result == f"Hi Team,\n\n{fresh}\n\nRegards,\nClahan Technologies"
+    assert result == f"Hello,\n\n{fresh}\n\nThanks and Regards,\nMurali Mohan M\nClahan Technologies"
     assert writer.await_count == 2
     assert "previous draft repeated a recent reply" in writer.call_args.args[1]
 
@@ -183,8 +186,8 @@ def test_generated_reply_adds_named_greeting_and_short_signature(monkeypatch):
         "Delivery mode", "Is it online?", workflow_context={"sender_name": "Mira"}, require_openai=True,
     ))
     assert result == (
-        "Hi Mira,\n\nThe session is online.\n\nPlease confirm your availability."
-        "\n\nRegards,\nClahan Technologies"
+        "Hello Mira,\n\nThe session is online.\n\nPlease confirm your availability."
+        "\n\nThanks and Regards,\nMurali Mohan M\nClahan Technologies"
     )
     assert "under 80 words" in writer.call_args.args[1]
     assert "Ask only for missing information the recipient can provide" in writer.call_args.args[1]
@@ -193,15 +196,15 @@ def test_generated_reply_adds_named_greeting_and_short_signature(monkeypatch):
 def test_structure_separates_inline_greeting_without_losing_details():
     body = "Hi Mira, The rate is INR 12,500 per day.\nJoin: https://meet.google.com/abc-defg-hij"
     result = inbox_actions._structure_email_draft(body)
-    assert result.startswith("Hi Mira,\n\nThe rate is INR 12,500 per day.")
+    assert result.startswith("Hello Mira,\n\nThe rate is INR 12,500 per day.")
     assert "Join: https://meet.google.com/abc-defg-hij" in result
-    assert result.count("Hi Mira,") == 1
-    assert result.endswith("Regards,\nClahan Technologies")
+    assert result.count("Hello Mira,") == 1
+    assert result.endswith("Thanks and Regards,\nMurali Mohan M\nClahan Technologies")
 
 
 def test_structure_does_not_create_email_from_empty_output_or_use_address_as_name():
     assert inbox_actions._structure_email_draft("") == ""
-    assert inbox_actions._structure_email_draft("Confirmed.", "mira@example.com").startswith("Hi Team,\n\n")
+    assert inbox_actions._structure_email_draft("Confirmed.", "mira@example.com").startswith("Hello,\n\n")
 
 
 def test_structure_preserves_contact_details_and_postscript():

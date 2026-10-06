@@ -15,6 +15,7 @@ from pydantic import BaseModel
 
 from shared.database.service import get_db
 from app.agents.email_classifier import classify_email
+from app.agents.murali_voice import SIGNATURE, hello_line, signature_keeping_extras
 from app.agents.reply_templates import build_auto_reply
 from app.gmail_client import generate_message_id, send_email_async
 
@@ -22,14 +23,15 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 EMAIL_WRITING_GUIDANCE = (
-    "Write like a thoughtful coordinator replying personally to this message. "
+    "Write like Murali Mohan M replying personally from Clahan Technologies. "
     "After the greeting, answer the latest request first. Use ordinary words and short sentences. "
     "Match the sender's formality; be considerate when they report a problem. "
     "Keep the body to 1-3 sentences, usually under 80 words excluding greeting and signature. "
     "Use more only when necessary to answer multiple questions or preserve required details. "
-    "Always use this structure: Hi <sender name>, then a blank line, a direct answer or acknowledgement, "
+    "Always use this structure: Hello <sender name>, then a blank line, a direct answer or acknowledgement, "
     "then a separate short paragraph for the next action only if needed, then a blank line and signature. "
-    "Use Hi Team, when no reliable sender name is available. Put multiple missing items in a short bullet list. "
+    "Use Hello, when no reliable sender name is available. Prefer Thanks for, Please find, and Please share. "
+    "Do not open with Dear or Kindly. Put multiple missing items in a short bullet list. "
     "Do not add headings, repeat the entire requirement, or explain internal workflow. "
     "Use the reference for facts and restrictions, never as a sentence template. "
     "Use thread history to avoid repeating answers, openings, or questions already settled. "
@@ -39,7 +41,7 @@ EMAIL_WRITING_GUIDANCE = (
     "Do not force synonyms just for variety. Each sentence must answer the message or convey a necessary "
     "next step. Check what is already supplied, what is still missing, and whose action is needed. "
     "Ask only for missing information the recipient can provide. Once complete, stop. "
-    "End with Regards, on one line and Clahan Technologies on the next. "
+    "End with Thanks and Regards, then Murali Mohan M, then Clahan Technologies. "
     "Keep internal analysis out of the email. "
 )
 
@@ -71,25 +73,32 @@ def _structure_email_draft(body: str, sender_name: str = "") -> str:
         return ""
     name = str(sender_name or "").strip()
     if (not name or "@" in name or len(name) > 70 or "\n" in name or "\r" in name
-            or name.lower() in {"client", "trainer", "sender", "unknown", "none"}):
-        name = "Team"
+            or name.lower() in {"client", "trainer", "sender", "unknown", "none", "team"}):
+        name = ""
     greeting = re.match(r"^(?:hi|hello|dear)\b[^,\n!?]{0,70}[,!][ \t]*\n*", text, re.I)
     if greeting:
-        opening = greeting.group().strip()
+        spoken = re.match(r"^(?:hi|hello|dear)\b\s*([^,!]*)", greeting.group(), re.I)
+        if spoken and spoken.group(1).strip():
+            name = spoken.group(1).strip()
         text = text[greeting.end():].strip()
-    else:
-        opening = f"Hi {name},"
+    opening = hello_line(name)
     # Separate a standalone sign-off, preserving contact details and any
     # postscript. Never treat an inline acknowledgement as a signature.
-    signoff = re.search(r"(?im)^(?:(?:best|kind|warm) )?regards,?[ \t]*$|^sincerely,?[ \t]*$", text)
+    signoff = re.search(
+        r"(?im)^(?:thanks(?:\s+(?:and|&))?\s+)?(?:(?:best|kind|warm)\s+)?regards,?[ \t]*$"
+        r"|^thanks,?[ \t]*$|^thank you,?[ \t]*$|^sincerely,?[ \t]*$",
+        text,
+    )
     if signoff:
-        signature = text[signoff.start():].strip()
+        signature = signature_keeping_extras(text[signoff.start():])
         text = text[:signoff.start()].rstrip()
-        if "clahan technologies" not in signature.lower():
-            signature += "\nClahan Technologies"
     else:
-        text = re.sub(r"(?:\n\s*)+(?:Recruitment Team\s*\n)?Clahan Technologies\s*$", "", text).rstrip()
-        signature = "Regards,\nClahan Technologies"
+        text = re.sub(
+            r"(?:\n\s*)+(?:Recruitment Team\s*\n)?(?:Murali Mohan M\s*\n)?Clahan Technologies\s*$",
+            "",
+            text,
+        ).rstrip()
+        signature = SIGNATURE
     if not text:
         return ""
     return f"{opening}\n\n{text}\n\n{signature}"
@@ -1084,21 +1093,17 @@ async def _load_reply_workflow_context(
 
 def _client_auto_reply_template() -> str:
     return (
-        "Dear Client,\n\n"
-        "Thank you for sharing your training requirement.\n\n"
-        "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
+        "Hello,\n\n"
+        "Thanks for sharing your training requirement.\n\n"
+        "Please share:\n\n"
         "* Training duration\n"
         "* Preferred training dates\n"
         "* Daily training timings\n"
         "* Audience level (Beginner / Intermediate / Advanced)\n"
         "* Training mode (Online / Offline / Hybrid)\n"
         "* Budget or expected commercial charges per day/session\n\n"
-        "Meanwhile, we will begin an initial trainer search based on the information currently available. "
-        "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
-        "We look forward to your response.\n\n"
-        "Best Regards,\n"
-        "Recruitment Team\n"
-        "Clahan Technologies"
+        "The team will check suitable trainers from the details already shared and send the relevant profiles once these points are in.\n\n"
+        f"{SIGNATURE}"
     )
 
 
@@ -1373,7 +1378,8 @@ async def _ai_draft_reply(
                     "Never ask for cluster count, participant count, duration, dates, mode, or any other information "
                     "already present in the incoming email or workflow JSON. "
                     "Address the sender by their reliable name when available. For ordinary client and trainer "
-                    "emails, prefer the natural greeting 'Hi <name>'; use 'Hi Team' when no reliable name is available. "
+                    "emails, use the greeting 'Hello <name>'; use 'Hello,' when no reliable name is available. "
+                    "Sign with Thanks and Regards, then Murali Mohan M, then Clahan Technologies. "
                     "Produce the most accurate client-facing reply for the current workflow stage. Treat the "
                     "workflow JSON and incoming email as authoritative facts. Use the deterministic workflow "
                     "reply only as a safety and business-rule reference; write a fresh, natural reply instead of "

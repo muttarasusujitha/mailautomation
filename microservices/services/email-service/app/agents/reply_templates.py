@@ -3,9 +3,10 @@ import re
 from typing import Any, Dict
 
 
-SIGNATURE = "Best Regards,\nRecruitment Team\nClahan Technologies"
-CLIENT_SIGNATURE = "Best Regards,\nClahan Technologies"
-TRAINER_SIGNATURE = "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
+from app.agents.murali_voice import SIGNATURE, apply_murali_voice
+
+CLIENT_SIGNATURE = SIGNATURE
+TRAINER_SIGNATURE = SIGNATURE
 
 
 def _clean(value: Any, default: str = "") -> str:
@@ -19,10 +20,7 @@ def _hostinger_style_body(body: str) -> str:
     text = re.sub(r"\bDevops\s+Devops\b", "DevOps", text, flags=re.IGNORECASE)
     text = re.sub(r"\bDevops\b", "DevOps", text)
     text = text.replace("TrainerSync Team", "Clahan Technologies")
-    text = text.replace("Regards,\nRecruitment Team,\nClahan Technologies", "Regards,\nClahan Technologies")
-    text = text.replace("Best Regards,\nRecruitment Team\nClahan Technologies", "Best Regards,\nClahan Technologies")
-    text = re.sub(r"\n{3,}", "\n\n", text)
-    return text.strip()
+    return apply_murali_voice(text)
 
 
 def _client_name(extracted: Dict[str, Any]) -> str:
