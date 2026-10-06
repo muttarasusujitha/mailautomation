@@ -4144,16 +4144,17 @@ def _client_interview_schedule_message(
     subject = f"Interview Schedule Confirmation - {technology} | Ref: {requirement_id}"
     date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
     link = _clean(meeting_link)
-    body = (
-        f"Dear {client_name or 'Team'},\n\n"
-        f"The interview/discussion for the shortlisted {technology} trainer is confirmed.\n\n"
+    body = apply_voice(
+        f"Hi {client_name or ''},\n\n"
+        f"The interview for the shortlisted {technology} trainer is confirmed.\n\n"
         "Interview Details:\n"
         f"{date_line}"
         "Platform: Google Meet\n"
         f"Meeting Link: {link}\n\n"
-        "Kindly join on time and let us know if any change is required.\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+        "Please join on time and let us know if any change is required.\n\n"
+        "Thanks,\n"
+        "Clahan Technologies",
+        ANNAPURNA,
     )
     return {"subject": subject, "body": body}
 
@@ -4168,15 +4169,15 @@ def _trainer_interview_schedule_message(
 ) -> Dict[str, str]:
     subject = f"Interview Schedule Confirmation - {technology} | Ref: {requirement_id}"
     date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
-    body = (
-        f"Dear {trainer_name or 'Trainer'},\n\n"
-        f"The interview/discussion for the {technology} requirement is confirmed.\n\n"
+    body = apply_voice(
+        f"Hi {trainer_name or ''},\n\n"
+        f"The interview for the {technology} requirement is confirmed.\n\n"
         "Interview Details:\n"
         f"{date_line}"
         "Platform: Google Meet\n"
         f"Meeting Link: {_clean(meeting_link)}\n\n"
         "Please join on time and reply if a change is required.\n\n"
-        "Regards,\n"
+        "Thanks,\n"
         "Clahan Technologies"
     )
     return {"subject": subject, "body": body}
