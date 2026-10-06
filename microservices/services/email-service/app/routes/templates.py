@@ -257,9 +257,38 @@ def _simple_trainer_mail1_body(payload: ShortlistEmailRequest, domain: str, requ
         ("Participants", payload.participants or payload.audience_level),
         ("Location", payload.location),
     ]
+    detail_text = "\n".join(f"- {label}: {str(value).strip()}" for label, value in details if _has_value(str(value or "")))
     proposal_flow = _requirement_kind(payload, payload.client_request or "") == "proposal_requirement"
-    snapshot = payload.model_copy(update={"budget": PROPOSAL_COMMERCIAL_RANGE}) if proposal_flow else payload
-    requested_items = [item for item in requested_items if "commercial" not in item.lower()]
+    cleaned_items = [_clean_trainer_detail_label(item) for item in requested_items]
+    selected = list(dict.fromkeys(item for item in cleaned_items if item))
+    if proposal_flow:
+        # Proposal scope is intentionally incomplete. Show every core field
+        # explicitly so the trainer knows these items are confirmed later by
+        # the client rather than being missing from the email.
+        proposal_details = [
+            ("Technology", domain),
+            ("Mode", payload.mode or "To be confirmed (Online/Offline)"),
+            ("Duration", payload.duration or "To be confirmed"),
+            ("Location", payload.location or "To be confirmed"),
+            ("Participants", payload.participants or payload.audience_level or "Corporate professionals"),
+            ("Commercials", PROPOSAL_COMMERCIAL_RANGE),
+        ]
+        detail_text = "\n".join(f"- {label}: {value}" for label, value in proposal_details)
+        managed_terms = ("commercial", "toc", "course agenda", "day-wise", "lab")
+        selected = [item for item in selected if not any(term in item.lower() for term in managed_terms)]
+        # Every proposal shortlist needs trainer availability and three slots
+        # for the client handoff, even when availability was not extracted
+        # from the inbound client email as a separate requested field.
+        if not any("availability" in item.lower() for item in selected):
+            selected.append("availability")
+    if not selected:
+        selected = ["availability"] if proposal_flow else ["updated profile", "LinkedIn profile", "availability"]
+    ask = ", ".join(dict.fromkeys(item for item in selected if "availability" not in item.lower()))
+    request_line = (
+        "Please let us know whether you are available for this requirement"
+        if not ask
+        else f"Please let us know whether you are available for this requirement and share your {ask}"
+    )
     needs_slots = True  # Mail 1 collects interview availability for both shortlist flows.
     slot_request = (
         "\n\nPlease also share three convenient interview/discussion slots with the date, time, and time zone.\n"
@@ -269,19 +298,32 @@ def _simple_trainer_mail1_body(payload: ShortlistEmailRequest, domain: str, requ
         "- [Your available date 3], [time], [time zone]\n"
         if needs_slots else ""
     )
-    request_text = "\n".join(f"- {item}" for item in requested_items)
-    body = (
-        f"Hi {payload.trainer_name or 'Trainer'},\n\n"
-        "Hope you are doing well.\n\n"
-        f"We have received a training requirement for {domain}.\n\n"
-        "Training Details:\n"
-        f"{_requirement_snapshot(snapshot)}\n\n"
-        "Please share the details below:\n"
-        f"{request_text}{slot_request}\n\n"
-        "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
-        "Thanks,\n"
-        "Clahan Technologies"
-    )
+    if not proposal_flow:
+        request_text = "\n".join(f"- {item}" for item in requested_items)
+        body = (
+            f"Hi {payload.trainer_name or 'Trainer'},\n\n"
+            "Hope you are doing well.\n\n"
+            f"We have received a training requirement for {domain}.\n\n"
+            "Training Details:\n"
+            f"{_requirement_snapshot(payload)}\n\n"
+            "Please share the details below:\n"
+            f"{request_text}{slot_request}\n\n"
+            "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
+            "Thanks,\n"
+            "Clahan Technologies"
+        )
+    else:
+        body = (
+            f"Hi {payload.trainer_name or 'Trainer'},\n\n"
+            "Hope you are doing well.\n\n"
+            "We are reaching out regarding the following corporate training requirement.\n\n"
+            "Requirement details noted:\n\n"
+            f"{detail_text}\n\n"
+            f"{request_line}.{slot_request}\n\n"
+            "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
+            "Thanks,\n"
+            "Clahan Technologies"
+        )
     return apply_voice(body, ANNAPURNA)
 
 
@@ -381,6 +423,36 @@ async def compose_shortlist_first(payload: ShortlistEmailRequest):
         payload.domain = domain
     client_request = _clean_client_request_for_trainer(payload.client_request or "")
     requirement_kind = _requirement_kind(payload, client_request)
+    detail_text = _requirement_snapshot(payload)
+
+    slot_guide = """
+
+Format for Sharing Availability Slots:
+=====================================
+Slot 1: 22 June 2026, 11:00 AM â€“ 11:30 AM IST
+Slot 2: 23 June 2026, 2:00 PM â€“ 2:30 PM IST
+Slot 3: 25 June 2026, 4:00 PM â€“ 4:30 PM IST
+
+This helps us process your availability automatically and move forward quickly.
+"""
+    missing_note = ""
+    slot_guide = ""
+    if requirement_kind == "confirmed_batch":
+        intro = (
+            f"We are coordinating a {domain} corporate training requirement and your profile appears relevant "
+            "for this engagement."
+        )
+        action_line = (
+            "Please confirm your availability and share the details below so we can proceed with the client shortlist:"
+        )
+    else:
+        intro = (
+            f"We have an upcoming corporate training requirement for an experienced {domain} Trainer."
+        )
+        action_line = (
+            "If you are interested and available for this requirement, kindly share the below details:"
+        )
+        detail_text = _proposal_requirement_snapshot(payload)
     requested_items = _trainer_detail_requests(client_request, bool(payload.budget))
     if payload.resume_verified_experience:
         requested_items = [

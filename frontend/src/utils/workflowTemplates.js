@@ -46,11 +46,12 @@ function missingProfile(trainer) {
 }
 export function mail1Template(trainer, req, hasDetails, details = {}, isReminder = false, reminderNum = 0) {
   const course = details.domain || domain(req)
+  const isProposal = proposal(req)
   const dates = req.training_dates || req.preferred_dates || [req.timeline_start, req.timeline_end].filter(Boolean).join(' to ')
   const requested = hasDetails ? [] : missingProfile(trainer)
   const offer = trainerOffer(req, trainer)
-  return compose(trainer, `${isReminder ? `[Reminder ${reminderNum}] ` : ''}Training Requirement - ${course}`, [
-    isReminder ? 'Following up on our earlier training enquiry.' : 'We are contacting you about a corporate training requirement.',
+  return compose(trainer, `${isReminder ? `[Reminder ${reminderNum}] ` : ''}${isProposal ? 'Proposed' : 'Confirmed'} Training Requirement - ${course}`, [
+    isReminder ? 'Following up on our earlier training enquiry.' : `We are contacting you about ${isProposal ? 'a proposed corporate training engagement' : 'a confirmed client training requirement'}.`,
     'Training scope:\n' + rows([
       ['Technology', course], ['Audience', req.audience_level || req.participant_level],
       ['Participants', req.participant_count || req.participants],

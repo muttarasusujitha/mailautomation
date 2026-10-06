@@ -552,7 +552,7 @@ def _trainer_missing_followup_details(trainer: Dict[str, Any], requirement: Dict
         label = item.lower()
         if "availability" in label or "slot" in label:
             if not availability:
-                missing.append("Availability for the training dates")
+                missing.append("Tentative availability for the proposed engagement" if _is_proposal_requirement(requirement) else "Availability for the specified training dates")
         elif "linkedin" in label or "linked in" in label:
             if not _trainer_has_verified_detail(trainer, "linkedin"):
                 missing.append("LinkedIn profile")
@@ -599,6 +599,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
     ]
     technology_detail = domain + (f" including {', '.join(dict.fromkeys(skills[:6]))}" if skills else "")
     details = [f"- Technology: {technology_detail}"]
+    is_proposal = _is_proposal_requirement(requirement)
     if audience:
         details.append(f"- Audience: {audience}")
     if location:
@@ -673,7 +674,7 @@ def _clean_confirmed_mail1_body(trainer_name: str, requirement: Dict[str, Any], 
         "based on your skill tier.\n\n"
     )
     slot_context = ""
-    introduction = "We are contacting you about a corporate training requirement."
+    introduction = ("We are contacting you about a proposed corporate training engagement." if is_proposal else "We are contacting you about a confirmed client training requirement.")
     return (
         f"Hi {trainer_name or 'Trainer'},\n\n"
         "Hope you are doing well.\n\n"
@@ -3201,6 +3202,10 @@ async def send_shortlist_mail(
                     if date_match:
                         dates = _clean(date_match.group(1))
                 location = _clean(requirement.get("preferred_location") or requirement.get("location"))
+                # Keep the Mail 1 route on the same proposal detector as the
+                # client handoff.  Do not fall back to the confirmed template
+                # merely because an older requirement lacks batch_flow.
+                is_proposal_flow = _is_proposal_requirement(requirement)
                 subject = payload.subject or f"Training Opportunity - {domain}"
                 body = payload.body or (
                     f"Dear {trainer_name},\n\n"
@@ -3307,9 +3312,12 @@ async def send_shortlist_mail(
                                     json={"toc": generated_toc},
                                 )
                                 if toc_response.status_code == 200 and toc_response.content:
-                                    toc_label = "TOC"
+                                    toc_label = "Proposed TOC" if is_proposal_flow else "Confirmed Batch TOC"
                                     toc_note = (
-                                        "The ToC/course agenda is attached. Please review this scope and "
+                                        "The proposed ToC/course agenda is attached. Please review this scope and "
+                                        "confirm availability and delivery feasibility."
+                                        if is_proposal_flow else
+                                        "The ToC/course agenda for the confirmed batch is attached. Please review this scope and "
                                         "confirm availability and delivery feasibility."
                                     )
                                     scope_attachments.append({
