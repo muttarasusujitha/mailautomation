@@ -17,7 +17,7 @@ async def discover_public(domain, mode, target=20, location=''):
     for query in queries:
         attempts += 1
         try:
-            batch = await asyncio.wait_for(search_public(query, 20), timeout=18)
+            batch = await asyncio.wait_for(search_public(query, min(60, max(1, target - len(rows)))), timeout=18)
         except Exception as exc:
             warnings.append(str(exc) or type(exc).__name__)
             if len(warnings) >= 3:

@@ -41,7 +41,8 @@ async def discover(domain, mode, target, location=''):
     queries = public_queries(domain, mode, location)
     for start in range(0, len(queries), 2):
         batch = queries[start:start + 2]
-        outcomes = await asyncio.gather(*(asyncio.wait_for(search_public(q, 20), timeout=5) for q in batch), return_exceptions=True)
+        need = min(60, max(1, target - len(results)))
+        outcomes = await asyncio.gather(*(asyncio.wait_for(search_public(q, need), timeout=12) for q in batch), return_exceptions=True)
         attempts += len(batch)
         for outcome in outcomes:
             if isinstance(outcome, BaseException):

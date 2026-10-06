@@ -1,7 +1,8 @@
-"""Bounded public search feed lookup; no API key or login required."""
+"""Bounded public web search. No API key, and result links are never fetched."""
+import base64
 from xml.etree import ElementTree
 from html.parser import HTMLParser
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import parse_qs, urlsplit, urlunsplit
 
 import httpx
 
@@ -17,17 +18,46 @@ class _BingLinks(HTMLParser):
         if self._href and data.strip(): self.links.append((self._href, data.strip()))
 
 
+def unwrap_result_url(url):
+    """Read a Bing result target locally. The wrapper itself is not requested."""
+    parts = urlsplit(url)
+    if parts.path.rstrip('/') != '/ck/a':
+        return url
+    encoded = (parse_qs(parts.query).get('u') or [''])[0]
+    if encoded.startswith('a1'):
+        encoded = encoded[2:]
+    encoded = encoded.replace('-', '+').replace('_', '/')
+    encoded += '=' * ((4 - len(encoded) % 4) % 4)
+    try:
+        decoded = base64.b64decode(encoded).decode('utf-8', 'ignore')
+    except (ValueError, UnicodeError):
+        return ''
+    return decoded if decoded.startswith(('http://', 'https://')) else ''
+
+
+def _keep_result(url, title, limit, results, seen, content=None):
+    url = unwrap_result_url(url)
+    parts = urlsplit(url)
+    host = (parts.hostname or '').lower()
+    if parts.scheme not in ('http', 'https') or not any(host == domain or host.endswith('.' + domain) for domain in ('linkedin.com', 'naukri.com')):
+        return False
+    if host.endswith('linkedin.com') and not parts.path.startswith(('/in/', '/posts/', '/feed/update/')):
+        return False
+    clean = urlunsplit(('https', 'www.linkedin.com' if host.endswith('linkedin.com') else parts.netloc, parts.path.rstrip('/'), '', ''))
+    if clean in seen:
+        return False
+    seen.add(clean)
+    results.append({'url': clean, 'title': title, 'content': content or title})
+    return len(results) >= limit
+
+
 def parse_html(content, limit):
-    parser = _BingLinks(); parser.feed(content.decode('utf-8', 'ignore'))
+    parser = _BingLinks()
+    parser.feed(content.decode('utf-8', 'ignore'))
     results, seen = [], set()
     for url, title in parser.links:
-        parts = urlsplit(url); host = (parts.hostname or '').lower()
-        if not (parts.scheme in ('http', 'https') and any(host == d or host.endswith('.' + d) for d in ('linkedin.com', 'naukri.com'))):
-            continue
-        clean = urlunsplit(('https', 'www.linkedin.com' if host.endswith('linkedin.com') else parts.netloc, parts.path.rstrip('/'), '', ''))
-        if clean in seen or not parts.path.startswith(('/in/', '/posts/', '/feed/update/')): continue
-        seen.add(clean); results.append({'url': clean, 'title': title, 'content': title})
-        if len(results) >= limit: break
+        if _keep_result(url, title, limit, results, seen):
+            break
     return results
 
 
@@ -42,42 +72,35 @@ def parse_results(content, limit):
         raise ValueError('Public search did not return a search feed')
     results, seen = [], set()
     for item in root.findall('./channel/item'):
-        url = (item.findtext('link') or '').strip()
-        parts = urlsplit(url)
-        host = (parts.hostname or '').lower()
-        if parts.scheme not in ('http', 'https') or not any(
-            host == domain or host.endswith('.' + domain)
-            for domain in ('linkedin.com', 'naukri.com')
-        ):
-            continue
-        url = urlunsplit((parts.scheme, parts.netloc, parts.path.rstrip('/'), '', ''))
-        if url in seen:
-            continue
-        seen.add(url)
-        results.append({'url': url, 'title': item.findtext('title') or '',
-                        'content': item.findtext('description') or ''})
-        if len(results) >= limit:
+        title = item.findtext('title') or ''
+        description = item.findtext('description') or title
+        if _keep_result((item.findtext('link') or '').strip(), title, limit, results, seen, description):
             break
     return results
 
 
+async def _search_page(client, query, limit, first):
+    response = await client.get('https://www.bing.com/search', params={'q': query, 'count': min(limit, 20), 'first': first})
+    if response.status_code != 200:
+        raise ValueError('Public search is temporarily unavailable or rate limited')
+    if len(response.content) > 1_000_000:
+        raise ValueError('Public search response is too large')
+    return parse_html(response.content, limit)
+
+
 async def search_public(query, limit=10):
-    # Fixed destination: result URLs are never fetched or used for redirects.
-    async with httpx.AsyncClient(timeout=20, follow_redirects=False) as client:
-        async with client.stream('GET', 'https://www.bing.com/search',
-                                 params={'q': query, 'format': 'rss'}) as response:
-            if response.status_code != 200:
-                raise ValueError('Public search is temporarily unavailable or rate limited')
-            content = bytearray()
-            async for chunk in response.aiter_bytes():
-                content.extend(chunk)
-                if len(content) > 1_000_000:
-                    raise ValueError('Public search response is too large')
-    parsed = parse_results(bytes(content), min(max(limit, 1), 20))
-    if parsed:
-        return parsed
-    async with httpx.AsyncClient(timeout=20, follow_redirects=False, headers={'User-Agent': 'Mozilla/5.0'}) as client:
-        response = await client.get('https://www.bing.com/search', params={'q': query})
-    if response.status_code == 200:
-        return parse_html(response.content, min(max(limit, 1), 20))
-    return []
+    """One web search, then the next page only while new profile links are returned."""
+    limit = min(max(int(limit or 1), 1), 60)
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    found, seen = [], set()
+    async with httpx.AsyncClient(timeout=12, follow_redirects=False, headers=headers) as client:
+        first = 1
+        while len(found) < limit and first <= 41:
+            page = await _search_page(client, query, limit - len(found), first)
+            added = [row for row in page if row['url'] not in seen]
+            if not added:
+                break
+            seen.update(row['url'] for row in added)
+            found.extend(added)
+            first += 20
+    return found[:limit]
