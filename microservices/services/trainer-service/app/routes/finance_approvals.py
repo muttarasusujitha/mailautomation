@@ -81,7 +81,14 @@ async def approve_and_send_invoice(finance_id: str, payload: FinanceApproveReque
             pdf.raise_for_status()
             if not pdf.content:
                 raise ValueError("Invoice PDF is empty")
-            mail = await client.post(f"{email_url}/api/v1/email/send", json={"to": payload.client_email, "subject": f"Invoice {invoice_id} - Clahan Technologies", "body": f"Dear {payload.client_name},\n\nPlease find the invoice attached against PO {payload.po_number}.\n\nRegards,\nClahan Technologies", "mail_type": "finance_invoice", "idempotency_key": f"finance-invoice:{finance_id}", "attachments": [{"filename": f"{invoice_id}.pdf", "content_base64": base64.b64encode(pdf.content).decode(), "subtype": "pdf"}]})
+            finance_name = str(payload.client_name or "").strip()
+            finance_greeting = f"Hello {finance_name}," if finance_name and finance_name.lower() not in {"client", "team"} else "Hello,"
+            finance_body = (
+                f"{finance_greeting}\n\n"
+                f"Please find the invoice attached against PO {payload.po_number}.\n\n"
+                "Thanks and Regards,\nMurali Mohan M\nClahan Technologies"
+            )
+            mail = await client.post(f"{email_url}/api/v1/email/send", json={"to": payload.client_email, "subject": f"Invoice {invoice_id} - Clahan Technologies", "body": finance_body, "mail_type": "finance_invoice", "idempotency_key": f"finance-invoice:{finance_id}", "attachments": [{"filename": f"{invoice_id}.pdf", "content_base64": base64.b64encode(pdf.content).decode(), "subtype": "pdf"}]})
             mail.raise_for_status()
             if mail.json().get("success") is not True:
                 raise HTTPException(502, "Invoice email delivery is not confirmed")

@@ -24,6 +24,7 @@ from pymongo.errors import DuplicateKeyError
 
 from app.config import get_settings
 from app.agents.email_classifier import SAFETY_SCENARIOS, classify_email
+from app.agents.natural_voice import ANNAPURNA, apply_voice, signature_for
 from app.agents.reply_templates import build_auto_reply
 from app.calendar_client import (
     add_google_calendar_attendees,
@@ -1815,8 +1816,8 @@ async def _humanize_verified_client_reply(
             subject=subject,
             body=body,
             hint=(
-                "Rewrite the verified reference as a natural human-to-human email from Clahan Technologies, using "
-                "the concise Clahan/Hostinger sent-mail style. "
+                "Rewrite the verified reference as a natural human-to-human email. "
+                "Use Annapurna U's voice for coordination and Murali Mohan M's voice for invoice, payment, PO, or finance. "
                 "Preserve every business fact and restriction. Answer directly, choose vocabulary appropriate to "
                 "the sender, and make the length proportional to the incoming message. Do not make it sound like "
                 "a fixed template and do not add facts or promises."
@@ -1855,13 +1856,13 @@ async def _technology_catalogue_reply(db: AsyncIOMotorDatabase, subject: str) ->
     return {
         "subject": f"Re: {subject}" if subject else "Available Training Technologies",
         "body": (
-            "Dear Sujitha,\n\n"
-            "Thank you for your enquiry. Our primary corporate training capabilities include:\n\n"
+            "Hi Sujitha,\n\n"
+            "Thanks for your enquiry. Our primary corporate training capabilities include:\n\n"
             f"{technology_lines}\n\n"
             "We can also arrange customized corporate training based on your required technology, audience level, "
             "duration, delivery mode, and preferred dates. Please share the technology you are interested in, and "
             "we will provide the relevant course outline, trainer profile, availability, and commercials.\n\n"
-            "Best Regards,\nClahan Technologies"
+            f"{signature_for(ANNAPURNA)}"
         ),
     }
 
@@ -1895,7 +1896,10 @@ def _client_coordination_reply(intent: str, extracted: Dict[str, Any], subject: 
     opening = f"Thank you for your message regarding {technology}." if technology and technology != "the training" else "Thank you for your message."
     return {
         "subject": subject_prefix,
-        "body": f"Dear Team,\n\n{opening}\n\n{message}\n\nRegards,\nClahan Technologies",
+        "body": apply_voice(
+            f"Dear Team,\n\n{opening}\n\n{message}\n\nRegards,\nClahan Technologies",
+            ANNAPURNA,
+        ),
     }
 
 
@@ -2484,7 +2488,7 @@ def _client_time_greeting(name: str) -> str:
 
 
 def _reply_signature() -> str:
-    return "Best Regards,\nClahan Technologies"
+    return signature_for(ANNAPURNA)
 
 
 def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
@@ -2627,16 +2631,16 @@ def _client_short_requirement_ack(
     technology = extracted.get("technology_needed") or "training"
     missing = _format_missing_details(extracted) if ask_missing else ""
     opening = _clean(intro) or (
-        "Thank you for sharing your training requirement."
+        "Thanks for sharing your training requirement."
         if missing
-        else f"Thank you for sharing the {technology} training requirement."
+        else f"Thanks for sharing the {technology} training requirement."
     )
     clahan_note = _lab_estimate_acknowledgement(extracted)
     if missing:
         body = (
-            "Dear Team\n\n"
+            "Hello,\n\n"
             f"{opening}\n\n"
-            "To help us refine the shortlist, please share:\n"
+            "Please share:\n"
             f"{missing}{clahan_note}\n\n"
             + _reply_signature()
         )
@@ -2647,13 +2651,13 @@ def _client_short_requirement_ack(
             else "We will check suitable trainer availability and share suitable trainer profiles with "
         )
         body = (
-            "Dear Team,\n\n"
+            "Hello,\n\n"
             f"{opening}{_confirmed_requirement_scope_acknowledgement(extracted)}\n\n"
             f"{profile_action}"
             f"{_client_requested_items_for_reply(extracted)} for your review.{clahan_note}\n\n"
             + _reply_signature()
         )
-    return {"subject": f"Re: {technology} Trainer Requirement", "body": body}
+    return {"subject": f"Re: {technology} Trainer Requirement", "body": apply_voice(body, ANNAPURNA)}
 
 
 def _format_missing_details(extracted: Dict[str, Any]) -> str:
@@ -2797,7 +2801,7 @@ def _trainer_mail2_details_reply(email_doc: Dict[str, Any]) -> Dict[str, str]:
         "Regards,\n"
         "Clahan Technologies"
     )
-    return {"subject": f"Training Requirement - {domain} | Additional Details Required", "body": body}
+    return {"subject": f"Training Requirement - {domain} | Additional Details Required", "body": apply_voice(body, ANNAPURNA)}
 
 
 def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str) -> Dict[str, str]:
@@ -2843,7 +2847,7 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         f"Reference: {requirement_id}\n\n"
         + _reply_signature()
     )
-    return {"subject": f"Corporate Training Requirement - {tech}", "body": body}
+    return {"subject": f"Corporate Training Requirement - {tech}", "body": apply_voice(body, ANNAPURNA)}
 
 
 def _client_email_status_for_reply(reply: dict) -> dict:
@@ -4140,16 +4144,17 @@ def _client_interview_schedule_message(
     subject = f"Interview Schedule Confirmation - {technology} | Ref: {requirement_id}"
     date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
     link = _clean(meeting_link)
-    body = (
-        f"Dear {client_name or 'Team'},\n\n"
-        f"The interview/discussion for the shortlisted {technology} trainer is confirmed.\n\n"
+    body = apply_voice(
+        f"Hi {client_name or ''},\n\n"
+        f"The interview for the shortlisted {technology} trainer is confirmed.\n\n"
         "Interview Details:\n"
         f"{date_line}"
         "Platform: Google Meet\n"
         f"Meeting Link: {link}\n\n"
-        "Kindly join on time and let us know if any change is required.\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+        "Please join on time and let us know if any change is required.\n\n"
+        "Thanks,\n"
+        "Clahan Technologies",
+        ANNAPURNA,
     )
     return {"subject": subject, "body": body}
 
@@ -4164,15 +4169,15 @@ def _trainer_interview_schedule_message(
 ) -> Dict[str, str]:
     subject = f"Interview Schedule Confirmation - {technology} | Ref: {requirement_id}"
     date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
-    body = (
-        f"Dear {trainer_name or 'Trainer'},\n\n"
-        f"The interview/discussion for the {technology} requirement is confirmed.\n\n"
+    body = apply_voice(
+        f"Hi {trainer_name or ''},\n\n"
+        f"The interview for the {technology} requirement is confirmed.\n\n"
         "Interview Details:\n"
         f"{date_line}"
         "Platform: Google Meet\n"
         f"Meeting Link: {_clean(meeting_link)}\n\n"
         "Please join on time and reply if a change is required.\n\n"
-        "Regards,\n"
+        "Thanks,\n"
         "Clahan Technologies"
     )
     return {"subject": subject, "body": body}

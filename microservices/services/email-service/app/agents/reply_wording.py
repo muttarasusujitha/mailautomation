@@ -242,11 +242,18 @@ def repeats_recent(body, recent_replies):
         lines = str(text or "").splitlines()
         kept = []
         for line in lines:
-            if re.fullmatch(r"(?:best |kind |warm )?regards,?|thanks,|sincerely,?", line.strip(), re.I):
+            if re.fullmatch(
+                r"(?:thanks(?: and|&) )?(?:(?:best|kind|warm) )?regards,?|thanks,?|thank you,?|sincerely,?",
+                line.strip(),
+                re.I,
+            ):
                 break
             if re.fullmatch(r"(?:hi|dear|hello)(?: [^.!?]{1,70})?[,!]", line.strip(), re.I):
                 continue
-            if _norm(line) not in {"clahan technologies", "recruitment team"}:
+            if _norm(line) not in {
+                "clahan technologies", "recruitment team", "murali mohan m", "murali mohan",
+                "annapurna u.", "annapurna u", "annapurna.", "annapurna",
+            }:
                 kept.append(line)
         return _norm(" ".join(kept))
     draft = prose(body)

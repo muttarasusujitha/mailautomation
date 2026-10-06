@@ -33,7 +33,10 @@ def test_missing_syllabus_preserves_actual_reply_and_review_requirement(monkeypa
         "Azure syllabus", "Can you send the Azure syllabus?", workflow_context=context,
         require_openai=True,
     ))
-    assert result == draft
+    assert result == (
+        "Hi Mira,\n\nThe Azure syllabus still needs confirmation.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies"
+    )
     assert "Python" not in result
     assert "confirming the dates" not in result
     assert context["reply_analysis"]["needs_human_review"] is True
@@ -45,7 +48,7 @@ def test_brief_acknowledgement_is_not_padded_with_default_template(monkeypatch):
     result = asyncio.run(inbox_actions._ai_draft_reply(
         "Re: Schedule", "Received, thank you.", require_openai=True,
     ))
-    assert result == "Hi Team,\n\nThanks, Mira. Noted.\n\nRegards,\nClahan Technologies"
+    assert result == "Hi,\n\nThanks, Mira. Noted.\n\nThanks,\nAnnapurna U.\nClahan Technologies"
     prompt = writer.call_args.args[1]
     assert "kindly provide the following details" not in prompt
     assert "initial trainer search" not in prompt
@@ -84,7 +87,7 @@ def test_stock_closing_removed_but_substantive_answer_preserved(monkeypatch):
     result = asyncio.run(inbox_actions._ai_draft_reply(
         "Re: Invite", "Received, thank you.", require_openai=True,
     ))
-    assert result == "Hi Team,\n\nYou're welcome, Mira.\n\nRegards,\nClahan Technologies"
+    assert result == "Hi,\n\nYou're welcome, Mira.\n\nThanks,\nAnnapurna U.\nClahan Technologies"
 
 
 def test_cleanup_preserves_specific_requests_and_verified_details():
@@ -128,7 +131,7 @@ def test_repeated_ai_draft_gets_one_rewrite(monkeypatch):
         "Availability", "Any news?", require_openai=True,
         workflow_context={"recent_replies_to_this_sender": [repeated]},
     ))
-    assert result == f"Hi Team,\n\n{fresh}\n\nRegards,\nClahan Technologies"
+    assert result == f"Hi,\n\n{fresh}\n\nThanks,\nAnnapurna U.\nClahan Technologies"
     assert writer.await_count == 2
     assert "previous draft repeated a recent reply" in writer.call_args.args[1]
 
@@ -184,7 +187,7 @@ def test_generated_reply_adds_named_greeting_and_short_signature(monkeypatch):
     ))
     assert result == (
         "Hi Mira,\n\nThe session is online.\n\nPlease confirm your availability."
-        "\n\nRegards,\nClahan Technologies"
+        "\n\nThanks,\nAnnapurna U.\nClahan Technologies"
     )
     assert "under 80 words" in writer.call_args.args[1]
     assert "Ask only for missing information the recipient can provide" in writer.call_args.args[1]
@@ -196,12 +199,12 @@ def test_structure_separates_inline_greeting_without_losing_details():
     assert result.startswith("Hi Mira,\n\nThe rate is INR 12,500 per day.")
     assert "Join: https://meet.google.com/abc-defg-hij" in result
     assert result.count("Hi Mira,") == 1
-    assert result.endswith("Regards,\nClahan Technologies")
+    assert result.endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
 
 
 def test_structure_does_not_create_email_from_empty_output_or_use_address_as_name():
     assert inbox_actions._structure_email_draft("") == ""
-    assert inbox_actions._structure_email_draft("Confirmed.", "mira@example.com").startswith("Hi Team,\n\n")
+    assert inbox_actions._structure_email_draft("Confirmed.", "mira@example.com").startswith("Hi,\n\n")
 
 
 def test_structure_preserves_contact_details_and_postscript():
@@ -212,7 +215,8 @@ def test_structure_preserves_contact_details_and_postscript():
     result = inbox_actions._structure_email_draft(body)
     assert "coordinator@example.com" in result
     assert result.endswith("PS: The revised start time is 3 PM IST.")
-    assert result.count("Regards,") == 1
+    assert result.count("Thanks,") == 1
+    assert "Annapurna U." in result
 
 
 def test_dashboard_ai_calls_the_model_without_the_env_flag(monkeypatch):
