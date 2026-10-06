@@ -77,7 +77,8 @@ def test_proposal_template_shows_clahan_fixed_commercials_without_requesting_a_r
         )
     ))
 
-    assert "Commercials: INR 12,000-15,000 per day/session" in reply["body"]
+    assert "Commercials/Budget: INR 12,000-15,000 per day/session" in reply["body"]
+    assert "We have received a training requirement for DevOps" in reply["body"]
     assert "Commercials (per hour/day)" not in reply["body"]
 
 

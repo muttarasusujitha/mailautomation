@@ -56,8 +56,8 @@ def test_proposal_generation_instruction_attaches_toc_in_first_mail(monkeypatch,
     assert "/documents/excel/toc" in calls[0][0]
     mail = calls[1][1]
     assert base64.b64decode(mail["attachments"][0]["content_base64"]) == b"test-workbook"
-    assert "proposed ToC/course agenda is attached" in mail["body"]
-    assert mail["attachments"][0]["filename"].endswith(" - Proposed TOC.xlsx")
+    assert "The ToC/course agenda is attached" in mail["body"]
+    assert mail["attachments"][0]["filename"].endswith(" - TOC.xlsx")
 
 
 @pytest.mark.parametrize("toc,status", [(None, 200), ({"title": "DevOps"}, 500)])
@@ -80,9 +80,8 @@ def test_confirmed_batch_still_generates_without_action(monkeypatch, flow):
     generate.assert_awaited_once()
     assert calls[-1][1]["attachments"]
     mail = calls[-1][1]
-    assert mail["attachments"][0]["filename"].endswith(" - Confirmed Batch TOC.xlsx")
-    assert "for the confirmed batch is attached" in mail["body"]
-    assert "proposed ToC/course agenda is attached" not in mail["body"]
+    assert mail["attachments"][0]["filename"].endswith(" - TOC.xlsx")
+    assert "The ToC/course agenda is attached" in mail["body"]
 
 
 def test_proposal_without_generation_instruction_still_attaches_generated_toc(monkeypatch):
@@ -90,7 +89,7 @@ def test_proposal_without_generation_instruction_still_attaches_generated_toc(mo
     assert result["sent"] == 1
     generate.assert_awaited_once()
     assert calls[-1][1]["attachments"]
-    assert calls[-1][1]["attachments"][0]["filename"].endswith(" - Proposed TOC.xlsx")
+    assert calls[-1][1]["attachments"][0]["filename"].endswith(" - TOC.xlsx")
 
 
 def test_existing_client_toc_is_forwarded_without_regeneration(monkeypatch):
