@@ -257,12 +257,14 @@ def main() -> int:
             mail.logout()
         except Exception:
             pass
-    murali_sent = [item for item in sent if item["murali"]]
+    murali_sent = [item for item in sent if "murali" in f"{item['author']} {item['from_name']}".lower()]
+    murali_inbox = [item for item in inbox if "murali" in f"{item['author']} {item['from_name']}".lower()]
     short_sent = [item for item in sent if 0 < item["words"] <= 80]
     authors = Counter(item["author"] for item in sent if item["author"])
+    inbox_from = Counter(item["from_name"] for item in inbox if item["from_name"])
     author_profiles = {
         name: _summary([item for item in sent if item["author"] == name])
-        for name, _count in authors.most_common(6)
+        for name, _count in authors.most_common(4)
     }
     payload = {
         "ok": True,
@@ -270,9 +272,11 @@ def main() -> int:
         "sent_folder": sent_name,
         "inbox_folder": inbox_name,
         "inbox_count": len(inbox),
+        "inbox_from_names": dict(inbox_from.most_common(15)),
         "sent": _summary(sent),
         "short_sent": _summary(short_sent),
         "murali_sent": _summary(murali_sent),
+        "murali_inbox": _summary(murali_inbox),
         "authors": dict(authors.most_common(8)),
         "author_profiles": author_profiles,
     }
