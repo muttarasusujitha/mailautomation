@@ -13,23 +13,30 @@ def search_warning(source, error):
 
 
 def public_queries(domain, mode, location=''):
+    if mode == 'trainer':
+        from app.clients.search_accuracy import trainer_public_queries
+        return trainer_public_queries(domain, location)
     scope = f'{domain} {location}'.strip()
-    phrases = ('corporate trainer', 'freelance trainer', 'technical instructor', 'training consultant', 'trainer', 'instructor') if mode == 'trainer' else (
-        'trainer required', 'looking for trainer', 'seeking trainer', 'trainers needed', 'training requirement', 'training partner')
-    path = 'in' if mode == 'trainer' else 'posts'
-    return [f'{scope} "{phrase}" site:linkedin.com/{path}/' for phrase in phrases]
+    phrases = (
+        'trainer required', 'looking for trainer', 'seeking trainer',
+        'trainers needed', 'training requirement', 'training partner',
+    )
+    return [f'{scope} "{phrase}" site:linkedin.com/posts/' for phrase in phrases]
 
 
 async def discover(domain, mode, target, location=''):
     from app.clients.public_search import search_public
-    from app.clients.linkedin_browser import search_linkedin_account, canonical_url
+    from app.clients.linkedin_browser import search_linkedin_account
+    from app.clients.search_accuracy import canonical_public_url, select_accurate_profiles
     from app.routes.linkedin_leads import _normalize_result
     results, seen, warnings = [], set(), []
     attempts = 0
 
     def accept(rows, provider):
+        if provider == 'public' and mode == 'trainer':
+            rows = select_accurate_profiles(rows, domain)
         for row in rows:
-            url = canonical_url(row.get('url', ''))
+            url = canonical_public_url(row.get('url', ''))
             row = {**row, 'url': url, 'discovery_provider': provider}
             if url and url not in seen and _normalize_result(row, domain, mode):
                 seen.add(url)

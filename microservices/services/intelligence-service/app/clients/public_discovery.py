@@ -5,13 +5,13 @@ from app.clients.public_search import search_public
 
 async def discover_public(domain, mode, target=20, location=''):
     from app.clients.lead_discovery import public_queries
-    from app.clients.linkedin_browser import canonical_url
+    from app.clients.search_accuracy import canonical_public_url, select_accurate_profiles
     from app.routes.linkedin_leads import _normalize_result
     target = min(100, max(20, target))
     queries = public_queries(domain, mode, location)
-    queries += [f'{domain} {location} {phrase} site:linkedin.com/{"in" if mode == "trainer" else "posts"}/'
-                for phrase in (('independent trainer', 'certified instructor', 'corporate training', 'technical trainer')
-                               if mode == 'trainer' else ('need a trainer', 'freelance trainer required', 'corporate training requirement', 'seeking training partner'))]
+    if mode != 'trainer':
+        queries += [f'{domain} {location} {phrase} site:linkedin.com/posts/'
+                    for phrase in ('need a trainer', 'freelance trainer required', 'corporate training requirement', 'seeking training partner')]
     rows, seen, warnings = [], set(), []
     attempts = 0
     for query in queries:
@@ -23,8 +23,10 @@ async def discover_public(domain, mode, target=20, location=''):
             if len(warnings) >= 3:
                 break
             continue
+        if mode == 'trainer':
+            batch = select_accurate_profiles(batch, domain)
         for item in batch:
-            url = canonical_url(item.get('url', ''))
+            url = canonical_public_url(item.get('url', ''))
             item = {**item, 'url': url}
             if url and url not in seen and _normalize_result(item, domain, mode):
                 seen.add(url)

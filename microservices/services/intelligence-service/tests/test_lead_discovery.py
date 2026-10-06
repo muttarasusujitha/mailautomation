@@ -1,8 +1,45 @@
 import asyncio
+from datetime import datetime
 from unittest.mock import AsyncMock, patch
-from app.clients.lead_discovery import discover
+from app.clients.lead_discovery import discover, public_queries
 from app.routes.linkedin_leads import LinkedInLeadSearchRequest, search_linkedin_leads
 from app.clients.linkedin_session import LinkedInAuthenticationRequired, RECONNECT_MESSAGE
+
+
+def test_trainer_public_queries_use_tavily_accuracy_shape():
+    year = datetime.utcnow().year
+    queries = public_queries('Python', 'trainer', 'Hyderabad')
+    assert queries[0] == (
+        f'"Python" {year} trainer instructor corporate training Hyderabad '
+        'site:linkedin.com/in OR site:naukri.com'
+    )
+    assert len(queries) == 6
+    assert '"corporate trainer"' in queries[1]
+    assert all('site:linkedin.com/in OR site:naukri.com' in query for query in queries)
+    assert all(str(year) in query for query in queries)
+    client = public_queries('Python', 'client')
+    assert client and all('site:linkedin.com/posts/' in query for query in client)
+
+
+def test_public_trainer_search_drops_stale_off_skill_and_non_profiles():
+    year = datetime.utcnow().year
+    rows = [
+        {'url': 'https://www.linkedin.com/in/ravi', 'title': 'Ravi', 'content': f'Python corporate trainer {year}'},
+        {'url': 'https://www.linkedin.com/in/old', 'title': 'Old', 'content': 'Python corporate trainer 2019'},
+        {'url': 'https://www.linkedin.com/in/java', 'title': 'Java', 'content': f'Java corporate trainer {year}'},
+        {'url': 'https://www.linkedin.com/posts/resume', 'title': 'Resume', 'content': f'Python trainer resume {year}'},
+        {'url': 'https://www.naukri.com/python-trainer-hyderabad', 'title': 'Naukri', 'content': f'Python corporate trainer {year}'},
+    ]
+    with patch('app.clients.public_search.search_public', AsyncMock(return_value=rows)) as public, patch(
+        'app.clients.linkedin_browser.search_linkedin_account', AsyncMock(side_effect=ValueError('Verification required'))
+    ):
+        results, outcome = asyncio.run(discover('Python', 'trainer', 20))
+    assert [row['url'] for row in results] == [
+        'https://www.linkedin.com/in/ravi',
+        'https://www.naukri.com/python-trainer-hyderabad',
+    ]
+    assert outcome['warnings'][0]['source'] == 'linkedin_account'
+    assert public.await_args_list[0].args[0].startswith(f'"Python" {year} trainer instructor corporate training')
 
 
 def test_later_browser_failure_preserves_collected_matches():

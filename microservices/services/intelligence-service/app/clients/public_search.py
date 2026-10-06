@@ -8,14 +8,81 @@ import httpx
 
 
 class _BingLinks(HTMLParser):
+    """Read the heading link and the caption under it. Result links are not opened."""
+
     def __init__(self):
-        super().__init__(); self.links = []; self._href = ''
+        super().__init__()
+        self.links = []
+        self._href = ''
+        self._capture = None
+        self._block = None
+        self._depth = 0
+        self._in_h2 = False
+
+    def _close_block(self):
+        if not self._block:
+            return
+        title = ' '.join(self._block['title']).strip()
+        snippet = ' '.join(self._block['snippet']).strip()
+        if self._block['href'] and title:
+            self.links.append((self._block['href'], title, snippet))
+        self._block = None
+        self._href = ''
+        self._capture = None
+        self._depth = 0
+        self._in_h2 = False
+
     def handle_starttag(self, tag, attrs):
-        if tag == 'a': self._href = dict(attrs).get('href', '')
+        attrs = dict(attrs)
+        classes = (attrs.get('class') or '').split()
+        if tag == 'li' and 'b_algo' in classes:
+            self._close_block()
+            self._block = {'href': '', 'title': [], 'snippet': []}
+            self._depth = 1
+            self._in_h2 = False
+            return
+        if self._block is not None and tag == 'li':
+            self._depth += 1
+        if self._block is not None and tag == 'h2':
+            self._in_h2 = True
+        if tag == 'a':
+            href = attrs.get('href', '')
+            if self._block is None:
+                self._href = href
+            elif self._in_h2 and not self._block['href']:
+                self._block['href'] = href
+                self._capture = 'title'
+        if self._block is not None and self._block['href'] and (
+            tag == 'p' or 'b_caption' in classes or any(name.startswith('b_lineclamp') for name in classes)
+        ):
+            self._capture = 'snippet'
+
     def handle_endtag(self, tag):
-        if tag == 'a': self._href = ''
+        if tag == 'a' and self._block is None:
+            self._href = ''
+        elif tag == 'a' and self._capture == 'title':
+            self._capture = None
+        elif tag == 'h2':
+            self._in_h2 = False
+        elif tag == 'p' and self._capture == 'snippet':
+            self._capture = None
+        elif tag == 'li' and self._block is not None:
+            self._depth -= 1
+            if self._depth <= 0:
+                self._close_block()
+
     def handle_data(self, data):
-        if self._href and data.strip(): self.links.append((self._href, data.strip()))
+        text = ' '.join(data.split())
+        if not text:
+            return
+        if self._block is not None:
+            if self._capture == 'title':
+                self._block['title'].append(text)
+            elif self._capture == 'snippet':
+                self._block['snippet'].append(text)
+            return
+        if self._href:
+            self.links.append((self._href, text, ''))
 
 
 def unwrap_result_url(url):
@@ -43,6 +110,8 @@ def _keep_result(url, title, limit, results, seen, content=None):
         return False
     if host.endswith('linkedin.com') and not parts.path.startswith(('/in/', '/posts/', '/feed/update/')):
         return False
+    if host.endswith('naukri.com') and not parts.path.strip('/'):
+        return False
     clean = urlunsplit(('https', 'www.linkedin.com' if host.endswith('linkedin.com') else parts.netloc, parts.path.rstrip('/'), '', ''))
     if clean in seen:
         return False
@@ -54,9 +123,10 @@ def _keep_result(url, title, limit, results, seen, content=None):
 def parse_html(content, limit):
     parser = _BingLinks()
     parser.feed(content.decode('utf-8', 'ignore'))
+    parser._close_block()
     results, seen = [], set()
-    for url, title in parser.links:
-        if _keep_result(url, title, limit, results, seen):
+    for url, title, snippet in parser.links:
+        if _keep_result(url, title, limit, results, seen, snippet or title):
             break
     return results
 
