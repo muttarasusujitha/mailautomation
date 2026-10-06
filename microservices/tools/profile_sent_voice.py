@@ -69,8 +69,38 @@ def _body(message: email.message.EmailMessage) -> str:
     return re.sub(r"[ \t]+\n", "\n", text).strip()
 
 
+def _fresh_text(text: str) -> str:
+    """Drop quoted replies so the profile describes the new message, not the thread."""
+    kept: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            kept.append("")
+            continue
+        lowered = stripped.lower()
+        if stripped.startswith(">") or lowered.startswith("on ") and " wrote:" in lowered:
+            break
+        if lowered.startswith(("sent via hostinger", "-------- original message", "from:", "-----original message")):
+            break
+        kept.append(line)
+    return "\n".join(kept).strip()
+
+
 def _lines(text: str) -> list[str]:
-    return [re.sub(r"\s+", " ", line).strip() for line in text.splitlines() if line.strip()]
+    return [re.sub(r"\s+", " ", line).strip() for line in _fresh_text(text).splitlines() if line.strip()]
+
+
+def _person_name(signature: list[str]) -> str:
+    for line in signature:
+        cleaned = re.sub(r"[,.]$", "", line).strip()
+        if not cleaned or cleaned.startswith("{") or cleaned in {">", "---"}:
+            continue
+        lowered = cleaned.lower()
+        if any(token in lowered for token in ("http", "www", "phone", "mobile", "regards", "thanks", "clahan", "calhan", "technologies")):
+            continue
+        if 1 <= len(cleaned.split()) <= 4 and re.fullmatch(r"[A-Za-z][A-Za-z .'-]{1,40}", cleaned):
+            return cleaned
+    return ""
 
 
 def _greeting(lines: list[str]) -> str:
@@ -102,11 +132,6 @@ def _opening_stem(lines: list[str]) -> str:
     text = _redact(" ".join(body_lines[:2]))
     words = text.split()[:8]
     return " ".join(words)
-
-
-def _is_murali(from_name: str, signature: list[str], body: str) -> bool:
-    haystack = " ".join([from_name, *signature, body[-400:]]).lower()
-    return "murali" in haystack
 
 
 def _summary(records: list[dict]) -> dict:
@@ -160,19 +185,22 @@ def _read_folder(mail: imaplib.IMAP4_SSL, folder: str) -> list[dict]:
             lines = _lines(body)
             from_name = parseaddr(_clean_header(message.get("From", "")))[0]
             signoff, signature = _signoff(lines)
-            lowered = body.lower()
+            fresh = _fresh_text(body)
+            lowered = fresh.lower()
+            author = _person_name(signature) or _redact(from_name)[:60]
             records.append({
-                "words": len(body.split()),
+                "words": len(fresh.split()),
                 "greeting": _greeting(lines),
                 "signoff": signoff,
                 "signature": signature,
                 "stem": _opening_stem(lines),
-                "murali": _is_murali(from_name, signature, body),
+                "murali": "murali" in author.lower(),
+                "author": author,
                 "from_name": _redact(from_name)[:60],
                 "kindly": "kindly" in lowered,
                 "please": "please" in lowered,
                 "thanks": "thank" in lowered,
-                "bullets": bool(re.search(r"(?m)^(?:\*|-|•|\d+[.)])\s+", body)),
+                "bullets": bool(re.search(r"(?m)^(?:\*|-|•|\d+[.)])\s+", fresh)),
             })
         print(json.dumps({
             "progress": folder,
@@ -230,7 +258,12 @@ def main() -> int:
         except Exception:
             pass
     murali_sent = [item for item in sent if item["murali"]]
-    from_names = Counter(item["from_name"] for item in sent if item["from_name"])
+    short_sent = [item for item in sent if 0 < item["words"] <= 80]
+    authors = Counter(item["author"] for item in sent if item["author"])
+    author_profiles = {
+        name: _summary([item for item in sent if item["author"] == name])
+        for name, _count in authors.most_common(6)
+    }
     payload = {
         "ok": True,
         "folders": folders,
@@ -238,8 +271,10 @@ def main() -> int:
         "inbox_folder": inbox_name,
         "inbox_count": len(inbox),
         "sent": _summary(sent),
+        "short_sent": _summary(short_sent),
         "murali_sent": _summary(murali_sent),
-        "sent_from_names": dict(from_names.most_common(8)),
+        "authors": dict(authors.most_common(8)),
+        "author_profiles": author_profiles,
     }
     _write(payload)
     return 0
