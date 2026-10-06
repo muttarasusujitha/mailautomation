@@ -20,15 +20,43 @@ _TRAINER_LANGUAGE = re.compile(
 )
 
 
-def trainer_public_queries(domain, location=""):
-    """Ask a public results page for trainer profiles.
+INDIA_CITIES = (
+    "Hyderabad",
+    "Bangalore",
+    "Pune",
+    "Chennai",
+    "Mumbai",
+    "Delhi",
+    "Noida",
+    "Gurgaon",
+    "Kolkata",
+    "Ahmedabad",
+)
 
-    The wording is a normal trainer search. Domain lock, the skill check, and
-    the older-year check are applied to each result link.
+
+def trainer_public_queries(domain, location=""):
+    """Enough trainer searches to fill a 50-profile route.
+
+    Each query is a normal trainer search. Domain lock, the skill check, and
+    the older-year check are applied to every result link.
     """
     skill = (domain or "").strip()
     place = (location or "").strip()
-    return [" ".join(part for part in (skill, suffix, place) if part) for suffix in TRAINER_QUERY_SUFFIXES]
+    queries = []
+
+    def add(*parts):
+        query = " ".join(part for part in parts if part)
+        if query and query not in queries:
+            queries.append(query)
+
+    for suffix in TRAINER_QUERY_SUFFIXES:
+        add(skill, suffix, place)
+    add(skill, "trainer", place)
+    for city in INDIA_CITIES:
+        if place and city.lower() == place.lower():
+            continue
+        add(skill, "corporate trainer", city)
+    return queries
 
 
 def matches_requested_skill(profile, search_text) -> bool:

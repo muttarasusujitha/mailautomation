@@ -46,19 +46,32 @@ async def discover(domain, mode, target, location=''):
 
     # Public indexes remain usable when the account needs manual verification.
     queries = public_queries(domain, mode, location)
-    for query in queries:
-        need = min(60, max(1, target - len(results)))
+    if mode == 'trainer':
+        from app.clients.public_search import search_public_many
         attempts += 1
         try:
-            outcome = await asyncio.wait_for(search_public(query, need), timeout=20)
+            rows, used = await asyncio.wait_for(search_public_many(queries, max(50, target)), timeout=90)
+            attempts += max(used - 1, 0)
         except Exception as exc:
             warning = search_warning('public', exc)
             if warning not in warnings:
                 warnings.append(warning)
-            continue
-        accept(outcome, 'public')
-        if len(results) >= target:
-            break
+            rows = []
+        accept(rows, 'public')
+    else:
+        for query in queries:
+            need = min(60, max(1, target - len(results)))
+            attempts += 1
+            try:
+                outcome = await asyncio.wait_for(search_public(query, need), timeout=20)
+            except Exception as exc:
+                warning = search_warning('public', exc)
+                if warning not in warnings:
+                    warnings.append(warning)
+                continue
+            accept(outcome, 'public')
+            if len(results) >= target:
+                break
     if len(results) < target:
         attempts += 1
         collected = []

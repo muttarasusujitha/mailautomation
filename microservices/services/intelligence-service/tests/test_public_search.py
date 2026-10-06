@@ -25,7 +25,8 @@ def test_public_fetch_saves_separately_without_paid_search_or_email(mode, collec
     db = {name: AsyncMock() for name in ('trainer_profile_leads', 'client_leads')}
     for table in db.values():
         table.find_one.return_value = None
-    with patch('app.clients.public_discovery.search_public', AsyncMock(return_value=[{'url': url, 'title': content, 'content': content}])), patch('app.routes.linkedin_leads._plain_tavily_search', AsyncMock()) as paid, patch('app.routes.linkedin_leads._auto_send_client_mail', AsyncMock()) as mail:
+    row = [{'url': url, 'title': content, 'content': content}]
+    with patch('app.clients.public_discovery.search_public', AsyncMock(return_value=row)), patch('app.clients.public_search.search_public_many', AsyncMock(return_value=(row, 1))), patch('app.routes.linkedin_leads._plain_tavily_search', AsyncMock()) as paid, patch('app.routes.linkedin_leads._auto_send_client_mail', AsyncMock()) as mail:
         result = asyncio.run(search_linkedin_leads(LinkedInLeadSearchRequest(domain='Python', mode=mode), db))
     assert result['saved_count'] == 1
     if mode == 'client':
