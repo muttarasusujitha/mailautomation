@@ -165,6 +165,18 @@ def _looks_like_client_requirement_post(text: str) -> bool:
     )
 
 
+def _profile_headline(text: str) -> str:
+    """Name and role lines only. Button rows and the About section stay out."""
+    parts = re.split(
+        r"\n\s*(?:connect|follow|message|pending)\s*(?:\n|$)",
+        str(text or ""),
+        maxsplit=1,
+        flags=re.IGNORECASE,
+    )
+    lines = [line.strip() for line in parts[0].splitlines() if line.strip()]
+    return "\n".join(lines[:4])
+
+
 def _text_has_domain(combined_text: str, terms: List[str]) -> bool:
     required = [term for term in terms if term != "full stack"]
     if all(re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", combined_text) for term in required):
@@ -283,12 +295,20 @@ def _normalize_result(item: Dict[str, Any], domain: str, mode: str) -> Optional[
     if terms and not _text_has_domain(combined_text, terms):
         return None
     if mode == 'trainer' and _looks_like_client_requirement_post(combined_text):
-        return None
+        # People cards mention "requirements" in the About text and still name a trainer.
+        # The role has to be in the headline. A hiring sentence in that headline does not qualify.
+        profile = bool(re.search(r"linkedin\.com/in/", url, re.IGNORECASE))
+        headline = _profile_headline(combined_text).lower()
+        role = re.search(
+            r"\b(trainer|instructor|facilitator|coach|corporate training|training consultant)\b",
+            headline,
+        )
+        if not (profile and role and not _looks_like_client_requirement_post(headline)):
+            return None
     email = _best_email(raw_text)
     phone = (_extract_phones(raw_text) or [""])[0]
     if mode == "trainer":
-        if re.search(r"\b(actively seeking|job seeker|looking for job|open to work|full-time role)\b", combined_text):
-            return None
+        # "Open to work" is LinkedIn's photo frame. It still appears on trainer profiles.
         is_profile = bool(re.search(r"linkedin\.com/in/", url, re.IGNORECASE))
         is_post = bool(re.search(r"linkedin\.com/(posts|feed/update|pulse)/", url, re.IGNORECASE))
         is_resume_post = is_post and _looks_like_resume_trainer_post(combined_text)

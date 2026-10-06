@@ -41,16 +41,20 @@ async def discover(domain, mode, target, location=''):
     queries = public_queries(domain, mode, location)
     for start in range(0, len(queries), 2):
         batch = queries[start:start + 2]
-        outcomes = await asyncio.gather(*(asyncio.wait_for(search_public(q, 20), timeout=5) for q in batch), return_exceptions=True)
+        # Bing's feed often needs more than a few seconds. If a batch is entirely
+        # down, start the connected search instead of repeating the same failure.
+        outcomes = await asyncio.gather(*(asyncio.wait_for(search_public(q, 20), timeout=12) for q in batch), return_exceptions=True)
         attempts += len(batch)
+        batch_failed = True
         for outcome in outcomes:
             if isinstance(outcome, BaseException):
                 warning = search_warning('public', outcome)
                 if warning not in warnings:
                     warnings.append(warning)
             else:
+                batch_failed = False
                 accept(outcome, 'public')
-        if len(results) >= target:
+        if len(results) >= target or batch_failed:
             break
     if len(results) < target:
         attempts += 1
