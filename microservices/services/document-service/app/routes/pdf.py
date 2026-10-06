@@ -469,8 +469,8 @@ def _render_invoice_pdf_reportlab(context: Dict[str, Any]) -> bytes:
         textColor=colors.white,
     )
 
-    company_name_full = "BEULIX SOLUTIONS PRIVATE LIMITED"
-    company_name_short = "BEULIX"
+    company_name_full = context.get("company_name_full") or "BEULIX SOLUTIONS PRIVATE LIMITED"
+    company_name_short = context.get("company_name_short") or "BEULIX"
     company_address = context.get("company_address") or ""
     company_email = context.get("company_email") or ""
     company_contact = context.get("company_contact") or ""
@@ -1112,8 +1112,8 @@ async def generate_invoice(
         balance_due = total_amount
 
     amount_words = _number_to_words(int(round(total_amount))) + " Rupees Only"
-    company_name_short = "BEULIX"
-    company_name_full = "BEULIX SOLUTIONS PRIVATE LIMITED"
+    company_name_short = context.get("company_name_short") or "BEULIX"
+    company_name_full = context.get("company_name_full") or "BEULIX SOLUTIONS PRIVATE LIMITED"
     company_address = context.get("company_address") or ""
     company_email = context.get("company_email") or ""
     company_contact = context.get("company_contact") or ""

@@ -1336,9 +1336,69 @@ function TocModal({ trainer, req, onClose, generationMode = 'template' }) {
   )
 }
 
+const ISSUER_STORAGE_KEY = 'clahan_invoice_issuer'
+const DEFAULT_COMPANY_NAME = 'BEULIX SOLUTIONS PRIVATE LIMITED'
+
+function issuerDefaults(req) {
+  const saved = getLS(ISSUER_STORAGE_KEY) || {}
+  return {
+    company_name: saved.company_name || req?.company_name || DEFAULT_COMPANY_NAME,
+    company_address: saved.company_address || req?.company_address || '',
+    company_email: saved.company_email || req?.company_email || '',
+    company_contact: saved.company_contact || req?.company_contact || '',
+    company_pan: saved.company_pan || req?.company_pan || '',
+    company_gst: saved.company_gst || req?.company_gst || '',
+    bank_account_no: saved.bank_account_no || req?.bank_account_no || '',
+    bank_ifsc: saved.bank_ifsc || req?.bank_ifsc || '',
+    place_of_supply: saved.place_of_supply || req?.place_of_supply || '',
+    signatory_name: saved.signatory_name || req?.signatory_name || '',
+  }
+}
+
+function rememberIssuer(form) {
+  setLS(ISSUER_STORAGE_KEY, {
+    company_name: form.company_name,
+    company_address: form.company_address,
+    company_email: form.company_email,
+    company_contact: form.company_contact,
+    company_pan: form.company_pan,
+    company_gst: form.company_gst,
+    bank_account_no: form.bank_account_no,
+    bank_ifsc: form.bank_ifsc,
+    place_of_supply: form.place_of_supply,
+    signatory_name: form.signatory_name,
+  })
+}
+
+function issuerError(form) {
+  if (!String(form.company_name || '').trim()) return 'Company legal name is required'
+  if (!String(form.company_pan || '').trim()) return 'Company PAN is required'
+  if (!String(form.company_gst || '').trim()) return 'Company GSTIN is required'
+  if (!String(form.bank_account_no || '').trim()) return 'Bank account number is required'
+  if (!String(form.bank_ifsc || '').trim()) return 'Bank IFSC is required'
+  return ''
+}
+
+function issuerPayload(form) {
+  return {
+    company_name: String(form.company_name || '').trim(),
+    company_address: String(form.company_address || '').trim(),
+    company_email: String(form.company_email || '').trim(),
+    company_contact: String(form.company_contact || '').trim(),
+    company_pan: String(form.company_pan || '').trim(),
+    company_gst: String(form.company_gst || '').trim(),
+    bank_account_no: String(form.bank_account_no || '').trim(),
+    bank_ifsc: String(form.bank_ifsc || '').trim(),
+    place_of_supply: String(form.place_of_supply || '').trim(),
+    signatory_name: String(form.signatory_name || '').trim(),
+    gst_number: String(form.company_gst || '').trim(),
+  }
+}
+
 function initialPoForm(trainer, req, state) {
   const durationDays = req?.duration_days || (req?.duration_hours ? Math.max(1, Number(req.duration_hours) / 8) : 1)
   return {
+    ...issuerDefaults(req),
     client_name: req?.client_company || req?.client_name || '',
     training_dates: state?.trainingDate || req?.training_dates || req?.timeline_start || '',
     duration_days: durationDays,
@@ -1390,6 +1450,7 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
     client_gstin: form.client_gstin,
     payment_terms: form.payment_terms,
     notes: form.client_po_notes,
+    ...issuerPayload(form),
     items: [{
       description: `${req.technology_needed || 'Training'} Training`,
       hsn_sac: '999293',
@@ -1400,6 +1461,8 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
   })
 
   const createPo = async () => {
+    const missingIssuer = issuerError(form)
+    if (missingIssuer) return toast.error(missingIssuer)
     if (!form.client_name.trim()) return toast.error('Client name is required')
     if (!form.training_dates.trim()) return toast.error('Training dates are required')
     if (!Number(form.duration_days || 0)) return toast.error('Duration is required')
@@ -1410,6 +1473,7 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
       const res = await api.post('/purchase-orders/generate', payload())
       const generated = res.data.purchase_order
       setPo(generated)
+      rememberIssuer(form)
       toast.success(`PO ${generated.po_number} generated`)
       return generated
     } catch (e) {
@@ -1423,6 +1487,11 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
   const ensurePo = async () => po || await createPo()
 
   const ensureInvoice = async () => {
+    const missingIssuer = issuerError(form)
+    if (missingIssuer) {
+      toast.error(missingIssuer)
+      return null
+    }
     if (!req?.client_email) {
       toast.error('Client email is required before invoice can be sent')
       return null
@@ -1449,12 +1518,15 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
           payment_terms: form.payment_terms,
           client_po_notes: form.client_po_notes,
           items: payload().items,
+          ...issuerPayload(form),
         })
       : await api.post(`/purchase-orders/${current.po_id}/generate-invoice`, {
           gst_rate: gstRate,
+          ...issuerPayload(form),
         })
     const generated = res.data.invoice
     setInvoice(generated)
+    rememberIssuer(form)
     onStageChange?.('invoice_generated', {
       invoiceGeneratedAt: Date.now(),
       invoiceId: generated.invoice_id,
@@ -1602,6 +1674,49 @@ function PurchaseOrderModal({ trainer, req, state, onClose, onStageChange }) {
             <div className="md:col-span-2">
               <label className="label">Client Billing Address</label>
               <textarea rows={2} className="input resize-none" value={form.client_billing_address} onChange={e => update('client_billing_address', e.target.value)} placeholder="Billing address from client PO" />
+            </div>
+            <div className="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50 p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+              <p className="md:col-span-2 text-xs font-bold uppercase tracking-wide text-slate-500">Your company, printed on the invoice</p>
+              <div>
+                <label className="label">Legal Name</label>
+                <input className="input" value={form.company_name} onChange={e => update('company_name', e.target.value)} placeholder="Company legal name" />
+              </div>
+              <div>
+                <label className="label">Signatory</label>
+                <input className="input" value={form.signatory_name} onChange={e => update('signatory_name', e.target.value)} placeholder="Authorized signatory" />
+              </div>
+              <div>
+                <label className="label">Company PAN</label>
+                <input className="input" value={form.company_pan} onChange={e => update('company_pan', e.target.value)} placeholder="Company PAN" />
+              </div>
+              <div>
+                <label className="label">Company GSTIN</label>
+                <input className="input" value={form.company_gst} onChange={e => update('company_gst', e.target.value)} placeholder="Company GSTIN" />
+              </div>
+              <div>
+                <label className="label">Bank Account Number</label>
+                <input className="input" value={form.bank_account_no} onChange={e => update('bank_account_no', e.target.value)} placeholder="Account number" />
+              </div>
+              <div>
+                <label className="label">Bank IFSC</label>
+                <input className="input" value={form.bank_ifsc} onChange={e => update('bank_ifsc', e.target.value)} placeholder="IFSC code" />
+              </div>
+              <div>
+                <label className="label">Company Email</label>
+                <input className="input" value={form.company_email} onChange={e => update('company_email', e.target.value)} placeholder="accounts@company.com" />
+              </div>
+              <div>
+                <label className="label">Company Phone</label>
+                <input className="input" value={form.company_contact} onChange={e => update('company_contact', e.target.value)} placeholder="Contact number" />
+              </div>
+              <div>
+                <label className="label">Place of Supply</label>
+                <input className="input" value={form.place_of_supply} onChange={e => update('place_of_supply', e.target.value)} placeholder="State" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="label">Company Address</label>
+                <textarea rows={2} className="input resize-none" value={form.company_address} onChange={e => update('company_address', e.target.value)} placeholder="Registered address" />
+              </div>
             </div>
             <div className="md:col-span-2">
               <label className="label">Payment Terms</label>

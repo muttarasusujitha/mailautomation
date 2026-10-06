@@ -42,6 +42,16 @@ class POGenerateRequest(BaseModel):
     payment_terms: Optional[str] = ""
     items: List[Dict[str, Any]] = []
     notes: Optional[str] = ""
+    company_name: Optional[str] = ""
+    company_address: Optional[str] = ""
+    company_email: Optional[str] = ""
+    company_contact: Optional[str] = ""
+    company_pan: Optional[str] = ""
+    company_gst: Optional[str] = ""
+    bank_account_no: Optional[str] = ""
+    bank_ifsc: Optional[str] = ""
+    place_of_supply: Optional[str] = ""
+    signatory_name: Optional[str] = ""
 class POSendRequest(BaseModel):
     to_email: str
     subject: Optional[str] = ""
@@ -62,6 +72,16 @@ class InvoiceGenerateRequest(BaseModel):
     tax_type: Optional[str] = ""
     gst_rate: float = 18.0
     additional_notes: Optional[str] = ""
+    company_name: Optional[str] = ""
+    company_address: Optional[str] = ""
+    company_email: Optional[str] = ""
+    company_contact: Optional[str] = ""
+    company_pan: Optional[str] = ""
+    company_gst: Optional[str] = ""
+    bank_account_no: Optional[str] = ""
+    bank_ifsc: Optional[str] = ""
+    place_of_supply: Optional[str] = ""
+    signatory_name: Optional[str] = ""
 
 
 class InvoiceSendRequest(BaseModel):
@@ -101,6 +121,16 @@ async def generate_purchase_order(payload: POGenerateRequest, db: AsyncIOMotorDa
         "payment_terms": payload.payment_terms or "",
         "items": payload.items,
         "notes": payload.notes,
+        "company_name": payload.company_name or "",
+        "company_address": payload.company_address or "",
+        "company_email": payload.company_email or "",
+        "company_contact": payload.company_contact or "",
+        "company_pan": payload.company_pan or "",
+        "company_gst": payload.company_gst or "",
+        "bank_account_no": payload.bank_account_no or "",
+        "bank_ifsc": payload.bank_ifsc or "",
+        "place_of_supply": payload.place_of_supply or "",
+        "signatory_name": payload.signatory_name or "",
         "status": "draft",
         "date": now.strftime("%d-%m-%Y"),
         "created_at": now,
@@ -249,6 +279,11 @@ async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, 
                 "rate": rate,
                 "amount": subtotal,
             }]
+    def issuer_value(key: str) -> str:
+        return str(getattr(payload, key, "") or po.get(key) or "").strip()
+
+    company_name = issuer_value("company_name") or "BEULIX SOLUTIONS PRIVATE LIMITED"
+    company_gst = issuer_value("company_gst") or str(payload.gst_number or "").strip()
     gst_rate = payload.gst_rate if payload.gst_rate is not None else float(po.get("gst_rate") or 18)
     gst_amount = round(subtotal * gst_rate / 100, 2)
     grand_total = round(subtotal + gst_amount, 2)
@@ -259,13 +294,13 @@ async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, 
         "requirement_id": po.get("requirement_id"),
         "trainer_id": po.get("trainer_id"),
         "vendor_name": po.get("vendor_name"),
-        "company_name_short": po.get("vendor_name"),
-        "company_name_full": po.get("vendor_name"),
-        "company_address": po.get("company_address", ""),
-        "company_email": po.get("company_email", ""),
-        "company_contact": po.get("company_contact", ""),
-        "company_pan": po.get("company_pan", ""),
-        "company_gst": po.get("company_gst", ""),
+        "company_name_short": "BEULIX" if company_name.upper().startswith("BEULIX") else company_name.split()[0],
+        "company_name_full": company_name,
+        "company_address": issuer_value("company_address"),
+        "company_email": issuer_value("company_email"),
+        "company_contact": issuer_value("company_contact"),
+        "company_pan": issuer_value("company_pan"),
+        "company_gst": company_gst,
         "client_name": po.get("client_name"),
         "client_email": po.get("client_email"),
         "client_billing_address": po.get("client_billing_address"),
@@ -283,13 +318,13 @@ async def generate_invoice_from_po(po_id: str, payload: InvoiceGenerateRequest, 
         "gst_rate": gst_rate,
         "payment_terms": po.get("payment_terms"),
         "terms_and_conditions": po.get("terms_and_conditions", ""),
-        "place_of_supply": po.get("place_of_supply", ""),
-        "bank_account_no": po.get("bank_account_no", ""),
-        "bank_ifsc": po.get("bank_ifsc", ""),
-        "signatory_name": po.get("signatory_name", ""),
+        "place_of_supply": issuer_value("place_of_supply"),
+        "bank_account_no": issuer_value("bank_account_no"),
+        "bank_ifsc": issuer_value("bank_ifsc"),
+        "signatory_name": issuer_value("signatory_name"),
         "balance_due": grand_total,
         "items": items,
-        "gst_number": payload.gst_number,
+        "gst_number": company_gst,
         "invoice_date": payload.invoice_date or now.strftime("%d-%m-%Y"),
         "issue_date": payload.invoice_date or now.strftime("%d-%m-%Y"),
         "due_date": payload.due_date or "",

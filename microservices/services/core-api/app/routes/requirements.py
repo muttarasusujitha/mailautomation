@@ -1318,6 +1318,16 @@ class InvoiceFromPORequest(_BaseModel):
     hsn_sac: str = ""
     quantity: float = 0.0
     additional_notes: str = ""
+    company_name: str = ""
+    company_address: str = ""
+    company_email: str = ""
+    company_contact: str = ""
+    company_pan: str = ""
+    company_gst: str = ""
+    bank_account_no: str = ""
+    bank_ifsc: str = ""
+    place_of_supply: str = ""
+    signatory_name: str = ""
 
 
 @router.post("/{req_id}/request-client-po")
@@ -1545,6 +1555,16 @@ async def generate_invoice_from_requirement_po(
             "payment_terms": payload.payment_terms,
             "items": items,
             "notes": payload.client_po_notes or payload.additional_notes or "",
+            "company_name": payload.company_name,
+            "company_address": payload.company_address,
+            "company_email": payload.company_email,
+            "company_contact": payload.company_contact,
+            "company_pan": payload.company_pan,
+            "company_gst": payload.company_gst or payload.gst_number,
+            "bank_account_no": payload.bank_account_no,
+            "bank_ifsc": payload.bank_ifsc,
+            "place_of_supply": payload.place_of_supply,
+            "signatory_name": payload.signatory_name,
         }
 
         try:
@@ -1583,6 +1603,16 @@ async def generate_invoice_from_requirement_po(
         "payment_terms": payload.payment_terms or po.get("payment_terms", ""),
         "items": payload.items or po.get("items", []),
         "notes": payload.client_po_notes or payload.additional_notes or po.get("notes", ""),
+        "company_name": payload.company_name or po.get("company_name", ""),
+        "company_address": payload.company_address or po.get("company_address", ""),
+        "company_email": payload.company_email or po.get("company_email", ""),
+        "company_contact": payload.company_contact or po.get("company_contact", ""),
+        "company_pan": payload.company_pan or po.get("company_pan", ""),
+        "company_gst": payload.company_gst or payload.gst_number or po.get("company_gst", ""),
+        "bank_account_no": payload.bank_account_no or po.get("bank_account_no", ""),
+        "bank_ifsc": payload.bank_ifsc or po.get("bank_ifsc", ""),
+        "place_of_supply": payload.place_of_supply or po.get("place_of_supply", ""),
+        "signatory_name": payload.signatory_name or po.get("signatory_name", ""),
         "updated_at": datetime.utcnow(),
     }
     await db["purchase_orders"].update_one({"po_id": po_id}, {"$set": po_update})
@@ -1599,6 +1629,17 @@ async def generate_invoice_from_requirement_po(
                     "tax_type": payload.tax_type,
                     "gst_rate": payload.gst_rate,
                     "additional_notes": payload.additional_notes,
+                    "company_name": payload.company_name,
+                    "company_address": payload.company_address,
+                    "company_email": payload.company_email,
+                    "company_contact": payload.company_contact,
+                    "company_pan": payload.company_pan,
+                    "company_gst": payload.company_gst or payload.gst_number,
+                    "bank_account_no": payload.bank_account_no,
+                    "bank_ifsc": payload.bank_ifsc,
+                    "place_of_supply": payload.place_of_supply,
+                    "signatory_name": payload.signatory_name,
+                    "gst_number": payload.company_gst or payload.gst_number,
                 },
             )
         if r.status_code < 400:

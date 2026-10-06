@@ -28,6 +28,12 @@ def test_invoice_uses_day_rate_and_duration_when_the_total_is_blank():
             "training_domain": "Python",
             "items": [],
             "total_amount": 0,
+            "company_name": "BEULIX SOLUTIONS PRIVATE LIMITED",
+            "company_pan": "TESTP1234Z",
+            "company_gst": "29TESTP1234Z1Z5",
+            "bank_account_no": "000111222333",
+            "bank_ifsc": "TEST0001234",
+            "company_address": "Hyderabad",
         }),
         "invoices": _Collection(),
         "requirements": _Collection(),
@@ -42,3 +48,8 @@ def test_invoice_uses_day_rate_and_duration_when_the_total_is_blank():
     assert invoice["commercials"]["gst_amount"] == 4500
     assert invoice["commercials"]["grand_total"] == 29500
     assert invoice["balance_due"] == 29500
+    assert invoice["company_pan"] == "TESTP1234Z"
+    assert invoice["company_gst"] == "29TESTP1234Z1Z5"
+    assert invoice["bank_account_no"] == "000111222333"
+    assert invoice["bank_ifsc"] == "TEST0001234"
+    assert invoice["company_name_full"] == "BEULIX SOLUTIONS PRIVATE LIMITED"
