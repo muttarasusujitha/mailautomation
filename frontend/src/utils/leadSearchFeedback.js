@@ -38,7 +38,7 @@ export function linkedInSearchPayload(mode, domainText) {
     source: 'linkedin',
     mode: trainerSearch ? 'trainer' : 'client',
     domains: linkedInSearchDomains(domainText),
-    max_results: 50,
+    max_results: trainerSearch ? 60 : 50,
     save: true,
     max_queries: trainerSearch ? 8 : 2,
     max_domains: 4,

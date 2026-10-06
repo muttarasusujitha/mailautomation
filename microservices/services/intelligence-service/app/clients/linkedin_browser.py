@@ -198,7 +198,7 @@ def _people_search_url(keywords, page_number):
     return 'https://www.linkedin.com/search/results/people/?' + urlencode({'keywords': keywords, 'page': page_number})
 
 
-from shared.trainer_targets import TRAINER_RESULT_TARGET, TRAINER_SCAN_LIMIT
+from shared.trainer_targets import TRAINER_RESULT_CEILING, TRAINER_RESULT_TARGET, TRAINER_SCAN_LIMIT
 
 
 async def collect_trainer_profiles(page, domain, location, limit, collected=None):
@@ -206,10 +206,10 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     from app.routes.linkedin_leads import _normalize_result
     results = [] if collected is None else collected
     seen, visited = {row.get('url') for row in results}, set()
-    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_TARGET)
+    limit = min(max(int(limit or 1), 1), TRAINER_RESULT_CEILING)
     scan_limit = TRAINER_SCAN_LIMIT if limit >= TRAINER_RESULT_TARGET else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
-    # LinkedIn shows about ten people per page, so 200 profiles is 20 pages.
-    page_cap = 20 if limit >= TRAINER_RESULT_TARGET else min(20, max(limit, 2))
+    # LinkedIn shows about ten people per page. A 60-profile fetch can read 24 pages, then stops.
+    page_cap = max(1, (scan_limit + 9) // 10) if limit >= TRAINER_RESULT_TARGET else min(20, max(limit, 2))
     deadline = asyncio.get_running_loop().time() + (180 if limit >= TRAINER_RESULT_TARGET else 65)
 
     def timed_out():

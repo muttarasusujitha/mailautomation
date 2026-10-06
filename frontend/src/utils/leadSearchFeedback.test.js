@@ -13,6 +13,8 @@ test('client and trainer searches both post into LinkedIn search with the same d
   assert.equal(trainer.save, true)
   assert.equal(client.search_provider, 'auto')
   assert.equal(trainer.search_provider, 'auto')
+  assert.equal(trainer.max_results, 60)
+  assert.equal(client.max_results, 50)
 })
 
 test('an entered domain list is shared by both LinkedIn search modes', () => {

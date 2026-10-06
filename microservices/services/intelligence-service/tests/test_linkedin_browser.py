@@ -208,7 +208,7 @@ def test_people_search_keeps_paging_until_the_fifty_profile_target():
     assert all('page=' in call.args[0] for call in page.goto.await_args_list)
 
 
-def test_scanning_two_hundred_people_returns_fifty_trainers():
+def test_scanning_people_stops_at_sixty_trainer_profiles():
     from app.clients.linkedin_browser import collect_trainer_profiles
     page = MagicMock()
     page.goto = AsyncMock(return_value=MagicMock(status=200))
@@ -231,12 +231,13 @@ def test_scanning_two_hundred_people_returns_fifty_trainers():
     people.evaluate_all = AsyncMock(side_effect=pages)
     page.locator.return_value = people
     with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
-        rows = asyncio.run(collect_trainer_profiles(page, 'SAP', '', 50))
-    assert len(rows) == 50
-    assert len({row['url'] for row in rows}) == 50
+        rows = asyncio.run(collect_trainer_profiles(page, 'SAP', '', 60))
+    assert len(rows) == 60
+    assert len({row['url'] for row in rows}) == 60
     assert all('trainer-' in row['url'] for row in rows)
-    assert page.goto.await_count == 10
-    assert any('page=10' in call.args[0] for call in page.goto.await_args_list)
+    assert page.goto.await_count == 12
+    assert any('page=12' in call.args[0] for call in page.goto.await_args_list)
+    assert all('page=13' not in call.args[0] for call in page.goto.await_args_list)
     page.get_by_role.return_value.click.assert_not_awaited()
 
 

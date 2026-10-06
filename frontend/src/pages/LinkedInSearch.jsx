@@ -390,7 +390,7 @@ export default function LinkedInSearch() {
               placeholder={isTrainer ? 'Python, AWS' : 'Python, AWS'}
             />
             <p className="mt-1 text-xs text-slate-400">
-              <strong>Automatic search:</strong> {isTrainer ? 'Trainer profiles' : 'Client posts seeking trainers'} for {searchDomains || AUTOMATIC_LINKEDIN_DOMAINS.join(', ')} load into the list below.
+              <strong>Automatic search:</strong> {isTrainer ? 'At least 60 trainer profiles' : 'Client posts seeking trainers'} for {searchDomains || AUTOMATIC_LINKEDIN_DOMAINS.join(', ')} load into the list below. The trainer search stops once 60 profiles are saved.
               Change the domains and choose {isTrainer ? 'Find Profiles' : 'Find Client Posts'} to search again. Fetching does not send email.
             </p>
           </div>
