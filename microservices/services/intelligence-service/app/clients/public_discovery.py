@@ -15,7 +15,7 @@ async def discover_public(domain, mode, target=20, location=''):
                     for phrase in ('need a trainer', 'freelance trainer required', 'corporate training requirement', 'seeking training partner')]
     if mode == 'trainer':
         try:
-            batch, attempts = await asyncio.wait_for(search_public_many(queries, target), timeout=90)
+            batch, attempts = await search_public_many(queries, target)
         except Exception as exc:
             batch, attempts = [], 1
             warnings = [str(exc) or type(exc).__name__]

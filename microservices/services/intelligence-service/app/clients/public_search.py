@@ -231,20 +231,40 @@ def parse_results(content, limit):
     return results
 
 
-async def _search_page(client, query, limit, first):
-    response = await client.get('https://www.bing.com/search', params={'q': query, 'count': min(limit, 20), 'first': first})
-    if response.status_code != 200:
+_PAGE_TIMEOUT = httpx.Timeout(connect=5.0, read=10.0, write=5.0, pool=5.0)
+_HEADERS = {'User-Agent': _BROWSER, 'Accept-Language': 'en-US,en;q=0.9'}
+
+
+async def _fetch(method, url, retries=1, **kwargs):
+    """One short request, then one retry. A timeout returns no response and does not raise."""
+    timed_out = False
+    for _ in range(retries + 1):
+        try:
+            async with httpx.AsyncClient(timeout=_PAGE_TIMEOUT, follow_redirects=False, headers=_HEADERS) as client:
+                return await client.request(method, url, **kwargs), False
+        except httpx.TimeoutException:
+            timed_out = True
+        except httpx.HTTPError:
+            return None, False
+    return None, timed_out
+
+
+async def _search_page(query, limit, first):
+    response, timed_out = await _fetch(
+        'GET', 'https://www.bing.com/search', params={'q': query, 'count': min(limit, 20), 'first': first})
+    if timed_out or response is None or response.status_code != 200:
         raise ValueError('Public search is temporarily unavailable or rate limited')
     if len(response.content) > 1_000_000:
         raise ValueError('Public search response is too large')
     return parse_html(response.content, limit)
 
 
-async def _read_ddg_pages(client, response, limit, found, seen):
+async def _read_ddg_pages(response, limit, found, seen):
     """Page a results response until no new profile links appear. A challenge is not solved."""
     challenged = False
+    timed_out = False
     pages = 0
-    while pages < 6 and len(found) < limit:
+    while pages < 6 and response is not None and len(found) < limit:
         pages += 1
         if _ddg_challenged(response):
             challenged = True
@@ -260,32 +280,33 @@ async def _read_ddg_pages(client, response, limit, found, seen):
         fields = _ddg_next_fields(response.content)
         if not fields or len(found) >= limit:
             break
-        try:
-            response = await client.post('https://html.duckduckgo.com/html/', data=fields)
-        except httpx.HTTPError:
+        response, timed_out = await _fetch('POST', 'https://html.duckduckgo.com/html/', data=fields)
+        if timed_out or response is None:
             break
-    return challenged
+    return challenged, timed_out
 
 
-async def _search_ddg(client, query, limit, found=None, seen=None, warm=True):
+async def _search_ddg(query, limit, found=None, seen=None, warm=True):
     """Read profile links from a public results page. A challenge page is not solved."""
     found = found if found is not None else []
     seen = seen if seen is not None else set()
-    try:
-        if warm:
-            await client.get('https://duckduckgo.com/')
-        response = await client.get('https://html.duckduckgo.com/html/', params={'q': query, 'kl': 'in-en'})
-    except httpx.HTTPError:
+    if warm:
+        await _fetch('GET', 'https://duckduckgo.com/', retries=0)
+    response, timed_out = await _fetch('GET', 'https://html.duckduckgo.com/html/', params={'q': query, 'kl': 'in-en'})
+    if timed_out or response is None:
         return found, False
-    challenged = await _read_ddg_pages(client, response, limit, found, seen)
+    challenged, _timed_out = await _read_ddg_pages(response, limit, found, seen)
     return found, challenged
 
 
-async def _search_bing(client, query, limit):
+async def _search_bing(query, limit):
     found, seen = [], set()
     first = 1
     while len(found) < limit and first <= 41:
-        page = await _search_page(client, query, limit - len(found), first)
+        try:
+            page = await _search_page(query, limit - len(found), first)
+        except ValueError:
+            break
         added = [row for row in page if row['url'] not in seen]
         if not added:
             break
@@ -298,44 +319,44 @@ async def _search_bing(client, query, limit):
 async def search_public(query, limit=10):
     """Read a public results page, then the next page only while new profile links appear."""
     limit = min(max(int(limit or 1), 1), 60)
-    headers = {'User-Agent': _BROWSER, 'Accept-Language': 'en-US,en;q=0.9'}
-    async with httpx.AsyncClient(timeout=12, follow_redirects=False, headers=headers) as client:
-        found, challenged = await _search_ddg(client, query, limit)
-        if found or challenged:
-            return found[:limit]
-        return (await _search_bing(client, query, limit))[:limit]
+    found, challenged = await _search_ddg(query, limit)
+    if found or challenged:
+        return found[:limit]
+    return (await _search_bing(query, limit))[:limit]
 
 
 async def search_public_many(queries, limit=50):
-    """Keep reading result pages until the route minimum is filled."""
+    """Keep reading result pages until the route minimum is filled or the connection stops answering."""
     limit = min(max(int(limit or 1), 1), 60)
-    headers = {'User-Agent': _BROWSER, 'Accept-Language': 'en-US,en;q=0.9'}
     found, seen = [], set()
     challenges = 0
+    timeouts = 0
     attempts = 0
-    async with httpx.AsyncClient(timeout=12, follow_redirects=False, headers=headers) as client:
-        try:
-            await client.get('https://duckduckgo.com/')
-        except httpx.HTTPError:
-            pass
-        for query in queries:
-            if len(found) >= limit or challenges >= 8:
-                break
-            attempts += 1
-            before = len(found)
-            try:
-                response = await client.get('https://html.duckduckgo.com/html/', params={'q': query, 'kl': 'in-en'})
-            except httpx.HTTPError:
+    await _fetch('GET', 'https://duckduckgo.com/', retries=0)
+    for query in queries:
+        if len(found) >= limit or challenges >= 8 or timeouts >= 2:
+            break
+        attempts += 1
+        before = len(found)
+        response, timed_out = await _fetch('GET', 'https://html.duckduckgo.com/html/', params={'q': query, 'kl': 'in-en'})
+        if timed_out or response is None:
+            if timed_out:
+                timeouts += 1
+            else:
                 challenges += 1
-                continue
-            challenged = await _read_ddg_pages(client, response, limit, found, seen)
-            if challenged and len(found) == before:
-                challenges += 1
-            elif len(found) > before:
-                challenges = 0
-        if not found and challenges < 3 and queries:
-            try:
-                found.extend(await _search_bing(client, queries[0], limit))
-            except ValueError:
-                pass
+                timeouts = 0
+            continue
+        challenged, page_timeout = await _read_ddg_pages(response, limit, found, seen)
+        if page_timeout:
+            timeouts += 1
+        elif challenged and len(found) == before:
+            challenges += 1
+            timeouts = 0
+        elif len(found) > before:
+            challenges = 0
+            timeouts = 0
+        else:
+            timeouts = 0
+    if not found and timeouts < 2 and challenges < 3 and queries:
+        found.extend(await _search_bing(queries[0], limit))
     return found[:limit], attempts

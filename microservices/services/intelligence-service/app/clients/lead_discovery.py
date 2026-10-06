@@ -50,7 +50,7 @@ async def discover(domain, mode, target, location=''):
         from app.clients.public_search import search_public_many
         attempts += 1
         try:
-            rows, used = await asyncio.wait_for(search_public_many(queries, max(50, target)), timeout=90)
+            rows, used = await search_public_many(queries, max(50, target))
             attempts += max(used - 1, 0)
         except Exception as exc:
             warning = search_warning('public', exc)
