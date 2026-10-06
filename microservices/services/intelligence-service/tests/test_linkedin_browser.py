@@ -260,6 +260,71 @@ def test_blank_people_page_is_reread_before_the_search_stops():
     assert [row['url'] for row in rows] == ['https://www.linkedin.com/in/ada']
 
 
+def test_flattened_people_results_keep_each_trainers_headline():
+    from app.clients.linkedin_browser import pair_profile_lines, people_rows_from_snapshot
+    rows = pair_profile_lines(
+        [
+            {'url': 'https://www.linkedin.com/in/ada?trk=1', 'name': 'Ada'},
+            {'url': 'https://www.linkedin.com/in/ada', 'name': 'Ada'},
+            {'url': 'https://www.linkedin.com/in/mutual', 'name': 'Sam and 4 other mutual connections'},
+            {'url': 'https://www.linkedin.com/in/ben', 'name': 'Ben'},
+            {'url': 'https://www.linkedin.com/in/adam', 'name': 'Adam'},
+        ],
+        [
+            'Ada',
+            '2nd',
+            'Soft Skills Trainer',
+            'Hyderabad',
+            'Connect',
+            'Looking for a soft skills trainer',
+            'Ben',
+            'Corporate facilitator for soft skills',
+            'Adam',
+            'SAP consultant',
+        ],
+    )
+    assert [row['url'] for row in rows] == [
+        'https://www.linkedin.com/in/ada',
+        'https://www.linkedin.com/in/ben',
+        'https://www.linkedin.com/in/adam',
+    ]
+    assert 'Looking for' not in rows[0]['text']
+    assert 'Soft Skills Trainer' in rows[0]['text']
+    assert 'facilitator' in rows[1]['text']
+    assert people_rows_from_snapshot([{'url': 'https://www.linkedin.com/in/ada', 'text': 'Ada\nSoft Skills Trainer'}])[0]['text'].startswith('Ada')
+
+
+def test_headline_snapshot_collects_soft_skills_trainers_without_content_fallback():
+    from app.clients.linkedin_browser import collect_trainer_profiles
+    page = MagicMock()
+    page.goto = AsyncMock(return_value=MagicMock(status=200))
+    page.wait_for_timeout = AsyncMock()
+    page.mouse.wheel = AsyncMock()
+    snapshot = [{
+        'links': [
+            {'url': 'https://www.linkedin.com/in/ada', 'name': 'Ada'},
+            {'url': 'https://www.linkedin.com/in/ben', 'name': 'Ben'},
+        ],
+        'lines': ['Ada', 'Soft Skills Trainer', 'Hyderabad', 'Ben', 'Corporate facilitator for soft skills'],
+    }]
+    people = MagicMock()
+    people.first.wait_for = AsyncMock()
+    people.evaluate_all = AsyncMock(return_value=snapshot)
+
+    def locate(selector):
+        if 'listitem' in selector:
+            raise AssertionError('content fallback started after headline snapshots already matched')
+        return people
+
+    page.locator.side_effect = locate
+    with patch('app.clients.linkedin_browser.require_session', AsyncMock()):
+        rows = asyncio.run(collect_trainer_profiles(page, 'soft skills', '', 2))
+    assert [row['url'] for row in rows] == [
+        'https://www.linkedin.com/in/ada',
+        'https://www.linkedin.com/in/ben',
+    ]
+
+
 def test_joined_domain_words_still_match_trainer_profiles():
     item = {'url': 'https://www.linkedin.com/in/ada', 'title': 'Ada', 'content': 'SoftSkills corporate trainer'}
     lead = _normalize_result(item, 'soft skills', 'trainer')

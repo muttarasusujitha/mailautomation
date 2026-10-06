@@ -251,11 +251,10 @@ export default function Dashboard() {
     setFetchingLinkedIn(true)
     setLinkedinMessage('Fetching Python client requirements and trainer profiles…')
     try {
-      const body = { domains: ['Python'], search_provider: 'public', save: true, max_results: 20, max_queries: 2 }
-      const [clientRes, trainerRes] = await Promise.all([
-        api.post('/linkedin-leads/search', { ...body, mode: 'client' }),
-        api.post('/linkedin-leads/search', { ...body, mode: 'trainer' }),
-      ])
+      const body = { domains: ['Python'], search_provider: 'auto', save: true, max_results: 50, max_queries: 2 }
+      // The connected browser allows one fetch at a time. Run client posts, then trainer profiles.
+      const clientRes = await api.post('/linkedin-leads/search', { ...body, mode: 'client' })
+      const trainerRes = await api.post('/linkedin-leads/search', { ...body, mode: 'trainer' })
       const clientSaved = Number(clientRes.data?.saved_count || 0)
       const trainerSaved = Number(trainerRes.data?.saved_count || 0)
       const clientFound = Number(clientRes.data?.found || 0)

@@ -69,6 +69,9 @@ function trainerProfileText(lead) {
     lead?.headline,
     lead?.profile_text,
     lead?.snippet,
+    lead?.notes,
+    lead?.title,
+    lead?.name,
   ].join(' ').toLowerCase()
 }
 
@@ -310,7 +313,10 @@ export default function LinkedInSearch() {
     }
     if (selectedDomain === 'all') return leads
     const selected = selectedDomain.toLowerCase()
-    return leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
+    const filtered = leads.filter(lead => leadDomain(lead).toLowerCase() === selected || leadSearchText(lead).includes(selected))
+    // A domain chip that does not match the loaded rows must not blank the list
+    // while All Domains still shows the saved profiles.
+    return filtered.length ? filtered : leads
   }, [leads, selectedDomain, showSearchMatches, searchReport])
 
   const visibleStats = useMemo(() => ({
