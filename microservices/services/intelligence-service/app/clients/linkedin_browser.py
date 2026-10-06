@@ -183,19 +183,37 @@ async def read_post_cards(page, context, mode, limit, results=None, processed=No
     return results
 
 
-# Result-card text, not the name link alone. Header/profile-menu links stay out.
+# Result-card text, including cards rendered inside a shadow root. Stop before
+# the search chrome, so the query box cannot qualify every person on the page.
 PEOPLE_CARDS = """els => els.flatMap(a => {
-  const card = a.closest('[data-view-name="search-entity-result-universal-template"], li.reusable-search__result-container, .entity-result, [role="listitem"], article, li')
-    || (a.closest('main, [role="main"], .search-results-container') ? (a.parentElement?.parentElement?.parentElement || a.parentElement || a) : null);
-  if (!card) return [];
-  const text = (card.innerText || a.innerText || '').trim();
-  if (!text) return [];
-  return [{url: a.href, text: text.slice(0, 4000)}];
+  const chunks = [];
+  let node = a;
+  for (let depth = 0; depth < 8 && node; depth += 1) {
+    const text = ((node.innerText || node.textContent || '').trim());
+    if (text) chunks.push(text);
+    if (text.length > 500) break;
+    const parent = node.parentElement;
+    if (parent) node = parent;
+    else {
+      const root = node.getRootNode ? node.getRootNode() : null;
+      node = root && root.host ? root.host : null;
+    }
+  }
+  const text = chunks.reduce((best, item) => (
+    item.length <= 500 && item.length > best.length ? item : best
+  ), '');
+  const href = a.href || a.getAttribute('href') || '';
+  if (!href || !text) return [];
+  return [{url: href, text: text.slice(0, 4000)}];
 })"""
 
 
 def _people_search_url(keywords, page_number):
-    return 'https://www.linkedin.com/search/results/people/?' + urlencode({'keywords': keywords, 'page': page_number})
+    return 'https://www.linkedin.com/search/results/people/?' + urlencode({
+        'keywords': keywords,
+        'origin': 'GLOBAL_SEARCH_HEADER',
+        'page': page_number,
+    })
 
 
 from shared.trainer_targets import TRAINER_RESULT_TARGET, TRAINER_SCAN_LIMIT
@@ -203,6 +221,7 @@ from shared.trainer_targets import TRAINER_RESULT_TARGET, TRAINER_SCAN_LIMIT
 
 async def collect_trainer_profiles(page, domain, location, limit, collected=None):
     """Page through people search until the qualified target or the scan limit is met."""
+    from app.clients.linkedin_people import profiles_from_text
     from app.routes.linkedin_leads import _normalize_result
     results = [] if collected is None else collected
     seen, visited = {row.get('url') for row in results}, set()
@@ -210,7 +229,9 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
     scan_limit = TRAINER_SCAN_LIMIT if limit >= TRAINER_RESULT_TARGET else min(TRAINER_SCAN_LIMIT, max(limit * 4, limit))
     # LinkedIn shows about ten people per page, so 200 profiles is 20 pages.
     page_cap = 20 if limit >= TRAINER_RESULT_TARGET else min(20, max(limit, 2))
-    deadline = asyncio.get_running_loop().time() + (180 if limit >= TRAINER_RESULT_TARGET else 65)
+    # Stay inside the gateway budget so a finished page of profiles is returned
+    # instead of being cut off while later pages are still loading.
+    deadline = asyncio.get_running_loop().time() + 100
 
     def timed_out():
         return asyncio.get_running_loop().time() >= deadline
@@ -245,11 +266,72 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                     break
         return new_urls, len(links or [])
 
+    payloads, tasks = [], []
+
+    async def capture_response(response):
+        try:
+            content_type = (response.headers.get('content-type') or '')
+            if response.status != 200 or 'json' not in content_type:
+                return
+            body = await response.text()
+        except Exception:
+            return
+        if not isinstance(body, str):
+            return
+        flattened = body.replace('\\/', '/')
+        markers = flattened.lower()
+        if 'linkedin.com/in/' in markers and ('navigationurl' in markers or 'actiontarget' in markers):
+            payloads.append(body[:2_000_000])
+
+    def on_response(response):
+        tasks.append(asyncio.create_task(capture_response(response)))
+
+    try:
+        page.on('response', on_response)
+    except Exception:
+        pass
+
+    async def absorb_markup():
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
+            tasks.clear()
+        blobs = list(payloads)
+        payloads.clear()
+        try:
+            html = await page.content()
+        except Exception:
+            html = ''
+        if isinstance(html, str) and html:
+            blobs.append(html)
+        added = 0
+        for blob in blobs:
+            if not isinstance(blob, str):
+                continue
+            for profile in profiles_from_text(blob):
+                url = canonical_url(profile.get('url', ''))
+                text = profile.get('content') or ''
+                if not url or not text.strip() or url in visited or len(visited) >= scan_limit:
+                    continue
+                visited.add(url)
+                added += 1
+                if url in seen:
+                    continue
+                candidate = {'url': url, 'title': (profile.get('title') or profile_title(text))[:200], 'content': text[:5000]}
+                if _normalize_result(candidate, domain, 'trainer'):
+                    seen.add(url)
+                    results.append(candidate)
+                if len(results) >= limit:
+                    return added
+        return added
+
     async def open_people_page(keywords, page_number):
         """Open one numbered people-search page. The page URL is the scan position."""
         try:
-            return await page.goto(_people_search_url(keywords, page_number), wait_until='commit', timeout=12000), True
+            return await page.goto(_people_search_url(keywords, page_number), wait_until='domcontentloaded', timeout=15000), True
         except Exception:
+            current = getattr(page, 'url', '')
+            if isinstance(current, str) and '/search/results/people' in current:
+                return None, True
             return None, False
 
     queries = [trainer_keywords(domain, location)]
@@ -275,7 +357,11 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                 except Exception:
                     pass
                 await require_session(page)
+                markup_added = await absorb_markup()
+                if len(results) >= limit:
+                    return results
                 new_urls, raw_count = await read_people()
+                new_urls += markup_added
                 if new_urls == 0 and raw_count == 0:
                     # The result list often paints after the first lookup.
                     try:
@@ -283,7 +369,11 @@ async def collect_trainer_profiles(page, domain, location, limit, collected=None
                         await page.wait_for_timeout(500)
                     except Exception:
                         pass
+                    markup_added = await absorb_markup()
                     new_urls, raw_count = await read_people()
+                    new_urls += markup_added
+                if len(results) >= limit:
+                    return results
                 if new_urls == 0:
                     break
                 if len(results) >= limit or len(visited) >= scan_limit:
