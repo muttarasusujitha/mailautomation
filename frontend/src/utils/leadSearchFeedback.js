@@ -20,13 +20,28 @@ export function leadSearchWarnings(data) {
   return messages
 }
 
+function canonicalLeadUrl(value) {
+  const text = String(value || '').trim()
+  if (!text) return ''
+  try {
+    const url = new URL(text)
+    const host = url.hostname.replace(/^www\./, '').toLowerCase()
+    return `${host}${url.pathname.replace(/\/$/, '')}`
+  } catch {
+    return text.toLowerCase()
+  }
+}
+
 export function matchingSavedLeads(leads, results) {
   const urls = new Set()
   for (const item of results || []) {
     for (const key of ['source_url', 'url', 'linkedin_url']) {
-      if (item?.[key]) urls.add(item[key])
+      const canonical = canonicalLeadUrl(item?.[key])
+      if (canonical) urls.add(canonical)
     }
   }
   if (!urls.size) return []
-  return (leads || []).filter(lead => urls.has(lead?.source_url) || urls.has(lead?.linkedin_url))
+  return (leads || []).filter(lead => (
+    urls.has(canonicalLeadUrl(lead?.source_url)) || urls.has(canonicalLeadUrl(lead?.linkedin_url))
+  ))
 }
