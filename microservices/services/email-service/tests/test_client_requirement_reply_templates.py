@@ -381,7 +381,7 @@ def test_client_sent_details_template_uses_details_ack_intro():
     )
 
     assert reply["template_key"] == "client_details_ack"
-    assert "Hello Asha" in reply["body"]
+    assert "Hi Asha" in reply["body"]
     assert "Thanks for sharing the required details." in reply["body"]
     assert "Thanks for sharing the DevOps training requirement." not in reply["body"]
 

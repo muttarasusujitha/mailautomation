@@ -3,10 +3,11 @@ import re
 from typing import Any, Dict
 
 
-from app.agents.murali_voice import SIGNATURE, apply_murali_voice
+from app.agents.natural_voice import ANNAPURNA, apply_voice, choose_voice, signature_for
 
-CLIENT_SIGNATURE = SIGNATURE
-TRAINER_SIGNATURE = SIGNATURE
+CLIENT_SIGNATURE = signature_for(ANNAPURNA)
+TRAINER_SIGNATURE = signature_for(ANNAPURNA)
+SIGNATURE = CLIENT_SIGNATURE
 
 
 def _clean(value: Any, default: str = "") -> str:
@@ -14,13 +15,13 @@ def _clean(value: Any, default: str = "") -> str:
     return text if text else default
 
 
-def _hostinger_style_body(body: str) -> str:
-    """Keep deterministic replies aligned to the usable Clahan sent-mail patterns."""
+def _hostinger_style_body(body: str, hint: str = "") -> str:
+    """Apply Annapurna's or Murali's sent-mail voice without changing the facts."""
     text = str(body or "")
     text = re.sub(r"\bDevops\s+Devops\b", "DevOps", text, flags=re.IGNORECASE)
     text = re.sub(r"\bDevops\b", "DevOps", text)
     text = text.replace("TrainerSync Team", "Clahan Technologies")
-    return apply_murali_voice(text)
+    return apply_voice(text, choose_voice(hint))
 
 
 def _client_name(extracted: Dict[str, Any]) -> str:
@@ -206,14 +207,15 @@ def _client_short_requirement_ack(
 
 def _safe_ack(sender_name: str, subject: str) -> Dict[str, Any]:
     name = _clean(sender_name, "Sender")
+    body = (
+        f"Dear {name},\n\n"
+        "Thank you for your email.\n\n"
+        "We have received your message and our team will review it carefully before responding further.\n\n"
+        f"{TRAINER_SIGNATURE}"
+    )
     return {
         "subject": f"Re: {_clean(subject, 'Your Email')}",
-        "body": (
-            f"Dear {name},\n\n"
-            "Thank you for your email.\n\n"
-            "We have received your message and our team will review it carefully before responding further.\n\n"
-            f"{TRAINER_SIGNATURE}"
-        ),
+        "body": apply_voice(body, ANNAPURNA),
         "auto_send_safe": False,
         "template_key": "human_review_ack",
     }
@@ -222,7 +224,7 @@ def _safe_ack(sender_name: str, subject: str) -> Dict[str, Any]:
 def _reply(subject: str, body: str, template_key: str, auto_send_safe: bool = True) -> Dict[str, Any]:
     return {
         "subject": subject,
-        "body": _hostinger_style_body(body),
+        "body": _hostinger_style_body(body, template_key),
         "auto_send_safe": auto_send_safe,
         "template_key": template_key,
     }

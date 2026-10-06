@@ -15,35 +15,44 @@ from pydantic import BaseModel
 
 from shared.database.service import get_db
 from app.agents.email_classifier import classify_email
-from app.agents.murali_voice import SIGNATURE, hello_line, signature_keeping_extras
+from app.agents.natural_voice import (
+    ANNAPURNA,
+    apply_voice,
+    choose_voice,
+    greeting_line,
+    signature_for,
+    signature_keeping_extras,
+    writing_note,
+)
 from app.agents.reply_templates import build_auto_reply
 from app.gmail_client import generate_message_id, send_email_async
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-EMAIL_WRITING_GUIDANCE = (
-    "Write like Murali Mohan M replying personally from Clahan Technologies. "
-    "After the greeting, answer the latest request first. Use ordinary words and short sentences. "
-    "Match the sender's formality; be considerate when they report a problem. "
-    "Keep the body to 1-3 sentences, usually under 80 words excluding greeting and signature. "
-    "Use more only when necessary to answer multiple questions or preserve required details. "
-    "Always use this structure: Hello <sender name>, then a blank line, a direct answer or acknowledgement, "
-    "then a separate short paragraph for the next action only if needed, then a blank line and signature. "
-    "Use Hello, when no reliable sender name is available. Prefer Thanks for, Please find, and Please share. "
-    "Do not open with Dear or Kindly. Put multiple missing items in a short bullet list. "
-    "Do not add headings, repeat the entire requirement, or explain internal workflow. "
-    "Use the reference for facts and restrictions, never as a sentence template. "
-    "Use thread history to avoid repeating answers, openings, or questions already settled. "
-    "Repeat exact details only when needed to answer or confirm the current action. "
-    "Do not pad replies with automatic thank-yous, generic offers of help, 'kindly', 'to proceed further', "
-    "or 'we look forward'. Do not add unrelated services, emotional claims, or unsupported next steps. "
-    "Do not force synonyms just for variety. Each sentence must answer the message or convey a necessary "
-    "next step. Check what is already supplied, what is still missing, and whose action is needed. "
-    "Ask only for missing information the recipient can provide. Once complete, stop. "
-    "End with Thanks and Regards, then Murali Mohan M, then Clahan Technologies. "
-    "Keep internal analysis out of the email. "
-)
+def writing_guidance(voice: str = ANNAPURNA) -> str:
+    """Shared natural-reply rules plus the one person who should sign this message."""
+    return (
+        "Write the way a person at Clahan Technologies replies, not as a template. "
+        "After the greeting, answer the latest request first. Use ordinary words and short sentences. "
+        "Match the sender's formality; be considerate when they report a problem. "
+        "Keep the body to 1-3 sentences, usually under 80 words excluding greeting and signature. "
+        "Use more only when necessary to answer multiple questions or preserve required details. "
+        "Put a blank line after the greeting, then the answer, then the next action only if needed, "
+        "then a blank line and the signature. Put multiple missing items in a short bullet list. "
+        "Do not add headings, repeat the entire requirement, or explain internal workflow. "
+        "Use the reference for facts and restrictions, never as a sentence template. "
+        "Use thread history to avoid repeating answers, openings, or questions already settled. "
+        "Repeat exact details only when needed to answer or confirm the current action. "
+        "Do not pad replies with automatic thank-yous, generic offers of help, 'kindly', 'to proceed further', "
+        "or 'we look forward'. Do not add unrelated services, emotional claims, or unsupported next steps. "
+        "Do not force synonyms just for variety. Each sentence must answer the message or convey a necessary "
+        "next step. Check what is already supplied, what is still missing, and whose action is needed. "
+        "Ask only for missing information the recipient can provide. Once complete, stop. "
+        "Do not open with Dear or sign as Recruitment Team. "
+        "Keep internal analysis out of the email. "
+        + writing_note(voice)
+    )
 
 
 def _finish_email_draft(body: str) -> str:
@@ -66,7 +75,7 @@ def _finish_email_draft(body: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
-def _structure_email_draft(body: str, sender_name: str = "") -> str:
+def _structure_email_draft(body: str, sender_name: str = "", voice: str = ANNAPURNA) -> str:
     """Give generated replies an email envelope without cutting factual content."""
     text = _finish_email_draft(body)
     if not text:
@@ -81,7 +90,7 @@ def _structure_email_draft(body: str, sender_name: str = "") -> str:
         if spoken and spoken.group(1).strip():
             name = spoken.group(1).strip()
         text = text[greeting.end():].strip()
-    opening = hello_line(name)
+    opening = greeting_line(name, voice)
     # Separate a standalone sign-off, preserving contact details and any
     # postscript. Never treat an inline acknowledgement as a signature.
     signoff = re.search(
@@ -90,15 +99,15 @@ def _structure_email_draft(body: str, sender_name: str = "") -> str:
         text,
     )
     if signoff:
-        signature = signature_keeping_extras(text[signoff.start():])
+        signature = signature_keeping_extras(text[signoff.start():], voice)
         text = text[:signoff.start()].rstrip()
     else:
         text = re.sub(
-            r"(?:\n\s*)+(?:Recruitment Team\s*\n)?(?:Murali Mohan M\s*\n)?Clahan Technologies\s*$",
+            r"(?:\n\s*)+(?:Recruitment Team\s*\n)?(?:(?:Murali Mohan M|Annapurna U\.)\s*\n)?Clahan Technologies\s*$",
             "",
             text,
         ).rstrip()
-        signature = SIGNATURE
+        signature = signature_for(voice)
     if not text:
         return ""
     return f"{opening}\n\n{text}\n\n{signature}"
@@ -1092,8 +1101,8 @@ async def _load_reply_workflow_context(
 
 
 def _client_auto_reply_template() -> str:
-    return (
-        "Hello,\n\n"
+    return apply_voice(
+        "Hi,\n\n"
         "Thanks for sharing your training requirement.\n\n"
         "Please share:\n\n"
         "* Training duration\n"
@@ -1103,7 +1112,8 @@ def _client_auto_reply_template() -> str:
         "* Training mode (Online / Offline / Hybrid)\n"
         "* Budget or expected commercial charges per day/session\n\n"
         "The team will check suitable trainers from the details already shared and send the relevant profiles once these points are in.\n\n"
-        f"{SIGNATURE}"
+        + signature_for(ANNAPURNA),
+        ANNAPURNA,
     )
 
 
@@ -1137,7 +1147,7 @@ def _workflow_reply_analysis(classification: Dict[str, Any], extracted: Dict[str
     }
 
 
-async def _ollama_email_draft(cfg, prompt: str) -> Dict[str, Any]:
+async def _ollama_email_draft(cfg, prompt: str, voice: str = ANNAPURNA) -> Dict[str, Any]:
     """Return a concise decision summary and grounded email body from Ollama."""
     endpoint = str(getattr(cfg, "OLLAMA_URL", "") or "").strip().rstrip("/")
     if not endpoint:
@@ -1188,7 +1198,7 @@ async def _ollama_email_draft(cfg, prompt: str) -> Dict[str, Any]:
         "is ready, attached, or being prepared. Never promise 'shortly', 'soon', or a deadline without "
         "a verified commitment. Mark needs_human_review for unverified business decisions or deliverables, "
         "and sensitive/legal/security/complaint requests. The email must agree with the review summary. "
-        + EMAIL_WRITING_GUIDANCE +
+        + writing_guidance(voice) +
         "Return JSON only."
     )
     timeout = max(30, int(getattr(cfg, "OLLAMA_EMAIL_TIMEOUT_SECONDS", 300)))
@@ -1272,6 +1282,14 @@ async def _ai_draft_reply(
     if not llm_requested:
         return grounded_reference
 
+    context_for_voice = workflow_context or {}
+    voice = choose_voice(
+        (context_for_voice.get("classification") or {}).get("scenario"),
+        context_for_voice.get("mail_type"),
+        subject,
+    )
+    guidance = writing_guidance(voice)
+
     # Keep the thread visible even when the business record reaches its limit.
     # Old global style samples encourage the same boilerplate across recipients.
     writing_context = dict(workflow_context or {})
@@ -1296,7 +1314,7 @@ async def _ai_draft_reply(
         f"Incoming email subject:\n{subject}\n\n"
         f"Incoming email body:\n{body[:6000]}"
         + (f"\n\nAdditional instruction:\n{hint}" if hint else "")
-        + "\n\nWriting requirement: " + EMAIL_WRITING_GUIDANCE +
+        + "\n\nWriting requirement: " + guidance +
         "Reply to the latest message in plain, natural language. "
         "A receipt-only acknowledgement needs just one brief sentence. A direct question needs its answer; "
         "several questions need each answer. Stop when those needs are met, followed by the team signature. "
@@ -1307,7 +1325,7 @@ async def _ai_draft_reply(
 
     async def finish(generated):
         context = workflow_context or {}
-        draft = _structure_email_draft(generated, context.get("sender_name") or "")
+        draft = _structure_email_draft(generated, context.get("sender_name") or "", voice)
         if not repeats_recent(draft, recent_replies):
             return draft
         if _variation_retry:
@@ -1327,7 +1345,7 @@ async def _ai_draft_reply(
 
     if str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower() == "ollama":
         try:
-            result = await _ollama_email_draft(cfg, prompt)
+            result = await _ollama_email_draft(cfg, prompt, voice)
             result["analysis"].update({
                 "provider": "ollama",
                 "source": "llm_review_summary",
@@ -1371,15 +1389,13 @@ async def _ai_draft_reply(
                 text={"verbosity": "low"},
                 instructions=(
                     f"You are a professional training coordinator at {cfg.FROM_NAME or 'Clahan Technologies'}. "
-                    + EMAIL_WRITING_GUIDANCE +
+                    + guidance +
                     "For lab support, discuss a separate lab-cost estimate only when relevant to this request "
                     "and supported by the verified workflow. "
                     "Use one cluster per participant unless the client explicitly provides a different cluster count. "
                     "Never ask for cluster count, participant count, duration, dates, mode, or any other information "
                     "already present in the incoming email or workflow JSON. "
-                    "Address the sender by their reliable name when available. For ordinary client and trainer "
-                    "emails, use the greeting 'Hello <name>'; use 'Hello,' when no reliable name is available. "
-                    "Sign with Thanks and Regards, then Murali Mohan M, then Clahan Technologies. "
+                    "Address the sender by their reliable name when available. "
                     "Produce the most accurate client-facing reply for the current workflow stage. Treat the "
                     "workflow JSON and incoming email as authoritative facts. Use the deterministic workflow "
                     "reply only as a safety and business-rule reference; write a fresh, natural reply instead of "
@@ -1424,7 +1440,7 @@ async def _ai_draft_reply(
                 f"You are a professional training coordinator at {cfg.FROM_NAME or 'TrainerSync'}. "
                 "Draft a concise reply grounded only in the supplied workflow context and email. "
                 "Do not invent prices, availability, actions, or policy. "
-                + EMAIL_WRITING_GUIDANCE + "\n\n" + prompt
+                + guidance + "\n\n" + prompt
                 + "\n\nReturn only the reply body, no subject line."
             )
             model_name = getattr(cfg, "ANTHROPIC_MODEL", "claude-haiku-4-20250514") or "claude-haiku-4-20250514"

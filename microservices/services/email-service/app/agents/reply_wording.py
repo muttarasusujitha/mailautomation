@@ -250,7 +250,10 @@ def repeats_recent(body, recent_replies):
                 break
             if re.fullmatch(r"(?:hi|dear|hello)(?: [^.!?]{1,70})?[,!]", line.strip(), re.I):
                 continue
-            if _norm(line) not in {"clahan technologies", "recruitment team", "murali mohan m", "murali mohan"}:
+            if _norm(line) not in {
+                "clahan technologies", "recruitment team", "murali mohan m", "murali mohan",
+                "annapurna u.", "annapurna u", "annapurna.", "annapurna",
+            }:
                 kept.append(line)
         return _norm(" ".join(kept))
     draft = prose(body)

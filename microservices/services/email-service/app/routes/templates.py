@@ -10,6 +10,7 @@ from typing import List, Optional
 
 from app.config import get_settings
 from app.agents import reply_templates as rt
+from app.agents.natural_voice import ANNAPURNA, apply_voice
 
 router = APIRouter()
 # Proposal enquiries use this internal shortlist range in the trainer mail.
@@ -299,29 +300,31 @@ def _simple_trainer_mail1_body(payload: ShortlistEmailRequest, domain: str, requ
     )
     if not proposal_flow:
         request_text = "\n".join(f"- {item}" for item in requested_items)
-        return (
+        body = (
             f"Hi {payload.trainer_name or 'Trainer'},\n\n"
             "Hope you are doing well.\n\n"
             f"We have received a training requirement for {domain}.\n\n"
             "Training Details:\n"
             f"{_requirement_snapshot(payload)}\n\n"
-            "Kindly share the details below:\n"
+            "Please share the details below:\n"
             f"{request_text}{slot_request}\n\n"
             "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
-            "Regards,\n"
+            "Thanks,\n"
             "Clahan Technologies"
         )
-    return (
-        f"Hi {payload.trainer_name or 'Trainer'},\n\n"
-        "Hope you are doing well.\n\n"
-        "We are reaching out regarding the following corporate training requirement.\n\n"
-        "Requirement details noted:\n\n"
-        f"{detail_text}\n\n"
-        f"{request_line}.{slot_request}\n\n"
-        "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
-    )
+    else:
+        body = (
+            f"Hi {payload.trainer_name or 'Trainer'},\n\n"
+            "Hope you are doing well.\n\n"
+            "We are reaching out regarding the following corporate training requirement.\n\n"
+            "Requirement details noted:\n\n"
+            f"{detail_text}\n\n"
+            f"{request_line}.{slot_request}\n\n"
+            "Once a slot is finalized, we will share the confirmed meeting invitation with you.\n\n"
+            "Thanks,\n"
+            "Clahan Technologies"
+        )
+    return apply_voice(body, ANNAPURNA)
 
 
 class InterviewEmailRequest(BaseModel):
