@@ -40,11 +40,7 @@ SAFE_AUTO_ACTIONS = {
     "sync_inbox",
 }
 
-AGENTIC_LLM_ROLES = {
-    "client_requirement_agent",
-    "trainer_matching_agent",
-    "outreach_agent",
-}
+AGENTIC_LLM_ROLES = set(AGENT_ROLES)
 
 
 class AgentDecisionCreate(BaseModel):
@@ -432,11 +428,15 @@ async def _fetch_agentic_wording(decisions: List[Dict[str, Any]]) -> Dict[tuple,
         })
     prompt = (
         "For each decision, write short operational notes from the supplied facts only. "
+        "This covers every application agent: client requirements, trainer matching, outreach, "
+        "commercials, interview scheduling, and exception review. "
         "Return a JSON array. Each item must include agent_role, entity_id, client_text, "
         "shortlist_note, and toc_note. client_text is one client-facing sentence. "
-        "shortlist_note explains the trainer shortlist. toc_note says whether a table of "
-        "contents should be drafted from the known scope. Do not invent prices, dates, "
-        "trainer names, selections, or attachments. Use an empty string when a note does not apply.\n"
+        "shortlist_note explains the trainer shortlist or the operational next step. "
+        "toc_note says whether a table of contents should be drafted from the known scope. "
+        "Repeat only prices, dates, slots, and names that are already in the decision. "
+        "Do not invent prices, dates, trainer names, selections, or attachments. "
+        "Use an empty string when a note does not apply.\n"
         + json.dumps(compact, default=str)
     )
     url = settings.INTELLIGENCE_SERVICE_URL.rstrip("/") + "/api/v1/assistant/chat"

@@ -229,7 +229,7 @@ export default function Dashboard() {
       const res = await api.put('/requirements/generation-mode', { generation_mode: mode })
       const savedMode = res.data?.generation_mode === 'ai' ? 'ai' : 'template'
       setGenerationMode(savedMode)
-      toast.success(savedMode === 'ai' ? 'AI generation enabled across supported workflows' : 'Approved templates enabled across supported workflows')
+      toast.success(savedMode === 'ai' ? 'Agentic AI enabled for the entire application' : 'Approved templates enabled for the entire application')
     } catch (error) {
       toast.error(error.response?.data?.detail || error.message || 'Could not update AI generation mode')
     } finally {
@@ -399,8 +399,8 @@ export default function Dashboard() {
             <Sparkles className="h-4 w-4" />
           </span>
           <div>
-            <p className="font-bold text-slate-900">AI generation for supported workflows</p>
-            <p className="mt-1 text-sm text-slate-600">When this is on, Shortlist, Shortlist 1, client replies, TOC generation, and the application agent use the configured LLM.</p>
+            <p className="font-bold text-slate-900">Agentic AI for the entire application</p>
+            <p className="mt-1 text-sm text-slate-600">When this is on, shortlist mail, client replies, TOC, lab planning, purchase-order requests, invoice emails, and every application agent use the configured LLM. Approved packages stay exactly as reviewed.</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -410,7 +410,7 @@ export default function Dashboard() {
           <button
             type="button"
             role="switch"
-            aria-label="AI generation for supported workflows"
+            aria-label="Agentic AI for the entire application"
             aria-checked={generationMode === 'ai'}
             onClick={() => updateGenerationMode(generationMode === 'ai' ? 'template' : 'ai')}
             disabled={savingGenerationMode}

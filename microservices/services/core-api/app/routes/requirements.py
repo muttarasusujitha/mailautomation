@@ -8,6 +8,7 @@ from bson import ObjectId
 from datetime import datetime
 
 from shared.database.service import get_db
+from shared.generation_mode import application_ai_enabled
 
 router = APIRouter()
 
@@ -1411,11 +1412,9 @@ async def request_client_po(
                     # A network retry after the mail service accepted the
                     # request must not send a second PO request to the client.
                     "idempotency_key": f"client-po-request:{req_id}",
-                    # PO requests are operational messages. Use the verified
-                    # wording above so an unavailable AI account can never
-                    # block a client-confirmed selection from reaching the
-                    # PO stage.
-                    "ai_generate": False,
+                    # The verified body stays in the request. When Dashboard AI
+                    # is on, email-service rewrites the wording and keeps the facts.
+                    "ai_generate": await application_ai_enabled(db),
                     "ai_context": {
                         "workflow": "client_po_request",
                         "batch_type": "proposal" if "proposal" in str(doc.get("batch_flow") or doc.get("batch_type") or doc.get("requirement_type") or "").lower() else "confirmed",
@@ -1478,8 +1477,21 @@ async def request_client_budget_increase(
         async with _httpx.AsyncClient(timeout=30) as client:
             await client.post(
                 "http://email-service:8002/api/v1/email/send",
-                json={"to": client_email, "subject": subject, "body": body,
-                      "requirement_id": req_id, "mail_type": "budget_increase_request"},
+                json={
+                    "to": client_email,
+                    "subject": subject,
+                    "body": body,
+                    "requirement_id": req_id,
+                    "mail_type": "budget_increase_request",
+                    "ai_generate": await application_ai_enabled(db),
+                    "ai_context": {
+                        "workflow": "budget_increase_request",
+                        "requirement_id": req_id,
+                        "current_budget": payload.current_budget,
+                        "requested_budget": payload.requested_budget,
+                        "reason": payload.reason,
+                    },
+                },
             )
     except Exception as exc:
         raise HTTPException(502, str(exc)) from exc

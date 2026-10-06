@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 from app.config import get_settings
 from shared.database.service import get_db
+from shared.generation_mode import application_ai_enabled
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -222,7 +223,23 @@ async def send_po(po_id: str, payload: POSendRequest, db: AsyncIOMotorDatabase =
         raise HTTPException(502, "PO PDF generation failed; no email was sent")
 
     try:
-        email_json = {"to": payload.to_email, "subject": subject, "body": body, "idempotency_key": f"purchase-order:{po_id}"}
+        email_json = {
+            "to": payload.to_email,
+            "subject": subject,
+            "body": body,
+            "mail_type": "purchase_order",
+            "requirement_id": doc.get("requirement_id"),
+            "idempotency_key": f"purchase-order:{po_id}",
+            "ai_generate": await application_ai_enabled(db),
+            "ai_context": {
+                "workflow": "purchase_order",
+                "requirement_id": doc.get("requirement_id") or "",
+                "po_number": doc.get("po_number") or po_id,
+                "client_name": doc.get("client_name") or "",
+                "commercial": doc.get("total_amount") or "",
+                "requested_action": "acknowledge the attached purchase order",
+            },
+        }
         if attachment_payload:
             email_json["attachments"] = attachment_payload
         async with httpx.AsyncClient(timeout=30) as client:
