@@ -261,9 +261,10 @@ export default function Dashboard() {
       const clientFound = Number(clientRes.data?.found || 0)
       const trainerFound = Number(trainerRes.data?.found || 0)
       const error = clientRes.data?.search_error || trainerRes.data?.search_error || ''
+      const reason = clientRes.data?.domain_outcomes?.[0]?.reason || trainerRes.data?.domain_outcomes?.[0]?.reason || ''
       const message = error
         ? error
-        : `Saved ${clientSaved} client requirement${clientSaved === 1 ? '' : 's'} and ${trainerSaved} trainer${trainerSaved === 1 ? '' : 's'}. Found ${clientFound} client posts and ${trainerFound} trainer profiles.`
+        : `Saved ${clientSaved} client requirement${clientSaved === 1 ? '' : 's'} and ${trainerSaved} trainer${trainerSaved === 1 ? '' : 's'}. Found ${clientFound} client posts and ${trainerFound} trainer profiles.${reason ? ` ${reason}` : ''}`
       setLinkedinMessage(message)
       if (clientSaved || trainerSaved) toast.success(message)
       else toast.error(message)
