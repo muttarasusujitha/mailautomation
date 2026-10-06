@@ -4,7 +4,7 @@ import api, { getDashboardStats, getDashboardAnalytics, clearDatabase } from '..
 import {
   Users, Mail, TrendingUp, RefreshCw, BarChart2, Activity,
   Trash2, AlertTriangle, Star, ArrowUpRight, Database, Send,
-  BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings, Sparkles,
+  BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings, Sparkles, Search,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -175,6 +175,8 @@ export default function Dashboard() {
   const [savingGenerationMode, setSavingGenerationMode] = useState(false)
   const [showClear, setShowClear]   = useState(false)
   const [clearing, setClearing]     = useState(false)
+  const [fetchingLinkedIn, setFetchingLinkedIn] = useState(false)
+  const [linkedinMessage, setLinkedinMessage] = useState('')
   const navigate = useNavigate()
 
   const load = async (isRefresh = false) => {
@@ -244,6 +246,38 @@ export default function Dashboard() {
     finally { setClearing(false) }
   }
 
+  const fetchLinkedIn = async () => {
+    if (fetchingLinkedIn) return
+    setFetchingLinkedIn(true)
+    setLinkedinMessage('Fetching Python client requirements and trainer profiles…')
+    try {
+      const body = { domains: ['Python'], search_provider: 'public', save: true, max_results: 20, max_queries: 2 }
+      const [clientRes, trainerRes] = await Promise.all([
+        api.post('/linkedin-leads/search', { ...body, mode: 'client' }),
+        api.post('/linkedin-leads/search', { ...body, mode: 'trainer' }),
+      ])
+      const clientSaved = Number(clientRes.data?.saved_count || 0)
+      const trainerSaved = Number(trainerRes.data?.saved_count || 0)
+      const clientFound = Number(clientRes.data?.found || 0)
+      const trainerFound = Number(trainerRes.data?.found || 0)
+      const error = clientRes.data?.search_error || trainerRes.data?.search_error || ''
+      const reason = clientRes.data?.domain_outcomes?.[0]?.reason || trainerRes.data?.domain_outcomes?.[0]?.reason || ''
+      const message = error
+        ? error
+        : `Saved ${clientSaved} client requirement${clientSaved === 1 ? '' : 's'} and ${trainerSaved} trainer${trainerSaved === 1 ? '' : 's'}. Found ${clientFound} client posts and ${trainerFound} trainer profiles.${reason ? ` ${reason}` : ''}`
+      setLinkedinMessage(message)
+      if (clientSaved || trainerSaved) toast.success(message)
+      else toast.error(message)
+      await load(true)
+    } catch (error) {
+      const message = error?.response?.data?.detail || error.message || 'LinkedIn fetch failed'
+      setLinkedinMessage(message)
+      toast.error(message)
+    } finally {
+      setFetchingLinkedIn(false)
+    }
+  }
+
   const syncClientInbox = async () => {
     if (syncingInbox) return
     setSyncingInbox(true)
@@ -283,6 +317,11 @@ export default function Dashboard() {
   const clientTotal    = Number(clientRequests.total ?? clientStats.total ?? 0)
   const clientToday    = Number(clientRequests.today ?? clientStats.today ?? 0)
   const clientPending  = Number(clientRequests.pending_approval ?? clientStats.pending_approval ?? 0)
+  const linkedinClientTotal = Number(clientRequests.linkedin_total || 0)
+  const linkedinClients = clientRequests.recent_linkedin || []
+  const confirmedTrainers = Number(stats?.trainers?.confirmed || 0)
+  const linkedinTrainerTotal = Number(stats?.trainers?.leads || 0)
+  const linkedinTrainers = stats?.trainers?.recent_linkedin || []
   const gmailConnected = !!gmailStatus?.connected
   const gmailUser      = gmailStatus?.gmail_user || gmailStatus?.configured_user || gmailStatus?.email || ''
   const replyRate      = totalEmails ? normaliseRate(stats?.reply_rate ?? (totalReplies / totalEmails) * 100) : null
@@ -323,9 +362,9 @@ export default function Dashboard() {
   })
 
   const statCards = [
-    { icon: BriefcaseBusiness, label: 'Client Requests', value: clientTotal, sub: `${clientToday} received today`, tone: 'blue', linkTo: '/client-requests' },
+    { icon: BriefcaseBusiness, label: 'Client Requests', value: clientTotal, sub: linkedinClientTotal ? `${clientToday} today · ${linkedinClientTotal} from LinkedIn` : `${clientToday} received today`, tone: 'blue', linkTo: '/client-requests' },
     { icon: Inbox,             label: 'Client Pending',  value: clientPending, sub: 'Needs approval', tone: 'amber',  linkTo: '/client-requests' },
-    { icon: Users,             label: 'Total Trainers',  value: totalTrainers, sub: 'In database', tone: 'blue', linkTo: '/trainers' },
+    { icon: Users,             label: 'Total Trainers',  value: totalTrainers, sub: `${confirmedTrainers} confirmed · ${linkedinTrainerTotal} LinkedIn`, tone: 'blue', linkTo: '/trainers' },
     { icon: Mail,              label: 'Emails Sent',     value: totalEmails, sub: 'Outreach emails', tone: 'purple', linkTo: '/emails' },
     { icon: TrendingUp,        label: 'Replies',         value: totalReplies, sub: 'Trainer replies', tone: 'emerald', linkTo: '/emails' },
     { icon: BarChart2,         label: 'Requirements',    value: stats?.total_requirements ?? stats?.requirements?.total ?? 0, sub: 'Active searches', tone: 'orange', linkTo: '/requirements' },
@@ -462,6 +501,76 @@ export default function Dashboard() {
           <StatCard key={card.label} {...card} loading={loading} delay={i * 50} />
         ))}
       </div>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 md:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-slate-900">LinkedIn collection</p>
+            <p className="mt-1 text-xs text-slate-500">
+              {linkedinMessage || 'Fetch client requirement posts and trainer profiles. Saved leads stay on this dashboard.'}
+            </p>
+          </div>
+          <button type="button" onClick={fetchLinkedIn} disabled={fetchingLinkedIn} className="btn-primary text-sm disabled:opacity-50">
+            {fetchingLinkedIn ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            Fetch LinkedIn
+          </button>
+        </div>
+        <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-semibold text-slate-800">Client requirements</p>
+              <button type="button" onClick={() => navigate('/linkedin-client-pipeline')} className="text-xs font-bold text-blue-600">View all</button>
+            </div>
+            {loading ? (
+              <div className="skeleton h-16 w-full" />
+            ) : linkedinClients.length ? (
+              <div className="space-y-2">
+                {linkedinClients.slice(0, 4).map(item => (
+                  <button key={item.lead_id || item.source_url} type="button" onClick={() => navigate('/linkedin-client-pipeline')} className="dashboard-list-row w-full px-3 py-2.5 text-left">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-sm font-semibold text-slate-800">{item.domain ? `${item.domain} requirement` : item.company_name || 'Client requirement'}</p>
+                      <span className="badge badge-blue text-[11px]">{item.status || 'new'}</span>
+                    </div>
+                    <p className="mt-1 truncate text-xs text-slate-400">
+                      {item.contact_name || item.company_name || 'LinkedIn post'}
+                      {item.created_at ? ` · ${formatDateTime(item.created_at)}` : ''}
+                    </p>
+                    {item.summary && <p className="mt-1 line-clamp-2 text-xs text-slate-500">{item.summary}</p>}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-xl border border-dashed border-slate-200 px-3 py-6 text-center text-xs text-slate-400">No LinkedIn client requirements yet.</p>
+            )}
+          </div>
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-semibold text-slate-800">Trainers</p>
+              <button type="button" onClick={() => navigate('/linkedin-pipeline')} className="text-xs font-bold text-blue-600">View all</button>
+            </div>
+            {loading ? (
+              <div className="skeleton h-16 w-full" />
+            ) : linkedinTrainers.length ? (
+              <div className="space-y-2">
+                {linkedinTrainers.slice(0, 4).map(item => (
+                  <button key={item.lead_id || item.source_url} type="button" onClick={() => navigate('/linkedin-pipeline')} className="dashboard-list-row w-full px-3 py-2.5 text-left">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate text-sm font-semibold text-slate-800">{item.name || item.trainer_name || 'Trainer profile'}</p>
+                      <span className="badge badge-slate text-[11px]">{item.domain || 'LinkedIn'}</span>
+                    </div>
+                    <p className="mt-1 truncate text-xs text-slate-400">
+                      {item.headline || item.summary || 'Trainer lead'}
+                      {item.created_at ? ` · ${formatDateTime(item.created_at)}` : ''}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-xl border border-dashed border-slate-200 px-3 py-6 text-center text-xs text-slate-400">No LinkedIn trainers yet.</p>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* ── Client flow + shortcuts ─────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_340px]">
