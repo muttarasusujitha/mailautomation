@@ -21,7 +21,7 @@ def public_queries(domain, mode, location=''):
         'trainer required', 'looking for trainer', 'seeking trainer',
         'trainers needed', 'training requirement', 'training partner',
     )
-    return [f'{scope} "{phrase}" site:linkedin.com/posts/' for phrase in phrases]
+    return [f'{scope} {phrase}'.strip() for phrase in phrases]
 
 
 async def discover(domain, mode, target, location=''):
@@ -46,18 +46,17 @@ async def discover(domain, mode, target, location=''):
 
     # Public indexes remain usable when the account needs manual verification.
     queries = public_queries(domain, mode, location)
-    for start in range(0, len(queries), 2):
-        batch = queries[start:start + 2]
+    for query in queries:
         need = min(60, max(1, target - len(results)))
-        outcomes = await asyncio.gather(*(asyncio.wait_for(search_public(q, need), timeout=12) for q in batch), return_exceptions=True)
-        attempts += len(batch)
-        for outcome in outcomes:
-            if isinstance(outcome, BaseException):
-                warning = search_warning('public', outcome)
-                if warning not in warnings:
-                    warnings.append(warning)
-            else:
-                accept(outcome, 'public')
+        attempts += 1
+        try:
+            outcome = await asyncio.wait_for(search_public(query, need), timeout=20)
+        except Exception as exc:
+            warning = search_warning('public', exc)
+            if warning not in warnings:
+                warnings.append(warning)
+            continue
+        accept(outcome, 'public')
         if len(results) >= target:
             break
     if len(results) < target:

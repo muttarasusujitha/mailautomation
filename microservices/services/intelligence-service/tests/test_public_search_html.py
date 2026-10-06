@@ -1,13 +1,34 @@
 import base64
 from datetime import datetime
 
-from app.clients.public_search import parse_html
+from urllib.parse import quote
+
+from app.clients.public_search import parse_ddg, parse_html
 from app.clients.search_accuracy import select_accurate_profiles
 
 
 def _wrapped(url):
     token = base64.b64encode(url.encode()).decode().rstrip('=')
     return f'https://www.bing.com/ck/a?u=a1{token}&p=1'
+
+
+def _ddg(url):
+    return f'//duckduckgo.com/l/?uddg={quote(url, safe="")}&rut=1'
+
+
+def test_public_results_page_keeps_profile_links_and_drops_other_sites():
+    html = (
+        f'<a class="result__a" href="{_ddg("https://www.linkedin.com/in/ravi")}">Ravi Kumar</a>'
+        f'<a class="result__snippet" href="{_ddg("https://www.linkedin.com/in/ravi")}">Python corporate trainer</a>'
+        f'<a class="result__a" href="{_ddg("https://www.python.org/")}">Python</a>'
+        f'<a class="result__snippet" href="{_ddg("https://www.python.org/")}">Python trainer</a>'
+        f'<a class="result__a" href="{_ddg("https://www.naukri.com/python-trainer-hyderabad")}">Naukri Python</a>'
+        f'<a class="result__snippet" href="{_ddg("https://www.naukri.com/python-trainer-hyderabad")}">Python corporate trainer</a>'
+    ).encode()
+    assert parse_ddg(html, 10) == [
+        {'url': 'https://www.linkedin.com/in/ravi', 'title': 'Ravi Kumar', 'content': 'Python corporate trainer'},
+        {'url': 'https://www.naukri.com/python-trainer-hyderabad', 'title': 'Naukri Python', 'content': 'Python corporate trainer'},
+    ]
 
 
 def test_html_search_reads_wrapped_profile_links_without_opening_them():

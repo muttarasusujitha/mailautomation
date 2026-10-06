@@ -10,14 +10,14 @@ async def discover_public(domain, mode, target=20, location=''):
     target = min(100, max(20, target))
     queries = public_queries(domain, mode, location)
     if mode != 'trainer':
-        queries += [f'{domain} {location} {phrase} site:linkedin.com/posts/'
+        queries += [f'{domain} {location} {phrase}'.strip()
                     for phrase in ('need a trainer', 'freelance trainer required', 'corporate training requirement', 'seeking training partner')]
     rows, seen, warnings = [], set(), []
     attempts = 0
     for query in queries:
         attempts += 1
         try:
-            batch = await asyncio.wait_for(search_public(query, min(60, max(1, target - len(rows)))), timeout=18)
+            batch = await asyncio.wait_for(search_public(query, min(60, max(1, target - len(rows)))), timeout=20)
         except Exception as exc:
             warnings.append(str(exc) or type(exc).__name__)
             if len(warnings) >= 3:

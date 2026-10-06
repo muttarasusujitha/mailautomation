@@ -5,12 +5,12 @@ from urllib.parse import urlsplit, urlunsplit
 
 
 TRAINER_QUERY_SUFFIXES = (
-    "",
-    '"corporate trainer"',
-    '"freelance trainer"',
-    '"technical trainer"',
-    '"online trainer"',
-    '"training consultant"',
+    "corporate trainer",
+    "freelance trainer",
+    "technical trainer",
+    "online trainer",
+    "training consultant",
+    "trainer instructor",
 )
 
 _GENERIC_SKILL_WORDS = {"trainer", "instructor", "training"}
@@ -21,23 +21,14 @@ _TRAINER_LANGUAGE = re.compile(
 
 
 def trainer_public_queries(domain, location=""):
-    """Same query shape Tavily uses: quoted skill, this year, trainer terms, LinkedIn or Naukri."""
-    year = datetime.utcnow().year
+    """Ask a public results page for trainer profiles.
+
+    The wording is a normal trainer search. Domain lock, the skill check, and
+    the older-year check are applied to each result link.
+    """
     skill = (domain or "").strip()
-    quoted = f'"{skill}"' if skill else ""
     place = (location or "").strip()
-    queries = []
-    for suffix in TRAINER_QUERY_SUFFIXES:
-        parts = [
-            quoted,
-            str(year),
-            "trainer instructor corporate training",
-            suffix,
-            place,
-            "site:linkedin.com/in OR site:naukri.com",
-        ]
-        queries.append(" ".join(part for part in parts if part))
-    return queries
+    return [" ".join(part for part in (skill, suffix, place) if part) for suffix in TRAINER_QUERY_SUFFIXES]
 
 
 def matches_requested_skill(profile, search_text) -> bool:

@@ -6,19 +6,15 @@ from app.routes.linkedin_leads import LinkedInLeadSearchRequest, search_linkedin
 from app.clients.linkedin_session import LinkedInAuthenticationRequired, RECONNECT_MESSAGE
 
 
-def test_trainer_public_queries_use_tavily_accuracy_shape():
-    year = datetime.utcnow().year
+def test_trainer_public_queries_ask_for_linkedin_profiles():
     queries = public_queries('Python', 'trainer', 'Hyderabad')
-    assert queries[0] == (
-        f'"Python" {year} trainer instructor corporate training Hyderabad '
-        'site:linkedin.com/in OR site:naukri.com'
-    )
+    assert queries[0] == 'Python corporate trainer Hyderabad'
     assert len(queries) == 6
-    assert '"corporate trainer"' in queries[1]
-    assert all('site:linkedin.com/in OR site:naukri.com' in query for query in queries)
-    assert all(str(year) in query for query in queries)
+    assert queries[1] == 'Python freelance trainer Hyderabad'
+    assert all('site:' not in query for query in queries)
     client = public_queries('Python', 'client')
-    assert client and all('site:linkedin.com/posts/' in query for query in client)
+    assert client[0] == 'Python trainer required'
+    assert all('site:' not in query for query in client)
 
 
 def test_public_trainer_search_drops_stale_off_skill_and_non_profiles():
@@ -39,7 +35,7 @@ def test_public_trainer_search_drops_stale_off_skill_and_non_profiles():
         'https://www.naukri.com/python-trainer-hyderabad',
     ]
     assert outcome['warnings'][0]['source'] == 'linkedin_account'
-    assert public.await_args_list[0].args[0].startswith(f'"Python" {year} trainer instructor corporate training')
+    assert public.await_args_list[0].args[0] == 'Python corporate trainer'
 
 
 def test_later_browser_failure_preserves_collected_matches():
