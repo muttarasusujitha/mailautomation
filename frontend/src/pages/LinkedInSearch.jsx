@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
@@ -7,7 +7,7 @@ import {
   Search, Send, ShieldCheck, Target, Trash2, Users,
 } from 'lucide-react'
 import api from '../utils/api'
-import { leadSearchWarnings, matchingSavedLeads } from '../utils/leadSearchFeedback'
+import { AUTOMATIC_LINKEDIN_DOMAINS, leadSearchWarnings, linkedInSearchPayload, matchingSavedLeads, mergeSearchLeads } from '../utils/leadSearchFeedback'
 import LeadBot from '../components/LeadBot'
 import { LinkedInLeadVerifyButton, TrustLegend, VerificationBadge } from '../components/VerificationBadge'
 
@@ -127,76 +127,56 @@ export default function LinkedInSearch() {
   const [showSearchMatches, setShowSearchMatches] = useState(false)
   const [deletingDomain, setDeletingDomain] = useState('')
   const [verifyingLead, setVerifyingLead] = useState('')
+  const listToken = useRef(0)
+  const searchingRef = useRef(false)
+  const skipFilterLoad = useRef(true)
 
   const isTrainer = mode === 'trainer'
 
-  const load = async ({ query = q, statusFilter = filter } = {}) => {
+  const load = async ({ query = q, statusFilter = filter, searchMode = mode } = {}) => {
+    const token = listToken.current
     setLoading(true)
     try {
-      const endpoint = isTrainer ? '/trainer-profile-leads' : '/client-leads'
+      const trainerList = searchMode === 'trainer'
+      const endpoint = trainerList ? '/trainer-profile-leads' : '/client-leads'
       const params = { q: query.trim(), limit: 150 }
       if (statusFilter !== 'all') params.status = statusFilter
       const res = await api.get(endpoint, { params })
+      if (token !== listToken.current) return []
       const rows = res.data.leads || []
-      setLeads(isTrainer ? rows.filter(isTrainerProviderProfile) : rows)
+      const visible = trainerList ? rows.filter(isTrainerProviderProfile) : rows
+      setLeads(visible)
+      return visible
     } catch (e) {
-      toast.error(e.message)
+      if (token === listToken.current) toast.error(e.message)
+      return []
     } finally {
-      setLoading(false)
+      if (token === listToken.current) setLoading(false)
     }
   }
 
-  useEffect(() => { load() }, [filter, mode])
-  useEffect(() => {
-    setSelectedDomain('all')
-    setSearchDomains('')
-    setSearchReport(null)
-    setShowSearchMatches(false)
-  }, [mode, isTrainer])
-
-  const runSearch = async () => {
+  const runSearch = async ({ domainText = searchDomains, automatic = false, searchMode = mode } = {}) => {
+    const token = ++listToken.current
+    const trainerSearch = searchMode === 'trainer'
+    searchingRef.current = true
     setSearching(true)
     setSearchReport(null)
     try {
-      const domains = searchDomains.split(',').map(item => item.trim()).filter(Boolean)
-      if (isTrainer && !domains.length) {
-        toast.error('Enter a domain such as Python or DevOps.')
-        return
-      }
-      const endpoint = '/linkedin-leads/search'
-
-      const payload = {
-        search_provider: 'auto',
-        source: 'linkedin',
-        mode: isTrainer ? 'trainer' : 'client',
-        max_results: 50,
-        save: true,
-        max_queries: isTrainer ? 8 : 3,
-        max_domains: 4,
-        concurrency: 3,
-        deep_search: false,
-      }
-      if (domains.length) {
-        payload.domains = domains
-      }
-      if (!isTrainer && !domains.length) {
-        payload.domains = ['Python trainer', 'Full stack trainer', 'Java trainer', 'DevOps trainer', 'AWS trainer']
-        payload.max_results = 50
-        payload.max_queries = 2
-      }
-      const res = await api.post(endpoint, payload)
+      const payload = linkedInSearchPayload(searchMode, domainText)
+      const res = await api.post('/linkedin-leads/search', payload)
+      if (token !== listToken.current) return
       const savedCount = res.data.saved_count || 0
       const skippedCount = res.data.skipped_count || 0
       const autoSentCount = res.data.auto_sent_count || 0
       const warnings = leadSearchWarnings(res.data)
       setSearchReport({ ...res.data, warnings })
       setShowSearchMatches((res.data.results || []).length > 0)
-      if (savedCount) {
+      if (!automatic && savedCount) {
         const savedText = `Saved ${savedCount} LinkedIn result${savedCount === 1 ? '' : 's'}`
         toast.success(autoSentCount ? `${savedText}; auto-sent Mail 1 to ${autoSentCount}` : savedText)
-      } else if (warnings.length) {
+      } else if (!automatic && warnings.length) {
         // Keep failures in the persistent report below, once per distinct cause.
-      } else if (isTrainer && skippedCount) {
+      } else if (!automatic && trainerSearch && skippedCount) {
         const firstReason = res.data.skipped?.[0]?.reason
         const reasonText = firstReason === 'already_saved'
           ? 'already saved'
@@ -204,25 +184,52 @@ export default function LinkedInSearch() {
             ? 'duplicate results'
             : 'already saved or duplicate'
         toast.success(`No new profiles saved; ${skippedCount} result${skippedCount === 1 ? '' : 's'} ${reasonText}`)
-      } else {
+      } else if (!automatic) {
         toast.success('No new LinkedIn results saved')
       }
       setFilter('all')
       setSelectedDomain('all')
       setQ('')
-      const listEndpoint = isTrainer ? '/trainer-profile-leads' : '/client-leads'
+      const listEndpoint = trainerSearch ? '/trainer-profile-leads' : '/client-leads'
       const listRes = await api.get(listEndpoint, { params: { q: '', limit: 150 } })
-      setLeads(listRes.data.leads || [])
+      if (token !== listToken.current) return
+      const saved = trainerSearch
+        ? (listRes.data.leads || []).filter(isTrainerProviderProfile)
+        : (listRes.data.leads || [])
+      setLeads(mergeSearchLeads(saved, res.data.results || []))
     } catch (e) {
+      if (token !== listToken.current) return
       setSearchReport(current => current
         ? { ...current, warnings: [...current.warnings, e.message || 'Unable to refresh saved results.'] }
         : { found: 0, saved_count: 0, warnings: [e.message || 'Unable to complete the search.'], requestFailed: true })
       setShowSearchMatches(false)
       toast.error(e.message)
     } finally {
-      setSearching(false)
+      if (token === listToken.current) {
+        searchingRef.current = false
+        setSearching(false)
+      }
     }
   }
+
+  useEffect(() => {
+    if (skipFilterLoad.current) {
+      skipFilterLoad.current = false
+      return
+    }
+    if (searchingRef.current) return
+    load()
+  }, [filter])
+  useEffect(() => {
+    const domains = AUTOMATIC_LINKEDIN_DOMAINS.join(', ')
+    setLeads([])
+    setSelectedDomain('all')
+    setSearchDomains(domains)
+    setSearchReport(null)
+    setShowSearchMatches(false)
+    runSearch({ domainText: domains, automatic: true, searchMode: mode })
+    return () => { listToken.current += 1 }
+  }, [mode])
 
 
 
@@ -346,7 +353,7 @@ export default function LinkedInSearch() {
           <h1 className="page-title flex items-center gap-2">
             <Globe2 className="h-6 w-6 text-blue-600" /> LinkedIn Search
           </h1>
-          <p className="mt-1 text-sm text-slate-500">Fetch trainers and clients seeking trainers by domain using your connected LinkedIn account.</p>
+          <p className="mt-1 text-sm text-slate-500">Client posts from people seeking trainers, and trainer profiles, are fetched automatically into this LinkedIn Search.</p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="relative min-w-[260px]">
@@ -380,12 +387,11 @@ export default function LinkedInSearch() {
               className="input bg-[#eaf6ff]"
               value={searchDomains}
               onChange={e => setSearchDomains(e.target.value)}
-              placeholder={isTrainer ? 'SAP S/4HANA, Apache APISIX, Python' : 'Leave blank to auto-discover client trainer requirements'}
+              placeholder={isTrainer ? 'Python, AWS' : 'Python, AWS'}
             />
             <p className="mt-1 text-xs text-slate-400">
-              <strong>Public + connected search:</strong> Looks for up to 50 matching profiles per domain; fewer may be available.
-              Enter a domain such as <em>DevOps or Python</em>.
-              Results need review; open the source to confirm details. Fetching does not send email.
+              <strong>Automatic search:</strong> {isTrainer ? 'Trainer profiles' : 'Client posts seeking trainers'} for {searchDomains || AUTOMATIC_LINKEDIN_DOMAINS.join(', ')} load into the list below.
+              Change the domains and choose {isTrainer ? 'Find Profiles' : 'Find Client Posts'} to search again. Fetching does not send email.
             </p>
           </div>
           <button onClick={runSearch} disabled={searching} className="btn-primary text-sm disabled:opacity-50">
@@ -475,6 +481,11 @@ export default function LinkedInSearch() {
 
       {loading ? (
         <div className="py-14 text-center text-sm text-slate-400">Loading LinkedIn results...</div>
+      ) : searching ? (
+        <div className="linkedin-glow-panel rounded-lg border border-[#d8e6f5] bg-[#edf5ff] py-16 text-center text-slate-500">
+          <RefreshCw className="mx-auto mb-3 h-10 w-10 animate-spin text-blue-600" />
+          <p>Fetching {isTrainer ? 'trainer profiles' : 'client posts seeking trainers'} into LinkedIn Search…</p>
+        </div>
       ) : visibleLeads.length ? (
         <div className="grid gap-4 xl:grid-cols-2">
           {visibleLeads.map(lead => (

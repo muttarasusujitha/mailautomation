@@ -20,6 +20,45 @@ export function leadSearchWarnings(data) {
   return messages
 }
 
+export const AUTOMATIC_LINKEDIN_DOMAINS = ['Python', 'AWS']
+
+export function linkedInSearchDomains(domainText) {
+  const entered = String(domainText || '')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean)
+    .slice(0, 4)
+  return entered.length ? entered : AUTOMATIC_LINKEDIN_DOMAINS
+}
+
+export function linkedInSearchPayload(mode, domainText) {
+  const trainerSearch = mode === 'trainer'
+  return {
+    search_provider: 'auto',
+    source: 'linkedin',
+    mode: trainerSearch ? 'trainer' : 'client',
+    domains: linkedInSearchDomains(domainText),
+    max_results: 50,
+    save: true,
+    max_queries: trainerSearch ? 8 : 2,
+    max_domains: 4,
+    concurrency: 3,
+    deep_search: false,
+  }
+}
+
+export function mergeSearchLeads(saved, results) {
+  const merged = []
+  const seen = new Set()
+  for (const lead of [...(results || []), ...(saved || [])]) {
+    const key = lead?.lead_id || lead?.source_url || lead?.linkedin_url
+    if (!key || seen.has(key)) continue
+    seen.add(key)
+    merged.push(lead)
+  }
+  return merged
+}
+
 export function matchingSavedLeads(leads, results) {
   const urls = new Set()
   for (const item of results || []) {
