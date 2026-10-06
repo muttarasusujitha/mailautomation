@@ -1,0 +1,42 @@
+name: Hostinger sent-mail style profile
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - cursor/murali-mail-voice-d51e
+    paths:
+      - microservices/tools/profile_sent_voice.py
+      - .github/workflows/hostinger-style-profile.yml
+
+permissions:
+  contents: read
+
+jobs:
+  profile:
+    name: Read sent mail style
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Profile Hostinger sent mail
+        env:
+          STYLE_IMAP_HOST: ${{ secrets.STYLE_IMAP_HOST }}
+          STYLE_IMAP_PORT: ${{ secrets.STYLE_IMAP_PORT }}
+          STYLE_IMAP_USER: ${{ secrets.STYLE_IMAP_USER }}
+          STYLE_IMAP_PASSWORD: ${{ secrets.STYLE_IMAP_PASSWORD }}
+          STYLE_IMAP_FOLDER: ${{ secrets.STYLE_IMAP_FOLDER }}
+        run: python3 microservices/tools/profile_sent_voice.py
+
+      - name: Upload style profile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sent-voice-profile
+          path: sent-voice-profile.json
+          if-no-files-found: ignore
