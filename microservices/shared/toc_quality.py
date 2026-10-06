@@ -24,9 +24,14 @@ def topic_is_covered(topic, curriculum):
 
 
 def toc_delivery_error(toc):
-    status = (toc.get("quality") or {}).get("status")
+    quality = toc.get("quality") or {}
+    status = quality.get("status")
     if status in {"requires_review", "requires_regeneration"}:
         return "TOC requires review before export or delivery; resolve its quality warnings first"
+    evaluation = quality.get("content_evaluation") or {}
+    if (evaluation.get("status") == "fail"
+            or (evaluation.get("status") == "review" and evaluation.get("score", 0) < 85)):
+        return "TOC content evidence requires trainer review before export or delivery"
     if not toc.get("days"):
         return "TOC has no day-wise curriculum"
     return ""

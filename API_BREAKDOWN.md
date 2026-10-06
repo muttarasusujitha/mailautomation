@@ -108,8 +108,10 @@ TEAMS_WEBHOOK_URL=your_teams_webhook_url
 ```
 GOOGLE_CLIENT_ID=<REDACTED>
 GOOGLE_CLIENT_SECRET=<REDACTED>
-GOOGLE_REDIRECT_URI=http://localhost:5173/auth/callback
+GOOGLE_REDIRECT_URI=http://localhost:8000/api/gmail/oauth-callback
 ```
+Register this exact URI in the Google OAuth client. For deployments, replace the
+host with the public gateway URL and keep the same callback path.
 
 ---
 

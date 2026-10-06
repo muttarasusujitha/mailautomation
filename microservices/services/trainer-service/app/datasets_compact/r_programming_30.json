@@ -1,21 +1,1326 @@
-{"domain":"R Programming","name":"R Programming Data Analysis","icon":"chart","program_title":"R Programming - Fundamentals to Statistical Computing and Data Analysis","level":"Beginner to Advanced","mode":"Online","aliases":["R","R Programming","R Language","R Statistical Programming"],"tools":["R","RStudio","Posit","Jupyter Notebook","CRAN","Git","GitHub"],"certifications":["DataCamp R Certifications","Coursera R Programming Learning Paths","Posit R Learning Resources"],"days":[
-{"day":1,"topic":"R Introduction and Environment Setup","subtopics":["R ecosystem","install R/RStudio","console/scripts/workspace","working directory","help"],"tools":["R","RStudio"],"lab_task":"Install R and run scripts"},
-{"day":2,"topic":"Variables, Data Types and Operators","subtopics":["assignment","numeric/integer/character/logical/complex/raw","NA/NaN/Inf/NULL","type checks/conversion","vectorized operators"],"tools":["R","RStudio"],"lab_task":"Work with R types and missing values"},
-{"day":3,"topic":"Vectors and Factors","subtopics":["c/seq/rep","indexing","named vectors","recycling","factors/levels/ordered factors","categorical data"],"tools":["R"],"lab_task":"Manipulate numeric, character, and categorical vectors"},
-{"day":4,"topic":"Matrices, Arrays, Lists and Data Frames","subtopics":["matrices/indexing/operations","arrays","lists/nested lists","data frames","rows/columns","add/remove","inspection"],"tools":["R","RStudio"],"lab_task":"Build structured datasets"},
-{"day":5,"topic":"Control Structures and Functions","subtopics":["if/switch","for/while/repeat","break/next","functions/arguments/defaults/returns/scope","anonymous/recursive functions"],"tools":["R"],"lab_task":"Create reusable R functions"},
-{"day":6,"topic":"Apply Family and Functional Programming","subtopics":["apply/lapply/sapply/vapply/tapply/mapply","Map/Filter/Reduce","anonymous functions","vectorization"],"tools":["R"],"lab_task":"Transform data with apply-family functions"},
-{"day":7,"topic":"Data Import and Export","subtopics":["CSV/text/Excel/JSON","read.csv/read.table/write.csv","readr/readxl/jsonlite","databases","encoding/paths"],"tools":["RStudio","readr","readxl","jsonlite"],"lab_task":"Import and export processed datasets"},
-{"day":8,"topic":"Data Manipulation with dplyr","subtopics":["tidy data","select/filter/mutate/arrange/summarise/group_by","distinct/rename/count/across","pipes"],"tools":["dplyr","tidyverse"],"lab_task":"Clean and summarize business data"},
-{"day":9,"topic":"Data Reshaping and Joining","subtopics":["tidyr","pivot_longer/pivot_wider","separate/unite","missing data","inner/left/right/full/semi/anti joins","duplicates"],"tools":["tidyr","dplyr"],"lab_task":"Join and reshape datasets"},
-{"day":10,"topic":"Data Visualization with ggplot2","subtopics":["grammar of graphics","aes/geoms","scatter/line/bar/histogram/box/density","facets/themes/scales/labels/legends"],"tools":["ggplot2"],"lab_task":"Create an exploratory visualization dashboard"},
-{"day":11,"topic":"Descriptive Statistics and Probability","subtopics":["central tendency/spread","quantiles/IQR","correlation/covariance","probability","normal/binomial/Poisson distributions"],"tools":["R"],"lab_task":"Perform descriptive and probability analysis"},
-{"day":12,"topic":"Statistical Inference","subtopics":["sampling/CLT","confidence intervals","hypothesis tests","p-value","t/paired t/chi-square/ANOVA","Type I/II errors"],"tools":["R"],"lab_task":"Test hypotheses and interpret results"},
-{"day":13,"topic":"Regression Analysis","subtopics":["simple/multiple linear regression","lm","coefficients/residuals/R-squared","assumptions/diagnostics","multicollinearity","prediction"],"tools":["R","RStudio"],"lab_task":"Build and evaluate regression model"},
-{"day":14,"topic":"Classification and Machine Learning","subtopics":["supervised/unsupervised","train-test","logistic regression","trees/random forest/KNN/Naive Bayes","K-means","metrics"],"tools":["caret","rpart","randomForest"],"lab_task":"Train classification and clustering models"},
-{"day":15,"topic":"Model Evaluation and Validation","subtopics":["confusion matrix","accuracy/precision/recall/F1","ROC/AUC","cross-validation/resampling","bias/variance","overfit/underfit","tuning"],"tools":["caret","pROC"],"lab_task":"Evaluate and tune models"},
-{"day":16,"topic":"Time-Series Analysis","subtopics":["time series","trend/seasonality/stationarity","moving averages","ACF/PACF","AR/MA/ARIMA","forecast/evaluation"],"tools":["forecast","R"],"lab_task":"Analyze and forecast time-series data"},
-{"day":17,"topic":"Advanced Visualization and Reporting","subtopics":["Plotly","R Markdown","code chunks","parameterized HTML/PDF reports","Quarto","reproducible research"],"tools":["Plotly","R Markdown","Quarto"],"lab_task":"Generate interactive analytical report"},
-{"day":18,"topic":"Shiny Applications","subtopics":["UI/server","inputs/outputs","reactive expressions/values/observers","layouts/widgets/tables/plots","deployment"],"tools":["Shiny"],"lab_task":"Build an interactive Shiny dashboard"},
-{"day":19,"topic":"Packages, Testing and Code Quality","subtopics":["CRAN/packages","package creation","roxygen2 docs","testthat","linting/style","reusable functions"],"tools":["CRAN","testthat","roxygen2"],"lab_task":"Create and test an R package"},
-{"day":20,"topic":"R Data Analysis Capstone","subtopics":["data collection/cleaning/EDA","statistics/visualization","feature engineering/modeling","evaluation/reporting/dashboard","Git"],"tools":["R","RStudio","tidyverse","ggplot2","Shiny","Git"],"lab_task":"Complete an end-to-end R analysis project"}]}
+{
+  "domain": "R Programming",
+  "name": "R Programming Data Analysis",
+  "icon": "chart",
+  "program_title": "R Programming - Fundamentals to Statistical Computing and Data Analysis",
+  "level": "Beginner to Advanced",
+  "mode": "Online",
+  "aliases": [
+    "R",
+    "R Programming",
+    "R Language",
+    "R Statistical Programming"
+  ],
+  "tools": [
+    "R",
+    "RStudio",
+    "Posit",
+    "Jupyter Notebook",
+    "CRAN",
+    "Git",
+    "GitHub"
+  ],
+  "certifications": [
+    "DataCamp R Certifications",
+    "Coursera R Programming Learning Paths",
+    "Posit R Learning Resources"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "R Introduction and Environment Setup",
+      "subtopics": [
+        "R ecosystem",
+        "install R/RStudio",
+        "console/scripts/workspace",
+        "working directory",
+        "help"
+      ],
+      "tools": [
+        "R",
+        "RStudio"
+      ],
+      "lab_task": "Install R and run scripts",
+      "deliverable": "Participant submission for 'R Introduction and Environment Setup': Install R and run scripts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Install R and run scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (R ecosystem; install R/RStudio; console/scripts/workspace; working directory; help). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Install R and run scripts.",
+        "Explain how the lab applies R Introduction and Environment Setup and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'R Introduction and Environment Setup' on a prepared training sample through this task: Install R and run scripts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Install R and run scripts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (R ecosystem; install R/RStudio; console/scripts/workspace; working directory; help) and demonstrate the starting sample for: Install R and run scripts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Install R and run scripts",
+          "evidence": "Participant submission for 'R Introduction and Environment Setup': Install R and run scripts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Install R and run scripts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Install R and run scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (R ecosystem; install R/RStudio; console/scripts/workspace; working directory; help). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Variables, Data Types and Operators",
+      "subtopics": [
+        "assignment",
+        "numeric/integer/character/logical/complex/raw",
+        "NA/NaN/Inf/NULL",
+        "type checks/conversion",
+        "vectorized operators"
+      ],
+      "tools": [
+        "R",
+        "RStudio"
+      ],
+      "lab_task": "Work with R types and missing values",
+      "deliverable": "Participant submission for 'Variables, Data Types and Operators': Work with R types and missing values. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Work with R types and missing values. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (assignment; numeric/integer/character/logical/complex/raw; NA/NaN/Inf/NULL; type checks/conversion; vectorized operators). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Work with R types and missing values.",
+        "Explain how the lab applies Variables, Data Types and Operators and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Variables, Data Types and Operators' on a prepared training sample through this task: Work with R types and missing values.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Work with R types and missing values",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (assignment; numeric/integer/character/logical/complex/raw; NA/NaN/Inf/NULL; type checks/conversion; vectorized operators) and demonstrate the starting sample for: Work with R types and missing values",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Work with R types and missing values",
+          "evidence": "Participant submission for 'Variables, Data Types and Operators': Work with R types and missing values. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Work with R types and missing values' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Work with R types and missing values. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (assignment; numeric/integer/character/logical/complex/raw; NA/NaN/Inf/NULL; type checks/conversion; vectorized operators). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Vectors and Factors",
+      "subtopics": [
+        "c/seq/rep",
+        "indexing",
+        "named vectors",
+        "recycling",
+        "factors/levels/ordered factors",
+        "categorical data"
+      ],
+      "tools": [
+        "R"
+      ],
+      "lab_task": "Manipulate numeric, character, and categorical vectors",
+      "deliverable": "Participant submission for 'Vectors and Factors': Manipulate numeric, character, and categorical vectors. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Manipulate numeric, character, and categorical vectors. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (c/seq/rep; indexing; named vectors; recycling; factors/levels/ordered factors; categorical data). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Manipulate numeric, character, and categorical vectors.",
+        "Explain how the lab applies Vectors and Factors and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Vectors and Factors' on a prepared training sample through this task: Manipulate numeric, character, and categorical vectors.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Manipulate numeric, character, and categorical vectors",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (c/seq/rep; indexing; named vectors; recycling; factors/levels/ordered factors; categorical data) and demonstrate the starting sample for: Manipulate numeric, character, and categorical vectors",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Manipulate numeric, character, and categorical vectors",
+          "evidence": "Participant submission for 'Vectors and Factors': Manipulate numeric, character, and categorical vectors. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Manipulate numeric, character, and categorical vectors' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Manipulate numeric, character, and categorical vectors. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (c/seq/rep; indexing; named vectors; recycling; factors/levels/ordered factors; categorical data). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Matrices, Arrays, Lists and Data Frames",
+      "subtopics": [
+        "matrices/indexing/operations",
+        "arrays",
+        "lists/nested lists",
+        "data frames",
+        "rows/columns",
+        "add/remove",
+        "inspection"
+      ],
+      "tools": [
+        "R",
+        "RStudio"
+      ],
+      "lab_task": "Build structured datasets",
+      "deliverable": "Participant submission for 'Matrices, Arrays, Lists and Data Frames': Build structured datasets. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build structured datasets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (matrices/indexing/operations; arrays; lists/nested lists; data frames; rows/columns; add/remove; inspection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build structured datasets.",
+        "Explain how the lab applies Matrices, Arrays, Lists and Data Frames and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Matrices, Arrays, Lists and Data Frames' on a prepared training sample through this task: Build structured datasets.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build structured datasets",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (matrices/indexing/operations; arrays; lists/nested lists; data frames; rows/columns; add/remove; inspection) and demonstrate the starting sample for: Build structured datasets",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build structured datasets",
+          "evidence": "Participant submission for 'Matrices, Arrays, Lists and Data Frames': Build structured datasets. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build structured datasets' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build structured datasets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (matrices/indexing/operations; arrays; lists/nested lists; data frames; rows/columns; add/remove; inspection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Control Structures and Functions",
+      "subtopics": [
+        "if/switch",
+        "for/while/repeat",
+        "break/next",
+        "functions/arguments/defaults/returns/scope",
+        "anonymous/recursive functions"
+      ],
+      "tools": [
+        "R"
+      ],
+      "lab_task": "Create reusable R functions",
+      "deliverable": "Participant submission for 'Control Structures and Functions': Create reusable R functions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable R functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if/switch; for/while/repeat; break/next; functions/arguments/defaults/returns/scope; anonymous/recursive functions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create reusable R functions.",
+        "Explain how the lab applies Control Structures and Functions and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Control Structures and Functions' on a prepared training sample through this task: Create reusable R functions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable R functions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (if/switch; for/while/repeat; break/next; functions/arguments/defaults/returns/scope; anonymous/recursive functions) and demonstrate the starting sample for: Create reusable R functions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable R functions",
+          "evidence": "Participant submission for 'Control Structures and Functions': Create reusable R functions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable R functions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable R functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if/switch; for/while/repeat; break/next; functions/arguments/defaults/returns/scope; anonymous/recursive functions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Apply Family and Functional Programming",
+      "subtopics": [
+        "apply/lapply/sapply/vapply/tapply/mapply",
+        "Map/Filter/Reduce",
+        "anonymous functions",
+        "vectorization"
+      ],
+      "tools": [
+        "R"
+      ],
+      "lab_task": "Transform data with apply-family functions",
+      "deliverable": "Participant submission for 'Apply Family and Functional Programming': Transform data with apply-family functions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Transform data with apply-family functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (apply/lapply/sapply/vapply/tapply/mapply; Map/Filter/Reduce; anonymous functions; vectorization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Transform data with apply-family functions.",
+        "Explain how the lab applies Apply Family and Functional Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Apply Family and Functional Programming' on a prepared training sample through this task: Transform data with apply-family functions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Transform data with apply-family functions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (apply/lapply/sapply/vapply/tapply/mapply; Map/Filter/Reduce; anonymous functions; vectorization) and demonstrate the starting sample for: Transform data with apply-family functions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Transform data with apply-family functions",
+          "evidence": "Participant submission for 'Apply Family and Functional Programming': Transform data with apply-family functions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Transform data with apply-family functions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Transform data with apply-family functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (apply/lapply/sapply/vapply/tapply/mapply; Map/Filter/Reduce; anonymous functions; vectorization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Data Import and Export",
+      "subtopics": [
+        "CSV/text/Excel/JSON",
+        "read.csv/read.table/write.csv",
+        "readr/readxl/jsonlite",
+        "databases",
+        "encoding/paths"
+      ],
+      "tools": [
+        "RStudio",
+        "readr",
+        "readxl",
+        "jsonlite"
+      ],
+      "lab_task": "Import and export processed datasets",
+      "deliverable": "Participant submission for 'Data Import and Export': Import and export processed datasets. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Import and export processed datasets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CSV/text/Excel/JSON; read.csv/read.table/write.csv; readr/readxl/jsonlite; databases; encoding/paths). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Import and export processed datasets.",
+        "Explain how the lab applies Data Import and Export and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Import and Export' on a prepared training sample through this task: Import and export processed datasets.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Import and export processed datasets",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (CSV/text/Excel/JSON; read.csv/read.table/write.csv; readr/readxl/jsonlite; databases; encoding/paths) and demonstrate the starting sample for: Import and export processed datasets",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Import and export processed datasets",
+          "evidence": "Participant submission for 'Data Import and Export': Import and export processed datasets. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Import and export processed datasets' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Import and export processed datasets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CSV/text/Excel/JSON; read.csv/read.table/write.csv; readr/readxl/jsonlite; databases; encoding/paths). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Data Manipulation with dplyr",
+      "subtopics": [
+        "tidy data",
+        "select/filter/mutate/arrange/summarise/group_by",
+        "distinct/rename/count/across",
+        "pipes"
+      ],
+      "tools": [
+        "dplyr",
+        "tidyverse"
+      ],
+      "lab_task": "Clean and summarize business data",
+      "deliverable": "Participant submission for 'Data Manipulation with dplyr': Clean and summarize business data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Clean and summarize business data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tidy data; select/filter/mutate/arrange/summarise/group_by; distinct/rename/count/across; pipes). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Clean and summarize business data.",
+        "Explain how the lab applies Data Manipulation with dplyr and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Manipulation with dplyr' on a prepared training sample through this task: Clean and summarize business data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Clean and summarize business data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (tidy data; select/filter/mutate/arrange/summarise/group_by; distinct/rename/count/across; pipes) and demonstrate the starting sample for: Clean and summarize business data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Clean and summarize business data",
+          "evidence": "Participant submission for 'Data Manipulation with dplyr': Clean and summarize business data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Clean and summarize business data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Clean and summarize business data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tidy data; select/filter/mutate/arrange/summarise/group_by; distinct/rename/count/across; pipes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Data Reshaping and Joining",
+      "subtopics": [
+        "tidyr",
+        "pivot_longer/pivot_wider",
+        "separate/unite",
+        "missing data",
+        "inner/left/right/full/semi/anti joins",
+        "duplicates"
+      ],
+      "tools": [
+        "tidyr",
+        "dplyr"
+      ],
+      "lab_task": "Join and reshape datasets",
+      "deliverable": "Participant submission for 'Data Reshaping and Joining': Join and reshape datasets. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Join and reshape datasets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tidyr; pivot_longer/pivot_wider; separate/unite; missing data; inner/left/right/full/semi/anti joins; duplicates). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Join and reshape datasets.",
+        "Explain how the lab applies Data Reshaping and Joining and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Reshaping and Joining' on a prepared training sample through this task: Join and reshape datasets.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Join and reshape datasets",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (tidyr; pivot_longer/pivot_wider; separate/unite; missing data; inner/left/right/full/semi/anti joins; duplicates) and demonstrate the starting sample for: Join and reshape datasets",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Join and reshape datasets",
+          "evidence": "Participant submission for 'Data Reshaping and Joining': Join and reshape datasets. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Join and reshape datasets' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Join and reshape datasets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tidyr; pivot_longer/pivot_wider; separate/unite; missing data; inner/left/right/full/semi/anti joins; duplicates). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Data Visualization with ggplot2",
+      "subtopics": [
+        "grammar of graphics",
+        "aes/geoms",
+        "scatter/line/bar/histogram/box/density",
+        "facets/themes/scales/labels/legends"
+      ],
+      "tools": [
+        "ggplot2"
+      ],
+      "lab_task": "Create an exploratory visualization dashboard",
+      "deliverable": "Participant submission for 'Data Visualization with ggplot2': Create an exploratory visualization dashboard. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create an exploratory visualization dashboard. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (grammar of graphics; aes/geoms; scatter/line/bar/histogram/box/density; facets/themes/scales/labels/legends). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create an exploratory visualization dashboard.",
+        "Explain how the lab applies Data Visualization with ggplot2 and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Visualization with ggplot2' on a prepared training sample through this task: Create an exploratory visualization dashboard.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create an exploratory visualization dashboard",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (grammar of graphics; aes/geoms; scatter/line/bar/histogram/box/density; facets/themes/scales/labels/legends) and demonstrate the starting sample for: Create an exploratory visualization dashboard",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create an exploratory visualization dashboard",
+          "evidence": "Participant submission for 'Data Visualization with ggplot2': Create an exploratory visualization dashboard. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create an exploratory visualization dashboard' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create an exploratory visualization dashboard. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (grammar of graphics; aes/geoms; scatter/line/bar/histogram/box/density; facets/themes/scales/labels/legends). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Descriptive Statistics and Probability",
+      "subtopics": [
+        "central tendency/spread",
+        "quantiles/IQR",
+        "correlation/covariance",
+        "probability",
+        "normal/binomial/Poisson distributions"
+      ],
+      "tools": [
+        "R"
+      ],
+      "lab_task": "Perform descriptive and probability analysis",
+      "deliverable": "Participant submission for 'Descriptive Statistics and Probability': Perform descriptive and probability analysis. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Perform descriptive and probability analysis. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (central tendency/spread; quantiles/IQR; correlation/covariance; probability; normal/binomial/Poisson distributions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Perform descriptive and probability analysis.",
+        "Explain how the lab applies Descriptive Statistics and Probability and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Descriptive Statistics and Probability' on a prepared training sample through this task: Perform descriptive and probability analysis.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Perform descriptive and probability analysis",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (central tendency/spread; quantiles/IQR; correlation/covariance; probability; normal/binomial/Poisson distributions) and demonstrate the starting sample for: Perform descriptive and probability analysis",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Perform descriptive and probability analysis",
+          "evidence": "Participant submission for 'Descriptive Statistics and Probability': Perform descriptive and probability analysis. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Perform descriptive and probability analysis' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Perform descriptive and probability analysis. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (central tendency/spread; quantiles/IQR; correlation/covariance; probability; normal/binomial/Poisson distributions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Statistical Inference",
+      "subtopics": [
+        "sampling/CLT",
+        "confidence intervals",
+        "hypothesis tests",
+        "p-value",
+        "t/paired t/chi-square/ANOVA",
+        "Type I/II errors"
+      ],
+      "tools": [
+        "R"
+      ],
+      "lab_task": "Test hypotheses and interpret results",
+      "deliverable": "Participant submission for 'Statistical Inference': Test hypotheses and interpret results. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Test hypotheses and interpret results. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (sampling/CLT; confidence intervals; hypothesis tests; p-value; t/paired t/chi-square/ANOVA; Type I/II errors). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Test hypotheses and interpret results.",
+        "Explain how the lab applies Statistical Inference and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Statistical Inference' on a prepared training sample through this task: Test hypotheses and interpret results.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Test hypotheses and interpret results",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (sampling/CLT; confidence intervals; hypothesis tests; p-value; t/paired t/chi-square/ANOVA; Type I/II errors) and demonstrate the starting sample for: Test hypotheses and interpret results",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Test hypotheses and interpret results",
+          "evidence": "Participant submission for 'Statistical Inference': Test hypotheses and interpret results. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Test hypotheses and interpret results' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Test hypotheses and interpret results. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (sampling/CLT; confidence intervals; hypothesis tests; p-value; t/paired t/chi-square/ANOVA; Type I/II errors). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Regression Analysis",
+      "subtopics": [
+        "simple/multiple linear regression",
+        "lm",
+        "coefficients/residuals/R-squared",
+        "assumptions/diagnostics",
+        "multicollinearity",
+        "prediction"
+      ],
+      "tools": [
+        "R",
+        "RStudio"
+      ],
+      "lab_task": "Build and evaluate regression model",
+      "deliverable": "Participant submission for 'Regression Analysis': Build and evaluate regression model. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build and evaluate regression model. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (simple/multiple linear regression; lm; coefficients/residuals/R-squared; assumptions/diagnostics; multicollinearity; prediction). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build and evaluate regression model.",
+        "Explain how the lab applies Regression Analysis and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Regression Analysis' on a prepared training sample through this task: Build and evaluate regression model.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build and evaluate regression model",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (simple/multiple linear regression; lm; coefficients/residuals/R-squared; assumptions/diagnostics; multicollinearity; prediction) and demonstrate the starting sample for: Build and evaluate regression model",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build and evaluate regression model",
+          "evidence": "Participant submission for 'Regression Analysis': Build and evaluate regression model. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build and evaluate regression model' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build and evaluate regression model. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (simple/multiple linear regression; lm; coefficients/residuals/R-squared; assumptions/diagnostics; multicollinearity; prediction). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Classification and Machine Learning",
+      "subtopics": [
+        "supervised/unsupervised",
+        "train-test",
+        "logistic regression",
+        "trees/random forest/KNN/Naive Bayes",
+        "K-means",
+        "metrics"
+      ],
+      "tools": [
+        "caret",
+        "rpart",
+        "randomForest"
+      ],
+      "lab_task": "Train classification and clustering models",
+      "deliverable": "Participant submission for 'Classification and Machine Learning': Train classification and clustering models. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Train classification and clustering models. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (supervised/unsupervised; train-test; logistic regression; trees/random forest/KNN/Naive Bayes; K-means; metrics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Train classification and clustering models.",
+        "Explain how the lab applies Classification and Machine Learning and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Classification and Machine Learning' on a prepared training sample through this task: Train classification and clustering models.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Train classification and clustering models",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (supervised/unsupervised; train-test; logistic regression; trees/random forest/KNN/Naive Bayes; K-means; metrics) and demonstrate the starting sample for: Train classification and clustering models",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Train classification and clustering models",
+          "evidence": "Participant submission for 'Classification and Machine Learning': Train classification and clustering models. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Train classification and clustering models' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Train classification and clustering models. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (supervised/unsupervised; train-test; logistic regression; trees/random forest/KNN/Naive Bayes; K-means; metrics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Model Evaluation and Validation",
+      "subtopics": [
+        "confusion matrix",
+        "accuracy/precision/recall/F1",
+        "ROC/AUC",
+        "cross-validation/resampling",
+        "bias/variance",
+        "overfit/underfit",
+        "tuning"
+      ],
+      "tools": [
+        "caret",
+        "pROC"
+      ],
+      "lab_task": "Evaluate and tune models",
+      "deliverable": "Participant submission for 'Model Evaluation and Validation': Evaluate and tune models. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Evaluate and tune models. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (confusion matrix; accuracy/precision/recall/F1; ROC/AUC; cross-validation/resampling; bias/variance; overfit/underfit; tuning). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Evaluate and tune models.",
+        "Explain how the lab applies Model Evaluation and Validation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Model Evaluation and Validation' on a prepared training sample through this task: Evaluate and tune models.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Evaluate and tune models",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (confusion matrix; accuracy/precision/recall/F1; ROC/AUC; cross-validation/resampling; bias/variance; overfit/underfit; tuning) and demonstrate the starting sample for: Evaluate and tune models",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Evaluate and tune models",
+          "evidence": "Participant submission for 'Model Evaluation and Validation': Evaluate and tune models. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Evaluate and tune models' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Evaluate and tune models. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (confusion matrix; accuracy/precision/recall/F1; ROC/AUC; cross-validation/resampling; bias/variance; overfit/underfit; tuning). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Time-Series Analysis",
+      "subtopics": [
+        "time series",
+        "trend/seasonality/stationarity",
+        "moving averages",
+        "ACF/PACF",
+        "AR/MA/ARIMA",
+        "forecast/evaluation"
+      ],
+      "tools": [
+        "forecast",
+        "R"
+      ],
+      "lab_task": "Analyze and forecast time-series data",
+      "deliverable": "Participant submission for 'Time-Series Analysis': Analyze and forecast time-series data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Analyze and forecast time-series data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (time series; trend/seasonality/stationarity; moving averages; ACF/PACF; AR/MA/ARIMA; forecast/evaluation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Analyze and forecast time-series data.",
+        "Explain how the lab applies Time-Series Analysis and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Time-Series Analysis' on a prepared training sample through this task: Analyze and forecast time-series data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Analyze and forecast time-series data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (time series; trend/seasonality/stationarity; moving averages; ACF/PACF; AR/MA/ARIMA; forecast/evaluation) and demonstrate the starting sample for: Analyze and forecast time-series data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Analyze and forecast time-series data",
+          "evidence": "Participant submission for 'Time-Series Analysis': Analyze and forecast time-series data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Analyze and forecast time-series data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Analyze and forecast time-series data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (time series; trend/seasonality/stationarity; moving averages; ACF/PACF; AR/MA/ARIMA; forecast/evaluation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "Advanced Visualization and Reporting",
+      "subtopics": [
+        "Plotly",
+        "R Markdown",
+        "code chunks",
+        "parameterized HTML/PDF reports",
+        "Quarto",
+        "reproducible research"
+      ],
+      "tools": [
+        "Plotly",
+        "R Markdown",
+        "Quarto"
+      ],
+      "lab_task": "Generate interactive analytical report",
+      "deliverable": "Participant submission for 'Advanced Visualization and Reporting': Generate interactive analytical report. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Generate interactive analytical report. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Plotly; R Markdown; code chunks; parameterized HTML/PDF reports; Quarto; reproducible research). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Generate interactive analytical report.",
+        "Explain how the lab applies Advanced Visualization and Reporting and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Visualization and Reporting' on a prepared training sample through this task: Generate interactive analytical report.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Generate interactive analytical report",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Plotly; R Markdown; code chunks; parameterized HTML/PDF reports; Quarto; reproducible research) and demonstrate the starting sample for: Generate interactive analytical report",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Generate interactive analytical report",
+          "evidence": "Participant submission for 'Advanced Visualization and Reporting': Generate interactive analytical report. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Generate interactive analytical report' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Generate interactive analytical report. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Plotly; R Markdown; code chunks; parameterized HTML/PDF reports; Quarto; reproducible research). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "Shiny Applications",
+      "subtopics": [
+        "UI/server",
+        "inputs/outputs",
+        "reactive expressions/values/observers",
+        "layouts/widgets/tables/plots",
+        "deployment"
+      ],
+      "tools": [
+        "Shiny"
+      ],
+      "lab_task": "Build an interactive Shiny dashboard",
+      "deliverable": "Participant submission for 'Shiny Applications': Build an interactive Shiny dashboard. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an interactive Shiny dashboard. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (UI/server; inputs/outputs; reactive expressions/values/observers; layouts/widgets/tables/plots; deployment). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an interactive Shiny dashboard.",
+        "Explain how the lab applies Shiny Applications and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Shiny Applications' on a prepared training sample through this task: Build an interactive Shiny dashboard.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an interactive Shiny dashboard",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (UI/server; inputs/outputs; reactive expressions/values/observers; layouts/widgets/tables/plots; deployment) and demonstrate the starting sample for: Build an interactive Shiny dashboard",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an interactive Shiny dashboard",
+          "evidence": "Participant submission for 'Shiny Applications': Build an interactive Shiny dashboard. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an interactive Shiny dashboard' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an interactive Shiny dashboard. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (UI/server; inputs/outputs; reactive expressions/values/observers; layouts/widgets/tables/plots; deployment). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "Packages, Testing and Code Quality",
+      "subtopics": [
+        "CRAN/packages",
+        "package creation",
+        "roxygen2 docs",
+        "testthat",
+        "linting/style",
+        "reusable functions"
+      ],
+      "tools": [
+        "CRAN",
+        "testthat",
+        "roxygen2"
+      ],
+      "lab_task": "Create and test an R package",
+      "deliverable": "Participant submission for 'Packages, Testing and Code Quality': Create and test an R package. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create and test an R package. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CRAN/packages; package creation; roxygen2 docs; testthat; linting/style; reusable functions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create and test an R package.",
+        "Explain how the lab applies Packages, Testing and Code Quality and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Packages, Testing and Code Quality' on a prepared training sample through this task: Create and test an R package.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create and test an R package",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (CRAN/packages; package creation; roxygen2 docs; testthat; linting/style; reusable functions) and demonstrate the starting sample for: Create and test an R package",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create and test an R package",
+          "evidence": "Participant submission for 'Packages, Testing and Code Quality': Create and test an R package. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create and test an R package' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create and test an R package. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (CRAN/packages; package creation; roxygen2 docs; testthat; linting/style; reusable functions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "R Data Analysis Capstone",
+      "subtopics": [
+        "data collection/cleaning/EDA",
+        "statistics/visualization",
+        "feature engineering/modeling",
+        "evaluation/reporting/dashboard",
+        "Git"
+      ],
+      "tools": [
+        "R",
+        "RStudio",
+        "tidyverse",
+        "ggplot2",
+        "Shiny",
+        "Git"
+      ],
+      "lab_task": "Complete an end-to-end R analysis project",
+      "deliverable": "Participant submission for 'R Data Analysis Capstone': Complete an end-to-end R analysis project. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Complete an end-to-end R analysis project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (data collection/cleaning/EDA; statistics/visualization; feature engineering/modeling; evaluation/reporting/dashboard; Git). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Complete an end-to-end R analysis project.",
+        "Explain how the lab applies R Data Analysis Capstone and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'R Data Analysis Capstone' on a prepared training sample through this task: Complete an end-to-end R analysis project.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Complete an end-to-end R analysis project",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (data collection/cleaning/EDA; statistics/visualization; feature engineering/modeling; evaluation/reporting/dashboard; Git) and demonstrate the starting sample for: Complete an end-to-end R analysis project",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Complete an end-to-end R analysis project",
+          "evidence": "Participant submission for 'R Data Analysis Capstone': Complete an end-to-end R analysis project. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Complete an end-to-end R analysis project' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Complete an end-to-end R analysis project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (data collection/cleaning/EDA; statistics/visualization; feature engineering/modeling; evaluation/reporting/dashboard; Git). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
+}

@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api, { getDashboardStats, clearDatabase } from '../utils/api'
+import api, { getDashboardStats, getDashboardAnalytics, clearDatabase } from '../utils/api'
 import {
   Users, Mail, TrendingUp, RefreshCw, BarChart2, Activity,
   Trash2, AlertTriangle, Star, ArrowUpRight, Database, Send,
-  BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings,
+  BriefcaseBusiness, Inbox, MessageSquare, Loader2, Settings, Sparkles,
 } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -37,7 +37,11 @@ function AnimatedNumber({ value, duration = 1100 }) {
 }
 
 function normaliseRate(v) { const n = Number(v || 0); return n > 0 && n <= 1 ? n * 100 : n }
-function formatPercent(v) { const n = Math.max(0, Math.min(100, Number(v || 0))); return `${n.toFixed(n % 1 ? 1 : 0)}%` }
+function formatPercent(v) {
+  if (v == null || !Number.isFinite(Number(v))) return '—'
+  const n = Math.max(0, Math.min(100, Number(v)))
+  return `${n.toFixed(n % 1 ? 1 : 0)}%`
+}
 function formatDateTime(v) { if (!v) return ''; try { return new Date(v).toLocaleString() } catch { return String(v) } }
 
 function clientStatusLabel(s = '') {
@@ -120,7 +124,8 @@ function StatCard({ icon: Icon, label, value, sub, tone = 'blue', loading, linkT
 
 /* ─── Progress metric ──────────────────────────────────────── */
 function PulseMetric({ label, value, sub, color = 'bg-blue-500' }) {
-  const safe = Math.max(0, Math.min(100, Number(value || 0)))
+  const hasValue = value != null && Number.isFinite(Number(value))
+  const safe = hasValue ? Math.max(0, Math.min(100, Number(value))) : 0
   return (
     <div>
       <div className="flex items-end justify-between gap-3 mb-2">
@@ -129,7 +134,7 @@ function PulseMetric({ label, value, sub, color = 'bg-blue-500' }) {
           {sub && <p className="text-xs text-slate-400">{sub}</p>}
         </div>
         <span className="text-lg font-bold text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans',sans-serif" }}>
-          {formatPercent(safe)}
+          {hasValue ? formatPercent(safe) : 'No data'}
         </span>
       </div>
       <div className="progress-bar">
@@ -159,11 +164,15 @@ function Panel({ title, eyebrow, badge, children, className }) {
 /* ─── Main Dashboard ───────────────────────────────────────── */
 export default function Dashboard() {
   const [stats, setStats]           = useState(null)
+  const [dashboardAnalytics, setDashboardAnalytics] = useState(null)
+  const [statsUnavailable, setStatsUnavailable] = useState(false)
   const [clientInbox, setClientInbox] = useState({ emails: [], stats: {}, whatsapp_logs: [] })
   const [gmailStatus, setGmailStatus] = useState(null)
   const [loading, setLoading]       = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [syncingInbox, setSyncingInbox] = useState(false)
+  const [generationMode, setGenerationMode] = useState('template')
+  const [savingGenerationMode, setSavingGenerationMode] = useState(false)
   const [showClear, setShowClear]   = useState(false)
   const [clearing, setClearing]     = useState(false)
   const navigate = useNavigate()
@@ -173,13 +182,20 @@ export default function Dashboard() {
     try {
       // BUG-009: Promise.allSettled already handles rejections per-request;
       // each settled result is checked individually so no rejection goes unhandled.
-      const [statsRes, inboxRes, gmailRes] = await Promise.allSettled([
+      const [statsRes, inboxRes, gmailRes, analyticsRes, generationModeRes] = await Promise.allSettled([
         getDashboardStats(),
-        api.get('/inbox', { params: { limit: 5 } }),
+        api.get('/inbox', { params: { limit: 5, include_stats: false, include_total: false } }),
         api.get('/gmail/auth-status'),
+        getDashboardAnalytics({ preset: 'week' }),
+        api.get('/requirements/generation-mode'),
       ])
-      if (statsRes.status === 'fulfilled') setStats(statsRes.value.data)
-      else toast.error(statsRes.reason?.message || 'Could not load stats')
+      if (statsRes.status === 'fulfilled') {
+        setStats(statsRes.value.data)
+        setStatsUnavailable(false)
+      } else {
+        setStatsUnavailable(true)
+        toast.error(statsRes.reason?.message || 'Could not load stats')
+      }
       setClientInbox(
         inboxRes.status === 'fulfilled'
           ? inboxRes.value.data || { emails: [], stats: {}, whatsapp_logs: [] }
@@ -191,6 +207,10 @@ export default function Dashboard() {
       setGmailStatus(
         gmailRes.status === 'fulfilled' ? normalizeGmailStatus(gmailRes.value.data) : normalizeGmailStatus({ connected: false })
       )
+      setDashboardAnalytics(analyticsRes.status === 'fulfilled' ? analyticsRes.value.data : null)
+      if (generationModeRes.status === 'fulfilled') {
+        setGenerationMode(generationModeRes.value.data?.generation_mode === 'ai' ? 'ai' : 'template')
+      }
     } catch (err) {
       toast.error(err?.message || 'Failed to load dashboard data')
     } finally {
@@ -201,6 +221,21 @@ export default function Dashboard() {
 
   // BUG-008: empty dependency array [] is intentional — load once on mount only
   useEffect(() => { load() }, [])
+
+  const updateGenerationMode = async mode => {
+    if (savingGenerationMode) return
+    setSavingGenerationMode(true)
+    try {
+      const res = await api.put('/requirements/generation-mode', { generation_mode: mode })
+      const savedMode = res.data?.generation_mode === 'ai' ? 'ai' : 'template'
+      setGenerationMode(savedMode)
+      toast.success(savedMode === 'ai' ? 'Agentic AI enabled for the entire application' : 'Approved templates enabled for the entire application')
+    } catch (error) {
+      toast.error(error.response?.data?.detail || error.message || 'Could not update AI generation mode')
+    } finally {
+      setSavingGenerationMode(false)
+    }
+  }
 
   const handleClear = async () => {
     setClearing(true)
@@ -213,15 +248,14 @@ export default function Dashboard() {
     if (syncingInbox) return
     setSyncingInbox(true)
     try {
-      const res = await api.post('/gmail/sync-now?limit=50')
+      const res = await api.post('/gmail/sync-now?limit=50&process=false')
       if (res.data?.queued) {
-        toast.success(res.data?.message || 'Inbox sync started. Refreshing shortly.')
-        window.setTimeout(() => load(true), 6000)
+        toast.success('Inbox fetch started for review. No client replies will be sent.')
+        window.setTimeout(() => load(true), 10000)
         return
       }
       const processed = Number(res.data?.processed_count || 0)
-      const skipped   = Number(res.data?.skipped || 0)
-      toast.success(`Inbox checked: ${processed} processed, ${skipped} skipped`)
+      toast.success(`Inbox checked: ${processed} message(s) fetched for review`)
       await load(true)
     } catch (e) { toast.error(e.message || 'Inbox sync failed') }
     finally { setSyncingInbox(false) }
@@ -251,11 +285,13 @@ export default function Dashboard() {
   const clientPending  = Number(clientRequests.pending_approval ?? clientStats.pending_approval ?? 0)
   const gmailConnected = !!gmailStatus?.connected
   const gmailUser      = gmailStatus?.gmail_user || gmailStatus?.configured_user || gmailStatus?.email || ''
-  const replyRate      = normaliseRate(stats?.reply_rate || (totalEmails ? (totalReplies / totalEmails) * 100 : 0))
-  const interestRate   = normaliseRate(stats?.interest_rate || (totalTrainers ? (interested / totalTrainers) * 100 : 0))
-  const deliveryRate   = totalEmails + failedEmails ? (totalEmails / (totalEmails + failedEmails)) * 100 : 100
-  const reviewLoad     = totalTrainers ? (pendingReview / totalTrainers) * 100 : 0
-  const automationScore = Math.round((deliveryRate + replyRate + interestRate + Math.max(0, 100 - reviewLoad)) / 4)
+  const replyRate      = totalEmails ? normaliseRate(stats?.reply_rate ?? (totalReplies / totalEmails) * 100) : null
+  const interestRate   = totalTrainers ? normaliseRate(stats?.interest_rate ?? (interested / totalTrainers) * 100) : null
+  const emailAttempts  = totalEmails + failedEmails
+  const deliveryRate   = emailAttempts ? (totalEmails / emailAttempts) * 100 : null
+  const reviewLoad     = totalTrainers ? (pendingReview / totalTrainers) * 100 : null
+  const scoreInputs    = [deliveryRate, replyRate, interestRate, reviewLoad == null ? null : Math.max(0, 100 - reviewLoad)].filter(Number.isFinite)
+  const automationScore = scoreInputs.length ? Math.round(scoreInputs.reduce((sum, value) => sum + value, 0) / scoreInputs.length) : null
 
   const statusData = stats ? [
     { name: 'Interested', value: stats.interested_count, color: '#10b981' },
@@ -270,15 +306,21 @@ export default function Dashboard() {
     count: b.count,
   }))
 
-  const activityData = [
-    { day: 'Mon', emails: 12, replies: 4 },
-    { day: 'Tue', emails: 8,  replies: 3 },
-    { day: 'Wed', emails: 15, replies: 7 },
-    { day: 'Thu', emails: 10, replies: 5 },
-    { day: 'Fri', emails: 18, replies: 9 },
-    { day: 'Sat', emails: 6,  replies: 2 },
-    { day: 'Sun', emails: 3,  replies: 1 },
-  ]
+  const sentByDate = new Map((dashboardAnalytics?.emails_over_time || []).map(row => [row.date, Number(row.emails_sent || 0)]))
+  const repliesByDate = new Map((dashboardAnalytics?.email_replies_over_time || []).map(row => [row.date, Number(row.replies || 0)]))
+  const monday = new Date()
+  monday.setHours(0, 0, 0, 0)
+  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7))
+  const activityData = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday)
+    date.setDate(monday.getDate() + index)
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    return {
+      day: date.toLocaleDateString(undefined, { weekday: 'short' }),
+      emails: sentByDate.get(key) || 0,
+      replies: repliesByDate.get(key) || 0,
+    }
+  })
 
   const statCards = [
     { icon: BriefcaseBusiness, label: 'Client Requests', value: clientTotal, sub: `${clientToday} received today`, tone: 'blue', linkTo: '/client-requests' },
@@ -333,7 +375,11 @@ export default function Dashboard() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white/80 px-5 py-4 md:px-7">
           <div className="dashboard-hero-chip flex items-center gap-2 px-3 py-2 text-xs font-bold">
             <Database className="h-4 w-4 text-blue-600" />
-            {loading ? 'Loading…' : `${totalTrainers.toLocaleString('en-IN')} trainer profiles synced`}
+            {loading
+              ? 'Loading…'
+              : statsUnavailable
+                ? 'Trainer data temporarily unavailable'
+                : `${totalTrainers.toLocaleString('en-IN')} trainer profiles synced`}
           </div>
           <div className="flex gap-2">
             <button onClick={() => setShowClear(true)} className="inline-flex items-center gap-2 rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50">
@@ -346,13 +392,41 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Clear DB warning ───────────────────────────────── */}
+      {/* Shared AI generation setting */}
+      <section className={clsx('flex flex-wrap items-center justify-between gap-4 rounded-2xl border px-5 py-4', generationMode === 'ai' ? 'border-violet-200 bg-violet-50' : 'border-slate-200 bg-white')}>
+        <div className="flex items-start gap-3">
+          <span className={clsx('mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl', generationMode === 'ai' ? 'bg-violet-100 text-violet-700' : 'bg-slate-100 text-slate-500')}>
+            <Sparkles className="h-4 w-4" />
+          </span>
+          <div>
+            <p className="font-bold text-slate-900">Agentic AI for the entire application</p>
+            <p className="mt-1 text-sm text-slate-600">When this is on, shortlist mail, client replies, TOC, lab planning, purchase-order requests, invoice emails, and every application agent use the configured LLM. Approved packages stay exactly as reviewed.</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className={clsx('text-xs font-bold uppercase tracking-wide', generationMode === 'ai' ? 'text-violet-800' : 'text-slate-600')}>
+            {generationMode === 'ai' ? 'AI is on' : 'Approved templates'}
+          </span>
+          <button
+            type="button"
+            role="switch"
+            aria-label="Agentic AI for the entire application"
+            aria-checked={generationMode === 'ai'}
+            onClick={() => updateGenerationMode(generationMode === 'ai' ? 'template' : 'ai')}
+            disabled={savingGenerationMode}
+            className={clsx('relative h-7 w-14 rounded-full transition-colors disabled:opacity-50', generationMode === 'ai' ? 'bg-violet-600' : 'bg-slate-400')}
+          >
+            <span className={clsx('absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform', generationMode === 'ai' ? 'translate-x-8' : 'translate-x-1')} />
+          </button>
+        </div>
+      </section>
+
       <div className="grid gap-3 md:grid-cols-4">
         {[
-          ['Automation score', `${automationScore}%`, automationScore >= 80 ? 'Strong' : automationScore >= 55 ? 'Watch' : 'Needs action', automationScore >= 80 ? 'badge-green' : automationScore >= 55 ? 'badge-amber' : 'badge-red'],
+          ['Automation score', formatPercent(automationScore), automationScore == null ? 'No data' : automationScore >= 80 ? 'Strong' : automationScore >= 55 ? 'Watch' : 'Needs action', automationScore == null ? 'badge-slate' : automationScore >= 80 ? 'badge-green' : automationScore >= 55 ? 'badge-amber' : 'badge-red'],
           ['Client queue', clientPending.toLocaleString('en-IN'), clientPending ? 'Pending review' : 'Clear', clientPending ? 'badge-amber' : 'badge-green'],
           ['Reply engine', formatPercent(replyRate), `${totalReplies.toLocaleString('en-IN')} replies`, 'badge-blue'],
-          ['Delivery', formatPercent(deliveryRate), failedEmails ? `${failedEmails} failed` : 'Clean', failedEmails ? 'badge-red' : 'badge-green'],
+          ['Delivery', formatPercent(deliveryRate), deliveryRate == null ? 'No activity' : failedEmails ? `${failedEmails} failed` : 'Clean', deliveryRate == null ? 'badge-slate' : failedEmails ? 'badge-red' : 'badge-green'],
         ].map(([label, value, status, badge]) => (
           <div key={label} className="dashboard-mini-card flex items-center justify-between gap-3 p-3">
             <div className="min-w-0">
@@ -520,15 +594,15 @@ export default function Dashboard() {
           <div className="space-y-5">
             <PulseMetric label="Email delivery" value={deliveryRate} sub={`${failedEmails.toLocaleString('en-IN')} failed emails`} />
             <PulseMetric label="WhatsApp health"
-              value={whatsappSent + whatsappFailed ? (whatsappSent / (whatsappSent + whatsappFailed)) * 100 : 100}
-              sub={`${whatsappFailed} failed, ${whatsappSkipped} skipped, ${whatsappReplies} replies`} color="bg-emerald-500" />
+              value={whatsappSent + whatsappFailed ? (whatsappSent / (whatsappSent + whatsappFailed)) * 100 : null}
+              sub={whatsappSent + whatsappFailed ? `${whatsappFailed} failed, ${whatsappSkipped} skipped, ${whatsappReplies} replies` : 'No delivery attempts yet'} color="bg-emerald-500" />
           </div>
         </Panel>
       </div>
 
       {/* ── Charts row ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Panel title="Email Activity" badge="Last 7 days" className="lg:col-span-2">
+        <Panel title="Email Activity" badge="This week" className="lg:col-span-2">
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={activityData}>
               <defs>

@@ -5,29 +5,1417 @@
   "program_title": "Dart Programming - Fundamentals to Advanced Application Development",
   "level": "Beginner to Advanced",
   "mode": "Online",
-  "aliases": ["Dart", "Dart Programming", "Dart Language", "Advanced Dart"],
-  "tools": ["Dart SDK", "Visual Studio Code", "IntelliJ IDEA", "DartPad", "Pub", "Git", "GitHub"],
-  "certifications": ["Google Dart and Flutter Learning Paths"],
+  "aliases": [
+    "Dart",
+    "Dart Programming",
+    "Dart Language",
+    "Advanced Dart"
+  ],
+  "tools": [
+    "Dart SDK",
+    "Visual Studio Code",
+    "IntelliJ IDEA",
+    "DartPad",
+    "Pub",
+    "Git",
+    "GitHub"
+  ],
+  "certifications": [
+    "Google Dart and Flutter Learning Paths"
+  ],
   "days": [
-    {"day": 1, "topic": "Dart Introduction and Environment Setup", "subtopics": ["Dart use cases and features", "Dart SDK and VM", "JIT and AOT compilation", "IDE configuration", "DartPad", "project structure", "main function", "comments", "running Dart programs"], "tools": ["Dart SDK", "DartPad", "Visual Studio Code"], "lab_task": "Install Dart and create basic command-line applications"},
-    {"day": 2, "topic": "Variables, Data Types and Type System", "subtopics": ["var, final and const", "type inference", "explicit types", "num, int and double", "String and bool", "Object, dynamic and Never", "Null", "runtime types", "conversion", "interpolation", "nullable/non-nullable types"], "tools": ["Dart SDK", "DartPad"], "lab_task": "Develop type, inference, constants, and conversion programs"},
-    {"day": 3, "topic": "Operators and Control Flow", "subtopics": ["arithmetic, equality, relational and logical operators", "conditional expressions", "null-aware operators", "cascade notation", "if/else", "switch and pattern switch", "for, for-in, while, do-while", "break", "continue", "assertions"], "tools": ["DartPad"], "lab_task": "Build decision-making, menu, loop, and pattern-generation programs"},
-    {"day": 4, "topic": "Strings and Collections", "subtopics": ["string literals and raw strings", "string methods", "List, Set and Map", "collection literals", "spread and null-aware spread", "collection if/for", "iteration", "where", "map", "reduce", "fold", "sorting"], "tools": ["Dart SDK", "DartPad"], "lab_task": "Create a student-data processor using strings, lists, sets, and maps"},
-    {"day": 5, "topic": "Functions and Closures", "subtopics": ["function declaration", "positional and named parameters", "default values", "arrow and anonymous functions", "functions as objects", "higher-order functions", "lexical scope", "closures", "recursion", "typedefs"], "tools": ["DartPad", "Visual Studio Code"], "lab_task": "Develop reusable normal, anonymous, higher-order, and recursive utilities"},
-    {"day": 6, "topic": "Classes and Object-Oriented Programming", "subtopics": ["classes and objects", "constructors", "named/constant/redirecting constructors", "initializer lists", "this", "getters and setters", "static members", "encapsulation", "inheritance", "overriding", "polymorphism"], "tools": ["Visual Studio Code", "Dart SDK"], "lab_task": "Build an employee application using constructors, inheritance, and polymorphism"},
-    {"day": 7, "topic": "Advanced Object-Oriented Programming", "subtopics": ["abstract classes", "implicit interfaces", "implements", "multiple interfaces", "mixins", "extension methods", "extension types", "callable objects", "operator overloading", "abstract/base/interface/final/sealed modifiers"], "tools": ["Visual Studio Code"], "lab_task": "Design a modular payment system using abstract classes, interfaces, and mixins"},
-    {"day": 8, "topic": "Null Safety and Exception Handling", "subtopics": ["sound null safety", "nullable and non-nullable variables", "null assertion/access/assignment", "late variables", "required parameters", "throw", "try/catch/on/finally", "rethrow", "stack traces", "custom exceptions", "propagation"], "tools": ["Dart SDK", "Visual Studio Code"], "lab_task": "Build a null-safe validation application with custom exceptions"},
-    {"day": 9, "topic": "Generics and Advanced Collections", "subtopics": ["generic classes and methods", "type parameters", "bounded types", "generic collections", "Iterable and Iterator", "lazy iteration", "custom iterable concepts", "Comparable", "comparators", "filtering", "grouping"], "tools": ["Dart SDK"], "lab_task": "Create generic data structures and collection-processing utilities"},
-    {"day": 10, "topic": "Asynchronous Programming with Futures", "subtopics": ["event loop", "event and microtask queues", "Future", "then", "catchError", "whenComplete", "async/await", "async error handling", "Future.wait", "timeouts"], "tools": ["Dart SDK", "Visual Studio Code"], "lab_task": "Coordinate multiple Future-based asynchronous operations"},
-    {"day": 11, "topic": "Streams and Reactive Data Processing", "subtopics": ["single-subscription and broadcast streams", "StreamController", "StreamSubscription", "events and errors", "async* and yield", "stream map/where/expand/take/skip", "cancellation", "pause and resume"], "tools": ["Dart SDK"], "lab_task": "Build a real-time event processor using Dart Streams"},
-    {"day": 12, "topic": "Records and Pattern Matching", "subtopics": ["record types and expressions", "positional/named fields", "multiple returns", "variable, constant, list, map, record and object patterns", "logical/relational patterns", "switch pattern matching", "destructuring"], "tools": ["Dart SDK", "DartPad"], "lab_task": "Implement data parsing and destructuring with records and patterns"},
-    {"day": 13, "topic": "File Handling and JSON", "subtopics": ["dart:io", "File and Directory", "paths", "sync and async file operations", "directory operations", "JSON encoding/decoding", "jsonEncode/jsonDecode", "object mapping", "serialization patterns"], "tools": ["Dart SDK", "Visual Studio Code"], "lab_task": "Build a file application that processes JSON data"},
-    {"day": 14, "topic": "HTTP and REST API Integration", "subtopics": ["HTTP and REST", "URI and clients", "GET, POST, PUT, PATCH and DELETE", "headers and bodies", "status codes", "JSON APIs", "response parsing", "auth headers and bearer tokens", "timeouts", "API errors"], "tools": ["Dart HTTP Package", "Postman", "Visual Studio Code"], "lab_task": "Consume REST APIs with GET, POST, parsing, and robust error handling"},
-    {"day": 15, "topic": "Packages and Dependency Management", "subtopics": ["packages", "pub.dev", "pubspec.yaml", "dependencies and dev dependencies", "constraints", "semantic versioning", "dart pub get/add/upgrade", "creating packages", "libraries", "imports", "third-party packages"], "tools": ["Pub", "pub.dev", "Dart SDK"], "lab_task": "Create a reusable Dart package and integrate dependencies"},
-    {"day": 16, "topic": "Isolates and Parallel Execution", "subtopics": ["Dart concurrency model", "isolates", "memory model", "Isolate.run and Isolate.spawn", "SendPort", "ReceivePort", "message passing", "CPU-bound workloads", "concurrency versus parallelism", "lifecycle and errors"], "tools": ["Dart SDK"], "lab_task": "Move CPU-intensive work to an isolate and return its result"},
-    {"day": 17, "topic": "Testing", "subtopics": ["unit tests", "Dart test package", "expect and matchers", "test grouping", "setUp/tearDown", "testing exceptions", "Futures and Streams", "mocking", "dependency injection", "coverage", "regression testing"], "tools": ["Dart Test", "Visual Studio Code"], "lab_task": "Create unit and asynchronous tests and generate a test report"},
-    {"day": 18, "topic": "Debugging, Logging and Code Quality", "subtopics": ["breakpoints", "inspection and call stacks", "exception debugging", "logging", "assertions", "Dart analyzer", "static analysis", "analysis_options.yaml", "lint rules", "dart analyze", "dart format", "Effective Dart", "refactoring"], "tools": ["Dart Analyzer", "Visual Studio Code", "Dart DevTools"], "lab_task": "Analyze, debug, format, and refactor an existing Dart project"},
-    {"day": 19, "topic": "Performance and Advanced Dart", "subtopics": ["runtime and memory performance", "garbage collection awareness", "JIT versus AOT", "collection efficiency", "allocation reduction", "async performance", "CPU/memory profiling", "advanced generics", "immutability", "API design", "architecture"], "tools": ["Dart DevTools", "Dart SDK"], "lab_task": "Profile and optimize a Dart application for CPU, memory, and maintainability"},
-    {"day": 20, "topic": "Git, Architecture and Dart Capstone", "subtopics": ["Git workflow", "branches and pull requests", "project organization", "separation of concerns", "layered architecture", "repository pattern", "dependency injection", "configuration", "error strategy", "test strategy", "documentation", "final integration"], "tools": ["Git", "GitHub", "Dart SDK", "Visual Studio Code"], "lab_task": "Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture"}
-  ]
+    {
+      "day": 1,
+      "topic": "Dart Introduction and Environment Setup",
+      "subtopics": [
+        "Dart use cases and features",
+        "Dart SDK and VM",
+        "JIT and AOT compilation",
+        "IDE configuration",
+        "DartPad",
+        "project structure",
+        "main function",
+        "comments",
+        "running Dart programs"
+      ],
+      "tools": [
+        "Dart SDK",
+        "DartPad",
+        "Visual Studio Code"
+      ],
+      "lab_task": "Install Dart and create basic command-line applications",
+      "deliverable": "Participant submission for 'Dart Introduction and Environment Setup': Install Dart and create basic command-line applications. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Install Dart and create basic command-line applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dart use cases and features; Dart SDK and VM; JIT and AOT compilation; IDE configuration; DartPad; project structure; main function; comments; running Dart programs). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Install Dart and create basic command-line applications.",
+        "Explain how the lab applies Dart Introduction and Environment Setup and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Dart Introduction and Environment Setup' on a prepared training sample through this task: Install Dart and create basic command-line applications.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Install Dart and create basic command-line applications",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Dart use cases and features; Dart SDK and VM; JIT and AOT compilation; IDE configuration; DartPad; project structure; main function; comments; running Dart programs) and demonstrate the starting sample for: Install Dart and create basic command-line applications",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Install Dart and create basic command-line applications",
+          "evidence": "Participant submission for 'Dart Introduction and Environment Setup': Install Dart and create basic command-line applications. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Install Dart and create basic command-line applications' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Install Dart and create basic command-line applications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dart use cases and features; Dart SDK and VM; JIT and AOT compilation; IDE configuration; DartPad; project structure; main function; comments; running Dart programs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Variables, Data Types and Type System",
+      "subtopics": [
+        "var, final and const",
+        "type inference",
+        "explicit types",
+        "num, int and double",
+        "String and bool",
+        "Object, dynamic and Never",
+        "Null",
+        "runtime types",
+        "conversion",
+        "interpolation",
+        "nullable/non-nullable types"
+      ],
+      "tools": [
+        "Dart SDK",
+        "DartPad"
+      ],
+      "lab_task": "Develop type, inference, constants, and conversion programs",
+      "deliverable": "Participant submission for 'Variables, Data Types and Type System': Develop type, inference, constants, and conversion programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop type, inference, constants, and conversion programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (var, final and const; type inference; explicit types; num, int and double; String and bool; Object, dynamic and Never; Null; runtime types; conversion; interpolation; nullable/non-nullable types). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop type, inference, constants, and conversion programs.",
+        "Explain how the lab applies Variables, Data Types and Type System and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Variables, Data Types and Type System' on a prepared training sample through this task: Develop type, inference, constants, and conversion programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop type, inference, constants, and conversion programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (var, final and const; type inference; explicit types; num, int and double; String and bool; Object, dynamic and Never; Null; runtime types; conversion; interpolation; nullable/non-nullable types) and demonstrate the starting sample for: Develop type, inference, constants, and conversion programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop type, inference, constants, and conversion programs",
+          "evidence": "Participant submission for 'Variables, Data Types and Type System': Develop type, inference, constants, and conversion programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop type, inference, constants, and conversion programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop type, inference, constants, and conversion programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (var, final and const; type inference; explicit types; num, int and double; String and bool; Object, dynamic and Never; Null; runtime types; conversion; interpolation; nullable/non-nullable types). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Operators and Control Flow",
+      "subtopics": [
+        "arithmetic, equality, relational and logical operators",
+        "conditional expressions",
+        "null-aware operators",
+        "cascade notation",
+        "if/else",
+        "switch and pattern switch",
+        "for, for-in, while, do-while",
+        "break",
+        "continue",
+        "assertions"
+      ],
+      "tools": [
+        "DartPad"
+      ],
+      "lab_task": "Build decision-making, menu, loop, and pattern-generation programs",
+      "deliverable": "Participant submission for 'Operators and Control Flow': Build decision-making, menu, loop, and pattern-generation programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build decision-making, menu, loop, and pattern-generation programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (arithmetic, equality, relational and logical operators; conditional expressions; null-aware operators; cascade notation; if/else; switch and pattern switch; for, for-in, while, do-while; break; continue; assertions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build decision-making, menu, loop, and pattern-generation programs.",
+        "Explain how the lab applies Operators and Control Flow and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Operators and Control Flow' on a prepared training sample through this task: Build decision-making, menu, loop, and pattern-generation programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build decision-making, menu, loop, and pattern-generation programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (arithmetic, equality, relational and logical operators; conditional expressions; null-aware operators; cascade notation; if/else; switch and pattern switch; for, for-in, while, do-while; break; continue; assertions) and demonstrate the starting sample for: Build decision-making, menu, loop, and pattern-generation programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build decision-making, menu, loop, and pattern-generation programs",
+          "evidence": "Participant submission for 'Operators and Control Flow': Build decision-making, menu, loop, and pattern-generation programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build decision-making, menu, loop, and pattern-generation programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build decision-making, menu, loop, and pattern-generation programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (arithmetic, equality, relational and logical operators; conditional expressions; null-aware operators; cascade notation; if/else; switch and pattern switch; for, for-in, while, do-while; break; continue; assertions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Strings and Collections",
+      "subtopics": [
+        "string literals and raw strings",
+        "string methods",
+        "List, Set and Map",
+        "collection literals",
+        "spread and null-aware spread",
+        "collection if/for",
+        "iteration",
+        "where",
+        "map",
+        "reduce",
+        "fold",
+        "sorting"
+      ],
+      "tools": [
+        "Dart SDK",
+        "DartPad"
+      ],
+      "lab_task": "Create a student-data processor using strings, lists, sets, and maps",
+      "deliverable": "Participant submission for 'Strings and Collections': Create a student-data processor using strings, lists, sets, and maps. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a student-data processor using strings, lists, sets, and maps. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (string literals and raw strings; string methods; List, Set and Map; collection literals; spread and null-aware spread; collection if/for; iteration; where; map; reduce; fold; sorting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a student-data processor using strings, lists, sets, and maps.",
+        "Explain how the lab applies Strings and Collections and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Strings and Collections' on a prepared training sample through this task: Create a student-data processor using strings, lists, sets, and maps.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a student-data processor using strings, lists, sets, and maps",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (string literals and raw strings; string methods; List, Set and Map; collection literals; spread and null-aware spread; collection if/for; iteration; where; map; reduce; fold; sorting) and demonstrate the starting sample for: Create a student-data processor using strings, lists, sets, and maps",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a student-data processor using strings, lists, sets, and maps",
+          "evidence": "Participant submission for 'Strings and Collections': Create a student-data processor using strings, lists, sets, and maps. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a student-data processor using strings, lists, sets, and maps' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a student-data processor using strings, lists, sets, and maps. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (string literals and raw strings; string methods; List, Set and Map; collection literals; spread and null-aware spread; collection if/for; iteration; where; map; reduce; fold; sorting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Functions and Closures",
+      "subtopics": [
+        "function declaration",
+        "positional and named parameters",
+        "default values",
+        "arrow and anonymous functions",
+        "functions as objects",
+        "higher-order functions",
+        "lexical scope",
+        "closures",
+        "recursion",
+        "typedefs"
+      ],
+      "tools": [
+        "DartPad",
+        "Visual Studio Code"
+      ],
+      "lab_task": "Develop reusable normal, anonymous, higher-order, and recursive utilities",
+      "deliverable": "Participant submission for 'Functions and Closures': Develop reusable normal, anonymous, higher-order, and recursive utilities. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop reusable normal, anonymous, higher-order, and recursive utilities. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (function declaration; positional and named parameters; default values; arrow and anonymous functions; functions as objects; higher-order functions; lexical scope; closures; recursion; typedefs). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop reusable normal, anonymous, higher-order, and recursive utilities.",
+        "Explain how the lab applies Functions and Closures and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Functions and Closures' on a prepared training sample through this task: Develop reusable normal, anonymous, higher-order, and recursive utilities.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop reusable normal, anonymous, higher-order, and recursive utilities",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (function declaration; positional and named parameters; default values; arrow and anonymous functions; functions as objects; higher-order functions; lexical scope; closures; recursion; typedefs) and demonstrate the starting sample for: Develop reusable normal, anonymous, higher-order, and recursive utilities",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop reusable normal, anonymous, higher-order, and recursive utilities",
+          "evidence": "Participant submission for 'Functions and Closures': Develop reusable normal, anonymous, higher-order, and recursive utilities. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop reusable normal, anonymous, higher-order, and recursive utilities' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop reusable normal, anonymous, higher-order, and recursive utilities. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (function declaration; positional and named parameters; default values; arrow and anonymous functions; functions as objects; higher-order functions; lexical scope; closures; recursion; typedefs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Classes and Object-Oriented Programming",
+      "subtopics": [
+        "classes and objects",
+        "constructors",
+        "named/constant/redirecting constructors",
+        "initializer lists",
+        "this",
+        "getters and setters",
+        "static members",
+        "encapsulation",
+        "inheritance",
+        "overriding",
+        "polymorphism"
+      ],
+      "tools": [
+        "Visual Studio Code",
+        "Dart SDK"
+      ],
+      "lab_task": "Build an employee application using constructors, inheritance, and polymorphism",
+      "deliverable": "Participant submission for 'Classes and Object-Oriented Programming': Build an employee application using constructors, inheritance, and polymorphism. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an employee application using constructors, inheritance, and polymorphism. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes and objects; constructors; named/constant/redirecting constructors; initializer lists; this; getters and setters; static members; encapsulation; inheritance; overriding; polymorphism). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an employee application using constructors, inheritance, and polymorphism.",
+        "Explain how the lab applies Classes and Object-Oriented Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Classes and Object-Oriented Programming' on a prepared training sample through this task: Build an employee application using constructors, inheritance, and polymorphism.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an employee application using constructors, inheritance, and polymorphism",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (classes and objects; constructors; named/constant/redirecting constructors; initializer lists; this; getters and setters; static members; encapsulation; inheritance; overriding; polymorphism) and demonstrate the starting sample for: Build an employee application using constructors, inheritance, and polymorphism",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an employee application using constructors, inheritance, and polymorphism",
+          "evidence": "Participant submission for 'Classes and Object-Oriented Programming': Build an employee application using constructors, inheritance, and polymorphism. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an employee application using constructors, inheritance, and polymorphism' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an employee application using constructors, inheritance, and polymorphism. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes and objects; constructors; named/constant/redirecting constructors; initializer lists; this; getters and setters; static members; encapsulation; inheritance; overriding; polymorphism). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Advanced Object-Oriented Programming",
+      "subtopics": [
+        "abstract classes",
+        "implicit interfaces",
+        "implements",
+        "multiple interfaces",
+        "mixins",
+        "extension methods",
+        "extension types",
+        "callable objects",
+        "operator overloading",
+        "abstract/base/interface/final/sealed modifiers"
+      ],
+      "tools": [
+        "Visual Studio Code"
+      ],
+      "lab_task": "Design a modular payment system using abstract classes, interfaces, and mixins",
+      "deliverable": "Participant submission for 'Advanced Object-Oriented Programming': Design a modular payment system using abstract classes, interfaces, and mixins. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a modular payment system using abstract classes, interfaces, and mixins. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (abstract classes; implicit interfaces; implements; multiple interfaces; mixins; extension methods; extension types; callable objects; operator overloading; abstract/base/interface/final/sealed modifiers). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design a modular payment system using abstract classes, interfaces, and mixins.",
+        "Explain how the lab applies Advanced Object-Oriented Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Object-Oriented Programming' on a prepared training sample through this task: Design a modular payment system using abstract classes, interfaces, and mixins.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a modular payment system using abstract classes, interfaces, and mixins",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (abstract classes; implicit interfaces; implements; multiple interfaces; mixins; extension methods; extension types; callable objects; operator overloading; abstract/base/interface/final/sealed modifiers) and demonstrate the starting sample for: Design a modular payment system using abstract classes, interfaces, and mixins",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a modular payment system using abstract classes, interfaces, and mixins",
+          "evidence": "Participant submission for 'Advanced Object-Oriented Programming': Design a modular payment system using abstract classes, interfaces, and mixins. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a modular payment system using abstract classes, interfaces, and mixins' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a modular payment system using abstract classes, interfaces, and mixins. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (abstract classes; implicit interfaces; implements; multiple interfaces; mixins; extension methods; extension types; callable objects; operator overloading; abstract/base/interface/final/sealed modifiers). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Null Safety and Exception Handling",
+      "subtopics": [
+        "sound null safety",
+        "nullable and non-nullable variables",
+        "null assertion/access/assignment",
+        "late variables",
+        "required parameters",
+        "throw",
+        "try/catch/on/finally",
+        "rethrow",
+        "stack traces",
+        "custom exceptions",
+        "propagation"
+      ],
+      "tools": [
+        "Dart SDK",
+        "Visual Studio Code"
+      ],
+      "lab_task": "Build a null-safe validation application with custom exceptions",
+      "deliverable": "Participant submission for 'Null Safety and Exception Handling': Build a null-safe validation application with custom exceptions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a null-safe validation application with custom exceptions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (sound null safety; nullable and non-nullable variables; null assertion/access/assignment; late variables; required parameters; throw; try/catch/on/finally; rethrow; stack traces; custom exceptions; propagation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a null-safe validation application with custom exceptions.",
+        "Explain how the lab applies Null Safety and Exception Handling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Null Safety and Exception Handling' on a prepared training sample through this task: Build a null-safe validation application with custom exceptions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a null-safe validation application with custom exceptions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (sound null safety; nullable and non-nullable variables; null assertion/access/assignment; late variables; required parameters; throw; try/catch/on/finally; rethrow; stack traces; custom exceptions; propagation) and demonstrate the starting sample for: Build a null-safe validation application with custom exceptions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a null-safe validation application with custom exceptions",
+          "evidence": "Participant submission for 'Null Safety and Exception Handling': Build a null-safe validation application with custom exceptions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a null-safe validation application with custom exceptions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a null-safe validation application with custom exceptions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (sound null safety; nullable and non-nullable variables; null assertion/access/assignment; late variables; required parameters; throw; try/catch/on/finally; rethrow; stack traces; custom exceptions; propagation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Generics and Advanced Collections",
+      "subtopics": [
+        "generic classes and methods",
+        "type parameters",
+        "bounded types",
+        "generic collections",
+        "Iterable and Iterator",
+        "lazy iteration",
+        "custom iterable concepts",
+        "Comparable",
+        "comparators",
+        "filtering",
+        "grouping"
+      ],
+      "tools": [
+        "Dart SDK"
+      ],
+      "lab_task": "Create generic data structures and collection-processing utilities",
+      "deliverable": "Participant submission for 'Generics and Advanced Collections': Create generic data structures and collection-processing utilities. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create generic data structures and collection-processing utilities. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (generic classes and methods; type parameters; bounded types; generic collections; Iterable and Iterator; lazy iteration; custom iterable concepts; Comparable; comparators; filtering; grouping). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create generic data structures and collection-processing utilities.",
+        "Explain how the lab applies Generics and Advanced Collections and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Generics and Advanced Collections' on a prepared training sample through this task: Create generic data structures and collection-processing utilities.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create generic data structures and collection-processing utilities",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (generic classes and methods; type parameters; bounded types; generic collections; Iterable and Iterator; lazy iteration; custom iterable concepts; Comparable; comparators; filtering; grouping) and demonstrate the starting sample for: Create generic data structures and collection-processing utilities",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create generic data structures and collection-processing utilities",
+          "evidence": "Participant submission for 'Generics and Advanced Collections': Create generic data structures and collection-processing utilities. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create generic data structures and collection-processing utilities' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create generic data structures and collection-processing utilities. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (generic classes and methods; type parameters; bounded types; generic collections; Iterable and Iterator; lazy iteration; custom iterable concepts; Comparable; comparators; filtering; grouping). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Asynchronous Programming with Futures",
+      "subtopics": [
+        "event loop",
+        "event and microtask queues",
+        "Future",
+        "then",
+        "catchError",
+        "whenComplete",
+        "async/await",
+        "async error handling",
+        "Future.wait",
+        "timeouts"
+      ],
+      "tools": [
+        "Dart SDK",
+        "Visual Studio Code"
+      ],
+      "lab_task": "Coordinate multiple Future-based asynchronous operations",
+      "deliverable": "Participant submission for 'Asynchronous Programming with Futures': Coordinate multiple Future-based asynchronous operations. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Coordinate multiple Future-based asynchronous operations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (event loop; event and microtask queues; Future; then; catchError; whenComplete; async/await; async error handling; Future.wait; timeouts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Coordinate multiple Future-based asynchronous operations.",
+        "Explain how the lab applies Asynchronous Programming with Futures and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Asynchronous Programming with Futures' on a prepared training sample through this task: Coordinate multiple Future-based asynchronous operations.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Coordinate multiple Future-based asynchronous operations",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (event loop; event and microtask queues; Future; then; catchError; whenComplete; async/await; async error handling; Future.wait; timeouts) and demonstrate the starting sample for: Coordinate multiple Future-based asynchronous operations",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Coordinate multiple Future-based asynchronous operations",
+          "evidence": "Participant submission for 'Asynchronous Programming with Futures': Coordinate multiple Future-based asynchronous operations. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Coordinate multiple Future-based asynchronous operations' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Coordinate multiple Future-based asynchronous operations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (event loop; event and microtask queues; Future; then; catchError; whenComplete; async/await; async error handling; Future.wait; timeouts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Streams and Reactive Data Processing",
+      "subtopics": [
+        "single-subscription and broadcast streams",
+        "StreamController",
+        "StreamSubscription",
+        "events and errors",
+        "async* and yield",
+        "stream map/where/expand/take/skip",
+        "cancellation",
+        "pause and resume"
+      ],
+      "tools": [
+        "Dart SDK"
+      ],
+      "lab_task": "Build a real-time event processor using Dart Streams",
+      "deliverable": "Participant submission for 'Streams and Reactive Data Processing': Build a real-time event processor using Dart Streams. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a real-time event processor using Dart Streams. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (single-subscription and broadcast streams; StreamController; StreamSubscription; events and errors; async* and yield; stream map/where/expand/take/skip; cancellation; pause and resume). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a real-time event processor using Dart Streams.",
+        "Explain how the lab applies Streams and Reactive Data Processing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Streams and Reactive Data Processing' on a prepared training sample through this task: Build a real-time event processor using Dart Streams.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a real-time event processor using Dart Streams",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (single-subscription and broadcast streams; StreamController; StreamSubscription; events and errors; async* and yield; stream map/where/expand/take/skip; cancellation; pause and resume) and demonstrate the starting sample for: Build a real-time event processor using Dart Streams",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a real-time event processor using Dart Streams",
+          "evidence": "Participant submission for 'Streams and Reactive Data Processing': Build a real-time event processor using Dart Streams. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a real-time event processor using Dart Streams' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a real-time event processor using Dart Streams. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (single-subscription and broadcast streams; StreamController; StreamSubscription; events and errors; async* and yield; stream map/where/expand/take/skip; cancellation; pause and resume). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Records and Pattern Matching",
+      "subtopics": [
+        "record types and expressions",
+        "positional/named fields",
+        "multiple returns",
+        "variable, constant, list, map, record and object patterns",
+        "logical/relational patterns",
+        "switch pattern matching",
+        "destructuring"
+      ],
+      "tools": [
+        "Dart SDK",
+        "DartPad"
+      ],
+      "lab_task": "Implement data parsing and destructuring with records and patterns",
+      "deliverable": "Participant submission for 'Records and Pattern Matching': Implement data parsing and destructuring with records and patterns. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement data parsing and destructuring with records and patterns. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (record types and expressions; positional/named fields; multiple returns; variable, constant, list, map, record and object patterns; logical/relational patterns; switch pattern matching; destructuring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement data parsing and destructuring with records and patterns.",
+        "Explain how the lab applies Records and Pattern Matching and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Records and Pattern Matching' on a prepared training sample through this task: Implement data parsing and destructuring with records and patterns.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement data parsing and destructuring with records and patterns",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (record types and expressions; positional/named fields; multiple returns; variable, constant, list, map, record and object patterns; logical/relational patterns; switch pattern matching; destructuring) and demonstrate the starting sample for: Implement data parsing and destructuring with records and patterns",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement data parsing and destructuring with records and patterns",
+          "evidence": "Participant submission for 'Records and Pattern Matching': Implement data parsing and destructuring with records and patterns. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement data parsing and destructuring with records and patterns' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement data parsing and destructuring with records and patterns. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (record types and expressions; positional/named fields; multiple returns; variable, constant, list, map, record and object patterns; logical/relational patterns; switch pattern matching; destructuring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "File Handling and JSON",
+      "subtopics": [
+        "dart:io",
+        "File and Directory",
+        "paths",
+        "sync and async file operations",
+        "directory operations",
+        "JSON encoding/decoding",
+        "jsonEncode/jsonDecode",
+        "object mapping",
+        "serialization patterns"
+      ],
+      "tools": [
+        "Dart SDK",
+        "Visual Studio Code"
+      ],
+      "lab_task": "Build a file application that processes JSON data",
+      "deliverable": "Participant submission for 'File Handling and JSON': Build a file application that processes JSON data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a file application that processes JSON data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (dart:io; File and Directory; paths; sync and async file operations; directory operations; JSON encoding/decoding; jsonEncode/jsonDecode; object mapping; serialization patterns). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a file application that processes JSON data.",
+        "Explain how the lab applies File Handling and JSON and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'File Handling and JSON' on a prepared training sample through this task: Build a file application that processes JSON data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a file application that processes JSON data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (dart:io; File and Directory; paths; sync and async file operations; directory operations; JSON encoding/decoding; jsonEncode/jsonDecode; object mapping; serialization patterns) and demonstrate the starting sample for: Build a file application that processes JSON data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a file application that processes JSON data",
+          "evidence": "Participant submission for 'File Handling and JSON': Build a file application that processes JSON data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a file application that processes JSON data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a file application that processes JSON data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (dart:io; File and Directory; paths; sync and async file operations; directory operations; JSON encoding/decoding; jsonEncode/jsonDecode; object mapping; serialization patterns). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "HTTP and REST API Integration",
+      "subtopics": [
+        "HTTP and REST",
+        "URI and clients",
+        "GET, POST, PUT, PATCH and DELETE",
+        "headers and bodies",
+        "status codes",
+        "JSON APIs",
+        "response parsing",
+        "auth headers and bearer tokens",
+        "timeouts",
+        "API errors"
+      ],
+      "tools": [
+        "Dart HTTP Package",
+        "Postman",
+        "Visual Studio Code"
+      ],
+      "lab_task": "Consume REST APIs with GET, POST, parsing, and robust error handling",
+      "deliverable": "Participant submission for 'HTTP and REST API Integration': Consume REST APIs with GET, POST, parsing, and robust error handling. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Consume REST APIs with GET, POST, parsing, and robust error handling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP and REST; URI and clients; GET, POST, PUT, PATCH and DELETE; headers and bodies; status codes; JSON APIs; response parsing; auth headers and bearer tokens; timeouts; API errors). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Consume REST APIs with GET, POST, parsing, and robust error handling.",
+        "Explain how the lab applies HTTP and REST API Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'HTTP and REST API Integration' on a prepared training sample through this task: Consume REST APIs with GET, POST, parsing, and robust error handling.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Consume REST APIs with GET, POST, parsing, and robust error handling",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (HTTP and REST; URI and clients; GET, POST, PUT, PATCH and DELETE; headers and bodies; status codes; JSON APIs; response parsing; auth headers and bearer tokens; timeouts; API errors) and demonstrate the starting sample for: Consume REST APIs with GET, POST, parsing, and robust error handling",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Consume REST APIs with GET, POST, parsing, and robust error handling",
+          "evidence": "Participant submission for 'HTTP and REST API Integration': Consume REST APIs with GET, POST, parsing, and robust error handling. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Consume REST APIs with GET, POST, parsing, and robust error handling' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Consume REST APIs with GET, POST, parsing, and robust error handling. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP and REST; URI and clients; GET, POST, PUT, PATCH and DELETE; headers and bodies; status codes; JSON APIs; response parsing; auth headers and bearer tokens; timeouts; API errors). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Packages and Dependency Management",
+      "subtopics": [
+        "packages",
+        "pub.dev",
+        "pubspec.yaml",
+        "dependencies and dev dependencies",
+        "constraints",
+        "semantic versioning",
+        "dart pub get/add/upgrade",
+        "creating packages",
+        "libraries",
+        "imports",
+        "third-party packages"
+      ],
+      "tools": [
+        "Pub",
+        "pub.dev",
+        "Dart SDK"
+      ],
+      "lab_task": "Create a reusable Dart package and integrate dependencies",
+      "deliverable": "Participant submission for 'Packages and Dependency Management': Create a reusable Dart package and integrate dependencies. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a reusable Dart package and integrate dependencies. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (packages; pub.dev; pubspec.yaml; dependencies and dev dependencies; constraints; semantic versioning; dart pub get/add/upgrade; creating packages; libraries; imports; third-party packages). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a reusable Dart package and integrate dependencies.",
+        "Explain how the lab applies Packages and Dependency Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Packages and Dependency Management' on a prepared training sample through this task: Create a reusable Dart package and integrate dependencies.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a reusable Dart package and integrate dependencies",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (packages; pub.dev; pubspec.yaml; dependencies and dev dependencies; constraints; semantic versioning; dart pub get/add/upgrade; creating packages; libraries; imports; third-party packages) and demonstrate the starting sample for: Create a reusable Dart package and integrate dependencies",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a reusable Dart package and integrate dependencies",
+          "evidence": "Participant submission for 'Packages and Dependency Management': Create a reusable Dart package and integrate dependencies. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a reusable Dart package and integrate dependencies' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a reusable Dart package and integrate dependencies. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (packages; pub.dev; pubspec.yaml; dependencies and dev dependencies; constraints; semantic versioning; dart pub get/add/upgrade; creating packages; libraries; imports; third-party packages). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Isolates and Parallel Execution",
+      "subtopics": [
+        "Dart concurrency model",
+        "isolates",
+        "memory model",
+        "Isolate.run and Isolate.spawn",
+        "SendPort",
+        "ReceivePort",
+        "message passing",
+        "CPU-bound workloads",
+        "concurrency versus parallelism",
+        "lifecycle and errors"
+      ],
+      "tools": [
+        "Dart SDK"
+      ],
+      "lab_task": "Move CPU-intensive work to an isolate and return its result",
+      "deliverable": "Participant submission for 'Isolates and Parallel Execution': Move CPU-intensive work to an isolate and return its result. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Move CPU-intensive work to an isolate and return its result. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dart concurrency model; isolates; memory model; Isolate.run and Isolate.spawn; SendPort; ReceivePort; message passing; CPU-bound workloads; concurrency versus parallelism; lifecycle and errors). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Move CPU-intensive work to an isolate and return its result.",
+        "Explain how the lab applies Isolates and Parallel Execution and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Isolates and Parallel Execution' on a prepared training sample through this task: Move CPU-intensive work to an isolate and return its result.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Move CPU-intensive work to an isolate and return its result",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Dart concurrency model; isolates; memory model; Isolate.run and Isolate.spawn; SendPort; ReceivePort; message passing; CPU-bound workloads; concurrency versus parallelism; lifecycle and errors) and demonstrate the starting sample for: Move CPU-intensive work to an isolate and return its result",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Move CPU-intensive work to an isolate and return its result",
+          "evidence": "Participant submission for 'Isolates and Parallel Execution': Move CPU-intensive work to an isolate and return its result. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Move CPU-intensive work to an isolate and return its result' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Move CPU-intensive work to an isolate and return its result. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dart concurrency model; isolates; memory model; Isolate.run and Isolate.spawn; SendPort; ReceivePort; message passing; CPU-bound workloads; concurrency versus parallelism; lifecycle and errors). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "Testing",
+      "subtopics": [
+        "unit tests",
+        "Dart test package",
+        "expect and matchers",
+        "test grouping",
+        "setUp/tearDown",
+        "testing exceptions",
+        "Futures and Streams",
+        "mocking",
+        "dependency injection",
+        "coverage",
+        "regression testing"
+      ],
+      "tools": [
+        "Dart Test",
+        "Visual Studio Code"
+      ],
+      "lab_task": "Create unit and asynchronous tests and generate a test report",
+      "deliverable": "Participant submission for 'Testing': Create unit and asynchronous tests and generate a test report. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create unit and asynchronous tests and generate a test report. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (unit tests; Dart test package; expect and matchers; test grouping; setUp/tearDown; testing exceptions; Futures and Streams; mocking; dependency injection; coverage; regression testing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create unit and asynchronous tests and generate a test report.",
+        "Explain how the lab applies Testing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Testing' on a prepared training sample through this task: Create unit and asynchronous tests and generate a test report.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create unit and asynchronous tests and generate a test report",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (unit tests; Dart test package; expect and matchers; test grouping; setUp/tearDown; testing exceptions; Futures and Streams; mocking; dependency injection; coverage; regression testing) and demonstrate the starting sample for: Create unit and asynchronous tests and generate a test report",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create unit and asynchronous tests and generate a test report",
+          "evidence": "Participant submission for 'Testing': Create unit and asynchronous tests and generate a test report. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create unit and asynchronous tests and generate a test report' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create unit and asynchronous tests and generate a test report. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (unit tests; Dart test package; expect and matchers; test grouping; setUp/tearDown; testing exceptions; Futures and Streams; mocking; dependency injection; coverage; regression testing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "Debugging, Logging and Code Quality",
+      "subtopics": [
+        "breakpoints",
+        "inspection and call stacks",
+        "exception debugging",
+        "logging",
+        "assertions",
+        "Dart analyzer",
+        "static analysis",
+        "analysis_options.yaml",
+        "lint rules",
+        "dart analyze",
+        "dart format",
+        "Effective Dart",
+        "refactoring"
+      ],
+      "tools": [
+        "Dart Analyzer",
+        "Visual Studio Code",
+        "Dart DevTools"
+      ],
+      "lab_task": "Analyze, debug, format, and refactor an existing Dart project",
+      "deliverable": "Participant submission for 'Debugging, Logging and Code Quality': Analyze, debug, format, and refactor an existing Dart project. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Analyze, debug, format, and refactor an existing Dart project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (breakpoints; inspection and call stacks; exception debugging; logging; assertions; Dart analyzer; static analysis; analysis_options.yaml; lint rules; dart analyze; dart format; Effective Dart; refactoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Analyze, debug, format, and refactor an existing Dart project.",
+        "Explain how the lab applies Debugging, Logging and Code Quality and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Debugging, Logging and Code Quality' on a prepared training sample through this task: Analyze, debug, format, and refactor an existing Dart project.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Analyze, debug, format, and refactor an existing Dart project",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (breakpoints; inspection and call stacks; exception debugging; logging; assertions; Dart analyzer; static analysis; analysis_options.yaml; lint rules; dart analyze; dart format; Effective Dart; refactoring) and demonstrate the starting sample for: Analyze, debug, format, and refactor an existing Dart project",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Analyze, debug, format, and refactor an existing Dart project",
+          "evidence": "Participant submission for 'Debugging, Logging and Code Quality': Analyze, debug, format, and refactor an existing Dart project. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Analyze, debug, format, and refactor an existing Dart project' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Analyze, debug, format, and refactor an existing Dart project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (breakpoints; inspection and call stacks; exception debugging; logging; assertions; Dart analyzer; static analysis; analysis_options.yaml; lint rules; dart analyze; dart format; Effective Dart; refactoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "Performance and Advanced Dart",
+      "subtopics": [
+        "runtime and memory performance",
+        "garbage collection awareness",
+        "JIT versus AOT",
+        "collection efficiency",
+        "allocation reduction",
+        "async performance",
+        "CPU/memory profiling",
+        "advanced generics",
+        "immutability",
+        "API design",
+        "architecture"
+      ],
+      "tools": [
+        "Dart DevTools",
+        "Dart SDK"
+      ],
+      "lab_task": "Profile and optimize a Dart application for CPU, memory, and maintainability",
+      "deliverable": "Participant submission for 'Performance and Advanced Dart': Profile and optimize a Dart application for CPU, memory, and maintainability. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Profile and optimize a Dart application for CPU, memory, and maintainability. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (runtime and memory performance; garbage collection awareness; JIT versus AOT; collection efficiency; allocation reduction; async performance; CPU/memory profiling; advanced generics; immutability; API design; architecture). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Profile and optimize a Dart application for CPU, memory, and maintainability.",
+        "Explain how the lab applies Performance and Advanced Dart and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance and Advanced Dart' on a prepared training sample through this task: Profile and optimize a Dart application for CPU, memory, and maintainability.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Profile and optimize a Dart application for CPU, memory, and maintainability",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (runtime and memory performance; garbage collection awareness; JIT versus AOT; collection efficiency; allocation reduction; async performance; CPU/memory profiling; advanced generics; immutability; API design; architecture) and demonstrate the starting sample for: Profile and optimize a Dart application for CPU, memory, and maintainability",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Profile and optimize a Dart application for CPU, memory, and maintainability",
+          "evidence": "Participant submission for 'Performance and Advanced Dart': Profile and optimize a Dart application for CPU, memory, and maintainability. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Profile and optimize a Dart application for CPU, memory, and maintainability' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Profile and optimize a Dart application for CPU, memory, and maintainability. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (runtime and memory performance; garbage collection awareness; JIT versus AOT; collection efficiency; allocation reduction; async performance; CPU/memory profiling; advanced generics; immutability; API design; architecture). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "Git, Architecture and Dart Capstone",
+      "subtopics": [
+        "Git workflow",
+        "branches and pull requests",
+        "project organization",
+        "separation of concerns",
+        "layered architecture",
+        "repository pattern",
+        "dependency injection",
+        "configuration",
+        "error strategy",
+        "test strategy",
+        "documentation",
+        "final integration"
+      ],
+      "tools": [
+        "Git",
+        "GitHub",
+        "Dart SDK",
+        "Visual Studio Code"
+      ],
+      "lab_task": "Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture",
+      "deliverable": "Participant submission for 'Git, Architecture and Dart Capstone': Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git workflow; branches and pull requests; project organization; separation of concerns; layered architecture; repository pattern; dependency injection; configuration; error strategy; test strategy; documentation; final integration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture.",
+        "Explain how the lab applies Git, Architecture and Dart Capstone and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Git, Architecture and Dart Capstone' on a prepared training sample through this task: Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Git workflow; branches and pull requests; project organization; separation of concerns; layered architecture; repository pattern; dependency injection; configuration; error strategy; test strategy; documentation; final integration) and demonstrate the starting sample for: Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture",
+          "evidence": "Participant submission for 'Git, Architecture and Dart Capstone': Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deliver a Dart application integrating APIs, JSON, async programming, tests, and clean architecture. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git workflow; branches and pull requests; project organization; separation of concerns; layered architecture; repository pattern; dependency injection; configuration; error strategy; test strategy; documentation; final integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

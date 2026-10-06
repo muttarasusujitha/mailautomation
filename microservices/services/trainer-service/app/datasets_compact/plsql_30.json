@@ -1,21 +1,1337 @@
-{"domain":"PL/SQL","name":"PL/SQL Oracle Development","icon":"database","program_title":"PL/SQL - Oracle Database Programming from Fundamentals to Advanced Development","level":"Beginner to Advanced","mode":"Online","aliases":["PL/SQL","Procedural Language SQL","Oracle PL/SQL","PLSQL"],"tools":["Oracle Database","Oracle SQL Developer","SQL*Plus","Oracle Live SQL","Toad for Oracle","Git"],"certifications":["Oracle Database SQL Certified Associate","Oracle Database PL/SQL Developer Certified Professional"],"days":[
-{"day":1,"topic":"PL/SQL Introduction and Environment","subtopics":["SQL versus PL/SQL","engine/architecture","SQL Developer/SQL*Plus/Live SQL","anonymous blocks","DECLARE/BEGIN/EXCEPTION/END"],"tools":["Oracle Database","Oracle SQL Developer"],"lab_task":"Set up Oracle tools and execute anonymous blocks"},
-{"day":2,"topic":"Variables, Constants and Data Types","subtopics":["declarations/constants","NUMBER/VARCHAR2/CHAR/BOOLEAN/DATE/TIMESTAMP","NOT NULL","%TYPE","conversion","scope"],"tools":["Oracle SQL Developer"],"lab_task":"Create blocks using anchored types and dates"},
-{"day":3,"topic":"Operators, Control Flow and Loops","subtopics":["operators","if/elsif/else","case","loop/while/for","nested loops","exit/continue"],"tools":["Oracle SQL Developer"],"lab_task":"Build decision and iterative database programs"},
-{"day":4,"topic":"SQL in PL/SQL","subtopics":["SELECT INTO","DML","transaction control","COMMIT/ROLLBACK/SAVEPOINT","SQL%ROWCOUNT","implicit cursor attributes"],"tools":["Oracle Database"],"lab_task":"Integrate queries and transactional DML in blocks"},
-{"day":5,"topic":"Cursors","subtopics":["implicit/explicit cursors","open/fetch/close","cursor for loops","parameterized cursors","cursor attributes","FOR UPDATE","WHERE CURRENT OF"],"tools":["Oracle SQL Developer"],"lab_task":"Process result sets with explicit and parameterized cursors"},
-{"day":6,"topic":"Exception Handling","subtopics":["predefined exceptions","NO_DATA_FOUND/TOO_MANY_ROWS","others","raise/raise_application_error","custom exceptions","exception propagation","logging"],"tools":["Oracle SQL Developer"],"lab_task":"Build reliable error handling and validation"},
-{"day":7,"topic":"Procedures and Functions","subtopics":["create/replace","parameters IN/OUT/IN OUT","return values","overloading","default parameters","stored program units","documentation"],"tools":["Oracle Database"],"lab_task":"Create reusable procedures and functions"},
-{"day":8,"topic":"Packages","subtopics":["package specification/body","public/private members","package state","initialization","overloading","dependency management","best practices"],"tools":["Oracle SQL Developer"],"lab_task":"Build a reusable business-logic package"},
-{"day":9,"topic":"Records, Collections and Bulk Processing","subtopics":["records","%ROWTYPE","associative arrays","nested tables","varrays","collection methods","BULK COLLECT","FORALL","bulk exceptions"],"tools":["Oracle Database"],"lab_task":"Process high-volume records using collections and bulk SQL"},
-{"day":10,"topic":"Dynamic SQL","subtopics":["native dynamic SQL","EXECUTE IMMEDIATE","bind variables","dynamic queries/DML","OPEN FOR","DBMS_SQL awareness","SQL injection prevention"],"tools":["Oracle SQL Developer"],"lab_task":"Create secure configurable dynamic SQL"},
-{"day":11,"topic":"Triggers","subtopics":["before/after","row/statement triggers","instead-of triggers","trigger variables","compound triggers","audit/business rules","mutating-table awareness"],"tools":["Oracle Database"],"lab_task":"Build auditing and validation triggers"},
-{"day":12,"topic":"Advanced SQL for PL/SQL","subtopics":["joins/subqueries","analytic functions","CTEs","MERGE","hierarchical queries","views/materialized views awareness","query design"],"tools":["Oracle SQL Developer"],"lab_task":"Use advanced SQL in reporting procedures"},
-{"day":13,"topic":"Transactions, Locks and Concurrency","subtopics":["ACID","COMMIT/ROLLBACK","savepoints","locking","SELECT FOR UPDATE","deadlocks","isolation awareness","concurrency strategy"],"tools":["Oracle Database"],"lab_task":"Implement safe concurrent update workflows"},
-{"day":14,"topic":"File Handling and External Integration","subtopics":["UTL_FILE","directories","read/write","CSV concepts","external tables awareness","UTL_HTTP awareness","email integration concepts"],"tools":["Oracle Database"],"lab_task":"Generate file-based database reports"},
-{"day":15,"topic":"Performance Tuning","subtopics":["execution plans","indexes","SQL tracing awareness","PL/SQL profiler","context switches","bulk operations","cursor efficiency","query tuning"],"tools":["Oracle SQL Developer"],"lab_task":"Profile and optimize slow PL/SQL code"},
-{"day":16,"topic":"Security and Database Administration Basics","subtopics":["users/roles/privileges","definer/invoker rights","least privilege","SQL injection","data protection","auditing","schema management"],"tools":["Oracle Database"],"lab_task":"Secure database access and stored code"},
-{"day":17,"topic":"Testing and Debugging","subtopics":["SQL Developer debugger","breakpoints","DBMS_OUTPUT","test data","unit testing concepts","utPLSQL awareness","error diagnostics"],"tools":["Oracle SQL Developer","utPLSQL"],"lab_task":"Debug and test stored program units"},
-{"day":18,"topic":"Data Warehousing and ETL Basics","subtopics":["ETL","staging","data quality","batch loads","incremental loads","data transformations","scheduling awareness","reporting"],"tools":["Oracle Database"],"lab_task":"Build an ETL-style data load procedure"},
-{"day":19,"topic":"Oracle Built-In Packages","subtopics":["DBMS_OUTPUT","DBMS_SCHEDULER","DBMS_LOB","UTL_FILE","DBMS_STATS","DBMS_LOCK awareness","package selection"],"tools":["Oracle Database"],"lab_task":"Automate a scheduled database maintenance task"},
-{"day":20,"topic":"PL/SQL Capstone Project","subtopics":["schema/design","SQL/PLSQL","packages/procedures/functions","cursors/collections","triggers/exceptions","security/performance","testing/documentation"],"tools":["Oracle Database","Oracle SQL Developer","Git"],"lab_task":"Deliver a complete Oracle PL/SQL business application"}]}
+{
+  "domain": "PL/SQL",
+  "name": "PL/SQL Oracle Development",
+  "icon": "database",
+  "program_title": "PL/SQL - Oracle Database Programming from Fundamentals to Advanced Development",
+  "level": "Beginner to Advanced",
+  "mode": "Online",
+  "aliases": [
+    "PL/SQL",
+    "Procedural Language SQL",
+    "Oracle PL/SQL",
+    "PLSQL"
+  ],
+  "tools": [
+    "Oracle Database",
+    "Oracle SQL Developer",
+    "SQL*Plus",
+    "Oracle Live SQL",
+    "Toad for Oracle",
+    "Git"
+  ],
+  "certifications": [
+    "Oracle Database SQL Certified Associate",
+    "Oracle Database PL/SQL Developer Certified Professional"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "PL/SQL Introduction and Environment",
+      "subtopics": [
+        "SQL versus PL/SQL",
+        "engine/architecture",
+        "SQL Developer/SQL*Plus/Live SQL",
+        "anonymous blocks",
+        "DECLARE/BEGIN/EXCEPTION/END"
+      ],
+      "tools": [
+        "Oracle Database",
+        "Oracle SQL Developer"
+      ],
+      "lab_task": "Set up Oracle tools and execute anonymous blocks",
+      "deliverable": "Participant submission for 'PL/SQL Introduction and Environment': Set up Oracle tools and execute anonymous blocks. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Oracle tools and execute anonymous blocks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL versus PL/SQL; engine/architecture; SQL Developer/SQL*Plus/Live SQL; anonymous blocks; DECLARE/BEGIN/EXCEPTION/END). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Set up Oracle tools and execute anonymous blocks.",
+        "Explain how the lab applies PL/SQL Introduction and Environment and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'PL/SQL Introduction and Environment' on a prepared training sample through this task: Set up Oracle tools and execute anonymous blocks.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Oracle tools and execute anonymous blocks",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SQL versus PL/SQL; engine/architecture; SQL Developer/SQL*Plus/Live SQL; anonymous blocks; DECLARE/BEGIN/EXCEPTION/END) and demonstrate the starting sample for: Set up Oracle tools and execute anonymous blocks",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Oracle tools and execute anonymous blocks",
+          "evidence": "Participant submission for 'PL/SQL Introduction and Environment': Set up Oracle tools and execute anonymous blocks. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Oracle tools and execute anonymous blocks' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Oracle tools and execute anonymous blocks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL versus PL/SQL; engine/architecture; SQL Developer/SQL*Plus/Live SQL; anonymous blocks; DECLARE/BEGIN/EXCEPTION/END). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Variables, Constants and Data Types",
+      "subtopics": [
+        "declarations/constants",
+        "NUMBER/VARCHAR2/CHAR/BOOLEAN/DATE/TIMESTAMP",
+        "NOT NULL",
+        "%TYPE",
+        "conversion",
+        "scope"
+      ],
+      "tools": [
+        "Oracle SQL Developer"
+      ],
+      "lab_task": "Create blocks using anchored types and dates",
+      "deliverable": "Participant submission for 'Variables, Constants and Data Types': Create blocks using anchored types and dates. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create blocks using anchored types and dates. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (declarations/constants; NUMBER/VARCHAR2/CHAR/BOOLEAN/DATE/TIMESTAMP; NOT NULL; %TYPE; conversion; scope). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create blocks using anchored types and dates.",
+        "Explain how the lab applies Variables, Constants and Data Types and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Variables, Constants and Data Types' on a prepared training sample through this task: Create blocks using anchored types and dates.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create blocks using anchored types and dates",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (declarations/constants; NUMBER/VARCHAR2/CHAR/BOOLEAN/DATE/TIMESTAMP; NOT NULL; %TYPE; conversion; scope) and demonstrate the starting sample for: Create blocks using anchored types and dates",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create blocks using anchored types and dates",
+          "evidence": "Participant submission for 'Variables, Constants and Data Types': Create blocks using anchored types and dates. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create blocks using anchored types and dates' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create blocks using anchored types and dates. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (declarations/constants; NUMBER/VARCHAR2/CHAR/BOOLEAN/DATE/TIMESTAMP; NOT NULL; %TYPE; conversion; scope). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Operators, Control Flow and Loops",
+      "subtopics": [
+        "operators",
+        "if/elsif/else",
+        "case",
+        "loop/while/for",
+        "nested loops",
+        "exit/continue"
+      ],
+      "tools": [
+        "Oracle SQL Developer"
+      ],
+      "lab_task": "Build decision and iterative database programs",
+      "deliverable": "Participant submission for 'Operators, Control Flow and Loops': Build decision and iterative database programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build decision and iterative database programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (operators; if/elsif/else; case; loop/while/for; nested loops; exit/continue). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build decision and iterative database programs.",
+        "Explain how the lab applies Operators, Control Flow and Loops and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Operators, Control Flow and Loops' on a prepared training sample through this task: Build decision and iterative database programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build decision and iterative database programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (operators; if/elsif/else; case; loop/while/for; nested loops; exit/continue) and demonstrate the starting sample for: Build decision and iterative database programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build decision and iterative database programs",
+          "evidence": "Participant submission for 'Operators, Control Flow and Loops': Build decision and iterative database programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build decision and iterative database programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build decision and iterative database programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (operators; if/elsif/else; case; loop/while/for; nested loops; exit/continue). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "SQL in PL/SQL",
+      "subtopics": [
+        "SELECT INTO",
+        "DML",
+        "transaction control",
+        "COMMIT/ROLLBACK/SAVEPOINT",
+        "SQL%ROWCOUNT",
+        "implicit cursor attributes"
+      ],
+      "tools": [
+        "Oracle Database"
+      ],
+      "lab_task": "Integrate queries and transactional DML in blocks",
+      "deliverable": "Participant submission for 'SQL in PL/SQL': Integrate queries and transactional DML in blocks. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Integrate queries and transactional DML in blocks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SELECT INTO; DML; transaction control; COMMIT/ROLLBACK/SAVEPOINT; SQL%ROWCOUNT; implicit cursor attributes). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Integrate queries and transactional DML in blocks.",
+        "Explain how the lab applies SQL in PL/SQL and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SQL in PL/SQL' on a prepared training sample through this task: Integrate queries and transactional DML in blocks.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Integrate queries and transactional DML in blocks",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SELECT INTO; DML; transaction control; COMMIT/ROLLBACK/SAVEPOINT; SQL%ROWCOUNT; implicit cursor attributes) and demonstrate the starting sample for: Integrate queries and transactional DML in blocks",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Integrate queries and transactional DML in blocks",
+          "evidence": "Participant submission for 'SQL in PL/SQL': Integrate queries and transactional DML in blocks. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Integrate queries and transactional DML in blocks' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Integrate queries and transactional DML in blocks. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SELECT INTO; DML; transaction control; COMMIT/ROLLBACK/SAVEPOINT; SQL%ROWCOUNT; implicit cursor attributes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Cursors",
+      "subtopics": [
+        "implicit/explicit cursors",
+        "open/fetch/close",
+        "cursor for loops",
+        "parameterized cursors",
+        "cursor attributes",
+        "FOR UPDATE",
+        "WHERE CURRENT OF"
+      ],
+      "tools": [
+        "Oracle SQL Developer"
+      ],
+      "lab_task": "Process result sets with explicit and parameterized cursors",
+      "deliverable": "Participant submission for 'Cursors': Process result sets with explicit and parameterized cursors. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Process result sets with explicit and parameterized cursors. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (implicit/explicit cursors; open/fetch/close; cursor for loops; parameterized cursors; cursor attributes; FOR UPDATE; WHERE CURRENT OF). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Process result sets with explicit and parameterized cursors.",
+        "Explain how the lab applies Cursors and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cursors' on a prepared training sample through this task: Process result sets with explicit and parameterized cursors.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Process result sets with explicit and parameterized cursors",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (implicit/explicit cursors; open/fetch/close; cursor for loops; parameterized cursors; cursor attributes; FOR UPDATE; WHERE CURRENT OF) and demonstrate the starting sample for: Process result sets with explicit and parameterized cursors",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Process result sets with explicit and parameterized cursors",
+          "evidence": "Participant submission for 'Cursors': Process result sets with explicit and parameterized cursors. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Process result sets with explicit and parameterized cursors' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Process result sets with explicit and parameterized cursors. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (implicit/explicit cursors; open/fetch/close; cursor for loops; parameterized cursors; cursor attributes; FOR UPDATE; WHERE CURRENT OF). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Exception Handling",
+      "subtopics": [
+        "predefined exceptions",
+        "NO_DATA_FOUND/TOO_MANY_ROWS",
+        "others",
+        "raise/raise_application_error",
+        "custom exceptions",
+        "exception propagation",
+        "logging"
+      ],
+      "tools": [
+        "Oracle SQL Developer"
+      ],
+      "lab_task": "Build reliable error handling and validation",
+      "deliverable": "Participant submission for 'Exception Handling': Build reliable error handling and validation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build reliable error handling and validation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (predefined exceptions; NO_DATA_FOUND/TOO_MANY_ROWS; others; raise/raise_application_error; custom exceptions; exception propagation; logging). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build reliable error handling and validation.",
+        "Explain how the lab applies Exception Handling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Exception Handling' on a prepared training sample through this task: Build reliable error handling and validation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build reliable error handling and validation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (predefined exceptions; NO_DATA_FOUND/TOO_MANY_ROWS; others; raise/raise_application_error; custom exceptions; exception propagation; logging) and demonstrate the starting sample for: Build reliable error handling and validation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build reliable error handling and validation",
+          "evidence": "Participant submission for 'Exception Handling': Build reliable error handling and validation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build reliable error handling and validation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build reliable error handling and validation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (predefined exceptions; NO_DATA_FOUND/TOO_MANY_ROWS; others; raise/raise_application_error; custom exceptions; exception propagation; logging). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Procedures and Functions",
+      "subtopics": [
+        "create/replace",
+        "parameters IN/OUT/IN OUT",
+        "return values",
+        "overloading",
+        "default parameters",
+        "stored program units",
+        "documentation"
+      ],
+      "tools": [
+        "Oracle Database"
+      ],
+      "lab_task": "Create reusable procedures and functions",
+      "deliverable": "Participant submission for 'Procedures and Functions': Create reusable procedures and functions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable procedures and functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (create/replace; parameters IN/OUT/IN OUT; return values; overloading; default parameters; stored program units; documentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create reusable procedures and functions.",
+        "Explain how the lab applies Procedures and Functions and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Procedures and Functions' on a prepared training sample through this task: Create reusable procedures and functions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable procedures and functions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (create/replace; parameters IN/OUT/IN OUT; return values; overloading; default parameters; stored program units; documentation) and demonstrate the starting sample for: Create reusable procedures and functions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable procedures and functions",
+          "evidence": "Participant submission for 'Procedures and Functions': Create reusable procedures and functions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable procedures and functions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable procedures and functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (create/replace; parameters IN/OUT/IN OUT; return values; overloading; default parameters; stored program units; documentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Packages",
+      "subtopics": [
+        "package specification/body",
+        "public/private members",
+        "package state",
+        "initialization",
+        "overloading",
+        "dependency management",
+        "best practices"
+      ],
+      "tools": [
+        "Oracle SQL Developer"
+      ],
+      "lab_task": "Build a reusable business-logic package",
+      "deliverable": "Participant submission for 'Packages': Build a reusable business-logic package. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a reusable business-logic package. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (package specification/body; public/private members; package state; initialization; overloading; dependency management; best practices). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a reusable business-logic package.",
+        "Explain how the lab applies Packages and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Packages' on a prepared training sample through this task: Build a reusable business-logic package.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a reusable business-logic package",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (package specification/body; public/private members; package state; initialization; overloading; dependency management; best practices) and demonstrate the starting sample for: Build a reusable business-logic package",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a reusable business-logic package",
+          "evidence": "Participant submission for 'Packages': Build a reusable business-logic package. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a reusable business-logic package' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a reusable business-logic package. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (package specification/body; public/private members; package state; initialization; overloading; dependency management; best practices). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Records, Collections and Bulk Processing",
+      "subtopics": [
+        "records",
+        "%ROWTYPE",
+        "associative arrays",
+        "nested tables",
+        "varrays",
+        "collection methods",
+        "BULK COLLECT",
+        "FORALL",
+        "bulk exceptions"
+      ],
+      "tools": [
+        "Oracle Database"
+      ],
+      "lab_task": "Process high-volume records using collections and bulk SQL",
+      "deliverable": "Participant submission for 'Records, Collections and Bulk Processing': Process high-volume records using collections and bulk SQL. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Process high-volume records using collections and bulk SQL. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (records; %ROWTYPE; associative arrays; nested tables; varrays; collection methods; BULK COLLECT; FORALL; bulk exceptions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Process high-volume records using collections and bulk SQL.",
+        "Explain how the lab applies Records, Collections and Bulk Processing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Records, Collections and Bulk Processing' on a prepared training sample through this task: Process high-volume records using collections and bulk SQL.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Process high-volume records using collections and bulk SQL",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (records; %ROWTYPE; associative arrays; nested tables; varrays; collection methods; BULK COLLECT; FORALL; bulk exceptions) and demonstrate the starting sample for: Process high-volume records using collections and bulk SQL",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Process high-volume records using collections and bulk SQL",
+          "evidence": "Participant submission for 'Records, Collections and Bulk Processing': Process high-volume records using collections and bulk SQL. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Process high-volume records using collections and bulk SQL' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Process high-volume records using collections and bulk SQL. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (records; %ROWTYPE; associative arrays; nested tables; varrays; collection methods; BULK COLLECT; FORALL; bulk exceptions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Dynamic SQL",
+      "subtopics": [
+        "native dynamic SQL",
+        "EXECUTE IMMEDIATE",
+        "bind variables",
+        "dynamic queries/DML",
+        "OPEN FOR",
+        "DBMS_SQL awareness",
+        "SQL injection prevention"
+      ],
+      "tools": [
+        "Oracle SQL Developer"
+      ],
+      "lab_task": "Create secure configurable dynamic SQL",
+      "deliverable": "Participant submission for 'Dynamic SQL': Create secure configurable dynamic SQL. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create secure configurable dynamic SQL. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (native dynamic SQL; EXECUTE IMMEDIATE; bind variables; dynamic queries/DML; OPEN FOR; DBMS_SQL awareness; SQL injection prevention). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create secure configurable dynamic SQL.",
+        "Explain how the lab applies Dynamic SQL and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Dynamic SQL' on a prepared training sample through this task: Create secure configurable dynamic SQL.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create secure configurable dynamic SQL",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (native dynamic SQL; EXECUTE IMMEDIATE; bind variables; dynamic queries/DML; OPEN FOR; DBMS_SQL awareness; SQL injection prevention) and demonstrate the starting sample for: Create secure configurable dynamic SQL",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create secure configurable dynamic SQL",
+          "evidence": "Participant submission for 'Dynamic SQL': Create secure configurable dynamic SQL. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create secure configurable dynamic SQL' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create secure configurable dynamic SQL. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (native dynamic SQL; EXECUTE IMMEDIATE; bind variables; dynamic queries/DML; OPEN FOR; DBMS_SQL awareness; SQL injection prevention). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Triggers",
+      "subtopics": [
+        "before/after",
+        "row/statement triggers",
+        "instead-of triggers",
+        "trigger variables",
+        "compound triggers",
+        "audit/business rules",
+        "mutating-table awareness"
+      ],
+      "tools": [
+        "Oracle Database"
+      ],
+      "lab_task": "Build auditing and validation triggers",
+      "deliverable": "Participant submission for 'Triggers': Build auditing and validation triggers. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build auditing and validation triggers. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (before/after; row/statement triggers; instead-of triggers; trigger variables; compound triggers; audit/business rules; mutating-table awareness). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build auditing and validation triggers.",
+        "Explain how the lab applies Triggers and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Triggers' on a prepared training sample through this task: Build auditing and validation triggers.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build auditing and validation triggers",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (before/after; row/statement triggers; instead-of triggers; trigger variables; compound triggers; audit/business rules; mutating-table awareness) and demonstrate the starting sample for: Build auditing and validation triggers",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build auditing and validation triggers",
+          "evidence": "Participant submission for 'Triggers': Build auditing and validation triggers. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build auditing and validation triggers' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build auditing and validation triggers. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (before/after; row/statement triggers; instead-of triggers; trigger variables; compound triggers; audit/business rules; mutating-table awareness). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Advanced SQL for PL/SQL",
+      "subtopics": [
+        "joins/subqueries",
+        "analytic functions",
+        "CTEs",
+        "MERGE",
+        "hierarchical queries",
+        "views/materialized views awareness",
+        "query design"
+      ],
+      "tools": [
+        "Oracle SQL Developer"
+      ],
+      "lab_task": "Use advanced SQL in reporting procedures",
+      "deliverable": "Participant submission for 'Advanced SQL for PL/SQL': Use advanced SQL in reporting procedures. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Use advanced SQL in reporting procedures. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (joins/subqueries; analytic functions; CTEs; MERGE; hierarchical queries; views/materialized views awareness; query design). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Use advanced SQL in reporting procedures.",
+        "Explain how the lab applies Advanced SQL for PL/SQL and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced SQL for PL/SQL' on a prepared training sample through this task: Use advanced SQL in reporting procedures.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Use advanced SQL in reporting procedures",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (joins/subqueries; analytic functions; CTEs; MERGE; hierarchical queries; views/materialized views awareness; query design) and demonstrate the starting sample for: Use advanced SQL in reporting procedures",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Use advanced SQL in reporting procedures",
+          "evidence": "Participant submission for 'Advanced SQL for PL/SQL': Use advanced SQL in reporting procedures. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Use advanced SQL in reporting procedures' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Use advanced SQL in reporting procedures. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (joins/subqueries; analytic functions; CTEs; MERGE; hierarchical queries; views/materialized views awareness; query design). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Transactions, Locks and Concurrency",
+      "subtopics": [
+        "ACID",
+        "COMMIT/ROLLBACK",
+        "savepoints",
+        "locking",
+        "SELECT FOR UPDATE",
+        "deadlocks",
+        "isolation awareness",
+        "concurrency strategy"
+      ],
+      "tools": [
+        "Oracle Database"
+      ],
+      "lab_task": "Implement safe concurrent update workflows",
+      "deliverable": "Participant submission for 'Transactions, Locks and Concurrency': Implement safe concurrent update workflows. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement safe concurrent update workflows. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ACID; COMMIT/ROLLBACK; savepoints; locking; SELECT FOR UPDATE; deadlocks; isolation awareness; concurrency strategy). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement safe concurrent update workflows.",
+        "Explain how the lab applies Transactions, Locks and Concurrency and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Transactions, Locks and Concurrency' on a prepared training sample through this task: Implement safe concurrent update workflows.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement safe concurrent update workflows",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (ACID; COMMIT/ROLLBACK; savepoints; locking; SELECT FOR UPDATE; deadlocks; isolation awareness; concurrency strategy) and demonstrate the starting sample for: Implement safe concurrent update workflows",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement safe concurrent update workflows",
+          "evidence": "Participant submission for 'Transactions, Locks and Concurrency': Implement safe concurrent update workflows. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement safe concurrent update workflows' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement safe concurrent update workflows. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ACID; COMMIT/ROLLBACK; savepoints; locking; SELECT FOR UPDATE; deadlocks; isolation awareness; concurrency strategy). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "File Handling and External Integration",
+      "subtopics": [
+        "UTL_FILE",
+        "directories",
+        "read/write",
+        "CSV concepts",
+        "external tables awareness",
+        "UTL_HTTP awareness",
+        "email integration concepts"
+      ],
+      "tools": [
+        "Oracle Database"
+      ],
+      "lab_task": "Generate file-based database reports",
+      "deliverable": "Participant submission for 'File Handling and External Integration': Generate file-based database reports. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Generate file-based database reports. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (UTL_FILE; directories; read/write; CSV concepts; external tables awareness; UTL_HTTP awareness; email integration concepts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Generate file-based database reports.",
+        "Explain how the lab applies File Handling and External Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'File Handling and External Integration' on a prepared training sample through this task: Generate file-based database reports.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Generate file-based database reports",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (UTL_FILE; directories; read/write; CSV concepts; external tables awareness; UTL_HTTP awareness; email integration concepts) and demonstrate the starting sample for: Generate file-based database reports",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Generate file-based database reports",
+          "evidence": "Participant submission for 'File Handling and External Integration': Generate file-based database reports. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Generate file-based database reports' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Generate file-based database reports. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (UTL_FILE; directories; read/write; CSV concepts; external tables awareness; UTL_HTTP awareness; email integration concepts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Performance Tuning",
+      "subtopics": [
+        "execution plans",
+        "indexes",
+        "SQL tracing awareness",
+        "PL/SQL profiler",
+        "context switches",
+        "bulk operations",
+        "cursor efficiency",
+        "query tuning"
+      ],
+      "tools": [
+        "Oracle SQL Developer"
+      ],
+      "lab_task": "Profile and optimize slow PL/SQL code",
+      "deliverable": "Participant submission for 'Performance Tuning': Profile and optimize slow PL/SQL code. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Profile and optimize slow PL/SQL code. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (execution plans; indexes; SQL tracing awareness; PL/SQL profiler; context switches; bulk operations; cursor efficiency; query tuning). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Profile and optimize slow PL/SQL code.",
+        "Explain how the lab applies Performance Tuning and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance Tuning' on a prepared training sample through this task: Profile and optimize slow PL/SQL code.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Profile and optimize slow PL/SQL code",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (execution plans; indexes; SQL tracing awareness; PL/SQL profiler; context switches; bulk operations; cursor efficiency; query tuning) and demonstrate the starting sample for: Profile and optimize slow PL/SQL code",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Profile and optimize slow PL/SQL code",
+          "evidence": "Participant submission for 'Performance Tuning': Profile and optimize slow PL/SQL code. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Profile and optimize slow PL/SQL code' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Profile and optimize slow PL/SQL code. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (execution plans; indexes; SQL tracing awareness; PL/SQL profiler; context switches; bulk operations; cursor efficiency; query tuning). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Security and Database Administration Basics",
+      "subtopics": [
+        "users/roles/privileges",
+        "definer/invoker rights",
+        "least privilege",
+        "SQL injection",
+        "data protection",
+        "auditing",
+        "schema management"
+      ],
+      "tools": [
+        "Oracle Database"
+      ],
+      "lab_task": "Secure database access and stored code",
+      "deliverable": "Participant submission for 'Security and Database Administration Basics': Secure database access and stored code. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Secure database access and stored code. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (users/roles/privileges; definer/invoker rights; least privilege; SQL injection; data protection; auditing; schema management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Secure database access and stored code.",
+        "Explain how the lab applies Security and Database Administration Basics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Security and Database Administration Basics' on a prepared training sample through this task: Secure database access and stored code.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Secure database access and stored code",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (users/roles/privileges; definer/invoker rights; least privilege; SQL injection; data protection; auditing; schema management) and demonstrate the starting sample for: Secure database access and stored code",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Secure database access and stored code",
+          "evidence": "Participant submission for 'Security and Database Administration Basics': Secure database access and stored code. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Secure database access and stored code' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Secure database access and stored code. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (users/roles/privileges; definer/invoker rights; least privilege; SQL injection; data protection; auditing; schema management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "Testing and Debugging",
+      "subtopics": [
+        "SQL Developer debugger",
+        "breakpoints",
+        "DBMS_OUTPUT",
+        "test data",
+        "unit testing concepts",
+        "utPLSQL awareness",
+        "error diagnostics"
+      ],
+      "tools": [
+        "Oracle SQL Developer",
+        "utPLSQL"
+      ],
+      "lab_task": "Debug and test stored program units",
+      "deliverable": "Participant submission for 'Testing and Debugging': Debug and test stored program units. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Debug and test stored program units. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL Developer debugger; breakpoints; DBMS_OUTPUT; test data; unit testing concepts; utPLSQL awareness; error diagnostics). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Debug and test stored program units.",
+        "Explain how the lab applies Testing and Debugging and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Testing and Debugging' on a prepared training sample through this task: Debug and test stored program units.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Debug and test stored program units",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SQL Developer debugger; breakpoints; DBMS_OUTPUT; test data; unit testing concepts; utPLSQL awareness; error diagnostics) and demonstrate the starting sample for: Debug and test stored program units",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Debug and test stored program units",
+          "evidence": "Participant submission for 'Testing and Debugging': Debug and test stored program units. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Debug and test stored program units' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Debug and test stored program units. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL Developer debugger; breakpoints; DBMS_OUTPUT; test data; unit testing concepts; utPLSQL awareness; error diagnostics). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "Data Warehousing and ETL Basics",
+      "subtopics": [
+        "ETL",
+        "staging",
+        "data quality",
+        "batch loads",
+        "incremental loads",
+        "data transformations",
+        "scheduling awareness",
+        "reporting"
+      ],
+      "tools": [
+        "Oracle Database"
+      ],
+      "lab_task": "Build an ETL-style data load procedure",
+      "deliverable": "Participant submission for 'Data Warehousing and ETL Basics': Build an ETL-style data load procedure. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an ETL-style data load procedure. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ETL; staging; data quality; batch loads; incremental loads; data transformations; scheduling awareness; reporting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an ETL-style data load procedure.",
+        "Explain how the lab applies Data Warehousing and ETL Basics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Warehousing and ETL Basics' on a prepared training sample through this task: Build an ETL-style data load procedure.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an ETL-style data load procedure",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (ETL; staging; data quality; batch loads; incremental loads; data transformations; scheduling awareness; reporting) and demonstrate the starting sample for: Build an ETL-style data load procedure",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an ETL-style data load procedure",
+          "evidence": "Participant submission for 'Data Warehousing and ETL Basics': Build an ETL-style data load procedure. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an ETL-style data load procedure' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an ETL-style data load procedure. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ETL; staging; data quality; batch loads; incremental loads; data transformations; scheduling awareness; reporting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "Oracle Built-In Packages",
+      "subtopics": [
+        "DBMS_OUTPUT",
+        "DBMS_SCHEDULER",
+        "DBMS_LOB",
+        "UTL_FILE",
+        "DBMS_STATS",
+        "DBMS_LOCK awareness",
+        "package selection"
+      ],
+      "tools": [
+        "Oracle Database"
+      ],
+      "lab_task": "Automate a scheduled database maintenance task",
+      "deliverable": "Participant submission for 'Oracle Built-In Packages': Automate a scheduled database maintenance task. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Automate a scheduled database maintenance task. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DBMS_OUTPUT; DBMS_SCHEDULER; DBMS_LOB; UTL_FILE; DBMS_STATS; DBMS_LOCK awareness; package selection). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Automate a scheduled database maintenance task.",
+        "Explain how the lab applies Oracle Built-In Packages and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Oracle Built-In Packages' on a prepared training sample through this task: Automate a scheduled database maintenance task.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Automate a scheduled database maintenance task",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (DBMS_OUTPUT; DBMS_SCHEDULER; DBMS_LOB; UTL_FILE; DBMS_STATS; DBMS_LOCK awareness; package selection) and demonstrate the starting sample for: Automate a scheduled database maintenance task",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Automate a scheduled database maintenance task",
+          "evidence": "Participant submission for 'Oracle Built-In Packages': Automate a scheduled database maintenance task. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Automate a scheduled database maintenance task' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Automate a scheduled database maintenance task. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DBMS_OUTPUT; DBMS_SCHEDULER; DBMS_LOB; UTL_FILE; DBMS_STATS; DBMS_LOCK awareness; package selection). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "PL/SQL Capstone Project",
+      "subtopics": [
+        "schema/design",
+        "SQL/PLSQL",
+        "packages/procedures/functions",
+        "cursors/collections",
+        "triggers/exceptions",
+        "security/performance",
+        "testing/documentation"
+      ],
+      "tools": [
+        "Oracle Database",
+        "Oracle SQL Developer",
+        "Git"
+      ],
+      "lab_task": "Deliver a complete Oracle PL/SQL business application",
+      "deliverable": "Participant submission for 'PL/SQL Capstone Project': Deliver a complete Oracle PL/SQL business application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deliver a complete Oracle PL/SQL business application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (schema/design; SQL/PLSQL; packages/procedures/functions; cursors/collections; triggers/exceptions; security/performance; testing/documentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deliver a complete Oracle PL/SQL business application.",
+        "Explain how the lab applies PL/SQL Capstone Project and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'PL/SQL Capstone Project' on a prepared training sample through this task: Deliver a complete Oracle PL/SQL business application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver a complete Oracle PL/SQL business application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (schema/design; SQL/PLSQL; packages/procedures/functions; cursors/collections; triggers/exceptions; security/performance; testing/documentation) and demonstrate the starting sample for: Deliver a complete Oracle PL/SQL business application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deliver a complete Oracle PL/SQL business application",
+          "evidence": "Participant submission for 'PL/SQL Capstone Project': Deliver a complete Oracle PL/SQL business application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deliver a complete Oracle PL/SQL business application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deliver a complete Oracle PL/SQL business application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (schema/design; SQL/PLSQL; packages/procedures/functions; cursors/collections; triggers/exceptions; security/performance; testing/documentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
+}

@@ -14,10 +14,10 @@ def test_proposal_trainer_and_client_use_same_selected_offer():
     trainer = {'clahan_skill_tier': 'advanced'}
     trainer_text = ' '.join(_trainer_mail1_commercial_section(requirement, trainer))
     client_text = _proposal_client_commercial_section(requirement, trainer)
-    assert '15,000' in trainer_text
-    assert '75,000 total commercial' in trainer_text
+    assert '13,500' in trainer_text
+    assert '67,500 total commercial' in trainer_text
     assert 'per training day' in trainer_text
-    assert '100,000' in client_text
+    assert '84,000' in client_text
     assert 'per day' not in trainer_text + client_text
     assert '25%' not in trainer_text
 
@@ -29,7 +29,7 @@ def test_automated_and_manual_offers_match():
         {'batch_flow': 'proposal', 'duration_days': 10},
     ):
         assert automated(req) == _trainer_mail1_commercial_text(req)
-        assert 'per training day' in automated(req)
+        assert ('per training day' in automated(req)) == (req['batch_flow'] == 'confirmed')
         assert 'total commercial' in automated(req)
 
 

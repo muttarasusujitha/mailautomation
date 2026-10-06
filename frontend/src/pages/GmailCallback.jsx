@@ -32,7 +32,7 @@ export default function GmailCallback({ onLogin }) {
 
       try {
         const codeVerifier = consumeGmailOAuthPkce(state || '')
-        const redirectUri = `${window.location.protocol}//${window.location.hostname}:8002/api/v1/gmail/oauth-callback`
+        const redirectUri = `${window.location.origin}/auth/callback`
         await api.post('/gmail/oauth-callback', {
           code,
           state,
@@ -58,9 +58,9 @@ export default function GmailCallback({ onLogin }) {
           })
         }
 
-        sessionStorage.setItem('ts_auth', JSON.stringify({ loggedIn: true }))
+        // Connecting a mailbox never creates an application identity.
         if (typeof onLogin === 'function') {
-          onLogin()
+          await onLogin()
           navigate('/admin', { replace: true })
         } else {
           setTimeout(() => window.location.assign('/admin'), 2200)

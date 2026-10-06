@@ -4,9 +4,20 @@ import shutil
 import openpyxl
 import pytest
 
-from app.lab_recalculation import recalculate_lab_workbook
+from app.lab_recalculation import final_estimated_cost, recalculate_lab_workbook
 from app.lab_sheet import combine_lab_estimates
 from app.routes.excel import _lab_cost_to_excel
+
+
+def test_final_estimated_cost_reads_calculated_total():
+    book = openpyxl.Workbook()
+    sheet = book.active
+    sheet.title = "Client Estimate"
+    sheet["A12"] = "Final estimated cost"
+    sheet["B12"] = 1234.5
+    content = io.BytesIO()
+    book.save(content)
+    assert final_estimated_cost(content.getvalue()) == 1234.5
 
 
 def test_calculator_unavailable_blocks_delivery(monkeypatch):

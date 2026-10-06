@@ -1,46 +1,2583 @@
 {
-  "domain":"Scala","name":"Scala Programming","icon":"code","program_title":"Scala Programming - Fundamentals to Advanced Functional and Distributed Application Development","level":"Beginner to Advanced","mode":"Online",
-  "aliases":["Scala","Scala Programming","Scala Language","Scala JVM","Advanced Scala"],
-  "tools":["Scala","Scala CLI","sbt","IntelliJ IDEA","Visual Studio Code","Ammonite","Git","GitHub","ScalaTest","Apache Spark"],
-  "certifications":["Scala Center Learning Paths","Lightbend Scala and Akka Training","Databricks Apache Spark Developer Learning Paths"],
-  "days":[
-    {"day":1,"topic":"Scala Introduction and Environment Setup","subtopics":["Scala ecosystem/JVM","Scala versus Java","OOP and functional programming","JDK/Scala/Scala CLI","sbt","IDE setup","project structure","main/@main","REPL"],"tools":["Scala","Scala CLI","IntelliJ IDEA"],"lab_task":"Set up Scala and execute basic programs"},
-    {"day":2,"topic":"Values, Variables and Data Types","subtopics":["val/var","immutability","inference/annotations","numeric types","Boolean/Char/String","Unit/Any/AnyVal/AnyRef/Nothing/Null","hierarchy","conversion","interpolation"],"tools":["Scala","Scala CLI"],"lab_task":"Create programs using values, variables, inference and conversions"},
-    {"day":3,"topic":"Operators, Expressions and Control Flow","subtopics":["operator methods","expressions versus statements","if/else expressions","while","for expressions","ranges","guards","yield","nested loops","match introduction"],"tools":["Scala"],"lab_task":"Build decision, loop, range and match programs"},
-    {"day":4,"topic":"Functions and Methods","subtopics":["methods/functions","parameters/returns","defaults/named/varargs","nested/anonymous functions","functions as values","higher order","overloading","by-name parameters","partial application","currying"],"tools":["Scala","Scala CLI"],"lab_task":"Build higher-order utilities with currying"},
-    {"day":5,"topic":"Collections Fundamentals","subtopics":["collection hierarchy","immutable/mutable collections","List/Vector/Seq/Array/Set/Map","Tuple/Ranges","creation/traversal/indexing","updates/conversions","design"],"tools":["Scala"],"lab_task":"Process data using Scala collections"},
-    {"day":6,"topic":"Functional Collection Processing","subtopics":["map/flatMap/filter/collect","fold/reduce/scan","groupBy/partition","find/exists/forall","zip","sortBy/sortWith","distinct/take/drop/sliding"],"tools":["Scala"],"lab_task":"Transform and analyze data functionally"},
-    {"day":7,"topic":"Classes and Object-Oriented Programming","subtopics":["classes/objects","fields/methods","primary/auxiliary constructors","this","companion/singleton objects","encapsulation","access modifiers","getters/setters","initialization"],"tools":["Scala","IntelliJ IDEA"],"lab_task":"Build an employee domain model"},
-    {"day":8,"topic":"Inheritance, Traits and Polymorphism","subtopics":["extends","overriding","abstract classes/members","traits","multiple traits/mixins","linearization","polymorphism","final/sealed","composition"],"tools":["Scala"],"lab_task":"Design a payment system with traits and polymorphism"},
-    {"day":9,"topic":"Case Classes, Enums and ADTs","subtopics":["case classes/objects","apply/unapply","structural equality/copy","Scala 3 enums","sealed hierarchies","algebraic data types","sum/product types","domain modeling"],"tools":["Scala"],"lab_task":"Model a domain using immutable ADTs"},
-    {"day":10,"topic":"Pattern Matching","subtopics":["match/case","constant/variable/typed/tuple/list/case-class patterns","guards","wildcards","sequence/nested/alternative patterns","extractors/unapply","sealed types"],"tools":["Scala"],"lab_task":"Build a command engine with pattern matching"},
-    {"day":11,"topic":"Option, Either and Error Modeling","subtopics":["Option/Some/None","map/flatMap/fold","Either/Left/Right","Try/Success/Failure","recovery","functional errors","avoiding null/exceptions"],"tools":["Scala"],"lab_task":"Implement validation using Option, Either and Try"},
-    {"day":12,"topic":"For Comprehensions and Monadic Composition","subtopics":["generators/guards/yield","desugaring","map/flatMap/withFilter","Option/List/Either composition","nested computation","functional pipelines"],"tools":["Scala"],"lab_task":"Build multi-step validation flows"},
-    {"day":13,"topic":"Generics and Type Parameters","subtopics":["generic classes/methods","bounds","context bounds","variance","type constructors","generic collections","type-safe APIs"],"tools":["Scala"],"lab_task":"Create generic containers using variance"},
-    {"day":14,"topic":"Advanced Scala Type System","subtopics":["union/intersection/opaque types","aliases","singleton/literal/match/path-dependent types awareness","structural/higher-kinded types","type lambdas","compile-time safety"],"tools":["Scala 3","IntelliJ IDEA"],"lab_task":"Build strongly typed domain APIs"},
-    {"day":15,"topic":"Given, Using and Extension Methods","subtopics":["contextual abstractions","given/using","context parameters","implicit resolution/migration","extension methods","type classes","summon","context bounds","context DI"],"tools":["Scala 3"],"lab_task":"Implement a type-class formatter"},
-    {"day":16,"topic":"Functional Programming Principles","subtopics":["pure functions","referential transparency","immutability","side effects","composition","first-class/HOF","recursion","tail recursion","persistent data","declarative modeling"],"tools":["Scala"],"lab_task":"Refactor imperative code into functional style"},
-    {"day":17,"topic":"Recursion and Advanced Functional Techniques","subtopics":["tail recursion","accumulators","composition","andThen/compose","PartialFunction","lifting","currying","memoization"],"tools":["Scala"],"lab_task":"Implement recursive algorithms and pipelines"},
-    {"day":18,"topic":"Exception Handling and Resource Management","subtopics":["Throwable","try/catch/finally","custom exceptions","Try recovery","AutoCloseable","safe resource usage","functional errors","logging"],"tools":["Scala"],"lab_task":"Build robust file processing"},
-    {"day":19,"topic":"File Handling and Data Serialization","subtopics":["Java NIO Files/Paths","read/write/buffered I/O","directory traversal","CSV","JSON","serialization/deserialization","Circe","configuration/data mapping"],"tools":["Java NIO","Circe"],"lab_task":"Transform and serialize structured data"},
-    {"day":20,"topic":"Build Management with sbt","subtopics":["build.sbt","projects/dependencies/resolvers/scopes","tasks/settings/plugins","multi-project builds","compile/run/test/package","versioning"],"tools":["sbt"],"lab_task":"Configure a multi-module sbt project"},
-    {"day":21,"topic":"Testing with ScalaTest","subtopics":["unit tests","ScalaTest styles","assertions/matchers/fixtures","exceptions","table/property tests","ScalaCheck","mocks","async tests","coverage"],"tools":["ScalaTest","ScalaCheck"],"lab_task":"Create an automated Scala test suite"},
-    {"day":22,"topic":"Futures and Asynchronous Programming","subtopics":["Future/ExecutionContext","map/flatMap","Future for-comprehensions","sequence/traverse","callbacks","recover/recoverWith","Promise","timeouts","blocking/non-blocking","pools"],"tools":["Scala Future API"],"lab_task":"Build an async service with multiple Future operations"},
-    {"day":23,"topic":"Concurrency and Parallel Programming","subtopics":["threads","concurrency/parallelism","shared state/races","synchronization/atomic awareness","execution contexts/pools","parallel collections","CPU/I-O workload","immutability"],"tools":["Scala","JVM"],"lab_task":"Compare concurrent and sequential workloads"},
-    {"day":24,"topic":"Akka and Actor Model Fundamentals","subtopics":["actor model","messages/actor systems/references","behavior","state isolation","Akka Typed","lifecycle/supervision","fault tolerance","actor hierarchy"],"tools":["Akka Typed","sbt"],"lab_task":"Build a typed actor message processor"},
-    {"day":25,"topic":"Reactive and Distributed Systems","subtopics":["reactive principles","responsiveness/resilience/elasticity","message-driven design","distributed systems","location transparency","failure/backpressure","event-driven architecture"],"tools":["Akka","Scala"],"lab_task":"Design a resilient event-driven workflow"},
-    {"day":26,"topic":"REST API Development","subtopics":["HTTP/REST","methods/status/headers","JSON","routing","validation","serialization","errors","authentication","versioning/pagination"],"tools":["Akka HTTP","Postman"],"lab_task":"Build a CRUD REST API"},
-    {"day":27,"topic":"Database Programming","subtopics":["SQL/JDBC","connections/prepared statements/transactions","CRUD","Slick","tables/queries/actions","async DB work","pooling"],"tools":["PostgreSQL","Slick"],"lab_task":"Build a Scala PostgreSQL CRUD service"},
-    {"day":28,"topic":"Apache Spark Fundamentals","subtopics":["Spark architecture","driver/executors/clusters","SparkSession","RDD/DataFrame/Dataset","transformations/actions","lazy evaluation","partitions","read/write","Spark SQL"],"tools":["Apache Spark","Scala"],"lab_task":"Process a dataset with Spark DataFrames"},
-    {"day":29,"topic":"Spark Data Processing and Optimization","subtopics":["transform/filter/project/group/aggregate/join","window functions","Spark SQL/UDF awareness","partition/repartition/coalesce","cache/persist","shuffle/plans","skew"],"tools":["Apache Spark","Spark SQL"],"lab_task":"Optimize a Spark join and aggregation pipeline"},
-    {"day":30,"topic":"Streaming with Spark","subtopics":["Structured Streaming","sources/sinks/triggers/output modes","windows","event/processing time","watermarks","state","fault tolerance/checkpointing"],"tools":["Apache Spark Structured Streaming"],"lab_task":"Create a streaming processing pipeline"},
-    {"day":31,"topic":"Functional Programming Libraries","subtopics":["Cats","type classes","Functor/Applicative/Monad","Validated","Semigroup/Monoid","Cats Effect","IO","resource safety","pure functional design"],"tools":["Cats","Cats Effect"],"lab_task":"Implement validation and effect workflows"},
-    {"day":32,"topic":"Performance and JVM Optimization","subtopics":["JVM/bytecode","heap/stack/GC","allocations","collections/lazy collections","tail recursion","boxing","CPU/memory profiling","JVM options","JMH"],"tools":["JVM","VisualVM","JMH"],"lab_task":"Profile and optimize Scala performance"},
-    {"day":33,"topic":"Scala Metaprogramming","subtopics":["inline methods/parameters","compile-time operations","quotes/splices/macros awareness","derivation","type-class derivation","reflection","compile-time validation"],"tools":["Scala 3 Compiler"],"lab_task":"Create a simple compile-time utility"},
-    {"day":34,"topic":"Code Quality, Style and Architecture","subtopics":["conventions","functional/layered architecture","domain modeling","SOLID/composition","type-driven design","error modeling","Scalafmt/Scalafix","static analysis","reviews/docs"],"tools":["Scalafmt","Scalafix","GitHub"],"lab_task":"Refactor and format a functional Scala project"},
-    {"day":35,"topic":"Git, CI/CD and Build Automation","subtopics":["Git/GitHub","CI","compile/test/format checks","sbt pipelines","GitHub Actions","dependency cache","artifacts","release workflow"],"tools":["Git","GitHub","GitHub Actions","sbt"],"lab_task":"Create a Scala CI pipeline"},
-    {"day":36,"topic":"Containerization and Deployment","subtopics":["Docker","JAR packaging","JVM containers","Dockerfile","variables/config","ports/health checks","Compose","production/cloud deployment"],"tools":["Docker","sbt"],"lab_task":"Containerize a Scala REST application"},
-    {"day":37,"topic":"Security and Production Practices","subtopics":["secure coding","validation","auth/authz","HTTPS/tokens/secrets","dependency risks","logging","sensitive data","database/API security","errors","monitoring"],"tools":["Scala","GitHub Dependabot"],"lab_task":"Review a Scala service for security and production readiness"},
-    {"day":38,"topic":"Scala Capstone Project","subtopics":["functional domain modeling","type system/ADTs","matching/collections/errors","concurrency","REST/database","tests/logging/performance","Docker/CI-CD/docs/deployment","optional Spark"],"tools":["Scala","sbt","PostgreSQL","Akka HTTP","ScalaTest","Docker","GitHub Actions"],"lab_task":"Build, test, and containerize a production Scala application"}
-  ]
+  "domain": "Scala",
+  "name": "Scala Programming",
+  "icon": "code",
+  "program_title": "Scala Programming - Fundamentals to Advanced Functional and Distributed Application Development",
+  "level": "Beginner to Advanced",
+  "mode": "Online",
+  "aliases": [
+    "Scala",
+    "Scala Programming",
+    "Scala Language",
+    "Scala JVM",
+    "Advanced Scala"
+  ],
+  "tools": [
+    "Scala",
+    "Scala CLI",
+    "sbt",
+    "IntelliJ IDEA",
+    "Visual Studio Code",
+    "Ammonite",
+    "Git",
+    "GitHub",
+    "ScalaTest",
+    "Apache Spark"
+  ],
+  "certifications": [
+    "Scala Center Learning Paths",
+    "Lightbend Scala and Akka Training",
+    "Databricks Apache Spark Developer Learning Paths"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Scala Introduction and Environment Setup",
+      "subtopics": [
+        "Scala ecosystem/JVM",
+        "Scala versus Java",
+        "OOP and functional programming",
+        "JDK/Scala/Scala CLI",
+        "sbt",
+        "IDE setup",
+        "project structure",
+        "main/@main",
+        "REPL"
+      ],
+      "tools": [
+        "Scala",
+        "Scala CLI",
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Set up Scala and execute basic programs",
+      "deliverable": "Participant submission for 'Scala Introduction and Environment Setup': Set up Scala and execute basic programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Scala and execute basic programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Scala ecosystem/JVM; Scala versus Java; OOP and functional programming; JDK/Scala/Scala CLI; sbt; IDE setup; project structure; main/@main; REPL). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Set up Scala and execute basic programs.",
+        "Explain how the lab applies Scala Introduction and Environment Setup and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Scala Introduction and Environment Setup' on a prepared training sample through this task: Set up Scala and execute basic programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Scala and execute basic programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Scala ecosystem/JVM; Scala versus Java; OOP and functional programming; JDK/Scala/Scala CLI; sbt; IDE setup; project structure; main/@main; REPL) and demonstrate the starting sample for: Set up Scala and execute basic programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Scala and execute basic programs",
+          "evidence": "Participant submission for 'Scala Introduction and Environment Setup': Set up Scala and execute basic programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Scala and execute basic programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Scala and execute basic programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Scala ecosystem/JVM; Scala versus Java; OOP and functional programming; JDK/Scala/Scala CLI; sbt; IDE setup; project structure; main/@main; REPL). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Values, Variables and Data Types",
+      "subtopics": [
+        "val/var",
+        "immutability",
+        "inference/annotations",
+        "numeric types",
+        "Boolean/Char/String",
+        "Unit/Any/AnyVal/AnyRef/Nothing/Null",
+        "hierarchy",
+        "conversion",
+        "interpolation"
+      ],
+      "tools": [
+        "Scala",
+        "Scala CLI"
+      ],
+      "lab_task": "Create programs using values, variables, inference and conversions",
+      "deliverable": "Participant submission for 'Values, Variables and Data Types': Create programs using values, variables, inference and conversions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create programs using values, variables, inference and conversions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (val/var; immutability; inference/annotations; numeric types; Boolean/Char/String; Unit/Any/AnyVal/AnyRef/Nothing/Null; hierarchy; conversion; interpolation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create programs using values, variables, inference and conversions.",
+        "Explain how the lab applies Values, Variables and Data Types and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Values, Variables and Data Types' on a prepared training sample through this task: Create programs using values, variables, inference and conversions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create programs using values, variables, inference and conversions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (val/var; immutability; inference/annotations; numeric types; Boolean/Char/String; Unit/Any/AnyVal/AnyRef/Nothing/Null; hierarchy; conversion; interpolation) and demonstrate the starting sample for: Create programs using values, variables, inference and conversions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create programs using values, variables, inference and conversions",
+          "evidence": "Participant submission for 'Values, Variables and Data Types': Create programs using values, variables, inference and conversions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create programs using values, variables, inference and conversions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create programs using values, variables, inference and conversions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (val/var; immutability; inference/annotations; numeric types; Boolean/Char/String; Unit/Any/AnyVal/AnyRef/Nothing/Null; hierarchy; conversion; interpolation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Operators, Expressions and Control Flow",
+      "subtopics": [
+        "operator methods",
+        "expressions versus statements",
+        "if/else expressions",
+        "while",
+        "for expressions",
+        "ranges",
+        "guards",
+        "yield",
+        "nested loops",
+        "match introduction"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Build decision, loop, range and match programs",
+      "deliverable": "Participant submission for 'Operators, Expressions and Control Flow': Build decision, loop, range and match programs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build decision, loop, range and match programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (operator methods; expressions versus statements; if/else expressions; while; for expressions; ranges; guards; yield; nested loops; match introduction). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build decision, loop, range and match programs.",
+        "Explain how the lab applies Operators, Expressions and Control Flow and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Operators, Expressions and Control Flow' on a prepared training sample through this task: Build decision, loop, range and match programs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build decision, loop, range and match programs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (operator methods; expressions versus statements; if/else expressions; while; for expressions; ranges; guards; yield; nested loops; match introduction) and demonstrate the starting sample for: Build decision, loop, range and match programs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build decision, loop, range and match programs",
+          "evidence": "Participant submission for 'Operators, Expressions and Control Flow': Build decision, loop, range and match programs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build decision, loop, range and match programs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build decision, loop, range and match programs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (operator methods; expressions versus statements; if/else expressions; while; for expressions; ranges; guards; yield; nested loops; match introduction). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Functions and Methods",
+      "subtopics": [
+        "methods/functions",
+        "parameters/returns",
+        "defaults/named/varargs",
+        "nested/anonymous functions",
+        "functions as values",
+        "higher order",
+        "overloading",
+        "by-name parameters",
+        "partial application",
+        "currying"
+      ],
+      "tools": [
+        "Scala",
+        "Scala CLI"
+      ],
+      "lab_task": "Build higher-order utilities with currying",
+      "deliverable": "Participant submission for 'Functions and Methods': Build higher-order utilities with currying. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build higher-order utilities with currying. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (methods/functions; parameters/returns; defaults/named/varargs; nested/anonymous functions; functions as values; higher order; overloading; by-name parameters; partial application; currying). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build higher-order utilities with currying.",
+        "Explain how the lab applies Functions and Methods and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Functions and Methods' on a prepared training sample through this task: Build higher-order utilities with currying.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build higher-order utilities with currying",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (methods/functions; parameters/returns; defaults/named/varargs; nested/anonymous functions; functions as values; higher order; overloading; by-name parameters; partial application; currying) and demonstrate the starting sample for: Build higher-order utilities with currying",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build higher-order utilities with currying",
+          "evidence": "Participant submission for 'Functions and Methods': Build higher-order utilities with currying. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build higher-order utilities with currying' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build higher-order utilities with currying. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (methods/functions; parameters/returns; defaults/named/varargs; nested/anonymous functions; functions as values; higher order; overloading; by-name parameters; partial application; currying). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Collections Fundamentals",
+      "subtopics": [
+        "collection hierarchy",
+        "immutable/mutable collections",
+        "List/Vector/Seq/Array/Set/Map",
+        "Tuple/Ranges",
+        "creation/traversal/indexing",
+        "updates/conversions",
+        "design"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Process data using Scala collections",
+      "deliverable": "Participant submission for 'Collections Fundamentals': Process data using Scala collections. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Process data using Scala collections. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (collection hierarchy; immutable/mutable collections; List/Vector/Seq/Array/Set/Map; Tuple/Ranges; creation/traversal/indexing; updates/conversions; design). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Process data using Scala collections.",
+        "Explain how the lab applies Collections Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Collections Fundamentals' on a prepared training sample through this task: Process data using Scala collections.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Process data using Scala collections",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (collection hierarchy; immutable/mutable collections; List/Vector/Seq/Array/Set/Map; Tuple/Ranges; creation/traversal/indexing; updates/conversions; design) and demonstrate the starting sample for: Process data using Scala collections",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Process data using Scala collections",
+          "evidence": "Participant submission for 'Collections Fundamentals': Process data using Scala collections. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Process data using Scala collections' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Process data using Scala collections. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (collection hierarchy; immutable/mutable collections; List/Vector/Seq/Array/Set/Map; Tuple/Ranges; creation/traversal/indexing; updates/conversions; design). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Functional Collection Processing",
+      "subtopics": [
+        "map/flatMap/filter/collect",
+        "fold/reduce/scan",
+        "groupBy/partition",
+        "find/exists/forall",
+        "zip",
+        "sortBy/sortWith",
+        "distinct/take/drop/sliding"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Transform and analyze data functionally",
+      "deliverable": "Participant submission for 'Functional Collection Processing': Transform and analyze data functionally. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Transform and analyze data functionally. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (map/flatMap/filter/collect; fold/reduce/scan; groupBy/partition; find/exists/forall; zip; sortBy/sortWith; distinct/take/drop/sliding). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Transform and analyze data functionally.",
+        "Explain how the lab applies Functional Collection Processing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Functional Collection Processing' on a prepared training sample through this task: Transform and analyze data functionally.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Transform and analyze data functionally",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (map/flatMap/filter/collect; fold/reduce/scan; groupBy/partition; find/exists/forall; zip; sortBy/sortWith; distinct/take/drop/sliding) and demonstrate the starting sample for: Transform and analyze data functionally",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Transform and analyze data functionally",
+          "evidence": "Participant submission for 'Functional Collection Processing': Transform and analyze data functionally. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Transform and analyze data functionally' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Transform and analyze data functionally. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (map/flatMap/filter/collect; fold/reduce/scan; groupBy/partition; find/exists/forall; zip; sortBy/sortWith; distinct/take/drop/sliding). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Classes and Object-Oriented Programming",
+      "subtopics": [
+        "classes/objects",
+        "fields/methods",
+        "primary/auxiliary constructors",
+        "this",
+        "companion/singleton objects",
+        "encapsulation",
+        "access modifiers",
+        "getters/setters",
+        "initialization"
+      ],
+      "tools": [
+        "Scala",
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Build an employee domain model",
+      "deliverable": "Participant submission for 'Classes and Object-Oriented Programming': Build an employee domain model. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an employee domain model. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes/objects; fields/methods; primary/auxiliary constructors; this; companion/singleton objects; encapsulation; access modifiers; getters/setters; initialization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an employee domain model.",
+        "Explain how the lab applies Classes and Object-Oriented Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Classes and Object-Oriented Programming' on a prepared training sample through this task: Build an employee domain model.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an employee domain model",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (classes/objects; fields/methods; primary/auxiliary constructors; this; companion/singleton objects; encapsulation; access modifiers; getters/setters; initialization) and demonstrate the starting sample for: Build an employee domain model",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an employee domain model",
+          "evidence": "Participant submission for 'Classes and Object-Oriented Programming': Build an employee domain model. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an employee domain model' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an employee domain model. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (classes/objects; fields/methods; primary/auxiliary constructors; this; companion/singleton objects; encapsulation; access modifiers; getters/setters; initialization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Inheritance, Traits and Polymorphism",
+      "subtopics": [
+        "extends",
+        "overriding",
+        "abstract classes/members",
+        "traits",
+        "multiple traits/mixins",
+        "linearization",
+        "polymorphism",
+        "final/sealed",
+        "composition"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Design a payment system with traits and polymorphism",
+      "deliverable": "Participant submission for 'Inheritance, Traits and Polymorphism': Design a payment system with traits and polymorphism. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a payment system with traits and polymorphism. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (extends; overriding; abstract classes/members; traits; multiple traits/mixins; linearization; polymorphism; final/sealed; composition). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design a payment system with traits and polymorphism.",
+        "Explain how the lab applies Inheritance, Traits and Polymorphism and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Inheritance, Traits and Polymorphism' on a prepared training sample through this task: Design a payment system with traits and polymorphism.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a payment system with traits and polymorphism",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (extends; overriding; abstract classes/members; traits; multiple traits/mixins; linearization; polymorphism; final/sealed; composition) and demonstrate the starting sample for: Design a payment system with traits and polymorphism",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a payment system with traits and polymorphism",
+          "evidence": "Participant submission for 'Inheritance, Traits and Polymorphism': Design a payment system with traits and polymorphism. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a payment system with traits and polymorphism' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a payment system with traits and polymorphism. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (extends; overriding; abstract classes/members; traits; multiple traits/mixins; linearization; polymorphism; final/sealed; composition). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Case Classes, Enums and ADTs",
+      "subtopics": [
+        "case classes/objects",
+        "apply/unapply",
+        "structural equality/copy",
+        "Scala 3 enums",
+        "sealed hierarchies",
+        "algebraic data types",
+        "sum/product types",
+        "domain modeling"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Model a domain using immutable ADTs",
+      "deliverable": "Participant submission for 'Case Classes, Enums and ADTs': Model a domain using immutable ADTs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Model a domain using immutable ADTs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (case classes/objects; apply/unapply; structural equality/copy; Scala 3 enums; sealed hierarchies; algebraic data types; sum/product types; domain modeling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Model a domain using immutable ADTs.",
+        "Explain how the lab applies Case Classes, Enums and ADTs and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Case Classes, Enums and ADTs' on a prepared training sample through this task: Model a domain using immutable ADTs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Model a domain using immutable ADTs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (case classes/objects; apply/unapply; structural equality/copy; Scala 3 enums; sealed hierarchies; algebraic data types; sum/product types; domain modeling) and demonstrate the starting sample for: Model a domain using immutable ADTs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Model a domain using immutable ADTs",
+          "evidence": "Participant submission for 'Case Classes, Enums and ADTs': Model a domain using immutable ADTs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Model a domain using immutable ADTs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Model a domain using immutable ADTs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (case classes/objects; apply/unapply; structural equality/copy; Scala 3 enums; sealed hierarchies; algebraic data types; sum/product types; domain modeling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Pattern Matching",
+      "subtopics": [
+        "match/case",
+        "constant/variable/typed/tuple/list/case-class patterns",
+        "guards",
+        "wildcards",
+        "sequence/nested/alternative patterns",
+        "extractors/unapply",
+        "sealed types"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Build a command engine with pattern matching",
+      "deliverable": "Participant submission for 'Pattern Matching': Build a command engine with pattern matching. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a command engine with pattern matching. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (match/case; constant/variable/typed/tuple/list/case-class patterns; guards; wildcards; sequence/nested/alternative patterns; extractors/unapply; sealed types). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a command engine with pattern matching.",
+        "Explain how the lab applies Pattern Matching and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Pattern Matching' on a prepared training sample through this task: Build a command engine with pattern matching.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a command engine with pattern matching",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (match/case; constant/variable/typed/tuple/list/case-class patterns; guards; wildcards; sequence/nested/alternative patterns; extractors/unapply; sealed types) and demonstrate the starting sample for: Build a command engine with pattern matching",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a command engine with pattern matching",
+          "evidence": "Participant submission for 'Pattern Matching': Build a command engine with pattern matching. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a command engine with pattern matching' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a command engine with pattern matching. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (match/case; constant/variable/typed/tuple/list/case-class patterns; guards; wildcards; sequence/nested/alternative patterns; extractors/unapply; sealed types). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Option, Either and Error Modeling",
+      "subtopics": [
+        "Option/Some/None",
+        "map/flatMap/fold",
+        "Either/Left/Right",
+        "Try/Success/Failure",
+        "recovery",
+        "functional errors",
+        "avoiding null/exceptions"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Implement validation using Option, Either and Try",
+      "deliverable": "Participant submission for 'Option, Either and Error Modeling': Implement validation using Option, Either and Try. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement validation using Option, Either and Try. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Option/Some/None; map/flatMap/fold; Either/Left/Right; Try/Success/Failure; recovery; functional errors; avoiding null/exceptions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement validation using Option, Either and Try.",
+        "Explain how the lab applies Option, Either and Error Modeling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Option, Either and Error Modeling' on a prepared training sample through this task: Implement validation using Option, Either and Try.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement validation using Option, Either and Try",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Option/Some/None; map/flatMap/fold; Either/Left/Right; Try/Success/Failure; recovery; functional errors; avoiding null/exceptions) and demonstrate the starting sample for: Implement validation using Option, Either and Try",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement validation using Option, Either and Try",
+          "evidence": "Participant submission for 'Option, Either and Error Modeling': Implement validation using Option, Either and Try. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement validation using Option, Either and Try' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement validation using Option, Either and Try. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Option/Some/None; map/flatMap/fold; Either/Left/Right; Try/Success/Failure; recovery; functional errors; avoiding null/exceptions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "For Comprehensions and Monadic Composition",
+      "subtopics": [
+        "generators/guards/yield",
+        "desugaring",
+        "map/flatMap/withFilter",
+        "Option/List/Either composition",
+        "nested computation",
+        "functional pipelines"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Build multi-step validation flows",
+      "deliverable": "Participant submission for 'For Comprehensions and Monadic Composition': Build multi-step validation flows. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build multi-step validation flows. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (generators/guards/yield; desugaring; map/flatMap/withFilter; Option/List/Either composition; nested computation; functional pipelines). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build multi-step validation flows.",
+        "Explain how the lab applies For Comprehensions and Monadic Composition and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'For Comprehensions and Monadic Composition' on a prepared training sample through this task: Build multi-step validation flows.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build multi-step validation flows",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (generators/guards/yield; desugaring; map/flatMap/withFilter; Option/List/Either composition; nested computation; functional pipelines) and demonstrate the starting sample for: Build multi-step validation flows",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build multi-step validation flows",
+          "evidence": "Participant submission for 'For Comprehensions and Monadic Composition': Build multi-step validation flows. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build multi-step validation flows' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build multi-step validation flows. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (generators/guards/yield; desugaring; map/flatMap/withFilter; Option/List/Either composition; nested computation; functional pipelines). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "Generics and Type Parameters",
+      "subtopics": [
+        "generic classes/methods",
+        "bounds",
+        "context bounds",
+        "variance",
+        "type constructors",
+        "generic collections",
+        "type-safe APIs"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Create generic containers using variance",
+      "deliverable": "Participant submission for 'Generics and Type Parameters': Create generic containers using variance. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create generic containers using variance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (generic classes/methods; bounds; context bounds; variance; type constructors; generic collections; type-safe APIs). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create generic containers using variance.",
+        "Explain how the lab applies Generics and Type Parameters and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Generics and Type Parameters' on a prepared training sample through this task: Create generic containers using variance.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create generic containers using variance",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (generic classes/methods; bounds; context bounds; variance; type constructors; generic collections; type-safe APIs) and demonstrate the starting sample for: Create generic containers using variance",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create generic containers using variance",
+          "evidence": "Participant submission for 'Generics and Type Parameters': Create generic containers using variance. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create generic containers using variance' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create generic containers using variance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (generic classes/methods; bounds; context bounds; variance; type constructors; generic collections; type-safe APIs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Advanced Scala Type System",
+      "subtopics": [
+        "union/intersection/opaque types",
+        "aliases",
+        "singleton/literal/match/path-dependent types awareness",
+        "structural/higher-kinded types",
+        "type lambdas",
+        "compile-time safety"
+      ],
+      "tools": [
+        "Scala 3",
+        "IntelliJ IDEA"
+      ],
+      "lab_task": "Build strongly typed domain APIs",
+      "deliverable": "Participant submission for 'Advanced Scala Type System': Build strongly typed domain APIs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build strongly typed domain APIs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (union/intersection/opaque types; aliases; singleton/literal/match/path-dependent types awareness; structural/higher-kinded types; type lambdas; compile-time safety). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build strongly typed domain APIs.",
+        "Explain how the lab applies Advanced Scala Type System and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Scala Type System' on a prepared training sample through this task: Build strongly typed domain APIs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build strongly typed domain APIs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (union/intersection/opaque types; aliases; singleton/literal/match/path-dependent types awareness; structural/higher-kinded types; type lambdas; compile-time safety) and demonstrate the starting sample for: Build strongly typed domain APIs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build strongly typed domain APIs",
+          "evidence": "Participant submission for 'Advanced Scala Type System': Build strongly typed domain APIs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build strongly typed domain APIs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build strongly typed domain APIs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (union/intersection/opaque types; aliases; singleton/literal/match/path-dependent types awareness; structural/higher-kinded types; type lambdas; compile-time safety). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Given, Using and Extension Methods",
+      "subtopics": [
+        "contextual abstractions",
+        "given/using",
+        "context parameters",
+        "implicit resolution/migration",
+        "extension methods",
+        "type classes",
+        "summon",
+        "context bounds",
+        "context DI"
+      ],
+      "tools": [
+        "Scala 3"
+      ],
+      "lab_task": "Implement a type-class formatter",
+      "deliverable": "Participant submission for 'Given, Using and Extension Methods': Implement a type-class formatter. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement a type-class formatter. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (contextual abstractions; given/using; context parameters; implicit resolution/migration; extension methods; type classes; summon; context bounds; context DI). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement a type-class formatter.",
+        "Explain how the lab applies Given, Using and Extension Methods and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Given, Using and Extension Methods' on a prepared training sample through this task: Implement a type-class formatter.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement a type-class formatter",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (contextual abstractions; given/using; context parameters; implicit resolution/migration; extension methods; type classes; summon; context bounds; context DI) and demonstrate the starting sample for: Implement a type-class formatter",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement a type-class formatter",
+          "evidence": "Participant submission for 'Given, Using and Extension Methods': Implement a type-class formatter. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement a type-class formatter' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement a type-class formatter. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (contextual abstractions; given/using; context parameters; implicit resolution/migration; extension methods; type classes; summon; context bounds; context DI). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Functional Programming Principles",
+      "subtopics": [
+        "pure functions",
+        "referential transparency",
+        "immutability",
+        "side effects",
+        "composition",
+        "first-class/HOF",
+        "recursion",
+        "tail recursion",
+        "persistent data",
+        "declarative modeling"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Refactor imperative code into functional style",
+      "deliverable": "Participant submission for 'Functional Programming Principles': Refactor imperative code into functional style. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Refactor imperative code into functional style. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (pure functions; referential transparency; immutability; side effects; composition; first-class/HOF; recursion; tail recursion; persistent data; declarative modeling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Refactor imperative code into functional style.",
+        "Explain how the lab applies Functional Programming Principles and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Functional Programming Principles' on a prepared training sample through this task: Refactor imperative code into functional style.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Refactor imperative code into functional style",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (pure functions; referential transparency; immutability; side effects; composition; first-class/HOF; recursion; tail recursion; persistent data; declarative modeling) and demonstrate the starting sample for: Refactor imperative code into functional style",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Refactor imperative code into functional style",
+          "evidence": "Participant submission for 'Functional Programming Principles': Refactor imperative code into functional style. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Refactor imperative code into functional style' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Refactor imperative code into functional style. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (pure functions; referential transparency; immutability; side effects; composition; first-class/HOF; recursion; tail recursion; persistent data; declarative modeling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "Recursion and Advanced Functional Techniques",
+      "subtopics": [
+        "tail recursion",
+        "accumulators",
+        "composition",
+        "andThen/compose",
+        "PartialFunction",
+        "lifting",
+        "currying",
+        "memoization"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Implement recursive algorithms and pipelines",
+      "deliverable": "Participant submission for 'Recursion and Advanced Functional Techniques': Implement recursive algorithms and pipelines. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement recursive algorithms and pipelines. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tail recursion; accumulators; composition; andThen/compose; PartialFunction; lifting; currying; memoization). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement recursive algorithms and pipelines.",
+        "Explain how the lab applies Recursion and Advanced Functional Techniques and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Recursion and Advanced Functional Techniques' on a prepared training sample through this task: Implement recursive algorithms and pipelines.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement recursive algorithms and pipelines",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (tail recursion; accumulators; composition; andThen/compose; PartialFunction; lifting; currying; memoization) and demonstrate the starting sample for: Implement recursive algorithms and pipelines",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement recursive algorithms and pipelines",
+          "evidence": "Participant submission for 'Recursion and Advanced Functional Techniques': Implement recursive algorithms and pipelines. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement recursive algorithms and pipelines' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement recursive algorithms and pipelines. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (tail recursion; accumulators; composition; andThen/compose; PartialFunction; lifting; currying; memoization). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "Exception Handling and Resource Management",
+      "subtopics": [
+        "Throwable",
+        "try/catch/finally",
+        "custom exceptions",
+        "Try recovery",
+        "AutoCloseable",
+        "safe resource usage",
+        "functional errors",
+        "logging"
+      ],
+      "tools": [
+        "Scala"
+      ],
+      "lab_task": "Build robust file processing",
+      "deliverable": "Participant submission for 'Exception Handling and Resource Management': Build robust file processing. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build robust file processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Throwable; try/catch/finally; custom exceptions; Try recovery; AutoCloseable; safe resource usage; functional errors; logging). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build robust file processing.",
+        "Explain how the lab applies Exception Handling and Resource Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Exception Handling and Resource Management' on a prepared training sample through this task: Build robust file processing.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build robust file processing",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Throwable; try/catch/finally; custom exceptions; Try recovery; AutoCloseable; safe resource usage; functional errors; logging) and demonstrate the starting sample for: Build robust file processing",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build robust file processing",
+          "evidence": "Participant submission for 'Exception Handling and Resource Management': Build robust file processing. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build robust file processing' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build robust file processing. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Throwable; try/catch/finally; custom exceptions; Try recovery; AutoCloseable; safe resource usage; functional errors; logging). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "File Handling and Data Serialization",
+      "subtopics": [
+        "Java NIO Files/Paths",
+        "read/write/buffered I/O",
+        "directory traversal",
+        "CSV",
+        "JSON",
+        "serialization/deserialization",
+        "Circe",
+        "configuration/data mapping"
+      ],
+      "tools": [
+        "Java NIO",
+        "Circe"
+      ],
+      "lab_task": "Transform and serialize structured data",
+      "deliverable": "Participant submission for 'File Handling and Data Serialization': Transform and serialize structured data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Transform and serialize structured data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Java NIO Files/Paths; read/write/buffered I/O; directory traversal; CSV; JSON; serialization/deserialization; Circe; configuration/data mapping). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Transform and serialize structured data.",
+        "Explain how the lab applies File Handling and Data Serialization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'File Handling and Data Serialization' on a prepared training sample through this task: Transform and serialize structured data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Transform and serialize structured data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Java NIO Files/Paths; read/write/buffered I/O; directory traversal; CSV; JSON; serialization/deserialization; Circe; configuration/data mapping) and demonstrate the starting sample for: Transform and serialize structured data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Transform and serialize structured data",
+          "evidence": "Participant submission for 'File Handling and Data Serialization': Transform and serialize structured data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Transform and serialize structured data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Transform and serialize structured data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Java NIO Files/Paths; read/write/buffered I/O; directory traversal; CSV; JSON; serialization/deserialization; Circe; configuration/data mapping). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "Build Management with sbt",
+      "subtopics": [
+        "build.sbt",
+        "projects/dependencies/resolvers/scopes",
+        "tasks/settings/plugins",
+        "multi-project builds",
+        "compile/run/test/package",
+        "versioning"
+      ],
+      "tools": [
+        "sbt"
+      ],
+      "lab_task": "Configure a multi-module sbt project",
+      "deliverable": "Participant submission for 'Build Management with sbt': Configure a multi-module sbt project. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Configure a multi-module sbt project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (build.sbt; projects/dependencies/resolvers/scopes; tasks/settings/plugins; multi-project builds; compile/run/test/package; versioning). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Configure a multi-module sbt project.",
+        "Explain how the lab applies Build Management with sbt and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Build Management with sbt' on a prepared training sample through this task: Configure a multi-module sbt project.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Configure a multi-module sbt project",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (build.sbt; projects/dependencies/resolvers/scopes; tasks/settings/plugins; multi-project builds; compile/run/test/package; versioning) and demonstrate the starting sample for: Configure a multi-module sbt project",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Configure a multi-module sbt project",
+          "evidence": "Participant submission for 'Build Management with sbt': Configure a multi-module sbt project. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Configure a multi-module sbt project' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Configure a multi-module sbt project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (build.sbt; projects/dependencies/resolvers/scopes; tasks/settings/plugins; multi-project builds; compile/run/test/package; versioning). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 21,
+      "topic": "Testing with ScalaTest",
+      "subtopics": [
+        "unit tests",
+        "ScalaTest styles",
+        "assertions/matchers/fixtures",
+        "exceptions",
+        "table/property tests",
+        "ScalaCheck",
+        "mocks",
+        "async tests",
+        "coverage"
+      ],
+      "tools": [
+        "ScalaTest",
+        "ScalaCheck"
+      ],
+      "lab_task": "Create an automated Scala test suite",
+      "deliverable": "Participant submission for 'Testing with ScalaTest': Create an automated Scala test suite. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create an automated Scala test suite. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (unit tests; ScalaTest styles; assertions/matchers/fixtures; exceptions; table/property tests; ScalaCheck; mocks; async tests; coverage). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create an automated Scala test suite.",
+        "Explain how the lab applies Testing with ScalaTest and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Testing with ScalaTest' on a prepared training sample through this task: Create an automated Scala test suite.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create an automated Scala test suite",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (unit tests; ScalaTest styles; assertions/matchers/fixtures; exceptions; table/property tests; ScalaCheck; mocks; async tests; coverage) and demonstrate the starting sample for: Create an automated Scala test suite",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create an automated Scala test suite",
+          "evidence": "Participant submission for 'Testing with ScalaTest': Create an automated Scala test suite. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create an automated Scala test suite' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create an automated Scala test suite. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (unit tests; ScalaTest styles; assertions/matchers/fixtures; exceptions; table/property tests; ScalaCheck; mocks; async tests; coverage). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 22,
+      "topic": "Futures and Asynchronous Programming",
+      "subtopics": [
+        "Future/ExecutionContext",
+        "map/flatMap",
+        "Future for-comprehensions",
+        "sequence/traverse",
+        "callbacks",
+        "recover/recoverWith",
+        "Promise",
+        "timeouts",
+        "blocking/non-blocking",
+        "pools"
+      ],
+      "tools": [
+        "Scala Future API"
+      ],
+      "lab_task": "Build an async service with multiple Future operations",
+      "deliverable": "Participant submission for 'Futures and Asynchronous Programming': Build an async service with multiple Future operations. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an async service with multiple Future operations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Future/ExecutionContext; map/flatMap; Future for-comprehensions; sequence/traverse; callbacks; recover/recoverWith; Promise; timeouts; blocking/non-blocking; pools). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an async service with multiple Future operations.",
+        "Explain how the lab applies Futures and Asynchronous Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Futures and Asynchronous Programming' on a prepared training sample through this task: Build an async service with multiple Future operations.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an async service with multiple Future operations",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Future/ExecutionContext; map/flatMap; Future for-comprehensions; sequence/traverse; callbacks; recover/recoverWith; Promise; timeouts; blocking/non-blocking; pools) and demonstrate the starting sample for: Build an async service with multiple Future operations",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an async service with multiple Future operations",
+          "evidence": "Participant submission for 'Futures and Asynchronous Programming': Build an async service with multiple Future operations. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an async service with multiple Future operations' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an async service with multiple Future operations. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Future/ExecutionContext; map/flatMap; Future for-comprehensions; sequence/traverse; callbacks; recover/recoverWith; Promise; timeouts; blocking/non-blocking; pools). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 23,
+      "topic": "Concurrency and Parallel Programming",
+      "subtopics": [
+        "threads",
+        "concurrency/parallelism",
+        "shared state/races",
+        "synchronization/atomic awareness",
+        "execution contexts/pools",
+        "parallel collections",
+        "CPU/I-O workload",
+        "immutability"
+      ],
+      "tools": [
+        "Scala",
+        "JVM"
+      ],
+      "lab_task": "Compare concurrent and sequential workloads",
+      "deliverable": "Participant submission for 'Concurrency and Parallel Programming': Compare concurrent and sequential workloads. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Compare concurrent and sequential workloads. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (threads; concurrency/parallelism; shared state/races; synchronization/atomic awareness; execution contexts/pools; parallel collections; CPU/I-O workload; immutability). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Compare concurrent and sequential workloads.",
+        "Explain how the lab applies Concurrency and Parallel Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Concurrency and Parallel Programming' on a prepared training sample through this task: Compare concurrent and sequential workloads.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Compare concurrent and sequential workloads",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (threads; concurrency/parallelism; shared state/races; synchronization/atomic awareness; execution contexts/pools; parallel collections; CPU/I-O workload; immutability) and demonstrate the starting sample for: Compare concurrent and sequential workloads",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Compare concurrent and sequential workloads",
+          "evidence": "Participant submission for 'Concurrency and Parallel Programming': Compare concurrent and sequential workloads. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Compare concurrent and sequential workloads' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Compare concurrent and sequential workloads. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (threads; concurrency/parallelism; shared state/races; synchronization/atomic awareness; execution contexts/pools; parallel collections; CPU/I-O workload; immutability). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 24,
+      "topic": "Akka and Actor Model Fundamentals",
+      "subtopics": [
+        "actor model",
+        "messages/actor systems/references",
+        "behavior",
+        "state isolation",
+        "Akka Typed",
+        "lifecycle/supervision",
+        "fault tolerance",
+        "actor hierarchy"
+      ],
+      "tools": [
+        "Akka Typed",
+        "sbt"
+      ],
+      "lab_task": "Build a typed actor message processor",
+      "deliverable": "Participant submission for 'Akka and Actor Model Fundamentals': Build a typed actor message processor. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a typed actor message processor. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (actor model; messages/actor systems/references; behavior; state isolation; Akka Typed; lifecycle/supervision; fault tolerance; actor hierarchy). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a typed actor message processor.",
+        "Explain how the lab applies Akka and Actor Model Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Akka and Actor Model Fundamentals' on a prepared training sample through this task: Build a typed actor message processor.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a typed actor message processor",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (actor model; messages/actor systems/references; behavior; state isolation; Akka Typed; lifecycle/supervision; fault tolerance; actor hierarchy) and demonstrate the starting sample for: Build a typed actor message processor",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a typed actor message processor",
+          "evidence": "Participant submission for 'Akka and Actor Model Fundamentals': Build a typed actor message processor. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a typed actor message processor' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a typed actor message processor. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (actor model; messages/actor systems/references; behavior; state isolation; Akka Typed; lifecycle/supervision; fault tolerance; actor hierarchy). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 25,
+      "topic": "Reactive and Distributed Systems",
+      "subtopics": [
+        "reactive principles",
+        "responsiveness/resilience/elasticity",
+        "message-driven design",
+        "distributed systems",
+        "location transparency",
+        "failure/backpressure",
+        "event-driven architecture"
+      ],
+      "tools": [
+        "Akka",
+        "Scala"
+      ],
+      "lab_task": "Design a resilient event-driven workflow",
+      "deliverable": "Participant submission for 'Reactive and Distributed Systems': Design a resilient event-driven workflow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a resilient event-driven workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (reactive principles; responsiveness/resilience/elasticity; message-driven design; distributed systems; location transparency; failure/backpressure; event-driven architecture). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design a resilient event-driven workflow.",
+        "Explain how the lab applies Reactive and Distributed Systems and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Reactive and Distributed Systems' on a prepared training sample through this task: Design a resilient event-driven workflow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a resilient event-driven workflow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (reactive principles; responsiveness/resilience/elasticity; message-driven design; distributed systems; location transparency; failure/backpressure; event-driven architecture) and demonstrate the starting sample for: Design a resilient event-driven workflow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a resilient event-driven workflow",
+          "evidence": "Participant submission for 'Reactive and Distributed Systems': Design a resilient event-driven workflow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a resilient event-driven workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a resilient event-driven workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (reactive principles; responsiveness/resilience/elasticity; message-driven design; distributed systems; location transparency; failure/backpressure; event-driven architecture). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 26,
+      "topic": "REST API Development",
+      "subtopics": [
+        "HTTP/REST",
+        "methods/status/headers",
+        "JSON",
+        "routing",
+        "validation",
+        "serialization",
+        "errors",
+        "authentication",
+        "versioning/pagination"
+      ],
+      "tools": [
+        "Akka HTTP",
+        "Postman"
+      ],
+      "lab_task": "Build a CRUD REST API",
+      "deliverable": "Participant submission for 'REST API Development': Build a CRUD REST API. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a CRUD REST API. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP/REST; methods/status/headers; JSON; routing; validation; serialization; errors; authentication; versioning/pagination). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a CRUD REST API.",
+        "Explain how the lab applies REST API Development and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'REST API Development' on a prepared training sample through this task: Build a CRUD REST API.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a CRUD REST API",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (HTTP/REST; methods/status/headers; JSON; routing; validation; serialization; errors; authentication; versioning/pagination) and demonstrate the starting sample for: Build a CRUD REST API",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a CRUD REST API",
+          "evidence": "Participant submission for 'REST API Development': Build a CRUD REST API. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a CRUD REST API' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a CRUD REST API. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP/REST; methods/status/headers; JSON; routing; validation; serialization; errors; authentication; versioning/pagination). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 27,
+      "topic": "Database Programming",
+      "subtopics": [
+        "SQL/JDBC",
+        "connections/prepared statements/transactions",
+        "CRUD",
+        "Slick",
+        "tables/queries/actions",
+        "async DB work",
+        "pooling"
+      ],
+      "tools": [
+        "PostgreSQL",
+        "Slick"
+      ],
+      "lab_task": "Build a Scala PostgreSQL CRUD service",
+      "deliverable": "Participant submission for 'Database Programming': Build a Scala PostgreSQL CRUD service. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a Scala PostgreSQL CRUD service. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL/JDBC; connections/prepared statements/transactions; CRUD; Slick; tables/queries/actions; async DB work; pooling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a Scala PostgreSQL CRUD service.",
+        "Explain how the lab applies Database Programming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Database Programming' on a prepared training sample through this task: Build a Scala PostgreSQL CRUD service.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a Scala PostgreSQL CRUD service",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SQL/JDBC; connections/prepared statements/transactions; CRUD; Slick; tables/queries/actions; async DB work; pooling) and demonstrate the starting sample for: Build a Scala PostgreSQL CRUD service",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a Scala PostgreSQL CRUD service",
+          "evidence": "Participant submission for 'Database Programming': Build a Scala PostgreSQL CRUD service. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a Scala PostgreSQL CRUD service' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a Scala PostgreSQL CRUD service. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SQL/JDBC; connections/prepared statements/transactions; CRUD; Slick; tables/queries/actions; async DB work; pooling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 28,
+      "topic": "Apache Spark Fundamentals",
+      "subtopics": [
+        "Spark architecture",
+        "driver/executors/clusters",
+        "SparkSession",
+        "RDD/DataFrame/Dataset",
+        "transformations/actions",
+        "lazy evaluation",
+        "partitions",
+        "read/write",
+        "Spark SQL"
+      ],
+      "tools": [
+        "Apache Spark",
+        "Scala"
+      ],
+      "lab_task": "Process a dataset with Spark DataFrames",
+      "deliverable": "Participant submission for 'Apache Spark Fundamentals': Process a dataset with Spark DataFrames. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Process a dataset with Spark DataFrames. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Spark architecture; driver/executors/clusters; SparkSession; RDD/DataFrame/Dataset; transformations/actions; lazy evaluation; partitions; read/write; Spark SQL). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Process a dataset with Spark DataFrames.",
+        "Explain how the lab applies Apache Spark Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Apache Spark Fundamentals' on a prepared training sample through this task: Process a dataset with Spark DataFrames.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Process a dataset with Spark DataFrames",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Spark architecture; driver/executors/clusters; SparkSession; RDD/DataFrame/Dataset; transformations/actions; lazy evaluation; partitions; read/write; Spark SQL) and demonstrate the starting sample for: Process a dataset with Spark DataFrames",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Process a dataset with Spark DataFrames",
+          "evidence": "Participant submission for 'Apache Spark Fundamentals': Process a dataset with Spark DataFrames. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Process a dataset with Spark DataFrames' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Process a dataset with Spark DataFrames. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Spark architecture; driver/executors/clusters; SparkSession; RDD/DataFrame/Dataset; transformations/actions; lazy evaluation; partitions; read/write; Spark SQL). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 29,
+      "topic": "Spark Data Processing and Optimization",
+      "subtopics": [
+        "transform/filter/project/group/aggregate/join",
+        "window functions",
+        "Spark SQL/UDF awareness",
+        "partition/repartition/coalesce",
+        "cache/persist",
+        "shuffle/plans",
+        "skew"
+      ],
+      "tools": [
+        "Apache Spark",
+        "Spark SQL"
+      ],
+      "lab_task": "Optimize a Spark join and aggregation pipeline",
+      "deliverable": "Participant submission for 'Spark Data Processing and Optimization': Optimize a Spark join and aggregation pipeline. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Optimize a Spark join and aggregation pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (transform/filter/project/group/aggregate/join; window functions; Spark SQL/UDF awareness; partition/repartition/coalesce; cache/persist; shuffle/plans; skew). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Optimize a Spark join and aggregation pipeline.",
+        "Explain how the lab applies Spark Data Processing and Optimization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Spark Data Processing and Optimization' on a prepared training sample through this task: Optimize a Spark join and aggregation pipeline.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Optimize a Spark join and aggregation pipeline",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (transform/filter/project/group/aggregate/join; window functions; Spark SQL/UDF awareness; partition/repartition/coalesce; cache/persist; shuffle/plans; skew) and demonstrate the starting sample for: Optimize a Spark join and aggregation pipeline",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Optimize a Spark join and aggregation pipeline",
+          "evidence": "Participant submission for 'Spark Data Processing and Optimization': Optimize a Spark join and aggregation pipeline. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Optimize a Spark join and aggregation pipeline' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Optimize a Spark join and aggregation pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (transform/filter/project/group/aggregate/join; window functions; Spark SQL/UDF awareness; partition/repartition/coalesce; cache/persist; shuffle/plans; skew). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 30,
+      "topic": "Streaming with Spark",
+      "subtopics": [
+        "Structured Streaming",
+        "sources/sinks/triggers/output modes",
+        "windows",
+        "event/processing time",
+        "watermarks",
+        "state",
+        "fault tolerance/checkpointing"
+      ],
+      "tools": [
+        "Apache Spark Structured Streaming"
+      ],
+      "lab_task": "Create a streaming processing pipeline",
+      "deliverable": "Participant submission for 'Streaming with Spark': Create a streaming processing pipeline. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a streaming processing pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Structured Streaming; sources/sinks/triggers/output modes; windows; event/processing time; watermarks; state; fault tolerance/checkpointing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a streaming processing pipeline.",
+        "Explain how the lab applies Streaming with Spark and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Streaming with Spark' on a prepared training sample through this task: Create a streaming processing pipeline.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a streaming processing pipeline",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Structured Streaming; sources/sinks/triggers/output modes; windows; event/processing time; watermarks; state; fault tolerance/checkpointing) and demonstrate the starting sample for: Create a streaming processing pipeline",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a streaming processing pipeline",
+          "evidence": "Participant submission for 'Streaming with Spark': Create a streaming processing pipeline. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a streaming processing pipeline' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a streaming processing pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Structured Streaming; sources/sinks/triggers/output modes; windows; event/processing time; watermarks; state; fault tolerance/checkpointing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 31,
+      "topic": "Functional Programming Libraries",
+      "subtopics": [
+        "Cats",
+        "type classes",
+        "Functor/Applicative/Monad",
+        "Validated",
+        "Semigroup/Monoid",
+        "Cats Effect",
+        "IO",
+        "resource safety",
+        "pure functional design"
+      ],
+      "tools": [
+        "Cats",
+        "Cats Effect"
+      ],
+      "lab_task": "Implement validation and effect workflows",
+      "deliverable": "Participant submission for 'Functional Programming Libraries': Implement validation and effect workflows. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement validation and effect workflows. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cats; type classes; Functor/Applicative/Monad; Validated; Semigroup/Monoid; Cats Effect; IO; resource safety; pure functional design). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Implement validation and effect workflows.",
+        "Explain how the lab applies Functional Programming Libraries and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Functional Programming Libraries' on a prepared training sample through this task: Implement validation and effect workflows.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement validation and effect workflows",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Cats; type classes; Functor/Applicative/Monad; Validated; Semigroup/Monoid; Cats Effect; IO; resource safety; pure functional design) and demonstrate the starting sample for: Implement validation and effect workflows",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement validation and effect workflows",
+          "evidence": "Participant submission for 'Functional Programming Libraries': Implement validation and effect workflows. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement validation and effect workflows' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement validation and effect workflows. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cats; type classes; Functor/Applicative/Monad; Validated; Semigroup/Monoid; Cats Effect; IO; resource safety; pure functional design). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 32,
+      "topic": "Performance and JVM Optimization",
+      "subtopics": [
+        "JVM/bytecode",
+        "heap/stack/GC",
+        "allocations",
+        "collections/lazy collections",
+        "tail recursion",
+        "boxing",
+        "CPU/memory profiling",
+        "JVM options",
+        "JMH"
+      ],
+      "tools": [
+        "JVM",
+        "VisualVM",
+        "JMH"
+      ],
+      "lab_task": "Profile and optimize Scala performance",
+      "deliverable": "Participant submission for 'Performance and JVM Optimization': Profile and optimize Scala performance. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Profile and optimize Scala performance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JVM/bytecode; heap/stack/GC; allocations; collections/lazy collections; tail recursion; boxing; CPU/memory profiling; JVM options; JMH). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Profile and optimize Scala performance.",
+        "Explain how the lab applies Performance and JVM Optimization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance and JVM Optimization' on a prepared training sample through this task: Profile and optimize Scala performance.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Profile and optimize Scala performance",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (JVM/bytecode; heap/stack/GC; allocations; collections/lazy collections; tail recursion; boxing; CPU/memory profiling; JVM options; JMH) and demonstrate the starting sample for: Profile and optimize Scala performance",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Profile and optimize Scala performance",
+          "evidence": "Participant submission for 'Performance and JVM Optimization': Profile and optimize Scala performance. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Profile and optimize Scala performance' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Profile and optimize Scala performance. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JVM/bytecode; heap/stack/GC; allocations; collections/lazy collections; tail recursion; boxing; CPU/memory profiling; JVM options; JMH). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 33,
+      "topic": "Scala Metaprogramming",
+      "subtopics": [
+        "inline methods/parameters",
+        "compile-time operations",
+        "quotes/splices/macros awareness",
+        "derivation",
+        "type-class derivation",
+        "reflection",
+        "compile-time validation"
+      ],
+      "tools": [
+        "Scala 3 Compiler"
+      ],
+      "lab_task": "Create a simple compile-time utility",
+      "deliverable": "Participant submission for 'Scala Metaprogramming': Create a simple compile-time utility. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a simple compile-time utility. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (inline methods/parameters; compile-time operations; quotes/splices/macros awareness; derivation; type-class derivation; reflection; compile-time validation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a simple compile-time utility.",
+        "Explain how the lab applies Scala Metaprogramming and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Scala Metaprogramming' on a prepared training sample through this task: Create a simple compile-time utility.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a simple compile-time utility",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (inline methods/parameters; compile-time operations; quotes/splices/macros awareness; derivation; type-class derivation; reflection; compile-time validation) and demonstrate the starting sample for: Create a simple compile-time utility",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a simple compile-time utility",
+          "evidence": "Participant submission for 'Scala Metaprogramming': Create a simple compile-time utility. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a simple compile-time utility' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a simple compile-time utility. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (inline methods/parameters; compile-time operations; quotes/splices/macros awareness; derivation; type-class derivation; reflection; compile-time validation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 34,
+      "topic": "Code Quality, Style and Architecture",
+      "subtopics": [
+        "conventions",
+        "functional/layered architecture",
+        "domain modeling",
+        "SOLID/composition",
+        "type-driven design",
+        "error modeling",
+        "Scalafmt/Scalafix",
+        "static analysis",
+        "reviews/docs"
+      ],
+      "tools": [
+        "Scalafmt",
+        "Scalafix",
+        "GitHub"
+      ],
+      "lab_task": "Refactor and format a functional Scala project",
+      "deliverable": "Participant submission for 'Code Quality, Style and Architecture': Refactor and format a functional Scala project. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Refactor and format a functional Scala project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (conventions; functional/layered architecture; domain modeling; SOLID/composition; type-driven design; error modeling; Scalafmt/Scalafix; static analysis; reviews/docs). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Refactor and format a functional Scala project.",
+        "Explain how the lab applies Code Quality, Style and Architecture and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Code Quality, Style and Architecture' on a prepared training sample through this task: Refactor and format a functional Scala project.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Refactor and format a functional Scala project",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (conventions; functional/layered architecture; domain modeling; SOLID/composition; type-driven design; error modeling; Scalafmt/Scalafix; static analysis; reviews/docs) and demonstrate the starting sample for: Refactor and format a functional Scala project",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Refactor and format a functional Scala project",
+          "evidence": "Participant submission for 'Code Quality, Style and Architecture': Refactor and format a functional Scala project. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Refactor and format a functional Scala project' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Refactor and format a functional Scala project. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (conventions; functional/layered architecture; domain modeling; SOLID/composition; type-driven design; error modeling; Scalafmt/Scalafix; static analysis; reviews/docs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 35,
+      "topic": "Git, CI/CD and Build Automation",
+      "subtopics": [
+        "Git/GitHub",
+        "CI",
+        "compile/test/format checks",
+        "sbt pipelines",
+        "GitHub Actions",
+        "dependency cache",
+        "artifacts",
+        "release workflow"
+      ],
+      "tools": [
+        "Git",
+        "GitHub",
+        "GitHub Actions",
+        "sbt"
+      ],
+      "lab_task": "Create a Scala CI pipeline",
+      "deliverable": "Participant submission for 'Git, CI/CD and Build Automation': Create a Scala CI pipeline. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a Scala CI pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git/GitHub; CI; compile/test/format checks; sbt pipelines; GitHub Actions; dependency cache; artifacts; release workflow). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a Scala CI pipeline.",
+        "Explain how the lab applies Git, CI/CD and Build Automation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Git, CI/CD and Build Automation' on a prepared training sample through this task: Create a Scala CI pipeline.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a Scala CI pipeline",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Git/GitHub; CI; compile/test/format checks; sbt pipelines; GitHub Actions; dependency cache; artifacts; release workflow) and demonstrate the starting sample for: Create a Scala CI pipeline",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a Scala CI pipeline",
+          "evidence": "Participant submission for 'Git, CI/CD and Build Automation': Create a Scala CI pipeline. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a Scala CI pipeline' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a Scala CI pipeline. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git/GitHub; CI; compile/test/format checks; sbt pipelines; GitHub Actions; dependency cache; artifacts; release workflow). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 36,
+      "topic": "Containerization and Deployment",
+      "subtopics": [
+        "Docker",
+        "JAR packaging",
+        "JVM containers",
+        "Dockerfile",
+        "variables/config",
+        "ports/health checks",
+        "Compose",
+        "production/cloud deployment"
+      ],
+      "tools": [
+        "Docker",
+        "sbt"
+      ],
+      "lab_task": "Containerize a Scala REST application",
+      "deliverable": "Participant submission for 'Containerization and Deployment': Containerize a Scala REST application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Containerize a Scala REST application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Docker; JAR packaging; JVM containers; Dockerfile; variables/config; ports/health checks; Compose; production/cloud deployment). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Containerize a Scala REST application.",
+        "Explain how the lab applies Containerization and Deployment and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Containerization and Deployment' on a prepared training sample through this task: Containerize a Scala REST application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Containerize a Scala REST application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Docker; JAR packaging; JVM containers; Dockerfile; variables/config; ports/health checks; Compose; production/cloud deployment) and demonstrate the starting sample for: Containerize a Scala REST application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Containerize a Scala REST application",
+          "evidence": "Participant submission for 'Containerization and Deployment': Containerize a Scala REST application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Containerize a Scala REST application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Containerize a Scala REST application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Docker; JAR packaging; JVM containers; Dockerfile; variables/config; ports/health checks; Compose; production/cloud deployment). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 37,
+      "topic": "Security and Production Practices",
+      "subtopics": [
+        "secure coding",
+        "validation",
+        "auth/authz",
+        "HTTPS/tokens/secrets",
+        "dependency risks",
+        "logging",
+        "sensitive data",
+        "database/API security",
+        "errors",
+        "monitoring"
+      ],
+      "tools": [
+        "Scala",
+        "GitHub Dependabot"
+      ],
+      "lab_task": "Review a Scala service for security and production readiness",
+      "deliverable": "Participant submission for 'Security and Production Practices': Review a Scala service for security and production readiness. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Review a Scala service for security and production readiness. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (secure coding; validation; auth/authz; HTTPS/tokens/secrets; dependency risks; logging; sensitive data; database/API security; errors; monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Review a Scala service for security and production readiness.",
+        "Explain how the lab applies Security and Production Practices and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Security and Production Practices' on a prepared training sample through this task: Review a Scala service for security and production readiness.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Review a Scala service for security and production readiness",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (secure coding; validation; auth/authz; HTTPS/tokens/secrets; dependency risks; logging; sensitive data; database/API security; errors; monitoring) and demonstrate the starting sample for: Review a Scala service for security and production readiness",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Review a Scala service for security and production readiness",
+          "evidence": "Participant submission for 'Security and Production Practices': Review a Scala service for security and production readiness. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Review a Scala service for security and production readiness' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Review a Scala service for security and production readiness. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (secure coding; validation; auth/authz; HTTPS/tokens/secrets; dependency risks; logging; sensitive data; database/API security; errors; monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 38,
+      "topic": "Scala Capstone Project",
+      "subtopics": [
+        "functional domain modeling",
+        "type system/ADTs",
+        "matching/collections/errors",
+        "concurrency",
+        "REST/database",
+        "tests/logging/performance",
+        "Docker/CI-CD/docs/deployment",
+        "optional Spark"
+      ],
+      "tools": [
+        "Scala",
+        "sbt",
+        "PostgreSQL",
+        "Akka HTTP",
+        "ScalaTest",
+        "Docker",
+        "GitHub Actions"
+      ],
+      "lab_task": "Build, test, and containerize a production Scala application",
+      "deliverable": "Participant submission for 'Scala Capstone Project': Build, test, and containerize a production Scala application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build, test, and containerize a production Scala application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (functional domain modeling; type system/ADTs; matching/collections/errors; concurrency; REST/database; tests/logging/performance; Docker/CI-CD/docs/deployment; optional Spark). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build, test, and containerize a production Scala application.",
+        "Explain how the lab applies Scala Capstone Project and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Scala Capstone Project' on a prepared training sample through this task: Build, test, and containerize a production Scala application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build, test, and containerize a production Scala application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (functional domain modeling; type system/ADTs; matching/collections/errors; concurrency; REST/database; tests/logging/performance; Docker/CI-CD/docs/deployment; optional Spark) and demonstrate the starting sample for: Build, test, and containerize a production Scala application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build, test, and containerize a production Scala application",
+          "evidence": "Participant submission for 'Scala Capstone Project': Build, test, and containerize a production Scala application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build, test, and containerize a production Scala application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build, test, and containerize a production Scala application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (functional domain modeling; type system/ADTs; matching/collections/errors; concurrency; REST/database; tests/logging/performance; Docker/CI-CD/docs/deployment; optional Spark). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

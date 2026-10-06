@@ -1,33 +1,1835 @@
 {
-  "domain":"PowerShell","name":"PowerShell Infrastructure Automation","icon":"terminal","program_title":"PowerShell - Windows, Cloud and Infrastructure Automation","level":"Beginner to Advanced","mode":"Online","aliases":["PowerShell","Microsoft PowerShell","PowerShell Core","Windows PowerShell"],"tools":["PowerShell 7","Windows Terminal","Visual Studio Code","PowerShell Gallery","Pester","Git"],"certifications":["Microsoft Certified Azure Administrator Associate","Microsoft Certified Windows Server Hybrid Administrator Associate"],
-  "days":[
-    {"day":1,"topic":"PowerShell Introduction and Setup","subtopics":["Windows PowerShell versus PowerShell 7",".NET integration","install","Windows Terminal","VS Code","command structure","Verb-Noun"],"tools":["PowerShell 7","Visual Studio Code"],"lab_task":"Install PowerShell and execute basic commands"},
-    {"day":2,"topic":"Cmdlets and Help System","subtopics":["cmdlets","Get-Command","Get-Help/Update-Help","Get-Member","aliases","parameters","pipeline input","command discovery"],"tools":["PowerShell"],"lab_task":"Discover and run cmdlets with help"},
-    {"day":3,"topic":"PowerShell Object Pipeline","subtopics":["objects/properties/methods","pipeline","Select/Where/ForEach/Sort/Group/Measure-Object"],"tools":["PowerShell"],"lab_task":"Filter, transform, and summarize system objects"},
-    {"day":4,"topic":"Variables and Data Types","subtopics":["variables/automatic/environment","strings/numbers/booleans","arrays/hash tables","PSCustomObject","casting/interpolation/here-strings"],"tools":["PowerShell"],"lab_task":"Create configuration and structured data objects"},
-    {"day":5,"topic":"Operators and Expressions","subtopics":["arithmetic/assignment/comparison/logical","containment/type/replacement/match operators","regex/range/format"],"tools":["PowerShell"],"lab_task":"Develop validation and filtering expressions"},
-    {"day":6,"topic":"Conditional Statements and Loops","subtopics":["if/elseif/else/switch","foreach/for/while/do loops","break/continue","nested/pipeline iteration"],"tools":["PowerShell"],"lab_task":"Build menu and batch processing scripts"},
-    {"day":7,"topic":"Functions","subtopics":["functions","param block","defaults/mandatory/types","advanced functions","CmdletBinding","pipeline parameters","validation","comment help"],"tools":["PowerShell"],"lab_task":"Create reusable advanced functions"},
-    {"day":8,"topic":"Files and Directories","subtopics":["providers","Get/New/Copy/Move/Remove-Item","Test-Path","Get/Set/Add-Content","path handling"],"tools":["PowerShell"],"lab_task":"Build file cleanup automation"},
-    {"day":9,"topic":"CSV, JSON and XML Processing","subtopics":["Import/Export-Csv","ConvertTo/From-Json","XML","PSCustomObject","transforms","config/report data"],"tools":["PowerShell"],"lab_task":"Transform CSV and JSON into reports"},
-    {"day":10,"topic":"Processes and Services","subtopics":["Get/Start/Stop-Process","Get/Start/Stop/Restart-Service","status/resource usage","service recovery"],"tools":["PowerShell","Windows"],"lab_task":"Create process and service monitoring"},
-    {"day":11,"topic":"Windows System Administration","subtopics":["computer/OS/event/registry info","disk/network","local users/groups","scheduled tasks","health inventory"],"tools":["PowerShell","Windows"],"lab_task":"Generate system inventory and health report"},
-    {"day":12,"topic":"WMI and CIM","subtopics":["WMI/CIM","classes","Get-CimInstance","sessions","remote queries","hardware/OS inventory"],"tools":["PowerShell","CIM"],"lab_task":"Collect remote hardware and OS inventory"},
-    {"day":13,"topic":"PowerShell Remoting","subtopics":["WinRM","Enable-PSRemoting","Invoke-Command","Enter/New-PSSession","credentials","remote execution","fan-out"],"tools":["PowerShell Remoting","WinRM"],"lab_task":"Administer multiple remote systems"},
-    {"day":14,"topic":"Error Handling and Debugging","subtopics":["error records","terminating/non-terminating","ErrorAction","try/catch/finally/throw","breakpoints","verbose/debug","transcripts"],"tools":["PowerShell","VS Code Debugger"],"lab_task":"Add robust errors and diagnostics"},
-    {"day":15,"topic":"Modules and PowerShell Gallery","subtopics":["modules/manifests","Import/Get-Module","exported commands","Gallery","Find/Install/Update-Module","versioning"],"tools":["PowerShell Gallery"],"lab_task":"Create and package a module"},
-    {"day":16,"topic":"Security and Credentials","subtopics":["execution policy","signing","Get-Credential/SecureString","SecretManagement","least privilege","JEA","auditing"],"tools":["PowerShell SecretManagement"],"lab_task":"Secure automation credentials"},
-    {"day":17,"topic":"Active Directory Automation","subtopics":["AD module","users/groups/OUs","Get/New/Set-ADUser","disable users","membership","bulk admin/reporting"],"tools":["ActiveDirectory PowerShell Module"],"lab_task":"Automate bulk user and group work"},
-    {"day":18,"topic":"Azure PowerShell","subtopics":["Az module","Connect-AzAccount","subscriptions/resource groups","VMs/storage/networks","resource provisioning/querying"],"tools":["Azure PowerShell","Az Module"],"lab_task":"Provision and query Azure resources"},
-    {"day":19,"topic":"Microsoft 365 Automation","subtopics":["Microsoft Graph","users/groups/licenses","Teams/Exchange awareness","auth/permissions","bulk admin/reports"],"tools":["Microsoft Graph PowerShell"],"lab_task":"Generate M365 user and license report"},
-    {"day":20,"topic":"REST APIs and Web Requests","subtopics":["Invoke-RestMethod/WebRequest","HTTP","headers/tokens","JSON bodies/responses","pagination","errors","API automation"],"tools":["PowerShell","REST APIs"],"lab_task":"Integrate PowerShell with REST APIs"},
-    {"day":21,"topic":"Jobs, Parallelism and Background Processing","subtopics":["Start/Get/Receive/Remove-Job","thread jobs","ForEach-Object Parallel","runspaces awareness","throttling/errors"],"tools":["PowerShell 7"],"lab_task":"Parallelize work across targets"},
-    {"day":22,"topic":"Scheduled Tasks and Automation","subtopics":["Task Scheduler","triggers/actions","Register-ScheduledTask","service accounts","logging/failure","recurring jobs"],"tools":["PowerShell","Task Scheduler"],"lab_task":"Schedule maintenance and reporting"},
-    {"day":23,"topic":"Testing with Pester","subtopics":["Pester","Describe/Context/It/Should","mocks","setup","unit/integration testing","coverage","module tests"],"tools":["Pester"],"lab_task":"Test a PowerShell module"},
-    {"day":24,"topic":"Logging and Reporting","subtopics":["verbose/debug/warning/error","transcripts","structured logging","CSV/HTML","ConvertTo-Html","audit/execution tracking"],"tools":["PowerShell"],"lab_task":"Build automated HTML health reports"},
-    {"day":25,"topic":"DevOps and CI/CD Integration","subtopics":["Git","Azure DevOps/GitHub Actions","pipeline scripts","variables/secrets","build/deploy/validation automation"],"tools":["Git","GitHub Actions","Azure DevOps"],"lab_task":"Use PowerShell in CI/CD"},
-    {"day":26,"topic":"Desired State Configuration","subtopics":["DSC","configurations/resources/nodes","MOF","idempotency","desired state/drift","infrastructure config"],"tools":["PowerShell DSC"],"lab_task":"Define desired system state"},
-    {"day":27,"topic":"Advanced Scripting","subtopics":["splatting","dynamic parameters","classes/enums/objects","formatting","argument completers","scopes/dot sourcing","architecture/performance"],"tools":["PowerShell 7"],"lab_task":"Build reusable administration framework"},
-    {"day":28,"topic":"PowerShell Automation Capstone","subtopics":["system/remote/cloud automation","APIs","security/errors/logging","Pester","reports/scheduling","CI-CD","documentation"],"tools":["PowerShell","Pester","Azure PowerShell","Git","GitHub"],"lab_task":"Deliver production infrastructure automation"}
-  ]
+  "domain": "PowerShell",
+  "name": "PowerShell Infrastructure Automation",
+  "icon": "terminal",
+  "program_title": "PowerShell - Windows, Cloud and Infrastructure Automation",
+  "level": "Beginner to Advanced",
+  "mode": "Online",
+  "aliases": [
+    "PowerShell",
+    "Microsoft PowerShell",
+    "PowerShell Core",
+    "Windows PowerShell"
+  ],
+  "tools": [
+    "PowerShell 7",
+    "Windows Terminal",
+    "Visual Studio Code",
+    "PowerShell Gallery",
+    "Pester",
+    "Git"
+  ],
+  "certifications": [
+    "Microsoft Certified Azure Administrator Associate",
+    "Microsoft Certified Windows Server Hybrid Administrator Associate"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "PowerShell Introduction and Setup",
+      "subtopics": [
+        "Windows PowerShell versus PowerShell 7",
+        ".NET integration",
+        "install",
+        "Windows Terminal",
+        "VS Code",
+        "command structure",
+        "Verb-Noun"
+      ],
+      "tools": [
+        "PowerShell 7",
+        "Visual Studio Code"
+      ],
+      "lab_task": "Install PowerShell and execute basic commands",
+      "deliverable": "Participant submission for 'PowerShell Introduction and Setup': Install PowerShell and execute basic commands. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Install PowerShell and execute basic commands. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Windows PowerShell versus PowerShell 7; .NET integration; install; Windows Terminal; VS Code; command structure; Verb-Noun). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Install PowerShell and execute basic commands.",
+        "Explain how the lab applies PowerShell Introduction and Setup and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'PowerShell Introduction and Setup' on a prepared training sample through this task: Install PowerShell and execute basic commands.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Install PowerShell and execute basic commands",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Windows PowerShell versus PowerShell 7; .NET integration; install; Windows Terminal; VS Code; command structure; Verb-Noun) and demonstrate the starting sample for: Install PowerShell and execute basic commands",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Install PowerShell and execute basic commands",
+          "evidence": "Participant submission for 'PowerShell Introduction and Setup': Install PowerShell and execute basic commands. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Install PowerShell and execute basic commands' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Install PowerShell and execute basic commands. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Windows PowerShell versus PowerShell 7; .NET integration; install; Windows Terminal; VS Code; command structure; Verb-Noun). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Cmdlets and Help System",
+      "subtopics": [
+        "cmdlets",
+        "Get-Command",
+        "Get-Help/Update-Help",
+        "Get-Member",
+        "aliases",
+        "parameters",
+        "pipeline input",
+        "command discovery"
+      ],
+      "tools": [
+        "PowerShell"
+      ],
+      "lab_task": "Discover and run cmdlets with help",
+      "deliverable": "Participant submission for 'Cmdlets and Help System': Discover and run cmdlets with help. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Discover and run cmdlets with help. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (cmdlets; Get-Command; Get-Help/Update-Help; Get-Member; aliases; parameters; pipeline input; command discovery). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Discover and run cmdlets with help.",
+        "Explain how the lab applies Cmdlets and Help System and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Cmdlets and Help System' on a prepared training sample through this task: Discover and run cmdlets with help.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Discover and run cmdlets with help",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (cmdlets; Get-Command; Get-Help/Update-Help; Get-Member; aliases; parameters; pipeline input; command discovery) and demonstrate the starting sample for: Discover and run cmdlets with help",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Discover and run cmdlets with help",
+          "evidence": "Participant submission for 'Cmdlets and Help System': Discover and run cmdlets with help. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Discover and run cmdlets with help' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Discover and run cmdlets with help. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (cmdlets; Get-Command; Get-Help/Update-Help; Get-Member; aliases; parameters; pipeline input; command discovery). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "PowerShell Object Pipeline",
+      "subtopics": [
+        "objects/properties/methods",
+        "pipeline",
+        "Select/Where/ForEach/Sort/Group/Measure-Object"
+      ],
+      "tools": [
+        "PowerShell"
+      ],
+      "lab_task": "Filter, transform, and summarize system objects",
+      "deliverable": "Participant submission for 'PowerShell Object Pipeline': Filter, transform, and summarize system objects. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Filter, transform, and summarize system objects. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (objects/properties/methods; pipeline; Select/Where/ForEach/Sort/Group/Measure-Object). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Filter, transform, and summarize system objects.",
+        "Explain how the lab applies PowerShell Object Pipeline and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'PowerShell Object Pipeline' on a prepared training sample through this task: Filter, transform, and summarize system objects.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Filter, transform, and summarize system objects",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (objects/properties/methods; pipeline; Select/Where/ForEach/Sort/Group/Measure-Object) and demonstrate the starting sample for: Filter, transform, and summarize system objects",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Filter, transform, and summarize system objects",
+          "evidence": "Participant submission for 'PowerShell Object Pipeline': Filter, transform, and summarize system objects. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Filter, transform, and summarize system objects' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Filter, transform, and summarize system objects. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (objects/properties/methods; pipeline; Select/Where/ForEach/Sort/Group/Measure-Object). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Variables and Data Types",
+      "subtopics": [
+        "variables/automatic/environment",
+        "strings/numbers/booleans",
+        "arrays/hash tables",
+        "PSCustomObject",
+        "casting/interpolation/here-strings"
+      ],
+      "tools": [
+        "PowerShell"
+      ],
+      "lab_task": "Create configuration and structured data objects",
+      "deliverable": "Participant submission for 'Variables and Data Types': Create configuration and structured data objects. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create configuration and structured data objects. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables/automatic/environment; strings/numbers/booleans; arrays/hash tables; PSCustomObject; casting/interpolation/here-strings). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create configuration and structured data objects.",
+        "Explain how the lab applies Variables and Data Types and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Variables and Data Types' on a prepared training sample through this task: Create configuration and structured data objects.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create configuration and structured data objects",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (variables/automatic/environment; strings/numbers/booleans; arrays/hash tables; PSCustomObject; casting/interpolation/here-strings) and demonstrate the starting sample for: Create configuration and structured data objects",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create configuration and structured data objects",
+          "evidence": "Participant submission for 'Variables and Data Types': Create configuration and structured data objects. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create configuration and structured data objects' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create configuration and structured data objects. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (variables/automatic/environment; strings/numbers/booleans; arrays/hash tables; PSCustomObject; casting/interpolation/here-strings). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Operators and Expressions",
+      "subtopics": [
+        "arithmetic/assignment/comparison/logical",
+        "containment/type/replacement/match operators",
+        "regex/range/format"
+      ],
+      "tools": [
+        "PowerShell"
+      ],
+      "lab_task": "Develop validation and filtering expressions",
+      "deliverable": "Participant submission for 'Operators and Expressions': Develop validation and filtering expressions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Develop validation and filtering expressions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (arithmetic/assignment/comparison/logical; containment/type/replacement/match operators; regex/range/format). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Develop validation and filtering expressions.",
+        "Explain how the lab applies Operators and Expressions and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Operators and Expressions' on a prepared training sample through this task: Develop validation and filtering expressions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Develop validation and filtering expressions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (arithmetic/assignment/comparison/logical; containment/type/replacement/match operators; regex/range/format) and demonstrate the starting sample for: Develop validation and filtering expressions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Develop validation and filtering expressions",
+          "evidence": "Participant submission for 'Operators and Expressions': Develop validation and filtering expressions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Develop validation and filtering expressions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Develop validation and filtering expressions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (arithmetic/assignment/comparison/logical; containment/type/replacement/match operators; regex/range/format). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Conditional Statements and Loops",
+      "subtopics": [
+        "if/elseif/else/switch",
+        "foreach/for/while/do loops",
+        "break/continue",
+        "nested/pipeline iteration"
+      ],
+      "tools": [
+        "PowerShell"
+      ],
+      "lab_task": "Build menu and batch processing scripts",
+      "deliverable": "Participant submission for 'Conditional Statements and Loops': Build menu and batch processing scripts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build menu and batch processing scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if/elseif/else/switch; foreach/for/while/do loops; break/continue; nested/pipeline iteration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build menu and batch processing scripts.",
+        "Explain how the lab applies Conditional Statements and Loops and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Conditional Statements and Loops' on a prepared training sample through this task: Build menu and batch processing scripts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build menu and batch processing scripts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (if/elseif/else/switch; foreach/for/while/do loops; break/continue; nested/pipeline iteration) and demonstrate the starting sample for: Build menu and batch processing scripts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build menu and batch processing scripts",
+          "evidence": "Participant submission for 'Conditional Statements and Loops': Build menu and batch processing scripts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build menu and batch processing scripts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build menu and batch processing scripts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (if/elseif/else/switch; foreach/for/while/do loops; break/continue; nested/pipeline iteration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Functions",
+      "subtopics": [
+        "functions",
+        "param block",
+        "defaults/mandatory/types",
+        "advanced functions",
+        "CmdletBinding",
+        "pipeline parameters",
+        "validation",
+        "comment help"
+      ],
+      "tools": [
+        "PowerShell"
+      ],
+      "lab_task": "Create reusable advanced functions",
+      "deliverable": "Participant submission for 'Functions': Create reusable advanced functions. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable advanced functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (functions; param block; defaults/mandatory/types; advanced functions; CmdletBinding; pipeline parameters; validation; comment help). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create reusable advanced functions.",
+        "Explain how the lab applies Functions and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Functions' on a prepared training sample through this task: Create reusable advanced functions.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable advanced functions",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (functions; param block; defaults/mandatory/types; advanced functions; CmdletBinding; pipeline parameters; validation; comment help) and demonstrate the starting sample for: Create reusable advanced functions",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable advanced functions",
+          "evidence": "Participant submission for 'Functions': Create reusable advanced functions. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable advanced functions' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable advanced functions. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (functions; param block; defaults/mandatory/types; advanced functions; CmdletBinding; pipeline parameters; validation; comment help). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Files and Directories",
+      "subtopics": [
+        "providers",
+        "Get/New/Copy/Move/Remove-Item",
+        "Test-Path",
+        "Get/Set/Add-Content",
+        "path handling"
+      ],
+      "tools": [
+        "PowerShell"
+      ],
+      "lab_task": "Build file cleanup automation",
+      "deliverable": "Participant submission for 'Files and Directories': Build file cleanup automation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build file cleanup automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (providers; Get/New/Copy/Move/Remove-Item; Test-Path; Get/Set/Add-Content; path handling). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build file cleanup automation.",
+        "Explain how the lab applies Files and Directories and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Files and Directories' on a prepared training sample through this task: Build file cleanup automation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build file cleanup automation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (providers; Get/New/Copy/Move/Remove-Item; Test-Path; Get/Set/Add-Content; path handling) and demonstrate the starting sample for: Build file cleanup automation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build file cleanup automation",
+          "evidence": "Participant submission for 'Files and Directories': Build file cleanup automation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build file cleanup automation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build file cleanup automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (providers; Get/New/Copy/Move/Remove-Item; Test-Path; Get/Set/Add-Content; path handling). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "CSV, JSON and XML Processing",
+      "subtopics": [
+        "Import/Export-Csv",
+        "ConvertTo/From-Json",
+        "XML",
+        "PSCustomObject",
+        "transforms",
+        "config/report data"
+      ],
+      "tools": [
+        "PowerShell"
+      ],
+      "lab_task": "Transform CSV and JSON into reports",
+      "deliverable": "Participant submission for 'CSV, JSON and XML Processing': Transform CSV and JSON into reports. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Transform CSV and JSON into reports. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Import/Export-Csv; ConvertTo/From-Json; XML; PSCustomObject; transforms; config/report data). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Transform CSV and JSON into reports.",
+        "Explain how the lab applies CSV, JSON and XML Processing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CSV, JSON and XML Processing' on a prepared training sample through this task: Transform CSV and JSON into reports.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Transform CSV and JSON into reports",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Import/Export-Csv; ConvertTo/From-Json; XML; PSCustomObject; transforms; config/report data) and demonstrate the starting sample for: Transform CSV and JSON into reports",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Transform CSV and JSON into reports",
+          "evidence": "Participant submission for 'CSV, JSON and XML Processing': Transform CSV and JSON into reports. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Transform CSV and JSON into reports' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Transform CSV and JSON into reports. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Import/Export-Csv; ConvertTo/From-Json; XML; PSCustomObject; transforms; config/report data). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Processes and Services",
+      "subtopics": [
+        "Get/Start/Stop-Process",
+        "Get/Start/Stop/Restart-Service",
+        "status/resource usage",
+        "service recovery"
+      ],
+      "tools": [
+        "PowerShell",
+        "Windows"
+      ],
+      "lab_task": "Create process and service monitoring",
+      "deliverable": "Participant submission for 'Processes and Services': Create process and service monitoring. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create process and service monitoring. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Get/Start/Stop-Process; Get/Start/Stop/Restart-Service; status/resource usage; service recovery). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create process and service monitoring.",
+        "Explain how the lab applies Processes and Services and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Processes and Services' on a prepared training sample through this task: Create process and service monitoring.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create process and service monitoring",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Get/Start/Stop-Process; Get/Start/Stop/Restart-Service; status/resource usage; service recovery) and demonstrate the starting sample for: Create process and service monitoring",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create process and service monitoring",
+          "evidence": "Participant submission for 'Processes and Services': Create process and service monitoring. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create process and service monitoring' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create process and service monitoring. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Get/Start/Stop-Process; Get/Start/Stop/Restart-Service; status/resource usage; service recovery). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Windows System Administration",
+      "subtopics": [
+        "computer/OS/event/registry info",
+        "disk/network",
+        "local users/groups",
+        "scheduled tasks",
+        "health inventory"
+      ],
+      "tools": [
+        "PowerShell",
+        "Windows"
+      ],
+      "lab_task": "Generate system inventory and health report",
+      "deliverable": "Participant submission for 'Windows System Administration': Generate system inventory and health report. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Generate system inventory and health report. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (computer/OS/event/registry info; disk/network; local users/groups; scheduled tasks; health inventory). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Generate system inventory and health report.",
+        "Explain how the lab applies Windows System Administration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Windows System Administration' on a prepared training sample through this task: Generate system inventory and health report.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Generate system inventory and health report",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (computer/OS/event/registry info; disk/network; local users/groups; scheduled tasks; health inventory) and demonstrate the starting sample for: Generate system inventory and health report",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Generate system inventory and health report",
+          "evidence": "Participant submission for 'Windows System Administration': Generate system inventory and health report. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Generate system inventory and health report' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Generate system inventory and health report. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (computer/OS/event/registry info; disk/network; local users/groups; scheduled tasks; health inventory). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "WMI and CIM",
+      "subtopics": [
+        "WMI/CIM",
+        "classes",
+        "Get-CimInstance",
+        "sessions",
+        "remote queries",
+        "hardware/OS inventory"
+      ],
+      "tools": [
+        "PowerShell",
+        "CIM"
+      ],
+      "lab_task": "Collect remote hardware and OS inventory",
+      "deliverable": "Participant submission for 'WMI and CIM': Collect remote hardware and OS inventory. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Collect remote hardware and OS inventory. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WMI/CIM; classes; Get-CimInstance; sessions; remote queries; hardware/OS inventory). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Collect remote hardware and OS inventory.",
+        "Explain how the lab applies WMI and CIM and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'WMI and CIM' on a prepared training sample through this task: Collect remote hardware and OS inventory.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Collect remote hardware and OS inventory",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (WMI/CIM; classes; Get-CimInstance; sessions; remote queries; hardware/OS inventory) and demonstrate the starting sample for: Collect remote hardware and OS inventory",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Collect remote hardware and OS inventory",
+          "evidence": "Participant submission for 'WMI and CIM': Collect remote hardware and OS inventory. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Collect remote hardware and OS inventory' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Collect remote hardware and OS inventory. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WMI/CIM; classes; Get-CimInstance; sessions; remote queries; hardware/OS inventory). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "PowerShell Remoting",
+      "subtopics": [
+        "WinRM",
+        "Enable-PSRemoting",
+        "Invoke-Command",
+        "Enter/New-PSSession",
+        "credentials",
+        "remote execution",
+        "fan-out"
+      ],
+      "tools": [
+        "PowerShell Remoting",
+        "WinRM"
+      ],
+      "lab_task": "Administer multiple remote systems",
+      "deliverable": "Participant submission for 'PowerShell Remoting': Administer multiple remote systems. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Administer multiple remote systems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WinRM; Enable-PSRemoting; Invoke-Command; Enter/New-PSSession; credentials; remote execution; fan-out). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Administer multiple remote systems.",
+        "Explain how the lab applies PowerShell Remoting and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'PowerShell Remoting' on a prepared training sample through this task: Administer multiple remote systems.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Administer multiple remote systems",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (WinRM; Enable-PSRemoting; Invoke-Command; Enter/New-PSSession; credentials; remote execution; fan-out) and demonstrate the starting sample for: Administer multiple remote systems",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Administer multiple remote systems",
+          "evidence": "Participant submission for 'PowerShell Remoting': Administer multiple remote systems. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Administer multiple remote systems' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Administer multiple remote systems. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (WinRM; Enable-PSRemoting; Invoke-Command; Enter/New-PSSession; credentials; remote execution; fan-out). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Error Handling and Debugging",
+      "subtopics": [
+        "error records",
+        "terminating/non-terminating",
+        "ErrorAction",
+        "try/catch/finally/throw",
+        "breakpoints",
+        "verbose/debug",
+        "transcripts"
+      ],
+      "tools": [
+        "PowerShell",
+        "VS Code Debugger"
+      ],
+      "lab_task": "Add robust errors and diagnostics",
+      "deliverable": "Participant submission for 'Error Handling and Debugging': Add robust errors and diagnostics. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Add robust errors and diagnostics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (error records; terminating/non-terminating; ErrorAction; try/catch/finally/throw; breakpoints; verbose/debug; transcripts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Add robust errors and diagnostics.",
+        "Explain how the lab applies Error Handling and Debugging and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Error Handling and Debugging' on a prepared training sample through this task: Add robust errors and diagnostics.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Add robust errors and diagnostics",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (error records; terminating/non-terminating; ErrorAction; try/catch/finally/throw; breakpoints; verbose/debug; transcripts) and demonstrate the starting sample for: Add robust errors and diagnostics",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Add robust errors and diagnostics",
+          "evidence": "Participant submission for 'Error Handling and Debugging': Add robust errors and diagnostics. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Add robust errors and diagnostics' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Add robust errors and diagnostics. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (error records; terminating/non-terminating; ErrorAction; try/catch/finally/throw; breakpoints; verbose/debug; transcripts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "Modules and PowerShell Gallery",
+      "subtopics": [
+        "modules/manifests",
+        "Import/Get-Module",
+        "exported commands",
+        "Gallery",
+        "Find/Install/Update-Module",
+        "versioning"
+      ],
+      "tools": [
+        "PowerShell Gallery"
+      ],
+      "lab_task": "Create and package a module",
+      "deliverable": "Participant submission for 'Modules and PowerShell Gallery': Create and package a module. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create and package a module. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (modules/manifests; Import/Get-Module; exported commands; Gallery; Find/Install/Update-Module; versioning). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create and package a module.",
+        "Explain how the lab applies Modules and PowerShell Gallery and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Modules and PowerShell Gallery' on a prepared training sample through this task: Create and package a module.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create and package a module",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (modules/manifests; Import/Get-Module; exported commands; Gallery; Find/Install/Update-Module; versioning) and demonstrate the starting sample for: Create and package a module",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create and package a module",
+          "evidence": "Participant submission for 'Modules and PowerShell Gallery': Create and package a module. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create and package a module' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create and package a module. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (modules/manifests; Import/Get-Module; exported commands; Gallery; Find/Install/Update-Module; versioning). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 16,
+      "topic": "Security and Credentials",
+      "subtopics": [
+        "execution policy",
+        "signing",
+        "Get-Credential/SecureString",
+        "SecretManagement",
+        "least privilege",
+        "JEA",
+        "auditing"
+      ],
+      "tools": [
+        "PowerShell SecretManagement"
+      ],
+      "lab_task": "Secure automation credentials",
+      "deliverable": "Participant submission for 'Security and Credentials': Secure automation credentials. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Secure automation credentials. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (execution policy; signing; Get-Credential/SecureString; SecretManagement; least privilege; JEA; auditing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Secure automation credentials.",
+        "Explain how the lab applies Security and Credentials and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Security and Credentials' on a prepared training sample through this task: Secure automation credentials.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Secure automation credentials",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (execution policy; signing; Get-Credential/SecureString; SecretManagement; least privilege; JEA; auditing) and demonstrate the starting sample for: Secure automation credentials",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Secure automation credentials",
+          "evidence": "Participant submission for 'Security and Credentials': Secure automation credentials. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Secure automation credentials' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Secure automation credentials. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (execution policy; signing; Get-Credential/SecureString; SecretManagement; least privilege; JEA; auditing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 17,
+      "topic": "Active Directory Automation",
+      "subtopics": [
+        "AD module",
+        "users/groups/OUs",
+        "Get/New/Set-ADUser",
+        "disable users",
+        "membership",
+        "bulk admin/reporting"
+      ],
+      "tools": [
+        "ActiveDirectory PowerShell Module"
+      ],
+      "lab_task": "Automate bulk user and group work",
+      "deliverable": "Participant submission for 'Active Directory Automation': Automate bulk user and group work. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Automate bulk user and group work. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (AD module; users/groups/OUs; Get/New/Set-ADUser; disable users; membership; bulk admin/reporting). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Automate bulk user and group work.",
+        "Explain how the lab applies Active Directory Automation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Active Directory Automation' on a prepared training sample through this task: Automate bulk user and group work.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Automate bulk user and group work",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (AD module; users/groups/OUs; Get/New/Set-ADUser; disable users; membership; bulk admin/reporting) and demonstrate the starting sample for: Automate bulk user and group work",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Automate bulk user and group work",
+          "evidence": "Participant submission for 'Active Directory Automation': Automate bulk user and group work. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Automate bulk user and group work' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Automate bulk user and group work. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (AD module; users/groups/OUs; Get/New/Set-ADUser; disable users; membership; bulk admin/reporting). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 18,
+      "topic": "Azure PowerShell",
+      "subtopics": [
+        "Az module",
+        "Connect-AzAccount",
+        "subscriptions/resource groups",
+        "VMs/storage/networks",
+        "resource provisioning/querying"
+      ],
+      "tools": [
+        "Azure PowerShell",
+        "Az Module"
+      ],
+      "lab_task": "Provision and query Azure resources",
+      "deliverable": "Participant submission for 'Azure PowerShell': Provision and query Azure resources. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Provision and query Azure resources. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Az module; Connect-AzAccount; subscriptions/resource groups; VMs/storage/networks; resource provisioning/querying). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Provision and query Azure resources.",
+        "Explain how the lab applies Azure PowerShell and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Azure PowerShell' on a prepared training sample through this task: Provision and query Azure resources.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Provision and query Azure resources",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Az module; Connect-AzAccount; subscriptions/resource groups; VMs/storage/networks; resource provisioning/querying) and demonstrate the starting sample for: Provision and query Azure resources",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Provision and query Azure resources",
+          "evidence": "Participant submission for 'Azure PowerShell': Provision and query Azure resources. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Provision and query Azure resources' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Provision and query Azure resources. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Az module; Connect-AzAccount; subscriptions/resource groups; VMs/storage/networks; resource provisioning/querying). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 19,
+      "topic": "Microsoft 365 Automation",
+      "subtopics": [
+        "Microsoft Graph",
+        "users/groups/licenses",
+        "Teams/Exchange awareness",
+        "auth/permissions",
+        "bulk admin/reports"
+      ],
+      "tools": [
+        "Microsoft Graph PowerShell"
+      ],
+      "lab_task": "Generate M365 user and license report",
+      "deliverable": "Participant submission for 'Microsoft 365 Automation': Generate M365 user and license report. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Generate M365 user and license report. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Microsoft Graph; users/groups/licenses; Teams/Exchange awareness; auth/permissions; bulk admin/reports). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Generate M365 user and license report.",
+        "Explain how the lab applies Microsoft 365 Automation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Microsoft 365 Automation' on a prepared training sample through this task: Generate M365 user and license report.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Generate M365 user and license report",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Microsoft Graph; users/groups/licenses; Teams/Exchange awareness; auth/permissions; bulk admin/reports) and demonstrate the starting sample for: Generate M365 user and license report",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Generate M365 user and license report",
+          "evidence": "Participant submission for 'Microsoft 365 Automation': Generate M365 user and license report. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Generate M365 user and license report' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Generate M365 user and license report. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Microsoft Graph; users/groups/licenses; Teams/Exchange awareness; auth/permissions; bulk admin/reports). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 20,
+      "topic": "REST APIs and Web Requests",
+      "subtopics": [
+        "Invoke-RestMethod/WebRequest",
+        "HTTP",
+        "headers/tokens",
+        "JSON bodies/responses",
+        "pagination",
+        "errors",
+        "API automation"
+      ],
+      "tools": [
+        "PowerShell",
+        "REST APIs"
+      ],
+      "lab_task": "Integrate PowerShell with REST APIs",
+      "deliverable": "Participant submission for 'REST APIs and Web Requests': Integrate PowerShell with REST APIs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Integrate PowerShell with REST APIs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Invoke-RestMethod/WebRequest; HTTP; headers/tokens; JSON bodies/responses; pagination; errors; API automation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Integrate PowerShell with REST APIs.",
+        "Explain how the lab applies REST APIs and Web Requests and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'REST APIs and Web Requests' on a prepared training sample through this task: Integrate PowerShell with REST APIs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Integrate PowerShell with REST APIs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Invoke-RestMethod/WebRequest; HTTP; headers/tokens; JSON bodies/responses; pagination; errors; API automation) and demonstrate the starting sample for: Integrate PowerShell with REST APIs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Integrate PowerShell with REST APIs",
+          "evidence": "Participant submission for 'REST APIs and Web Requests': Integrate PowerShell with REST APIs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Integrate PowerShell with REST APIs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Integrate PowerShell with REST APIs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Invoke-RestMethod/WebRequest; HTTP; headers/tokens; JSON bodies/responses; pagination; errors; API automation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 21,
+      "topic": "Jobs, Parallelism and Background Processing",
+      "subtopics": [
+        "Start/Get/Receive/Remove-Job",
+        "thread jobs",
+        "ForEach-Object Parallel",
+        "runspaces awareness",
+        "throttling/errors"
+      ],
+      "tools": [
+        "PowerShell 7"
+      ],
+      "lab_task": "Parallelize work across targets",
+      "deliverable": "Participant submission for 'Jobs, Parallelism and Background Processing': Parallelize work across targets. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Parallelize work across targets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Start/Get/Receive/Remove-Job; thread jobs; ForEach-Object Parallel; runspaces awareness; throttling/errors). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Parallelize work across targets.",
+        "Explain how the lab applies Jobs, Parallelism and Background Processing and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Jobs, Parallelism and Background Processing' on a prepared training sample through this task: Parallelize work across targets.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Parallelize work across targets",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Start/Get/Receive/Remove-Job; thread jobs; ForEach-Object Parallel; runspaces awareness; throttling/errors) and demonstrate the starting sample for: Parallelize work across targets",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Parallelize work across targets",
+          "evidence": "Participant submission for 'Jobs, Parallelism and Background Processing': Parallelize work across targets. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Parallelize work across targets' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Parallelize work across targets. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Start/Get/Receive/Remove-Job; thread jobs; ForEach-Object Parallel; runspaces awareness; throttling/errors). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 22,
+      "topic": "Scheduled Tasks and Automation",
+      "subtopics": [
+        "Task Scheduler",
+        "triggers/actions",
+        "Register-ScheduledTask",
+        "service accounts",
+        "logging/failure",
+        "recurring jobs"
+      ],
+      "tools": [
+        "PowerShell",
+        "Task Scheduler"
+      ],
+      "lab_task": "Schedule maintenance and reporting",
+      "deliverable": "Participant submission for 'Scheduled Tasks and Automation': Schedule maintenance and reporting. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Schedule maintenance and reporting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Task Scheduler; triggers/actions; Register-ScheduledTask; service accounts; logging/failure; recurring jobs). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Schedule maintenance and reporting.",
+        "Explain how the lab applies Scheduled Tasks and Automation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Scheduled Tasks and Automation' on a prepared training sample through this task: Schedule maintenance and reporting.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Schedule maintenance and reporting",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Task Scheduler; triggers/actions; Register-ScheduledTask; service accounts; logging/failure; recurring jobs) and demonstrate the starting sample for: Schedule maintenance and reporting",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Schedule maintenance and reporting",
+          "evidence": "Participant submission for 'Scheduled Tasks and Automation': Schedule maintenance and reporting. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Schedule maintenance and reporting' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Schedule maintenance and reporting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Task Scheduler; triggers/actions; Register-ScheduledTask; service accounts; logging/failure; recurring jobs). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 23,
+      "topic": "Testing with Pester",
+      "subtopics": [
+        "Pester",
+        "Describe/Context/It/Should",
+        "mocks",
+        "setup",
+        "unit/integration testing",
+        "coverage",
+        "module tests"
+      ],
+      "tools": [
+        "Pester"
+      ],
+      "lab_task": "Test a PowerShell module",
+      "deliverable": "Participant submission for 'Testing with Pester': Test a PowerShell module. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Test a PowerShell module. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Pester; Describe/Context/It/Should; mocks; setup; unit/integration testing; coverage; module tests). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Test a PowerShell module.",
+        "Explain how the lab applies Testing with Pester and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Testing with Pester' on a prepared training sample through this task: Test a PowerShell module.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Test a PowerShell module",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Pester; Describe/Context/It/Should; mocks; setup; unit/integration testing; coverage; module tests) and demonstrate the starting sample for: Test a PowerShell module",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Test a PowerShell module",
+          "evidence": "Participant submission for 'Testing with Pester': Test a PowerShell module. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Test a PowerShell module' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Test a PowerShell module. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Pester; Describe/Context/It/Should; mocks; setup; unit/integration testing; coverage; module tests). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 24,
+      "topic": "Logging and Reporting",
+      "subtopics": [
+        "verbose/debug/warning/error",
+        "transcripts",
+        "structured logging",
+        "CSV/HTML",
+        "ConvertTo-Html",
+        "audit/execution tracking"
+      ],
+      "tools": [
+        "PowerShell"
+      ],
+      "lab_task": "Build automated HTML health reports",
+      "deliverable": "Participant submission for 'Logging and Reporting': Build automated HTML health reports. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build automated HTML health reports. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (verbose/debug/warning/error; transcripts; structured logging; CSV/HTML; ConvertTo-Html; audit/execution tracking). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build automated HTML health reports.",
+        "Explain how the lab applies Logging and Reporting and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Logging and Reporting' on a prepared training sample through this task: Build automated HTML health reports.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build automated HTML health reports",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (verbose/debug/warning/error; transcripts; structured logging; CSV/HTML; ConvertTo-Html; audit/execution tracking) and demonstrate the starting sample for: Build automated HTML health reports",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build automated HTML health reports",
+          "evidence": "Participant submission for 'Logging and Reporting': Build automated HTML health reports. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build automated HTML health reports' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build automated HTML health reports. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (verbose/debug/warning/error; transcripts; structured logging; CSV/HTML; ConvertTo-Html; audit/execution tracking). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 25,
+      "topic": "DevOps and CI/CD Integration",
+      "subtopics": [
+        "Git",
+        "Azure DevOps/GitHub Actions",
+        "pipeline scripts",
+        "variables/secrets",
+        "build/deploy/validation automation"
+      ],
+      "tools": [
+        "Git",
+        "GitHub Actions",
+        "Azure DevOps"
+      ],
+      "lab_task": "Use PowerShell in CI/CD",
+      "deliverable": "Participant submission for 'DevOps and CI/CD Integration': Use PowerShell in CI/CD. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Use PowerShell in CI/CD. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git; Azure DevOps/GitHub Actions; pipeline scripts; variables/secrets; build/deploy/validation automation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Use PowerShell in CI/CD.",
+        "Explain how the lab applies DevOps and CI/CD Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'DevOps and CI/CD Integration' on a prepared training sample through this task: Use PowerShell in CI/CD.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Use PowerShell in CI/CD",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Git; Azure DevOps/GitHub Actions; pipeline scripts; variables/secrets; build/deploy/validation automation) and demonstrate the starting sample for: Use PowerShell in CI/CD",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Use PowerShell in CI/CD",
+          "evidence": "Participant submission for 'DevOps and CI/CD Integration': Use PowerShell in CI/CD. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Use PowerShell in CI/CD' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Use PowerShell in CI/CD. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git; Azure DevOps/GitHub Actions; pipeline scripts; variables/secrets; build/deploy/validation automation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 26,
+      "topic": "Desired State Configuration",
+      "subtopics": [
+        "DSC",
+        "configurations/resources/nodes",
+        "MOF",
+        "idempotency",
+        "desired state/drift",
+        "infrastructure config"
+      ],
+      "tools": [
+        "PowerShell DSC"
+      ],
+      "lab_task": "Define desired system state",
+      "deliverable": "Participant submission for 'Desired State Configuration': Define desired system state. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Define desired system state. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DSC; configurations/resources/nodes; MOF; idempotency; desired state/drift; infrastructure config). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Define desired system state.",
+        "Explain how the lab applies Desired State Configuration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Desired State Configuration' on a prepared training sample through this task: Define desired system state.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Define desired system state",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (DSC; configurations/resources/nodes; MOF; idempotency; desired state/drift; infrastructure config) and demonstrate the starting sample for: Define desired system state",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Define desired system state",
+          "evidence": "Participant submission for 'Desired State Configuration': Define desired system state. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Define desired system state' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Define desired system state. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (DSC; configurations/resources/nodes; MOF; idempotency; desired state/drift; infrastructure config). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 27,
+      "topic": "Advanced Scripting",
+      "subtopics": [
+        "splatting",
+        "dynamic parameters",
+        "classes/enums/objects",
+        "formatting",
+        "argument completers",
+        "scopes/dot sourcing",
+        "architecture/performance"
+      ],
+      "tools": [
+        "PowerShell 7"
+      ],
+      "lab_task": "Build reusable administration framework",
+      "deliverable": "Participant submission for 'Advanced Scripting': Build reusable administration framework. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build reusable administration framework. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (splatting; dynamic parameters; classes/enums/objects; formatting; argument completers; scopes/dot sourcing; architecture/performance). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build reusable administration framework.",
+        "Explain how the lab applies Advanced Scripting and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Advanced Scripting' on a prepared training sample through this task: Build reusable administration framework.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build reusable administration framework",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (splatting; dynamic parameters; classes/enums/objects; formatting; argument completers; scopes/dot sourcing; architecture/performance) and demonstrate the starting sample for: Build reusable administration framework",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build reusable administration framework",
+          "evidence": "Participant submission for 'Advanced Scripting': Build reusable administration framework. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build reusable administration framework' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build reusable administration framework. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (splatting; dynamic parameters; classes/enums/objects; formatting; argument completers; scopes/dot sourcing; architecture/performance). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 28,
+      "topic": "PowerShell Automation Capstone",
+      "subtopics": [
+        "system/remote/cloud automation",
+        "APIs",
+        "security/errors/logging",
+        "Pester",
+        "reports/scheduling",
+        "CI-CD",
+        "documentation"
+      ],
+      "tools": [
+        "PowerShell",
+        "Pester",
+        "Azure PowerShell",
+        "Git",
+        "GitHub"
+      ],
+      "lab_task": "Deliver production infrastructure automation",
+      "deliverable": "Participant submission for 'PowerShell Automation Capstone': Deliver production infrastructure automation. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deliver production infrastructure automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (system/remote/cloud automation; APIs; security/errors/logging; Pester; reports/scheduling; CI-CD; documentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deliver production infrastructure automation.",
+        "Explain how the lab applies PowerShell Automation Capstone and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'PowerShell Automation Capstone' on a prepared training sample through this task: Deliver production infrastructure automation.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver production infrastructure automation",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (system/remote/cloud automation; APIs; security/errors/logging; Pester; reports/scheduling; CI-CD; documentation) and demonstrate the starting sample for: Deliver production infrastructure automation",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deliver production infrastructure automation",
+          "evidence": "Participant submission for 'PowerShell Automation Capstone': Deliver production infrastructure automation. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deliver production infrastructure automation' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deliver production infrastructure automation. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (system/remote/cloud automation; APIs; security/errors/logging; Pester; reports/scheduling; CI-CD; documentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

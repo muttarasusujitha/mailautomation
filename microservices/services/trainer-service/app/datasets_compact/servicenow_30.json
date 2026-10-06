@@ -5,24 +5,1038 @@
   "program_title": "ServiceNow Administration and Development Mastery",
   "level": "Intermediate",
   "mode": "Online",
-  "aliases": ["ServiceNow", "Service Now", "SNOW", "ServiceNow Admin", "ServiceNow Developer", "ServiceNow ITSM", "ServiceNow ITOM", "ServiceNow ITBM", "ServiceNow CSM", "ServiceNow HRSD", "ServiceNow GRC", "ServiceNow CMDB", "Now Platform"],
-  "tools": ["ServiceNow Personal Developer Instance", "Flow Designer", "App Engine Studio", "Script Include", "REST API Explorer", "IntegrationHub", "Performance Analytics", "Jira"],
-  "certifications": ["ServiceNow Certified System Administrator (CSA)", "ServiceNow Certified Application Developer (CAD)", "ServiceNow Certified Implementation Specialist - ITSM", "ServiceNow Certified Implementation Specialist - Discovery"],
+  "aliases": [
+    "ServiceNow",
+    "Service Now",
+    "SNOW",
+    "ServiceNow Admin",
+    "ServiceNow Developer",
+    "ServiceNow ITSM",
+    "ServiceNow ITOM",
+    "ServiceNow ITBM",
+    "ServiceNow CSM",
+    "ServiceNow HRSD",
+    "ServiceNow GRC",
+    "ServiceNow CMDB",
+    "Now Platform"
+  ],
+  "tools": [
+    "ServiceNow Personal Developer Instance",
+    "Flow Designer",
+    "App Engine Studio",
+    "Script Include",
+    "REST API Explorer",
+    "IntegrationHub",
+    "Performance Analytics",
+    "Jira"
+  ],
+  "certifications": [
+    "ServiceNow Certified System Administrator (CSA)",
+    "ServiceNow Certified Application Developer (CAD)",
+    "ServiceNow Certified Implementation Specialist - ITSM",
+    "ServiceNow Certified Implementation Specialist - Discovery"
+  ],
   "days": [
-    {"day": 1, "topic": "ServiceNow Platform and ITSM Fundamentals", "subtopics": ["Now Platform", "instances", "applications", "tables", "records", "ITIL processes"], "tools": ["ServiceNow PDI"], "jira_focus": "Create an ITSM implementation epic and user stories", "lab_task": "Navigate a Personal Developer Instance and explore incident, problem, and change records"},
-    {"day": 2, "topic": "Users, Groups, Roles and Security", "subtopics": ["users", "groups", "roles", "ACLs", "impersonation", "security rules"], "tools": ["User Administration", "ACL Debugger"], "jira_focus": "Document role-based access acceptance criteria", "lab_task": "Create a support group, assign roles, and validate table-level access"},
-    {"day": 3, "topic": "Tables, Forms, Lists and Dictionary", "subtopics": ["table extension", "fields", "dictionary entries", "form design", "list configuration", "reference fields"], "tools": ["System Definition", "Form Designer"], "jira_focus": "Break a data-model requirement into configuration tasks", "lab_task": "Create a custom table and configure forms, lists, and reference fields"},
-    {"day": 4, "topic": "Incident, Problem and Change Management", "subtopics": ["incident lifecycle", "major incident", "problem analysis", "change types", "CAB", "change calendar"], "tools": ["ITSM Workspace", "Change Calendar"], "jira_focus": "Map ITIL workflow evidence to Jira stories", "lab_task": "Configure and run an incident-to-problem-to-change workflow"},
-    {"day": 5, "topic": "Service Catalog and Request Fulfillment", "subtopics": ["catalog items", "variables", "record producers", "approvals", "fulfillment tasks", "portal experience"], "tools": ["Service Catalog", "Service Portal"], "jira_focus": "Create sprint tasks for catalog-item acceptance testing", "lab_task": "Build a laptop-request catalog item with variables and approval flow"},
-    {"day": 6, "topic": "Workflow, Flow Designer and Notifications", "subtopics": ["workflow editor", "Flow Designer", "triggers", "actions", "subflows", "notifications"], "tools": ["Flow Designer", "Notification Engine"], "jira_focus": "Review automation acceptance criteria and exception paths", "lab_task": "Create a request approval flow with fulfillment tasks and email notifications"},
-    {"day": 7, "topic": "Server-Side Scripting and Business Rules", "subtopics": ["JavaScript basics", "business rules", "Script Includes", "GlideRecord", "data policies", "debugging"], "tools": ["Scripts - Background", "Business Rules", "Script Debugger"], "jira_focus": "Perform code-review and test-evidence updates", "lab_task": "Write a Business Rule and Script Include to validate and update request data"},
-    {"day": 8, "topic": "Client-Side Scripting and UI Policies", "subtopics": ["Client Scripts", "UI Policies", "GlideForm", "catalog client scripts", "UI actions", "user experience"], "tools": ["Client Scripts", "UI Policies"], "jira_focus": "Capture UI test cases and defects", "lab_task": "Build dynamic form behavior using client scripts and UI policies"},
-    {"day": 9, "topic": "CMDB, Discovery and Service Mapping", "subtopics": ["configuration items", "CMDB classes", "relationships", "discovery", "identification rules", "service mapping"], "tools": ["CMDB", "Discovery", "Service Mapping"], "jira_focus": "Plan CMDB data-quality remediation tasks", "lab_task": "Create CI relationships and validate a discovery data-import scenario"},
-    {"day": 10, "topic": "Integrations and APIs", "subtopics": ["REST APIs", "SOAP", "Import Sets", "Transform Maps", "MID Server", "IntegrationHub"], "tools": ["REST API Explorer", "Postman", "IntegrationHub"], "jira_focus": "Define integration stories, dependencies, and error handling", "lab_task": "Build a REST integration and transform external data into a ServiceNow table"},
-    {"day": 11, "topic": "Reporting, Dashboards and Performance Analytics", "subtopics": ["reports", "dashboards", "indicators", "breakdowns", "SLAs", "KPI design"], "tools": ["Reports", "Performance Analytics"], "jira_focus": "Create operational reporting backlog and KPI review tasks", "lab_task": "Build an incident SLA dashboard and performance indicator"},
-    {"day": 12, "topic": "Application Development and App Engine", "subtopics": ["scoped applications", "App Engine Studio", "data model", "security", "source control", "application lifecycle"], "tools": ["App Engine Studio", "Source Control"], "jira_focus": "Plan a custom-app sprint and release milestones", "lab_task": "Create a scoped application with tables, roles, and a request workflow"},
-    {"day": 13, "topic": "ITOM, CSM, HRSD and GRC Overview", "subtopics": ["event management", "operational intelligence", "customer service", "HR case management", "risk", "compliance"], "tools": ["ITOM", "CSM", "HRSD", "GRC"], "jira_focus": "Prioritize cross-functional implementation stories", "lab_task": "Configure a sample event-to-incident or employee-case workflow"},
-    {"day": 14, "topic": "Release Management, Update Sets and Governance", "subtopics": ["update sets", "application repository", "testing", "release process", "instance strategy", "governance"], "tools": ["Update Sets", "ATF", "Instance Scan"], "jira_focus": "Run a release-readiness review and log risks", "lab_task": "Create, test, and promote an update set through a controlled release process"},
-    {"day": 15, "topic": "ServiceNow Capstone and Certification Preparation", "subtopics": ["requirements", "configuration", "automation", "integration", "dashboard", "demo"], "tools": ["ServiceNow", "Flow Designer", "Jira"], "jira_focus": "Conduct sprint review, retrospective, and final project demo", "lab_task": "Deliver an employee or IT service-management application with workflow, integration, and reporting"}
-  ]
+    {
+      "day": 1,
+      "topic": "ServiceNow Platform and ITSM Fundamentals",
+      "subtopics": [
+        "Now Platform",
+        "instances",
+        "applications",
+        "tables",
+        "records",
+        "ITIL processes"
+      ],
+      "tools": [
+        "ServiceNow PDI"
+      ],
+      "jira_focus": "Create an ITSM implementation epic and user stories",
+      "lab_task": "Navigate a Personal Developer Instance and explore incident, problem, and change records",
+      "deliverable": "Participant submission for 'ServiceNow Platform and ITSM Fundamentals': Navigate a Personal Developer Instance and explore incident, problem, and change records. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Navigate a Personal Developer Instance and explore incident, problem, and change records. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Now Platform; instances; applications; tables; records; ITIL processes). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Navigate a Personal Developer Instance and explore incident, problem, and change records.",
+        "Explain how the lab applies ServiceNow Platform and ITSM Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'ServiceNow Platform and ITSM Fundamentals' on a prepared training sample through this task: Navigate a Personal Developer Instance and explore incident, problem, and change records.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Navigate a Personal Developer Instance and explore incident, problem, and change records",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Now Platform; instances; applications; tables; records; ITIL processes) and demonstrate the starting sample for: Navigate a Personal Developer Instance and explore incident, problem, and change records",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Navigate a Personal Developer Instance and explore incident, problem, and change records",
+          "evidence": "Participant submission for 'ServiceNow Platform and ITSM Fundamentals': Navigate a Personal Developer Instance and explore incident, problem, and change records. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Navigate a Personal Developer Instance and explore incident, problem, and change records' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Navigate a Personal Developer Instance and explore incident, problem, and change records. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Now Platform; instances; applications; tables; records; ITIL processes). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Users, Groups, Roles and Security",
+      "subtopics": [
+        "users",
+        "groups",
+        "roles",
+        "ACLs",
+        "impersonation",
+        "security rules"
+      ],
+      "tools": [
+        "User Administration",
+        "ACL Debugger"
+      ],
+      "jira_focus": "Document role-based access acceptance criteria",
+      "lab_task": "Create a support group, assign roles, and validate table-level access",
+      "deliverable": "Participant submission for 'Users, Groups, Roles and Security': Create a support group, assign roles, and validate table-level access. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a support group, assign roles, and validate table-level access. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (users; groups; roles; ACLs; impersonation; security rules). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a support group, assign roles, and validate table-level access.",
+        "Explain how the lab applies Users, Groups, Roles and Security and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Users, Groups, Roles and Security' on a prepared training sample through this task: Create a support group, assign roles, and validate table-level access.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a support group, assign roles, and validate table-level access",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (users; groups; roles; ACLs; impersonation; security rules) and demonstrate the starting sample for: Create a support group, assign roles, and validate table-level access",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a support group, assign roles, and validate table-level access",
+          "evidence": "Participant submission for 'Users, Groups, Roles and Security': Create a support group, assign roles, and validate table-level access. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a support group, assign roles, and validate table-level access' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a support group, assign roles, and validate table-level access. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (users; groups; roles; ACLs; impersonation; security rules). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Tables, Forms, Lists and Dictionary",
+      "subtopics": [
+        "table extension",
+        "fields",
+        "dictionary entries",
+        "form design",
+        "list configuration",
+        "reference fields"
+      ],
+      "tools": [
+        "System Definition",
+        "Form Designer"
+      ],
+      "jira_focus": "Break a data-model requirement into configuration tasks",
+      "lab_task": "Create a custom table and configure forms, lists, and reference fields",
+      "deliverable": "Participant submission for 'Tables, Forms, Lists and Dictionary': Create a custom table and configure forms, lists, and reference fields. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a custom table and configure forms, lists, and reference fields. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (table extension; fields; dictionary entries; form design; list configuration; reference fields). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a custom table and configure forms, lists, and reference fields.",
+        "Explain how the lab applies Tables, Forms, Lists and Dictionary and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Tables, Forms, Lists and Dictionary' on a prepared training sample through this task: Create a custom table and configure forms, lists, and reference fields.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a custom table and configure forms, lists, and reference fields",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (table extension; fields; dictionary entries; form design; list configuration; reference fields) and demonstrate the starting sample for: Create a custom table and configure forms, lists, and reference fields",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a custom table and configure forms, lists, and reference fields",
+          "evidence": "Participant submission for 'Tables, Forms, Lists and Dictionary': Create a custom table and configure forms, lists, and reference fields. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a custom table and configure forms, lists, and reference fields' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a custom table and configure forms, lists, and reference fields. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (table extension; fields; dictionary entries; form design; list configuration; reference fields). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Incident, Problem and Change Management",
+      "subtopics": [
+        "incident lifecycle",
+        "major incident",
+        "problem analysis",
+        "change types",
+        "CAB",
+        "change calendar"
+      ],
+      "tools": [
+        "ITSM Workspace",
+        "Change Calendar"
+      ],
+      "jira_focus": "Map ITIL workflow evidence to Jira stories",
+      "lab_task": "Configure and run an incident-to-problem-to-change workflow",
+      "deliverable": "Participant submission for 'Incident, Problem and Change Management': Configure and run an incident-to-problem-to-change workflow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Configure and run an incident-to-problem-to-change workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (incident lifecycle; major incident; problem analysis; change types; CAB; change calendar). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Configure and run an incident-to-problem-to-change workflow.",
+        "Explain how the lab applies Incident, Problem and Change Management and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Incident, Problem and Change Management' on a prepared training sample through this task: Configure and run an incident-to-problem-to-change workflow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Configure and run an incident-to-problem-to-change workflow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (incident lifecycle; major incident; problem analysis; change types; CAB; change calendar) and demonstrate the starting sample for: Configure and run an incident-to-problem-to-change workflow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Configure and run an incident-to-problem-to-change workflow",
+          "evidence": "Participant submission for 'Incident, Problem and Change Management': Configure and run an incident-to-problem-to-change workflow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Configure and run an incident-to-problem-to-change workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Configure and run an incident-to-problem-to-change workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (incident lifecycle; major incident; problem analysis; change types; CAB; change calendar). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Service Catalog and Request Fulfillment",
+      "subtopics": [
+        "catalog items",
+        "variables",
+        "record producers",
+        "approvals",
+        "fulfillment tasks",
+        "portal experience"
+      ],
+      "tools": [
+        "Service Catalog",
+        "Service Portal"
+      ],
+      "jira_focus": "Create sprint tasks for catalog-item acceptance testing",
+      "lab_task": "Build a laptop-request catalog item with variables and approval flow",
+      "deliverable": "Participant submission for 'Service Catalog and Request Fulfillment': Build a laptop-request catalog item with variables and approval flow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a laptop-request catalog item with variables and approval flow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (catalog items; variables; record producers; approvals; fulfillment tasks; portal experience). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a laptop-request catalog item with variables and approval flow.",
+        "Explain how the lab applies Service Catalog and Request Fulfillment and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Service Catalog and Request Fulfillment' on a prepared training sample through this task: Build a laptop-request catalog item with variables and approval flow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a laptop-request catalog item with variables and approval flow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (catalog items; variables; record producers; approvals; fulfillment tasks; portal experience) and demonstrate the starting sample for: Build a laptop-request catalog item with variables and approval flow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a laptop-request catalog item with variables and approval flow",
+          "evidence": "Participant submission for 'Service Catalog and Request Fulfillment': Build a laptop-request catalog item with variables and approval flow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a laptop-request catalog item with variables and approval flow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a laptop-request catalog item with variables and approval flow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (catalog items; variables; record producers; approvals; fulfillment tasks; portal experience). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Workflow, Flow Designer and Notifications",
+      "subtopics": [
+        "workflow editor",
+        "Flow Designer",
+        "triggers",
+        "actions",
+        "subflows",
+        "notifications"
+      ],
+      "tools": [
+        "Flow Designer",
+        "Notification Engine"
+      ],
+      "jira_focus": "Review automation acceptance criteria and exception paths",
+      "lab_task": "Create a request approval flow with fulfillment tasks and email notifications",
+      "deliverable": "Participant submission for 'Workflow, Flow Designer and Notifications': Create a request approval flow with fulfillment tasks and email notifications. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a request approval flow with fulfillment tasks and email notifications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (workflow editor; Flow Designer; triggers; actions; subflows; notifications). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a request approval flow with fulfillment tasks and email notifications.",
+        "Explain how the lab applies Workflow, Flow Designer and Notifications and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Workflow, Flow Designer and Notifications' on a prepared training sample through this task: Create a request approval flow with fulfillment tasks and email notifications.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a request approval flow with fulfillment tasks and email notifications",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (workflow editor; Flow Designer; triggers; actions; subflows; notifications) and demonstrate the starting sample for: Create a request approval flow with fulfillment tasks and email notifications",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a request approval flow with fulfillment tasks and email notifications",
+          "evidence": "Participant submission for 'Workflow, Flow Designer and Notifications': Create a request approval flow with fulfillment tasks and email notifications. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a request approval flow with fulfillment tasks and email notifications' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a request approval flow with fulfillment tasks and email notifications. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (workflow editor; Flow Designer; triggers; actions; subflows; notifications). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Server-Side Scripting and Business Rules",
+      "subtopics": [
+        "JavaScript basics",
+        "business rules",
+        "Script Includes",
+        "GlideRecord",
+        "data policies",
+        "debugging"
+      ],
+      "tools": [
+        "Scripts - Background",
+        "Business Rules",
+        "Script Debugger"
+      ],
+      "jira_focus": "Perform code-review and test-evidence updates",
+      "lab_task": "Write a Business Rule and Script Include to validate and update request data",
+      "deliverable": "Participant submission for 'Server-Side Scripting and Business Rules': Write a Business Rule and Script Include to validate and update request data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Write a Business Rule and Script Include to validate and update request data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JavaScript basics; business rules; Script Includes; GlideRecord; data policies; debugging). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Write a Business Rule and Script Include to validate and update request data.",
+        "Explain how the lab applies Server-Side Scripting and Business Rules and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Server-Side Scripting and Business Rules' on a prepared training sample through this task: Write a Business Rule and Script Include to validate and update request data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Write a Business Rule and Script Include to validate and update request data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (JavaScript basics; business rules; Script Includes; GlideRecord; data policies; debugging) and demonstrate the starting sample for: Write a Business Rule and Script Include to validate and update request data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Write a Business Rule and Script Include to validate and update request data",
+          "evidence": "Participant submission for 'Server-Side Scripting and Business Rules': Write a Business Rule and Script Include to validate and update request data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Write a Business Rule and Script Include to validate and update request data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Write a Business Rule and Script Include to validate and update request data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JavaScript basics; business rules; Script Includes; GlideRecord; data policies; debugging). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Client-Side Scripting and UI Policies",
+      "subtopics": [
+        "Client Scripts",
+        "UI Policies",
+        "GlideForm",
+        "catalog client scripts",
+        "UI actions",
+        "user experience"
+      ],
+      "tools": [
+        "Client Scripts",
+        "UI Policies"
+      ],
+      "jira_focus": "Capture UI test cases and defects",
+      "lab_task": "Build dynamic form behavior using client scripts and UI policies",
+      "deliverable": "Participant submission for 'Client-Side Scripting and UI Policies': Build dynamic form behavior using client scripts and UI policies. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build dynamic form behavior using client scripts and UI policies. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Client Scripts; UI Policies; GlideForm; catalog client scripts; UI actions; user experience). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build dynamic form behavior using client scripts and UI policies.",
+        "Explain how the lab applies Client-Side Scripting and UI Policies and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Client-Side Scripting and UI Policies' on a prepared training sample through this task: Build dynamic form behavior using client scripts and UI policies.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build dynamic form behavior using client scripts and UI policies",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Client Scripts; UI Policies; GlideForm; catalog client scripts; UI actions; user experience) and demonstrate the starting sample for: Build dynamic form behavior using client scripts and UI policies",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build dynamic form behavior using client scripts and UI policies",
+          "evidence": "Participant submission for 'Client-Side Scripting and UI Policies': Build dynamic form behavior using client scripts and UI policies. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build dynamic form behavior using client scripts and UI policies' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build dynamic form behavior using client scripts and UI policies. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Client Scripts; UI Policies; GlideForm; catalog client scripts; UI actions; user experience). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "CMDB, Discovery and Service Mapping",
+      "subtopics": [
+        "configuration items",
+        "CMDB classes",
+        "relationships",
+        "discovery",
+        "identification rules",
+        "service mapping"
+      ],
+      "tools": [
+        "CMDB",
+        "Discovery",
+        "Service Mapping"
+      ],
+      "jira_focus": "Plan CMDB data-quality remediation tasks",
+      "lab_task": "Create CI relationships and validate a discovery data-import scenario",
+      "deliverable": "Participant submission for 'CMDB, Discovery and Service Mapping': Create CI relationships and validate a discovery data-import scenario. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create CI relationships and validate a discovery data-import scenario. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (configuration items; CMDB classes; relationships; discovery; identification rules; service mapping). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create CI relationships and validate a discovery data-import scenario.",
+        "Explain how the lab applies CMDB, Discovery and Service Mapping and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CMDB, Discovery and Service Mapping' on a prepared training sample through this task: Create CI relationships and validate a discovery data-import scenario.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create CI relationships and validate a discovery data-import scenario",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (configuration items; CMDB classes; relationships; discovery; identification rules; service mapping) and demonstrate the starting sample for: Create CI relationships and validate a discovery data-import scenario",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create CI relationships and validate a discovery data-import scenario",
+          "evidence": "Participant submission for 'CMDB, Discovery and Service Mapping': Create CI relationships and validate a discovery data-import scenario. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create CI relationships and validate a discovery data-import scenario' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create CI relationships and validate a discovery data-import scenario. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (configuration items; CMDB classes; relationships; discovery; identification rules; service mapping). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Integrations and APIs",
+      "subtopics": [
+        "REST APIs",
+        "SOAP",
+        "Import Sets",
+        "Transform Maps",
+        "MID Server",
+        "IntegrationHub"
+      ],
+      "tools": [
+        "REST API Explorer",
+        "Postman",
+        "IntegrationHub"
+      ],
+      "jira_focus": "Define integration stories, dependencies, and error handling",
+      "lab_task": "Build a REST integration and transform external data into a ServiceNow table",
+      "deliverable": "Participant submission for 'Integrations and APIs': Build a REST integration and transform external data into a ServiceNow table. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a REST integration and transform external data into a ServiceNow table. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (REST APIs; SOAP; Import Sets; Transform Maps; MID Server; IntegrationHub). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a REST integration and transform external data into a ServiceNow table.",
+        "Explain how the lab applies Integrations and APIs and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Integrations and APIs' on a prepared training sample through this task: Build a REST integration and transform external data into a ServiceNow table.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a REST integration and transform external data into a ServiceNow table",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (REST APIs; SOAP; Import Sets; Transform Maps; MID Server; IntegrationHub) and demonstrate the starting sample for: Build a REST integration and transform external data into a ServiceNow table",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a REST integration and transform external data into a ServiceNow table",
+          "evidence": "Participant submission for 'Integrations and APIs': Build a REST integration and transform external data into a ServiceNow table. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a REST integration and transform external data into a ServiceNow table' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a REST integration and transform external data into a ServiceNow table. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (REST APIs; SOAP; Import Sets; Transform Maps; MID Server; IntegrationHub). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Reporting, Dashboards and Performance Analytics",
+      "subtopics": [
+        "reports",
+        "dashboards",
+        "indicators",
+        "breakdowns",
+        "SLAs",
+        "KPI design"
+      ],
+      "tools": [
+        "Reports",
+        "Performance Analytics"
+      ],
+      "jira_focus": "Create operational reporting backlog and KPI review tasks",
+      "lab_task": "Build an incident SLA dashboard and performance indicator",
+      "deliverable": "Participant submission for 'Reporting, Dashboards and Performance Analytics': Build an incident SLA dashboard and performance indicator. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an incident SLA dashboard and performance indicator. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (reports; dashboards; indicators; breakdowns; SLAs; KPI design). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build an incident SLA dashboard and performance indicator.",
+        "Explain how the lab applies Reporting, Dashboards and Performance Analytics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Reporting, Dashboards and Performance Analytics' on a prepared training sample through this task: Build an incident SLA dashboard and performance indicator.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an incident SLA dashboard and performance indicator",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (reports; dashboards; indicators; breakdowns; SLAs; KPI design) and demonstrate the starting sample for: Build an incident SLA dashboard and performance indicator",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an incident SLA dashboard and performance indicator",
+          "evidence": "Participant submission for 'Reporting, Dashboards and Performance Analytics': Build an incident SLA dashboard and performance indicator. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an incident SLA dashboard and performance indicator' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an incident SLA dashboard and performance indicator. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (reports; dashboards; indicators; breakdowns; SLAs; KPI design). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "Application Development and App Engine",
+      "subtopics": [
+        "scoped applications",
+        "App Engine Studio",
+        "data model",
+        "security",
+        "source control",
+        "application lifecycle"
+      ],
+      "tools": [
+        "App Engine Studio",
+        "Source Control"
+      ],
+      "jira_focus": "Plan a custom-app sprint and release milestones",
+      "lab_task": "Create a scoped application with tables, roles, and a request workflow",
+      "deliverable": "Participant submission for 'Application Development and App Engine': Create a scoped application with tables, roles, and a request workflow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a scoped application with tables, roles, and a request workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (scoped applications; App Engine Studio; data model; security; source control; application lifecycle). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a scoped application with tables, roles, and a request workflow.",
+        "Explain how the lab applies Application Development and App Engine and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Application Development and App Engine' on a prepared training sample through this task: Create a scoped application with tables, roles, and a request workflow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a scoped application with tables, roles, and a request workflow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (scoped applications; App Engine Studio; data model; security; source control; application lifecycle) and demonstrate the starting sample for: Create a scoped application with tables, roles, and a request workflow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a scoped application with tables, roles, and a request workflow",
+          "evidence": "Participant submission for 'Application Development and App Engine': Create a scoped application with tables, roles, and a request workflow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a scoped application with tables, roles, and a request workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a scoped application with tables, roles, and a request workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (scoped applications; App Engine Studio; data model; security; source control; application lifecycle). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "ITOM, CSM, HRSD and GRC Overview",
+      "subtopics": [
+        "event management",
+        "operational intelligence",
+        "customer service",
+        "HR case management",
+        "risk",
+        "compliance"
+      ],
+      "tools": [
+        "ITOM",
+        "CSM",
+        "HRSD",
+        "GRC"
+      ],
+      "jira_focus": "Prioritize cross-functional implementation stories",
+      "lab_task": "Configure a sample event-to-incident or employee-case workflow",
+      "deliverable": "Participant submission for 'ITOM, CSM, HRSD and GRC Overview': Configure a sample event-to-incident or employee-case workflow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Configure a sample event-to-incident or employee-case workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (event management; operational intelligence; customer service; HR case management; risk; compliance). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Configure a sample event-to-incident or employee-case workflow.",
+        "Explain how the lab applies ITOM, CSM, HRSD and GRC Overview and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'ITOM, CSM, HRSD and GRC Overview' on a prepared training sample through this task: Configure a sample event-to-incident or employee-case workflow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Configure a sample event-to-incident or employee-case workflow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (event management; operational intelligence; customer service; HR case management; risk; compliance) and demonstrate the starting sample for: Configure a sample event-to-incident or employee-case workflow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Configure a sample event-to-incident or employee-case workflow",
+          "evidence": "Participant submission for 'ITOM, CSM, HRSD and GRC Overview': Configure a sample event-to-incident or employee-case workflow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Configure a sample event-to-incident or employee-case workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Configure a sample event-to-incident or employee-case workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (event management; operational intelligence; customer service; HR case management; risk; compliance). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "Release Management, Update Sets and Governance",
+      "subtopics": [
+        "update sets",
+        "application repository",
+        "testing",
+        "release process",
+        "instance strategy",
+        "governance"
+      ],
+      "tools": [
+        "Update Sets",
+        "ATF",
+        "Instance Scan"
+      ],
+      "jira_focus": "Run a release-readiness review and log risks",
+      "lab_task": "Create, test, and promote an update set through a controlled release process",
+      "deliverable": "Participant submission for 'Release Management, Update Sets and Governance': Create, test, and promote an update set through a controlled release process. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create, test, and promote an update set through a controlled release process. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (update sets; application repository; testing; release process; instance strategy; governance). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create, test, and promote an update set through a controlled release process.",
+        "Explain how the lab applies Release Management, Update Sets and Governance and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Release Management, Update Sets and Governance' on a prepared training sample through this task: Create, test, and promote an update set through a controlled release process.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create, test, and promote an update set through a controlled release process",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (update sets; application repository; testing; release process; instance strategy; governance) and demonstrate the starting sample for: Create, test, and promote an update set through a controlled release process",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create, test, and promote an update set through a controlled release process",
+          "evidence": "Participant submission for 'Release Management, Update Sets and Governance': Create, test, and promote an update set through a controlled release process. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create, test, and promote an update set through a controlled release process' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create, test, and promote an update set through a controlled release process. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (update sets; application repository; testing; release process; instance strategy; governance). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "ServiceNow Capstone and Certification Preparation",
+      "subtopics": [
+        "requirements",
+        "configuration",
+        "automation",
+        "integration",
+        "dashboard",
+        "demo"
+      ],
+      "tools": [
+        "ServiceNow",
+        "Flow Designer",
+        "Jira"
+      ],
+      "jira_focus": "Conduct sprint review, retrospective, and final project demo",
+      "lab_task": "Deliver an employee or IT service-management application with workflow, integration, and reporting",
+      "deliverable": "Participant submission for 'ServiceNow Capstone and Certification Preparation': Deliver an employee or IT service-management application with workflow, integration, and reporting. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deliver an employee or IT service-management application with workflow, integration, and reporting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements; configuration; automation; integration; dashboard; demo). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deliver an employee or IT service-management application with workflow, integration, and reporting.",
+        "Explain how the lab applies ServiceNow Capstone and Certification Preparation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'ServiceNow Capstone and Certification Preparation' on a prepared training sample through this task: Deliver an employee or IT service-management application with workflow, integration, and reporting.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver an employee or IT service-management application with workflow, integration, and reporting",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (requirements; configuration; automation; integration; dashboard; demo) and demonstrate the starting sample for: Deliver an employee or IT service-management application with workflow, integration, and reporting",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deliver an employee or IT service-management application with workflow, integration, and reporting",
+          "evidence": "Participant submission for 'ServiceNow Capstone and Certification Preparation': Deliver an employee or IT service-management application with workflow, integration, and reporting. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deliver an employee or IT service-management application with workflow, integration, and reporting' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deliver an employee or IT service-management application with workflow, integration, and reporting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (requirements; configuration; automation; integration; dashboard; demo). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

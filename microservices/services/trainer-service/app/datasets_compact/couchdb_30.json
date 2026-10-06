@@ -1,11 +1,695 @@
-{"domain":"CouchDB","name":"CouchDB NoSQL Development","icon":"database","program_title":"CouchDB - Fundamentals to Advanced Document Database Development","level":"Beginner to Advanced","mode":"Online","aliases":["CouchDB","Apache CouchDB","CouchDB NoSQL"],"tools":["Apache CouchDB","Fauxton","curl","Docker"],"certifications":["CouchDB official or vendor learning path"],"days":[
-{"day":1,"topic":"CouchDB Introduction and Architecture","subtopics":["documents","JSON","_id/_rev","MVCC","Fauxton","deployment","configuration"],"tools":["Apache CouchDB","Fauxton","curl"],"lab_task":"Set up CouchDB and create the first database"},
-{"day":2,"topic":"Data Model and Schema Design","subtopics":["document design","identifiers","relationships","denormalization","schema patterns","naming","best practices"],"tools":["CouchDB","Fauxton"],"lab_task":"Design a production document model"},
-{"day":3,"topic":"CRUD and Query Fundamentals","subtopics":["create/read/update/delete","revision control","bulk documents","Mango queries","filtering","sorting","pagination"],"tools":["curl","Fauxton"],"lab_task":"Build a complete CRUD workflow"},
-{"day":4,"topic":"Indexes and Mango Queries","subtopics":["JSON indexes","selector queries","sort/index rules","explain","query performance","index design"],"tools":["CouchDB","Fauxton"],"lab_task":"Create indexes and optimize queries"},
-{"day":5,"topic":"Map-Reduce Views and Design Documents","subtopics":["design documents","map functions","reduce functions","view queries","built-in reducers","view indexes","validation functions"],"tools":["CouchDB","Fauxton"],"lab_task":"Build reporting views with map-reduce"},
-{"day":6,"topic":"Replication and Synchronization","subtopics":["replication","one/two-way replication","continuous replication","remote targets","conflicts","sync strategies","offline-first"],"tools":["CouchDB","curl"],"lab_task":"Configure replication and resolve document conflicts"},
-{"day":7,"topic":"Security and Administration","subtopics":["admins/users","authentication","roles","database permissions","security object","CORS","TLS awareness","auditing"],"tools":["CouchDB","Fauxton"],"lab_task":"Secure users and databases"},
-{"day":8,"topic":"Application Integration and REST API","subtopics":["HTTP API","curl","document endpoints","bulk API","changes feed","error handling","client libraries","API design"],"tools":["curl","CouchDB"],"lab_task":"Integrate an application with CouchDB REST APIs"},
-{"day":9,"topic":"Performance, Monitoring and Backup","subtopics":["compaction","database size","view cleanup","monitoring","logs","backup/restore","capacity planning","performance tuning"],"tools":["CouchDB","Docker"],"lab_task":"Optimize and back up a CouchDB database"},
-{"day":10,"topic":"CouchDB Docker and Capstone","subtopics":["Docker deployment","configuration","volumes","production operations","document modeling","queries/views","replication","security","documentation"],"tools":["Docker","CouchDB","Fauxton"],"lab_task":"Deliver a Dockerized CouchDB document application"}]}
+{
+  "domain": "CouchDB",
+  "name": "CouchDB NoSQL Development",
+  "icon": "database",
+  "program_title": "CouchDB - Fundamentals to Advanced Document Database Development",
+  "level": "Beginner to Advanced",
+  "mode": "Online",
+  "aliases": [
+    "CouchDB",
+    "Apache CouchDB",
+    "CouchDB NoSQL"
+  ],
+  "tools": [
+    "Apache CouchDB",
+    "Fauxton",
+    "curl",
+    "Docker"
+  ],
+  "certifications": [
+    "CouchDB official or vendor learning path"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "CouchDB Introduction and Architecture",
+      "subtopics": [
+        "documents",
+        "JSON",
+        "_id/_rev",
+        "MVCC",
+        "Fauxton",
+        "deployment",
+        "configuration"
+      ],
+      "tools": [
+        "Apache CouchDB",
+        "Fauxton",
+        "curl"
+      ],
+      "lab_task": "Set up CouchDB and create the first database",
+      "deliverable": "Participant submission for 'CouchDB Introduction and Architecture': Set up CouchDB and create the first database. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up CouchDB and create the first database. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (documents; JSON; _id/_rev; MVCC; Fauxton; deployment; configuration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Set up CouchDB and create the first database.",
+        "Explain how the lab applies CouchDB Introduction and Architecture and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CouchDB Introduction and Architecture' on a prepared training sample through this task: Set up CouchDB and create the first database.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up CouchDB and create the first database",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (documents; JSON; _id/_rev; MVCC; Fauxton; deployment; configuration) and demonstrate the starting sample for: Set up CouchDB and create the first database",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up CouchDB and create the first database",
+          "evidence": "Participant submission for 'CouchDB Introduction and Architecture': Set up CouchDB and create the first database. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up CouchDB and create the first database' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up CouchDB and create the first database. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (documents; JSON; _id/_rev; MVCC; Fauxton; deployment; configuration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Data Model and Schema Design",
+      "subtopics": [
+        "document design",
+        "identifiers",
+        "relationships",
+        "denormalization",
+        "schema patterns",
+        "naming",
+        "best practices"
+      ],
+      "tools": [
+        "CouchDB",
+        "Fauxton"
+      ],
+      "lab_task": "Design a production document model",
+      "deliverable": "Participant submission for 'Data Model and Schema Design': Design a production document model. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a production document model. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (document design; identifiers; relationships; denormalization; schema patterns; naming; best practices). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Design a production document model.",
+        "Explain how the lab applies Data Model and Schema Design and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Data Model and Schema Design' on a prepared training sample through this task: Design a production document model.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a production document model",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (document design; identifiers; relationships; denormalization; schema patterns; naming; best practices) and demonstrate the starting sample for: Design a production document model",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a production document model",
+          "evidence": "Participant submission for 'Data Model and Schema Design': Design a production document model. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a production document model' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a production document model. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (document design; identifiers; relationships; denormalization; schema patterns; naming; best practices). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "CRUD and Query Fundamentals",
+      "subtopics": [
+        "create/read/update/delete",
+        "revision control",
+        "bulk documents",
+        "Mango queries",
+        "filtering",
+        "sorting",
+        "pagination"
+      ],
+      "tools": [
+        "curl",
+        "Fauxton"
+      ],
+      "lab_task": "Build a complete CRUD workflow",
+      "deliverable": "Participant submission for 'CRUD and Query Fundamentals': Build a complete CRUD workflow. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a complete CRUD workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (create/read/update/delete; revision control; bulk documents; Mango queries; filtering; sorting; pagination). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a complete CRUD workflow.",
+        "Explain how the lab applies CRUD and Query Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CRUD and Query Fundamentals' on a prepared training sample through this task: Build a complete CRUD workflow.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a complete CRUD workflow",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (create/read/update/delete; revision control; bulk documents; Mango queries; filtering; sorting; pagination) and demonstrate the starting sample for: Build a complete CRUD workflow",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a complete CRUD workflow",
+          "evidence": "Participant submission for 'CRUD and Query Fundamentals': Build a complete CRUD workflow. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a complete CRUD workflow' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a complete CRUD workflow. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (create/read/update/delete; revision control; bulk documents; Mango queries; filtering; sorting; pagination). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Indexes and Mango Queries",
+      "subtopics": [
+        "JSON indexes",
+        "selector queries",
+        "sort/index rules",
+        "explain",
+        "query performance",
+        "index design"
+      ],
+      "tools": [
+        "CouchDB",
+        "Fauxton"
+      ],
+      "lab_task": "Create indexes and optimize queries",
+      "deliverable": "Participant submission for 'Indexes and Mango Queries': Create indexes and optimize queries. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create indexes and optimize queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JSON indexes; selector queries; sort/index rules; explain; query performance; index design). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create indexes and optimize queries.",
+        "Explain how the lab applies Indexes and Mango Queries and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Indexes and Mango Queries' on a prepared training sample through this task: Create indexes and optimize queries.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create indexes and optimize queries",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (JSON indexes; selector queries; sort/index rules; explain; query performance; index design) and demonstrate the starting sample for: Create indexes and optimize queries",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create indexes and optimize queries",
+          "evidence": "Participant submission for 'Indexes and Mango Queries': Create indexes and optimize queries. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create indexes and optimize queries' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create indexes and optimize queries. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (JSON indexes; selector queries; sort/index rules; explain; query performance; index design). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Map-Reduce Views and Design Documents",
+      "subtopics": [
+        "design documents",
+        "map functions",
+        "reduce functions",
+        "view queries",
+        "built-in reducers",
+        "view indexes",
+        "validation functions"
+      ],
+      "tools": [
+        "CouchDB",
+        "Fauxton"
+      ],
+      "lab_task": "Build reporting views with map-reduce",
+      "deliverable": "Participant submission for 'Map-Reduce Views and Design Documents': Build reporting views with map-reduce. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build reporting views with map-reduce. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (design documents; map functions; reduce functions; view queries; built-in reducers; view indexes; validation functions). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build reporting views with map-reduce.",
+        "Explain how the lab applies Map-Reduce Views and Design Documents and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Map-Reduce Views and Design Documents' on a prepared training sample through this task: Build reporting views with map-reduce.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build reporting views with map-reduce",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (design documents; map functions; reduce functions; view queries; built-in reducers; view indexes; validation functions) and demonstrate the starting sample for: Build reporting views with map-reduce",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build reporting views with map-reduce",
+          "evidence": "Participant submission for 'Map-Reduce Views and Design Documents': Build reporting views with map-reduce. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build reporting views with map-reduce' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build reporting views with map-reduce. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (design documents; map functions; reduce functions; view queries; built-in reducers; view indexes; validation functions). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Replication and Synchronization",
+      "subtopics": [
+        "replication",
+        "one/two-way replication",
+        "continuous replication",
+        "remote targets",
+        "conflicts",
+        "sync strategies",
+        "offline-first"
+      ],
+      "tools": [
+        "CouchDB",
+        "curl"
+      ],
+      "lab_task": "Configure replication and resolve document conflicts",
+      "deliverable": "Participant submission for 'Replication and Synchronization': Configure replication and resolve document conflicts. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Configure replication and resolve document conflicts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (replication; one/two-way replication; continuous replication; remote targets; conflicts; sync strategies; offline-first). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Configure replication and resolve document conflicts.",
+        "Explain how the lab applies Replication and Synchronization and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Replication and Synchronization' on a prepared training sample through this task: Configure replication and resolve document conflicts.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Configure replication and resolve document conflicts",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (replication; one/two-way replication; continuous replication; remote targets; conflicts; sync strategies; offline-first) and demonstrate the starting sample for: Configure replication and resolve document conflicts",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Configure replication and resolve document conflicts",
+          "evidence": "Participant submission for 'Replication and Synchronization': Configure replication and resolve document conflicts. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Configure replication and resolve document conflicts' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Configure replication and resolve document conflicts. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (replication; one/two-way replication; continuous replication; remote targets; conflicts; sync strategies; offline-first). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Security and Administration",
+      "subtopics": [
+        "admins/users",
+        "authentication",
+        "roles",
+        "database permissions",
+        "security object",
+        "CORS",
+        "TLS awareness",
+        "auditing"
+      ],
+      "tools": [
+        "CouchDB",
+        "Fauxton"
+      ],
+      "lab_task": "Secure users and databases",
+      "deliverable": "Participant submission for 'Security and Administration': Secure users and databases. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Secure users and databases. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (admins/users; authentication; roles; database permissions; security object; CORS; TLS awareness; auditing). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Secure users and databases.",
+        "Explain how the lab applies Security and Administration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Security and Administration' on a prepared training sample through this task: Secure users and databases.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Secure users and databases",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (admins/users; authentication; roles; database permissions; security object; CORS; TLS awareness; auditing) and demonstrate the starting sample for: Secure users and databases",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Secure users and databases",
+          "evidence": "Participant submission for 'Security and Administration': Secure users and databases. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Secure users and databases' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Secure users and databases. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (admins/users; authentication; roles; database permissions; security object; CORS; TLS awareness; auditing). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Application Integration and REST API",
+      "subtopics": [
+        "HTTP API",
+        "curl",
+        "document endpoints",
+        "bulk API",
+        "changes feed",
+        "error handling",
+        "client libraries",
+        "API design"
+      ],
+      "tools": [
+        "curl",
+        "CouchDB"
+      ],
+      "lab_task": "Integrate an application with CouchDB REST APIs",
+      "deliverable": "Participant submission for 'Application Integration and REST API': Integrate an application with CouchDB REST APIs. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Integrate an application with CouchDB REST APIs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP API; curl; document endpoints; bulk API; changes feed; error handling; client libraries; API design). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Integrate an application with CouchDB REST APIs.",
+        "Explain how the lab applies Application Integration and REST API and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Application Integration and REST API' on a prepared training sample through this task: Integrate an application with CouchDB REST APIs.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Integrate an application with CouchDB REST APIs",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (HTTP API; curl; document endpoints; bulk API; changes feed; error handling; client libraries; API design) and demonstrate the starting sample for: Integrate an application with CouchDB REST APIs",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Integrate an application with CouchDB REST APIs",
+          "evidence": "Participant submission for 'Application Integration and REST API': Integrate an application with CouchDB REST APIs. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Integrate an application with CouchDB REST APIs' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Integrate an application with CouchDB REST APIs. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (HTTP API; curl; document endpoints; bulk API; changes feed; error handling; client libraries; API design). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Performance, Monitoring and Backup",
+      "subtopics": [
+        "compaction",
+        "database size",
+        "view cleanup",
+        "monitoring",
+        "logs",
+        "backup/restore",
+        "capacity planning",
+        "performance tuning"
+      ],
+      "tools": [
+        "CouchDB",
+        "Docker"
+      ],
+      "lab_task": "Optimize and back up a CouchDB database",
+      "deliverable": "Participant submission for 'Performance, Monitoring and Backup': Optimize and back up a CouchDB database. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Optimize and back up a CouchDB database. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (compaction; database size; view cleanup; monitoring; logs; backup/restore; capacity planning; performance tuning). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Optimize and back up a CouchDB database.",
+        "Explain how the lab applies Performance, Monitoring and Backup and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'Performance, Monitoring and Backup' on a prepared training sample through this task: Optimize and back up a CouchDB database.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Optimize and back up a CouchDB database",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (compaction; database size; view cleanup; monitoring; logs; backup/restore; capacity planning; performance tuning) and demonstrate the starting sample for: Optimize and back up a CouchDB database",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Optimize and back up a CouchDB database",
+          "evidence": "Participant submission for 'Performance, Monitoring and Backup': Optimize and back up a CouchDB database. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Optimize and back up a CouchDB database' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Optimize and back up a CouchDB database. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (compaction; database size; view cleanup; monitoring; logs; backup/restore; capacity planning; performance tuning). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "CouchDB Docker and Capstone",
+      "subtopics": [
+        "Docker deployment",
+        "configuration",
+        "volumes",
+        "production operations",
+        "document modeling",
+        "queries/views",
+        "replication",
+        "security",
+        "documentation"
+      ],
+      "tools": [
+        "Docker",
+        "CouchDB",
+        "Fauxton"
+      ],
+      "lab_task": "Deliver a Dockerized CouchDB document application",
+      "deliverable": "Participant submission for 'CouchDB Docker and Capstone': Deliver a Dockerized CouchDB document application. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deliver a Dockerized CouchDB document application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Docker deployment; configuration; volumes; production operations; document modeling; queries/views; replication; security; documentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deliver a Dockerized CouchDB document application.",
+        "Explain how the lab applies CouchDB Docker and Capstone and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'CouchDB Docker and Capstone' on a prepared training sample through this task: Deliver a Dockerized CouchDB document application.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver a Dockerized CouchDB document application",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Docker deployment; configuration; volumes; production operations; document modeling; queries/views; replication; security; documentation) and demonstrate the starting sample for: Deliver a Dockerized CouchDB document application",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deliver a Dockerized CouchDB document application",
+          "evidence": "Participant submission for 'CouchDB Docker and Capstone': Deliver a Dockerized CouchDB document application. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deliver a Dockerized CouchDB document application' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deliver a Dockerized CouchDB document application. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Docker deployment; configuration; volumes; production operations; document modeling; queries/views; replication; security; documentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
+}

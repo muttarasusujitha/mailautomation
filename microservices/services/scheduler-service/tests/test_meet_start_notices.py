@@ -1,5 +1,7 @@
+import asyncio
 from datetime import datetime, timedelta
 
+from app.tasks import meet_start_notices
 from app.tasks.meet_start_notices import (
     _notice_body,
     _notice_idempotency_key,
@@ -115,3 +117,58 @@ def test_ten_minute_notice_includes_trainer_client_and_clahan():
         ("client@example.com", "client"),
         ("sujithaofficial784@gmail.com", "clahan"),
     ]
+
+
+def test_dry_run_previews_due_notices_without_delivery_or_database_writes(monkeypatch):
+    log = {
+        "email_id": "EML-DRY-RUN",
+        "mail_type": "mail4",
+        "trainer_email": "trainer@example.com",
+        "trainer_name": "Pooja",
+        "interview_link": "https://meet.google.com/example",
+        "interview_at": datetime(2026, 9, 8, 4, 30),
+    }
+
+    class Cursor:
+        def limit(self, count):
+            assert count == 100
+            return self
+
+        def __aiter__(self):
+            self.items = iter([log])
+            return self
+
+        async def __anext__(self):
+            try:
+                return next(self.items)
+            except StopIteration:
+                raise StopAsyncIteration
+
+    class EmailLogs:
+        def find(self, query):
+            return Cursor()
+
+        async def find_one_and_update(self, *args, **kwargs):
+            raise AssertionError("dry run attempted to claim a log")
+
+        async def update_one(self, *args, **kwargs):
+            raise AssertionError("dry run attempted to update a log")
+
+    class Database:
+        def __getitem__(self, collection):
+            assert collection == "email_logs"
+            return EmailLogs()
+
+    def fail_delivery(*args, **kwargs):
+        raise AssertionError("dry run attempted to deliver an email")
+
+    monkeypatch.setattr(meet_start_notices, "get_db", lambda: Database())
+    monkeypatch.setattr(meet_start_notices.httpx, "post", fail_delivery)
+
+    result = asyncio.run(meet_start_notices._send_start_notices(dry_run=True))
+
+    assert result["dry_run"] is True
+    assert result["sent"] == 0
+    assert result["failed"] == 0
+    assert result["would_send"] == len(result["planned"][0]["recipients"])
+    assert "trainer@example.com" in result["planned"][0]["recipients"]

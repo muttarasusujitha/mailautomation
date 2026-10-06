@@ -1,419 +1,811 @@
 {
-    "domain":  "Puppet",
-    "name":  "Puppet â€“ Comprehensive Fundamentals to Advanced Curriculum",
-    "aliases":  [
-                    "Puppet Enterprise",
-                    "Puppet Configuration Management"
-                ],
-    "tools":  [
-                  "Puppet",
-                  "Puppet Server",
-                  "Facter",
-                  "Hiera"
-              ],
-    "certifications":  [
-                           "Puppet official/vendor learning path or relevant professional certification"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "Introduction and Setup",
-                     "subtopics":  [
-                                       "Core purpose",
-                                       "Architecture",
-                                       "Installation/setup",
-                                       "Configuration files",
-                                       "CLI/UI",
-                                       "Typical workflows",
-                                       "Terminology",
-                                       "Puppet terminology and feature mapping for this topic",
-                                       "Puppet configuration and implementation considerations",
-                                       "Puppet best practices and common mistakes for this topic",
-                                       "manifests",
-                                       "resources",
-                                       "classes",
-                                       "modules",
-                                       "Hiera",
-                                       "Facter",
-                                       "catalog",
-                                       "Puppet Server",
-                                       "agents",
-                                       "environments",
-                                       "templates",
-                                       "resource relationships"
-                                   ],
-                     "tools":  [
-                                   "Puppet",
-                                   "Puppet Server",
-                                   "Facter"
-                               ],
-                     "lab_task":  "Set up Puppet and run a basic workflow.",
-                     "technology":  "Puppet",
-                     "technology_id":  "puppet",
-                     "learning_objectives":  [
-                                                 "Explain the Introduction and Setup concepts in the context of Puppet.",
-                                                 "Configure or implement the key Puppet features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Puppet.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Core Configuration",
-                     "subtopics":  [
-                                       "Configuration syntax",
-                                       "Resources/components",
-                                       "Variables",
-                                       "Parameters",
-                                       "Secrets",
-                                       "Environment-specific configuration",
-                                       "Validation",
-                                       "Puppet terminology and feature mapping for this topic",
-                                       "Puppet configuration and implementation considerations",
-                                       "Puppet best practices and common mistakes for this topic",
-                                       "manifests",
-                                       "resources",
-                                       "classes",
-                                       "modules",
-                                       "Hiera",
-                                       "Facter",
-                                       "catalog",
-                                       "Puppet Server",
-                                       "agents",
-                                       "environments",
-                                       "templates",
-                                       "resource relationships"
-                                   ],
-                     "tools":  [
-                                   "Puppet",
-                                   "Puppet Server",
-                                   "Facter"
-                               ],
-                     "lab_task":  "Create reusable Puppet configuration for development.",
-                     "technology":  "Puppet",
-                     "technology_id":  "puppet",
-                     "learning_objectives":  [
-                                                 "Explain the Core Configuration concepts in the context of Puppet.",
-                                                 "Configure or implement the key Puppet features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Core Configuration practically using Puppet.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Automation Workflow",
-                     "subtopics":  [
-                                       "Triggers",
-                                       "Stages/steps",
-                                       "Dependencies",
-                                       "Artifacts",
-                                       "Caching",
-                                       "Retries",
-                                       "Failure handling",
-                                       "Notifications",
-                                       "Puppet terminology and feature mapping for this topic",
-                                       "Puppet configuration and implementation considerations",
-                                       "Puppet best practices and common mistakes for this topic",
-                                       "manifests",
-                                       "resources",
-                                       "classes",
-                                       "modules",
-                                       "Hiera",
-                                       "Facter",
-                                       "catalog",
-                                       "Puppet Server",
-                                       "agents",
-                                       "environments",
-                                       "templates",
-                                       "resource relationships"
-                                   ],
-                     "tools":  [
-                                   "Puppet",
-                                   "Puppet Server",
-                                   "Facter"
-                               ],
-                     "lab_task":  "Build an automated workflow using Puppet.",
-                     "technology":  "Puppet",
-                     "technology_id":  "puppet",
-                     "learning_objectives":  [
-                                                 "Explain the Automation Workflow concepts in the context of Puppet.",
-                                                 "Configure or implement the key Puppet features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Automation Workflow practically using Puppet.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Integration",
-                     "subtopics":  [
-                                       "Git integration",
-                                       "Container integration",
-                                       "Cloud integration",
-                                       "API/webhook integration",
-                                       "Credential management",
-                                       "Third-party plugins",
-                                       "Puppet terminology and feature mapping for this topic",
-                                       "Puppet configuration and implementation considerations",
-                                       "Puppet best practices and common mistakes for this topic",
-                                       "manifests",
-                                       "resources",
-                                       "classes",
-                                       "modules",
-                                       "Hiera",
-                                       "Facter",
-                                       "catalog",
-                                       "Puppet Server",
-                                       "agents",
-                                       "environments",
-                                       "templates",
-                                       "resource relationships"
-                                   ],
-                     "tools":  [
-                                   "Puppet",
-                                   "Puppet Server",
-                                   "Facter",
-                                   "Hiera"
-                               ],
-                     "lab_task":  "Integrate Puppet with source control and external services.",
-                     "technology":  "Puppet",
-                     "technology_id":  "puppet",
-                     "learning_objectives":  [
-                                                 "Explain the Integration concepts in the context of Puppet.",
-                                                 "Configure or implement the key Puppet features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Integration practically using Puppet.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Security",
-                     "subtopics":  [
-                                       "Authentication",
-                                       "Authorization",
-                                       "Secrets",
-                                       "Least privilege",
-                                       "Supply-chain concerns",
-                                       "Audit logs",
-                                       "Policy controls",
-                                       "Puppet terminology and feature mapping for this topic",
-                                       "Puppet configuration and implementation considerations",
-                                       "Puppet best practices and common mistakes for this topic",
-                                       "manifests",
-                                       "resources",
-                                       "classes",
-                                       "modules",
-                                       "Hiera",
-                                       "Facter",
-                                       "catalog",
-                                       "Puppet Server",
-                                       "agents",
-                                       "environments",
-                                       "templates",
-                                       "resource relationships"
-                                   ],
-                     "tools":  [
-                                   "Puppet",
-                                   "Puppet Server",
-                                   "Facter"
-                               ],
-                     "lab_task":  "Harden a Puppet setup.",
-                     "technology":  "Puppet",
-                     "technology_id":  "puppet",
-                     "learning_objectives":  [
-                                                 "Explain the Security concepts in the context of Puppet.",
-                                                 "Configure or implement the key Puppet features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Security practically using Puppet.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "Scaling and Reliability",
-                     "subtopics":  [
-                                       "Agents/runners/nodes",
-                                       "Parallel execution",
-                                       "High availability",
-                                       "State management",
-                                       "Backups",
-                                       "Failure recovery",
-                                       "Capacity planning",
-                                       "Puppet terminology and feature mapping for this topic",
-                                       "Puppet configuration and implementation considerations",
-                                       "Puppet best practices and common mistakes for this topic",
-                                       "manifests",
-                                       "resources",
-                                       "classes",
-                                       "modules",
-                                       "Hiera",
-                                       "Facter",
-                                       "catalog",
-                                       "Puppet Server",
-                                       "agents",
-                                       "environments",
-                                       "templates",
-                                       "resource relationships"
-                                   ],
-                     "tools":  [
-                                   "Puppet",
-                                   "Puppet Server",
-                                   "Facter"
-                               ],
-                     "lab_task":  "Design a scalable and resilient Puppet setup.",
-                     "technology":  "Puppet",
-                     "technology_id":  "puppet",
-                     "learning_objectives":  [
-                                                 "Explain the Scaling and Reliability concepts in the context of Puppet.",
-                                                 "Configure or implement the key Puppet features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Puppet.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "Observability and Troubleshooting",
-                     "subtopics":  [
-                                       "Logs",
-                                       "Metrics",
-                                       "Debugging",
-                                       "Failure diagnosis",
-                                       "Performance bottlenecks",
-                                       "Alerting",
-                                       "Operational runbooks",
-                                       "Puppet terminology and feature mapping for this topic",
-                                       "Puppet configuration and implementation considerations",
-                                       "Puppet best practices and common mistakes for this topic",
-                                       "manifests",
-                                       "resources",
-                                       "classes",
-                                       "modules",
-                                       "Hiera",
-                                       "Facter",
-                                       "catalog",
-                                       "Puppet Server",
-                                       "agents",
-                                       "environments",
-                                       "templates",
-                                       "resource relationships"
-                                   ],
-                     "tools":  [
-                                   "Puppet",
-                                   "Puppet Server",
-                                   "Facter"
-                               ],
-                     "lab_task":  "Troubleshoot an intentionally failing Puppet workflow.",
-                     "technology":  "Puppet",
-                     "technology_id":  "puppet",
-                     "learning_objectives":  [
-                                                 "Explain the Observability and Troubleshooting concepts in the context of Puppet.",
-                                                 "Configure or implement the key Puppet features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Puppet.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "Advanced Patterns",
-                     "subtopics":  [
-                                       "Reusable modules/templates",
-                                       "Multi-environment strategy",
-                                       "Promotion strategy",
-                                       "Policy as code concepts",
-                                       "GitOps/IaC patterns",
-                                       "Best practices",
-                                       "Puppet terminology and feature mapping for this topic",
-                                       "Puppet configuration and implementation considerations",
-                                       "Puppet best practices and common mistakes for this topic",
-                                       "manifests",
-                                       "resources",
-                                       "classes",
-                                       "modules",
-                                       "Hiera",
-                                       "Facter",
-                                       "catalog",
-                                       "Puppet Server",
-                                       "agents",
-                                       "environments",
-                                       "templates",
-                                       "resource relationships"
-                                   ],
-                     "tools":  [
-                                   "Puppet",
-                                   "Puppet Server",
-                                   "Facter",
-                                   "Hiera"
-                               ],
-                     "lab_task":  "Create reusable production-grade patterns.",
-                     "technology":  "Puppet",
-                     "technology_id":  "puppet",
-                     "learning_objectives":  [
-                                                 "Explain the Advanced Patterns concepts in the context of Puppet.",
-                                                 "Configure or implement the key Puppet features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Puppet.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  9,
-                     "topic":  "CI/CD or Deployment Project",
-                     "subtopics":  [
-                                       "Source control",
-                                       "Build",
-                                       "Test",
-                                       "Artifact",
-                                       "Deploy",
-                                       "Rollback",
-                                       "Approval gates",
-                                       "Documentation",
-                                       "Puppet terminology and feature mapping for this topic",
-                                       "Puppet configuration and implementation considerations",
-                                       "Puppet best practices and common mistakes for this topic",
-                                       "manifests",
-                                       "resources",
-                                       "classes",
-                                       "modules",
-                                       "Hiera",
-                                       "Facter",
-                                       "catalog",
-                                       "Puppet Server",
-                                       "agents",
-                                       "environments",
-                                       "templates",
-                                       "resource relationships"
-                                   ],
-                     "tools":  [
-                                   "Puppet",
-                                   "Puppet Server",
-                                   "Facter",
-                                   "Hiera"
-                               ],
-                     "lab_task":  "Implement a complete delivery workflow with Puppet.",
-                     "technology":  "Puppet",
-                     "technology_id":  "puppet",
-                     "learning_objectives":  [
-                                                 "Explain the CI/CD or Deployment Project concepts in the context of Puppet.",
-                                                 "Configure or implement the key Puppet features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Puppet.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "puppet"
+  "domain": "Puppet",
+  "name": "Puppet â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "aliases": [
+    "Puppet Enterprise",
+    "Puppet Configuration Management"
+  ],
+  "tools": [
+    "Puppet",
+    "Puppet Server",
+    "Facter",
+    "Hiera"
+  ],
+  "certifications": [
+    "Puppet official/vendor learning path or relevant professional certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Introduction and Setup",
+      "subtopics": [
+        "Core purpose",
+        "Architecture",
+        "Installation/setup",
+        "Configuration files",
+        "CLI/UI",
+        "Typical workflows",
+        "Terminology",
+        "Puppet terminology and feature mapping for this topic",
+        "Puppet configuration and implementation considerations",
+        "Puppet best practices and common mistakes for this topic",
+        "manifests",
+        "resources",
+        "classes",
+        "modules",
+        "Hiera",
+        "Facter",
+        "catalog",
+        "Puppet Server",
+        "agents",
+        "environments",
+        "templates",
+        "resource relationships"
+      ],
+      "tools": [
+        "Puppet",
+        "Puppet Server",
+        "Facter"
+      ],
+      "lab_task": "Set up Puppet and run a basic workflow.",
+      "technology": "Puppet",
+      "technology_id": "puppet",
+      "learning_objectives": [
+        "Explain the Introduction and Setup concepts in the context of Puppet.",
+        "Configure or implement the key Puppet features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Introduction and Setup practically using Puppet.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Introduction and Setup': Set up Puppet and run a basic workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Puppet and run a basic workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Introduction and Setup' on a prepared training sample through this task: Set up Puppet and run a basic workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Puppet and run a basic workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships) and demonstrate the starting sample for: Set up Puppet and run a basic workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Puppet and run a basic workflow.",
+          "evidence": "Participant submission for 'Introduction and Setup': Set up Puppet and run a basic workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Puppet and run a basic workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Puppet and run a basic workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Core Configuration",
+      "subtopics": [
+        "Configuration syntax",
+        "Resources/components",
+        "Variables",
+        "Parameters",
+        "Secrets",
+        "Environment-specific configuration",
+        "Validation",
+        "Puppet terminology and feature mapping for this topic",
+        "Puppet configuration and implementation considerations",
+        "Puppet best practices and common mistakes for this topic",
+        "manifests",
+        "resources",
+        "classes",
+        "modules",
+        "Hiera",
+        "Facter",
+        "catalog",
+        "Puppet Server",
+        "agents",
+        "environments",
+        "templates",
+        "resource relationships"
+      ],
+      "tools": [
+        "Puppet",
+        "Puppet Server",
+        "Facter"
+      ],
+      "lab_task": "Create reusable Puppet configuration for development.",
+      "technology": "Puppet",
+      "technology_id": "puppet",
+      "learning_objectives": [
+        "Explain the Core Configuration concepts in the context of Puppet.",
+        "Configure or implement the key Puppet features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Core Configuration practically using Puppet.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Core Configuration': Create reusable Puppet configuration for development.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable Puppet configuration for development.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Core Configuration' on a prepared training sample through this task: Create reusable Puppet configuration for development..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable Puppet configuration for development.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships) and demonstrate the starting sample for: Create reusable Puppet configuration for development.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable Puppet configuration for development.",
+          "evidence": "Participant submission for 'Core Configuration': Create reusable Puppet configuration for development.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable Puppet configuration for development.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable Puppet configuration for development.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Automation Workflow",
+      "subtopics": [
+        "Triggers",
+        "Stages/steps",
+        "Dependencies",
+        "Artifacts",
+        "Caching",
+        "Retries",
+        "Failure handling",
+        "Notifications",
+        "Puppet terminology and feature mapping for this topic",
+        "Puppet configuration and implementation considerations",
+        "Puppet best practices and common mistakes for this topic",
+        "manifests",
+        "resources",
+        "classes",
+        "modules",
+        "Hiera",
+        "Facter",
+        "catalog",
+        "Puppet Server",
+        "agents",
+        "environments",
+        "templates",
+        "resource relationships"
+      ],
+      "tools": [
+        "Puppet",
+        "Puppet Server",
+        "Facter"
+      ],
+      "lab_task": "Build an automated workflow using Puppet.",
+      "technology": "Puppet",
+      "technology_id": "puppet",
+      "learning_objectives": [
+        "Explain the Automation Workflow concepts in the context of Puppet.",
+        "Configure or implement the key Puppet features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Automation Workflow practically using Puppet.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Automation Workflow': Build an automated workflow using Puppet.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an automated workflow using Puppet.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Automation Workflow' on a prepared training sample through this task: Build an automated workflow using Puppet..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an automated workflow using Puppet.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships) and demonstrate the starting sample for: Build an automated workflow using Puppet.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an automated workflow using Puppet.",
+          "evidence": "Participant submission for 'Automation Workflow': Build an automated workflow using Puppet.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an automated workflow using Puppet.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an automated workflow using Puppet.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Integration",
+      "subtopics": [
+        "Git integration",
+        "Container integration",
+        "Cloud integration",
+        "API/webhook integration",
+        "Credential management",
+        "Third-party plugins",
+        "Puppet terminology and feature mapping for this topic",
+        "Puppet configuration and implementation considerations",
+        "Puppet best practices and common mistakes for this topic",
+        "manifests",
+        "resources",
+        "classes",
+        "modules",
+        "Hiera",
+        "Facter",
+        "catalog",
+        "Puppet Server",
+        "agents",
+        "environments",
+        "templates",
+        "resource relationships"
+      ],
+      "tools": [
+        "Puppet",
+        "Puppet Server",
+        "Facter",
+        "Hiera"
+      ],
+      "lab_task": "Integrate Puppet with source control and external services.",
+      "technology": "Puppet",
+      "technology_id": "puppet",
+      "learning_objectives": [
+        "Explain the Integration concepts in the context of Puppet.",
+        "Configure or implement the key Puppet features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Integration practically using Puppet.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Integration': Integrate Puppet with source control and external services.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Integrate Puppet with source control and external services.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Integration' on a prepared training sample through this task: Integrate Puppet with source control and external services..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Integrate Puppet with source control and external services.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships) and demonstrate the starting sample for: Integrate Puppet with source control and external services.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Integrate Puppet with source control and external services.",
+          "evidence": "Participant submission for 'Integration': Integrate Puppet with source control and external services.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Integrate Puppet with source control and external services.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Integrate Puppet with source control and external services.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Security",
+      "subtopics": [
+        "Authentication",
+        "Authorization",
+        "Secrets",
+        "Least privilege",
+        "Supply-chain concerns",
+        "Audit logs",
+        "Policy controls",
+        "Puppet terminology and feature mapping for this topic",
+        "Puppet configuration and implementation considerations",
+        "Puppet best practices and common mistakes for this topic",
+        "manifests",
+        "resources",
+        "classes",
+        "modules",
+        "Hiera",
+        "Facter",
+        "catalog",
+        "Puppet Server",
+        "agents",
+        "environments",
+        "templates",
+        "resource relationships"
+      ],
+      "tools": [
+        "Puppet",
+        "Puppet Server",
+        "Facter"
+      ],
+      "lab_task": "Harden a Puppet setup.",
+      "technology": "Puppet",
+      "technology_id": "puppet",
+      "learning_objectives": [
+        "Explain the Security concepts in the context of Puppet.",
+        "Configure or implement the key Puppet features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Security practically using Puppet.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Security': Harden a Puppet setup.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Harden a Puppet setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Security' on a prepared training sample through this task: Harden a Puppet setup..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Harden a Puppet setup.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships) and demonstrate the starting sample for: Harden a Puppet setup.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Harden a Puppet setup.",
+          "evidence": "Participant submission for 'Security': Harden a Puppet setup.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Harden a Puppet setup.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Harden a Puppet setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Scaling and Reliability",
+      "subtopics": [
+        "Agents/runners/nodes",
+        "Parallel execution",
+        "High availability",
+        "State management",
+        "Backups",
+        "Failure recovery",
+        "Capacity planning",
+        "Puppet terminology and feature mapping for this topic",
+        "Puppet configuration and implementation considerations",
+        "Puppet best practices and common mistakes for this topic",
+        "manifests",
+        "resources",
+        "classes",
+        "modules",
+        "Hiera",
+        "Facter",
+        "catalog",
+        "Puppet Server",
+        "agents",
+        "environments",
+        "templates",
+        "resource relationships"
+      ],
+      "tools": [
+        "Puppet",
+        "Puppet Server",
+        "Facter"
+      ],
+      "lab_task": "Design a scalable and resilient Puppet setup.",
+      "technology": "Puppet",
+      "technology_id": "puppet",
+      "learning_objectives": [
+        "Explain the Scaling and Reliability concepts in the context of Puppet.",
+        "Configure or implement the key Puppet features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Scaling and Reliability practically using Puppet.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Scaling and Reliability': Design a scalable and resilient Puppet setup.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a scalable and resilient Puppet setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Scaling and Reliability' on a prepared training sample through this task: Design a scalable and resilient Puppet setup..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a scalable and resilient Puppet setup.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships) and demonstrate the starting sample for: Design a scalable and resilient Puppet setup.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a scalable and resilient Puppet setup.",
+          "evidence": "Participant submission for 'Scaling and Reliability': Design a scalable and resilient Puppet setup.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a scalable and resilient Puppet setup.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a scalable and resilient Puppet setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Observability and Troubleshooting",
+      "subtopics": [
+        "Logs",
+        "Metrics",
+        "Debugging",
+        "Failure diagnosis",
+        "Performance bottlenecks",
+        "Alerting",
+        "Operational runbooks",
+        "Puppet terminology and feature mapping for this topic",
+        "Puppet configuration and implementation considerations",
+        "Puppet best practices and common mistakes for this topic",
+        "manifests",
+        "resources",
+        "classes",
+        "modules",
+        "Hiera",
+        "Facter",
+        "catalog",
+        "Puppet Server",
+        "agents",
+        "environments",
+        "templates",
+        "resource relationships"
+      ],
+      "tools": [
+        "Puppet",
+        "Puppet Server",
+        "Facter"
+      ],
+      "lab_task": "Troubleshoot an intentionally failing Puppet workflow.",
+      "technology": "Puppet",
+      "technology_id": "puppet",
+      "learning_objectives": [
+        "Explain the Observability and Troubleshooting concepts in the context of Puppet.",
+        "Configure or implement the key Puppet features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Observability and Troubleshooting practically using Puppet.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Observability and Troubleshooting': Troubleshoot an intentionally failing Puppet workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Troubleshoot an intentionally failing Puppet workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Observability and Troubleshooting' on a prepared training sample through this task: Troubleshoot an intentionally failing Puppet workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Troubleshoot an intentionally failing Puppet workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships) and demonstrate the starting sample for: Troubleshoot an intentionally failing Puppet workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Troubleshoot an intentionally failing Puppet workflow.",
+          "evidence": "Participant submission for 'Observability and Troubleshooting': Troubleshoot an intentionally failing Puppet workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Troubleshoot an intentionally failing Puppet workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Troubleshoot an intentionally failing Puppet workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Advanced Patterns",
+      "subtopics": [
+        "Reusable modules/templates",
+        "Multi-environment strategy",
+        "Promotion strategy",
+        "Policy as code concepts",
+        "GitOps/IaC patterns",
+        "Best practices",
+        "Puppet terminology and feature mapping for this topic",
+        "Puppet configuration and implementation considerations",
+        "Puppet best practices and common mistakes for this topic",
+        "manifests",
+        "resources",
+        "classes",
+        "modules",
+        "Hiera",
+        "Facter",
+        "catalog",
+        "Puppet Server",
+        "agents",
+        "environments",
+        "templates",
+        "resource relationships"
+      ],
+      "tools": [
+        "Puppet",
+        "Puppet Server",
+        "Facter",
+        "Hiera"
+      ],
+      "lab_task": "Create reusable production-grade patterns.",
+      "technology": "Puppet",
+      "technology_id": "puppet",
+      "learning_objectives": [
+        "Explain the Advanced Patterns concepts in the context of Puppet.",
+        "Configure or implement the key Puppet features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Advanced Patterns practically using Puppet.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Advanced Patterns': Create reusable production-grade patterns.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable production-grade patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Advanced Patterns' on a prepared training sample through this task: Create reusable production-grade patterns..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable production-grade patterns.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships) and demonstrate the starting sample for: Create reusable production-grade patterns.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable production-grade patterns.",
+          "evidence": "Participant submission for 'Advanced Patterns': Create reusable production-grade patterns.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable production-grade patterns.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable production-grade patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "CI/CD or Deployment Project",
+      "subtopics": [
+        "Source control",
+        "Build",
+        "Test",
+        "Artifact",
+        "Deploy",
+        "Rollback",
+        "Approval gates",
+        "Documentation",
+        "Puppet terminology and feature mapping for this topic",
+        "Puppet configuration and implementation considerations",
+        "Puppet best practices and common mistakes for this topic",
+        "manifests",
+        "resources",
+        "classes",
+        "modules",
+        "Hiera",
+        "Facter",
+        "catalog",
+        "Puppet Server",
+        "agents",
+        "environments",
+        "templates",
+        "resource relationships"
+      ],
+      "tools": [
+        "Puppet",
+        "Puppet Server",
+        "Facter",
+        "Hiera"
+      ],
+      "lab_task": "Implement a complete delivery workflow with Puppet.",
+      "technology": "Puppet",
+      "technology_id": "puppet",
+      "learning_objectives": [
+        "Explain the CI/CD or Deployment Project concepts in the context of Puppet.",
+        "Configure or implement the key Puppet features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply CI/CD or Deployment Project practically using Puppet.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'CI/CD or Deployment Project': Implement a complete delivery workflow with Puppet.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement a complete delivery workflow with Puppet.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'CI/CD or Deployment Project' on a prepared training sample through this task: Implement a complete delivery workflow with Puppet..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement a complete delivery workflow with Puppet.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships) and demonstrate the starting sample for: Implement a complete delivery workflow with Puppet.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement a complete delivery workflow with Puppet.",
+          "evidence": "Participant submission for 'CI/CD or Deployment Project': Implement a complete delivery workflow with Puppet.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement a complete delivery workflow with Puppet.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement a complete delivery workflow with Puppet.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Puppet terminology and feature mapping for this topic; Puppet configuration and implementation considerations; Puppet best practices and common mistakes for this topic; manifests; resources; classes; modules; Hiera; Facter; catalog; Puppet Server; agents; environments; templates; resource relationships). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "puppet",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

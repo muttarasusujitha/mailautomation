@@ -1,419 +1,811 @@
 {
-    "domain":  "Argo CD",
-    "name":  "Argo CD â€“ Comprehensive Fundamentals to Advanced Curriculum",
-    "aliases":  [
-                    "ArgoCD",
-                    "GitOps Continuous Delivery"
-                ],
-    "tools":  [
-                  "Argo CD",
-                  "Kubernetes",
-                  "Git",
-                  "Helm"
-              ],
-    "certifications":  [
-                           "Argo CD official/vendor learning path or relevant professional certification"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "Introduction and Setup",
-                     "subtopics":  [
-                                       "Core purpose",
-                                       "Architecture",
-                                       "Installation/setup",
-                                       "Configuration files",
-                                       "CLI/UI",
-                                       "Typical workflows",
-                                       "Terminology",
-                                       "Argo CD terminology and feature mapping for this topic",
-                                       "Argo CD configuration and implementation considerations",
-                                       "Argo CD best practices and common mistakes for this topic",
-                                       "GitOps",
-                                       "Application",
-                                       "AppProject",
-                                       "sync",
-                                       "auto-sync",
-                                       "health status",
-                                       "sync waves",
-                                       "hooks",
-                                       "Helm",
-                                       "Kustomize",
-                                       "RBAC",
-                                       "ApplicationSet"
-                                   ],
-                     "tools":  [
-                                   "Argo CD",
-                                   "Kubernetes",
-                                   "Git"
-                               ],
-                     "lab_task":  "Set up Argo CD and run a basic workflow.",
-                     "technology":  "Argo CD",
-                     "technology_id":  "argo-cd",
-                     "learning_objectives":  [
-                                                 "Explain the Introduction and Setup concepts in the context of Argo CD.",
-                                                 "Configure or implement the key Argo CD features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Argo CD.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Core Configuration",
-                     "subtopics":  [
-                                       "Configuration syntax",
-                                       "Resources/components",
-                                       "Variables",
-                                       "Parameters",
-                                       "Secrets",
-                                       "Environment-specific configuration",
-                                       "Validation",
-                                       "Argo CD terminology and feature mapping for this topic",
-                                       "Argo CD configuration and implementation considerations",
-                                       "Argo CD best practices and common mistakes for this topic",
-                                       "GitOps",
-                                       "Application",
-                                       "AppProject",
-                                       "sync",
-                                       "auto-sync",
-                                       "health status",
-                                       "sync waves",
-                                       "hooks",
-                                       "Helm",
-                                       "Kustomize",
-                                       "RBAC",
-                                       "ApplicationSet"
-                                   ],
-                     "tools":  [
-                                   "Argo CD",
-                                   "Kubernetes",
-                                   "Git"
-                               ],
-                     "lab_task":  "Create reusable Argo CD configuration for development.",
-                     "technology":  "Argo CD",
-                     "technology_id":  "argo-cd",
-                     "learning_objectives":  [
-                                                 "Explain the Core Configuration concepts in the context of Argo CD.",
-                                                 "Configure or implement the key Argo CD features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Core Configuration practically using Argo CD.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Automation Workflow",
-                     "subtopics":  [
-                                       "Triggers",
-                                       "Stages/steps",
-                                       "Dependencies",
-                                       "Artifacts",
-                                       "Caching",
-                                       "Retries",
-                                       "Failure handling",
-                                       "Notifications",
-                                       "Argo CD terminology and feature mapping for this topic",
-                                       "Argo CD configuration and implementation considerations",
-                                       "Argo CD best practices and common mistakes for this topic",
-                                       "GitOps",
-                                       "Application",
-                                       "AppProject",
-                                       "sync",
-                                       "auto-sync",
-                                       "health status",
-                                       "sync waves",
-                                       "hooks",
-                                       "Helm",
-                                       "Kustomize",
-                                       "RBAC",
-                                       "ApplicationSet"
-                                   ],
-                     "tools":  [
-                                   "Argo CD",
-                                   "Kubernetes",
-                                   "Git"
-                               ],
-                     "lab_task":  "Build an automated workflow using Argo CD.",
-                     "technology":  "Argo CD",
-                     "technology_id":  "argo-cd",
-                     "learning_objectives":  [
-                                                 "Explain the Automation Workflow concepts in the context of Argo CD.",
-                                                 "Configure or implement the key Argo CD features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Automation Workflow practically using Argo CD.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Integration",
-                     "subtopics":  [
-                                       "Git integration",
-                                       "Container integration",
-                                       "Cloud integration",
-                                       "API/webhook integration",
-                                       "Credential management",
-                                       "Third-party plugins",
-                                       "Argo CD terminology and feature mapping for this topic",
-                                       "Argo CD configuration and implementation considerations",
-                                       "Argo CD best practices and common mistakes for this topic",
-                                       "GitOps",
-                                       "Application",
-                                       "AppProject",
-                                       "sync",
-                                       "auto-sync",
-                                       "health status",
-                                       "sync waves",
-                                       "hooks",
-                                       "Helm",
-                                       "Kustomize",
-                                       "RBAC",
-                                       "ApplicationSet"
-                                   ],
-                     "tools":  [
-                                   "Argo CD",
-                                   "Kubernetes",
-                                   "Git",
-                                   "Helm"
-                               ],
-                     "lab_task":  "Integrate Argo CD with source control and external services.",
-                     "technology":  "Argo CD",
-                     "technology_id":  "argo-cd",
-                     "learning_objectives":  [
-                                                 "Explain the Integration concepts in the context of Argo CD.",
-                                                 "Configure or implement the key Argo CD features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Integration practically using Argo CD.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Security",
-                     "subtopics":  [
-                                       "Authentication",
-                                       "Authorization",
-                                       "Secrets",
-                                       "Least privilege",
-                                       "Supply-chain concerns",
-                                       "Audit logs",
-                                       "Policy controls",
-                                       "Argo CD terminology and feature mapping for this topic",
-                                       "Argo CD configuration and implementation considerations",
-                                       "Argo CD best practices and common mistakes for this topic",
-                                       "GitOps",
-                                       "Application",
-                                       "AppProject",
-                                       "sync",
-                                       "auto-sync",
-                                       "health status",
-                                       "sync waves",
-                                       "hooks",
-                                       "Helm",
-                                       "Kustomize",
-                                       "RBAC",
-                                       "ApplicationSet"
-                                   ],
-                     "tools":  [
-                                   "Argo CD",
-                                   "Kubernetes",
-                                   "Git"
-                               ],
-                     "lab_task":  "Harden a Argo CD setup.",
-                     "technology":  "Argo CD",
-                     "technology_id":  "argo-cd",
-                     "learning_objectives":  [
-                                                 "Explain the Security concepts in the context of Argo CD.",
-                                                 "Configure or implement the key Argo CD features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Security practically using Argo CD.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "Scaling and Reliability",
-                     "subtopics":  [
-                                       "Agents/runners/nodes",
-                                       "Parallel execution",
-                                       "High availability",
-                                       "State management",
-                                       "Backups",
-                                       "Failure recovery",
-                                       "Capacity planning",
-                                       "Argo CD terminology and feature mapping for this topic",
-                                       "Argo CD configuration and implementation considerations",
-                                       "Argo CD best practices and common mistakes for this topic",
-                                       "GitOps",
-                                       "Application",
-                                       "AppProject",
-                                       "sync",
-                                       "auto-sync",
-                                       "health status",
-                                       "sync waves",
-                                       "hooks",
-                                       "Helm",
-                                       "Kustomize",
-                                       "RBAC",
-                                       "ApplicationSet"
-                                   ],
-                     "tools":  [
-                                   "Argo CD",
-                                   "Kubernetes",
-                                   "Git"
-                               ],
-                     "lab_task":  "Design a scalable and resilient Argo CD setup.",
-                     "technology":  "Argo CD",
-                     "technology_id":  "argo-cd",
-                     "learning_objectives":  [
-                                                 "Explain the Scaling and Reliability concepts in the context of Argo CD.",
-                                                 "Configure or implement the key Argo CD features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Argo CD.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "Observability and Troubleshooting",
-                     "subtopics":  [
-                                       "Logs",
-                                       "Metrics",
-                                       "Debugging",
-                                       "Failure diagnosis",
-                                       "Performance bottlenecks",
-                                       "Alerting",
-                                       "Operational runbooks",
-                                       "Argo CD terminology and feature mapping for this topic",
-                                       "Argo CD configuration and implementation considerations",
-                                       "Argo CD best practices and common mistakes for this topic",
-                                       "GitOps",
-                                       "Application",
-                                       "AppProject",
-                                       "sync",
-                                       "auto-sync",
-                                       "health status",
-                                       "sync waves",
-                                       "hooks",
-                                       "Helm",
-                                       "Kustomize",
-                                       "RBAC",
-                                       "ApplicationSet"
-                                   ],
-                     "tools":  [
-                                   "Argo CD",
-                                   "Kubernetes",
-                                   "Git"
-                               ],
-                     "lab_task":  "Troubleshoot an intentionally failing Argo CD workflow.",
-                     "technology":  "Argo CD",
-                     "technology_id":  "argo-cd",
-                     "learning_objectives":  [
-                                                 "Explain the Observability and Troubleshooting concepts in the context of Argo CD.",
-                                                 "Configure or implement the key Argo CD features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Argo CD.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "Advanced Patterns",
-                     "subtopics":  [
-                                       "Reusable modules/templates",
-                                       "Multi-environment strategy",
-                                       "Promotion strategy",
-                                       "Policy as code concepts",
-                                       "GitOps/IaC patterns",
-                                       "Best practices",
-                                       "Argo CD terminology and feature mapping for this topic",
-                                       "Argo CD configuration and implementation considerations",
-                                       "Argo CD best practices and common mistakes for this topic",
-                                       "GitOps",
-                                       "Application",
-                                       "AppProject",
-                                       "sync",
-                                       "auto-sync",
-                                       "health status",
-                                       "sync waves",
-                                       "hooks",
-                                       "Helm",
-                                       "Kustomize",
-                                       "RBAC",
-                                       "ApplicationSet"
-                                   ],
-                     "tools":  [
-                                   "Argo CD",
-                                   "Kubernetes",
-                                   "Git",
-                                   "Helm"
-                               ],
-                     "lab_task":  "Create reusable production-grade patterns.",
-                     "technology":  "Argo CD",
-                     "technology_id":  "argo-cd",
-                     "learning_objectives":  [
-                                                 "Explain the Advanced Patterns concepts in the context of Argo CD.",
-                                                 "Configure or implement the key Argo CD features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Argo CD.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  9,
-                     "topic":  "CI/CD or Deployment Project",
-                     "subtopics":  [
-                                       "Source control",
-                                       "Build",
-                                       "Test",
-                                       "Artifact",
-                                       "Deploy",
-                                       "Rollback",
-                                       "Approval gates",
-                                       "Documentation",
-                                       "Argo CD terminology and feature mapping for this topic",
-                                       "Argo CD configuration and implementation considerations",
-                                       "Argo CD best practices and common mistakes for this topic",
-                                       "GitOps",
-                                       "Application",
-                                       "AppProject",
-                                       "sync",
-                                       "auto-sync",
-                                       "health status",
-                                       "sync waves",
-                                       "hooks",
-                                       "Helm",
-                                       "Kustomize",
-                                       "RBAC",
-                                       "ApplicationSet"
-                                   ],
-                     "tools":  [
-                                   "Argo CD",
-                                   "Kubernetes",
-                                   "Git",
-                                   "Helm"
-                               ],
-                     "lab_task":  "Implement a complete delivery workflow with Argo CD.",
-                     "technology":  "Argo CD",
-                     "technology_id":  "argo-cd",
-                     "learning_objectives":  [
-                                                 "Explain the CI/CD or Deployment Project concepts in the context of Argo CD.",
-                                                 "Configure or implement the key Argo CD features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Argo CD.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "argo-cd"
+  "domain": "Argo CD",
+  "name": "Argo CD â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "aliases": [
+    "ArgoCD",
+    "GitOps Continuous Delivery"
+  ],
+  "tools": [
+    "Argo CD",
+    "Kubernetes",
+    "Git",
+    "Helm"
+  ],
+  "certifications": [
+    "Argo CD official/vendor learning path or relevant professional certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Introduction and Setup",
+      "subtopics": [
+        "Core purpose",
+        "Architecture",
+        "Installation/setup",
+        "Configuration files",
+        "CLI/UI",
+        "Typical workflows",
+        "Terminology",
+        "Argo CD terminology and feature mapping for this topic",
+        "Argo CD configuration and implementation considerations",
+        "Argo CD best practices and common mistakes for this topic",
+        "GitOps",
+        "Application",
+        "AppProject",
+        "sync",
+        "auto-sync",
+        "health status",
+        "sync waves",
+        "hooks",
+        "Helm",
+        "Kustomize",
+        "RBAC",
+        "ApplicationSet"
+      ],
+      "tools": [
+        "Argo CD",
+        "Kubernetes",
+        "Git"
+      ],
+      "lab_task": "Set up Argo CD and run a basic workflow.",
+      "technology": "Argo CD",
+      "technology_id": "argo-cd",
+      "learning_objectives": [
+        "Explain the Introduction and Setup concepts in the context of Argo CD.",
+        "Configure or implement the key Argo CD features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Introduction and Setup practically using Argo CD.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Introduction and Setup': Set up Argo CD and run a basic workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Argo CD and run a basic workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Introduction and Setup' on a prepared training sample through this task: Set up Argo CD and run a basic workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Argo CD and run a basic workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet) and demonstrate the starting sample for: Set up Argo CD and run a basic workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Argo CD and run a basic workflow.",
+          "evidence": "Participant submission for 'Introduction and Setup': Set up Argo CD and run a basic workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Argo CD and run a basic workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Argo CD and run a basic workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Core Configuration",
+      "subtopics": [
+        "Configuration syntax",
+        "Resources/components",
+        "Variables",
+        "Parameters",
+        "Secrets",
+        "Environment-specific configuration",
+        "Validation",
+        "Argo CD terminology and feature mapping for this topic",
+        "Argo CD configuration and implementation considerations",
+        "Argo CD best practices and common mistakes for this topic",
+        "GitOps",
+        "Application",
+        "AppProject",
+        "sync",
+        "auto-sync",
+        "health status",
+        "sync waves",
+        "hooks",
+        "Helm",
+        "Kustomize",
+        "RBAC",
+        "ApplicationSet"
+      ],
+      "tools": [
+        "Argo CD",
+        "Kubernetes",
+        "Git"
+      ],
+      "lab_task": "Create reusable Argo CD configuration for development.",
+      "technology": "Argo CD",
+      "technology_id": "argo-cd",
+      "learning_objectives": [
+        "Explain the Core Configuration concepts in the context of Argo CD.",
+        "Configure or implement the key Argo CD features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Core Configuration practically using Argo CD.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Core Configuration': Create reusable Argo CD configuration for development.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable Argo CD configuration for development.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Core Configuration' on a prepared training sample through this task: Create reusable Argo CD configuration for development..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable Argo CD configuration for development.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet) and demonstrate the starting sample for: Create reusable Argo CD configuration for development.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable Argo CD configuration for development.",
+          "evidence": "Participant submission for 'Core Configuration': Create reusable Argo CD configuration for development.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable Argo CD configuration for development.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable Argo CD configuration for development.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Automation Workflow",
+      "subtopics": [
+        "Triggers",
+        "Stages/steps",
+        "Dependencies",
+        "Artifacts",
+        "Caching",
+        "Retries",
+        "Failure handling",
+        "Notifications",
+        "Argo CD terminology and feature mapping for this topic",
+        "Argo CD configuration and implementation considerations",
+        "Argo CD best practices and common mistakes for this topic",
+        "GitOps",
+        "Application",
+        "AppProject",
+        "sync",
+        "auto-sync",
+        "health status",
+        "sync waves",
+        "hooks",
+        "Helm",
+        "Kustomize",
+        "RBAC",
+        "ApplicationSet"
+      ],
+      "tools": [
+        "Argo CD",
+        "Kubernetes",
+        "Git"
+      ],
+      "lab_task": "Build an automated workflow using Argo CD.",
+      "technology": "Argo CD",
+      "technology_id": "argo-cd",
+      "learning_objectives": [
+        "Explain the Automation Workflow concepts in the context of Argo CD.",
+        "Configure or implement the key Argo CD features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Automation Workflow practically using Argo CD.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Automation Workflow': Build an automated workflow using Argo CD.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an automated workflow using Argo CD.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Automation Workflow' on a prepared training sample through this task: Build an automated workflow using Argo CD..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an automated workflow using Argo CD.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet) and demonstrate the starting sample for: Build an automated workflow using Argo CD.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an automated workflow using Argo CD.",
+          "evidence": "Participant submission for 'Automation Workflow': Build an automated workflow using Argo CD.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an automated workflow using Argo CD.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an automated workflow using Argo CD.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Integration",
+      "subtopics": [
+        "Git integration",
+        "Container integration",
+        "Cloud integration",
+        "API/webhook integration",
+        "Credential management",
+        "Third-party plugins",
+        "Argo CD terminology and feature mapping for this topic",
+        "Argo CD configuration and implementation considerations",
+        "Argo CD best practices and common mistakes for this topic",
+        "GitOps",
+        "Application",
+        "AppProject",
+        "sync",
+        "auto-sync",
+        "health status",
+        "sync waves",
+        "hooks",
+        "Helm",
+        "Kustomize",
+        "RBAC",
+        "ApplicationSet"
+      ],
+      "tools": [
+        "Argo CD",
+        "Kubernetes",
+        "Git",
+        "Helm"
+      ],
+      "lab_task": "Integrate Argo CD with source control and external services.",
+      "technology": "Argo CD",
+      "technology_id": "argo-cd",
+      "learning_objectives": [
+        "Explain the Integration concepts in the context of Argo CD.",
+        "Configure or implement the key Argo CD features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Integration practically using Argo CD.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Integration': Integrate Argo CD with source control and external services.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Integrate Argo CD with source control and external services.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Integration' on a prepared training sample through this task: Integrate Argo CD with source control and external services..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Integrate Argo CD with source control and external services.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet) and demonstrate the starting sample for: Integrate Argo CD with source control and external services.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Integrate Argo CD with source control and external services.",
+          "evidence": "Participant submission for 'Integration': Integrate Argo CD with source control and external services.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Integrate Argo CD with source control and external services.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Integrate Argo CD with source control and external services.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Security",
+      "subtopics": [
+        "Authentication",
+        "Authorization",
+        "Secrets",
+        "Least privilege",
+        "Supply-chain concerns",
+        "Audit logs",
+        "Policy controls",
+        "Argo CD terminology and feature mapping for this topic",
+        "Argo CD configuration and implementation considerations",
+        "Argo CD best practices and common mistakes for this topic",
+        "GitOps",
+        "Application",
+        "AppProject",
+        "sync",
+        "auto-sync",
+        "health status",
+        "sync waves",
+        "hooks",
+        "Helm",
+        "Kustomize",
+        "RBAC",
+        "ApplicationSet"
+      ],
+      "tools": [
+        "Argo CD",
+        "Kubernetes",
+        "Git"
+      ],
+      "lab_task": "Harden a Argo CD setup.",
+      "technology": "Argo CD",
+      "technology_id": "argo-cd",
+      "learning_objectives": [
+        "Explain the Security concepts in the context of Argo CD.",
+        "Configure or implement the key Argo CD features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Security practically using Argo CD.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Security': Harden a Argo CD setup.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Harden a Argo CD setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Security' on a prepared training sample through this task: Harden a Argo CD setup..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Harden a Argo CD setup.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet) and demonstrate the starting sample for: Harden a Argo CD setup.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Harden a Argo CD setup.",
+          "evidence": "Participant submission for 'Security': Harden a Argo CD setup.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Harden a Argo CD setup.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Harden a Argo CD setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Scaling and Reliability",
+      "subtopics": [
+        "Agents/runners/nodes",
+        "Parallel execution",
+        "High availability",
+        "State management",
+        "Backups",
+        "Failure recovery",
+        "Capacity planning",
+        "Argo CD terminology and feature mapping for this topic",
+        "Argo CD configuration and implementation considerations",
+        "Argo CD best practices and common mistakes for this topic",
+        "GitOps",
+        "Application",
+        "AppProject",
+        "sync",
+        "auto-sync",
+        "health status",
+        "sync waves",
+        "hooks",
+        "Helm",
+        "Kustomize",
+        "RBAC",
+        "ApplicationSet"
+      ],
+      "tools": [
+        "Argo CD",
+        "Kubernetes",
+        "Git"
+      ],
+      "lab_task": "Design a scalable and resilient Argo CD setup.",
+      "technology": "Argo CD",
+      "technology_id": "argo-cd",
+      "learning_objectives": [
+        "Explain the Scaling and Reliability concepts in the context of Argo CD.",
+        "Configure or implement the key Argo CD features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Scaling and Reliability practically using Argo CD.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Scaling and Reliability': Design a scalable and resilient Argo CD setup.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a scalable and resilient Argo CD setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Scaling and Reliability' on a prepared training sample through this task: Design a scalable and resilient Argo CD setup..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a scalable and resilient Argo CD setup.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet) and demonstrate the starting sample for: Design a scalable and resilient Argo CD setup.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a scalable and resilient Argo CD setup.",
+          "evidence": "Participant submission for 'Scaling and Reliability': Design a scalable and resilient Argo CD setup.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a scalable and resilient Argo CD setup.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a scalable and resilient Argo CD setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Observability and Troubleshooting",
+      "subtopics": [
+        "Logs",
+        "Metrics",
+        "Debugging",
+        "Failure diagnosis",
+        "Performance bottlenecks",
+        "Alerting",
+        "Operational runbooks",
+        "Argo CD terminology and feature mapping for this topic",
+        "Argo CD configuration and implementation considerations",
+        "Argo CD best practices and common mistakes for this topic",
+        "GitOps",
+        "Application",
+        "AppProject",
+        "sync",
+        "auto-sync",
+        "health status",
+        "sync waves",
+        "hooks",
+        "Helm",
+        "Kustomize",
+        "RBAC",
+        "ApplicationSet"
+      ],
+      "tools": [
+        "Argo CD",
+        "Kubernetes",
+        "Git"
+      ],
+      "lab_task": "Troubleshoot an intentionally failing Argo CD workflow.",
+      "technology": "Argo CD",
+      "technology_id": "argo-cd",
+      "learning_objectives": [
+        "Explain the Observability and Troubleshooting concepts in the context of Argo CD.",
+        "Configure or implement the key Argo CD features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Observability and Troubleshooting practically using Argo CD.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Observability and Troubleshooting': Troubleshoot an intentionally failing Argo CD workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Troubleshoot an intentionally failing Argo CD workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Observability and Troubleshooting' on a prepared training sample through this task: Troubleshoot an intentionally failing Argo CD workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Troubleshoot an intentionally failing Argo CD workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet) and demonstrate the starting sample for: Troubleshoot an intentionally failing Argo CD workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Troubleshoot an intentionally failing Argo CD workflow.",
+          "evidence": "Participant submission for 'Observability and Troubleshooting': Troubleshoot an intentionally failing Argo CD workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Troubleshoot an intentionally failing Argo CD workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Troubleshoot an intentionally failing Argo CD workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Advanced Patterns",
+      "subtopics": [
+        "Reusable modules/templates",
+        "Multi-environment strategy",
+        "Promotion strategy",
+        "Policy as code concepts",
+        "GitOps/IaC patterns",
+        "Best practices",
+        "Argo CD terminology and feature mapping for this topic",
+        "Argo CD configuration and implementation considerations",
+        "Argo CD best practices and common mistakes for this topic",
+        "GitOps",
+        "Application",
+        "AppProject",
+        "sync",
+        "auto-sync",
+        "health status",
+        "sync waves",
+        "hooks",
+        "Helm",
+        "Kustomize",
+        "RBAC",
+        "ApplicationSet"
+      ],
+      "tools": [
+        "Argo CD",
+        "Kubernetes",
+        "Git",
+        "Helm"
+      ],
+      "lab_task": "Create reusable production-grade patterns.",
+      "technology": "Argo CD",
+      "technology_id": "argo-cd",
+      "learning_objectives": [
+        "Explain the Advanced Patterns concepts in the context of Argo CD.",
+        "Configure or implement the key Argo CD features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Advanced Patterns practically using Argo CD.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Advanced Patterns': Create reusable production-grade patterns.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable production-grade patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Advanced Patterns' on a prepared training sample through this task: Create reusable production-grade patterns..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable production-grade patterns.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet) and demonstrate the starting sample for: Create reusable production-grade patterns.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable production-grade patterns.",
+          "evidence": "Participant submission for 'Advanced Patterns': Create reusable production-grade patterns.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable production-grade patterns.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable production-grade patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "CI/CD or Deployment Project",
+      "subtopics": [
+        "Source control",
+        "Build",
+        "Test",
+        "Artifact",
+        "Deploy",
+        "Rollback",
+        "Approval gates",
+        "Documentation",
+        "Argo CD terminology and feature mapping for this topic",
+        "Argo CD configuration and implementation considerations",
+        "Argo CD best practices and common mistakes for this topic",
+        "GitOps",
+        "Application",
+        "AppProject",
+        "sync",
+        "auto-sync",
+        "health status",
+        "sync waves",
+        "hooks",
+        "Helm",
+        "Kustomize",
+        "RBAC",
+        "ApplicationSet"
+      ],
+      "tools": [
+        "Argo CD",
+        "Kubernetes",
+        "Git",
+        "Helm"
+      ],
+      "lab_task": "Implement a complete delivery workflow with Argo CD.",
+      "technology": "Argo CD",
+      "technology_id": "argo-cd",
+      "learning_objectives": [
+        "Explain the CI/CD or Deployment Project concepts in the context of Argo CD.",
+        "Configure or implement the key Argo CD features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply CI/CD or Deployment Project practically using Argo CD.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'CI/CD or Deployment Project': Implement a complete delivery workflow with Argo CD.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement a complete delivery workflow with Argo CD.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'CI/CD or Deployment Project' on a prepared training sample through this task: Implement a complete delivery workflow with Argo CD..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement a complete delivery workflow with Argo CD.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet) and demonstrate the starting sample for: Implement a complete delivery workflow with Argo CD.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement a complete delivery workflow with Argo CD.",
+          "evidence": "Participant submission for 'CI/CD or Deployment Project': Implement a complete delivery workflow with Argo CD.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement a complete delivery workflow with Argo CD.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement a complete delivery workflow with Argo CD.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Argo CD terminology and feature mapping for this topic; Argo CD configuration and implementation considerations; Argo CD best practices and common mistakes for this topic; GitOps; Application; AppProject; sync; auto-sync; health status; sync waves; hooks; Helm; Kustomize; RBAC; ApplicationSet). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "argo-cd",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

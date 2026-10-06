@@ -1,419 +1,811 @@
 {
-    "domain":  "Azure DevOps",
-    "name":  "Azure DevOps â€“ Comprehensive Fundamentals to Advanced Curriculum",
-    "aliases":  [
-                    "ADO",
-                    "Azure Boards/Pipelines/Repos"
-                ],
-    "tools":  [
-                  "Azure Boards",
-                  "Azure Repos",
-                  "Azure Pipelines",
-                  "Artifacts",
-                  "Test Plans"
-              ],
-    "certifications":  [
-                           "Microsoft Certified: DevOps Engineer Expert"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "Introduction and Setup",
-                     "subtopics":  [
-                                       "Core purpose",
-                                       "Architecture",
-                                       "Installation/setup",
-                                       "Configuration files",
-                                       "CLI/UI",
-                                       "Typical workflows",
-                                       "Terminology",
-                                       "Azure DevOps terminology and feature mapping for this topic",
-                                       "Azure DevOps configuration and implementation considerations",
-                                       "Azure DevOps best practices and common mistakes for this topic",
-                                       "Azure Boards",
-                                       "Repos",
-                                       "Pipelines",
-                                       "Artifacts",
-                                       "Test Plans",
-                                       "YAML pipelines",
-                                       "agents",
-                                       "service connections",
-                                       "variable groups",
-                                       "environments",
-                                       "approvals",
-                                       "branch policies"
-                                   ],
-                     "tools":  [
-                                   "Azure Boards",
-                                   "Azure Repos",
-                                   "Azure Pipelines"
-                               ],
-                     "lab_task":  "Set up Azure DevOps and run a basic workflow.",
-                     "technology":  "Azure DevOps",
-                     "technology_id":  "azure-devops",
-                     "learning_objectives":  [
-                                                 "Explain the Introduction and Setup concepts in the context of Azure DevOps.",
-                                                 "Configure or implement the key Azure DevOps features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Introduction and Setup practically using Azure DevOps.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Core Configuration",
-                     "subtopics":  [
-                                       "Configuration syntax",
-                                       "Resources/components",
-                                       "Variables",
-                                       "Parameters",
-                                       "Secrets",
-                                       "Environment-specific configuration",
-                                       "Validation",
-                                       "Azure DevOps terminology and feature mapping for this topic",
-                                       "Azure DevOps configuration and implementation considerations",
-                                       "Azure DevOps best practices and common mistakes for this topic",
-                                       "Azure Boards",
-                                       "Repos",
-                                       "Pipelines",
-                                       "Artifacts",
-                                       "Test Plans",
-                                       "YAML pipelines",
-                                       "agents",
-                                       "service connections",
-                                       "variable groups",
-                                       "environments",
-                                       "approvals",
-                                       "branch policies"
-                                   ],
-                     "tools":  [
-                                   "Azure Boards",
-                                   "Azure Repos",
-                                   "Azure Pipelines"
-                               ],
-                     "lab_task":  "Create reusable Azure DevOps configuration for development.",
-                     "technology":  "Azure DevOps",
-                     "technology_id":  "azure-devops",
-                     "learning_objectives":  [
-                                                 "Explain the Core Configuration concepts in the context of Azure DevOps.",
-                                                 "Configure or implement the key Azure DevOps features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Core Configuration practically using Azure DevOps.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Automation Workflow",
-                     "subtopics":  [
-                                       "Triggers",
-                                       "Stages/steps",
-                                       "Dependencies",
-                                       "Artifacts",
-                                       "Caching",
-                                       "Retries",
-                                       "Failure handling",
-                                       "Notifications",
-                                       "Azure DevOps terminology and feature mapping for this topic",
-                                       "Azure DevOps configuration and implementation considerations",
-                                       "Azure DevOps best practices and common mistakes for this topic",
-                                       "Azure Boards",
-                                       "Repos",
-                                       "Pipelines",
-                                       "Test Plans",
-                                       "YAML pipelines",
-                                       "agents",
-                                       "service connections",
-                                       "variable groups",
-                                       "environments",
-                                       "approvals",
-                                       "branch policies"
-                                   ],
-                     "tools":  [
-                                   "Azure Boards",
-                                   "Azure Repos",
-                                   "Azure Pipelines"
-                               ],
-                     "lab_task":  "Build an automated workflow using Azure DevOps.",
-                     "technology":  "Azure DevOps",
-                     "technology_id":  "azure-devops",
-                     "learning_objectives":  [
-                                                 "Explain the Automation Workflow concepts in the context of Azure DevOps.",
-                                                 "Configure or implement the key Azure DevOps features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Automation Workflow practically using Azure DevOps.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Integration",
-                     "subtopics":  [
-                                       "Git integration",
-                                       "Container integration",
-                                       "Cloud integration",
-                                       "API/webhook integration",
-                                       "Credential management",
-                                       "Third-party plugins",
-                                       "Azure DevOps terminology and feature mapping for this topic",
-                                       "Azure DevOps configuration and implementation considerations",
-                                       "Azure DevOps best practices and common mistakes for this topic",
-                                       "Azure Boards",
-                                       "Repos",
-                                       "Pipelines",
-                                       "Artifacts",
-                                       "Test Plans",
-                                       "YAML pipelines",
-                                       "agents",
-                                       "service connections",
-                                       "variable groups",
-                                       "environments",
-                                       "approvals",
-                                       "branch policies"
-                                   ],
-                     "tools":  [
-                                   "Azure Boards",
-                                   "Azure Repos",
-                                   "Azure Pipelines",
-                                   "Artifacts"
-                               ],
-                     "lab_task":  "Integrate Azure DevOps with source control and external services.",
-                     "technology":  "Azure DevOps",
-                     "technology_id":  "azure-devops",
-                     "learning_objectives":  [
-                                                 "Explain the Integration concepts in the context of Azure DevOps.",
-                                                 "Configure or implement the key Azure DevOps features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Integration practically using Azure DevOps.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Security",
-                     "subtopics":  [
-                                       "Authentication",
-                                       "Authorization",
-                                       "Secrets",
-                                       "Least privilege",
-                                       "Supply-chain concerns",
-                                       "Audit logs",
-                                       "Policy controls",
-                                       "Azure DevOps terminology and feature mapping for this topic",
-                                       "Azure DevOps configuration and implementation considerations",
-                                       "Azure DevOps best practices and common mistakes for this topic",
-                                       "Azure Boards",
-                                       "Repos",
-                                       "Pipelines",
-                                       "Artifacts",
-                                       "Test Plans",
-                                       "YAML pipelines",
-                                       "agents",
-                                       "service connections",
-                                       "variable groups",
-                                       "environments",
-                                       "approvals",
-                                       "branch policies"
-                                   ],
-                     "tools":  [
-                                   "Azure Boards",
-                                   "Azure Repos",
-                                   "Azure Pipelines"
-                               ],
-                     "lab_task":  "Harden a Azure DevOps setup.",
-                     "technology":  "Azure DevOps",
-                     "technology_id":  "azure-devops",
-                     "learning_objectives":  [
-                                                 "Explain the Security concepts in the context of Azure DevOps.",
-                                                 "Configure or implement the key Azure DevOps features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Security practically using Azure DevOps.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "Scaling and Reliability",
-                     "subtopics":  [
-                                       "Agents/runners/nodes",
-                                       "Parallel execution",
-                                       "High availability",
-                                       "State management",
-                                       "Backups",
-                                       "Failure recovery",
-                                       "Capacity planning",
-                                       "Azure DevOps terminology and feature mapping for this topic",
-                                       "Azure DevOps configuration and implementation considerations",
-                                       "Azure DevOps best practices and common mistakes for this topic",
-                                       "Azure Boards",
-                                       "Repos",
-                                       "Pipelines",
-                                       "Artifacts",
-                                       "Test Plans",
-                                       "YAML pipelines",
-                                       "agents",
-                                       "service connections",
-                                       "variable groups",
-                                       "environments",
-                                       "approvals",
-                                       "branch policies"
-                                   ],
-                     "tools":  [
-                                   "Azure Boards",
-                                   "Azure Repos",
-                                   "Azure Pipelines"
-                               ],
-                     "lab_task":  "Design a scalable and resilient Azure DevOps setup.",
-                     "technology":  "Azure DevOps",
-                     "technology_id":  "azure-devops",
-                     "learning_objectives":  [
-                                                 "Explain the Scaling and Reliability concepts in the context of Azure DevOps.",
-                                                 "Configure or implement the key Azure DevOps features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Scaling and Reliability practically using Azure DevOps.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "Observability and Troubleshooting",
-                     "subtopics":  [
-                                       "Logs",
-                                       "Metrics",
-                                       "Debugging",
-                                       "Failure diagnosis",
-                                       "Performance bottlenecks",
-                                       "Alerting",
-                                       "Operational runbooks",
-                                       "Azure DevOps terminology and feature mapping for this topic",
-                                       "Azure DevOps configuration and implementation considerations",
-                                       "Azure DevOps best practices and common mistakes for this topic",
-                                       "Azure Boards",
-                                       "Repos",
-                                       "Pipelines",
-                                       "Artifacts",
-                                       "Test Plans",
-                                       "YAML pipelines",
-                                       "agents",
-                                       "service connections",
-                                       "variable groups",
-                                       "environments",
-                                       "approvals",
-                                       "branch policies"
-                                   ],
-                     "tools":  [
-                                   "Azure Boards",
-                                   "Azure Repos",
-                                   "Azure Pipelines"
-                               ],
-                     "lab_task":  "Troubleshoot an intentionally failing Azure DevOps workflow.",
-                     "technology":  "Azure DevOps",
-                     "technology_id":  "azure-devops",
-                     "learning_objectives":  [
-                                                 "Explain the Observability and Troubleshooting concepts in the context of Azure DevOps.",
-                                                 "Configure or implement the key Azure DevOps features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Observability and Troubleshooting practically using Azure DevOps.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "Advanced Patterns",
-                     "subtopics":  [
-                                       "Reusable modules/templates",
-                                       "Multi-environment strategy",
-                                       "Promotion strategy",
-                                       "Policy as code concepts",
-                                       "GitOps/IaC patterns",
-                                       "Best practices",
-                                       "Azure DevOps terminology and feature mapping for this topic",
-                                       "Azure DevOps configuration and implementation considerations",
-                                       "Azure DevOps best practices and common mistakes for this topic",
-                                       "Azure Boards",
-                                       "Repos",
-                                       "Pipelines",
-                                       "Artifacts",
-                                       "Test Plans",
-                                       "YAML pipelines",
-                                       "agents",
-                                       "service connections",
-                                       "variable groups",
-                                       "environments",
-                                       "approvals",
-                                       "branch policies"
-                                   ],
-                     "tools":  [
-                                   "Azure Boards",
-                                   "Azure Repos",
-                                   "Azure Pipelines",
-                                   "Artifacts"
-                               ],
-                     "lab_task":  "Create reusable production-grade patterns.",
-                     "technology":  "Azure DevOps",
-                     "technology_id":  "azure-devops",
-                     "learning_objectives":  [
-                                                 "Explain the Advanced Patterns concepts in the context of Azure DevOps.",
-                                                 "Configure or implement the key Azure DevOps features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Advanced Patterns practically using Azure DevOps.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  9,
-                     "topic":  "CI/CD or Deployment Project",
-                     "subtopics":  [
-                                       "Source control",
-                                       "Build",
-                                       "Test",
-                                       "Artifact",
-                                       "Deploy",
-                                       "Rollback",
-                                       "Approval gates",
-                                       "Documentation",
-                                       "Azure DevOps terminology and feature mapping for this topic",
-                                       "Azure DevOps configuration and implementation considerations",
-                                       "Azure DevOps best practices and common mistakes for this topic",
-                                       "Azure Boards",
-                                       "Repos",
-                                       "Pipelines",
-                                       "Artifacts",
-                                       "Test Plans",
-                                       "YAML pipelines",
-                                       "agents",
-                                       "service connections",
-                                       "variable groups",
-                                       "environments",
-                                       "approvals",
-                                       "branch policies"
-                                   ],
-                     "tools":  [
-                                   "Azure Boards",
-                                   "Azure Repos",
-                                   "Azure Pipelines",
-                                   "Artifacts"
-                               ],
-                     "lab_task":  "Implement a complete delivery workflow with Azure DevOps.",
-                     "technology":  "Azure DevOps",
-                     "technology_id":  "azure-devops",
-                     "learning_objectives":  [
-                                                 "Explain the CI/CD or Deployment Project concepts in the context of Azure DevOps.",
-                                                 "Configure or implement the key Azure DevOps features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply CI/CD or Deployment Project practically using Azure DevOps.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "azure-devops"
+  "domain": "Azure DevOps",
+  "name": "Azure DevOps â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "aliases": [
+    "ADO",
+    "Azure Boards/Pipelines/Repos"
+  ],
+  "tools": [
+    "Azure Boards",
+    "Azure Repos",
+    "Azure Pipelines",
+    "Artifacts",
+    "Test Plans"
+  ],
+  "certifications": [
+    "Microsoft Certified: DevOps Engineer Expert"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Introduction and Setup",
+      "subtopics": [
+        "Core purpose",
+        "Architecture",
+        "Installation/setup",
+        "Configuration files",
+        "CLI/UI",
+        "Typical workflows",
+        "Terminology",
+        "Azure DevOps terminology and feature mapping for this topic",
+        "Azure DevOps configuration and implementation considerations",
+        "Azure DevOps best practices and common mistakes for this topic",
+        "Azure Boards",
+        "Repos",
+        "Pipelines",
+        "Artifacts",
+        "Test Plans",
+        "YAML pipelines",
+        "agents",
+        "service connections",
+        "variable groups",
+        "environments",
+        "approvals",
+        "branch policies"
+      ],
+      "tools": [
+        "Azure Boards",
+        "Azure Repos",
+        "Azure Pipelines"
+      ],
+      "lab_task": "Set up Azure DevOps and run a basic workflow.",
+      "technology": "Azure DevOps",
+      "technology_id": "azure-devops",
+      "learning_objectives": [
+        "Explain the Introduction and Setup concepts in the context of Azure DevOps.",
+        "Configure or implement the key Azure DevOps features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Introduction and Setup practically using Azure DevOps.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Introduction and Setup': Set up Azure DevOps and run a basic workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up Azure DevOps and run a basic workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Introduction and Setup' on a prepared training sample through this task: Set up Azure DevOps and run a basic workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up Azure DevOps and run a basic workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies) and demonstrate the starting sample for: Set up Azure DevOps and run a basic workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up Azure DevOps and run a basic workflow.",
+          "evidence": "Participant submission for 'Introduction and Setup': Set up Azure DevOps and run a basic workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up Azure DevOps and run a basic workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up Azure DevOps and run a basic workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core purpose; Architecture; Installation/setup; Configuration files; CLI/UI; Typical workflows; Terminology; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Core Configuration",
+      "subtopics": [
+        "Configuration syntax",
+        "Resources/components",
+        "Variables",
+        "Parameters",
+        "Secrets",
+        "Environment-specific configuration",
+        "Validation",
+        "Azure DevOps terminology and feature mapping for this topic",
+        "Azure DevOps configuration and implementation considerations",
+        "Azure DevOps best practices and common mistakes for this topic",
+        "Azure Boards",
+        "Repos",
+        "Pipelines",
+        "Artifacts",
+        "Test Plans",
+        "YAML pipelines",
+        "agents",
+        "service connections",
+        "variable groups",
+        "environments",
+        "approvals",
+        "branch policies"
+      ],
+      "tools": [
+        "Azure Boards",
+        "Azure Repos",
+        "Azure Pipelines"
+      ],
+      "lab_task": "Create reusable Azure DevOps configuration for development.",
+      "technology": "Azure DevOps",
+      "technology_id": "azure-devops",
+      "learning_objectives": [
+        "Explain the Core Configuration concepts in the context of Azure DevOps.",
+        "Configure or implement the key Azure DevOps features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Core Configuration practically using Azure DevOps.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Core Configuration': Create reusable Azure DevOps configuration for development.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable Azure DevOps configuration for development.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Core Configuration' on a prepared training sample through this task: Create reusable Azure DevOps configuration for development..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable Azure DevOps configuration for development.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies) and demonstrate the starting sample for: Create reusable Azure DevOps configuration for development.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable Azure DevOps configuration for development.",
+          "evidence": "Participant submission for 'Core Configuration': Create reusable Azure DevOps configuration for development.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable Azure DevOps configuration for development.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable Azure DevOps configuration for development.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration syntax; Resources/components; Variables; Parameters; Secrets; Environment-specific configuration; Validation; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Automation Workflow",
+      "subtopics": [
+        "Triggers",
+        "Stages/steps",
+        "Dependencies",
+        "Artifacts",
+        "Caching",
+        "Retries",
+        "Failure handling",
+        "Notifications",
+        "Azure DevOps terminology and feature mapping for this topic",
+        "Azure DevOps configuration and implementation considerations",
+        "Azure DevOps best practices and common mistakes for this topic",
+        "Azure Boards",
+        "Repos",
+        "Pipelines",
+        "Test Plans",
+        "YAML pipelines",
+        "agents",
+        "service connections",
+        "variable groups",
+        "environments",
+        "approvals",
+        "branch policies"
+      ],
+      "tools": [
+        "Azure Boards",
+        "Azure Repos",
+        "Azure Pipelines"
+      ],
+      "lab_task": "Build an automated workflow using Azure DevOps.",
+      "technology": "Azure DevOps",
+      "technology_id": "azure-devops",
+      "learning_objectives": [
+        "Explain the Automation Workflow concepts in the context of Azure DevOps.",
+        "Configure or implement the key Azure DevOps features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Automation Workflow practically using Azure DevOps.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Automation Workflow': Build an automated workflow using Azure DevOps.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an automated workflow using Azure DevOps.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Automation Workflow' on a prepared training sample through this task: Build an automated workflow using Azure DevOps..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an automated workflow using Azure DevOps.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies) and demonstrate the starting sample for: Build an automated workflow using Azure DevOps.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an automated workflow using Azure DevOps.",
+          "evidence": "Participant submission for 'Automation Workflow': Build an automated workflow using Azure DevOps.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an automated workflow using Azure DevOps.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an automated workflow using Azure DevOps.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Triggers; Stages/steps; Dependencies; Artifacts; Caching; Retries; Failure handling; Notifications; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Integration",
+      "subtopics": [
+        "Git integration",
+        "Container integration",
+        "Cloud integration",
+        "API/webhook integration",
+        "Credential management",
+        "Third-party plugins",
+        "Azure DevOps terminology and feature mapping for this topic",
+        "Azure DevOps configuration and implementation considerations",
+        "Azure DevOps best practices and common mistakes for this topic",
+        "Azure Boards",
+        "Repos",
+        "Pipelines",
+        "Artifacts",
+        "Test Plans",
+        "YAML pipelines",
+        "agents",
+        "service connections",
+        "variable groups",
+        "environments",
+        "approvals",
+        "branch policies"
+      ],
+      "tools": [
+        "Azure Boards",
+        "Azure Repos",
+        "Azure Pipelines",
+        "Artifacts"
+      ],
+      "lab_task": "Integrate Azure DevOps with source control and external services.",
+      "technology": "Azure DevOps",
+      "technology_id": "azure-devops",
+      "learning_objectives": [
+        "Explain the Integration concepts in the context of Azure DevOps.",
+        "Configure or implement the key Azure DevOps features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Integration practically using Azure DevOps.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Integration': Integrate Azure DevOps with source control and external services.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Integrate Azure DevOps with source control and external services.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Integration' on a prepared training sample through this task: Integrate Azure DevOps with source control and external services..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Integrate Azure DevOps with source control and external services.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies) and demonstrate the starting sample for: Integrate Azure DevOps with source control and external services.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Integrate Azure DevOps with source control and external services.",
+          "evidence": "Participant submission for 'Integration': Integrate Azure DevOps with source control and external services.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Integrate Azure DevOps with source control and external services.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Integrate Azure DevOps with source control and external services.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Git integration; Container integration; Cloud integration; API/webhook integration; Credential management; Third-party plugins; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Security",
+      "subtopics": [
+        "Authentication",
+        "Authorization",
+        "Secrets",
+        "Least privilege",
+        "Supply-chain concerns",
+        "Audit logs",
+        "Policy controls",
+        "Azure DevOps terminology and feature mapping for this topic",
+        "Azure DevOps configuration and implementation considerations",
+        "Azure DevOps best practices and common mistakes for this topic",
+        "Azure Boards",
+        "Repos",
+        "Pipelines",
+        "Artifacts",
+        "Test Plans",
+        "YAML pipelines",
+        "agents",
+        "service connections",
+        "variable groups",
+        "environments",
+        "approvals",
+        "branch policies"
+      ],
+      "tools": [
+        "Azure Boards",
+        "Azure Repos",
+        "Azure Pipelines"
+      ],
+      "lab_task": "Harden a Azure DevOps setup.",
+      "technology": "Azure DevOps",
+      "technology_id": "azure-devops",
+      "learning_objectives": [
+        "Explain the Security concepts in the context of Azure DevOps.",
+        "Configure or implement the key Azure DevOps features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Security practically using Azure DevOps.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Security': Harden a Azure DevOps setup.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Harden a Azure DevOps setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Security' on a prepared training sample through this task: Harden a Azure DevOps setup..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Harden a Azure DevOps setup.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies) and demonstrate the starting sample for: Harden a Azure DevOps setup.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Harden a Azure DevOps setup.",
+          "evidence": "Participant submission for 'Security': Harden a Azure DevOps setup.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Harden a Azure DevOps setup.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Harden a Azure DevOps setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Secrets; Least privilege; Supply-chain concerns; Audit logs; Policy controls; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Scaling and Reliability",
+      "subtopics": [
+        "Agents/runners/nodes",
+        "Parallel execution",
+        "High availability",
+        "State management",
+        "Backups",
+        "Failure recovery",
+        "Capacity planning",
+        "Azure DevOps terminology and feature mapping for this topic",
+        "Azure DevOps configuration and implementation considerations",
+        "Azure DevOps best practices and common mistakes for this topic",
+        "Azure Boards",
+        "Repos",
+        "Pipelines",
+        "Artifacts",
+        "Test Plans",
+        "YAML pipelines",
+        "agents",
+        "service connections",
+        "variable groups",
+        "environments",
+        "approvals",
+        "branch policies"
+      ],
+      "tools": [
+        "Azure Boards",
+        "Azure Repos",
+        "Azure Pipelines"
+      ],
+      "lab_task": "Design a scalable and resilient Azure DevOps setup.",
+      "technology": "Azure DevOps",
+      "technology_id": "azure-devops",
+      "learning_objectives": [
+        "Explain the Scaling and Reliability concepts in the context of Azure DevOps.",
+        "Configure or implement the key Azure DevOps features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Scaling and Reliability practically using Azure DevOps.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Scaling and Reliability': Design a scalable and resilient Azure DevOps setup.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a scalable and resilient Azure DevOps setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Scaling and Reliability' on a prepared training sample through this task: Design a scalable and resilient Azure DevOps setup..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a scalable and resilient Azure DevOps setup.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies) and demonstrate the starting sample for: Design a scalable and resilient Azure DevOps setup.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a scalable and resilient Azure DevOps setup.",
+          "evidence": "Participant submission for 'Scaling and Reliability': Design a scalable and resilient Azure DevOps setup.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a scalable and resilient Azure DevOps setup.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a scalable and resilient Azure DevOps setup.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Agents/runners/nodes; Parallel execution; High availability; State management; Backups; Failure recovery; Capacity planning; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Observability and Troubleshooting",
+      "subtopics": [
+        "Logs",
+        "Metrics",
+        "Debugging",
+        "Failure diagnosis",
+        "Performance bottlenecks",
+        "Alerting",
+        "Operational runbooks",
+        "Azure DevOps terminology and feature mapping for this topic",
+        "Azure DevOps configuration and implementation considerations",
+        "Azure DevOps best practices and common mistakes for this topic",
+        "Azure Boards",
+        "Repos",
+        "Pipelines",
+        "Artifacts",
+        "Test Plans",
+        "YAML pipelines",
+        "agents",
+        "service connections",
+        "variable groups",
+        "environments",
+        "approvals",
+        "branch policies"
+      ],
+      "tools": [
+        "Azure Boards",
+        "Azure Repos",
+        "Azure Pipelines"
+      ],
+      "lab_task": "Troubleshoot an intentionally failing Azure DevOps workflow.",
+      "technology": "Azure DevOps",
+      "technology_id": "azure-devops",
+      "learning_objectives": [
+        "Explain the Observability and Troubleshooting concepts in the context of Azure DevOps.",
+        "Configure or implement the key Azure DevOps features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Observability and Troubleshooting practically using Azure DevOps.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Observability and Troubleshooting': Troubleshoot an intentionally failing Azure DevOps workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Troubleshoot an intentionally failing Azure DevOps workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Observability and Troubleshooting' on a prepared training sample through this task: Troubleshoot an intentionally failing Azure DevOps workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Troubleshoot an intentionally failing Azure DevOps workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies) and demonstrate the starting sample for: Troubleshoot an intentionally failing Azure DevOps workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Troubleshoot an intentionally failing Azure DevOps workflow.",
+          "evidence": "Participant submission for 'Observability and Troubleshooting': Troubleshoot an intentionally failing Azure DevOps workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Troubleshoot an intentionally failing Azure DevOps workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Troubleshoot an intentionally failing Azure DevOps workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Debugging; Failure diagnosis; Performance bottlenecks; Alerting; Operational runbooks; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Advanced Patterns",
+      "subtopics": [
+        "Reusable modules/templates",
+        "Multi-environment strategy",
+        "Promotion strategy",
+        "Policy as code concepts",
+        "GitOps/IaC patterns",
+        "Best practices",
+        "Azure DevOps terminology and feature mapping for this topic",
+        "Azure DevOps configuration and implementation considerations",
+        "Azure DevOps best practices and common mistakes for this topic",
+        "Azure Boards",
+        "Repos",
+        "Pipelines",
+        "Artifacts",
+        "Test Plans",
+        "YAML pipelines",
+        "agents",
+        "service connections",
+        "variable groups",
+        "environments",
+        "approvals",
+        "branch policies"
+      ],
+      "tools": [
+        "Azure Boards",
+        "Azure Repos",
+        "Azure Pipelines",
+        "Artifacts"
+      ],
+      "lab_task": "Create reusable production-grade patterns.",
+      "technology": "Azure DevOps",
+      "technology_id": "azure-devops",
+      "learning_objectives": [
+        "Explain the Advanced Patterns concepts in the context of Azure DevOps.",
+        "Configure or implement the key Azure DevOps features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Advanced Patterns practically using Azure DevOps.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Advanced Patterns': Create reusable production-grade patterns.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create reusable production-grade patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Advanced Patterns' on a prepared training sample through this task: Create reusable production-grade patterns..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create reusable production-grade patterns.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies) and demonstrate the starting sample for: Create reusable production-grade patterns.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create reusable production-grade patterns.",
+          "evidence": "Participant submission for 'Advanced Patterns': Create reusable production-grade patterns.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create reusable production-grade patterns.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create reusable production-grade patterns.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Reusable modules/templates; Multi-environment strategy; Promotion strategy; Policy as code concepts; GitOps/IaC patterns; Best practices; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "CI/CD or Deployment Project",
+      "subtopics": [
+        "Source control",
+        "Build",
+        "Test",
+        "Artifact",
+        "Deploy",
+        "Rollback",
+        "Approval gates",
+        "Documentation",
+        "Azure DevOps terminology and feature mapping for this topic",
+        "Azure DevOps configuration and implementation considerations",
+        "Azure DevOps best practices and common mistakes for this topic",
+        "Azure Boards",
+        "Repos",
+        "Pipelines",
+        "Artifacts",
+        "Test Plans",
+        "YAML pipelines",
+        "agents",
+        "service connections",
+        "variable groups",
+        "environments",
+        "approvals",
+        "branch policies"
+      ],
+      "tools": [
+        "Azure Boards",
+        "Azure Repos",
+        "Azure Pipelines",
+        "Artifacts"
+      ],
+      "lab_task": "Implement a complete delivery workflow with Azure DevOps.",
+      "technology": "Azure DevOps",
+      "technology_id": "azure-devops",
+      "learning_objectives": [
+        "Explain the CI/CD or Deployment Project concepts in the context of Azure DevOps.",
+        "Configure or implement the key Azure DevOps features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply CI/CD or Deployment Project practically using Azure DevOps.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'CI/CD or Deployment Project': Implement a complete delivery workflow with Azure DevOps.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Implement a complete delivery workflow with Azure DevOps.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'CI/CD or Deployment Project' on a prepared training sample through this task: Implement a complete delivery workflow with Azure DevOps..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Implement a complete delivery workflow with Azure DevOps.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies) and demonstrate the starting sample for: Implement a complete delivery workflow with Azure DevOps.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Implement a complete delivery workflow with Azure DevOps.",
+          "evidence": "Participant submission for 'CI/CD or Deployment Project': Implement a complete delivery workflow with Azure DevOps.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Implement a complete delivery workflow with Azure DevOps.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Implement a complete delivery workflow with Azure DevOps.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Source control; Build; Test; Artifact; Deploy; Rollback; Approval gates; Documentation; Azure DevOps terminology and feature mapping for this topic; Azure DevOps configuration and implementation considerations; Azure DevOps best practices and common mistakes for this topic; Azure Boards; Repos; Pipelines; Artifacts; Test Plans; YAML pipelines; agents; service connections; variable groups; environments; approvals; branch policies). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "azure-devops",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

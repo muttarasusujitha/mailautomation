@@ -63,11 +63,39 @@ async def _send_due_no_show_notices():
         if not email_id:
             skipped += 1
             continue
+        # A completed interview must never result in a no-show email, even if
+        # Meet attendance information was incomplete or delayed.
+        requirement_id = _clean(log.get("requirement_id"))
+        if requirement_id:
+            try:
+                requirement = await db["requirements"].find_one(
+                    {"requirement_id": requirement_id},
+                    {"_id": 0, "interview_status": 1},
+                ) or {}
+            except (KeyError, TypeError):
+                # Supports the lightweight database doubles used in tests.
+                requirement = {}
+            if _clean(requirement.get("interview_status")).lower() == "completed":
+                await db["email_logs"].update_one(
+                    {"email_id": email_id},
+                    {"$set": {
+                        "no_show_check_completed": True,
+                        "no_show_check_completed_at": now,
+                        "no_show_check_result": "interview_completed",
+                        "updated_at": now,
+                    }},
+                )
+                skipped += 1
+                continue
         claimed = await db["email_logs"].find_one_and_update(
             {
                 "email_id": email_id,
                 "no_show_check_completed": {"$ne": True},
-                "no_show_check_claimed": {"$ne": True},
+                "$or": [
+                    {"no_show_check_claimed": {"$ne": True}},
+                    {"no_show_check_claimed_at": {"$lte": now - timedelta(minutes=10)}},
+                    {"no_show_check_claimed_at": {"$exists": False}},
+                ],
             },
             {"$set": {"no_show_check_claimed": True, "no_show_check_claimed_at": now}},
         )

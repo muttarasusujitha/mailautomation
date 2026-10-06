@@ -1,517 +1,995 @@
 {
-    "domain":  "RAG Pipelines",
-    "name":  "RAG Pipelines â€“ Retrieval, Grounding, Evaluation and Production Architecture",
-    "aliases":  [
-                    "Retrieval-Augmented Generation",
-                    "RAG"
-                ],
-    "tools":  [
-                  "LLM APIs",
-                  "Embeddings",
-                  "Vector DB",
-                  "Rerankers"
-              ],
-    "certifications":  [
-                           "RAG Pipelines official/vendor learning path or relevant professional certification"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "RAG Foundations",
-                     "subtopics":  [
-                                       "RAG architecture",
-                                       "Retriever",
-                                       "Generator",
-                                       "Knowledge sources",
-                                       "Grounding",
-                                       "Hallucination reduction",
-                                       "Use cases",
-                                       "RAG Pipelines terminology and feature mapping for this topic",
-                                       "RAG Pipelines configuration and implementation considerations",
-                                       "RAG Pipelines best practices and common mistakes for this topic",
-                                       "document ingestion",
-                                       "chunking",
-                                       "embeddings",
-                                       "vector index",
-                                       "retrieval",
-                                       "hybrid search",
-                                       "reranking",
-                                       "context construction",
-                                       "grounded generation",
-                                       "citations",
-                                       "evaluation",
-                                       "security"
-                                   ],
-                     "tools":  [
-                                   "LLM APIs",
-                                   "Embeddings",
-                                   "Vector DB",
-                                   "Rerankers"
-                               ],
-                     "lab_task":  "Build a minimal retrieve-then-generate flow.",
-                     "technology":  "RAG Pipelines",
-                     "technology_id":  "rag-pipelines",
-                     "learning_objectives":  [
-                                                 "Explain the RAG Foundations concepts in the context of RAG Pipelines.",
-                                                 "Configure or implement the key RAG Pipelines features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply RAG Foundations practically using RAG Pipelines.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Document Ingestion",
-                     "subtopics":  [
-                                       "Loaders",
-                                       "Parsing",
-                                       "PDF/HTML/text handling",
-                                       "Cleaning",
-                                       "Metadata",
-                                       "Chunking strategies",
-                                       "Deduplication",
-                                       "Versioning",
-                                       "RAG Pipelines terminology and feature mapping for this topic",
-                                       "RAG Pipelines configuration and implementation considerations",
-                                       "RAG Pipelines best practices and common mistakes for this topic",
-                                       "document ingestion",
-                                       "chunking",
-                                       "embeddings",
-                                       "vector index",
-                                       "retrieval",
-                                       "hybrid search",
-                                       "reranking",
-                                       "context construction",
-                                       "grounded generation",
-                                       "citations",
-                                       "evaluation",
-                                       "security"
-                                   ],
-                     "tools":  [
-                                   "LLM APIs",
-                                   "Embeddings",
-                                   "Vector DB",
-                                   "Rerankers"
-                               ],
-                     "lab_task":  "Create a robust ingestion pipeline.",
-                     "technology":  "RAG Pipelines",
-                     "technology_id":  "rag-pipelines",
-                     "learning_objectives":  [
-                                                 "Explain the Document Ingestion concepts in the context of RAG Pipelines.",
-                                                 "Configure or implement the key RAG Pipelines features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Document Ingestion practically using RAG Pipelines.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Embeddings and Indexing",
-                     "subtopics":  [
-                                       "Embedding models",
-                                       "Vector dimensions",
-                                       "Similarity metrics",
-                                       "Batch embedding",
-                                       "Index creation",
-                                       "Metadata filters",
-                                       "Index updates",
-                                       "RAG Pipelines terminology and feature mapping for this topic",
-                                       "RAG Pipelines configuration and implementation considerations",
-                                       "RAG Pipelines best practices and common mistakes for this topic",
-                                       "document ingestion",
-                                       "chunking",
-                                       "embeddings",
-                                       "vector index",
-                                       "retrieval",
-                                       "hybrid search",
-                                       "reranking",
-                                       "context construction",
-                                       "grounded generation",
-                                       "citations",
-                                       "evaluation",
-                                       "security"
-                                   ],
-                     "tools":  [
-                                   "LLM APIs",
-                                   "Embeddings",
-                                   "Vector DB",
-                                   "Rerankers"
-                               ],
-                     "lab_task":  "Embed and index a document corpus.",
-                     "technology":  "RAG Pipelines",
-                     "technology_id":  "rag-pipelines",
-                     "learning_objectives":  [
-                                                 "Explain the Embeddings and Indexing concepts in the context of RAG Pipelines.",
-                                                 "Configure or implement the key RAG Pipelines features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Embeddings and Indexing practically using RAG Pipelines.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Retrieval Strategies",
-                     "subtopics":  [
-                                       "Dense retrieval",
-                                       "Sparse retrieval",
-                                       "Hybrid retrieval",
-                                       "Top-k",
-                                       "MMR concepts",
-                                       "Metadata filtering",
-                                       "Query rewriting",
-                                       "Multi-query retrieval",
-                                       "RAG Pipelines terminology and feature mapping for this topic",
-                                       "RAG Pipelines configuration and implementation considerations",
-                                       "RAG Pipelines best practices and common mistakes for this topic",
-                                       "document ingestion",
-                                       "chunking",
-                                       "embeddings",
-                                       "vector index",
-                                       "retrieval",
-                                       "hybrid search",
-                                       "reranking",
-                                       "context construction",
-                                       "grounded generation",
-                                       "citations",
-                                       "evaluation",
-                                       "security"
-                                   ],
-                     "tools":  [
-                                   "LLM APIs",
-                                   "Embeddings",
-                                   "Vector DB",
-                                   "Rerankers"
-                               ],
-                     "lab_task":  "Compare multiple retrieval strategies.",
-                     "technology":  "RAG Pipelines",
-                     "technology_id":  "rag-pipelines",
-                     "learning_objectives":  [
-                                                 "Explain the Retrieval Strategies concepts in the context of RAG Pipelines.",
-                                                 "Configure or implement the key RAG Pipelines features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Retrieval Strategies practically using RAG Pipelines.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Reranking and Context Construction",
-                     "subtopics":  [
-                                       "Cross-encoder reranking concepts",
-                                       "Score fusion",
-                                       "Context windows",
-                                       "Context ordering",
-                                       "Deduplication",
-                                       "Citation metadata",
-                                       "Context compression",
-                                       "RAG Pipelines terminology and feature mapping for this topic",
-                                       "RAG Pipelines configuration and implementation considerations",
-                                       "RAG Pipelines best practices and common mistakes for this topic",
-                                       "document ingestion",
-                                       "chunking",
-                                       "embeddings",
-                                       "vector index",
-                                       "retrieval",
-                                       "hybrid search",
-                                       "reranking",
-                                       "context construction",
-                                       "grounded generation",
-                                       "citations",
-                                       "evaluation",
-                                       "security"
-                                   ],
-                     "tools":  [
-                                   "LLM APIs",
-                                   "Embeddings",
-                                   "Vector DB",
-                                   "Rerankers"
-                               ],
-                     "lab_task":  "Add reranking and context assembly.",
-                     "technology":  "RAG Pipelines",
-                     "technology_id":  "rag-pipelines",
-                     "learning_objectives":  [
-                                                 "Explain the Reranking and Context Construction concepts in the context of RAG Pipelines.",
-                                                 "Configure or implement the key RAG Pipelines features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Reranking and Context Construction practically using RAG Pipelines.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "Prompting and Generation",
-                     "subtopics":  [
-                                       "Grounded prompts",
-                                       "Answer constraints",
-                                       "Citations",
-                                       "Abstention",
-                                       "Structured outputs",
-                                       "Conversation memory boundaries",
-                                       "Prompt injection considerations",
-                                       "RAG Pipelines terminology and feature mapping for this topic",
-                                       "RAG Pipelines configuration and implementation considerations",
-                                       "RAG Pipelines best practices and common mistakes for this topic",
-                                       "document ingestion",
-                                       "chunking",
-                                       "embeddings",
-                                       "vector index",
-                                       "retrieval",
-                                       "hybrid search",
-                                       "reranking",
-                                       "context construction",
-                                       "grounded generation",
-                                       "evaluation",
-                                       "security"
-                                   ],
-                     "tools":  [
-                                   "LLM APIs",
-                                   "Embeddings",
-                                   "Vector DB",
-                                   "Rerankers"
-                               ],
-                     "lab_task":  "Create grounded answer generation with citations.",
-                     "technology":  "RAG Pipelines",
-                     "technology_id":  "rag-pipelines",
-                     "learning_objectives":  [
-                                                 "Explain the Prompting and Generation concepts in the context of RAG Pipelines.",
-                                                 "Configure or implement the key RAG Pipelines features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Prompting and Generation practically using RAG Pipelines.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "RAG Evaluation",
-                     "subtopics":  [
-                                       "Retrieval recall",
-                                       "Precision",
-                                       "MRR concepts",
-                                       "Faithfulness",
-                                       "Answer relevance",
-                                       "Context relevance",
-                                       "Golden datasets",
-                                       "Human evaluation",
-                                       "RAG Pipelines terminology and feature mapping for this topic",
-                                       "RAG Pipelines configuration and implementation considerations",
-                                       "RAG Pipelines best practices and common mistakes for this topic",
-                                       "document ingestion",
-                                       "chunking",
-                                       "embeddings",
-                                       "vector index",
-                                       "retrieval",
-                                       "hybrid search",
-                                       "reranking",
-                                       "context construction",
-                                       "grounded generation",
-                                       "citations",
-                                       "evaluation",
-                                       "security"
-                                   ],
-                     "tools":  [
-                                   "LLM APIs",
-                                   "Embeddings",
-                                   "Vector DB",
-                                   "Rerankers"
-                               ],
-                     "lab_task":  "Build an evaluation set and score the RAG pipeline.",
-                     "technology":  "RAG Pipelines",
-                     "technology_id":  "rag-pipelines",
-                     "learning_objectives":  [
-                                                 "Explain the RAG Evaluation concepts in the context of RAG Pipelines.",
-                                                 "Configure or implement the key RAG Pipelines features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply RAG Evaluation practically using RAG Pipelines.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "RAG Security and Guardrails",
-                     "subtopics":  [
-                                       "Prompt injection",
-                                       "Data exfiltration",
-                                       "Access control",
-                                       "Tenant isolation",
-                                       "PII handling",
-                                       "Source trust",
-                                       "Content filters",
-                                       "Audit logs",
-                                       "RAG Pipelines terminology and feature mapping for this topic",
-                                       "RAG Pipelines configuration and implementation considerations",
-                                       "RAG Pipelines best practices and common mistakes for this topic",
-                                       "document ingestion",
-                                       "chunking",
-                                       "embeddings",
-                                       "vector index",
-                                       "retrieval",
-                                       "hybrid search",
-                                       "reranking",
-                                       "context construction",
-                                       "grounded generation",
-                                       "citations",
-                                       "evaluation",
-                                       "security"
-                                   ],
-                     "tools":  [
-                                   "LLM APIs",
-                                   "Embeddings",
-                                   "Vector DB",
-                                   "Rerankers"
-                               ],
-                     "lab_task":  "Add security controls to the RAG system.",
-                     "technology":  "RAG Pipelines",
-                     "technology_id":  "rag-pipelines",
-                     "learning_objectives":  [
-                                                 "Explain the RAG Security and Guardrails concepts in the context of RAG Pipelines.",
-                                                 "Configure or implement the key RAG Pipelines features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply RAG Security and Guardrails practically using RAG Pipelines.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  9,
-                     "topic":  "Production RAG",
-                     "subtopics":  [
-                                       "Caching",
-                                       "Latency",
-                                       "Streaming",
-                                       "Async ingestion",
-                                       "Index versioning",
-                                       "Observability",
-                                       "Cost optimization",
-                                       "Fallbacks",
-                                       "RAG Pipelines terminology and feature mapping for this topic",
-                                       "RAG Pipelines configuration and implementation considerations",
-                                       "RAG Pipelines best practices and common mistakes for this topic",
-                                       "document ingestion",
-                                       "chunking",
-                                       "embeddings",
-                                       "vector index",
-                                       "retrieval",
-                                       "hybrid search",
-                                       "reranking",
-                                       "context construction",
-                                       "grounded generation",
-                                       "citations",
-                                       "evaluation",
-                                       "security"
-                                   ],
-                     "tools":  [
-                                   "LLM APIs",
-                                   "Embeddings",
-                                   "Vector DB",
-                                   "Rerankers"
-                               ],
-                     "lab_task":  "Design a production RAG architecture.",
-                     "technology":  "RAG Pipelines",
-                     "technology_id":  "rag-pipelines",
-                     "learning_objectives":  [
-                                                 "Explain the Production RAG concepts in the context of RAG Pipelines.",
-                                                 "Configure or implement the key RAG Pipelines features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Production RAG practically using RAG Pipelines.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  10,
-                     "topic":  "Advanced RAG",
-                     "subtopics":  [
-                                       "Graph RAG concepts",
-                                       "Agentic RAG",
-                                       "Tool-augmented retrieval",
-                                       "SQL retrieval",
-                                       "Multimodal RAG concepts",
-                                       "Adaptive retrieval",
-                                       "Self-correction",
-                                       "RAG Pipelines terminology and feature mapping for this topic",
-                                       "RAG Pipelines configuration and implementation considerations",
-                                       "RAG Pipelines best practices and common mistakes for this topic",
-                                       "document ingestion",
-                                       "chunking",
-                                       "embeddings",
-                                       "vector index",
-                                       "retrieval",
-                                       "hybrid search",
-                                       "reranking",
-                                       "context construction",
-                                       "grounded generation",
-                                       "citations",
-                                       "evaluation",
-                                       "security"
-                                   ],
-                     "tools":  [
-                                   "LLM APIs",
-                                   "Embeddings",
-                                   "Vector DB",
-                                   "Rerankers"
-                               ],
-                     "lab_task":  "Prototype an advanced retrieval workflow.",
-                     "technology":  "RAG Pipelines",
-                     "technology_id":  "rag-pipelines",
-                     "learning_objectives":  [
-                                                 "Explain the Advanced RAG concepts in the context of RAG Pipelines.",
-                                                 "Configure or implement the key RAG Pipelines features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Advanced RAG practically using RAG Pipelines.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  11,
-                     "topic":  "Capstone RAG Project",
-                     "subtopics":  [
-                                       "Requirements",
-                                       "Corpus",
-                                       "Ingestion",
-                                       "Retrieval",
-                                       "Reranking",
-                                       "Generation",
-                                       "Evaluation",
-                                       "Security",
-                                       "Monitoring",
-                                       "RAG Pipelines terminology and feature mapping for this topic",
-                                       "RAG Pipelines configuration and implementation considerations",
-                                       "RAG Pipelines best practices and common mistakes for this topic",
-                                       "document ingestion",
-                                       "chunking",
-                                       "embeddings",
-                                       "vector index",
-                                       "hybrid search",
-                                       "context construction",
-                                       "grounded generation",
-                                       "citations"
-                                   ],
-                     "tools":  [
-                                   "LLM APIs",
-                                   "Embeddings",
-                                   "Vector DB",
-                                   "Rerankers"
-                               ],
-                     "lab_task":  "Build and evaluate an end-to-end RAG application.",
-                     "technology":  "RAG Pipelines",
-                     "technology_id":  "rag-pipelines",
-                     "learning_objectives":  [
-                                                 "Explain the Capstone RAG Project concepts in the context of RAG Pipelines.",
-                                                 "Configure or implement the key RAG Pipelines features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Capstone RAG Project practically using RAG Pipelines.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "rag-pipelines"
+  "domain": "RAG Pipelines",
+  "name": "RAG Pipelines â€“ Retrieval, Grounding, Evaluation and Production Architecture",
+  "aliases": [
+    "Retrieval-Augmented Generation",
+    "RAG"
+  ],
+  "tools": [
+    "LLM APIs",
+    "Embeddings",
+    "Vector DB",
+    "Rerankers"
+  ],
+  "certifications": [
+    "RAG Pipelines official/vendor learning path or relevant professional certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "RAG Foundations",
+      "subtopics": [
+        "RAG architecture",
+        "Retriever",
+        "Generator",
+        "Knowledge sources",
+        "Grounding",
+        "Hallucination reduction",
+        "Use cases",
+        "RAG Pipelines terminology and feature mapping for this topic",
+        "RAG Pipelines configuration and implementation considerations",
+        "RAG Pipelines best practices and common mistakes for this topic",
+        "document ingestion",
+        "chunking",
+        "embeddings",
+        "vector index",
+        "retrieval",
+        "hybrid search",
+        "reranking",
+        "context construction",
+        "grounded generation",
+        "citations",
+        "evaluation",
+        "security"
+      ],
+      "tools": [
+        "LLM APIs",
+        "Embeddings",
+        "Vector DB",
+        "Rerankers"
+      ],
+      "lab_task": "Build a minimal retrieve-then-generate flow.",
+      "technology": "RAG Pipelines",
+      "technology_id": "rag-pipelines",
+      "learning_objectives": [
+        "Explain the RAG Foundations concepts in the context of RAG Pipelines.",
+        "Configure or implement the key RAG Pipelines features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply RAG Foundations practically using RAG Pipelines.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'RAG Foundations': Build a minimal retrieve-then-generate flow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a minimal retrieve-then-generate flow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RAG architecture; Retriever; Generator; Knowledge sources; Grounding; Hallucination reduction; Use cases; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'RAG Foundations' on a prepared training sample through this task: Build a minimal retrieve-then-generate flow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a minimal retrieve-then-generate flow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (RAG architecture; Retriever; Generator; Knowledge sources; Grounding; Hallucination reduction; Use cases; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security) and demonstrate the starting sample for: Build a minimal retrieve-then-generate flow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a minimal retrieve-then-generate flow.",
+          "evidence": "Participant submission for 'RAG Foundations': Build a minimal retrieve-then-generate flow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a minimal retrieve-then-generate flow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a minimal retrieve-then-generate flow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (RAG architecture; Retriever; Generator; Knowledge sources; Grounding; Hallucination reduction; Use cases; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Document Ingestion",
+      "subtopics": [
+        "Loaders",
+        "Parsing",
+        "PDF/HTML/text handling",
+        "Cleaning",
+        "Metadata",
+        "Chunking strategies",
+        "Deduplication",
+        "Versioning",
+        "RAG Pipelines terminology and feature mapping for this topic",
+        "RAG Pipelines configuration and implementation considerations",
+        "RAG Pipelines best practices and common mistakes for this topic",
+        "document ingestion",
+        "chunking",
+        "embeddings",
+        "vector index",
+        "retrieval",
+        "hybrid search",
+        "reranking",
+        "context construction",
+        "grounded generation",
+        "citations",
+        "evaluation",
+        "security"
+      ],
+      "tools": [
+        "LLM APIs",
+        "Embeddings",
+        "Vector DB",
+        "Rerankers"
+      ],
+      "lab_task": "Create a robust ingestion pipeline.",
+      "technology": "RAG Pipelines",
+      "technology_id": "rag-pipelines",
+      "learning_objectives": [
+        "Explain the Document Ingestion concepts in the context of RAG Pipelines.",
+        "Configure or implement the key RAG Pipelines features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Document Ingestion practically using RAG Pipelines.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Document Ingestion': Create a robust ingestion pipeline.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a robust ingestion pipeline.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Loaders; Parsing; PDF/HTML/text handling; Cleaning; Metadata; Chunking strategies; Deduplication; Versioning; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Document Ingestion' on a prepared training sample through this task: Create a robust ingestion pipeline..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a robust ingestion pipeline.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Loaders; Parsing; PDF/HTML/text handling; Cleaning; Metadata; Chunking strategies; Deduplication; Versioning; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security) and demonstrate the starting sample for: Create a robust ingestion pipeline.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a robust ingestion pipeline.",
+          "evidence": "Participant submission for 'Document Ingestion': Create a robust ingestion pipeline.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a robust ingestion pipeline.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a robust ingestion pipeline.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Loaders; Parsing; PDF/HTML/text handling; Cleaning; Metadata; Chunking strategies; Deduplication; Versioning; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Embeddings and Indexing",
+      "subtopics": [
+        "Embedding models",
+        "Vector dimensions",
+        "Similarity metrics",
+        "Batch embedding",
+        "Index creation",
+        "Metadata filters",
+        "Index updates",
+        "RAG Pipelines terminology and feature mapping for this topic",
+        "RAG Pipelines configuration and implementation considerations",
+        "RAG Pipelines best practices and common mistakes for this topic",
+        "document ingestion",
+        "chunking",
+        "embeddings",
+        "vector index",
+        "retrieval",
+        "hybrid search",
+        "reranking",
+        "context construction",
+        "grounded generation",
+        "citations",
+        "evaluation",
+        "security"
+      ],
+      "tools": [
+        "LLM APIs",
+        "Embeddings",
+        "Vector DB",
+        "Rerankers"
+      ],
+      "lab_task": "Embed and index a document corpus.",
+      "technology": "RAG Pipelines",
+      "technology_id": "rag-pipelines",
+      "learning_objectives": [
+        "Explain the Embeddings and Indexing concepts in the context of RAG Pipelines.",
+        "Configure or implement the key RAG Pipelines features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Embeddings and Indexing practically using RAG Pipelines.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Embeddings and Indexing': Embed and index a document corpus.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Embed and index a document corpus.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Embedding models; Vector dimensions; Similarity metrics; Batch embedding; Index creation; Metadata filters; Index updates; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Embeddings and Indexing' on a prepared training sample through this task: Embed and index a document corpus..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Embed and index a document corpus.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Embedding models; Vector dimensions; Similarity metrics; Batch embedding; Index creation; Metadata filters; Index updates; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security) and demonstrate the starting sample for: Embed and index a document corpus.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Embed and index a document corpus.",
+          "evidence": "Participant submission for 'Embeddings and Indexing': Embed and index a document corpus.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Embed and index a document corpus.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Embed and index a document corpus.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Embedding models; Vector dimensions; Similarity metrics; Batch embedding; Index creation; Metadata filters; Index updates; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Retrieval Strategies",
+      "subtopics": [
+        "Dense retrieval",
+        "Sparse retrieval",
+        "Hybrid retrieval",
+        "Top-k",
+        "MMR concepts",
+        "Metadata filtering",
+        "Query rewriting",
+        "Multi-query retrieval",
+        "RAG Pipelines terminology and feature mapping for this topic",
+        "RAG Pipelines configuration and implementation considerations",
+        "RAG Pipelines best practices and common mistakes for this topic",
+        "document ingestion",
+        "chunking",
+        "embeddings",
+        "vector index",
+        "retrieval",
+        "hybrid search",
+        "reranking",
+        "context construction",
+        "grounded generation",
+        "citations",
+        "evaluation",
+        "security"
+      ],
+      "tools": [
+        "LLM APIs",
+        "Embeddings",
+        "Vector DB",
+        "Rerankers"
+      ],
+      "lab_task": "Compare multiple retrieval strategies.",
+      "technology": "RAG Pipelines",
+      "technology_id": "rag-pipelines",
+      "learning_objectives": [
+        "Explain the Retrieval Strategies concepts in the context of RAG Pipelines.",
+        "Configure or implement the key RAG Pipelines features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Retrieval Strategies practically using RAG Pipelines.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Retrieval Strategies': Compare multiple retrieval strategies.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Compare multiple retrieval strategies.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dense retrieval; Sparse retrieval; Hybrid retrieval; Top-k; MMR concepts; Metadata filtering; Query rewriting; Multi-query retrieval; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Retrieval Strategies' on a prepared training sample through this task: Compare multiple retrieval strategies..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Compare multiple retrieval strategies.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Dense retrieval; Sparse retrieval; Hybrid retrieval; Top-k; MMR concepts; Metadata filtering; Query rewriting; Multi-query retrieval; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security) and demonstrate the starting sample for: Compare multiple retrieval strategies.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Compare multiple retrieval strategies.",
+          "evidence": "Participant submission for 'Retrieval Strategies': Compare multiple retrieval strategies.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Compare multiple retrieval strategies.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Compare multiple retrieval strategies.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Dense retrieval; Sparse retrieval; Hybrid retrieval; Top-k; MMR concepts; Metadata filtering; Query rewriting; Multi-query retrieval; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Reranking and Context Construction",
+      "subtopics": [
+        "Cross-encoder reranking concepts",
+        "Score fusion",
+        "Context windows",
+        "Context ordering",
+        "Deduplication",
+        "Citation metadata",
+        "Context compression",
+        "RAG Pipelines terminology and feature mapping for this topic",
+        "RAG Pipelines configuration and implementation considerations",
+        "RAG Pipelines best practices and common mistakes for this topic",
+        "document ingestion",
+        "chunking",
+        "embeddings",
+        "vector index",
+        "retrieval",
+        "hybrid search",
+        "reranking",
+        "context construction",
+        "grounded generation",
+        "citations",
+        "evaluation",
+        "security"
+      ],
+      "tools": [
+        "LLM APIs",
+        "Embeddings",
+        "Vector DB",
+        "Rerankers"
+      ],
+      "lab_task": "Add reranking and context assembly.",
+      "technology": "RAG Pipelines",
+      "technology_id": "rag-pipelines",
+      "learning_objectives": [
+        "Explain the Reranking and Context Construction concepts in the context of RAG Pipelines.",
+        "Configure or implement the key RAG Pipelines features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Reranking and Context Construction practically using RAG Pipelines.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Reranking and Context Construction': Add reranking and context assembly.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Add reranking and context assembly.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cross-encoder reranking concepts; Score fusion; Context windows; Context ordering; Deduplication; Citation metadata; Context compression; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Reranking and Context Construction' on a prepared training sample through this task: Add reranking and context assembly..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Add reranking and context assembly.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Cross-encoder reranking concepts; Score fusion; Context windows; Context ordering; Deduplication; Citation metadata; Context compression; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security) and demonstrate the starting sample for: Add reranking and context assembly.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Add reranking and context assembly.",
+          "evidence": "Participant submission for 'Reranking and Context Construction': Add reranking and context assembly.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Add reranking and context assembly.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Add reranking and context assembly.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cross-encoder reranking concepts; Score fusion; Context windows; Context ordering; Deduplication; Citation metadata; Context compression; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Prompting and Generation",
+      "subtopics": [
+        "Grounded prompts",
+        "Answer constraints",
+        "Citations",
+        "Abstention",
+        "Structured outputs",
+        "Conversation memory boundaries",
+        "Prompt injection considerations",
+        "RAG Pipelines terminology and feature mapping for this topic",
+        "RAG Pipelines configuration and implementation considerations",
+        "RAG Pipelines best practices and common mistakes for this topic",
+        "document ingestion",
+        "chunking",
+        "embeddings",
+        "vector index",
+        "retrieval",
+        "hybrid search",
+        "reranking",
+        "context construction",
+        "grounded generation",
+        "evaluation",
+        "security"
+      ],
+      "tools": [
+        "LLM APIs",
+        "Embeddings",
+        "Vector DB",
+        "Rerankers"
+      ],
+      "lab_task": "Create grounded answer generation with citations.",
+      "technology": "RAG Pipelines",
+      "technology_id": "rag-pipelines",
+      "learning_objectives": [
+        "Explain the Prompting and Generation concepts in the context of RAG Pipelines.",
+        "Configure or implement the key RAG Pipelines features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Prompting and Generation practically using RAG Pipelines.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Prompting and Generation': Create grounded answer generation with citations.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create grounded answer generation with citations.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Grounded prompts; Answer constraints; Citations; Abstention; Structured outputs; Conversation memory boundaries; Prompt injection considerations; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Prompting and Generation' on a prepared training sample through this task: Create grounded answer generation with citations..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create grounded answer generation with citations.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Grounded prompts; Answer constraints; Citations; Abstention; Structured outputs; Conversation memory boundaries; Prompt injection considerations; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; evaluation; security) and demonstrate the starting sample for: Create grounded answer generation with citations.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create grounded answer generation with citations.",
+          "evidence": "Participant submission for 'Prompting and Generation': Create grounded answer generation with citations.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create grounded answer generation with citations.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create grounded answer generation with citations.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Grounded prompts; Answer constraints; Citations; Abstention; Structured outputs; Conversation memory boundaries; Prompt injection considerations; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "RAG Evaluation",
+      "subtopics": [
+        "Retrieval recall",
+        "Precision",
+        "MRR concepts",
+        "Faithfulness",
+        "Answer relevance",
+        "Context relevance",
+        "Golden datasets",
+        "Human evaluation",
+        "RAG Pipelines terminology and feature mapping for this topic",
+        "RAG Pipelines configuration and implementation considerations",
+        "RAG Pipelines best practices and common mistakes for this topic",
+        "document ingestion",
+        "chunking",
+        "embeddings",
+        "vector index",
+        "retrieval",
+        "hybrid search",
+        "reranking",
+        "context construction",
+        "grounded generation",
+        "citations",
+        "evaluation",
+        "security"
+      ],
+      "tools": [
+        "LLM APIs",
+        "Embeddings",
+        "Vector DB",
+        "Rerankers"
+      ],
+      "lab_task": "Build an evaluation set and score the RAG pipeline.",
+      "technology": "RAG Pipelines",
+      "technology_id": "rag-pipelines",
+      "learning_objectives": [
+        "Explain the RAG Evaluation concepts in the context of RAG Pipelines.",
+        "Configure or implement the key RAG Pipelines features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply RAG Evaluation practically using RAG Pipelines.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'RAG Evaluation': Build an evaluation set and score the RAG pipeline.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build an evaluation set and score the RAG pipeline.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Retrieval recall; Precision; MRR concepts; Faithfulness; Answer relevance; Context relevance; Golden datasets; Human evaluation; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'RAG Evaluation' on a prepared training sample through this task: Build an evaluation set and score the RAG pipeline..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build an evaluation set and score the RAG pipeline.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Retrieval recall; Precision; MRR concepts; Faithfulness; Answer relevance; Context relevance; Golden datasets; Human evaluation; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security) and demonstrate the starting sample for: Build an evaluation set and score the RAG pipeline.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build an evaluation set and score the RAG pipeline.",
+          "evidence": "Participant submission for 'RAG Evaluation': Build an evaluation set and score the RAG pipeline.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build an evaluation set and score the RAG pipeline.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build an evaluation set and score the RAG pipeline.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Retrieval recall; Precision; MRR concepts; Faithfulness; Answer relevance; Context relevance; Golden datasets; Human evaluation; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "RAG Security and Guardrails",
+      "subtopics": [
+        "Prompt injection",
+        "Data exfiltration",
+        "Access control",
+        "Tenant isolation",
+        "PII handling",
+        "Source trust",
+        "Content filters",
+        "Audit logs",
+        "RAG Pipelines terminology and feature mapping for this topic",
+        "RAG Pipelines configuration and implementation considerations",
+        "RAG Pipelines best practices and common mistakes for this topic",
+        "document ingestion",
+        "chunking",
+        "embeddings",
+        "vector index",
+        "retrieval",
+        "hybrid search",
+        "reranking",
+        "context construction",
+        "grounded generation",
+        "citations",
+        "evaluation",
+        "security"
+      ],
+      "tools": [
+        "LLM APIs",
+        "Embeddings",
+        "Vector DB",
+        "Rerankers"
+      ],
+      "lab_task": "Add security controls to the RAG system.",
+      "technology": "RAG Pipelines",
+      "technology_id": "rag-pipelines",
+      "learning_objectives": [
+        "Explain the RAG Security and Guardrails concepts in the context of RAG Pipelines.",
+        "Configure or implement the key RAG Pipelines features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply RAG Security and Guardrails practically using RAG Pipelines.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'RAG Security and Guardrails': Add security controls to the RAG system.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Add security controls to the RAG system.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Prompt injection; Data exfiltration; Access control; Tenant isolation; PII handling; Source trust; Content filters; Audit logs; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'RAG Security and Guardrails' on a prepared training sample through this task: Add security controls to the RAG system..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Add security controls to the RAG system.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Prompt injection; Data exfiltration; Access control; Tenant isolation; PII handling; Source trust; Content filters; Audit logs; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security) and demonstrate the starting sample for: Add security controls to the RAG system.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Add security controls to the RAG system.",
+          "evidence": "Participant submission for 'RAG Security and Guardrails': Add security controls to the RAG system.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Add security controls to the RAG system.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Add security controls to the RAG system.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Prompt injection; Data exfiltration; Access control; Tenant isolation; PII handling; Source trust; Content filters; Audit logs; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "Production RAG",
+      "subtopics": [
+        "Caching",
+        "Latency",
+        "Streaming",
+        "Async ingestion",
+        "Index versioning",
+        "Observability",
+        "Cost optimization",
+        "Fallbacks",
+        "RAG Pipelines terminology and feature mapping for this topic",
+        "RAG Pipelines configuration and implementation considerations",
+        "RAG Pipelines best practices and common mistakes for this topic",
+        "document ingestion",
+        "chunking",
+        "embeddings",
+        "vector index",
+        "retrieval",
+        "hybrid search",
+        "reranking",
+        "context construction",
+        "grounded generation",
+        "citations",
+        "evaluation",
+        "security"
+      ],
+      "tools": [
+        "LLM APIs",
+        "Embeddings",
+        "Vector DB",
+        "Rerankers"
+      ],
+      "lab_task": "Design a production RAG architecture.",
+      "technology": "RAG Pipelines",
+      "technology_id": "rag-pipelines",
+      "learning_objectives": [
+        "Explain the Production RAG concepts in the context of RAG Pipelines.",
+        "Configure or implement the key RAG Pipelines features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Production RAG practically using RAG Pipelines.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Production RAG': Design a production RAG architecture.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a production RAG architecture.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Caching; Latency; Streaming; Async ingestion; Index versioning; Observability; Cost optimization; Fallbacks; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Production RAG' on a prepared training sample through this task: Design a production RAG architecture..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a production RAG architecture.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Caching; Latency; Streaming; Async ingestion; Index versioning; Observability; Cost optimization; Fallbacks; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security) and demonstrate the starting sample for: Design a production RAG architecture.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a production RAG architecture.",
+          "evidence": "Participant submission for 'Production RAG': Design a production RAG architecture.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a production RAG architecture.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a production RAG architecture.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Caching; Latency; Streaming; Async ingestion; Index versioning; Observability; Cost optimization; Fallbacks; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "Advanced RAG",
+      "subtopics": [
+        "Graph RAG concepts",
+        "Agentic RAG",
+        "Tool-augmented retrieval",
+        "SQL retrieval",
+        "Multimodal RAG concepts",
+        "Adaptive retrieval",
+        "Self-correction",
+        "RAG Pipelines terminology and feature mapping for this topic",
+        "RAG Pipelines configuration and implementation considerations",
+        "RAG Pipelines best practices and common mistakes for this topic",
+        "document ingestion",
+        "chunking",
+        "embeddings",
+        "vector index",
+        "retrieval",
+        "hybrid search",
+        "reranking",
+        "context construction",
+        "grounded generation",
+        "citations",
+        "evaluation",
+        "security"
+      ],
+      "tools": [
+        "LLM APIs",
+        "Embeddings",
+        "Vector DB",
+        "Rerankers"
+      ],
+      "lab_task": "Prototype an advanced retrieval workflow.",
+      "technology": "RAG Pipelines",
+      "technology_id": "rag-pipelines",
+      "learning_objectives": [
+        "Explain the Advanced RAG concepts in the context of RAG Pipelines.",
+        "Configure or implement the key RAG Pipelines features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Advanced RAG practically using RAG Pipelines.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Advanced RAG': Prototype an advanced retrieval workflow.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Prototype an advanced retrieval workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Graph RAG concepts; Agentic RAG; Tool-augmented retrieval; SQL retrieval; Multimodal RAG concepts; Adaptive retrieval; Self-correction; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Advanced RAG' on a prepared training sample through this task: Prototype an advanced retrieval workflow..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Prototype an advanced retrieval workflow.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Graph RAG concepts; Agentic RAG; Tool-augmented retrieval; SQL retrieval; Multimodal RAG concepts; Adaptive retrieval; Self-correction; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security) and demonstrate the starting sample for: Prototype an advanced retrieval workflow.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Prototype an advanced retrieval workflow.",
+          "evidence": "Participant submission for 'Advanced RAG': Prototype an advanced retrieval workflow.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Prototype an advanced retrieval workflow.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Prototype an advanced retrieval workflow.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Graph RAG concepts; Agentic RAG; Tool-augmented retrieval; SQL retrieval; Multimodal RAG concepts; Adaptive retrieval; Self-correction; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; retrieval; hybrid search; reranking; context construction; grounded generation; citations; evaluation; security). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "Capstone RAG Project",
+      "subtopics": [
+        "Requirements",
+        "Corpus",
+        "Ingestion",
+        "Retrieval",
+        "Reranking",
+        "Generation",
+        "Evaluation",
+        "Security",
+        "Monitoring",
+        "RAG Pipelines terminology and feature mapping for this topic",
+        "RAG Pipelines configuration and implementation considerations",
+        "RAG Pipelines best practices and common mistakes for this topic",
+        "document ingestion",
+        "chunking",
+        "embeddings",
+        "vector index",
+        "hybrid search",
+        "context construction",
+        "grounded generation",
+        "citations"
+      ],
+      "tools": [
+        "LLM APIs",
+        "Embeddings",
+        "Vector DB",
+        "Rerankers"
+      ],
+      "lab_task": "Build and evaluate an end-to-end RAG application.",
+      "technology": "RAG Pipelines",
+      "technology_id": "rag-pipelines",
+      "learning_objectives": [
+        "Explain the Capstone RAG Project concepts in the context of RAG Pipelines.",
+        "Configure or implement the key RAG Pipelines features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Capstone RAG Project practically using RAG Pipelines.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Capstone RAG Project': Build and evaluate an end-to-end RAG application.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build and evaluate an end-to-end RAG application.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirements; Corpus; Ingestion; Retrieval; Reranking; Generation; Evaluation; Security; Monitoring; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; hybrid search; context construction; grounded generation; citations). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Capstone RAG Project' on a prepared training sample through this task: Build and evaluate an end-to-end RAG application..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build and evaluate an end-to-end RAG application.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Requirements; Corpus; Ingestion; Retrieval; Reranking; Generation; Evaluation; Security; Monitoring; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; hybrid search; context construction; grounded generation; citations) and demonstrate the starting sample for: Build and evaluate an end-to-end RAG application.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build and evaluate an end-to-end RAG application.",
+          "evidence": "Participant submission for 'Capstone RAG Project': Build and evaluate an end-to-end RAG application.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build and evaluate an end-to-end RAG application.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build and evaluate an end-to-end RAG application.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirements; Corpus; Ingestion; Retrieval; Reranking; Generation; Evaluation; Security; Monitoring; RAG Pipelines terminology and feature mapping for this topic; RAG Pipelines configuration and implementation considerations; RAG Pipelines best practices and common mistakes for this topic; document ingestion; chunking; embeddings; vector index; hybrid search; context construction; grounded generation; citations). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "rag-pipelines",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

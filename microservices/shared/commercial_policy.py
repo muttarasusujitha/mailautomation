@@ -37,15 +37,15 @@ def proposal_offer(requirement, trainer=None):
     if rate is None:
         if tier not in {"standard", "advanced", "specialist"}:
             raise ValueError("Clahan skill tier must be standard, advanced, or specialist")
-        rate = {"standard": 14000, "advanced": 15000, "specialist": 16000}[tier]
-    if not 14000 <= rate <= 16000:
-        raise ValueError("Proposal trainer daily offer must be between INR 14,000 and INR 16,000")
+        rate = {"standard": 13000, "advanced": 13500, "specialist": 14000}[tier]
+    if not 13000 <= rate <= 14000:
+        raise ValueError("Proposal trainer daily offer must be between INR 13,000 and INR 14,000")
     margin = margin_percent(requirement)
     days = commercial_days(requirement)
     total = bool(days and days >= 5)
     trainer_amount = rate * days if total else rate
     return {"trainer_amount": trainer_amount,
-            "client_amount": round(trainer_amount / (1 - margin / 100), 2),
+            "client_amount": round((trainer_amount * (1 + margin / 100)) / 1000) * 1000,
             "trainer_daily_rate": rate, "days": days,
             "basis": "total engagement" if total else "per training day",
             "margin_percent": margin}
@@ -60,7 +60,13 @@ def trainer_offer(requirement, trainer=None):
         total = rate * days if days else None
     else:
         share = 1 - margin_percent(requirement) / 100
-        budget = positive_number(requirement.get("budget_total"))
+        # Prefer the confirmed client commercial total when deriving the
+        # trainer allocation. Some requirement parsers store that value under
+        # a commercial-specific field instead of budget_total.
+        budget = next((positive_number(requirement.get(key)) for key in (
+            "budget_total", "training_commercial_amount", "client_commercial_total",
+            "total_commercial", "commercial_amount",
+        ) if positive_number(requirement.get(key))), None)
         client_rate = (positive_number(requirement.get("client_budget_per_day"))
                        or positive_number(requirement.get("budget_per_day")))
         total = budget * share if budget else None

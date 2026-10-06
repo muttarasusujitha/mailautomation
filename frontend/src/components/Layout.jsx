@@ -1,13 +1,18 @@
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
   BadgeIndianRupee, BarChart3, Bell, BookOpen, Bot, BriefcaseBusiness, CalendarCheck,
   ChevronRight, FileSearch, Globe2, Home,
-  LayoutDashboard, LogOut, Mail, Menu, MessageSquare,
+  LayoutDashboard, LogOut, Mail, Menu,
   MapPin, ReceiptText, Search, Settings, Upload, UserCircle, Users, Zap, X,
 } from 'lucide-react'
 import BrandMark from './BrandMark'
+import api from '../utils/api'
+import PageLoader from './PageLoader'
+import ErrorBoundary from './ErrorBoundary'
+import FloatingIntegrations from './FloatingIntegrations'
+import ChatAssistant from './ChatAssistant'
 
 const NAV_GROUPS = [
   {
@@ -19,7 +24,6 @@ const NAV_GROUPS = [
       { to: '/shortlist1',        label: 'AI Pipeline',        icon: Zap,             keywords: ['advanced','shortlist1','shortlist','pipeline'] },
       { to: '/shortlist',         label: 'Shortlist',          icon: Users,           keywords: ['shortlist','trainer shortlist'] },
       { to: '/profile-reviews',   label: 'Profile Reviews',    icon: FileSearch,      keywords: ['profile review','trainer rating','document review','skill fit'] },
-      { to: '/trainer-comms',     label: 'Trainer Comms',      icon: MessageSquare,   keywords: ['trainer comms','trainer conversations','trainer communications'] },
       { to: '/voice-ai-assistant', label: 'Voice AI Assistant', icon: Bot,             keywords: ['voice ai','voice assistant','hr assistant','recruiter assistant','voice recruiter'] },
       { to: '/linkedin-search',   label: 'LinkedIn Search',    icon: Globe2,          keywords: ['linkedin','public search','client post search','trainer profile search'] },
       { to: '/linkedin-pipeline', label: 'LinkedIn Pipeline',  icon: Zap,             keywords: ['linkedin pipeline','linkedin automation','linkedin trainers','linkedin outreach'] },
@@ -32,12 +36,11 @@ const NAV_GROUPS = [
     label: 'Client Work',
     items: [
       { to: '/client-requests',          label: 'Client Requests',         icon: BriefcaseBusiness, keywords: ['client','requests','requirements'] },
-      { to: '/client-comms',             label: 'Client Comms',            icon: MessageSquare, keywords: ['client comms','client conversations','client communications','communications'] },
       { to: '/linkedin-client-pipeline', label: 'LinkedIn Client Pipeline', icon: Mail, keywords: ['linkedin client pipeline','client posts','client lead pipeline','mail 1'] },
-      { to: '/commercial-analysis',       label: 'Commercial Analysis',     icon: BadgeIndianRupee, keywords: ['commercial','profit','margin','payment','budget','qtr'] },
       { to: '/interview-scheduled',      label: 'Interviews',              icon: CalendarCheck, keywords: ['interview','schedule','meeting','meet link'] },
       { to: '/client-mail-pipeline',     label: 'Client Pipeline',         icon: ReceiptText, keywords: ['client pipeline','client mail pipeline','po','invoice','client po','client mails'] },
       { to: '/invoices',                 label: 'Invoices',                icon: ReceiptText, keywords: ['invoice','manual invoice','generate invoice','billing'] },
+      { to: '/purchase-orders',           label: 'Purchase Orders',         icon: ReceiptText, keywords: ['purchase order','purchase orders','generate po','po generator'] },
     ],
   },
   {
@@ -170,29 +173,68 @@ export default function Layout({ onLogout }) {
   const navigate  = useNavigate()
   const location  = useLocation()
   const title     = useMemo(() => pageTitle(location.pathname), [location.pathname])
+  const menuRef = useRef(null)
+  const drawerRef = useRef(null)
+  const contentRef = useRef(null)
+
+  useEffect(() => {
+    setMobileOpen(false)
+    contentRef.current?.scrollTo({ top: 0, behavior: 'instant' })
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!mobileOpen) return
+    const drawer = drawerRef.current
+    const focusable = () => [...drawer.querySelectorAll('a[href], button, input, select, textarea, [tabindex="0"]')].filter(el => !el.disabled)
+    focusable()[0]?.focus()
+    const handleKey = event => {
+      if (event.key === 'Escape') { event.preventDefault(); setMobileOpen(false) }
+      if (event.key !== 'Tab') return
+      const items = focusable()
+      const first = items[0], last = items[items.length - 1]
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
+    }
+    const desktop = window.matchMedia('(min-width: 1024px)')
+    const onResize = () => { if (desktop.matches) setMobileOpen(false) }
+    drawer.addEventListener('keydown', handleKey)
+    desktop.addEventListener('change', onResize)
+    return () => {
+      drawer.removeEventListener('keydown', handleKey)
+      desktop.removeEventListener('change', onResize)
+      menuRef.current?.focus()
+    }
+  }, [mobileOpen])
 
   useEffect(() => {
     let cancelled = false
+    let pending = false
+    const controller = new AbortController()
     const loadStatus = async () => {
+      if (pending || cancelled || document.hidden) return
+      pending = true
       try {
+        const config = { signal: controller.signal, timeout: 10000, retry: false }
         const [inboxRes, gmailRes] = await Promise.allSettled([
-          fetch('/api/inbox?status=pending_approval&limit=1'),
-          fetch('/api/gmail/auth-status'),
+          api.get('/inbox', { ...config, params: { status: 'pending_approval', limit: 1 } }),
+          api.get('/gmail/auth-status', config),
         ])
         if (cancelled) return
-        if (inboxRes.status === 'fulfilled' && inboxRes.value.ok) {
-          const data = await inboxRes.value.json()
+        if (inboxRes.status === 'fulfilled') {
+          const data = inboxRes.value.data
           if (!cancelled) setPendingInbox(data.stats?.pending_approval || data.total || 0)
         }
-        if (gmailRes.status === 'fulfilled' && gmailRes.value.ok) {
-          const data = await gmailRes.value.json()
+        if (gmailRes.status === 'fulfilled') {
+          const data = gmailRes.value.data
           if (!cancelled) setConnected(!!data.connected)
         }
       } catch { if (!cancelled) setConnected(false) }
+      finally { pending = false }
     }
     loadStatus()
     const iv = setInterval(loadStatus, 30000)
-    return () => { cancelled = true; clearInterval(iv) }
+    document.addEventListener('visibilitychange', loadStatus)
+    return () => { cancelled = true; controller.abort(); clearInterval(iv); document.removeEventListener('visibilitychange', loadStatus) }
   }, [])
 
   const submitSearch = e => {
@@ -213,17 +255,19 @@ export default function Layout({ onLogout }) {
 
       {/* Mobile sidebar overlay */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div ref={drawerRef} id="mobile-navigation" role="dialog" aria-modal="true" aria-label="Navigation" className="fixed inset-0 z-[80] lg:hidden">
           <button
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
             aria-label="Close navigation"
           />
-          <div className="absolute inset-y-0 left-0 w-[272px] shadow-2xl">
+          <div className="mobile-drawer absolute inset-y-0 left-0 shadow-2xl">
             <Sidebar pendingInbox={pendingInbox} onLogout={onLogout} onNavigate={() => setMobileOpen(false)} />
           </div>
           <button
-            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-lg bg-white shadow-md"
+            type="button"
+            aria-label="Close menu"
+            className="absolute right-2 top-3 flex h-11 w-11 items-center justify-center rounded-lg bg-white shadow-md"
             onClick={() => setMobileOpen(false)}
           >
             <X className="h-4 w-4 text-slate-600" />
@@ -232,7 +276,7 @@ export default function Layout({ onLogout }) {
       )}
 
       {/* Main area */}
-      <div className="main-area">
+      <div className="main-area" inert={mobileOpen ? '' : undefined}>
         {/* Header */}
         <header className="app-header">
           {/* Mobile menu toggle */}
@@ -241,6 +285,9 @@ export default function Layout({ onLogout }) {
             onClick={() => setMobileOpen(true)}
             className="btn-ghost rounded-lg p-2 lg:hidden"
             aria-label="Open navigation"
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation"
+            ref={menuRef}
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -258,22 +305,27 @@ export default function Layout({ onLogout }) {
           </div>
 
           {/* Search */}
-          <form onSubmit={submitSearch} className="hidden w-72 md:block lg:w-80">
+          <form onSubmit={submitSearch} className="hidden w-56 shrink-0 md:block xl:w-80">
             <div className="search-bar">
               <Search className="h-4 w-4" />
               <input
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search pages, trainers, clients..."
+                aria-label="Search pages, trainers and clients"
               />
             </div>
           </form>
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
+            <FloatingIntegrations />
+            <ErrorBoundary resetKey={`copilot:${location.pathname}`}>
+              <ChatAssistant headerTrigger />
+            </ErrorBoundary>
             {/* Gmail status */}
             <div className={clsx(
-              'hidden items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold sm:flex',
+              'hidden shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold xl:flex',
               connected
                 ? 'border-green-200 bg-green-50 text-green-700'
                 : 'border-amber-200 bg-amber-50 text-amber-700'
@@ -303,14 +355,16 @@ export default function Layout({ onLogout }) {
         <form onSubmit={submitSearch} className="border-b border-slate-100 bg-white px-4 py-2 md:hidden">
           <div className="search-bar">
             <Search className="h-4 w-4" />
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search..." />
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search..." aria-label="Search pages, trainers and clients" />
           </div>
         </form>
 
         {/* Page output */}
-        <main className="page-content">
-          <div className="mx-auto w-full max-w-[1540px]">
-            <Outlet />
+        <main className="page-content" ref={contentRef}>
+          <div className="mx-auto min-w-0 w-full max-w-[1540px]">
+            <ErrorBoundary resetKey={location.pathname}>
+              <Suspense fallback={<PageLoader />}><Outlet /></Suspense>
+            </ErrorBoundary>
           </div>
         </main>
       </div>

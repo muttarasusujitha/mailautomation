@@ -14,6 +14,7 @@ from app.routes.inbox_actions import (
     _normalise_item_status,
     _load_reply_workflow_context,
 )
+from app.routes.inbox import _is_lab_cost_only_inquiry
 
 
 class FakeCollection:
@@ -31,7 +32,7 @@ class FakeDb(dict):
 LAB_ONLY_EMAIL = """
 Dear Clahan Technologies Team,
 
-We have a requirement for DevOps & AWS lab access only.
+We have a requirement for DevOps & AWS Mumbai lab access only.
 Duration: 10 days
 Lab Access: 3 hours per day
 Total Lab Usage: 30 hours
@@ -54,11 +55,26 @@ def test_lab_only_request_is_classified_as_lab_setup_not_training_requirement():
     assert classification["scenario"] == "client_asks_lab_setup"
 
 
+def test_compact_labcost_wording_enters_the_standalone_lab_flow():
+    assert _is_lab_cost_only_inquiry("AWS Labcost", "Need AWS labcost for a Kubernetes program.")
+
+
+def test_multi_cloud_lab_request_requires_each_provider_region():
+    context = _lab_request_context(
+        "Need AWS and Azure labcost for Kubernetes: 20 participants, 3 hours per day, 5 days. AWS Mumbai.",
+        {"technology_needed": "Kubernetes"},
+    )
+    assert context["known_inputs"]["cloud_provider"] == "aws and azure"
+    assert context["known_inputs"]["cloud_regions"] == {"aws": "Mumbai"}
+    assert context["missing_quote_inputs"] == ["azure_region"]
+
+
 def test_lab_context_extracts_quote_inputs_and_only_asks_for_missing_participants():
     context = _lab_request_context(LAB_ONLY_EMAIL, {"technology_needed": "DevOps & AWS"})
 
     assert context["request_type"] == "lab_access_only"
     assert context["known_inputs"]["cloud_provider"] == "aws"
+    assert context["known_inputs"]["cloud_region"] == "Mumbai"
     assert context["known_inputs"]["duration_days"] == 10
     assert context["known_inputs"]["hours_per_day"] == 3
     assert context["known_inputs"]["total_hours"] == 30
@@ -75,6 +91,24 @@ def test_lab_context_extracts_quote_inputs_and_only_asks_for_missing_participant
     assert "trainer shortlist" not in reply["body"].lower()
     assert "lab-access-only" in reply["body"]
     assert reply["auto_send_safe"] is False
+
+
+def test_lab_context_reads_labelled_client_values_and_region_only_follow_up():
+    initial = _lab_request_context(
+        "Lab cost required. Domain: Kubernetes. Cloud: AWS. No. of participants: 24. Lab access: 3 hrs/day. Duration: 5 days.",
+        {"technology_needed": "Kubernetes"},
+    )
+    assert initial["known_inputs"]["participant_count"] == 24
+    assert initial["known_inputs"]["hours_per_day"] == 3
+    assert initial["known_inputs"]["duration_days"] == 5
+    assert initial["missing_quote_inputs"] == ["cloud_region"]
+
+    follow_up = _lab_request_context("For the lab cost, please use Mumbai region.", {
+        "technology_needed": "Kubernetes", "cloud_provider": "aws",
+        "participant_count": 24, "hours_per_day": 3, "duration_days": 5,
+    })
+    assert follow_up["known_inputs"]["cloud_region"] == "Mumbai"
+    assert follow_up["missing_quote_inputs"] == []
 
 
 def test_html_and_literal_escape_artifacts_are_removed_before_drafting():

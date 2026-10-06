@@ -2,10 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { Toaster } from 'react-hot-toast'
 import { Suspense, lazy, useState, useEffect } from 'react'
 import Layout from './components/Layout'
-import ChatAssistant from './components/ChatAssistant'
-import FloatingIntegrations from './components/FloatingIntegrations'
 import ErrorBoundary from './components/ErrorBoundary'
 import OfflineBanner from './components/OfflineBanner'
+import PageLoader from './components/PageLoader'
+import { getSession, logoutSession } from './utils/api'
 
 function isChunkLoadError(error) {
   const text = `${error?.name || ''} ${error?.message || ''}`.toLowerCase()
@@ -32,6 +32,7 @@ function lazyWithRetry(importer) {
   })
 }
 
+const ResetPassword = lazyWithRetry(() => import('./pages/ResetPassword'))
 const Login = lazyWithRetry(() => import('./pages/Login'))
 const Home = lazyWithRetry(() => import('./pages/Home'))
 const Contact = lazyWithRetry(() => import('./pages/Contact'))
@@ -42,7 +43,6 @@ const Trainers = lazyWithRetry(() => import('./pages/Trainers'))
 const Requirements = lazyWithRetry(() => import('./pages/Requirements'))
 const Emails = lazyWithRetry(() => import('./pages/Emails'))
 const ClientRequests = lazyWithRetry(() => import('./pages/ClientRequests'))
-const ClientConversations = lazyWithRetry(() => import('./pages/ClientConversations'))
 const LinkedInSearch = lazyWithRetry(() => import('./pages/LinkedInSearch'))
 const LinkedInPipeline = lazyWithRetry(() => import('./pages/LinkedInPipeline'))
 const LinkedInClientPipeline = lazyWithRetry(() => import('./pages/LinkedInClientPipeline'))
@@ -50,9 +50,9 @@ const NaukriSearch = lazyWithRetry(() => import('./pages/NaukriSearch'))
 const TrainerLocations = lazyWithRetry(() => import('./pages/TrainerLocations'))
 const VoiceAIAssistant = lazyWithRetry(() => import('./pages/VoiceAIAssistant'))
 const ClientPipeline = lazyWithRetry(() => import('./pages/ClientPipeline'))
-const CommercialAnalysis = lazyWithRetry(() => import('./pages/CommercialAnalysis'))
 const InterviewSchedules = lazyWithRetry(() => import('./pages/InterviewSchedules'))
 const Invoices = lazyWithRetry(() => import('./pages/Invoices'))
+const PurchaseOrders = lazyWithRetry(() => import('./pages/PurchaseOrders'))
 const ResumeUpload = lazyWithRetry(() => import('./pages/ResumeUpload'))
 const GmailCallback = lazyWithRetry(() => import('./pages/GmailCallback'))
 const LinkedInCallback = lazyWithRetry(() => import('./pages/LinkedInCallback'))
@@ -68,59 +68,32 @@ function PrivateRoute({ children, isLoggedIn }) {
   return isLoggedIn ? children : <Navigate to="/login" replace />
 }
 
-function PageLoader() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm font-semibold text-slate-500">
-      Loading...
-    </div>
-  )
-}
-
 function RouteBoundary({ children }) {
   const location = useLocation()
   return <ErrorBoundary resetKey={location.pathname}>{children}</ErrorBoundary>
 }
 
-function FloatingBoundary({ children }) {
-  const location = useLocation()
-  return <ErrorBoundary resetKey={`floating:${location.pathname}`}>{children}</ErrorBoundary>
-}
-
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    try {
-      if (import.meta.env.DEV) {
-        const params = new URLSearchParams(window.location.search)
-        if (params.get('dev') === 'true' || params.get('dev_login') === 'true') {
-          sessionStorage.setItem('ts_auth', JSON.stringify({ loggedIn: true }))
-          return true
-        }
-      }
-      // SEC-009: Use sessionStorage so auth token is not persisted across browser sessions,
-      // reducing XSS exposure. Tokens are cleared when the tab/browser is closed.
-      const auth = JSON.parse(sessionStorage.getItem('ts_auth') || '{}')
-      return !!auth.loggedIn
-    } catch { return false }
-  })
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [authReady, setAuthReady] = useState(false)
   useEffect(() => {
-    if (!import.meta.env.DEV) return
-    try {
-      const params = new URLSearchParams(window.location.search)
-      if (params.get('dev') === 'true' || params.get('dev_login') === 'true') {
-        sessionStorage.setItem('ts_auth', JSON.stringify({ loggedIn: true }))
-        setIsLoggedIn(true)
-      }
-    } catch {
-      /* ignore */
-    }
+    let active = true
+    const expired = () => setIsLoggedIn(false)
+    window.addEventListener('auth-expired', expired)
+    getSession().then(() => { if (active) setIsLoggedIn(true) })
+      .catch(() => { if (active) setIsLoggedIn(false) })
+      .finally(() => { if (active) setAuthReady(true) })
+    return () => { active = false; window.removeEventListener('auth-expired', expired) }
   }, [])
-
-  const handleLogin = () => setIsLoggedIn(true)
-  const handleLogout = () => {
-    sessionStorage.removeItem('ts_auth')
+  const handleLogin = async () => {
+    await getSession()
+    setIsLoggedIn(true)
+  }
+  const handleLogout = async () => {
+    try { await logoutSession() } catch { /* expired sessions already require login */ }
     setIsLoggedIn(false)
   }
+  if (!authReady) return <PageLoader />
 
   return (
     <BrowserRouter>
@@ -138,12 +111,13 @@ export default function App() {
           <Route path="/login" element={
             isLoggedIn ? <Navigate to="/dashboard" replace /> : <Login onLogin={handleLogin} />
           } />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/home" element={<Home />} />
           <Route path="/" element={<Home />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/auth/callback" element={<GmailCallback onLogin={handleLogin} />} />
-          <Route path="/auth/linkedin/callback" element={<LinkedInCallback />} />
+          <Route path="/auth/linkedin/callback" element={<LinkedInCallback onLogin={handleLogin} />} />
           <Route element={
             <PrivateRoute isLoggedIn={isLoggedIn}>
               <Layout onLogout={handleLogout} />
@@ -157,8 +131,8 @@ export default function App() {
             <Route path="emails"       element={<Emails />} />
             <Route path="inbox"        element={<Navigate to="/client-requests" replace />} />
             <Route path="client-requests" element={<ClientRequests />} />
-            <Route path="client-comms" element={<ClientConversations />} />
-            <Route path="trainer-comms" element={<ClientConversations />} />
+            <Route path="trainer-comms" element={<Navigate to="/dashboard" replace />} />
+            <Route path="client-comms" element={<Navigate to="/dashboard" replace />} />
             <Route path="linkedin-search" element={<LinkedInSearch />} />
             <Route path="linkedin-pipeline" element={<LinkedInPipeline />} />
             <Route path="linkedin-client-pipeline" element={<LinkedInClientPipeline />} />
@@ -172,7 +146,6 @@ export default function App() {
             <Route path="voice-ai-assistant" element={<VoiceAIAssistant />} />
             <Route path="client-pipeline" element={<ClientPipeline />} />
             <Route path="client-mail-pipeline" element={<ClientPipeline />} />
-            <Route path="commercial-analysis" element={<CommercialAnalysis />} />
             <Route path="interview-scheduled" element={<InterviewSchedules />} />
             <Route path="interview" element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="interview-page" element={<Navigate to="/interview-scheduled" replace />} />
@@ -180,6 +153,7 @@ export default function App() {
             <Route path="interview-schedules" element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="scheduled-interviews" element={<Navigate to="/interview-scheduled" replace />} />
             <Route path="invoices" element={<Invoices />} />
+            <Route path="purchase-orders" element={<PurchaseOrders />} />
             <Route path="upload"       element={<Navigate to="/resume-upload" replace />} />
             <Route path="resume-upload" element={<ResumeUpload />} />
             <Route path="admin"        element={<Admin />} />
@@ -197,13 +171,6 @@ export default function App() {
       </Suspense>
       </RouteBoundary>
 
-      {/* Chat assistant — visible on all authenticated pages */}
-      {isLoggedIn && (
-        <FloatingBoundary>
-          <FloatingIntegrations />
-          <ChatAssistant />
-        </FloatingBoundary>
-      )}
     </BrowserRouter>
   )
 }

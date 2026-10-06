@@ -203,6 +203,12 @@ async def send_single_email(
     # body remains the authoritative fallback: the model may improve wording
     # but cannot change links, attachments, commercials, slots, or stage.
     if payload.ai_generate:
+        from app.agents.reply_wording import recent_sent_replies, vary_template
+        recent_bodies = await recent_sent_replies(db, str(payload.to))
+        wording_context = {
+            **(payload.ai_context or {}),
+            "recent_replies_to_this_sender": recent_bodies,
+        }
         setting = await db["automation_settings"].find_one({"key": "generation_mode"}, {"_id": 0}) or {}
         if str(setting.get("value") or "").strip().lower() == "ai":
             try:
@@ -216,9 +222,11 @@ async def send_single_email(
                         "Choose an opening and structure suited to the current conversation rather than copying the reference paragraphs. "
                         "Write naturally and concisely. Preserve every verified fact in the "
                         "reference exactly, including links, dates, times, requested next action, and attachments. "
-                        "Do not invent commercial, availability, trainer details, or completion status."
+                        "Do not invent commercial, availability, trainer details, or completion status. When the "
+                        "workflow context includes batch_email_rules, treat them as non-negotiable rules for this "
+                        "email; they govern every workflow stage, not only the first outreach."
                     ),
-                    workflow_context=payload.ai_context or {},
+                    workflow_context=wording_context,
                     reference_reply={"body": body},
                     require_openai=True,
                 )
@@ -232,6 +240,12 @@ async def send_single_email(
             except Exception:
                 logger.exception("Client pipeline AI wording failed")
                 raise HTTPException(502, "AI email generation failed. No email was sent; retry or select Template mode explicitly.")
+        else:
+            body = vary_template(body, recent_bodies, seed=payload.idempotency_key or f"{payload.to}:{payload.subject}")
+    elif payload.mail_type in {"meet_start_notice", "meet_no_show_notice"}:
+        from app.agents.reply_wording import recent_sent_replies, vary_template
+        recent_bodies = await recent_sent_replies(db, str(payload.to))
+        body = vary_template(body, recent_bodies, seed=payload.idempotency_key or f"{payload.to}:{payload.subject}")
     idempotency_key = str(payload.idempotency_key or "").strip()
     existing_log = None
     if idempotency_key:
@@ -325,8 +339,8 @@ async def send_single_email(
         "subject": payload.subject,
         "gmail_message_id": message_id_header,
         "message_id_header": message_id_header,
-        "body": body,
-        "body_snippet": body[:300],
+        "body": "[Password reset message redacted]" if payload.mail_type == "password_reset" else body,
+        "body_snippet": "[Password reset message redacted]" if payload.mail_type == "password_reset" else body[:300],
         "status": "sending" if idempotency_key else "pending_send",
         "error_message": "",
         "customer_id": payload.customer_id,

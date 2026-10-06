@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createRequestGate } from '../utils/requestPolicy'
 import clsx from 'clsx'
 import toast from 'react-hot-toast'
 import {
@@ -25,6 +26,7 @@ import {
 } from 'lucide-react'
 import api from '../utils/api'
 import { createInterviewAlarm } from '../utils/interviewAlarm'
+import { isMeetingReminderDue, reminderKey } from '../utils/meetingReminder'
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
 
@@ -72,7 +74,7 @@ function meetingStartTime(item = {}) {
 }
 
 function meetingTime(item = {}) {
-  return item.start_iso || item.interview_at || item.sent_at || item.created_at || ''
+  return item.start_iso || item.interview_at || ''
 }
 
 function meetingState(item = {}) {
@@ -100,7 +102,7 @@ function normalizeSchedule(item = {}) {
     trainer_email: item.trainer_email || (!isClientMail ? email : ''),
     date_time_text: item.date_time_text || item.interview_date || '',
     meet_link: item.meet_link || item.interview_link || calendar.meet_link || calendar.html_link || '',
-    start_iso: item.start_iso || item.interview_at || calendar.start || item.sent_at || item.created_at,
+    start_iso: item.start_iso || item.interview_at || calendar.start,
     timezone: item.timezone || calendar.timezone || '',
     calendar_event_id: item.calendar_event_id || calendar.event_id || item.email_id || '',
     reschedule_requested: Boolean(item.reschedule_requested),
@@ -825,10 +827,14 @@ export default function InterviewSchedules() {
   const notifiedRef = useRef({})
   const alarmRef = useRef(null)
   const [alarmEnabled, setAlarmEnabled] = useState(false)
+  const [alarmVolume, setAlarmVolume] = useState(50)
+  const [reminderMeetings, setReminderMeetings] = useState([])
   if (!alarmRef.current) alarmRef.current = createInterviewAlarm(window.AudioContext || window.webkitAudioContext)
   const enableAlarm = async () => {
     try {
       await alarmRef.current.enable()
+      alarmRef.current.setVolume(alarmVolume / 100)
+      alarmRef.current.stop()
       alarmRef.current.play()
       setAlarmEnabled(true)
       if ('Notification' in window && Notification.permission === 'default') {
@@ -840,7 +846,15 @@ export default function InterviewSchedules() {
     }
   }
   useEffect(() => () => alarmRef.current.close(), [])
-  const loadingRef = useRef(false)
+  const disableAlarm = () => {
+    alarmRef.current.close()
+    setAlarmEnabled(false)
+  }
+  const dismissReminder = () => {
+    alarmRef.current.stop()
+    setReminderMeetings([])
+  }
+  const scheduleRequests = useRef(createRequestGate())
   const [lastUpdated, setLastUpdated] = useState(null)
   const [refreshError, setRefreshError] = useState('')
   const [monitorFullscreen, setMonitorFullscreen] = useState(false)
@@ -853,14 +867,16 @@ export default function InterviewSchedules() {
   const meetingStreamRef = useRef(null)
 
   const load = useCallback(async (silent = false) => {
-    if (loadingRef.current) return
-    loadingRef.current = true
+    if (silent && document.hidden) return
+    const request = scheduleRequests.current.start({ supersede: !silent })
+    if (!request) return
     if (!silent) setLoading(true)
     try {
       let lastError
       for (const [index, endpoint] of SCHEDULE_ENDPOINTS.entries()) {
         try {
-          const res = await api.get(endpoint, { params: { limit: 200 } })
+          const res = await api.get(endpoint, { params: { limit: 200 }, signal: request.signal, timeout: 15000, retry: false })
+          if (!request.isCurrent()) return
           const schedules = (res.data.schedules || []).map(normalizeSchedule)
           if (schedules.length || index === SCHEDULE_ENDPOINTS.length - 1) {
             setItems(schedules)
@@ -870,21 +886,23 @@ export default function InterviewSchedules() {
             return
           }
         } catch (err) {
+          if (!request.isCurrent()) return
           lastError = err
+          if (err.status !== 404) throw err
         }
       }
       throw lastError
     } catch (err) {
+      if (!request.isCurrent()) return
       const message = err?.message || 'Could not load interview schedules'
       setRefreshError(message)
       if (!silent) toast.error(message)
     } finally {
-      loadingRef.current = false
-      if (!silent) setLoading(false)
+      if (request.isCurrent()) { if (!silent) setLoading(false); request.finish() }
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { load(); return () => scheduleRequests.current.cancel() }, [load])
 
   // Bot status is persisted by the meeting-bot service on the same schedule
   // records. Refreshing silently keeps several simultaneous meetings visible.
@@ -900,17 +918,18 @@ export default function InterviewSchedules() {
         if (meetingState(item) === 'reschedule' || /cancelled|canceled|completed/i.test(`${item.status || ''} ${item.slot_status || ''} ${item.pipeline_status || ''}`)) return
         const time = meetingStartTime(item)
         if (!time) return
-        const key = meetingKey(item)
+        const key = reminderKey(item, time)
         const diff = time - Date.now()
-        const alarmPhase = diff > 0 && diff <= 5 * 60 * 1000 ? 'reminder' : diff <= 0 && diff > -2 * 60 * 1000 ? 'start' : null
-        if (alarmPhase && !nextNotified[`${key}:${alarmPhase}:audio`]) {
-          if (alarmRef.current.play()) nextNotified[`${key}:${alarmPhase}:audio`] = true
+        const reminderDue = isMeetingReminderDue(item, time)
+        if (alarmEnabled && reminderDue && !nextNotified[`${key}:reminder:audio`]) {
+          if (alarmRef.current.play()) nextNotified[`${key}:reminder:audio`] = true
           else setAlarmEnabled(false)
         }
-        if (diff > 0 && diff <= 5 * 60 * 1000 && !nextNotified[`${key}:reminder`]) {
+        if (reminderDue && !nextNotified[`${key}:reminder`]) {
           nextNotified[`${key}:reminder`] = true
-          const title = 'Meeting starts in 5 minutes'
-          const body = `${item.trainer_name || 'Trainer'} with ${item.client_name || item.client_email || 'client'}`
+          setReminderMeetings(previous => [...previous, item])
+          const title = `Meeting starts in ${Math.ceil(diff / 60000)} minute${Math.ceil(diff / 60000) === 1 ? '' : 's'} — join now`
+          const body = `${item.trainer_name || 'Trainer'} and ${item.client_name || item.client_email || 'client'}: please join the meeting.`
           toast.success(`${title}: ${body}`, { duration: 10000 })
           if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(title, { body })
@@ -938,8 +957,9 @@ export default function InterviewSchedules() {
       })
     }
     checkStartTimes()
-    const timer = setInterval(checkStartTimes, 30000)
-    return () => clearInterval(timer)
+    const timer = setInterval(checkStartTimes, 1000)
+    document.addEventListener('visibilitychange', checkStartTimes)
+    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', checkStartTimes) }
   }, [items, alarmEnabled])
 
   useEffect(() => {
@@ -1064,10 +1084,22 @@ export default function InterviewSchedules() {
           </div>
           <h1 className="mt-3 page-title">Interview Meeting Board</h1>
           <p className="mt-1 text-sm text-slate-500">Selected trainers, client/trainer emails, meeting date, and host join controls.</p>
-          <button type="button" onClick={enableAlarm} className="btn-secondary mt-3 text-sm">
-            {alarmEnabled ? 'Test alarm sound' : 'Enable & test alarm'}
-          </button>
-          <p className="mt-1 text-xs text-slate-500">{alarmEnabled ? 'Alarm enabled.' : 'Enable sound for meeting reminders.'} Keep this Interviews page open and your tab unmuted. Sounds 5 minutes before and at the start.</p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={enableAlarm} className="btn-secondary text-sm">
+              {alarmEnabled ? 'Test music alarm' : 'Enable & test music alarm'}
+            </button>
+            {alarmEnabled && <>
+              <button type="button" onClick={() => alarmRef.current.stop()} className="btn-secondary text-sm">Stop music</button>
+              <button type="button" onClick={disableAlarm} className="btn-secondary text-sm">Disable alarm</button>
+            </>}
+            <label className="flex items-center gap-2 text-xs text-slate-600">
+              Volume {alarmVolume}%
+              <input aria-label="Music alarm volume" type="range" min="10" max="100" value={alarmVolume}
+                onChange={event => { const value = Number(event.target.value); setAlarmVolume(value); alarmRef.current.setVolume(value / 100) }} />
+            </label>
+          </div>
+          <p className="mt-1 text-xs text-slate-500">{alarmEnabled ? 'Music alarm enabled on this device.' : 'Enable music on this device.'} Plays 5 minutes before the meeting. Keep this Interviews page open, your device awake and the tab unmuted.</p>
+          <p className="mt-1 text-xs text-slate-500">Client and trainer calendar invitations include a 5-minute reminder. They must enable calendar notifications and sound on their own devices.</p>
         </div>
         <button onClick={() => load()} disabled={loading} className="btn-secondary w-fit text-sm">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
@@ -1075,9 +1107,21 @@ export default function InterviewSchedules() {
         </button>
       </div>
 
+      {reminderMeetings.length > 0 && (
+        <section role="alert" aria-label="Meeting reminder" className="rounded-xl border border-blue-300 bg-blue-50 p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="font-bold text-blue-950">Meeting in 5 minutes or less — client and trainer, join now</h2>
+            <button type="button" onClick={dismissReminder} className="btn-secondary text-sm">Dismiss & stop music</button>
+          </div>
+          {reminderMeetings.map(item => <div key={reminderKey(item, meetingStartTime(item))} className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-blue-900">{item.trainer_name || item.trainer_email || 'Trainer'} with {item.client_name || item.client_email || 'Client'} · {item.domain} · {formatDate(item.start_iso)}</p>
+            <button type="button" disabled={!item.meet_link} onClick={() => { alarmRef.current.stop(); openMeeting(item.meet_link) }} className="btn-primary text-sm disabled:opacity-50">Join meeting</button>
+          </div>)}
+        </section>
+      )}
       {hostPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4">
-          <div className="w-full max-w-[760px] rounded-lg border border-emerald-200 bg-white p-5 shadow-2xl">
+          <div className="max-h-[90dvh] w-full max-w-[760px] overflow-y-auto rounded-lg border border-emerald-200 bg-white p-4 sm:p-5 shadow-2xl">
             <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_300px]">
               <div className="flex items-start gap-3">
                 <span className="rounded-lg bg-emerald-50 p-2 text-emerald-600">
@@ -1102,7 +1146,7 @@ export default function InterviewSchedules() {
                 </div>
               </div>
 
-              <div className="h-[400px] w-[300px] overflow-hidden rounded-lg border border-slate-200 bg-slate-950 shadow-sm">
+              <div className="h-[min(400px,50dvh)] w-full md:w-[300px] overflow-hidden rounded-lg border border-slate-200 bg-slate-950 shadow-sm">
                 {hostPrompt.meet_link && showMeetPreview ? (
                   <iframe
                     title="Google Meet host tab"

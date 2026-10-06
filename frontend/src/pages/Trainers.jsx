@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { createRequestGate } from '../utils/requestPolicy'
 import { Link } from 'react-router-dom'
 import {
   getTrainers,
@@ -1445,7 +1446,9 @@ export default function Trainers() {
     }
   }, [])
 
+  const listRequestGate = useRef(createRequestGate())
   const load = useCallback(async (targetPage = page) => {
+    const request = listRequestGate.current.start()
     setLoading(true)
     try {
       const res = await getTrainers({
@@ -1458,7 +1461,8 @@ export default function Trainers() {
         industry: industry || undefined,
         location: locationFilter || undefined,
         experience: experience || undefined,
-      })
+      }, { signal: request.signal })
+      if (!request.isCurrent()) return
       setTrainers(res.data.items || [])
       setTotal(res.data.total || 0)
       setPages(res.data.pages || 1)
@@ -1466,9 +1470,9 @@ export default function Trainers() {
       if (res.data.domains) setDomains(res.data.domains)
       if (res.data.industries) setIndustries(res.data.industries)
     } catch (error) {
-      toast.error(error.message)
+      if (request.isCurrent()) toast.error(error.message)
     } finally {
-      setLoading(false)
+      if (request.isCurrent()) { setLoading(false); request.finish() }
     }
   }, [page, search, status, domain, category, industry, locationFilter, experience])
 
@@ -1513,6 +1517,7 @@ export default function Trainers() {
 
   useEffect(() => {
     load(page)
+    return () => listRequestGate.current.cancel()
   }, [load, page])
 
   useEffect(() => {

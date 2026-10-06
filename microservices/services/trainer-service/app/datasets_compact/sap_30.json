@@ -5,24 +5,1053 @@
   "program_title": "SAP S/4HANA and Enterprise Applications Mastery",
   "level": "Intermediate",
   "mode": "Online",
-  "aliases": ["SAP", "SAP S/4HANA", "S/4HANA", "SAP Basis", "SAP ABAP", "SAP FICO", "SAP FI", "SAP CO", "SAP MM", "SAP SD", "SAP HCM", "SAP SuccessFactors", "SAP BTP", "SAP Fiori", "SAP Analytics Cloud", "SAP BW", "SAP BW/4HANA", "SAP Ariba", "SAP EWM", "SAP PP"],
-  "tools": ["SAP GUI", "SAP Fiori Launchpad", "SAP S/4HANA", "ABAP Development Tools", "SAP BTP", "SAP Analytics Cloud", "SAP Solution Manager", "Jira"],
-  "certifications": ["SAP Certified Associate - SAP S/4HANA", "SAP Certified Associate - SAP BTP", "SAP Certified Associate - SAP Fiori", "SAP Certified Associate - SAP Analytics Cloud"],
+  "aliases": [
+    "SAP",
+    "SAP S/4HANA",
+    "S/4HANA",
+    "SAP Basis",
+    "SAP ABAP",
+    "SAP FICO",
+    "SAP FI",
+    "SAP CO",
+    "SAP MM",
+    "SAP SD",
+    "SAP HCM",
+    "SAP SuccessFactors",
+    "SAP BTP",
+    "SAP Fiori",
+    "SAP Analytics Cloud",
+    "SAP BW",
+    "SAP BW/4HANA",
+    "SAP Ariba",
+    "SAP EWM",
+    "SAP PP"
+  ],
+  "tools": [
+    "SAP GUI",
+    "SAP Fiori Launchpad",
+    "SAP S/4HANA",
+    "ABAP Development Tools",
+    "SAP BTP",
+    "SAP Analytics Cloud",
+    "SAP Solution Manager",
+    "Jira"
+  ],
+  "certifications": [
+    "SAP Certified Associate - SAP S/4HANA",
+    "SAP Certified Associate - SAP BTP",
+    "SAP Certified Associate - SAP Fiori",
+    "SAP Certified Associate - SAP Analytics Cloud"
+  ],
   "days": [
-    {"day": 1, "topic": "SAP Enterprise Architecture and S/4HANA Overview", "subtopics": ["SAP product portfolio", "ERP business processes", "S/4HANA architecture", "landscape concepts", "client-server model"], "tools": ["SAP GUI", "SAP Fiori"], "jira_focus": "Create a project epic and map SAP business-process stories", "lab_task": "Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape"},
-    {"day": 2, "topic": "SAP Navigation, Master Data and Authorization Basics", "subtopics": ["transactions", "organizational structure", "master data", "roles", "authorizations", "transport concepts"], "tools": ["SAP GUI", "SU01", "PFCG"], "jira_focus": "Document role and master-data acceptance criteria", "lab_task": "Create a test user, assign a role, and validate transaction access"},
-    {"day": 3, "topic": "SAP Basis Administration and System Monitoring", "subtopics": ["instances", "work processes", "system profiles", "background jobs", "spool", "monitoring"], "tools": ["SM50", "SM37", "ST22", "ST03N"], "jira_focus": "Log an operations incident and attach monitoring evidence", "lab_task": "Monitor work processes, analyze a failed job, and review a short dump"},
-    {"day": 4, "topic": "SAP HANA and Database Concepts", "subtopics": ["in-memory computing", "HANA modeling", "tables", "views", "performance", "backup and recovery"], "tools": ["SAP HANA Cockpit", "HANA Studio"], "jira_focus": "Create tasks for data-model review and performance validation", "lab_task": "Explore HANA catalog objects and create a simple calculation view"},
-    {"day": 5, "topic": "ABAP Fundamentals", "subtopics": ["ABAP Workbench", "data dictionary", "data types", "internal tables", "control structures", "debugging"], "tools": ["SE80", "SE11", "SE38", "Debugger"], "jira_focus": "Link an ABAP development task to a user story", "lab_task": "Build and debug an ABAP report using internal tables and selection screens"},
-    {"day": 6, "topic": "ABAP Objects, Enhancements and Forms", "subtopics": ["object-oriented ABAP", "classes", "BAdIs", "user exits", "Smart Forms", "Adobe Forms"], "tools": ["SE24", "SE18", "SMARTFORMS"], "jira_focus": "Review enhancement design and capture code-review notes", "lab_task": "Create an ABAP class and enhance a sample business transaction"},
-    {"day": 7, "topic": "SAP FICO - Financial Accounting and Controlling", "subtopics": ["general ledger", "accounts payable", "accounts receivable", "asset accounting", "cost centers", "profit centers"], "tools": ["SAP Fiori", "FB50", "F-02"], "jira_focus": "Map finance-process test cases to sprint stories", "lab_task": "Post a sample journal entry and run a basic cost-center report"},
-    {"day": 8, "topic": "SAP MM - Materials Management and Procurement", "subtopics": ["material master", "vendor master", "purchase requisition", "purchase order", "goods receipt", "invoice verification"], "tools": ["ME51N", "ME21N", "MIGO", "MIRO"], "jira_focus": "Create procure-to-pay workflow tasks", "lab_task": "Execute a purchase requisition-to-goods-receipt scenario"},
-    {"day": 9, "topic": "SAP SD - Sales and Distribution", "subtopics": ["customer master", "sales order", "delivery", "billing", "pricing", "credit management"], "tools": ["VA01", "VL01N", "VF01"], "jira_focus": "Track order-to-cash test evidence in Jira", "lab_task": "Create a sales order, delivery, and billing document"},
-    {"day": 10, "topic": "SAP PP, EWM and Supply Chain Overview", "subtopics": ["bill of materials", "routing", "MRP", "production order", "warehouse processes", "inventory movements"], "tools": ["MD04", "CO01", "EWM Monitor"], "jira_focus": "Plan a supply-chain sprint and identify dependencies", "lab_task": "Run an MRP review and create a sample production order"},
-    {"day": 11, "topic": "SAP HCM and SuccessFactors Overview", "subtopics": ["employee master", "organizational management", "payroll concepts", "recruiting", "employee central", "workflows"], "tools": ["SAP HCM", "SuccessFactors"], "jira_focus": "Create HR-process requirements and approval tasks", "lab_task": "Configure a sample employee lifecycle workflow in a sandbox"},
-    {"day": 12, "topic": "SAP BTP, Fiori and Integration", "subtopics": ["BTP services", "Fiori apps", "OData", "SAP Integration Suite", "APIs", "event-driven integration"], "tools": ["SAP BTP Cockpit", "SAP Business Application Studio", "Postman"], "jira_focus": "Document integration stories and API acceptance criteria", "lab_task": "Create an OData service integration and test it with Postman"},
-    {"day": 13, "topic": "SAP Analytics, BW and Reporting", "subtopics": ["embedded analytics", "BW concepts", "CDS views", "SAP Analytics Cloud", "dashboards", "data governance"], "tools": ["SAP Analytics Cloud", "CDS", "BW/4HANA"], "jira_focus": "Define reporting dashboard backlog and review metrics", "lab_task": "Build a basic analytical query and dashboard from sample business data"},
-    {"day": 14, "topic": "SAP Security, Transports and Production Readiness", "subtopics": ["role design", "segregation of duties", "transport routes", "change control", "cutover", "support model"], "tools": ["PFCG", "STMS", "SAP Solution Manager"], "jira_focus": "Run a release-readiness review and log risks", "lab_task": "Create a transport request and validate a role-change control checklist"},
-    {"day": 15, "topic": "SAP End-to-End Capstone and Certification Preparation", "subtopics": ["process design", "configuration", "integration", "testing", "cutover plan", "presentation"], "tools": ["SAP S/4HANA", "SAP BTP", "Jira"], "jira_focus": "Conduct sprint review, retrospective, and final project demo", "lab_task": "Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting"}
-  ]
+    {
+      "day": 1,
+      "topic": "SAP Enterprise Architecture and S/4HANA Overview",
+      "subtopics": [
+        "SAP product portfolio",
+        "ERP business processes",
+        "S/4HANA architecture",
+        "landscape concepts",
+        "client-server model"
+      ],
+      "tools": [
+        "SAP GUI",
+        "SAP Fiori"
+      ],
+      "jira_focus": "Create a project epic and map SAP business-process stories",
+      "lab_task": "Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape",
+      "deliverable": "Participant submission for 'SAP Enterprise Architecture and S/4HANA Overview': Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SAP product portfolio; ERP business processes; S/4HANA architecture; landscape concepts; client-server model). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape.",
+        "Explain how the lab applies SAP Enterprise Architecture and S/4HANA Overview and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP Enterprise Architecture and S/4HANA Overview' on a prepared training sample through this task: Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (SAP product portfolio; ERP business processes; S/4HANA architecture; landscape concepts; client-server model) and demonstrate the starting sample for: Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape",
+          "evidence": "Participant submission for 'SAP Enterprise Architecture and S/4HANA Overview': Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Navigate SAP GUI and Fiori Launchpad; explore a sample S/4HANA landscape. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (SAP product portfolio; ERP business processes; S/4HANA architecture; landscape concepts; client-server model). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "SAP Navigation, Master Data and Authorization Basics",
+      "subtopics": [
+        "transactions",
+        "organizational structure",
+        "master data",
+        "roles",
+        "authorizations",
+        "transport concepts"
+      ],
+      "tools": [
+        "SAP GUI",
+        "SU01",
+        "PFCG"
+      ],
+      "jira_focus": "Document role and master-data acceptance criteria",
+      "lab_task": "Create a test user, assign a role, and validate transaction access",
+      "deliverable": "Participant submission for 'SAP Navigation, Master Data and Authorization Basics': Create a test user, assign a role, and validate transaction access. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a test user, assign a role, and validate transaction access. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (transactions; organizational structure; master data; roles; authorizations; transport concepts). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a test user, assign a role, and validate transaction access.",
+        "Explain how the lab applies SAP Navigation, Master Data and Authorization Basics and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP Navigation, Master Data and Authorization Basics' on a prepared training sample through this task: Create a test user, assign a role, and validate transaction access.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a test user, assign a role, and validate transaction access",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (transactions; organizational structure; master data; roles; authorizations; transport concepts) and demonstrate the starting sample for: Create a test user, assign a role, and validate transaction access",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a test user, assign a role, and validate transaction access",
+          "evidence": "Participant submission for 'SAP Navigation, Master Data and Authorization Basics': Create a test user, assign a role, and validate transaction access. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a test user, assign a role, and validate transaction access' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a test user, assign a role, and validate transaction access. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (transactions; organizational structure; master data; roles; authorizations; transport concepts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "SAP Basis Administration and System Monitoring",
+      "subtopics": [
+        "instances",
+        "work processes",
+        "system profiles",
+        "background jobs",
+        "spool",
+        "monitoring"
+      ],
+      "tools": [
+        "SM50",
+        "SM37",
+        "ST22",
+        "ST03N"
+      ],
+      "jira_focus": "Log an operations incident and attach monitoring evidence",
+      "lab_task": "Monitor work processes, analyze a failed job, and review a short dump",
+      "deliverable": "Participant submission for 'SAP Basis Administration and System Monitoring': Monitor work processes, analyze a failed job, and review a short dump. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Monitor work processes, analyze a failed job, and review a short dump. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (instances; work processes; system profiles; background jobs; spool; monitoring). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Monitor work processes, analyze a failed job, and review a short dump.",
+        "Explain how the lab applies SAP Basis Administration and System Monitoring and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP Basis Administration and System Monitoring' on a prepared training sample through this task: Monitor work processes, analyze a failed job, and review a short dump.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Monitor work processes, analyze a failed job, and review a short dump",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (instances; work processes; system profiles; background jobs; spool; monitoring) and demonstrate the starting sample for: Monitor work processes, analyze a failed job, and review a short dump",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Monitor work processes, analyze a failed job, and review a short dump",
+          "evidence": "Participant submission for 'SAP Basis Administration and System Monitoring': Monitor work processes, analyze a failed job, and review a short dump. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Monitor work processes, analyze a failed job, and review a short dump' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Monitor work processes, analyze a failed job, and review a short dump. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (instances; work processes; system profiles; background jobs; spool; monitoring). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "SAP HANA and Database Concepts",
+      "subtopics": [
+        "in-memory computing",
+        "HANA modeling",
+        "tables",
+        "views",
+        "performance",
+        "backup and recovery"
+      ],
+      "tools": [
+        "SAP HANA Cockpit",
+        "HANA Studio"
+      ],
+      "jira_focus": "Create tasks for data-model review and performance validation",
+      "lab_task": "Explore HANA catalog objects and create a simple calculation view",
+      "deliverable": "Participant submission for 'SAP HANA and Database Concepts': Explore HANA catalog objects and create a simple calculation view. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Explore HANA catalog objects and create a simple calculation view. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (in-memory computing; HANA modeling; tables; views; performance; backup and recovery). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Explore HANA catalog objects and create a simple calculation view.",
+        "Explain how the lab applies SAP HANA and Database Concepts and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP HANA and Database Concepts' on a prepared training sample through this task: Explore HANA catalog objects and create a simple calculation view.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Explore HANA catalog objects and create a simple calculation view",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (in-memory computing; HANA modeling; tables; views; performance; backup and recovery) and demonstrate the starting sample for: Explore HANA catalog objects and create a simple calculation view",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Explore HANA catalog objects and create a simple calculation view",
+          "evidence": "Participant submission for 'SAP HANA and Database Concepts': Explore HANA catalog objects and create a simple calculation view. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Explore HANA catalog objects and create a simple calculation view' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Explore HANA catalog objects and create a simple calculation view. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (in-memory computing; HANA modeling; tables; views; performance; backup and recovery). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "ABAP Fundamentals",
+      "subtopics": [
+        "ABAP Workbench",
+        "data dictionary",
+        "data types",
+        "internal tables",
+        "control structures",
+        "debugging"
+      ],
+      "tools": [
+        "SE80",
+        "SE11",
+        "SE38",
+        "Debugger"
+      ],
+      "jira_focus": "Link an ABAP development task to a user story",
+      "lab_task": "Build and debug an ABAP report using internal tables and selection screens",
+      "deliverable": "Participant submission for 'ABAP Fundamentals': Build and debug an ABAP report using internal tables and selection screens. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build and debug an ABAP report using internal tables and selection screens. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ABAP Workbench; data dictionary; data types; internal tables; control structures; debugging). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build and debug an ABAP report using internal tables and selection screens.",
+        "Explain how the lab applies ABAP Fundamentals and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'ABAP Fundamentals' on a prepared training sample through this task: Build and debug an ABAP report using internal tables and selection screens.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build and debug an ABAP report using internal tables and selection screens",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (ABAP Workbench; data dictionary; data types; internal tables; control structures; debugging) and demonstrate the starting sample for: Build and debug an ABAP report using internal tables and selection screens",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build and debug an ABAP report using internal tables and selection screens",
+          "evidence": "Participant submission for 'ABAP Fundamentals': Build and debug an ABAP report using internal tables and selection screens. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build and debug an ABAP report using internal tables and selection screens' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build and debug an ABAP report using internal tables and selection screens. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (ABAP Workbench; data dictionary; data types; internal tables; control structures; debugging). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "ABAP Objects, Enhancements and Forms",
+      "subtopics": [
+        "object-oriented ABAP",
+        "classes",
+        "BAdIs",
+        "user exits",
+        "Smart Forms",
+        "Adobe Forms"
+      ],
+      "tools": [
+        "SE24",
+        "SE18",
+        "SMARTFORMS"
+      ],
+      "jira_focus": "Review enhancement design and capture code-review notes",
+      "lab_task": "Create an ABAP class and enhance a sample business transaction",
+      "deliverable": "Participant submission for 'ABAP Objects, Enhancements and Forms': Create an ABAP class and enhance a sample business transaction. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create an ABAP class and enhance a sample business transaction. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (object-oriented ABAP; classes; BAdIs; user exits; Smart Forms; Adobe Forms). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create an ABAP class and enhance a sample business transaction.",
+        "Explain how the lab applies ABAP Objects, Enhancements and Forms and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'ABAP Objects, Enhancements and Forms' on a prepared training sample through this task: Create an ABAP class and enhance a sample business transaction.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create an ABAP class and enhance a sample business transaction",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (object-oriented ABAP; classes; BAdIs; user exits; Smart Forms; Adobe Forms) and demonstrate the starting sample for: Create an ABAP class and enhance a sample business transaction",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create an ABAP class and enhance a sample business transaction",
+          "evidence": "Participant submission for 'ABAP Objects, Enhancements and Forms': Create an ABAP class and enhance a sample business transaction. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create an ABAP class and enhance a sample business transaction' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create an ABAP class and enhance a sample business transaction. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (object-oriented ABAP; classes; BAdIs; user exits; Smart Forms; Adobe Forms). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "SAP FICO - Financial Accounting and Controlling",
+      "subtopics": [
+        "general ledger",
+        "accounts payable",
+        "accounts receivable",
+        "asset accounting",
+        "cost centers",
+        "profit centers"
+      ],
+      "tools": [
+        "SAP Fiori",
+        "FB50",
+        "F-02"
+      ],
+      "jira_focus": "Map finance-process test cases to sprint stories",
+      "lab_task": "Post a sample journal entry and run a basic cost-center report",
+      "deliverable": "Participant submission for 'SAP FICO - Financial Accounting and Controlling': Post a sample journal entry and run a basic cost-center report. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Post a sample journal entry and run a basic cost-center report. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (general ledger; accounts payable; accounts receivable; asset accounting; cost centers; profit centers). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Post a sample journal entry and run a basic cost-center report.",
+        "Explain how the lab applies SAP FICO - Financial Accounting and Controlling and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP FICO - Financial Accounting and Controlling' on a prepared training sample through this task: Post a sample journal entry and run a basic cost-center report.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Post a sample journal entry and run a basic cost-center report",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (general ledger; accounts payable; accounts receivable; asset accounting; cost centers; profit centers) and demonstrate the starting sample for: Post a sample journal entry and run a basic cost-center report",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Post a sample journal entry and run a basic cost-center report",
+          "evidence": "Participant submission for 'SAP FICO - Financial Accounting and Controlling': Post a sample journal entry and run a basic cost-center report. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Post a sample journal entry and run a basic cost-center report' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Post a sample journal entry and run a basic cost-center report. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (general ledger; accounts payable; accounts receivable; asset accounting; cost centers; profit centers). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "SAP MM - Materials Management and Procurement",
+      "subtopics": [
+        "material master",
+        "vendor master",
+        "purchase requisition",
+        "purchase order",
+        "goods receipt",
+        "invoice verification"
+      ],
+      "tools": [
+        "ME51N",
+        "ME21N",
+        "MIGO",
+        "MIRO"
+      ],
+      "jira_focus": "Create procure-to-pay workflow tasks",
+      "lab_task": "Execute a purchase requisition-to-goods-receipt scenario",
+      "deliverable": "Participant submission for 'SAP MM - Materials Management and Procurement': Execute a purchase requisition-to-goods-receipt scenario. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Execute a purchase requisition-to-goods-receipt scenario. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (material master; vendor master; purchase requisition; purchase order; goods receipt; invoice verification). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Execute a purchase requisition-to-goods-receipt scenario.",
+        "Explain how the lab applies SAP MM - Materials Management and Procurement and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP MM - Materials Management and Procurement' on a prepared training sample through this task: Execute a purchase requisition-to-goods-receipt scenario.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Execute a purchase requisition-to-goods-receipt scenario",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (material master; vendor master; purchase requisition; purchase order; goods receipt; invoice verification) and demonstrate the starting sample for: Execute a purchase requisition-to-goods-receipt scenario",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Execute a purchase requisition-to-goods-receipt scenario",
+          "evidence": "Participant submission for 'SAP MM - Materials Management and Procurement': Execute a purchase requisition-to-goods-receipt scenario. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Execute a purchase requisition-to-goods-receipt scenario' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Execute a purchase requisition-to-goods-receipt scenario. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (material master; vendor master; purchase requisition; purchase order; goods receipt; invoice verification). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 9,
+      "topic": "SAP SD - Sales and Distribution",
+      "subtopics": [
+        "customer master",
+        "sales order",
+        "delivery",
+        "billing",
+        "pricing",
+        "credit management"
+      ],
+      "tools": [
+        "VA01",
+        "VL01N",
+        "VF01"
+      ],
+      "jira_focus": "Track order-to-cash test evidence in Jira",
+      "lab_task": "Create a sales order, delivery, and billing document",
+      "deliverable": "Participant submission for 'SAP SD - Sales and Distribution': Create a sales order, delivery, and billing document. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a sales order, delivery, and billing document. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (customer master; sales order; delivery; billing; pricing; credit management). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a sales order, delivery, and billing document.",
+        "Explain how the lab applies SAP SD - Sales and Distribution and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP SD - Sales and Distribution' on a prepared training sample through this task: Create a sales order, delivery, and billing document.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a sales order, delivery, and billing document",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (customer master; sales order; delivery; billing; pricing; credit management) and demonstrate the starting sample for: Create a sales order, delivery, and billing document",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a sales order, delivery, and billing document",
+          "evidence": "Participant submission for 'SAP SD - Sales and Distribution': Create a sales order, delivery, and billing document. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a sales order, delivery, and billing document' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a sales order, delivery, and billing document. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (customer master; sales order; delivery; billing; pricing; credit management). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 10,
+      "topic": "SAP PP, EWM and Supply Chain Overview",
+      "subtopics": [
+        "bill of materials",
+        "routing",
+        "MRP",
+        "production order",
+        "warehouse processes",
+        "inventory movements"
+      ],
+      "tools": [
+        "MD04",
+        "CO01",
+        "EWM Monitor"
+      ],
+      "jira_focus": "Plan a supply-chain sprint and identify dependencies",
+      "lab_task": "Run an MRP review and create a sample production order",
+      "deliverable": "Participant submission for 'SAP PP, EWM and Supply Chain Overview': Run an MRP review and create a sample production order. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Run an MRP review and create a sample production order. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (bill of materials; routing; MRP; production order; warehouse processes; inventory movements). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Run an MRP review and create a sample production order.",
+        "Explain how the lab applies SAP PP, EWM and Supply Chain Overview and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP PP, EWM and Supply Chain Overview' on a prepared training sample through this task: Run an MRP review and create a sample production order.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Run an MRP review and create a sample production order",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (bill of materials; routing; MRP; production order; warehouse processes; inventory movements) and demonstrate the starting sample for: Run an MRP review and create a sample production order",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Run an MRP review and create a sample production order",
+          "evidence": "Participant submission for 'SAP PP, EWM and Supply Chain Overview': Run an MRP review and create a sample production order. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Run an MRP review and create a sample production order' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Run an MRP review and create a sample production order. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (bill of materials; routing; MRP; production order; warehouse processes; inventory movements). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 11,
+      "topic": "SAP HCM and SuccessFactors Overview",
+      "subtopics": [
+        "employee master",
+        "organizational management",
+        "payroll concepts",
+        "recruiting",
+        "employee central",
+        "workflows"
+      ],
+      "tools": [
+        "SAP HCM",
+        "SuccessFactors"
+      ],
+      "jira_focus": "Create HR-process requirements and approval tasks",
+      "lab_task": "Configure a sample employee lifecycle workflow in a sandbox",
+      "deliverable": "Participant submission for 'SAP HCM and SuccessFactors Overview': Configure a sample employee lifecycle workflow in a sandbox. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Configure a sample employee lifecycle workflow in a sandbox. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (employee master; organizational management; payroll concepts; recruiting; employee central; workflows). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Configure a sample employee lifecycle workflow in a sandbox.",
+        "Explain how the lab applies SAP HCM and SuccessFactors Overview and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP HCM and SuccessFactors Overview' on a prepared training sample through this task: Configure a sample employee lifecycle workflow in a sandbox.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Configure a sample employee lifecycle workflow in a sandbox",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (employee master; organizational management; payroll concepts; recruiting; employee central; workflows) and demonstrate the starting sample for: Configure a sample employee lifecycle workflow in a sandbox",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Configure a sample employee lifecycle workflow in a sandbox",
+          "evidence": "Participant submission for 'SAP HCM and SuccessFactors Overview': Configure a sample employee lifecycle workflow in a sandbox. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Configure a sample employee lifecycle workflow in a sandbox' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Configure a sample employee lifecycle workflow in a sandbox. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (employee master; organizational management; payroll concepts; recruiting; employee central; workflows). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 12,
+      "topic": "SAP BTP, Fiori and Integration",
+      "subtopics": [
+        "BTP services",
+        "Fiori apps",
+        "OData",
+        "SAP Integration Suite",
+        "APIs",
+        "event-driven integration"
+      ],
+      "tools": [
+        "SAP BTP Cockpit",
+        "SAP Business Application Studio",
+        "Postman"
+      ],
+      "jira_focus": "Document integration stories and API acceptance criteria",
+      "lab_task": "Create an OData service integration and test it with Postman",
+      "deliverable": "Participant submission for 'SAP BTP, Fiori and Integration': Create an OData service integration and test it with Postman. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create an OData service integration and test it with Postman. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (BTP services; Fiori apps; OData; SAP Integration Suite; APIs; event-driven integration). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create an OData service integration and test it with Postman.",
+        "Explain how the lab applies SAP BTP, Fiori and Integration and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP BTP, Fiori and Integration' on a prepared training sample through this task: Create an OData service integration and test it with Postman.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create an OData service integration and test it with Postman",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (BTP services; Fiori apps; OData; SAP Integration Suite; APIs; event-driven integration) and demonstrate the starting sample for: Create an OData service integration and test it with Postman",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create an OData service integration and test it with Postman",
+          "evidence": "Participant submission for 'SAP BTP, Fiori and Integration': Create an OData service integration and test it with Postman. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create an OData service integration and test it with Postman' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create an OData service integration and test it with Postman. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (BTP services; Fiori apps; OData; SAP Integration Suite; APIs; event-driven integration). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 13,
+      "topic": "SAP Analytics, BW and Reporting",
+      "subtopics": [
+        "embedded analytics",
+        "BW concepts",
+        "CDS views",
+        "SAP Analytics Cloud",
+        "dashboards",
+        "data governance"
+      ],
+      "tools": [
+        "SAP Analytics Cloud",
+        "CDS",
+        "BW/4HANA"
+      ],
+      "jira_focus": "Define reporting dashboard backlog and review metrics",
+      "lab_task": "Build a basic analytical query and dashboard from sample business data",
+      "deliverable": "Participant submission for 'SAP Analytics, BW and Reporting': Build a basic analytical query and dashboard from sample business data. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build a basic analytical query and dashboard from sample business data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (embedded analytics; BW concepts; CDS views; SAP Analytics Cloud; dashboards; data governance). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Build a basic analytical query and dashboard from sample business data.",
+        "Explain how the lab applies SAP Analytics, BW and Reporting and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP Analytics, BW and Reporting' on a prepared training sample through this task: Build a basic analytical query and dashboard from sample business data.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build a basic analytical query and dashboard from sample business data",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (embedded analytics; BW concepts; CDS views; SAP Analytics Cloud; dashboards; data governance) and demonstrate the starting sample for: Build a basic analytical query and dashboard from sample business data",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build a basic analytical query and dashboard from sample business data",
+          "evidence": "Participant submission for 'SAP Analytics, BW and Reporting': Build a basic analytical query and dashboard from sample business data. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build a basic analytical query and dashboard from sample business data' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build a basic analytical query and dashboard from sample business data. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (embedded analytics; BW concepts; CDS views; SAP Analytics Cloud; dashboards; data governance). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 14,
+      "topic": "SAP Security, Transports and Production Readiness",
+      "subtopics": [
+        "role design",
+        "segregation of duties",
+        "transport routes",
+        "change control",
+        "cutover",
+        "support model"
+      ],
+      "tools": [
+        "PFCG",
+        "STMS",
+        "SAP Solution Manager"
+      ],
+      "jira_focus": "Run a release-readiness review and log risks",
+      "lab_task": "Create a transport request and validate a role-change control checklist",
+      "deliverable": "Participant submission for 'SAP Security, Transports and Production Readiness': Create a transport request and validate a role-change control checklist. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Create a transport request and validate a role-change control checklist. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (role design; segregation of duties; transport routes; change control; cutover; support model). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Create a transport request and validate a role-change control checklist.",
+        "Explain how the lab applies SAP Security, Transports and Production Readiness and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP Security, Transports and Production Readiness' on a prepared training sample through this task: Create a transport request and validate a role-change control checklist.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Create a transport request and validate a role-change control checklist",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (role design; segregation of duties; transport routes; change control; cutover; support model) and demonstrate the starting sample for: Create a transport request and validate a role-change control checklist",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Create a transport request and validate a role-change control checklist",
+          "evidence": "Participant submission for 'SAP Security, Transports and Production Readiness': Create a transport request and validate a role-change control checklist. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Create a transport request and validate a role-change control checklist' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Create a transport request and validate a role-change control checklist. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (role design; segregation of duties; transport routes; change control; cutover; support model). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 15,
+      "topic": "SAP End-to-End Capstone and Certification Preparation",
+      "subtopics": [
+        "process design",
+        "configuration",
+        "integration",
+        "testing",
+        "cutover plan",
+        "presentation"
+      ],
+      "tools": [
+        "SAP S/4HANA",
+        "SAP BTP",
+        "Jira"
+      ],
+      "jira_focus": "Conduct sprint review, retrospective, and final project demo",
+      "lab_task": "Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting",
+      "deliverable": "Participant submission for 'SAP End-to-End Capstone and Certification Preparation': Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (process design; configuration; integration; testing; cutover plan; presentation). Require one changed-input or exception case and an explanation of its result.",
+      "learning_objectives": [
+        "Complete and demonstrate: Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting.",
+        "Explain how the lab applies SAP End-to-End Capstone and Certification Preparation and justify the observed result."
+      ],
+      "scenario": "Demonstrate 'SAP End-to-End Capstone and Certification Preparation' on a prepared training sample through this task: Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting.",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (process design; configuration; integration; testing; cutover plan; presentation) and demonstrate the starting sample for: Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting",
+          "evidence": "Participant submission for 'SAP End-to-End Capstone and Certification Preparation': Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Deliver an end-to-end procure-to-pay or order-to-cash capstone with reporting. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (process design; configuration; integration; testing; cutover plan; presentation). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "learning_objectives",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }

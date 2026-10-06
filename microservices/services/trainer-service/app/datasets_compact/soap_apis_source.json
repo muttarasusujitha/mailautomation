@@ -1,376 +1,725 @@
 {
-    "domain":  "SOAP APIs",
-    "name":  "SOAP APIs â€“ Comprehensive Fundamentals to Advanced Curriculum",
-    "aliases":  [
-                    "SOAP Web Services",
-                    "XML Web Services"
-                ],
-    "tools":  [
-                  "SoapUI",
-                  "Postman",
-                  "WSDL",
-                  "XML"
-              ],
-    "certifications":  [
-                           "SOAP APIs official/vendor learning path or relevant professional certification"
-                       ],
-    "days":  [
-                 {
-                     "day":  1,
-                     "topic":  "Fundamentals",
-                     "subtopics":  [
-                                       "Core concepts",
-                                       "Architecture",
-                                       "Terminology",
-                                       "Common protocols",
-                                       "Use cases",
-                                       "Threats or failure modes",
-                                       "Lab setup",
-                                       "SOAP APIs terminology and feature mapping for this topic",
-                                       "SOAP APIs configuration and implementation considerations",
-                                       "SOAP APIs best practices and common mistakes for this topic",
-                                       "WSDL",
-                                       "XML Schema",
-                                       "SOAP Envelope",
-                                       "Header",
-                                       "Body",
-                                       "Fault",
-                                       "SOAP 1.1",
-                                       "SOAP 1.2",
-                                       "XSD",
-                                       "WS-Security concepts",
-                                       "SoapUI",
-                                       "service contracts"
-                                   ],
-                     "tools":  [
-                                   "SoapUI",
-                                   "Postman",
-                                   "WSDL"
-                               ],
-                     "lab_task":  "Set up a safe lab and demonstrate SOAP APIs fundamentals.",
-                     "technology":  "SOAP APIs",
-                     "technology_id":  "soap-apis",
-                     "learning_objectives":  [
-                                                 "Explain the Fundamentals concepts in the context of SOAP APIs.",
-                                                 "Configure or implement the key SOAP APIs features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Fundamentals practically using SOAP APIs.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  2,
-                     "topic":  "Protocols and Components",
-                     "subtopics":  [
-                                       "Core components",
-                                       "Packet/message flow",
-                                       "Ports and protocols",
-                                       "Addressing/identity concepts",
-                                       "State",
-                                       "Control plane/data plane",
-                                       "Common configurations",
-                                       "SOAP APIs terminology and feature mapping for this topic",
-                                       "SOAP APIs configuration and implementation considerations",
-                                       "SOAP APIs best practices and common mistakes for this topic",
-                                       "WSDL",
-                                       "XML Schema",
-                                       "SOAP Envelope",
-                                       "Header",
-                                       "Body",
-                                       "Fault",
-                                       "SOAP 1.1",
-                                       "SOAP 1.2",
-                                       "XSD",
-                                       "WS-Security concepts",
-                                       "SoapUI",
-                                       "service contracts"
-                                   ],
-                     "tools":  [
-                                   "SoapUI",
-                                   "Postman",
-                                   "WSDL"
-                               ],
-                     "lab_task":  "Inspect and configure core SOAP APIs components.",
-                     "technology":  "SOAP APIs",
-                     "technology_id":  "soap-apis",
-                     "learning_objectives":  [
-                                                 "Explain the Protocols and Components concepts in the context of SOAP APIs.",
-                                                 "Configure or implement the key SOAP APIs features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Protocols and Components practically using SOAP APIs.",
-                     "difficulty":  "Fundamental"
-                 },
-                 {
-                     "day":  3,
-                     "topic":  "Design and Architecture",
-                     "subtopics":  [
-                                       "Enterprise design patterns",
-                                       "Segmentation",
-                                       "Redundancy",
-                                       "Scalability",
-                                       "Trust boundaries",
-                                       "Failure domains",
-                                       "Cloud considerations",
-                                       "SOAP APIs terminology and feature mapping for this topic",
-                                       "SOAP APIs configuration and implementation considerations",
-                                       "SOAP APIs best practices and common mistakes for this topic",
-                                       "WSDL",
-                                       "XML Schema",
-                                       "SOAP Envelope",
-                                       "Header",
-                                       "Body",
-                                       "Fault",
-                                       "SOAP 1.1",
-                                       "SOAP 1.2",
-                                       "XSD",
-                                       "WS-Security concepts",
-                                       "SoapUI",
-                                       "service contracts"
-                                   ],
-                     "tools":  [
-                                   "SoapUI",
-                                   "Postman",
-                                   "WSDL"
-                               ],
-                     "lab_task":  "Design an enterprise architecture for SOAP APIs.",
-                     "technology":  "SOAP APIs",
-                     "technology_id":  "soap-apis",
-                     "learning_objectives":  [
-                                                 "Explain the Design and Architecture concepts in the context of SOAP APIs.",
-                                                 "Configure or implement the key SOAP APIs features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Design and Architecture practically using SOAP APIs.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  4,
-                     "topic":  "Security Controls",
-                     "subtopics":  [
-                                       "Authentication",
-                                       "Authorization",
-                                       "Encryption",
-                                       "Certificates/keys",
-                                       "Hardening",
-                                       "Least privilege",
-                                       "Logging and auditing",
-                                       "SOAP APIs terminology and feature mapping for this topic",
-                                       "SOAP APIs configuration and implementation considerations",
-                                       "SOAP APIs best practices and common mistakes for this topic",
-                                       "WSDL",
-                                       "XML Schema",
-                                       "SOAP Envelope",
-                                       "Header",
-                                       "Body",
-                                       "Fault",
-                                       "SOAP 1.1",
-                                       "SOAP 1.2",
-                                       "XSD",
-                                       "WS-Security concepts",
-                                       "SoapUI",
-                                       "service contracts"
-                                   ],
-                     "tools":  [
-                                   "SoapUI",
-                                   "Postman",
-                                   "WSDL"
-                               ],
-                     "lab_task":  "Apply secure configuration and hardening.",
-                     "technology":  "SOAP APIs",
-                     "technology_id":  "soap-apis",
-                     "learning_objectives":  [
-                                                 "Explain the Security Controls concepts in the context of SOAP APIs.",
-                                                 "Configure or implement the key SOAP APIs features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Security Controls practically using SOAP APIs.",
-                     "difficulty":  "Intermediate"
-                 },
-                 {
-                     "day":  5,
-                     "topic":  "Monitoring and Troubleshooting",
-                     "subtopics":  [
-                                       "Logs",
-                                       "Metrics",
-                                       "Packet or request inspection",
-                                       "Common faults",
-                                       "Diagnostic commands",
-                                       "Alerting",
-                                       "Incident workflow",
-                                       "SOAP APIs terminology and feature mapping for this topic",
-                                       "SOAP APIs configuration and implementation considerations",
-                                       "SOAP APIs best practices and common mistakes for this topic",
-                                       "WSDL",
-                                       "XML Schema",
-                                       "SOAP Envelope",
-                                       "Header",
-                                       "Body",
-                                       "Fault",
-                                       "SOAP 1.1",
-                                       "SOAP 1.2",
-                                       "XSD",
-                                       "WS-Security concepts",
-                                       "SoapUI",
-                                       "service contracts"
-                                   ],
-                     "tools":  [
-                                   "SoapUI",
-                                   "Postman",
-                                   "WSDL",
-                                   "XML"
-                               ],
-                     "lab_task":  "Diagnose and resolve a simulated SOAP APIs issue.",
-                     "technology":  "SOAP APIs",
-                     "technology_id":  "soap-apis",
-                     "learning_objectives":  [
-                                                 "Explain the Monitoring and Troubleshooting concepts in the context of SOAP APIs.",
-                                                 "Configure or implement the key SOAP APIs features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Monitoring and Troubleshooting practically using SOAP APIs.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  6,
-                     "topic":  "Automation and Operations",
-                     "subtopics":  [
-                                       "Configuration automation",
-                                       "Policy management",
-                                       "Backups",
-                                       "Change control",
-                                       "Versioning",
-                                       "Testing",
-                                       "Operational runbooks",
-                                       "SOAP APIs terminology and feature mapping for this topic",
-                                       "SOAP APIs configuration and implementation considerations",
-                                       "SOAP APIs best practices and common mistakes for this topic",
-                                       "WSDL",
-                                       "XML Schema",
-                                       "SOAP Envelope",
-                                       "Header",
-                                       "Body",
-                                       "Fault",
-                                       "SOAP 1.1",
-                                       "SOAP 1.2",
-                                       "XSD",
-                                       "WS-Security concepts",
-                                       "SoapUI",
-                                       "service contracts"
-                                   ],
-                     "tools":  [
-                                   "SoapUI",
-                                   "Postman",
-                                   "WSDL"
-                               ],
-                     "lab_task":  "Automate a repeatable SOAP APIs configuration task.",
-                     "technology":  "SOAP APIs",
-                     "technology_id":  "soap-apis",
-                     "learning_objectives":  [
-                                                 "Explain the Automation and Operations concepts in the context of SOAP APIs.",
-                                                 "Configure or implement the key SOAP APIs features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Automation and Operations practically using SOAP APIs.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  7,
-                     "topic":  "Advanced and Cloud Patterns",
-                     "subtopics":  [
-                                       "Cloud-native services",
-                                       "Hybrid connectivity",
-                                       "Zero-trust considerations",
-                                       "Performance",
-                                       "High availability",
-                                       "Disaster recovery",
-                                       "Cost considerations",
-                                       "SOAP APIs terminology and feature mapping for this topic",
-                                       "SOAP APIs configuration and implementation considerations",
-                                       "SOAP APIs best practices and common mistakes for this topic",
-                                       "WSDL",
-                                       "XML Schema",
-                                       "SOAP Envelope",
-                                       "Header",
-                                       "Body",
-                                       "Fault",
-                                       "SOAP 1.1",
-                                       "SOAP 1.2",
-                                       "XSD",
-                                       "WS-Security concepts",
-                                       "SoapUI",
-                                       "service contracts"
-                                   ],
-                     "tools":  [
-                                   "SoapUI",
-                                   "Postman",
-                                   "WSDL",
-                                   "XML"
-                               ],
-                     "lab_task":  "Design a cloud/hybrid implementation.",
-                     "technology":  "SOAP APIs",
-                     "technology_id":  "soap-apis",
-                     "learning_objectives":  [
-                                                 "Explain the Advanced and Cloud Patterns concepts in the context of SOAP APIs.",
-                                                 "Configure or implement the key SOAP APIs features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Advanced and Cloud Patterns practically using SOAP APIs.",
-                     "difficulty":  "Advanced"
-                 },
-                 {
-                     "day":  8,
-                     "topic":  "Capstone",
-                     "subtopics":  [
-                                       "Requirement analysis",
-                                       "Architecture",
-                                       "Security",
-                                       "Configuration",
-                                       "Testing",
-                                       "Monitoring",
-                                       "Troubleshooting",
-                                       "Documentation",
-                                       "SOAP APIs terminology and feature mapping for this topic",
-                                       "SOAP APIs configuration and implementation considerations",
-                                       "SOAP APIs best practices and common mistakes for this topic",
-                                       "WSDL",
-                                       "XML Schema",
-                                       "SOAP Envelope",
-                                       "Header",
-                                       "Body",
-                                       "Fault",
-                                       "SOAP 1.1",
-                                       "SOAP 1.2",
-                                       "XSD",
-                                       "WS-Security concepts",
-                                       "SoapUI",
-                                       "service contracts"
-                                   ],
-                     "tools":  [
-                                   "SoapUI",
-                                   "Postman",
-                                   "WSDL",
-                                   "XML"
-                               ],
-                     "lab_task":  "Build and document an end-to-end SOAP APIs solution.",
-                     "technology":  "SOAP APIs",
-                     "technology_id":  "soap-apis",
-                     "learning_objectives":  [
-                                                 "Explain the Capstone concepts in the context of SOAP APIs.",
-                                                 "Configure or implement the key SOAP APIs features covered in this day.",
-                                                 "Complete the hands-on lab and validate the expected result.",
-                                                 "Identify common implementation mistakes and troubleshooting steps."
-                                             ],
-                     "expected_outcome":  "Learner can apply Capstone practically using SOAP APIs.",
-                     "difficulty":  "Advanced"
-                 }
-             ],
-    "technology_id":  "soap-apis"
+  "domain": "SOAP APIs",
+  "name": "SOAP APIs â€“ Comprehensive Fundamentals to Advanced Curriculum",
+  "aliases": [
+    "SOAP Web Services",
+    "XML Web Services"
+  ],
+  "tools": [
+    "SoapUI",
+    "Postman",
+    "WSDL",
+    "XML"
+  ],
+  "certifications": [
+    "SOAP APIs official/vendor learning path or relevant professional certification"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "topic": "Fundamentals",
+      "subtopics": [
+        "Core concepts",
+        "Architecture",
+        "Terminology",
+        "Common protocols",
+        "Use cases",
+        "Threats or failure modes",
+        "Lab setup",
+        "SOAP APIs terminology and feature mapping for this topic",
+        "SOAP APIs configuration and implementation considerations",
+        "SOAP APIs best practices and common mistakes for this topic",
+        "WSDL",
+        "XML Schema",
+        "SOAP Envelope",
+        "Header",
+        "Body",
+        "Fault",
+        "SOAP 1.1",
+        "SOAP 1.2",
+        "XSD",
+        "WS-Security concepts",
+        "SoapUI",
+        "service contracts"
+      ],
+      "tools": [
+        "SoapUI",
+        "Postman",
+        "WSDL"
+      ],
+      "lab_task": "Set up a safe lab and demonstrate SOAP APIs fundamentals.",
+      "technology": "SOAP APIs",
+      "technology_id": "soap-apis",
+      "learning_objectives": [
+        "Explain the Fundamentals concepts in the context of SOAP APIs.",
+        "Configure or implement the key SOAP APIs features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Fundamentals practically using SOAP APIs.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Fundamentals': Set up a safe lab and demonstrate SOAP APIs fundamentals.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Set up a safe lab and demonstrate SOAP APIs fundamentals.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core concepts; Architecture; Terminology; Common protocols; Use cases; Threats or failure modes; Lab setup; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Fundamentals' on a prepared training sample through this task: Set up a safe lab and demonstrate SOAP APIs fundamentals..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Set up a safe lab and demonstrate SOAP APIs fundamentals.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core concepts; Architecture; Terminology; Common protocols; Use cases; Threats or failure modes; Lab setup; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts) and demonstrate the starting sample for: Set up a safe lab and demonstrate SOAP APIs fundamentals.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Set up a safe lab and demonstrate SOAP APIs fundamentals.",
+          "evidence": "Participant submission for 'Fundamentals': Set up a safe lab and demonstrate SOAP APIs fundamentals.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Set up a safe lab and demonstrate SOAP APIs fundamentals.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Set up a safe lab and demonstrate SOAP APIs fundamentals.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core concepts; Architecture; Terminology; Common protocols; Use cases; Threats or failure modes; Lab setup; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 2,
+      "topic": "Protocols and Components",
+      "subtopics": [
+        "Core components",
+        "Packet/message flow",
+        "Ports and protocols",
+        "Addressing/identity concepts",
+        "State",
+        "Control plane/data plane",
+        "Common configurations",
+        "SOAP APIs terminology and feature mapping for this topic",
+        "SOAP APIs configuration and implementation considerations",
+        "SOAP APIs best practices and common mistakes for this topic",
+        "WSDL",
+        "XML Schema",
+        "SOAP Envelope",
+        "Header",
+        "Body",
+        "Fault",
+        "SOAP 1.1",
+        "SOAP 1.2",
+        "XSD",
+        "WS-Security concepts",
+        "SoapUI",
+        "service contracts"
+      ],
+      "tools": [
+        "SoapUI",
+        "Postman",
+        "WSDL"
+      ],
+      "lab_task": "Inspect and configure core SOAP APIs components.",
+      "technology": "SOAP APIs",
+      "technology_id": "soap-apis",
+      "learning_objectives": [
+        "Explain the Protocols and Components concepts in the context of SOAP APIs.",
+        "Configure or implement the key SOAP APIs features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Protocols and Components practically using SOAP APIs.",
+      "difficulty": "Fundamental",
+      "deliverable": "Participant submission for 'Protocols and Components': Inspect and configure core SOAP APIs components.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Inspect and configure core SOAP APIs components.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core components; Packet/message flow; Ports and protocols; Addressing/identity concepts; State; Control plane/data plane; Common configurations; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Protocols and Components' on a prepared training sample through this task: Inspect and configure core SOAP APIs components..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Inspect and configure core SOAP APIs components.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Core components; Packet/message flow; Ports and protocols; Addressing/identity concepts; State; Control plane/data plane; Common configurations; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts) and demonstrate the starting sample for: Inspect and configure core SOAP APIs components.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Inspect and configure core SOAP APIs components.",
+          "evidence": "Participant submission for 'Protocols and Components': Inspect and configure core SOAP APIs components.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Inspect and configure core SOAP APIs components.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Inspect and configure core SOAP APIs components.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Core components; Packet/message flow; Ports and protocols; Addressing/identity concepts; State; Control plane/data plane; Common configurations; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 3,
+      "topic": "Design and Architecture",
+      "subtopics": [
+        "Enterprise design patterns",
+        "Segmentation",
+        "Redundancy",
+        "Scalability",
+        "Trust boundaries",
+        "Failure domains",
+        "Cloud considerations",
+        "SOAP APIs terminology and feature mapping for this topic",
+        "SOAP APIs configuration and implementation considerations",
+        "SOAP APIs best practices and common mistakes for this topic",
+        "WSDL",
+        "XML Schema",
+        "SOAP Envelope",
+        "Header",
+        "Body",
+        "Fault",
+        "SOAP 1.1",
+        "SOAP 1.2",
+        "XSD",
+        "WS-Security concepts",
+        "SoapUI",
+        "service contracts"
+      ],
+      "tools": [
+        "SoapUI",
+        "Postman",
+        "WSDL"
+      ],
+      "lab_task": "Design an enterprise architecture for SOAP APIs.",
+      "technology": "SOAP APIs",
+      "technology_id": "soap-apis",
+      "learning_objectives": [
+        "Explain the Design and Architecture concepts in the context of SOAP APIs.",
+        "Configure or implement the key SOAP APIs features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Design and Architecture practically using SOAP APIs.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Design and Architecture': Design an enterprise architecture for SOAP APIs.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design an enterprise architecture for SOAP APIs.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Enterprise design patterns; Segmentation; Redundancy; Scalability; Trust boundaries; Failure domains; Cloud considerations; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Design and Architecture' on a prepared training sample through this task: Design an enterprise architecture for SOAP APIs..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design an enterprise architecture for SOAP APIs.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Enterprise design patterns; Segmentation; Redundancy; Scalability; Trust boundaries; Failure domains; Cloud considerations; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts) and demonstrate the starting sample for: Design an enterprise architecture for SOAP APIs.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design an enterprise architecture for SOAP APIs.",
+          "evidence": "Participant submission for 'Design and Architecture': Design an enterprise architecture for SOAP APIs.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design an enterprise architecture for SOAP APIs.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design an enterprise architecture for SOAP APIs.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Enterprise design patterns; Segmentation; Redundancy; Scalability; Trust boundaries; Failure domains; Cloud considerations; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 4,
+      "topic": "Security Controls",
+      "subtopics": [
+        "Authentication",
+        "Authorization",
+        "Encryption",
+        "Certificates/keys",
+        "Hardening",
+        "Least privilege",
+        "Logging and auditing",
+        "SOAP APIs terminology and feature mapping for this topic",
+        "SOAP APIs configuration and implementation considerations",
+        "SOAP APIs best practices and common mistakes for this topic",
+        "WSDL",
+        "XML Schema",
+        "SOAP Envelope",
+        "Header",
+        "Body",
+        "Fault",
+        "SOAP 1.1",
+        "SOAP 1.2",
+        "XSD",
+        "WS-Security concepts",
+        "SoapUI",
+        "service contracts"
+      ],
+      "tools": [
+        "SoapUI",
+        "Postman",
+        "WSDL"
+      ],
+      "lab_task": "Apply secure configuration and hardening.",
+      "technology": "SOAP APIs",
+      "technology_id": "soap-apis",
+      "learning_objectives": [
+        "Explain the Security Controls concepts in the context of SOAP APIs.",
+        "Configure or implement the key SOAP APIs features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Security Controls practically using SOAP APIs.",
+      "difficulty": "Intermediate",
+      "deliverable": "Participant submission for 'Security Controls': Apply secure configuration and hardening.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Apply secure configuration and hardening.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Encryption; Certificates/keys; Hardening; Least privilege; Logging and auditing; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Security Controls' on a prepared training sample through this task: Apply secure configuration and hardening..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Apply secure configuration and hardening.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Authentication; Authorization; Encryption; Certificates/keys; Hardening; Least privilege; Logging and auditing; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts) and demonstrate the starting sample for: Apply secure configuration and hardening.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Apply secure configuration and hardening.",
+          "evidence": "Participant submission for 'Security Controls': Apply secure configuration and hardening.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Apply secure configuration and hardening.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Apply secure configuration and hardening.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Authentication; Authorization; Encryption; Certificates/keys; Hardening; Least privilege; Logging and auditing; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 5,
+      "topic": "Monitoring and Troubleshooting",
+      "subtopics": [
+        "Logs",
+        "Metrics",
+        "Packet or request inspection",
+        "Common faults",
+        "Diagnostic commands",
+        "Alerting",
+        "Incident workflow",
+        "SOAP APIs terminology and feature mapping for this topic",
+        "SOAP APIs configuration and implementation considerations",
+        "SOAP APIs best practices and common mistakes for this topic",
+        "WSDL",
+        "XML Schema",
+        "SOAP Envelope",
+        "Header",
+        "Body",
+        "Fault",
+        "SOAP 1.1",
+        "SOAP 1.2",
+        "XSD",
+        "WS-Security concepts",
+        "SoapUI",
+        "service contracts"
+      ],
+      "tools": [
+        "SoapUI",
+        "Postman",
+        "WSDL",
+        "XML"
+      ],
+      "lab_task": "Diagnose and resolve a simulated SOAP APIs issue.",
+      "technology": "SOAP APIs",
+      "technology_id": "soap-apis",
+      "learning_objectives": [
+        "Explain the Monitoring and Troubleshooting concepts in the context of SOAP APIs.",
+        "Configure or implement the key SOAP APIs features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Monitoring and Troubleshooting practically using SOAP APIs.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Monitoring and Troubleshooting': Diagnose and resolve a simulated SOAP APIs issue.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Diagnose and resolve a simulated SOAP APIs issue.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Packet or request inspection; Common faults; Diagnostic commands; Alerting; Incident workflow; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Monitoring and Troubleshooting' on a prepared training sample through this task: Diagnose and resolve a simulated SOAP APIs issue..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Diagnose and resolve a simulated SOAP APIs issue.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Logs; Metrics; Packet or request inspection; Common faults; Diagnostic commands; Alerting; Incident workflow; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts) and demonstrate the starting sample for: Diagnose and resolve a simulated SOAP APIs issue.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Diagnose and resolve a simulated SOAP APIs issue.",
+          "evidence": "Participant submission for 'Monitoring and Troubleshooting': Diagnose and resolve a simulated SOAP APIs issue.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Diagnose and resolve a simulated SOAP APIs issue.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Diagnose and resolve a simulated SOAP APIs issue.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Logs; Metrics; Packet or request inspection; Common faults; Diagnostic commands; Alerting; Incident workflow; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 6,
+      "topic": "Automation and Operations",
+      "subtopics": [
+        "Configuration automation",
+        "Policy management",
+        "Backups",
+        "Change control",
+        "Versioning",
+        "Testing",
+        "Operational runbooks",
+        "SOAP APIs terminology and feature mapping for this topic",
+        "SOAP APIs configuration and implementation considerations",
+        "SOAP APIs best practices and common mistakes for this topic",
+        "WSDL",
+        "XML Schema",
+        "SOAP Envelope",
+        "Header",
+        "Body",
+        "Fault",
+        "SOAP 1.1",
+        "SOAP 1.2",
+        "XSD",
+        "WS-Security concepts",
+        "SoapUI",
+        "service contracts"
+      ],
+      "tools": [
+        "SoapUI",
+        "Postman",
+        "WSDL"
+      ],
+      "lab_task": "Automate a repeatable SOAP APIs configuration task.",
+      "technology": "SOAP APIs",
+      "technology_id": "soap-apis",
+      "learning_objectives": [
+        "Explain the Automation and Operations concepts in the context of SOAP APIs.",
+        "Configure or implement the key SOAP APIs features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Automation and Operations practically using SOAP APIs.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Automation and Operations': Automate a repeatable SOAP APIs configuration task.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Automate a repeatable SOAP APIs configuration task.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration automation; Policy management; Backups; Change control; Versioning; Testing; Operational runbooks; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Automation and Operations' on a prepared training sample through this task: Automate a repeatable SOAP APIs configuration task..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Automate a repeatable SOAP APIs configuration task.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Configuration automation; Policy management; Backups; Change control; Versioning; Testing; Operational runbooks; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts) and demonstrate the starting sample for: Automate a repeatable SOAP APIs configuration task.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Automate a repeatable SOAP APIs configuration task.",
+          "evidence": "Participant submission for 'Automation and Operations': Automate a repeatable SOAP APIs configuration task.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Automate a repeatable SOAP APIs configuration task.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Automate a repeatable SOAP APIs configuration task.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Configuration automation; Policy management; Backups; Change control; Versioning; Testing; Operational runbooks; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 7,
+      "topic": "Advanced and Cloud Patterns",
+      "subtopics": [
+        "Cloud-native services",
+        "Hybrid connectivity",
+        "Zero-trust considerations",
+        "Performance",
+        "High availability",
+        "Disaster recovery",
+        "Cost considerations",
+        "SOAP APIs terminology and feature mapping for this topic",
+        "SOAP APIs configuration and implementation considerations",
+        "SOAP APIs best practices and common mistakes for this topic",
+        "WSDL",
+        "XML Schema",
+        "SOAP Envelope",
+        "Header",
+        "Body",
+        "Fault",
+        "SOAP 1.1",
+        "SOAP 1.2",
+        "XSD",
+        "WS-Security concepts",
+        "SoapUI",
+        "service contracts"
+      ],
+      "tools": [
+        "SoapUI",
+        "Postman",
+        "WSDL",
+        "XML"
+      ],
+      "lab_task": "Design a cloud/hybrid implementation.",
+      "technology": "SOAP APIs",
+      "technology_id": "soap-apis",
+      "learning_objectives": [
+        "Explain the Advanced and Cloud Patterns concepts in the context of SOAP APIs.",
+        "Configure or implement the key SOAP APIs features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Advanced and Cloud Patterns practically using SOAP APIs.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Advanced and Cloud Patterns': Design a cloud/hybrid implementation.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Design a cloud/hybrid implementation.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cloud-native services; Hybrid connectivity; Zero-trust considerations; Performance; High availability; Disaster recovery; Cost considerations; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Advanced and Cloud Patterns' on a prepared training sample through this task: Design a cloud/hybrid implementation..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Design a cloud/hybrid implementation.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Cloud-native services; Hybrid connectivity; Zero-trust considerations; Performance; High availability; Disaster recovery; Cost considerations; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts) and demonstrate the starting sample for: Design a cloud/hybrid implementation.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Design a cloud/hybrid implementation.",
+          "evidence": "Participant submission for 'Advanced and Cloud Patterns': Design a cloud/hybrid implementation.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Design a cloud/hybrid implementation.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Design a cloud/hybrid implementation.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Cloud-native services; Hybrid connectivity; Zero-trust considerations; Performance; High availability; Disaster recovery; Cost considerations; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    },
+    {
+      "day": 8,
+      "topic": "Capstone",
+      "subtopics": [
+        "Requirement analysis",
+        "Architecture",
+        "Security",
+        "Configuration",
+        "Testing",
+        "Monitoring",
+        "Troubleshooting",
+        "Documentation",
+        "SOAP APIs terminology and feature mapping for this topic",
+        "SOAP APIs configuration and implementation considerations",
+        "SOAP APIs best practices and common mistakes for this topic",
+        "WSDL",
+        "XML Schema",
+        "SOAP Envelope",
+        "Header",
+        "Body",
+        "Fault",
+        "SOAP 1.1",
+        "SOAP 1.2",
+        "XSD",
+        "WS-Security concepts",
+        "SoapUI",
+        "service contracts"
+      ],
+      "tools": [
+        "SoapUI",
+        "Postman",
+        "WSDL",
+        "XML"
+      ],
+      "lab_task": "Build and document an end-to-end SOAP APIs solution.",
+      "technology": "SOAP APIs",
+      "technology_id": "soap-apis",
+      "learning_objectives": [
+        "Explain the Capstone concepts in the context of SOAP APIs.",
+        "Configure or implement the key SOAP APIs features covered in this day.",
+        "Complete the hands-on lab and validate the expected result.",
+        "Identify common implementation mistakes and troubleshooting steps."
+      ],
+      "expected_outcome": "Learner can apply Capstone practically using SOAP APIs.",
+      "difficulty": "Advanced",
+      "deliverable": "Participant submission for 'Capstone': Build and document an end-to-end SOAP APIs solution.. Include the resulting artefact, reproducible steps and observed results.",
+      "assessment": "Reproduce the source lab: Build and document an end-to-end SOAP APIs solution.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirement analysis; Architecture; Security; Configuration; Testing; Monitoring; Troubleshooting; Documentation; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+      "scenario": "Demonstrate 'Capstone' on a prepared training sample through this task: Build and document an end-to-end SOAP APIs solution..",
+      "preparation_requirements": [
+        "Prepare sample assets, expected results and an exception case for: Build and document an end-to-end SOAP APIs solution.",
+        "Confirm participant prerequisites, tool access and activity durations before delivery"
+      ],
+      "delivery_steps": [
+        {
+          "method": "Explanation and demonstration",
+          "minutes": null,
+          "activity": "Explain the applicable concepts (Requirement analysis; Architecture; Security; Configuration; Testing; Monitoring; Troubleshooting; Documentation; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts) and demonstrate the starting sample for: Build and document an end-to-end SOAP APIs solution.",
+          "evidence": "Annotated sample with inputs and expected results"
+        },
+        {
+          "method": "Guided practice",
+          "minutes": null,
+          "activity": "Build and document an end-to-end SOAP APIs solution.",
+          "evidence": "Participant submission for 'Capstone': Build and document an end-to-end SOAP APIs solution.. Include the resulting artefact, reproducible steps and observed results."
+        },
+        {
+          "method": "Independent application",
+          "minutes": null,
+          "activity": "Repeat 'Build and document an end-to-end SOAP APIs solution.' with a trainer-prepared changed input or exception case; explain differences from the demonstrated result.",
+          "evidence": "Participant artefact and comparison of expected versus observed results"
+        },
+        {
+          "method": "Assessment and feedback",
+          "minutes": null,
+          "activity": "Reproduce the source lab: Build and document an end-to-end SOAP APIs solution.. Compare the participant result with a trainer-prepared expected result; check applicable focus areas (Requirement analysis; Architecture; Security; Configuration; Testing; Monitoring; Troubleshooting; Documentation; SOAP APIs terminology and feature mapping for this topic; SOAP APIs configuration and implementation considerations; SOAP APIs best practices and common mistakes for this topic; WSDL; XML Schema; SOAP Envelope; Header; Body; Fault; SOAP 1.1; SOAP 1.2; XSD; WS-Security concepts; SoapUI; service contracts). Require one changed-input or exception case and an explanation of its result.",
+          "evidence": "Recorded checks, unresolved errors and trainer feedback"
+        }
+      ],
+      "delivery_basis": "Proposed sequence derived from source topic and lab; timings require trainer planning",
+      "proposed_fields": [
+        "deliverable",
+        "assessment",
+        "scenario",
+        "preparation_requirements",
+        "delivery_steps"
+      ],
+      "content_enrichment_version": "catalog-delivery-v1",
+      "review_status": "unreviewed"
+    }
+  ],
+  "technology_id": "soap-apis",
+  "content_enrichment_version": "catalog-delivery-v1",
+  "review_warnings": [
+    "Added delivery details are source-derived proposals; confirm technical accuracy, prerequisites, assessment cases and timing with the trainer."
+  ],
+  "review_status": "unreviewed"
 }
