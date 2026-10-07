@@ -55,6 +55,7 @@ def writing_guidance(voice: str = ANNAPURNA) -> str:
         "Keep the ToC and the lab cost in that same email. "
         "When the lab cloud tool is missing, ask which tool to cost: AWS, Azure, or GCP. "
         "Ask that only when the message has not already named the tool. "
+        "When the request is only a ToC, only a lab cost, or both of those, do not mention trainer shortlisting, the trainer pipeline, or a trainer requirement. "
         "Murali Mohan M covers invoice, payment, purchase order, and finance, and only when that is this request. "
         "Leave invoice and purchase-order wording out of a ToC or lab-cost reply. "
         "Leave ToC and lab-cost wording out of an invoice or purchase-order reply. "
@@ -884,7 +885,6 @@ def _build_lab_reference_reply(
     known = lab_context.get("known_inputs") or {}
     missing = lab_context.get("missing_quote_inputs") or []
     client = str(extracted.get("client_name") or sender_name or "Client").strip().split()[0]
-    request_type = lab_context.get("request_type")
     intro = "Thank you for sharing your lab-access requirement."
     noted = []
     def quantity(value: Any) -> str:
@@ -942,12 +942,10 @@ def _build_lab_reference_reply(
         paragraphs.append(
             "We will generate and review the lab-cost calculation using these inputs and share the confirmed total quote, including applicable charges."
         )
-    if request_type == "lab_access_only":
-        paragraphs.append("We have treated this as a lab-access-only request and not as a trainer requirement.")
     if also_toc and toc_attached:
         paragraphs.append("Please find the day-wise ToC attached in this same mail.")
     elif also_toc:
-        paragraphs.append("The ToC request is covered in this same mail. Trainer shortlisting will not start from it.")
+        paragraphs.append("The ToC request is covered in this same mail.")
     paragraphs.append("Thanks,\nClahan Technologies")
     template_key = "client_toc_and_lab_cost" if also_toc else "client_lab_cost_grounded"
     return {
@@ -1454,8 +1452,9 @@ async def _ai_draft_reply(
                     "record exists, accurately state its verified status; if it does not exist, describe the next "
                     "review/generation step without claiming completion. If a requested value is missing, ask only "
                     "for the smallest necessary missing input or "
-                    "state the exact item the team must confirm. Distinguish lab-access-only requests from training "
-                    "or trainer requirements and obey any lab_cost pricing_rule in context. Do not use exaggerated "
+                    "state the exact item the team must confirm. When the request is only a ToC, only a lab cost, "
+                    "or both, do not mention trainer shortlisting, the trainer pipeline, or a trainer requirement. "
+                    "Obey any lab_cost pricing_rule in context. Do not use exaggerated "
                     "sales language, filler, emojis, or claims such as best-in-class. Do not ask again for "
                     "facts already present. For suspicious, system, legal, security, or human-review scenarios, "
                     "write only a cautious acknowledgement for manual review. "

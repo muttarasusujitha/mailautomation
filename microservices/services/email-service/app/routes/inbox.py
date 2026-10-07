@@ -1822,6 +1822,7 @@ async def _humanize_verified_client_reply(
                 "Keep every file, amount, date, and restriction from that reference in this single body. "
                 "Annapurna U signs ToC, lab cost, and coordination. Murali Mohan M signs invoice, payment, and purchase order. "
                 "When the reference includes both a ToC and a lab cost, keep both in this email. "
+                "When the request is only a ToC, only a lab cost, or both, do not mention trainer shortlisting, the trainer pipeline, or a trainer requirement. "
                 "Do not write a second email, a generic acknowledgement, or the other person's signature. "
                 "Do not add facts or promises."
             ),

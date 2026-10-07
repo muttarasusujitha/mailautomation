@@ -89,8 +89,9 @@ def test_lab_context_extracts_quote_inputs_and_only_asks_for_missing_participant
     assert "number of participants/users requiring access" in reply["body"]
     assert "which lab tool" not in reply["body"].lower()
     assert "preferred training dates" not in reply["body"].lower()
-    assert "trainer shortlist" not in reply["body"].lower()
-    assert "lab-access-only" in reply["body"]
+    assert "shortlist" not in reply["body"].lower()
+    assert "pipeline" not in reply["body"].lower()
+    assert "trainer requirement" not in reply["body"].lower()
     assert reply["auto_send_safe"] is False
 
 

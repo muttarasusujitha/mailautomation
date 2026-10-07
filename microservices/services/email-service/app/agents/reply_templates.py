@@ -305,9 +305,7 @@ def render_delivery_reply(
         else:
             lines.append("The lab-cost calculation will use these inputs and stay with this request.")
     if toc_requested and lab_requested:
-        lines.append("Both are covered in this one mail. Trainer shortlisting will not start from this request.")
-    elif toc_requested:
-        lines.append("This stays a ToC request, so trainer shortlisting will not start from it.")
+        lines.append("Both are covered in this one mail.")
     if closing_note:
         lines.append(closing_note)
     return compose_typed_client_reply(kind, client_name, subject, lines, technology=tech)

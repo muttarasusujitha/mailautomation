@@ -68,10 +68,31 @@ def test_toc_and_lab_cost_is_one_annapurna_reply():
     assert "Greetings of the day! Thanks for sharing the ToC and lab-cost request" in reply["body"]
     assert "day-wise ToC" in reply["body"]
     assert "lab-cost estimate" in reply["body"]
+    assert "Both are covered in this one mail." in reply["body"]
+    assert "shortlist" not in reply["body"].lower()
+    assert "pipeline" not in reply["body"].lower()
+    assert "trainer requirement" not in reply["body"].lower()
     assert reply["body"].count("Annapurna U.") == 1
     assert "Murali Mohan M" not in reply["body"]
     assert "Recruitment Team" not in reply["body"]
     assert "Dear" not in reply["body"]
+
+
+def test_lab_cost_only_does_not_mention_the_trainer_pipeline():
+    reply = render_delivery_reply(
+        client_name="Asha",
+        subject="Need the lab cost",
+        technology="DevOps",
+        lab_requested=True,
+        lab_attached=True,
+        lab_sentence="Please find the lab-cost estimate attached.",
+    )
+    assert reply["template_key"] == "client_lab_cost_grounded"
+    assert "Please find the lab-cost estimate attached." in reply["body"]
+    assert reply["body"].endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
+    assert "shortlist" not in reply["body"].lower()
+    assert "pipeline" not in reply["body"].lower()
+    assert "trainer requirement" not in reply["body"].lower()
 
 
 def test_toc_only_stays_with_annapurna():
@@ -83,8 +104,11 @@ def test_toc_only_stays_with_annapurna():
         toc_attached=True,
     )
     assert reply["template_key"] == "client_toc_only"
+    assert "Please find the day-wise ToC attached." in reply["body"]
     assert reply["body"].endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
-    assert "trainer shortlisting will not start" in reply["body"].lower()
+    assert "shortlist" not in reply["body"].lower()
+    assert "pipeline" not in reply["body"].lower()
+    assert "trainer requirement" not in reply["body"].lower()
 
 
 def test_purchase_order_template_uses_murali():
@@ -124,6 +148,9 @@ def test_lab_reference_uses_annapurna_and_keeps_the_missing_input():
     assert "number of participants/users requiring access" in reply["body"]
     assert "day-wise ToC" in reply["body"]
     assert reply["body"].endswith("Thanks,\nAnnapurna U.\nClahan Technologies")
+    assert "shortlist" not in reply["body"].lower()
+    assert "pipeline" not in reply["body"].lower()
+    assert "trainer requirement" not in reply["body"].lower()
     assert "Murali Mohan M" not in reply["body"]
     assert "Recruitment Team" not in reply["body"]
 
@@ -157,6 +184,7 @@ def test_draft_envelope_follows_the_same_voice():
     assert "exactly one person" in writing_guidance("annapurna")
     assert "exactly one email" in writing_guidance("murali")
     assert "both a ToC and a lab cost" in writing_guidance("annapurna")
+    assert "do not mention trainer shortlisting" in writing_guidance("annapurna")
 
 
 def test_ai_voice_follows_the_situation_rather_than_a_mixed_subject():
