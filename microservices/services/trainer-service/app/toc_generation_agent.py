@@ -1083,8 +1083,11 @@ def generate_toc_from_dataset(domain_name: str, duration_days: int, level: str =
             "Track delivery using Agile/Jira practices",
             "Complete final capstone and certification roadmap review",
         ]
+    course_name = str(domain.get("name") or "Training").strip() or "Training"
+    # Dataset names such as "Python Mastery" already include the suffix.
+    course_title = course_name if re.search(r"\bmastery$", course_name, re.IGNORECASE) else f"{course_name} Mastery"
     toc = {
-        "title": f"{domain.get('name')} Mastery",
+        "title": course_title,
         "subtitle": f"{duration}-Day Intensive Training Program",
         "domain": domain.get("name"),
         "duration_days": duration,

@@ -3,9 +3,11 @@ import re
 from typing import Any, Dict
 
 
-SIGNATURE = "Best Regards,\nRecruitment Team\nClahan Technologies"
-CLIENT_SIGNATURE = "Best Regards,\nClahan Technologies"
-TRAINER_SIGNATURE = "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
+from app.agents.natural_voice import ANNAPURNA, apply_voice, choose_voice, signature_for
+
+CLIENT_SIGNATURE = signature_for(ANNAPURNA)
+TRAINER_SIGNATURE = signature_for(ANNAPURNA)
+SIGNATURE = CLIENT_SIGNATURE
 
 
 def _clean(value: Any, default: str = "") -> str:
@@ -13,16 +15,13 @@ def _clean(value: Any, default: str = "") -> str:
     return text if text else default
 
 
-def _hostinger_style_body(body: str) -> str:
-    """Keep deterministic replies aligned to the usable Clahan sent-mail patterns."""
+def _hostinger_style_body(body: str, hint: str = "") -> str:
+    """Apply Annapurna's or Murali's sent-mail voice without changing the facts."""
     text = str(body or "")
     text = re.sub(r"\bDevops\s+Devops\b", "DevOps", text, flags=re.IGNORECASE)
     text = re.sub(r"\bDevops\b", "DevOps", text)
     text = text.replace("TrainerSync Team", "Clahan Technologies")
-    text = text.replace("Regards,\nRecruitment Team,\nClahan Technologies", "Regards,\nClahan Technologies")
-    text = text.replace("Best Regards,\nRecruitment Team\nClahan Technologies", "Best Regards,\nClahan Technologies")
-    text = re.sub(r"\n{3,}", "\n\n", text)
-    return text.strip()
+    return apply_voice(text, choose_voice(hint))
 
 
 def _client_name(extracted: Dict[str, Any]) -> str:
@@ -208,14 +207,15 @@ def _client_short_requirement_ack(
 
 def _safe_ack(sender_name: str, subject: str) -> Dict[str, Any]:
     name = _clean(sender_name, "Sender")
+    body = (
+        f"Dear {name},\n\n"
+        "Thank you for your email.\n\n"
+        "We have received your message and our team will review it carefully before responding further.\n\n"
+        f"{TRAINER_SIGNATURE}"
+    )
     return {
         "subject": f"Re: {_clean(subject, 'Your Email')}",
-        "body": (
-            f"Dear {name},\n\n"
-            "Thank you for your email.\n\n"
-            "We have received your message and our team will review it carefully before responding further.\n\n"
-            f"{TRAINER_SIGNATURE}"
-        ),
+        "body": apply_voice(body, ANNAPURNA),
         "auto_send_safe": False,
         "template_key": "human_review_ack",
     }
@@ -224,10 +224,91 @@ def _safe_ack(sender_name: str, subject: str) -> Dict[str, Any]:
 def _reply(subject: str, body: str, template_key: str, auto_send_safe: bool = True) -> Dict[str, Any]:
     return {
         "subject": subject,
-        "body": _hostinger_style_body(body),
+        "body": _hostinger_style_body(body, template_key),
         "auto_send_safe": auto_send_safe,
         "template_key": template_key,
     }
+
+
+_SITUATION_KEYS = {
+    "toc": "client_toc_only",
+    "lab_cost": "client_lab_cost_grounded",
+    "toc_and_lab_cost": "client_toc_and_lab_cost",
+    "invoice": "client_invoice_request_ack",
+    "po": "client_po_received_ack",
+    "payment": "client_payment_terms_ack",
+}
+
+
+def compose_typed_client_reply(
+    kind: str,
+    client_name: str,
+    subject: str,
+    lines: list[str],
+    *,
+    technology: str = "",
+) -> Dict[str, Any]:
+    """Render one situation in one voice. Finance uses Murali; coordination uses Annapurna."""
+    template_key = _SITUATION_KEYS.get(kind, "client_toc_only")
+    name = _clean(client_name, "Team").split()[0]
+    if name.lower() in {"client", "team", "sender"}:
+        name = "Team"
+    clean_subject = _clean(subject)
+    if clean_subject.lower().startswith("re:"):
+        subject_line = clean_subject
+    elif clean_subject:
+        subject_line = f"Re: {clean_subject}"
+    else:
+        subject_line = f"Re: {_clean(technology, 'Your request')}"
+    spoken = [str(line).strip() for line in lines if str(line or "").strip()]
+    body = f"Dear {name},\n\n" + "\n\n".join(spoken) + f"\n\n{SIGNATURE}"
+    return _reply(subject_line, body, template_key)
+
+
+def render_delivery_reply(
+    *,
+    client_name: str,
+    subject: str,
+    technology: str = "",
+    toc_requested: bool = False,
+    lab_requested: bool = False,
+    toc_attached: bool = False,
+    lab_attached: bool = False,
+    lab_sentence: str = "",
+    missing_lab: str = "",
+    toc_missing: str = "",
+    closing_note: str = "",
+) -> Dict[str, Any]:
+    """One ToC and/or lab-cost reply. Callers attach every ready file to this same mail."""
+    tech = _clean(technology, "the training")
+    if toc_requested and lab_requested:
+        kind = "toc_and_lab_cost"
+        lines = [f"Thanks for sharing the ToC and lab-cost request for the {tech} training."]
+    elif toc_requested:
+        kind = "toc"
+        lines = [f"Thanks for sharing the ToC request for the {tech} training."]
+    else:
+        kind = "lab_cost"
+        lines = ["Thanks for sharing the lab-cost request."]
+    if toc_requested:
+        if toc_attached:
+            lines.append("Please find the day-wise ToC attached.")
+        elif toc_missing:
+            lines.append(f"To prepare the ToC, please confirm {toc_missing}.")
+        else:
+            lines.append("The day-wise ToC will be prepared from the technology and duration you shared.")
+    if lab_requested:
+        if lab_attached:
+            lines.append(_clean(lab_sentence, "Please find the lab-cost estimate attached."))
+        elif missing_lab:
+            lines.append(f"To prepare the lab-cost total, please confirm {missing_lab}.")
+        else:
+            lines.append("The lab-cost calculation will use these inputs and stay with this request.")
+    if toc_requested and lab_requested:
+        lines.append("Both are covered in this one mail.")
+    if closing_note:
+        lines.append(closing_note)
+    return compose_typed_client_reply(kind, client_name, subject, lines, technology=tech)
 
 
 def _client_missing_details_reply(

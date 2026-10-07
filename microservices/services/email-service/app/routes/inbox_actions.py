@@ -15,33 +15,54 @@ from pydantic import BaseModel
 
 from shared.database.service import get_db
 from app.agents.email_classifier import classify_email
+from app.agents.natural_voice import (
+    ANNAPURNA,
+    apply_voice,
+    greeting_line,
+    signature_for,
+    signature_keeping_extras,
+    voice_for_situation,
+    writing_note,
+)
 from app.agents.reply_templates import build_auto_reply
 from app.gmail_client import generate_message_id, send_email_async
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-EMAIL_WRITING_GUIDANCE = (
-    "Write like a thoughtful coordinator replying personally to this message. "
-    "After the greeting, answer the latest request first. Use ordinary words and short sentences. "
-    "Match the sender's formality; be considerate when they report a problem. "
-    "Keep the body to 1-3 sentences, usually under 80 words excluding greeting and signature. "
-    "Use more only when necessary to answer multiple questions or preserve required details. "
-    "Always use this structure: Hi <sender name>, then a blank line, a direct answer or acknowledgement, "
-    "then a separate short paragraph for the next action only if needed, then a blank line and signature. "
-    "Use Hi Team, when no reliable sender name is available. Put multiple missing items in a short bullet list. "
-    "Do not add headings, repeat the entire requirement, or explain internal workflow. "
-    "Use the reference for facts and restrictions, never as a sentence template. "
-    "Use thread history to avoid repeating answers, openings, or questions already settled. "
-    "Repeat exact details only when needed to answer or confirm the current action. "
-    "Do not pad replies with automatic thank-yous, generic offers of help, 'kindly', 'to proceed further', "
-    "or 'we look forward'. Do not add unrelated services, emotional claims, or unsupported next steps. "
-    "Do not force synonyms just for variety. Each sentence must answer the message or convey a necessary "
-    "next step. Check what is already supplied, what is still missing, and whose action is needed. "
-    "Ask only for missing information the recipient can provide. Once complete, stop. "
-    "End with Regards, on one line and Clahan Technologies on the next. "
-    "Keep internal analysis out of the email. "
-)
+def writing_guidance(voice: str = ANNAPURNA) -> str:
+    """Shared natural-reply rules plus the one person who should sign this message."""
+    return (
+        "Write the way a person at Clahan Technologies replies, not as a template. "
+        "After the greeting, answer the latest request first. Use ordinary words and short sentences. "
+        "Match the sender's formality; be considerate when they report a problem. "
+        "Keep the body to 1-3 sentences, usually under 80 words excluding greeting and signature. "
+        "Use more only when necessary to answer multiple questions or preserve required details. "
+        "Put a blank line after the greeting, then the answer, then the next action only if needed, "
+        "then a blank line and the signature. Put multiple missing items in a short bullet list. "
+        "Do not add headings, repeat the entire requirement, or explain internal workflow. "
+        "Use the reference for facts and restrictions, never as a sentence template. "
+        "Use thread history to avoid repeating answers, openings, or questions already settled. "
+        "Repeat exact details only when needed to answer or confirm the current action. "
+        "Do not pad replies with automatic thank-yous, generic offers of help, 'kindly', 'to proceed further', "
+        "or 'we look forward'. Do not add unrelated services, emotional claims, or unsupported next steps. "
+        "Do not force synonyms just for variety. Each sentence must answer the message or convey a necessary "
+        "next step. Check what is already supplied, what is still missing, and whose action is needed. "
+        "Ask only for missing information the recipient can provide. Once complete, stop. "
+        "Do not open with Dear or sign as Recruitment Team. "
+        "Sign as exactly one person, and write exactly one email. "
+        "Annapurna U covers ToC, lab cost, trainer coordination, and a request that asks for both a ToC and a lab cost. "
+        "Keep the ToC and the lab cost in that same email. "
+        "When the lab cloud tool is missing, ask which tool to cost: AWS, Azure, or GCP. "
+        "Ask that only when the message has not already named the tool. "
+        "When the request is only a ToC, only a lab cost, or both of those, do not mention trainer shortlisting, the trainer pipeline, or a trainer requirement. "
+        "Murali Mohan M covers invoice, payment, purchase order, and finance, and only when that is this request. "
+        "Leave invoice and purchase-order wording out of a ToC or lab-cost reply. "
+        "Leave ToC and lab-cost wording out of an invoice or purchase-order reply. "
+        "Do not write a second message, a generic acknowledgement beside the specific reply, or the other person's signature. "
+        "Keep internal analysis out of the email. "
+        + writing_note(voice)
+    )
 
 
 def _finish_email_draft(body: str) -> str:
@@ -64,32 +85,39 @@ def _finish_email_draft(body: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
-def _structure_email_draft(body: str, sender_name: str = "") -> str:
+def _structure_email_draft(body: str, sender_name: str = "", voice: str = ANNAPURNA) -> str:
     """Give generated replies an email envelope without cutting factual content."""
     text = _finish_email_draft(body)
     if not text:
         return ""
     name = str(sender_name or "").strip()
     if (not name or "@" in name or len(name) > 70 or "\n" in name or "\r" in name
-            or name.lower() in {"client", "trainer", "sender", "unknown", "none"}):
-        name = "Team"
+            or name.lower() in {"client", "trainer", "sender", "unknown", "none", "team"}):
+        name = ""
     greeting = re.match(r"^(?:hi|hello|dear)\b[^,\n!?]{0,70}[,!][ \t]*\n*", text, re.I)
     if greeting:
-        opening = greeting.group().strip()
+        spoken = re.match(r"^(?:hi|hello|dear)\b\s*([^,!]*)", greeting.group(), re.I)
+        if spoken and spoken.group(1).strip():
+            name = spoken.group(1).strip()
         text = text[greeting.end():].strip()
-    else:
-        opening = f"Hi {name},"
+    opening = greeting_line(name, voice)
     # Separate a standalone sign-off, preserving contact details and any
     # postscript. Never treat an inline acknowledgement as a signature.
-    signoff = re.search(r"(?im)^(?:(?:best|kind|warm) )?regards,?[ \t]*$|^sincerely,?[ \t]*$", text)
+    signoff = re.search(
+        r"(?im)^(?:thanks(?:\s+(?:and|&))?\s+)?(?:(?:best|kind|warm)\s+)?regards,?[ \t]*$"
+        r"|^thanks,?[ \t]*$|^thank you,?[ \t]*$|^sincerely,?[ \t]*$",
+        text,
+    )
     if signoff:
-        signature = text[signoff.start():].strip()
+        signature = signature_keeping_extras(text[signoff.start():], voice)
         text = text[:signoff.start()].rstrip()
-        if "clahan technologies" not in signature.lower():
-            signature += "\nClahan Technologies"
     else:
-        text = re.sub(r"(?:\n\s*)+(?:Recruitment Team\s*\n)?Clahan Technologies\s*$", "", text).rstrip()
-        signature = "Regards,\nClahan Technologies"
+        text = re.sub(
+            r"(?:\n\s*)+(?:Recruitment Team\s*\n)?(?:(?:Murali Mohan M|Annapurna U\.)\s*\n)?Clahan Technologies\s*$",
+            "",
+            text,
+        ).rstrip()
+        signature = signature_for(voice)
     if not text:
         return ""
     return f"{opening}\n\n{text}\n\n{signature}"
@@ -775,6 +803,20 @@ def _lab_request_context(body: str, extracted: Dict[str, Any]) -> Dict[str, Any]
         known_inputs["cloud_provider"] = " and ".join(providers)
     elif known_inputs.get("cloud_provider"):
         providers = [item.strip().lower() for item in re.split(r"\s+(?:and|&)\s+", str(known_inputs["cloud_provider"])) if item.strip()]
+    lab_tools = [
+        name for name, pattern in (
+            ("Kubernetes", r"\bkubernetes\b|\bk8s\b"),
+            ("Docker", r"\bdocker\b"),
+            ("Terraform", r"\bterraform\b"),
+            ("Ansible", r"\bansible\b"),
+            ("Jenkins", r"\bjenkins\b"),
+            ("Linux", r"\blinux\b"),
+            ("Python", r"\bpython\b"),
+        )
+        if re.search(pattern, lower)
+    ]
+    if lab_tools:
+        known_inputs["lab_tools"] = lab_tools
     # A provider's public pricing differs by region.  Keep this explicit in
     # the client conversation rather than silently selecting a region.
     region_patterns = (
@@ -810,10 +852,12 @@ def _lab_request_context(body: str, extracted: Dict[str, Any]) -> Dict[str, Any]
         known_inputs["cluster_count"] = int(known_inputs["participant_count"])
         known_inputs["cluster_count_source"] = "derived_from_participants"
     required_inputs = ["technology", "cloud_provider", "participant_count", "hours_per_day", "duration_days"]
-    required_inputs.extend(
-        [f"{provider}_region" for provider in providers if not regions.get(provider)]
-        if len(providers) > 1 else ["cloud_region"]
-    )
+    if len(providers) > 1:
+        required_inputs.extend(
+            [f"{provider}_region" for provider in providers if not regions.get(provider)]
+        )
+    elif providers:
+        required_inputs.append("cloud_region")
     return {
         "feature": "lab_cost",
         "request_type": "lab_access_only" if lab_only else "training_with_lab_support",
@@ -834,11 +878,13 @@ def _build_lab_reference_reply(
     extracted: Dict[str, Any],
     sender_name: str,
     subject: str,
+    *,
+    also_toc: bool = False,
+    toc_attached: bool = False,
 ) -> Dict[str, Any]:
     known = lab_context.get("known_inputs") or {}
     missing = lab_context.get("missing_quote_inputs") or []
     client = str(extracted.get("client_name") or sender_name or "Client").strip().split()[0]
-    request_type = lab_context.get("request_type")
     intro = "Thank you for sharing your lab-access requirement."
     noted = []
     def quantity(value: Any) -> str:
@@ -858,15 +904,24 @@ def _build_lab_reference_reply(
     if known.get("total_hours"):
         noted.append(f"total usage: {quantity(known['total_hours'])} hours")
     if known.get("cloud_provider"):
-        noted.append(f"cloud provider: {str(known['cloud_provider']).upper()}")
+        noted.append(f"cloud tool: {str(known['cloud_provider']).upper()}")
+    if known.get("lab_tools"):
+        noted.append("lab tools: " + ", ".join(known["lab_tools"]))
 
     paragraphs = [f"Dear {client},", intro]
     if noted:
         paragraphs.append("We have noted " + ", ".join(noted) + ".")
+    if "cloud_provider" in missing:
+        named_tools = ", ".join(known.get("lab_tools") or [])
+        if named_tools:
+            paragraphs.append(
+                f"You mentioned {named_tools}. Which cloud tool should that lab run on: AWS, Azure, or GCP?"
+            )
+        else:
+            paragraphs.append("Which lab tool should we cost: AWS, Azure, or GCP?")
     if missing:
         labels = {
             "technology": "technology/domain or the ToC/topics to be costed",
-            "cloud_provider": "preferred cloud provider (AWS, Azure, or GCP)",
             "cloud_region": "cloud region (AWS Mumbai, Azure Central India, or GCP Mumbai)",
             "participant_count": "number of participants/users requiring access",
             "hours_per_day": "required lab-access hours per day",
@@ -878,21 +933,25 @@ def _build_lab_reference_reply(
             "azure_region": "Azure region (for example, Central India)",
             "gcp_region": "GCP region (for example, Mumbai / asia-south1)",
         })
-        requested = [labels[item] for item in missing if item in labels]
-        paragraphs.append(
-            "To prepare the exact total lab-cost quote, please confirm " + ", and ".join(requested) + "."
-        )
+        requested = [labels[item] for item in missing if item != "cloud_provider" and item in labels]
+        if requested:
+            paragraphs.append(
+                "To prepare the exact total lab-cost quote, please confirm " + ", and ".join(requested) + "."
+            )
     else:
         paragraphs.append(
             "We will generate and review the lab-cost calculation using these inputs and share the confirmed total quote, including applicable charges."
         )
-    if request_type == "lab_access_only":
-        paragraphs.append("We have treated this as a lab-access-only request and not as a trainer requirement.")
-    paragraphs.append("Best Regards,\nRecruitment Team\nClahan Technologies")
+    if also_toc and toc_attached:
+        paragraphs.append("Please find the day-wise ToC attached in this same mail.")
+    elif also_toc:
+        paragraphs.append("The ToC request is covered in this same mail.")
+    paragraphs.append("Thanks,\nClahan Technologies")
+    template_key = "client_toc_and_lab_cost" if also_toc else "client_lab_cost_grounded"
     return {
         "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
-        "body": "\n\n".join(paragraphs),
-        "template_key": "client_lab_cost_grounded",
+        "body": apply_voice("\n\n".join(paragraphs), ANNAPURNA),
+        "template_key": template_key,
         "auto_send_safe": False,
     }
 
@@ -1083,22 +1142,19 @@ async def _load_reply_workflow_context(
 
 
 def _client_auto_reply_template() -> str:
-    return (
-        "Dear Client,\n\n"
-        "Thank you for sharing your training requirement.\n\n"
-        "To help us identify and recommend the most suitable trainers, kindly provide the following details:\n\n"
+    return apply_voice(
+        "Hi,\n\n"
+        "Thanks for sharing your training requirement.\n\n"
+        "Please share:\n\n"
         "* Training duration\n"
         "* Preferred training dates\n"
         "* Daily training timings\n"
         "* Audience level (Beginner / Intermediate / Advanced)\n"
         "* Training mode (Online / Offline / Hybrid)\n"
         "* Budget or expected commercial charges per day/session\n\n"
-        "Meanwhile, we will begin an initial trainer search based on the information currently available. "
-        "Once we receive the above details, we will refine the shortlist and share the most relevant trainer profiles for your review.\n\n"
-        "We look forward to your response.\n\n"
-        "Best Regards,\n"
-        "Recruitment Team\n"
-        "Clahan Technologies"
+        "The team will check suitable trainers from the details already shared and send the relevant profiles once these points are in.\n\n"
+        + signature_for(ANNAPURNA),
+        ANNAPURNA,
     )
 
 
@@ -1132,7 +1188,7 @@ def _workflow_reply_analysis(classification: Dict[str, Any], extracted: Dict[str
     }
 
 
-async def _ollama_email_draft(cfg, prompt: str) -> Dict[str, Any]:
+async def _ollama_email_draft(cfg, prompt: str, voice: str = ANNAPURNA) -> Dict[str, Any]:
     """Return a concise decision summary and grounded email body from Ollama."""
     endpoint = str(getattr(cfg, "OLLAMA_URL", "") or "").strip().rstrip("/")
     if not endpoint:
@@ -1183,7 +1239,7 @@ async def _ollama_email_draft(cfg, prompt: str) -> Dict[str, Any]:
         "is ready, attached, or being prepared. Never promise 'shortly', 'soon', or a deadline without "
         "a verified commitment. Mark needs_human_review for unverified business decisions or deliverables, "
         "and sensitive/legal/security/complaint requests. The email must agree with the review summary. "
-        + EMAIL_WRITING_GUIDANCE +
+        + writing_guidance(voice) +
         "Return JSON only."
     )
     timeout = max(30, int(getattr(cfg, "OLLAMA_EMAIL_TIMEOUT_SECONDS", 300)))
@@ -1267,6 +1323,15 @@ async def _ai_draft_reply(
     if not llm_requested:
         return grounded_reference
 
+    context_for_voice = workflow_context or {}
+    voice = voice_for_situation(
+        (reference_reply or {}).get("template_key"),
+        (context_for_voice.get("classification") or {}).get("scenario"),
+        context_for_voice.get("mail_type"),
+        subject=subject,
+    )
+    guidance = writing_guidance(voice)
+
     # Keep the thread visible even when the business record reaches its limit.
     # Old global style samples encourage the same boilerplate across recipients.
     writing_context = dict(workflow_context or {})
@@ -1291,7 +1356,7 @@ async def _ai_draft_reply(
         f"Incoming email subject:\n{subject}\n\n"
         f"Incoming email body:\n{body[:6000]}"
         + (f"\n\nAdditional instruction:\n{hint}" if hint else "")
-        + "\n\nWriting requirement: " + EMAIL_WRITING_GUIDANCE +
+        + "\n\nWriting requirement: " + guidance +
         "Reply to the latest message in plain, natural language. "
         "A receipt-only acknowledgement needs just one brief sentence. A direct question needs its answer; "
         "several questions need each answer. Stop when those needs are met, followed by the team signature. "
@@ -1302,7 +1367,7 @@ async def _ai_draft_reply(
 
     async def finish(generated):
         context = workflow_context or {}
-        draft = _structure_email_draft(generated, context.get("sender_name") or "")
+        draft = _structure_email_draft(generated, context.get("sender_name") or "", voice)
         if not repeats_recent(draft, recent_replies):
             return draft
         if _variation_retry:
@@ -1322,7 +1387,7 @@ async def _ai_draft_reply(
 
     if str(getattr(cfg, "AI_PROVIDER", "openai") or "openai").strip().lower() == "ollama":
         try:
-            result = await _ollama_email_draft(cfg, prompt)
+            result = await _ollama_email_draft(cfg, prompt, voice)
             result["analysis"].update({
                 "provider": "ollama",
                 "source": "llm_review_summary",
@@ -1366,14 +1431,13 @@ async def _ai_draft_reply(
                 text={"verbosity": "low"},
                 instructions=(
                     f"You are a professional training coordinator at {cfg.FROM_NAME or 'Clahan Technologies'}. "
-                    + EMAIL_WRITING_GUIDANCE +
+                    + guidance +
                     "For lab support, discuss a separate lab-cost estimate only when relevant to this request "
                     "and supported by the verified workflow. "
                     "Use one cluster per participant unless the client explicitly provides a different cluster count. "
                     "Never ask for cluster count, participant count, duration, dates, mode, or any other information "
                     "already present in the incoming email or workflow JSON. "
-                    "Address the sender by their reliable name when available. For ordinary client and trainer "
-                    "emails, prefer the natural greeting 'Hi <name>'; use 'Hi Team' when no reliable name is available. "
+                    "Address the sender by their reliable name when available. "
                     "Produce the most accurate client-facing reply for the current workflow stage. Treat the "
                     "workflow JSON and incoming email as authoritative facts. Use the deterministic workflow "
                     "reply only as a safety and business-rule reference; write a fresh, natural reply instead of "
@@ -1388,8 +1452,9 @@ async def _ai_draft_reply(
                     "record exists, accurately state its verified status; if it does not exist, describe the next "
                     "review/generation step without claiming completion. If a requested value is missing, ask only "
                     "for the smallest necessary missing input or "
-                    "state the exact item the team must confirm. Distinguish lab-access-only requests from training "
-                    "or trainer requirements and obey any lab_cost pricing_rule in context. Do not use exaggerated "
+                    "state the exact item the team must confirm. When the request is only a ToC, only a lab cost, "
+                    "or both, do not mention trainer shortlisting, the trainer pipeline, or a trainer requirement. "
+                    "Obey any lab_cost pricing_rule in context. Do not use exaggerated "
                     "sales language, filler, emojis, or claims such as best-in-class. Do not ask again for "
                     "facts already present. For suspicious, system, legal, security, or human-review scenarios, "
                     "write only a cautious acknowledgement for manual review. "
@@ -1418,7 +1483,7 @@ async def _ai_draft_reply(
                 f"You are a professional training coordinator at {cfg.FROM_NAME or 'TrainerSync'}. "
                 "Draft a concise reply grounded only in the supplied workflow context and email. "
                 "Do not invent prices, availability, actions, or policy. "
-                + EMAIL_WRITING_GUIDANCE + "\n\n" + prompt
+                + guidance + "\n\n" + prompt
                 + "\n\nReturn only the reply body, no subject line."
             )
             model_name = getattr(cfg, "ANTHROPIC_MODEL", "claude-haiku-4-20250514") or "claude-haiku-4-20250514"

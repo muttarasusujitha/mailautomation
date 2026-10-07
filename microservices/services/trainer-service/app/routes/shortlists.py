@@ -205,17 +205,19 @@ def _client_interview_message(
     subject = f"Interview Schedule Confirmation - {technology} | Ref: {requirement_id}"
     date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
     link = _clean(interview_link)
+    spoken = client_name if client_name and client_name.lower() not in {"team", "client"} else ""
+    greeting = f"Hi {spoken}," if spoken else "Hi,"
     body = (
-        f"Dear {client_name or 'Team'},\n\n"
-        f"The interview/discussion for the shortlisted {technology} trainer is confirmed.\n\n"
+        f"{greeting}\n\n"
+        f"The interview for the shortlisted {technology} trainer is confirmed.\n\n"
         "Interview Details:\n"
         f"{date_line}"
         f"Platform: {platform or 'Google Meet'}\n"
         f"Meeting Link: {link}\n\n"
-        "Kindly join on time and let us know if any change is required.\n\n"
-        "Regards,\n"
-        "Clahan Technologies\n"
-        "sujithaofficial585@gmail.com"
+        "Please join on time and let us know if any change is required.\n\n"
+        "Thanks,\n"
+        "Annapurna U.\n"
+        "Clahan Technologies"
     )
     return {"subject": subject, "body": body}
 
@@ -4162,8 +4164,10 @@ async def send_client_slots(
         )
 
     subject = f"Interview Slots - {technology}"
+    spoken_client = client_name if client_name and str(client_name).lower() not in {"client", "team"} else ""
+    client_greeting = f"Hi {spoken_client}," if spoken_client else "Hi,"
     body = (
-        f"{_client_time_greeting(client_name)},\n\n"
+        f"{client_greeting}\n\n"
         f"We have received the requested trainer details for the shortlisted {technology} trainer.\n\n"
         f"{training_summary_section}"
         f"{trainer_details_section}"
@@ -4172,8 +4176,8 @@ async def send_client_slots(
         "Available slots:\n"
         f"{formatted_slots_text}\n\n"
         f"{lab_cost_note}"
-        "Kindly confirm the preferred slot, and we will proceed with the meeting coordination.\n\n"
-        "Regards,\nClahan Technologies\nsujithaofficial585@gmail.com"
+        "Please confirm the preferred slot, and we will proceed with the meeting coordination.\n\n"
+        "Thanks,\nAnnapurna U.\nClahan Technologies"
     )
 
     email_payload: Dict[str, Any] = {

@@ -27,8 +27,8 @@ def test_partial_client_requirement_reply_asks_only_missing_details():
     )
     reply = _client_proceed_ack_reply(extracted)
 
-    assert "Thank you for sharing your training requirement." in reply["body"]
-    assert "To help us refine the shortlist" in reply["body"]
+    assert "Thanks for sharing your training requirement." in reply["body"]
+    assert "Please share:" in reply["body"]
     assert "- Training duration" in reply["body"]
     assert "- Training mode/location" in reply["body"]
     assert "- Participant count" in reply["body"]
@@ -353,9 +353,9 @@ def test_client_provided_all_details_reply_thanks_naturally():
     )
     reply = _client_proceed_ack_reply(extracted)
 
-    assert "Thank you for sharing the required details for your training requirement." in reply["body"]
+    assert "Thanks for sharing the required details for your training requirement." in reply["body"]
     assert "share suitable trainer profiles" in reply["body"]
-    assert "To help us refine the shortlist" not in reply["body"]
+    assert "Please share:" not in reply["body"]
 
 
 def test_client_sent_details_template_uses_details_ack_intro():
@@ -381,9 +381,9 @@ def test_client_sent_details_template_uses_details_ack_intro():
     )
 
     assert reply["template_key"] == "client_details_ack"
-    assert "Dear Asha" in reply["body"]
-    assert "Thank you for sharing the required details." in reply["body"]
-    assert "Thank you for sharing the DevOps training requirement." not in reply["body"]
+    assert "Hi Asha" in reply["body"]
+    assert "Thanks for sharing the required details." in reply["body"]
+    assert "Thanks for sharing the DevOps training requirement." not in reply["body"]
 
 
 def test_auto_reply_partial_requirement_lists_only_missing_details():
@@ -404,7 +404,7 @@ def test_auto_reply_partial_requirement_lists_only_missing_details():
         sender_name="Asha",
     )
 
-    assert "To help us refine the shortlist" in reply["body"]
+    assert "Please share:" in reply["body"]
     assert "* Training mode/location" in reply["body"]
     assert "* Participant count" in reply["body"]
 
@@ -428,7 +428,7 @@ def test_auto_reply_profile_request_does_not_ask_for_unrelated_fields():
     )
 
     assert "CV and LinkedIn profile" in reply["body"]
-    assert "To help us refine the shortlist" not in reply["body"]
+    assert "Please share:" not in reply["body"]
     assert "Budget or expected commercial range" not in reply["body"]
     assert "lab plan" not in reply["body"]
     assert "day-wise agenda" not in reply["body"]

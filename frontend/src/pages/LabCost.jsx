@@ -19,6 +19,8 @@ function requirementLabel(req) {
 
 function labDeliveryStatus(req = {}) {
   const status = String(req.lab_cost_status || '').toLowerCase()
+  if (status === 'toc_and_lab_sent') return { label: 'Sent with ToC', detail: 'One reply carried the day-wise ToC and the lab-cost workbook.', tone: 'success' }
+  if (status === 'included_with_interview') return { label: 'Sent with interview mail', detail: 'The workbook went in the same client mail as the interview confirmation.', tone: 'success' }
   if (status === 'revised_estimate_sent') return { label: 'Revised estimate sent', detail: 'The latest client participant and access inputs were used.', tone: 'success' }
   if (status === 'revised_estimate_failed') return { label: 'Delivery failed', detail: 'The calculation or email delivery failed. Review inputs and generate/send again.', tone: 'error' }
   if (status === 'inputs_received') return { label: 'Inputs received', detail: 'The client inputs are saved. A revised estimate is being prepared.', tone: 'pending' }
@@ -262,7 +264,7 @@ export default function LabCost() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Lab Cost</h1>
-          <p className="mt-1 text-sm text-slate-600">Prepare the approved Lab Cost workbook only when the client explicitly asks for a lab cost or estimate.</p>
+          <p className="mt-1 text-sm text-slate-600">Prepare the approved Lab Cost workbook only when the client explicitly asks for a lab cost or estimate. A ToC in the same mail stays in that one reply.</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={() => setView('deliveries')} className={`rounded-lg px-3 py-2 text-sm font-semibold ${view === 'deliveries' ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-700'}`}>Client lab-costs</button>
@@ -309,7 +311,7 @@ export default function LabCost() {
 
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
           <p className="font-bold">Send rule</p>
-          <p className="mt-1 leading-6">When a client later gives participant count, lab hours, dates, or other lab inputs, the automated workflow recalculates from the TOC and sends a revised workbook. If delivery fails, the status panel above shows it for manual retry.</p>
+          <p className="mt-1 leading-6">Annapurna sends one coordination reply. A ToC-only request goes out with the generated outline. A lab-cost request goes out with the workbook when the inputs are complete. If the cloud tool is missing, that same reply asks which tool to cost: AWS, Azure, or GCP. A request that only asks for a ToC, a lab cost, or both stays in that reply and does not enter the trainer shortlist or confirmed pipeline. A second mail is not sent. Invoice and purchase-order notes stay with Murali and go out only when billing is the request.</p>
         </div>
       </section>
 

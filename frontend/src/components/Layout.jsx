@@ -50,6 +50,7 @@ const NAV_GROUPS = [
       { to: '/emails',          label: 'Email Logs',    icon: Mail,       keywords: ['email','logs','mail'] },
       { to: '/toc-knowledge',   label: 'ToC Knowledge', icon: BookOpen,   keywords: ['toc','curriculum','knowledge','course agenda'] },
       { to: '/lab-cost',        label: 'Lab Cost',      icon: BadgeIndianRupee, keywords: ['lab cost','lab support','lab setup','cloud lab'] },
+      { to: '/commercial',      label: 'Commercial',    icon: BadgeIndianRupee, keywords: ['commercial','margin','profit','pricing'] },
       { to: '/admin',           label: 'Settings',      icon: Settings,   keywords: ['admin','settings','gmail','whatsapp'] },
     ],
   },

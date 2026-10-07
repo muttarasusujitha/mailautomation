@@ -24,7 +24,8 @@ from pymongo.errors import DuplicateKeyError
 
 from app.config import get_settings
 from app.agents.email_classifier import SAFETY_SCENARIOS, classify_email
-from app.agents.reply_templates import build_auto_reply
+from app.agents.natural_voice import ANNAPURNA, apply_voice, signature_for
+from app.agents.reply_templates import build_auto_reply, render_delivery_reply
 from app.calendar_client import (
     add_google_calendar_attendees,
     cancel_google_calendar_event,
@@ -1604,11 +1605,12 @@ def _approved_question_reply(sender_name: str = "") -> Dict[str, str]:
     greeting = f"Hi {name}," if name and "@" not in name else "Hi,"
     return {
         "subject": "Re: Your Enquiry",
-        "body": (
+        "body": apply_voice(
             f"{greeting}\n\n"
-            "Thank you for your question. We are checking the relevant training details and will share a confirmed response shortly. "
-            "If you need an immediate update on a specific item, please let us know the requirement or topic you are referring to.\n\n"
-            "Best Regards,\nRecruitment Team\nClahan Technologies"
+            "Thanks for your question. We are checking the relevant training details and will share a confirmed response shortly. "
+            "If you need an immediate update on a specific item, please tell us the requirement or topic.\n\n"
+            "Thanks,\nClahan Technologies",
+            ANNAPURNA,
         ),
     }
 
@@ -1815,11 +1817,14 @@ async def _humanize_verified_client_reply(
             subject=subject,
             body=body,
             hint=(
-                "Rewrite the verified reference as a natural human-to-human email from Clahan Technologies, using "
-                "the concise Clahan/Hostinger sent-mail style. "
-                "Preserve every business fact and restriction. Answer directly, choose vocabulary appropriate to "
-                "the sender, and make the length proportional to the incoming message. Do not make it sound like "
-                "a fixed template and do not add facts or promises."
+                "Rewrite the verified reference as one natural email from one person. "
+                "The reference already chose the situation: ToC, lab cost, both together, invoice, or purchase order. "
+                "Keep every file, amount, date, and restriction from that reference in this single body. "
+                "Annapurna U signs ToC, lab cost, and coordination. Murali Mohan M signs invoice, payment, and purchase order. "
+                "When the reference includes both a ToC and a lab cost, keep both in this email. "
+                "When the request is only a ToC, only a lab cost, or both, do not mention trainer shortlisting, the trainer pipeline, or a trainer requirement. "
+                "Do not write a second email, a generic acknowledgement, or the other person's signature. "
+                "Do not add facts or promises."
             ),
             workflow_context=context,
             reference_reply=verified_reply,
@@ -1855,13 +1860,13 @@ async def _technology_catalogue_reply(db: AsyncIOMotorDatabase, subject: str) ->
     return {
         "subject": f"Re: {subject}" if subject else "Available Training Technologies",
         "body": (
-            "Dear Sujitha,\n\n"
-            "Thank you for your enquiry. Our primary corporate training capabilities include:\n\n"
+            "Hi Sujitha,\n\n"
+            "Thanks for your enquiry. Our primary corporate training capabilities include:\n\n"
             f"{technology_lines}\n\n"
             "We can also arrange customized corporate training based on your required technology, audience level, "
             "duration, delivery mode, and preferred dates. Please share the technology you are interested in, and "
             "we will provide the relevant course outline, trainer profile, availability, and commercials.\n\n"
-            "Best Regards,\nClahan Technologies"
+            f"{signature_for(ANNAPURNA)}"
         ),
     }
 
@@ -1895,7 +1900,10 @@ def _client_coordination_reply(intent: str, extracted: Dict[str, Any], subject: 
     opening = f"Thank you for your message regarding {technology}." if technology and technology != "the training" else "Thank you for your message."
     return {
         "subject": subject_prefix,
-        "body": f"Dear Team,\n\n{opening}\n\n{message}\n\nRegards,\nClahan Technologies",
+        "body": apply_voice(
+            f"Dear Team,\n\n{opening}\n\n{message}\n\nRegards,\nClahan Technologies",
+            ANNAPURNA,
+        ),
     }
 
 
@@ -2484,7 +2492,7 @@ def _client_time_greeting(name: str) -> str:
 
 
 def _reply_signature() -> str:
-    return "Best Regards,\nClahan Technologies"
+    return signature_for(ANNAPURNA)
 
 
 def _lab_estimate_acknowledgement(extracted: Dict[str, Any]) -> str:
@@ -2627,16 +2635,16 @@ def _client_short_requirement_ack(
     technology = extracted.get("technology_needed") or "training"
     missing = _format_missing_details(extracted) if ask_missing else ""
     opening = _clean(intro) or (
-        "Thank you for sharing your training requirement."
+        "Thanks for sharing your training requirement."
         if missing
-        else f"Thank you for sharing the {technology} training requirement."
+        else f"Thanks for sharing the {technology} training requirement."
     )
     clahan_note = _lab_estimate_acknowledgement(extracted)
     if missing:
         body = (
-            "Dear Team\n\n"
+            "Hello,\n\n"
             f"{opening}\n\n"
-            "To help us refine the shortlist, please share:\n"
+            "Please share:\n"
             f"{missing}{clahan_note}\n\n"
             + _reply_signature()
         )
@@ -2647,13 +2655,13 @@ def _client_short_requirement_ack(
             else "We will check suitable trainer availability and share suitable trainer profiles with "
         )
         body = (
-            "Dear Team,\n\n"
+            "Hello,\n\n"
             f"{opening}{_confirmed_requirement_scope_acknowledgement(extracted)}\n\n"
             f"{profile_action}"
             f"{_client_requested_items_for_reply(extracted)} for your review.{clahan_note}\n\n"
             + _reply_signature()
         )
-    return {"subject": f"Re: {technology} Trainer Requirement", "body": body}
+    return {"subject": f"Re: {technology} Trainer Requirement", "body": apply_voice(body, ANNAPURNA)}
 
 
 def _format_missing_details(extracted: Dict[str, Any]) -> str:
@@ -2797,7 +2805,7 @@ def _trainer_mail2_details_reply(email_doc: Dict[str, Any]) -> Dict[str, str]:
         "Regards,\n"
         "Clahan Technologies"
     )
-    return {"subject": f"Training Requirement - {domain} | Additional Details Required", "body": body}
+    return {"subject": f"Training Requirement - {domain} | Additional Details Required", "body": apply_voice(body, ANNAPURNA)}
 
 
 def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str) -> Dict[str, str]:
@@ -2843,7 +2851,7 @@ def _trainer_mail_for_requirement(extracted: Dict[str, Any], requirement_id: str
         f"Reference: {requirement_id}\n\n"
         + _reply_signature()
     )
-    return {"subject": f"Corporate Training Requirement - {tech}", "body": body}
+    return {"subject": f"Corporate Training Requirement - {tech}", "body": apply_voice(body, ANNAPURNA)}
 
 
 def _client_email_status_for_reply(reply: dict) -> dict:
@@ -4136,20 +4144,24 @@ def _client_interview_schedule_message(
     requirement_id: str,
     interview_date: str,
     meeting_link: str,
+    extra_paragraph: str = "",
 ) -> Dict[str, str]:
     subject = f"Interview Schedule Confirmation - {technology} | Ref: {requirement_id}"
     date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
     link = _clean(meeting_link)
-    body = (
-        f"Dear {client_name or 'Team'},\n\n"
-        f"The interview/discussion for the shortlisted {technology} trainer is confirmed.\n\n"
+    extra = f"{_clean(extra_paragraph)}\n\n" if _clean(extra_paragraph) else ""
+    body = apply_voice(
+        f"Hi {client_name or ''},\n\n"
+        f"The interview for the shortlisted {technology} trainer is confirmed.\n\n"
         "Interview Details:\n"
         f"{date_line}"
         "Platform: Google Meet\n"
         f"Meeting Link: {link}\n\n"
-        "Kindly join on time and let us know if any change is required.\n\n"
-        "Regards,\n"
-        "Clahan Technologies"
+        f"{extra}"
+        "Please join on time and let us know if any change is required.\n\n"
+        "Thanks,\n"
+        "Clahan Technologies",
+        ANNAPURNA,
     )
     return {"subject": subject, "body": body}
 
@@ -4164,15 +4176,15 @@ def _trainer_interview_schedule_message(
 ) -> Dict[str, str]:
     subject = f"Interview Schedule Confirmation - {technology} | Ref: {requirement_id}"
     date_line = f"Date & Time: {interview_date}\n" if interview_date else ""
-    body = (
-        f"Dear {trainer_name or 'Trainer'},\n\n"
-        f"The interview/discussion for the {technology} requirement is confirmed.\n\n"
+    body = apply_voice(
+        f"Hi {trainer_name or ''},\n\n"
+        f"The interview for the {technology} requirement is confirmed.\n\n"
         "Interview Details:\n"
         f"{date_line}"
         "Platform: Google Meet\n"
         f"Meeting Link: {_clean(meeting_link)}\n\n"
         "Please join on time and reply if a change is required.\n\n"
-        "Regards,\n"
+        "Thanks,\n"
         "Clahan Technologies"
     )
     return {"subject": subject, "body": body}
@@ -4505,10 +4517,11 @@ async def _client_pipeline_email_body(
             subject=subject,
             body=reference_body,
             hint=(
-                "Write this client-facing pipeline email naturally. Preserve every verified fact from the "
-                "reference exactly, especially meeting links, dates, times, attachments and the requested "
+                "Write this as one client email from the person already signing the reference. "
+                "If the reference includes a ToC and a lab-cost estimate, keep both in this same body. "
+                "Preserve every verified fact exactly, especially meeting links, dates, times, attachments and the requested "
                 "next action. Do not invent trainer availability, commercial values, documents, decisions, "
-                "or completion status. Keep the Clahan Technologies sign-off."
+                "or completion status. Do not add a second email or the other person's signature."
             ),
             workflow_context={
                 **context,
@@ -4567,6 +4580,8 @@ async def _send_client_interview_schedule_email(
     slot_text: str = "",
     timezone_name: str = "",
     now: Optional[datetime] = None,
+    extra_paragraph: str = "",
+    attachments: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     sent_at = now or _now()
     if not _clean(meeting_link):
@@ -4639,6 +4654,7 @@ async def _send_client_interview_schedule_email(
         requirement_id=requirement_id,
         interview_date=interview_date,
         meeting_link=meeting_link,
+        extra_paragraph=extra_paragraph,
     )
     requirement = await db["requirements"].find_one({"requirement_id": requirement_id}, {"_id": 0}) or {}
     message_body, generation_source = await _client_pipeline_email_body(
@@ -4662,6 +4678,7 @@ async def _send_client_interview_schedule_email(
         body=message_body,
         smtp_config=smtp_config,
         message_id_header=message_id_header,
+        attachments=attachments or None,
     )
     email_id = f"EML-{uuid.uuid4().hex[:10].upper()}"
     event = calendar_event or {}
@@ -4716,6 +4733,7 @@ async def _send_client_interview_schedule_email(
         "to": client_email,
         "subject": message["subject"],
         "sent_at": sent_at if success else None,
+        "attachments_included": bool(success and attachments),
     }
 
 
@@ -7313,6 +7331,8 @@ async def _handle_client_slot_confirmation_reply(
                 source_trainer_email_id=existing.get("email_id") or "",
                 slot_text=reply_text,
                 now=now,
+                extra_paragraph=_clean(email_doc.get("bundled_client_note")),
+                attachments=email_doc.get("bundled_client_attachments") or None,
             )
         client_schedule_success = bool(trainer_schedule_success and client_schedule_result.get("success"))
         client_schedule_sent_at = client_schedule_result.get("sent_at") or sent_at
@@ -7377,6 +7397,7 @@ async def _handle_client_slot_confirmation_reply(
             "interview_link": existing_link if client_schedule_success else "",
             "error": "" if client_schedule_success else (trainer_retry_error or client_schedule_result.get("error") or "Interview schedule email failed"),
             "sent_at": sent_at,
+            "lab_cost_included": bool(client_schedule_result.get("attachments_included")),
         }
 
     if not resolved_slot.get("start") or not resolved_slot.get("end"):
@@ -7582,6 +7603,8 @@ async def _handle_client_slot_confirmation_reply(
         slot_text=reply_text,
         timezone_name=calendar_timezone,
         now=now,
+        extra_paragraph=_clean(email_doc.get("bundled_client_note")),
+        attachments=email_doc.get("bundled_client_attachments") or None,
     )
     client_schedule_success = bool(client_schedule_result.get("success"))
     overall_success = bool(success and client_schedule_success)
@@ -7694,6 +7717,7 @@ async def _handle_client_slot_confirmation_reply(
         "interview_link": meeting_link if overall_success else "",
         "calendar_event": calendar_event,
         "sent_at": now if overall_success else None,
+        "lab_cost_included": bool(client_schedule_result.get("attachments_included")),
     }
 
 
@@ -9959,31 +9983,150 @@ async def _create_revised_lab_cost_attachment(
         return None
 
 
+async def _create_standalone_toc_attachment(
+    *,
+    technology: str,
+    duration_days: int,
+    mode: str = "Online",
+    topics: str = "",
+    client_notes: str = "",
+    generation_mode: str = "template",
+) -> Optional[Dict[str, str]]:
+    """Build one day-wise ToC workbook. Returns None when the outline cannot be made."""
+    technology = _clean(technology)
+    days = _safe_int(duration_days, 0)
+    if not technology or days <= 0:
+        return None
+    try:
+        async with httpx.AsyncClient(timeout=90) as client:
+            toc_response = await _post_with_local_fallback(
+                client,
+                f"{TRAINER_SERVICE_URL}/api/v1/toc/generate",
+                json={
+                    "domain": technology,
+                    "duration_days": max(1, days),
+                    "mode": mode or "Online",
+                    "generation_mode": "ai" if _clean(generation_mode).lower() == "ai" else "template",
+                    "custom_topics": topics,
+                    "client_notes": client_notes[:4000],
+                },
+            )
+            toc_response.raise_for_status()
+            toc_data = (toc_response.json() or {}).get("toc_data") or {}
+            workbook_response = await _post_with_local_fallback(
+                client,
+                f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc",
+                json={"toc": toc_data},
+            )
+            workbook_response.raise_for_status()
+        if not workbook_response.content:
+            return None
+        return {
+            "filename": f"{technology} - Training ToC.xlsx",
+            "content_base64": base64.b64encode(workbook_response.content).decode(),
+            "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        }
+    except Exception:
+        logger.exception("Standalone ToC workbook failed for %s", technology)
+        return None
+
+
+async def _bundle_slot_delivery_files(
+    db: AsyncIOMotorDatabase,
+    email_doc: Dict[str, Any],
+    subject: str,
+    latest_message_body: str,
+    lab_requirement_probe: Dict[str, Any],
+) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    """Attach a ToC and/or lab workbook to the interview mail instead of sending another one."""
+    if not email_doc.get("requirement_id"):
+        return email_doc, []
+    asks_lab = _is_lab_cost_inquiry(subject, latest_message_body)
+    asks_toc = _is_toc_only_inquiry(subject, latest_message_body)
+    if not asks_lab and not asks_toc:
+        return email_doc, []
+    from app.routes.inbox_actions import _lab_request_context
+
+    files: List[Dict[str, Any]] = []
+    lab_extracted = _merge_existing_requirement_context(lab_requirement_probe, email_doc)
+    lab_extracted = await _merge_requirement_record_context(db, lab_extracted, email_doc["requirement_id"])
+    requirement = await db["requirements"].find_one({"requirement_id": email_doc["requirement_id"]}, {"_id": 0}) or {}
+    if asks_lab:
+        slot_lab_context = _lab_request_context(latest_message_body, lab_extracted)
+        known = slot_lab_context.get("known_inputs") or {}
+        await db["requirements"].update_one(
+            {"requirement_id": email_doc["requirement_id"]},
+            {"$set": {
+                "participant_count": known.get("participant_count"),
+                "hours_per_day": known.get("hours_per_day"),
+                "cloud_provider": known.get("cloud_provider") or "AWS",
+                "lab_cost_requested": True,
+                "lab_cost_status": "inputs_received",
+                "updated_at": _now(),
+            }},
+        )
+        requirement = await db["requirements"].find_one({"requirement_id": email_doc["requirement_id"]}, {"_id": 0}) or requirement
+        lab_file = await _create_revised_lab_cost_attachment(db, requirement, slot_lab_context)
+        if lab_file:
+            files.append(lab_file)
+    toc_file = None
+    if asks_toc:
+        toc_file = await _create_standalone_toc_attachment(
+            technology=_clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain")),
+            duration_days=_safe_int(requirement.get("duration_days"), 0),
+            mode=_clean(requirement.get("mode") or "Online"),
+            topics=_clean(requirement.get("toc_or_topics") or requirement.get("topics") or ""),
+            client_notes=latest_message_body,
+            generation_mode="ai" if await _global_ai_wording_enabled(db) else "template",
+        )
+        if toc_file:
+            files.append(toc_file)
+    if not files:
+        return email_doc, []
+    has_toc = bool(toc_file)
+    has_lab = any(item is not toc_file for item in files)
+    if has_toc and has_lab:
+        note = "Please find the day-wise ToC and the lab-cost estimate attached with this interview confirmation."
+    elif has_lab:
+        note = "Please find the lab-cost estimate attached. It uses the participant count and lab-access hours from this mail and follows the current training dates and ToC."
+    else:
+        note = "Please find the day-wise ToC attached with this interview confirmation."
+    return {**email_doc, "bundled_client_note": note, "bundled_client_attachments": files}, files
+
+
 def _lab_cost_template_reply(subject: str, sender_name: str, known: Dict[str, Any]) -> Dict[str, str]:
-    """Client-facing lab-cost acknowledgement; workbook generation is manual."""
-    details = []
+    """Client-facing lab-cost acknowledgement in Annapurna's voice."""
+    noted = []
     missing = []
-    for key, label in (("cloud_provider", "Cloud provider"), ("participant_count", "Participant count"), ("duration_days", "Lab-access days"), ("hours_per_day", "Lab-access hours per day")):
+    for key, label in (
+        ("cloud_provider", "cloud provider"),
+        ("participant_count", "participant count"),
+        ("duration_days", "lab-access days"),
+        ("hours_per_day", "lab-access hours per day"),
+    ):
         value = known.get(key)
         if value not in (None, "", 0):
-            details.append(f"- {label}: {value}")
+            noted.append(f"{label}: {value}")
         else:
-            missing.append(label.lower())
-    message = "Thank you for your lab-cost enquiry."
-    if details:
-        message += " We have noted:\n\n" + "\n".join(details)
+            missing.append(label)
+    noted_text = ("We have noted " + ", ".join(noted) + ". ") if noted else ""
     if missing:
-        message += "\n\nPlease confirm " + ", ".join(missing) + "."
-    name = (_clean(sender_name) or "Team").split()[0]
-    return {
-        "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
-        "body": (
-            f"Hi {name},\n\n"
-            f"{message}\n\n"
-            "Our team will prepare the estimate after verifying the lab scope and pricing inputs.\n\n"
-            "Best Regards,\nRecruitment Team\nClahan Technologies"
-        ),
-    }
+        reply = render_delivery_reply(
+            client_name=sender_name,
+            subject=subject,
+            lab_requested=True,
+            missing_lab=", ".join(missing),
+            closing_note=(noted_text + "The estimate follows once those inputs are confirmed.").strip(),
+        )
+    else:
+        reply = render_delivery_reply(
+            client_name=sender_name,
+            subject=subject,
+            lab_requested=True,
+            lab_attached=True,
+            lab_sentence=(noted_text + "The estimate will be prepared after the lab scope and pricing inputs are checked.").strip(),
+        )
+    return {"subject": reply["subject"], "body": reply["body"]}
 
 
 async def _recover_client_slot_reply_context(
@@ -10362,6 +10505,8 @@ async def _process_client_requirement_email(
                     extracted[field] = previous_lab_request[field]
         extracted = await _merge_requirement_record_context(db, extracted, email_doc.get("requirement_id"))
         lab_context = _lab_request_context(latest_message_body, extracted)
+        asks_toc = _is_toc_only_inquiry(subject, latest_message_body)
+        content_generation_mode = "ai" if await _global_ai_wording_enabled(db) else "template"
         # A lab-cost follow-up in an active trainer/interview thread updates
         # the requirement.  Do not send another generic question: the revised
         # estimate belongs with the interview-link email if the client asked
@@ -10387,35 +10532,56 @@ async def _process_client_requirement_email(
             # A message must only claim an attachment when this succeeds.
             attachment = await _create_revised_lab_cost_attachment(db, requirement, lab_context)
             if attachment:
-                reply = {
-                    "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
-                    "body": (
-                        f"Dear {(_clean(email_doc.get('from_name')) or 'Team').split()[0]},\n\n"
-                        f"Please find the revised lab-cost estimate attached for {known.get('participant_count') or requirement.get('participant_count') or 1} participant(s), "
-                        f"with {known.get('hours_per_day') or requirement.get('hours_per_day') or 3} hours of lab access per day. "
-                        "The calculation is aligned to the current training dates and TOC.\n\n"
-                        "Regards,\nClahan Technologies"
+                technology = _clean(requirement.get("technology_needed") or requirement.get("technology") or requirement.get("domain") or "the training")
+                participants = known.get("participant_count") or requirement.get("participant_count") or 1
+                hours = known.get("hours_per_day") or requirement.get("hours_per_day") or 3
+                toc_attachment = None
+                if asks_toc:
+                    toc_attachment = await _create_standalone_toc_attachment(
+                        technology=technology,
+                        duration_days=_safe_int(requirement.get("duration_days"), 0),
+                        mode=_clean(requirement.get("mode") or "Online"),
+                        topics=_clean(requirement.get("toc_or_topics") or requirement.get("topics") or requirement.get("custom_topics")),
+                        client_notes=latest_message_body,
+                        generation_mode=content_generation_mode,
+                    )
+                delivery_files = [attachment] + ([toc_attachment] if toc_attachment else [])
+                reply = render_delivery_reply(
+                    client_name=email_doc.get("from_name") or "",
+                    subject=subject,
+                    technology=technology,
+                    toc_requested=asks_toc,
+                    lab_requested=True,
+                    toc_attached=bool(toc_attachment),
+                    lab_attached=True,
+                    lab_sentence=(
+                        f"Please find the lab-cost estimate attached for {participants} participant(s), "
+                        f"with {hours} hours of lab access per day. The calculation follows the current training dates and ToC."
                     ),
-                }
+                )
                 send_result = await _send_client_auto_reply(
                     db,
                     {**email_doc, "from_email": sender_email},
                     reply,
                     requirement_id=email_doc["requirement_id"],
-                    attachments=[attachment],
-                    mail_type_override="client_lab_cost_revised",
+                    attachments=delivery_files,
+                    mail_type_override="client_toc_and_lab_cost" if asks_toc else "client_lab_cost_revised",
                 )
                 success = bool(send_result.get("success"))
-                lab_update["lab_cost_status"] = "revised_estimate_sent" if success else "revised_estimate_failed"
+                if success and asks_toc:
+                    lab_update["lab_cost_status"] = "toc_and_lab_sent"
+                else:
+                    lab_update["lab_cost_status"] = "revised_estimate_sent" if success else "revised_estimate_failed"
                 await db["requirements"].update_one({"requirement_id": email_doc["requirement_id"]}, {"$set": lab_update})
                 await db["client_emails"].update_one(
                     {"email_id": email_doc.get("email_id")},
                     {"$set": {
                         "processed": True, "status": "auto_sent" if success else "reply_failed",
                         "reply_status": "sent" if success else "failed",
-                        "classification_reason": "revised_lab_cost_sent",
+                        "classification_reason": "toc_and_lab_sent" if asks_toc else "revised_lab_cost_sent",
+                        "reply_template_key": "client_toc_and_lab_cost" if asks_toc else "client_lab_cost_revised",
                         "lab_cost_context": lab_context,
-                        "lab_cost_attachments": [attachment["filename"]],
+                        "lab_cost_attachments": [item["filename"] for item in delivery_files],
                         "updated_at": _now(),
                     }},
                 )
@@ -10469,31 +10635,51 @@ async def _process_client_requirement_email(
                 db,
                 standalone_requirement,
                 lab_context,
-                generation_mode="ai" if await _global_ai_wording_enabled(db) else "template",
+                generation_mode=content_generation_mode,
             )
             if attachment:
-                reply = {
-                    "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
-                    "body": (
-                        f"Dear {(_clean(email_doc.get('from_name')) or 'Team').split()[0]},\n\n"
-                        "Please find the lab-cost estimate attached. It is prepared from the domain/ToC details and the lab inputs you shared.\n\n"
-                        "Regards,\nClahan Technologies"
-                    ),
-                }
-                lab_classification = {"person_type": "corporate_client", "scenario": "client_asks_lab_cost", "confidence": 0.99, "auto_reply_allowed": True, "requires_human": False}
+                technology = _clean(standalone_requirement.get("technology_needed") or "the training")
+                toc_attachment = None
+                if asks_toc:
+                    toc_attachment = await _create_standalone_toc_attachment(
+                        technology=technology,
+                        duration_days=_safe_int(standalone_requirement.get("duration_days"), 0),
+                        mode=_clean(standalone_requirement.get("mode") or "Online"),
+                        topics=_clean(standalone_requirement.get("toc_or_topics") or standalone_requirement.get("topics")),
+                        client_notes=latest_message_body,
+                        generation_mode=content_generation_mode,
+                    )
+                delivery_files = [attachment] + ([toc_attachment] if toc_attachment else [])
+                scenario = "client_asks_toc_and_lab_cost" if asks_toc else "client_asks_lab_cost"
+                reply = render_delivery_reply(
+                    client_name=email_doc.get("from_name") or "",
+                    subject=subject,
+                    technology=technology,
+                    toc_requested=asks_toc,
+                    lab_requested=True,
+                    toc_attached=bool(toc_attachment),
+                    lab_attached=True,
+                    lab_sentence="Please find the lab-cost estimate attached. It is prepared from the domain and ToC details and the lab inputs you shared.",
+                )
+                lab_classification = {"person_type": "corporate_client", "scenario": scenario, "confidence": 0.99, "auto_reply_allowed": True, "requires_human": False}
                 reply = await _humanize_verified_client_reply(db, email_doc, lab_classification, standalone_requirement, subject, body, reply)
                 send_result = await _send_client_auto_reply(
                     db, {**email_doc, "from_email": sender_email, "email_classification": lab_classification,
-                         "office_mail_category": "client_asks_lab_cost"}, reply,
-                    requirement_id=lab_request_id, attachments=[attachment], mail_type_override="client_lab_cost_estimate",
+                         "office_mail_category": scenario}, reply,
+                    requirement_id=lab_request_id, attachments=delivery_files,
+                    mail_type_override="client_toc_and_lab_cost" if asks_toc else "client_lab_cost_estimate",
                 )
                 success = bool(send_result.get("success"))
                 await db["lab_cost_requests"].update_one(
                     {"source_email_id": email_doc.get("email_id") or lab_request_id},
-                    {"$set": {"status": "estimate_sent" if success else "estimate_send_failed", "workbook_filename": attachment["filename"], "updated_at": _now()}},
+                    {"$set": {
+                        "status": ("toc_and_lab_sent" if asks_toc else "estimate_sent") if success else "estimate_send_failed",
+                        "workbook_filename": attachment["filename"],
+                        "updated_at": _now(),
+                    }},
                 )
-                await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": {"processed": True, "status": "auto_sent" if success else "reply_failed", "reply_status": "sent" if success else "failed", "classification_reason": "standalone_lab_cost_estimate_sent", "lab_cost_context": lab_context, "lab_cost_attachments": [attachment["filename"]], "updated_at": _now()}})
-                return {"processed": True, "email_id": email_doc.get("email_id"), "status": "auto_sent" if success else "reply_failed", "reason": "standalone_lab_cost_estimate_sent", "auto_reply": send_result}
+                await db["client_emails"].update_one({"email_id": email_doc.get("email_id")}, {"$set": {"processed": True, "status": "auto_sent" if success else "reply_failed", "reply_status": "sent" if success else "failed", "classification_reason": "toc_and_lab_sent" if asks_toc else "standalone_lab_cost_estimate_sent", "reply_template_key": reply.get("template_key") or "", "lab_cost_context": lab_context, "lab_cost_attachments": [item["filename"] for item in delivery_files], "updated_at": _now()}})
+                return {"processed": True, "email_id": email_doc.get("email_id"), "status": "auto_sent" if success else "reply_failed", "reason": "toc_and_lab_sent" if asks_toc else "standalone_lab_cost_estimate_sent", "auto_reply": send_result}
         # Persist incomplete standalone enquiries too.  The next reply in
         # this client thread will merge these fields and generate the workbook
         # as soon as the final required input is supplied.
@@ -10512,18 +10698,34 @@ async def _process_client_requirement_email(
             }, "$setOnInsert": {"created_at": _now()}},
             upsert=True,
         )
+        lab_scenario = "client_asks_toc_and_lab_cost" if asks_toc else "client_asks_lab_cost"
         lab_classification = {
             "person_type": "corporate_client",
-            "scenario": "client_asks_lab_cost",
+            "scenario": lab_scenario,
             "confidence": 0.99,
             "auto_reply_allowed": True,
             "requires_human": False,
         }
+        known_for_toc = lab_context.get("known_inputs") or {}
+        toc_technology = _clean(extracted.get("technology_needed") or extracted.get("technology") or extracted.get("domain"))
+        toc_days = _safe_int(known_for_toc.get("duration_days") or extracted.get("duration_days"), 0)
+        toc_attachment = None
+        if asks_toc:
+            toc_attachment = await _create_standalone_toc_attachment(
+                technology=toc_technology,
+                duration_days=toc_days,
+                mode=_clean(extracted.get("mode") or "Online"),
+                topics=_clean(extracted.get("topics") or extracted.get("custom_topics")),
+                client_notes=latest_message_body,
+                generation_mode=content_generation_mode,
+            )
         reply = _build_lab_reference_reply(
             lab_context,
             extracted,
             email_doc.get("from_name") or "",
             subject,
+            also_toc=asks_toc,
+            toc_attached=bool(toc_attachment),
         )
         reply = await _humanize_verified_client_reply(
             db, email_doc, lab_classification, extracted, subject, body, reply,
@@ -10536,20 +10738,21 @@ async def _process_client_requirement_email(
         send_result = await _send_client_auto_reply(
             db,
             {**email_doc, "from_email": sender_email, "email_classification": lab_classification,
-             "office_mail_category": "client_asks_lab_cost"},
+             "office_mail_category": lab_scenario},
             reply,
+            attachments=[toc_attachment] if toc_attachment else None,
         )
         success = bool(send_result.get("success"))
         update = {
             "processed": True, "processed_at": send_result.get("sent_at") or now,
             "status": "auto_sent" if success else "reply_failed",
             "reply_status": "sent" if success else "failed",
-            "email_classification": lab_classification, "office_mail_category": "client_asks_lab_cost",
-            "classification_reason": "lab_cost_inputs_requested",
-            "reply_template_key": "client_lab_cost_grounded",
+            "email_classification": lab_classification, "office_mail_category": lab_scenario,
+            "classification_reason": "toc_and_lab_inputs_requested" if asks_toc else "lab_cost_inputs_requested",
+            "reply_template_key": reply.get("template_key") or ("client_toc_and_lab_cost" if asks_toc else "client_lab_cost_grounded"),
             "generated_reply": {"subject": reply["subject"], "body": reply["body"]},
             "ai_reply": reply["body"], "draft_reply": reply["body"], "lab_cost_context": lab_context,
-            "lab_cost_attachments": [],
+            "lab_cost_attachments": [toc_attachment["filename"]] if toc_attachment else [],
             "reply_sent": success, "reply_sent_at": send_result.get("sent_at"),
             "sent_reply_body": send_result.get("body") or reply["body"],
             "sent_reply_subject": send_result.get("subject") or reply["subject"],
@@ -10561,10 +10764,14 @@ async def _process_client_requirement_email(
 
     # A stand-alone ToC request is a content-delivery enquiry, not a trainer
     # requirement. Keep it outside both confirmed and proposal pipelines.
-    if not linked_trainer_thread and _is_toc_only_inquiry(subject, body):
+    if (
+        not linked_trainer_thread
+        and str(email_doc.get("source_outbound_mail_type") or "").strip() != "client_slots"
+        and _is_toc_only_inquiry(subject, latest_message_body)
+    ):
         toc_extracted = _extract_requirement_from_email(
             subject=subject,
-            body=body,
+            body=latest_message_body,
             sender_email=sender_email,
             sender_name=email_doc.get("from_name") or "",
         )
@@ -10576,43 +10783,25 @@ async def _process_client_requirement_email(
         if not duration:
             missing.append("training duration or number of days")
         client_name = _clean(email_doc.get("from_name") or "Client").split()[0]
-        toc_attachment = None
         generation_mode = "ai" if await _global_ai_wording_enabled(db) else "template"
+        toc_attachment = None
         if not missing:
-            try:
-                async with httpx.AsyncClient(timeout=90) as client:
-                    toc_response = await _post_with_local_fallback(client, f"{TRAINER_SERVICE_URL}/api/v1/toc/generate", json={
-                        "domain": technology,
-                        "duration_days": max(1, _safe_int(toc_extracted.get("duration_days"), 1)),
-                        "mode": toc_extracted.get("mode") or "Online",
-                        "generation_mode": generation_mode,
-                        "custom_topics": toc_extracted.get("topics") or toc_extracted.get("custom_topics") or "",
-                        "client_notes": body[:4000],
-                    })
-                    toc_response.raise_for_status()
-                    toc_data = (toc_response.json() or {}).get("toc_data") or {}
-                    workbook_response = await _post_with_local_fallback(client, f"{DOCUMENT_SERVICE_URL}/api/v1/documents/excel/toc", json={"toc": toc_data})
-                    workbook_response.raise_for_status()
-                if workbook_response.content:
-                    toc_attachment = {"filename": f"{technology} - Training ToC.xlsx", "content_base64": base64.b64encode(workbook_response.content).decode(), "subtype": "vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
-            except Exception:
-                logger.exception("Standalone ToC generation failed for %s", email_doc.get("email_id"))
-        if missing:
-            action = "To prepare the right ToC, please confirm " + " and ".join(missing) + "."
-        elif toc_attachment:
-            action = "Please find the day-wise ToC attached, prepared using the technology and duration you shared."
-        else:
-            action = "We will prepare the day-wise ToC using the technology and duration you shared."
-        toc_reply = {
-            "subject": f"Re: {subject}" if subject and not subject.lower().startswith("re:") else subject,
-            "body": (
-                f"Dear {client_name},\n\n"
-                "Thank you for your ToC/course-agenda request. "
-                f"{action}\n\n"
-                "We have treated this as a ToC-only request and will not start trainer shortlisting.\n\n"
-                "Regards,\nClahan Technologies"
-            ),
-        }
+            toc_attachment = await _create_standalone_toc_attachment(
+                technology=technology,
+                duration_days=max(1, _safe_int(toc_extracted.get("duration_days"), 1)),
+                mode=toc_extracted.get("mode") or "Online",
+                topics=_clean(toc_extracted.get("topics") or toc_extracted.get("custom_topics")),
+                client_notes=latest_message_body,
+                generation_mode=generation_mode,
+            )
+        toc_reply = render_delivery_reply(
+            client_name=client_name,
+            subject=subject,
+            technology=technology or "the training",
+            toc_requested=True,
+            toc_attached=bool(toc_attachment),
+            toc_missing=" and ".join(missing),
+        )
         toc_classification = {
             "person_type": "corporate_client",
             "scenario": "client_asks_toc_only",
@@ -10732,8 +10921,17 @@ async def _process_client_requirement_email(
     # not requirement replies. Handle them before generic sentiment analysis.
     source_mail_type = str(email_doc.get("source_outbound_mail_type") or "").strip()
     if source_mail_type in {"client_slots", "client_interview_reschedule_request"}:
+        slot_email_doc = email_doc
+        bundled_files: List[Dict[str, Any]] = []
         try:
-            slot_result = await _handle_client_slot_confirmation_reply(db, email_doc)
+            slot_email_doc, bundled_files = await _bundle_slot_delivery_files(
+                db, email_doc, subject, latest_message_body, lab_requirement_probe,
+            )
+        except Exception:
+            logger.exception("Could not attach ToC or lab cost to the interview mail for %s", email_doc.get("email_id"))
+            slot_email_doc, bundled_files = email_doc, []
+        try:
+            slot_result = await _handle_client_slot_confirmation_reply(db, slot_email_doc)
         except Exception as exc:
             logger.exception("Client slot confirmation automation failed for %s", email_doc.get("email_id"))
             slot_result = {"attempted": True, "success": False, "error": str(exc)}
@@ -10745,38 +10943,18 @@ async def _process_client_requirement_email(
                 and slot_result.get("reason") == "calendar_failed_no_mail_sent"
             )
             prior_retry_count = int(email_doc.get("calendar_retry_count") or 0)
-            revised_lab_result: Dict[str, Any] = {}
-            if slot_result.get("success") and _is_lab_cost_inquiry(subject, latest_message_body) and email_doc.get("requirement_id"):
-                from app.routes.inbox_actions import _lab_request_context
-
-                lab_extracted = _merge_existing_requirement_context(lab_requirement_probe, email_doc)
-                lab_extracted = await _merge_requirement_record_context(db, lab_extracted, email_doc["requirement_id"])
-                lab_context = _lab_request_context(latest_message_body, lab_extracted)
-                known = lab_context.get("known_inputs") or {}
+            revised_lab_result: Dict[str, Any] = {
+                "included_in_interview_mail": bool(slot_result.get("lab_cost_included")),
+                "filenames": [item.get("filename") for item in bundled_files],
+            }
+            if bundled_files and email_doc.get("requirement_id"):
                 await db["requirements"].update_one(
                     {"requirement_id": email_doc["requirement_id"]},
                     {"$set": {
-                        "participant_count": known.get("participant_count"),
-                        "hours_per_day": known.get("hours_per_day"),
-                        "cloud_provider": known.get("cloud_provider") or "AWS",
-                        "lab_cost_requested": True,
+                        "lab_cost_status": "included_with_interview" if slot_result.get("lab_cost_included") else "inputs_received",
                         "updated_at": now,
                     }},
                 )
-                requirement = await db["requirements"].find_one({"requirement_id": email_doc["requirement_id"]}, {"_id": 0}) or {}
-                attachment = await _create_revised_lab_cost_attachment(db, requirement, lab_context)
-                if attachment:
-                    revised_lab_result = await _send_client_auto_reply(
-                        db,
-                        {**email_doc, "from_email": sender_email},
-                        {
-                            "subject": f"Re: {subject}" if not subject.lower().startswith("re:") else subject,
-                            "body": "Please find the revised lab-cost estimate attached, calculated using the participant count and lab-access duration you shared.\n\nRegards,\nClahan Technologies",
-                        },
-                        requirement_id=email_doc["requirement_id"],
-                        attachments=[attachment],
-                        mail_type_override="client_lab_cost_revised",
-                    )
             await db["client_emails"].update_one(
                 {"email_id": email_doc.get("email_id")},
                 {"$set": {
