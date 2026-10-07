@@ -311,7 +311,7 @@ export default function LabCost() {
 
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
           <p className="font-bold">Send rule</p>
-          <p className="mt-1 leading-6">Annapurna sends one coordination reply. When the same client mail asks for a ToC and a lab cost, both files go on that reply. A second mail is not sent. Invoice and purchase-order notes stay with Murali and go out only when billing is the request. If delivery fails, the status panel above shows it for manual retry.</p>
+          <p className="mt-1 leading-6">Annapurna sends one coordination reply. A ToC-only request goes out with the generated outline. A lab-cost request goes out with the workbook when the inputs are complete. If the cloud tool is missing, that same reply asks which tool to cost: AWS, Azure, or GCP. A second mail is not sent. Invoice and purchase-order notes stay with Murali and go out only when billing is the request.</p>
         </div>
       </section>
 

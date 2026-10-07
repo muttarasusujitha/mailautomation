@@ -53,6 +53,8 @@ def writing_guidance(voice: str = ANNAPURNA) -> str:
         "Sign as exactly one person, and write exactly one email. "
         "Annapurna U covers ToC, lab cost, trainer coordination, and a request that asks for both a ToC and a lab cost. "
         "Keep the ToC and the lab cost in that same email. "
+        "When the lab cloud tool is missing, ask which tool to cost: AWS, Azure, or GCP. "
+        "Ask that only when the message has not already named the tool. "
         "Murali Mohan M covers invoice, payment, purchase order, and finance, and only when that is this request. "
         "Leave invoice and purchase-order wording out of a ToC or lab-cost reply. "
         "Leave ToC and lab-cost wording out of an invoice or purchase-order reply. "
@@ -800,6 +802,20 @@ def _lab_request_context(body: str, extracted: Dict[str, Any]) -> Dict[str, Any]
         known_inputs["cloud_provider"] = " and ".join(providers)
     elif known_inputs.get("cloud_provider"):
         providers = [item.strip().lower() for item in re.split(r"\s+(?:and|&)\s+", str(known_inputs["cloud_provider"])) if item.strip()]
+    lab_tools = [
+        name for name, pattern in (
+            ("Kubernetes", r"\bkubernetes\b|\bk8s\b"),
+            ("Docker", r"\bdocker\b"),
+            ("Terraform", r"\bterraform\b"),
+            ("Ansible", r"\bansible\b"),
+            ("Jenkins", r"\bjenkins\b"),
+            ("Linux", r"\blinux\b"),
+            ("Python", r"\bpython\b"),
+        )
+        if re.search(pattern, lower)
+    ]
+    if lab_tools:
+        known_inputs["lab_tools"] = lab_tools
     # A provider's public pricing differs by region.  Keep this explicit in
     # the client conversation rather than silently selecting a region.
     region_patterns = (
@@ -835,10 +851,12 @@ def _lab_request_context(body: str, extracted: Dict[str, Any]) -> Dict[str, Any]
         known_inputs["cluster_count"] = int(known_inputs["participant_count"])
         known_inputs["cluster_count_source"] = "derived_from_participants"
     required_inputs = ["technology", "cloud_provider", "participant_count", "hours_per_day", "duration_days"]
-    required_inputs.extend(
-        [f"{provider}_region" for provider in providers if not regions.get(provider)]
-        if len(providers) > 1 else ["cloud_region"]
-    )
+    if len(providers) > 1:
+        required_inputs.extend(
+            [f"{provider}_region" for provider in providers if not regions.get(provider)]
+        )
+    elif providers:
+        required_inputs.append("cloud_region")
     return {
         "feature": "lab_cost",
         "request_type": "lab_access_only" if lab_only else "training_with_lab_support",
@@ -886,15 +904,24 @@ def _build_lab_reference_reply(
     if known.get("total_hours"):
         noted.append(f"total usage: {quantity(known['total_hours'])} hours")
     if known.get("cloud_provider"):
-        noted.append(f"cloud provider: {str(known['cloud_provider']).upper()}")
+        noted.append(f"cloud tool: {str(known['cloud_provider']).upper()}")
+    if known.get("lab_tools"):
+        noted.append("lab tools: " + ", ".join(known["lab_tools"]))
 
     paragraphs = [f"Dear {client},", intro]
     if noted:
         paragraphs.append("We have noted " + ", ".join(noted) + ".")
+    if "cloud_provider" in missing:
+        named_tools = ", ".join(known.get("lab_tools") or [])
+        if named_tools:
+            paragraphs.append(
+                f"You mentioned {named_tools}. Which cloud tool should that lab run on: AWS, Azure, or GCP?"
+            )
+        else:
+            paragraphs.append("Which lab tool should we cost: AWS, Azure, or GCP?")
     if missing:
         labels = {
             "technology": "technology/domain or the ToC/topics to be costed",
-            "cloud_provider": "preferred cloud provider (AWS, Azure, or GCP)",
             "cloud_region": "cloud region (AWS Mumbai, Azure Central India, or GCP Mumbai)",
             "participant_count": "number of participants/users requiring access",
             "hours_per_day": "required lab-access hours per day",
@@ -906,10 +933,11 @@ def _build_lab_reference_reply(
             "azure_region": "Azure region (for example, Central India)",
             "gcp_region": "GCP region (for example, Mumbai / asia-south1)",
         })
-        requested = [labels[item] for item in missing if item in labels]
-        paragraphs.append(
-            "To prepare the exact total lab-cost quote, please confirm " + ", and ".join(requested) + "."
-        )
+        requested = [labels[item] for item in missing if item != "cloud_provider" and item in labels]
+        if requested:
+            paragraphs.append(
+                "To prepare the exact total lab-cost quote, please confirm " + ", and ".join(requested) + "."
+            )
     else:
         paragraphs.append(
             "We will generate and review the lab-cost calculation using these inputs and share the confirmed total quote, including applicable charges."
