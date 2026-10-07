@@ -18,10 +18,10 @@ from app.agents.email_classifier import classify_email
 from app.agents.natural_voice import (
     ANNAPURNA,
     apply_voice,
-    choose_voice,
     greeting_line,
     signature_for,
     signature_keeping_extras,
+    voice_for_situation,
     writing_note,
 )
 from app.agents.reply_templates import build_auto_reply
@@ -50,6 +50,13 @@ def writing_guidance(voice: str = ANNAPURNA) -> str:
         "next step. Check what is already supplied, what is still missing, and whose action is needed. "
         "Ask only for missing information the recipient can provide. Once complete, stop. "
         "Do not open with Dear or sign as Recruitment Team. "
+        "Sign as exactly one person, and write exactly one email. "
+        "Annapurna U covers ToC, lab cost, trainer coordination, and a request that asks for both a ToC and a lab cost. "
+        "Keep the ToC and the lab cost in that same email. "
+        "Murali Mohan M covers invoice, payment, purchase order, and finance, and only when that is this request. "
+        "Leave invoice and purchase-order wording out of a ToC or lab-cost reply. "
+        "Leave ToC and lab-cost wording out of an invoice or purchase-order reply. "
+        "Do not write a second message, a generic acknowledgement beside the specific reply, or the other person's signature. "
         "Keep internal analysis out of the email. "
         + writing_note(voice)
     )
@@ -1291,10 +1298,11 @@ async def _ai_draft_reply(
         return grounded_reference
 
     context_for_voice = workflow_context or {}
-    voice = choose_voice(
+    voice = voice_for_situation(
+        (reference_reply or {}).get("template_key"),
         (context_for_voice.get("classification") or {}).get("scenario"),
         context_for_voice.get("mail_type"),
-        subject,
+        subject=subject,
     )
     guidance = writing_guidance(voice)
 

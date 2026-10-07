@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from app.agents.natural_voice import choose_voice
+from app.agents.natural_voice import choose_voice, voice_for_situation
 from app.agents.reply_templates import build_auto_reply, render_delivery_reply
 from app.routes.inbox import _client_interview_schedule_message
 from app.routes.inbox_actions import _build_lab_reference_reply, _structure_email_draft, writing_guidance
@@ -154,3 +154,13 @@ def test_draft_envelope_follows_the_same_voice():
     assert "Annapurna U" in writing_guidance("annapurna")
     assert "Murali Mohan M" in writing_guidance("murali")
     assert "under 80 words" in writing_guidance("annapurna")
+    assert "exactly one person" in writing_guidance("annapurna")
+    assert "exactly one email" in writing_guidance("murali")
+    assert "both a ToC and a lab cost" in writing_guidance("annapurna")
+
+
+def test_ai_voice_follows_the_situation_rather_than_a_mixed_subject():
+    assert voice_for_situation("client_toc_and_lab_cost", "client_asks_toc_and_lab_cost", subject="Invoice and PO") == "annapurna"
+    assert voice_for_situation("client_invoice_request_ack", subject="ToC and lab cost") == "murali"
+    assert voice_for_situation("client_po_received_ack") == "murali"
+    assert voice_for_situation(subject="Please share the invoice") == "murali"

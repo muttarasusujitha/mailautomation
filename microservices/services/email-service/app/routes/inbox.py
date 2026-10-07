@@ -1817,11 +1817,13 @@ async def _humanize_verified_client_reply(
             subject=subject,
             body=body,
             hint=(
-                "Rewrite the verified reference as a natural human-to-human email. "
-                "Use Annapurna U's voice for coordination and Murali Mohan M's voice for invoice, payment, PO, or finance. "
-                "Preserve every business fact and restriction. Answer directly, choose vocabulary appropriate to "
-                "the sender, and make the length proportional to the incoming message. Do not make it sound like "
-                "a fixed template and do not add facts or promises."
+                "Rewrite the verified reference as one natural email from one person. "
+                "The reference already chose the situation: ToC, lab cost, both together, invoice, or purchase order. "
+                "Keep every file, amount, date, and restriction from that reference in this single body. "
+                "Annapurna U signs ToC, lab cost, and coordination. Murali Mohan M signs invoice, payment, and purchase order. "
+                "When the reference includes both a ToC and a lab cost, keep both in this email. "
+                "Do not write a second email, a generic acknowledgement, or the other person's signature. "
+                "Do not add facts or promises."
             ),
             workflow_context=context,
             reference_reply=verified_reply,
@@ -4514,10 +4516,11 @@ async def _client_pipeline_email_body(
             subject=subject,
             body=reference_body,
             hint=(
-                "Write this client-facing pipeline email naturally. Preserve every verified fact from the "
-                "reference exactly, especially meeting links, dates, times, attachments and the requested "
+                "Write this as one client email from the person already signing the reference. "
+                "If the reference includes a ToC and a lab-cost estimate, keep both in this same body. "
+                "Preserve every verified fact exactly, especially meeting links, dates, times, attachments and the requested "
                 "next action. Do not invent trainer availability, commercial values, documents, decisions, "
-                "or completion status. Keep the Clahan Technologies sign-off."
+                "or completion status. Do not add a second email or the other person's signature."
             ),
             workflow_context={
                 **context,
