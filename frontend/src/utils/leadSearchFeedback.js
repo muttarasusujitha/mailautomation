@@ -59,6 +59,12 @@ export function mergeSearchLeads(saved, results) {
   return merged
 }
 
+export function visibleSearchLeads(saved, results, showSearchMatches) {
+  const fetched = (results || []).filter(lead => lead?.source_url || lead?.linkedin_url || lead?.lead_id)
+  if (showSearchMatches && fetched.length) return mergeSearchLeads([], fetched)
+  return saved || []
+}
+
 export function matchingSavedLeads(leads, results) {
   const urls = new Set()
   for (const item of results || []) {
